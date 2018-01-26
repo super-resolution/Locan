@@ -1,0 +1,12 @@
+What is Surepy?
+===============
+
+Surepy (sure it's python but also super-resolution) is a collection of tools for analyzing single-molecule
+localization data. Such data is typically generated in fluorescence-based super-resolution microscopy methods.
+Single-molecule localization microscopy (SMLM) techniques rely on finding the position of single-molecule
+emitters in space and reconstructing a super-resolved image over time.
+The generated localizations are analyzed point-by-point for statistical and structural insight.
+
+Surepy is based on python 3, the standard SciPy packages and QT.
+
+

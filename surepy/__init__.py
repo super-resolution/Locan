@@ -1,0 +1,1 @@
+from surepy.data.locdata import LocData

@@ -1,6 +1,6 @@
 '''
 
-Methods for simulating localization data for Dataset objects.
+Methods for simulating localization data.
 
 '''
 
@@ -17,12 +17,12 @@ def simulate(**kwargs):
     Parameters
     ----------
     kwargs :
-        simulation parameter
+        Simulation parameter
 
     Returns
     -------
-    Dataset, Selection
-        a new instance of Dataset and corresponding Selection of all localizations.
+    LocData
+        A new instance of LocData with simulated localization data.
     """
     raise NotImplementedError
 
@@ -76,8 +76,10 @@ def simulate_csr(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z_
 def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,10000), cluster_std=10, seed=None):
     """
     Provide a dataset of localizations with coordinates and labels that are spatially-distributed on a rectangular
-    shape. The data consists of  normal distributed point cluster with blob centers being distributed by complete
-    spatial randomness.
+    shape.
+
+    The data consists of  normal distributed point cluster with blob centers being distributed by complete
+    spatial randomness. Teh simulation uses the make_blobs method from sklearn with corresponding parameters.
 
     Parameters
     ----------
@@ -87,14 +89,11 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,1
     n_samples : int
         total number of localizations
 
-    x_range : tuple of two ints
-        the range for valid x-coordinates
+    n_features : int
+        the number of dimensions
 
-    y_range : tuple of two ints
-        the range for valid y-coordinates
-
-    z_range : tuple of two ints
-        the range for valid z-coordinates
+    center_box : tuple of two ints
+        the range for valid coordinates
 
     cluster_std : int
         standard deviation for Gauss-distributed positions in each blob
@@ -104,8 +103,8 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,1
 
     Returns
     -------
-    Dataset
-        a new instance of Dataset with all localizations.
+    LocData
+        A new LocData instance with localization data.
     """
     if seed is not None:
         np.random.seed(seed)

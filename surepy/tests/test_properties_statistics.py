@@ -22,6 +22,18 @@ def test_statistics(locdata_simple):
                    'Position_y_max': 4.0, 'Position_y_mean': 1.8, 'Position_y_median': 1.0,
                    'Position_y_std': 1.6431676725154984, 'Position_y_sem': 0.73484692283495345}
 
+def test_statistics_from_dataframe(locdata_simple):
+    stat = statistics(locdata=locdata_simple.data)
+    assert stat == {'Position_x_count': 5.0, 'Position_x_min': 0.0, 'Position_x_max': 5.0, 'Position_x_mean': 2.0,
+                   'Position_x_median': 1.0, 'Position_x_std': 2.3452078799117149,
+                   'Position_x_sem': 1.0488088481701516, 'Position_y_count': 5.0, 'Position_y_min': 0.0,
+                   'Position_y_max': 4.0, 'Position_y_mean': 1.8, 'Position_y_median': 1.0,
+                   'Position_y_std': 1.6431676725154984, 'Position_y_sem': 0.73484692283495345}
+
+def test_statistics_with_one_statfunction(locdata_simple):
+    stat = statistics(locdata=locdata_simple, statistic_keys=('min'))
+    assert stat == {'Position_x_min': 0, 'Position_y_min': 0}
+
 def test_statistics_with_new_column(locdata_simple):
     locdata_simple.dataframe = locdata_simple.dataframe.assign(new= np.arange(5))
     stat = statistics(locdata=locdata_simple)

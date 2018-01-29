@@ -11,8 +11,6 @@ from surepy.analysis.analysis import Analysis
 
 
 
-
-
 class Localization_precision(Analysis):
     """
     Compute the localization precision from consecutive nearby localizations.

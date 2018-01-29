@@ -6,3 +6,4 @@ collection objects.
 from surepy.analysis.localizations_per_frame import *
 from surepy.analysis.uncertainty import *
 from surepy.analysis.localization_precision import *
+from surepy.analysis.nearest_neighbor import *

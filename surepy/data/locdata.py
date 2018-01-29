@@ -86,6 +86,7 @@ class LocData():
         self.bounding_box = surepy.data.hulls.Bounding_box(self.coordinates)
         self.properties['Region_measure_bb'] = self.bounding_box.region_measure
         self.properties['Subregion_measure_bb'] = self.bounding_box.subregion_measure
+        self.properties['Localization_density_bb'] = self.meta['Number of elements'] / self.bounding_box.region_measure
 
 
     @classmethod

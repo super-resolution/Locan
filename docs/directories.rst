@@ -16,6 +16,10 @@ TheProject is organized by the following directory structure:
         - Surepy
 
             - data
+                - properties
+                    - statistics.py
+                    - ...
+
                 - locdata.py
                 - hulls.py
                 - ...
@@ -35,8 +39,9 @@ TheProject is organized by the following directory structure:
             - gui
             - view
 
+            - tests
+
         - docs
 
-        - tests
 
 

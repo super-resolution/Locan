@@ -3,7 +3,7 @@ Aim
 
 We aim at providing a python package with data structures and methods for analyzing single-molecule localization data.
 Surepy is a Python package providing functionality to load and manipulate localization data and to perform various
-analysis procedure.
+analysis procedures.
 
 The package provides:
 

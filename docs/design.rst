@@ -26,7 +26,5 @@ An overview on useful methods that will be designed in the long run is given in 
    properties
    metadata
    methods
-   outlook
    directories
-   documentation
-   development
+

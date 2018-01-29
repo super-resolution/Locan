@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# TheProject documentation build configuration file, created by
+# Surepy documentation build configuration file, created by
 # sphinx-quickstart on Fri Nov 24 18:29:19 2017.
 #
 # This file is execfile()d with the current directory set to its

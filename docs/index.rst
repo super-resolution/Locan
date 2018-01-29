@@ -35,6 +35,7 @@ Implementation notes
    documentation
    development
    name
+   ./source/modules
 
 
 .. toctree::

@@ -45,7 +45,7 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = Fal
     Returns
     -------
     LocData
-        a new LocData instance assembling all generated selections (i.e. localization cluster).
+        A new LocData instance assembling all generated selections (i.e. localization cluster).
     """
     labels = hdbscan.HDBSCAN(
         min_cluster_size=min_cluster_size,

@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>surepy.data.locdata module &mdash; Surepy 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="Surepy 0.0.1 documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Surepy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">General Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../aim.html">Aim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design.html">Package Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../outlook.html">Outlook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../name.html">Project Name</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Surepy</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>surepy.data.locdata module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/surepy.data.locdata.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-surepy.data.locdata">
+<span id="surepy-data-locdata-module"></span><h1>surepy.data.locdata module<a class="headerlink" href="#module-surepy.data.locdata" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="surepy.data.locdata.LocData">
+<em class="property">class </em><code class="descclassname">surepy.data.locdata.</code><code class="descname">LocData</code><span class="sig-paren">(</span><em>references=None</em>, <em>dataframe=Empty DataFrame Columns: [] Index: []</em>, <em>indices=None</em>, <em>meta=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/surepy/data/locdata.html#LocData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#surepy.data.locdata.LocData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>This class carries localization data, aggregated properties and meta data.</p>
+<p>Data consist of individual elements being either localizations or other LocData objects. Both, localizations and
+Locdata objects have properties. Properties come from the original data or are added by analysis procedures.
+Analysis classes can take LocData objects as input on which to perform their action.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>references</strong> (<a class="reference internal" href="#surepy.data.locdata.LocData" title="surepy.data.locdata.LocData"><em>LocData</em></a><em> or </em><em>list</em><em>(</em><a class="reference internal" href="#surepy.data.locdata.LocData" title="surepy.data.locdata.LocData"><em>LocData</em></a><em>) or </em><em>None</em>) – A locData reference or an array with references to locData objects referring to the selected localizations
+in dataset.</li>
+<li><strong>dataframe</strong> (<em>Pandas dataframe</em><em> or </em><em>None</em>) – dataframe with localization data</li>
+<li><strong>indices</strong> (<em>slice object</em><em> or </em><em>list</em><em>(</em><em>int</em><em>) or </em><em>None</em>) – Indices for dataframe in references that makes up the data.</li>
+<li><strong>meta</strong> (<em>dict</em>) – Metadata about the current dataset and its history.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="surepy.analysis.analysis.html#surepy.analysis.analysis.Analysis.count" title="surepy.analysis.analysis.Analysis.count"><strong>count</strong></a> (<em>int</em><em> (</em><em>class attribute</em><em>)</em>) – A counter for counting locdata instantiations.</li>
+<li><strong>references</strong> (<a class="reference internal" href="#surepy.data.locdata.LocData" title="surepy.data.locdata.LocData"><em>LocData</em></a><em> or </em><em>list</em><em>(</em><a class="reference internal" href="#surepy.data.locdata.LocData" title="surepy.data.locdata.LocData"><em>LocData</em></a><em>) or </em><em>None</em>) – A locData reference or an array with references to locData objects referring to the selected localizations
+in dataset.</li>
+<li><strong>dataframe</strong> (<em>Pandas dataframe</em><em> or </em><em>None</em>) – dataframe with localization data</li>
+<li><strong>indices</strong> (<em>slice object</em><em> or </em><em>list</em><em>(</em><em>int</em><em>) or </em><em>None</em>) – Indices for dataframe in references that makes up the data.</li>
+<li><strong>meta</strong> (<em>dict</em>) – Metadata about the current dataset and its history.</li>
+<li><a class="reference internal" href="surepy.data.properties.html#module-surepy.data.properties" title="surepy.data.properties"><strong>properties</strong></a> (<em>pandas data frame</em>) – list of properties generated from data.</li>
+<li><strong>bounding_box</strong> (<em>Hull object</em>) – object representing the axis-aligned minimal bounding box</li>
+<li><strong>oriented_bounding_box</strong> (<em>Hull object</em>) – object representing the oriented minimal bounding box</li>
+<li><strong>convex_hull</strong> (<em>Hull object</em>) – object representing the convex hull of all localizations</li>
+<li><strong>alpha_shape</strong> (<em>Hull object</em>) – object representing the alpha-shape of all localizations</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="classmethod">
+<dt id="surepy.data.locdata.LocData.concat">
+<em class="property">classmethod </em><code class="descname">concat</code><span class="sig-paren">(</span><em>*locdata</em>, <em>meta=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/surepy/data/locdata.html#LocData.concat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#surepy.data.locdata.LocData.concat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenate locdata objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>locdata</strong> (<em>LocData object</em>) – Locdata objects to concatenate.</li>
+<li><strong>meta</strong> (<em>dict</em>) – Metadata about the current dataset and its history.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a new locdata instance with dataframe representing the concatenated data.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">locdata object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="surepy.data.locdata.LocData.coordinates">
+<code class="descname">coordinates</code><a class="headerlink" href="#surepy.data.locdata.LocData.coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a numpy ndarray with all coordinate values.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="surepy.data.locdata.LocData.count">
+<code class="descname">count</code><em class="property"> = 0</em><a class="headerlink" href="#surepy.data.locdata.LocData.count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="surepy.data.locdata.LocData.data">
+<code class="descname">data</code><a class="headerlink" href="#surepy.data.locdata.LocData.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a pandas dataframe with all elements either copied from the reference or referencing the current
+dataframe.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="surepy.data.locdata.LocData.from_collection">
+<em class="property">classmethod </em><code class="descname">from_collection</code><span class="sig-paren">(</span><em>*args</em>, <em>meta=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/surepy/data/locdata.html#LocData.from_collection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#surepy.data.locdata.LocData.from_collection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="surepy.data.locdata.LocData.from_dataframe">
+<em class="property">classmethod </em><code class="descname">from_dataframe</code><span class="sig-paren">(</span><em>dataframe=Empty DataFrame Columns: [] Index: []</em>, <em>meta=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/surepy/data/locdata.html#LocData.from_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#surepy.data.locdata.LocData.from_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="surepy.data.locdata.LocData.from_selection">
+<em class="property">classmethod </em><code class="descname">from_selection</code><span class="sig-paren">(</span><em>locdata</em>, <em>indices=slice(0</em>, <em>None</em>, <em>None)</em>, <em>meta=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/surepy/data/locdata.html#LocData.from_selection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#surepy.data.locdata.LocData.from_selection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="surepy.data.locdata.LocData.print_meta">
+<code class="descname">print_meta</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/surepy/data/locdata.html#LocData.print_meta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#surepy.data.locdata.LocData.print_meta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="surepy.data.locdata.LocData.reduce">
+<code class="descname">reduce</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/surepy/data/locdata.html#LocData.reduce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#surepy.data.locdata.LocData.reduce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update dataframe, reste dataframe.index, delete all references, set indices to None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a flag set to 1 indicating if reference was changed, or set to 0 if no change was applied.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="surepy.data.locdata.LocData.save">
+<code class="descname">save</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/surepy/data/locdata.html#LocData.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#surepy.data.locdata.LocData.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save LocData object in an appropriate way.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – Filepath for saving LocData.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, SuperResGroup.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

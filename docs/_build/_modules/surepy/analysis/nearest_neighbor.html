@@ -1,0 +1,357 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>surepy.analysis.nearest_neighbor &mdash; Surepy 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="Surepy 0.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Surepy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">General Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../aim.html">Aim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Package Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../outlook.html">Outlook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../name.html">Project Name</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">API Doc</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Surepy</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>surepy.analysis.nearest_neighbor</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for surepy.analysis.nearest_neighbor</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides methods for nearest-neighbor analysis.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">surepy.constants</span>
+<span class="kn">import</span> <span class="nn">surepy.analysis</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="k">import</span> <span class="n">distance</span>
+<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="k">import</span> <span class="n">NearestNeighbors</span>
+
+
+<div class="viewcode-block" id="pdf_nnDistances_csr_2D"><a class="viewcode-back" href="../../../source/surepy.analysis.nearest_neighbor.html#surepy.analysis.nearest_neighbor.pdf_nnDistances_csr_2D">[docs]</a><span class="k">def</span> <span class="nf">pdf_nnDistances_csr_2D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">density</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    probability density function for nearest-neighbor distances of points distributed in 2D at complete spatial</span>
+<span class="sd">    randomness.</span>
+
+<span class="sd">    :param x (float): distance</span>
+<span class="sd">    :param density (float): density of points</span>
+<span class="sd">    :return probability density function</span>
+<span class="sd">    :rtype float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">density</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">density</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="pdf_nnDistances_csr_3D"><a class="viewcode-back" href="../../../source/surepy.analysis.nearest_neighbor.html#surepy.analysis.nearest_neighbor.pdf_nnDistances_csr_3D">[docs]</a><span class="k">def</span> <span class="nf">pdf_nnDistances_csr_3D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">density</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    probability density function for nearest-neighbor distances of points distributed in 3D at complete spatial</span>
+<span class="sd">    randomness.</span>
+
+<span class="sd">    :param x (float): distance</span>
+<span class="sd">    :param density (float): density of points</span>
+<span class="sd">    :return probability density function</span>
+<span class="sd">    :rtype float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">density</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">3</span> <span class="o">/</span> <span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="k_nearest_neighbor"><a class="viewcode-back" href="../../../source/surepy.analysis.nearest_neighbor.html#surepy.analysis.nearest_neighbor.k_nearest_neighbor">[docs]</a><span class="k">def</span> <span class="nf">k_nearest_neighbor</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">other_points</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; k_nearest_neighbor(points, k = 1, other_points = None) computes nearest neighbor distances. &quot;&quot;&quot;</span>
+    <span class="c1"># todo: take out points and get rid of if clause</span>
+    <span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="k">import</span> <span class="n">NearestNeighbors</span>
+    <span class="k">if</span> <span class="n">other_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">nn</span> <span class="o">=</span> <span class="n">NearestNeighbors</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="n">distances</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">kneighbors</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">distances</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nn</span> <span class="o">=</span> <span class="n">NearestNeighbors</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;euclidean&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">other_points</span><span class="p">)</span>
+        <span class="n">distances</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">kneighbors</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">distances</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Nearest_neighbor_distances"><a class="viewcode-back" href="../../../source/surepy.analysis.nearest_neighbor.html#surepy.analysis.nearest_neighbor.Nearest_neighbor_distances">[docs]</a><span class="k">class</span> <span class="nc">Nearest_neighbor_distances</span><span class="p">(</span><span class="n">surepy</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">Analysis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the k-nearest-neighbor distances within data or between data and other_data.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    :param data (Selection object): Selection with localizations for which a nearest neighbor is computed.</span>
+<span class="sd">    :param k (int): the kth neirest neighbor is computed.</span>
+<span class="sd">    :param other_data (Selection object): Selection with localizations from which a nearest neighbor is taken.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">    :cvar count (int): a counter for counting instantiations</span>
+<span class="sd">    :var data (Selection object): reference to the Selection object specified as input data.</span>
+<span class="sd">    :var parameter (dict): a dictionary with all settings for the current computation.</span>
+<span class="sd">    :var results (np.array): an array with the nearest neighbor distance for each localization in data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">count</span><span class="o">=</span><span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">other_data</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">Analysis</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">other_data</span> <span class="o">=</span> <span class="n">other_data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameter</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;k_nearest_neighbor&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parameter</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_results</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">other_data</span><span class="o">=</span><span class="n">other_data</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Nearest_neighbor_distances.compute_results"><a class="viewcode-back" href="../../../source/surepy.analysis.nearest_neighbor.html#surepy.analysis.nearest_neighbor.Nearest_neighbor_distances.compute_results">[docs]</a>    <span class="k">def</span> <span class="nf">compute_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">other_data</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the k-nearest-neighbor Euclidean distances for data or between data and other_data.</span>
+
+<span class="sd">        :param data (Selection object): Selection with localizations for which a nearest neighbor is computed.</span>
+<span class="sd">        :param k (int): the kth neirest neighbor is computed.</span>
+<span class="sd">        :param other_data (Selection object): Selection with localizations from which a nearest neighbor is taken.</span>
+
+<span class="sd">        :return np.array: the nearest neighbor distances</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">k_nearest_neighbor</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span>
+                                             <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
+                                             <span class="n">other_points</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">other_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">other_data</span><span class="o">.</span><span class="n">coordinates</span>
+                                             <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nearest_neighbor_distances.hist"><a class="viewcode-back" href="../../../source/surepy.analysis.nearest_neighbor.html#surepy.analysis.nearest_neighbor.Nearest_neighbor_distances.hist">[docs]</a>    <span class="k">def</span> <span class="nf">hist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Provide matplotlib axes showing results.</span>
+
+<span class="sd">        :param bins (int, list, &#39;auto&#39;): bin specification as used in matplotlib</span>
+<span class="sd">        :param normed (bool):</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">values</span><span class="p">,</span> <span class="n">bin_values</span><span class="p">,</span> <span class="n">patches</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">normed</span><span class="o">=</span><span class="n">normed</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
+        <span class="n">x_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">bin_values</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bin_values</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="c1"># fit to csr (does not make sense)</span>
+        <span class="c1"># x_data = (bin_values[:-1]+bin_values[1:])/2</span>
+        <span class="c1"># self._fit_to_csr_distribution(x_data, values)</span>
+        <span class="c1"># todo: add 3D</span>
+
+        <span class="c1"># estimate for csr given localization density</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">localization_density</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_data</span><span class="o">.</span><span class="n">localization_density</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">af</span><span class="o">.</span><span class="n">pdf_nnDistances_csr_2D</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">density</span><span class="p">),</span> <span class="s1">&#39;r-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;CSR&#39;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;k-Nearest Neigbor Distances&#39;</span><span class="o">+</span><span class="s1">&#39; (k = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameter</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">])</span><span class="o">+</span><span class="s1">&#39;)&#39;</span><span class="p">,</span>
+               <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;distance (nm)&#39;</span><span class="p">,</span>
+               <span class="n">ylabel</span> <span class="o">=</span> <span class="s1">&#39;pdf&#39;</span> <span class="k">if</span> <span class="n">normed</span> <span class="k">else</span> <span class="s1">&#39;counts&#39;</span>
+               <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span> <span class="o">=</span> <span class="s1">&#39;best&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.7</span><span class="p">,</span><span class="s1">&#39;localization density: </span><span class="si">%.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">density</span><span class="p">,</span> <span class="n">transform</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Nearest_neighbor_distances._fit_to_csr_distribution"><a class="viewcode-back" href="../../../source/surepy.analysis.nearest_neighbor.html#surepy.analysis.nearest_neighbor.Nearest_neighbor_distances._fit_to_csr_distribution">[docs]</a>    <span class="k">def</span> <span class="nf">_fit_to_csr_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_histo</span><span class="p">,</span> <span class="n">y_histo</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Fit results to analytical function for complete spatial randomness.&quot;&quot;&quot;</span>
+        <span class="n">popt</span><span class="p">,</span> <span class="n">pcov</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span><span class="n">af</span><span class="o">.</span><span class="n">pdf_nnDistances_csr_2D</span><span class="p">,</span> <span class="n">x_histo</span><span class="p">,</span> <span class="n">y_histo</span><span class="p">,</span> <span class="n">p0</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_histo</span><span class="p">,</span> <span class="n">af</span><span class="o">.</span><span class="n">pdf_nnDistances_csr_2D</span><span class="p">(</span><span class="n">x_histo</span><span class="p">,</span> <span class="o">*</span><span class="n">popt</span><span class="p">),</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;CSR fit&#39;</span><span class="p">)</span></div></div>
+        <span class="c1"># todo: add 3D</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, SuperResGroup.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

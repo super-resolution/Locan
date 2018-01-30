@@ -1,0 +1,295 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>surepy.data.clustering &mdash; Surepy 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="Surepy 0.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Surepy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">General Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../aim.html">Aim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../design.html">Package Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../outlook.html">Outlook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../name.html">Project Name</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">API Doc</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Surepy</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>surepy.data.clustering</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for surepy.data.clustering</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">Methods for clustering localization data in LocData objects..</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">hdbscan</span>
+<span class="kn">from</span> <span class="nn">surepy</span> <span class="k">import</span> <span class="n">LocData</span>
+
+
+<div class="viewcode-block" id="clustering"><a class="viewcode-back" href="../../../source/surepy.data.clustering.html#surepy.data.clustering.clustering">[docs]</a><span class="k">def</span> <span class="nf">clustering</span><span class="p">(</span><span class="n">locdata</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Cluster localizations in LocData using a specified clustering algorithm.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    locdata : LocData</span>
+<span class="sd">        specifying the localization data on which to perform the manipulation.</span>
+<span class="sd">    kwargs : dict</span>
+<span class="sd">        Parameters for specified clustering algorithm.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Collection</span>
+<span class="sd">        a new instance of Collection assembling all generated selections (i.e. localization cluster).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="clustering_hdbscan"><a class="viewcode-back" href="../../../source/surepy.data.clustering.html#surepy.data.clustering.clustering_hdbscan">[docs]</a><span class="k">def</span> <span class="nf">clustering_hdbscan</span><span class="p">(</span><span class="n">locdata</span><span class="p">,</span> <span class="n">min_cluster_size</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">allow_single_cluster</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Cluster localizations in locdata using the hdbscan clustering algorithm.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    locdata : LocData</span>
+<span class="sd">        specifying the localization data on which to perform the manipulation.</span>
+<span class="sd">    min_cluster_size : int</span>
+<span class="sd">        minimumm cluster size in HDBSCAN algorithm (default: 5)</span>
+<span class="sd">    allow_single_cluster : bool</span>
+<span class="sd">        allowing to return single cluster (default: False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    LocData</span>
+<span class="sd">        a new LocData instance assembling all generated selections (i.e. localization cluster).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">hdbscan</span><span class="o">.</span><span class="n">HDBSCAN</span><span class="p">(</span>
+        <span class="n">min_cluster_size</span><span class="o">=</span><span class="n">min_cluster_size</span><span class="p">,</span>
+        <span class="n">allow_single_cluster</span><span class="o">=</span><span class="n">allow_single_cluster</span><span class="p">,</span>
+        <span class="n">gen_min_span_tree</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">locdata</span><span class="o">.</span><span class="n">coordinates</span><span class="p">)</span>
+
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">locdata</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">selections</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">LocData</span><span class="o">.</span><span class="n">from_selection</span><span class="p">(</span><span class="n">locdata</span><span class="o">=</span><span class="n">locdata</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="n">x</span><span class="p">),</span> <span class="n">grouped</span><span class="o">.</span><span class="n">indices</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">LocData</span><span class="o">.</span><span class="n">from_collection</span><span class="p">(</span><span class="o">*</span><span class="n">selections</span><span class="p">)</span>
+
+    <span class="c1"># metadata</span>
+    <span class="n">col</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;History&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">({</span><span class="s1">&#39;Method:&#39;</span><span class="p">:</span> <span class="s1">&#39;clustering_hdbscan&#39;</span><span class="p">,</span> <span class="s1">&#39;Parameter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">allow_single_cluster</span><span class="p">]})</span>
+
+    <span class="k">return</span> <span class="n">col</span></div>
+
+
+
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, SuperResGroup.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

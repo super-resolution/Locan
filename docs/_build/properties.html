@@ -1,0 +1,473 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Properties &mdash; Surepy 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Surepy 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="Package Design" href="design.html"/>
+        <link rel="next" title="Metadata" href="metadata.html"/>
+        <link rel="prev" title="Data structures" href="datastructures.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Surepy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">General Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="aim.html">Aim</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="design.html">Package Design</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="design.html#outline">Outline:</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="datastructures.html">Data structures</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Properties</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#localization-properties">Localization properties:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#locdata-properties">Locdata properties:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="metadata.html">Metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="methods.html">Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="directories.html">Directories</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="outlook.html">Outlook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="name.html">Project Name</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Surepy</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="design.html">Package Design</a> &raquo;</li>
+        
+      <li>Properties</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/properties.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="properties">
+<span id="id1"></span><h1>Properties<a class="headerlink" href="#properties" title="Permalink to this headline">¶</a></h1>
+<p>Locdata, the data class for localization data, carries certain properties that describe individual or
+averaged features of the underlying localizations or groups thereof.
+In the following we provide names (or keys) for those properties.</p>
+<p>The datatype for all keys is string. We stick to the following conventions:</p>
+<blockquote>
+<div><ul class="simple">
+<li>start with capital letters (to differentiate from methods or attributes)</li>
+<li>use underscore</li>
+<li>do not use CamelCase or blanks</li>
+<li>add coordinate identifiers or identifiers of statistical functions in the end (‘Position_x_mean_mean’)</li>
+</ul>
+</div></blockquote>
+<p>A list of defined property keys is given in the constant: DATA_PROPERTY_KEYS.</p>
+<div class="section" id="localization-properties">
+<h2>Localization properties:<a class="headerlink" href="#localization-properties" title="Permalink to this headline">¶</a></h2>
+<p>Each localization has properties that can usually be identified in the various file formats. We will use the following
+keys (where ‘c’ stands for the coordinate ‘x’, ‘y’ or ‘z’ ):</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>‘Index’</dt>
+<dd>localization index</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Position_c’</dt>
+<dd>coordinate for the c-position</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Frame’</dt>
+<dd>frame  number in which the localization occurs</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Intensity’</dt>
+<dd>intensity or emission strength as estimated by the fitter</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Local_background’</dt>
+<dd>background in the neighborhood of localization as estimated by the fitter</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Chi_square’</dt>
+<dd>chi-square value of the fitting procedure as estimated by the fitter</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Psf_sigma_c’</dt>
+<dd>sigma of the fitted Gauss-function in c-dimension as estimated by the fitter</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Uncertainty_c’</dt>
+<dd>localization error in c-dimension estimated by a fitter</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Channel’</dt>
+<dd>identifier for various channels</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Two_kernel_improvement’</dt>
+<dd>a rapidSTORM parameter describing the improvement from two kernel fitting.</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>Additional localization properties are computed by various analysis procedures including:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>‘Cluster_label’</dt>
+<dd>identifier for a localization cluster</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Nn_distance’</dt>
+<dd>nearest-neighbor distance</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Nn_distance_k’</dt>
+<dd>k-nearest-neighbor distance (k can be any integer)</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Colocalization’</dt>
+<dd>coordinate-based colocalization value</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="locdata-properties">
+<h2>Locdata properties:<a class="headerlink" href="#locdata-properties" title="Permalink to this headline">¶</a></h2>
+<p>A group of localizations makes up a LocData entity for which further properties are defined. Groups of locdata are
+further combined in Locdata entities with additional properties.</p>
+<p>The new locdata coordinates are computed from the centroids of grouped localizations.</p>
+<p>We will use the following keys for statistics of localization properties:</p>
+<blockquote>
+<div><ul>
+<li><dl class="first docutils">
+<dt>‘property_stats’</dt>
+<dd><p class="first">where property is the localization property key and stats is one of the following:</p>
+<blockquote class="last">
+<div><ul class="simple">
+<li>count (number of elements)</li>
+<li>min (minimum of all elements)</li>
+<li>max (maximum of all elements)</li>
+<li>sum (sum of all elements)</li>
+<li>mean (the mean of all elements)</li>
+<li>std (standard deviation of all elements)</li>
+<li>sem (standard error of the mean of all elements)</li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>For example:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>‘Intensity_sum’</dt>
+<dd>total intensity of all localizations in the group</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>Some properties are derived from a hull of all localizations or centroids. We provide four hulls:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>bounding box</li>
+<li>convex hull</li>
+<li>alpha shape</li>
+<li>oriented bounding box</li>
+</ol>
+</div></blockquote>
+<p>From each hull a region measure (the area in 2D) and a subregion measure (the circumference in 2D) is computed.</p>
+<p>We will use the following keys for additional properties (where ‘c’ stands for the coordinate ‘x’, ‘y’ or ‘z’
+and ‘h’ stands for the corresponding hull ‘bb’, ‘ch’, ‘as’, ‘obb’):</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>Centroid</dt>
+<dd>tuple with mean of all localization coordinates</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Localization_count’</dt>
+<dd>number of localizations from all groups</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Region_measure_h’</dt>
+<dd>area/volume (for all possible hulls)</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Subregion_measure_h’</dt>
+<dd>circumference/surface (for all possible hulls)</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Localization_density_h’</dt>
+<dd>density of localizations (for all possible hulls)</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Boundary_localizations_h’</dt>
+<dd>absolute number of localizations on boundary (for all possible hulls)</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Boundary_localizations_ratio_h’</dt>
+<dd>ratio between number of localizations on hull boundary and within hull (for all possible hulls)</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Max_distance’</dt>
+<dd>maximum distance between any two localizations</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Inertia_moments’</dt>
+<dd>inertia moments of all localizations</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Orientation_obb’</dt>
+<dd>angle between the x-axis and the long axis of the oriented bounding box</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Orientation_im’</dt>
+<dd>angle between inertia moment principal component vectors</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Circularity_obb’</dt>
+<dd>elongation estimated from oriented bounding box</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>‘Circularity_im’</dt>
+<dd>excentricity estimated from inertia moments</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="metadata.html" class="btn btn-neutral float-right" title="Metadata" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="datastructures.html" class="btn btn-neutral" title="Data structures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, SuperResGroup.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

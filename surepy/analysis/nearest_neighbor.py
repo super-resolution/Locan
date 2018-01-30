@@ -123,4 +123,4 @@ class Nearest_neighbor_distances(Analysis):
                ylabel = 'pdf' if normed else 'counts'
                )
         ax.legend(loc = 'best')
-        ax.text(0.5,0.7,'localization density: %.2f'%self.localization_density, transform = ax.transAxes)
+        ax.text(0.3,0.8,'density: {0:.2g}'.format(self.localization_density), transform = ax.transAxes)

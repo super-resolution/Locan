@@ -70,7 +70,7 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
     dataframe = pd.read_table(path, sep=" ", skiprows=1, nrows=nrows, names=columns)
 
     dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
-    dat.meta['Modification'] = 'raw'
+    dat.meta['State'] = 'raw'
     dat.meta['Experimental setup'] =  {}
     dat.meta['Experimental sample'] =  {}
     dat.meta['File type'] = 'rapidStorm'

@@ -218,22 +218,27 @@ class LocData():
 
     def reduce(self):
         """
-        Update dataframe, reste dataframe.index, delete all references, set indices to None.
+        Update dataframe, reset dataframe.index, delete all references, set indices to None.
 
         Returns
         -------
         Int
             a flag set to 1 indicating if reference was changed, or set to 0 if no change was applied.
         """
-        if isinstance(self.references, LocData):
+        if self.references is None:
+            return 0
+        elif isinstance(self.references, LocData):
             self.dataframe = self.references.data.iloc[self.indices]
             self.dataframe = self.dataframe.reset_index()
             self.indices = None
             self.references = None
             return 1
         else:
+            self
             self.dataframe = self.dataframe.reset_index()
-            return 0
+            self.indices = None
+            self.references = None
+            return 1
 
 
     def print_meta(self):

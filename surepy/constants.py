@@ -34,6 +34,7 @@ RAPIDSTORM_KEYS = {
 
 
 # Mapping column names in Zeiss Elyra files to LocData property keys
+# todo: add Elyra keys to documentation.
 
 ELYRA_KEYS = {
     'Index': 'Index',
@@ -43,7 +44,7 @@ ELYRA_KEYS = {
     'Position X [nm]': 'Position_x',
     'Position Y [nm]': 'Position_y',
     'Position Z [nm]': 'Position_z',
-    'Precision [nm]': 'Uncertainty',
+    'Precision [nm]': 'Precision',
     'Number Photons': 'Intensity',
     'Background variance': 'Local_background',
     'Chi square': 'Chi_square',

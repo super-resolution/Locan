@@ -3,11 +3,12 @@
 Methods for file input/output with Dataset objects.
 
 """
+import io
 
 import numpy as np
 import pandas as pd
-import time
 import xml.etree.ElementTree as etree
+
 from surepy import LocData
 import surepy.constants
 
@@ -97,7 +98,7 @@ def load_Elyra_header(path):
     """
 
     with open(path) as file:
-        header = file.readline()
+        header = file.readline().split('\n')[0]
 
     # list identifiers
     identifiers = header.split("\t")
@@ -105,7 +106,7 @@ def load_Elyra_header(path):
     # turn identifiers into valuable LocData keys
     column_keys = []
     for i in identifiers:
-        column_keys.append(surepy.constants.RAPIDSTORM_KEYS[i])
+        column_keys.append(surepy.constants.ELYRA_KEYS[i])
 
     return column_keys
 
@@ -127,7 +128,14 @@ def load_Elyra_file(path, nrows=None, **kwargs):
         a new instance of Dataset with all localizations.
     """
     columns = load_Elyra_header(path)
-    dataframe = pd.read_table(path, sep=" ", skiprows=1, nrows=nrows, names=columns)
+
+    with open(path) as f:
+        string = f.read()
+        # remove metadata following nul byte
+        string = string.split('\x00')[0]
+
+        stream = io.StringIO(string)
+        dataframe = pd.read_table(stream, sep="\t", skiprows=1, nrows=nrows, names=columns)
 
     dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
     dat.meta['State'] = 'raw'
@@ -140,25 +148,5 @@ def load_Elyra_file(path, nrows=None, **kwargs):
 
     return dat
 
-
-
-def load_Elyra_file(path, nrows=None):
-    """
-    Load data from a rapidSTORM single-molecule localization file.
-
-    Parameters
-    ----------
-    path : string
-        The complete file path of the file to load.
-    nrows : int, default: None meaning all available rows
-        The number of localizations to load from file.
-
-
-    Returns
-    -------
-    Dataset, Selection
-        a new instance of Dataset and corresponding Selection of all localizations.
-    """
-    raise NotImplementedError
 
 

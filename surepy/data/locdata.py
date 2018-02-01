@@ -102,7 +102,7 @@ class LocData():
         if meta is not None:
             meta_.update(meta)
 
-        return cls(dataframe=dataframe, meta=meta, **kwargs)
+        return cls(dataframe=dataframe, meta=meta_, **kwargs)
 
 
     @classmethod

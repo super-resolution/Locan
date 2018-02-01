@@ -4,9 +4,25 @@ This module provides methods for user interaction with paths and file names.
 
 '''
 
-def file_dialog(dir=None, filter="Text files (*.txt);; All files (*)"):
+def file_dialog(directory=None, message='Select a file...', filter='Text files (*.txt);; All files (*)'):
     """
-    Select a file via a dialog and return the file name.
+    Select file names in a ui dialog.
+
+    Parameter
+    ---------
+    directory : str or None
+        directory path (Default: None)
+
+    message : str
+        Hint what to do
+
+    filter : str
+        filter for file type
+
+    Returns
+    -------
+    list of str
+        list with file names or empty list
     """
     try:
         from PyQt5.QtWidgets import QApplication, QFileDialog
@@ -16,12 +32,12 @@ def file_dialog(dir=None, filter="Text files (*.txt);; All files (*)"):
         except ImportError:
             from PySide.QtGui import QApplication, QFileDialog
 
-    if dir is None:
+    if directory is None:
         dir = './'
 
-    app = QApplication([dir])
-    fname = QFileDialog.getOpenFileName(None, "Select a file...",
-                                        dir, filter=filter)
+    app = QApplication([directory])
+    fname = QFileDialog.getOpenFileName(None, message,
+                                        directory, filter=filter)
 
     if isinstance(fname, tuple):
         return fname[0]

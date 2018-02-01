@@ -1,5 +1,9 @@
 import pytest
 import numpy as np
+import pandas as pd
+from surepy.data.locdata import LocData
+
+# fixtures
 
 @pytest.fixture(scope='session')
 def few_random_points():

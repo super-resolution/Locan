@@ -1,4 +1,4 @@
-,Position_x,Position_y,Cluster_label
+Index,Position_x,Position_y,Cluster_label
 0,624,919,3
 1,611,873,3
 2,388,1015,0

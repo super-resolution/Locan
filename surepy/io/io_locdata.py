@@ -4,6 +4,7 @@ Methods for file input/output with Dataset objects.
 
 """
 import io
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -11,6 +12,51 @@ import xml.etree.ElementTree as etree
 
 from surepy import LocData
 import surepy.constants
+
+# todo: take out **kwargs
+
+def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
+    """
+    Load localization data from a txt file.
+
+    Surepy column names are either supplied or read from the first line header.
+
+    Parameters
+    ----------
+    path : str or Path object
+        File path for a rapidSTORM file to load.
+    sep : str
+        separator between column values (Default: ',')
+    columns : list of str or None
+        Surepy column names. If None the first line is interpreted as header (Default: None).
+    nrows : int, default: None
+        The number of localizations to load from file. None means that all available rows are loaded (Default: None).
+
+    Returns
+    -------
+    Dataset
+        a new instance of Dataset with all localizations.
+    """
+    # define columns
+    if columns is None:
+        dataframe = pd.read_table(path, sep=sep, skiprows=0, nrows=nrows)
+    else:
+        for c in columns:
+            if c not in surepy.constants.PROPERTY_KEYS:
+                warnings.warn('A property key is not Surepy standard.', UserWarning)
+
+        dataframe = pd.read_table(path, sep=sep, skiprows=1, nrows=nrows, names=columns)
+
+    dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
+    dat.meta['State'] = 'raw'
+    dat.meta['Experimental setup'] =  {}
+    dat.meta['Experimental sample'] =  {}
+    dat.meta['File type'] = 'custom'
+    dat.meta['File path'] = str(path)
+    dat.meta['Units'] = {'Position_x': 'nm', 'Position_y': 'nm'}
+    dat.meta['History'] = [{'Method:': 'load_txt_file', 'Parameter': [path, sep, columns, nrows]}]
+
+    return dat
 
 
 def load_rapidSTORM_header(path):

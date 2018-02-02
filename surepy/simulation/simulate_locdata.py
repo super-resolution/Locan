@@ -112,8 +112,15 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,1
     points, labels = make_blobs(n_samples=n_samples, n_features=n_features, centers=n_centers, cluster_std=cluster_std,
                                 center_box=center_box, random_state = seed)
 
-    dataframe = pd.DataFrame(np.stack((points[:, 0], points[:, 1], labels), axis=-1),
-                             columns=['Position_x', 'Position_y', 'Cluster_label'])
+    if n_features == 1:
+        dataframe = pd.DataFrame(np.stack((points[:, 0], labels), axis=-1),
+                                 columns=['Position_x', 'Cluster_label'])
+    if n_features == 2:
+        dataframe = pd.DataFrame(np.stack((points[:, 0], points[:, 1], labels), axis=-1),
+                                 columns=['Position_x', 'Position_y', 'Cluster_label'])
+    if n_features == 3:
+        dataframe = pd.DataFrame(np.stack((points[:, 0], points[:, 1], points[:, 2], labels), axis=-1),
+                                 columns=['Position_x', 'Position_y', 'Position_z', 'Cluster_label'])
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 

@@ -9,7 +9,7 @@ import surepy.tests.test_data
 
 @pytest.fixture()
 def locdata():
-    dat = io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/someData.txt', nrows=10)
+    dat = io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dSTORM_data.txt', nrows=10)
     return dat
 
 # tests

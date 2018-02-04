@@ -1,0 +1,29 @@
+// This is a protobuf file. Pass it through the protobuf compiler to generate
+// Python code:
+//
+// protoc --python_out=. metadata.proto
+syntax = "proto2";
+
+package surepy;
+
+enum State {
+    UNKNOWN = 0;
+    RAW = 1;
+    MODIFIED = 2;
+}
+
+// Next id: 11
+message Metadata {
+  optional string identifier = 1;
+  // Timestamp in seconds since Unix epoch
+  optional int64 production_date = 2;
+  // Timestamp in seconds since Unix epoch
+  optional int64 modification_date = 3;
+  optional string source = 4;
+  optional State state = 5;
+  repeated string history = 6;
+  optional int64 element_count = 7;
+  optional int64 frame_count = 8;
+  repeated string ancestor_identifiers = 9;
+  optional string comment = 10;
+}

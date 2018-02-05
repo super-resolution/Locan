@@ -83,7 +83,8 @@ class LocData():
         if meta is None:
             pass
         elif isinstance(meta, dict):
-            text_format.Merge(meta, self.meta)
+            for key, value in meta.items():
+                setattr(self.meta, key, value)
         else:
             self.meta.MergeFrom(meta)
 
@@ -114,7 +115,8 @@ class LocData():
         if meta is None:
             pass
         elif isinstance(meta, dict):
-            text_format.Merge(meta, meta_)
+            for key, value in meta.items():
+                setattr(meta_, key, value)
         else:
             meta_.MergeFrom(meta)
 
@@ -138,7 +140,8 @@ class LocData():
         if meta is None:
             pass
         elif isinstance(meta, dict):
-            text_format.Merge(meta, meta_)
+            for key, value in meta.items():
+                setattr(meta_, key, value)
         else:
             meta_.MergeFrom(meta)
 
@@ -162,7 +165,8 @@ class LocData():
         if meta is None:
             pass
         elif isinstance(meta, dict):
-            text_format.Merge(meta, meta_)
+            for key, value in meta.items():
+                setattr(meta_, key, value)
         else:
             meta_.MergeFrom(meta)
 
@@ -199,7 +203,8 @@ class LocData():
         if meta is None:
             pass
         elif isinstance(meta, dict):
-            text_format.Merge(meta, meta_)
+            for key, value in meta.items():
+                setattr(meta_, key, value)
         else:
             meta_.MergeFrom(meta)
 

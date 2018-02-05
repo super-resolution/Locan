@@ -50,6 +50,11 @@ def test_LocData_from_dataframe(df_simple):
     assert (len(dat) == 5)
     assert (dat.meta.comment == COMMENT_METADATA.comment)
 
+def test_LocData_from_dataframe_with_meta_dict(df_simple):
+    dat = LocData.from_dataframe(dataframe=df_simple, meta={'comment':'some user comment'})
+    assert (len(dat) == 5)
+    assert (dat.meta.comment == COMMENT_METADATA.comment)
+
 # todo: identify assertion failure
 # def test_LocData_class_count(df_simple):
 #     dat_1 = LocData.from_dataframe(dataframe=df_simple)

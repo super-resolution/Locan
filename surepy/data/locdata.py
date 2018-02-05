@@ -20,8 +20,8 @@ class LocData():
     references : LocData or list(LocData) or None
         A locData reference or an array with references to locData objects referring to the selected localizations
         in dataset.
-    dataframe : Pandas dataframe or None
-        dataframe with localization data
+    dataframe : Pandas DataFrame or None
+        Dataframe with localization data.
     indices : slice object or list(int) or None
         Indices for dataframe in references that makes up the data.
     meta : Metadata protobuf message
@@ -34,38 +34,39 @@ class LocData():
 
     references : LocData or list(LocData) or None
         A locData reference or an array with references to locData objects referring to the selected localizations
-        in dataset.
-    dataframe : Pandas dataframe or None
-        dataframe with localization data
+        in dataframe.
+    dataframe : Pandas DataFrame or None
+        Dataframe with localization data.
     indices : slice object or list(int) or None
         Indices for dataframe in references that makes up the data.
     meta : Metadata protobuf message
         Metadata about the current dataset and its history.
-    properties : pandas data frame
-        list of properties generated from data.
+    properties : Pandas DataFrame
+        List of properties generated from data.
 
     bounding_box : Hull object
-        object representing the axis-aligned minimal bounding box
+        Object representing the axis-aligned minimal bounding box.
     oriented_bounding_box : Hull object
-        object representing the oriented minimal bounding box
+        Object representing the oriented minimal bounding box.
     convex_hull : Hull object
-        object representing the convex hull of all localizations
+        Object representing the convex hull of all localizations.
     alpha_shape : Hull object
-        object representing the alpha-shape of all localizations
+        Object representing the alpha-shape of all localizations.
 
     """
     count=0
 
     # todo: delete kwargs
+    # todo: change dataframe to _dataframe
 
-    def __init__(self, references=None, dataframe=pd.DataFrame(), indices=None, meta=None, **kwargs):
-        # self.__class__.count += 1
+    def __init__(self, references=None, dataframe=pd.DataFrame(), indices=None,
+                 meta=None, **kwargs):
         self.__class__.count += 1
 
         self.references = references
         self.dataframe = dataframe
-        self.meta = metadata_pb2.Metadata()
         self.indices = indices
+        self.meta = metadata_pb2.Metadata()
         self.properties = {}
 
         # meta
@@ -131,52 +132,55 @@ class LocData():
 
 
     @classmethod
-    def from_collection(cls, *args, **kwargs):
+    def from_collection(cls, *args, meta=None, **kwargs):
 
         references = args
         dataframe = pd.DataFrame([ref.properties for ref in references])
 
         meta_ = metadata_pb2.Metadata()
-        meta_.modification_date = int(time.time())
-        meta_.state = metadata_pb2.MODIFIED
+        meta_.production_date = int(time.time())
+        meta_.source = 'design'
+        meta_.state = metadata_pb2.RAW
         meta_.history.append('collection')
         meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
 
-        if 'meta' in kwargs:
-            meta_.MergeFrom(kwargs['meta'])
-            kwargs['meta'] = meta_
+        if meta is not None:
+            meta_.MergeFrom(meta)
 
-        return cls(references=references, dataframe=dataframe, **kwargs)
+        return cls(references=references, dataframe=dataframe, meta=meta_, **kwargs)
 
 
     @classmethod
-    def concat(cls, *locdata, **kwargs):
+    def concat(cls, *locdata, meta=None, **kwargs):
         """
-        Concatenate locdata objects.
+        Concatenate LocData objects.
 
         Parameters
         ----------
         locdata : LocData object
             Locdata objects to concatenate.
-        meta : dict
+        meta : Metadata protobuf message
             Metadata about the current dataset and its history.
 
         Returns
         -------
         locdata object
-            a new locdata instance with dataframe representing the concatenated data.
+            A new locdata instance with dataframe representing the concatenated data.
         """
 
-
         dataframe = pd.concat([i.data for i in locdata], ignore_index=True)
-        meta_ = kwargs.get('meta', metadata_pb2.Metadata())
-        meta_.modification_date = int(time.time())
-        meta_.state = metadata_pb2.MODIFIED
-        meta_.history.append('collection')
-        meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdata]
-        kwargs['meta'] = meta_
 
-        return cls(dataframe=dataframe, **kwargs)
+        meta_ = metadata_pb2.Metadata()
+        meta_.production_date = int(time.time())
+        meta_.source = 'design'
+        meta_.state = metadata_pb2.MODIFIED
+        meta_.history.append('concatenated')
+        meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdata]
+
+        if meta is not None:
+            meta_.MergeFrom(meta)
+
+        return cls(dataframe=dataframe, meta=meta_, **kwargs)
 
 
     @property
@@ -187,7 +191,7 @@ class LocData():
            df = self.references.data.iloc[self.indices]
            df = df.reset_index()
            df = pd.merge(df, self.dataframe, left_index=True, right_index=True, how='outer')
-           # alternative: df = df.assign(**self.dataframe.dict())
+           # todo: alternative: df = df.assign(**self.dataframe.dict())
            return df
        else:
            return self.dataframe
@@ -220,6 +224,7 @@ class LocData():
         """
         raise NotImplementedError
 
+
     def reduce(self):
         """
         Update dataframe, reset dataframe.index, delete all references, set indices to None.
@@ -244,5 +249,6 @@ class LocData():
             self.references = None
             return 1
 
+
     def print_meta(self):
-        print text_format.MessageToString(self.meta)
+        print (text_format.MessageToString(self.meta))

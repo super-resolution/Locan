@@ -1,8 +1,10 @@
 import pytest
 import numpy as np
 import pandas as pd
+
 from surepy.data import metadata_pb2
 from surepy.data.locdata import LocData
+
 
 # fixtures
 
@@ -41,10 +43,12 @@ def test_LocData(df_simple):
     assert (dat.coordinate_labels == ['Position_x', 'Position_y'])
     for x, y in zip(dat.coordinates, [[0, 0], [0, 1], [1, 3], [4, 4], [5, 1]]):
         assert np.all(x == np.array(y))
+    assert (dat.meta.comment == COMMENT_METADATA.comment)
 
 def test_LocData_from_dataframe(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
     assert (len(dat) == 5)
+    assert (dat.meta.comment == COMMENT_METADATA.comment)
 
 # todo: identify assertion failure
 # def test_LocData_class_count(df_simple):
@@ -58,11 +62,10 @@ def test_LocData_from_dataframe(df_simple):
 #     assert (LocData.count == 1)
 
 def test_LocData_from_selection(df_simple):
-    dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-    sel = LocData.from_selection(locdata=dat, indices=[1,3,4], meta=metadata_pb2.Metadata(comment='some new user comment'))
+    dat = LocData.from_dataframe(dataframe=df_simple)
+    sel = LocData.from_selection(locdata=dat, indices=[1,3,4], meta=COMMENT_METADATA)
     assert (len(sel) == 3)
-    assert (dat.meta.comment == 'some user comment')
-    assert (sel.meta.comment == 'some new user comment')
+    assert (sel.meta.comment == COMMENT_METADATA.comment)
 
 def test_LocData_from_collection(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple)

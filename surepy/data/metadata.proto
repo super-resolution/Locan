@@ -2,6 +2,7 @@
 // Python code:
 //
 // protoc --python_out=. metadata.proto
+// protoc -I=./surepy --python_out=./surepy  ./surepy/data/metadata.proto
 syntax = "proto2";
 
 package surepy;

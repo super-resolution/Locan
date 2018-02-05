@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 import pandas as pd
-from surepy.data.locdata import LocData
+# from surepy.data.locdata import LocData
 
 # fixtures
 

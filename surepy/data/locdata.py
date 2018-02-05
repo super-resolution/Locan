@@ -1,6 +1,10 @@
+import time
+
+from google.protobuf import text_format
 import pandas as pd
-from datetime import datetime
+
 import surepy.data.hulls
+from surepy.data import metadata_pb2
 
 
 class LocData():
@@ -20,7 +24,7 @@ class LocData():
         dataframe with localization data
     indices : slice object or list(int) or None
         Indices for dataframe in references that makes up the data.
-    meta : dict
+    meta : Metadata protobuf message
         Metadata about the current dataset and its history.
 
     Attributes
@@ -35,7 +39,7 @@ class LocData():
         dataframe with localization data
     indices : slice object or list(int) or None
         Indices for dataframe in references that makes up the data.
-    meta : dict
+    meta : Metadata protobuf message
         Metadata about the current dataset and its history.
     properties : pandas data frame
         list of properties generated from data.
@@ -60,21 +64,22 @@ class LocData():
 
         self.references = references
         self.dataframe = dataframe
-        self.meta = {}
+        self.meta = metadata_pb2.Metadata()
         self.indices = indices
         self.properties = {}
 
         # meta
-        self.meta['Identifier'] = str(self.__class__.count)
-        self.meta['Production date'] = datetime.now().isoformat(' ')
-        self.meta['Source'] = 'design'
-        self.meta['State'] = 'raw'
-        self.meta['History'] = ['instantiated']
-        self.meta['Number of elements'] = len(self.data.index)
-        self.meta['Number of frames'] = len(self.data['Frame'].unique()) if 'Frame' in self.data.columns else ''
+        self.meta.identifier = str(self.__class__.count)
+        self.meta.production_date = int(time.time())
+        self.meta.source = 'design'
+        self.meta.state = metadata_pb2.RAW
+        self.meta.history.append('instantiated')
+        self.meta.element_count = len(self.data.index)
+        if 'Frame' in self.data.columns:
+            self.meta.frame_count = len(self.data['Frame'].unique())
 
         if meta is not None:
-            self.meta.update(meta)
+            self.meta.MergeFrom(meta)
 
         # coordinate labels
         self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'Position_x', 'Position_y', 'Position_z'})))
@@ -86,21 +91,21 @@ class LocData():
         self.bounding_box = surepy.data.hulls.Bounding_box(self.coordinates)
         self.properties['Region_measure_bb'] = self.bounding_box.region_measure
         self.properties['Subregion_measure_bb'] = self.bounding_box.subregion_measure
-        self.properties['Localization_density_bb'] = self.meta['Number of elements'] / self.bounding_box.region_measure
+        self.properties['Localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure
 
 
     @classmethod
     def from_dataframe(cls, dataframe=pd.DataFrame(), meta=None, **kwargs):
 
         dataframe = dataframe
-        meta_ = {}
-        meta_['Production date'] = datetime.now().isoformat(' ')
-        meta_['Source'] = 'design'
-        meta_['State'] = 'raw'
-        meta_['History'] = ['instantiated from dataframe']
+        meta_ = metadata_pb2.Metadata()
+        meta_.production_date = int(time.time())
+        meta_.source = 'design'
+        meta_.state = metadata_pb2.RAW
+        meta_.history.append('instantiated from dataframe')
 
         if meta is not None:
-            meta_.update(meta)
+            meta_.MergeFrom(meta)
 
         return cls(dataframe=dataframe, meta=meta_, **kwargs)
 
@@ -110,40 +115,42 @@ class LocData():
 
         references = locdata
         indices = indices
-        meta_ = locdata.meta.copy()
-        meta_.pop('Identifier', None)
+        meta_ = metadata_pb2.Metadata()
+        meta_.CopyFrom(locdata.meta)
+        meta_.ClearField("identifier")
 
-        meta_['Modification date'] = datetime.now().isoformat(' ')
-        meta_['State'] = 'modified'
-        meta_['History'] = ['selection']
-        meta_['Ancestor id'] = locdata.meta['Identifier']
+        meta_.modification_date = int(time.time())
+        meta_.state = metadata_pb2.MODIFIED
+        meta_.history.append('selection')
+        meta_.ancestor_identifiers.append(locdata.meta.identifier)
 
         if meta is not None:
-            meta_.update(meta)
+            meta_.MergeFrom(meta)
 
         return cls(references=references, indices=indices, meta=meta_, **kwargs)
 
 
     @classmethod
-    def from_collection(cls, *args, meta=None, **kwargs):
+    def from_collection(cls, *args, **kwargs):
 
         references = args
         dataframe = pd.DataFrame([ref.properties for ref in references])
 
-        meta_ = {}
-        meta_['Modification date'] = datetime.now().isoformat(' ')
-        meta_['State'] = 'modified'
-        meta_['History'] = ['collection']
-        meta_['Ancestor id'] = [ref.meta['Identifier'] for ref in references]
+        meta_ = metadata_pb2.Metadata()
+        meta_.modification_date = int(time.time())
+        meta_.state = metadata_pb2.MODIFIED
+        meta_.history.append('collection')
+        meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
 
-        if meta is not None:
-            meta_.update(meta)
+        if 'meta' in kwargs:
+            meta_.MergeFrom(kwargs['meta'])
+            kwargs['meta'] = meta_
 
-        return cls(references=references, dataframe=dataframe, meta=meta_, **kwargs)
+        return cls(references=references, dataframe=dataframe, **kwargs)
 
 
     @classmethod
-    def concat(cls, *locdata, meta=None, **kwargs):
+    def concat(cls, *locdata, **kwargs):
         """
         Concatenate locdata objects.
 
@@ -162,17 +169,14 @@ class LocData():
 
 
         dataframe = pd.concat([i.data for i in locdata], ignore_index=True)
-        if meta is not None:
-            meta_ = meta
-        else:
-            meta_ = {}
+        meta_ = kwargs.get('meta', metadata_pb2.Metadata())
+        meta_.modification_date = int(time.time())
+        meta_.state = metadata_pb2.MODIFIED
+        meta_.history.append('collection')
+        meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdata]
+        kwargs['meta'] = meta_
 
-        meta_['Modification date'] = datetime.now().isoformat(' ')
-        meta_['State'] = 'modified'
-        meta_['History'] = ['collection']
-        meta_['Ancestor id'] = [dat.meta['Identifier'] for dat in locdata]
-
-        return cls(dataframe=dataframe, meta=meta_, **kwargs)
+        return cls(dataframe=dataframe, **kwargs)
 
 
     @property
@@ -240,9 +244,5 @@ class LocData():
             self.references = None
             return 1
 
-
     def print_meta(self):
-        for k, v in self.meta.items():
-            print (k + ": " + str(v))
-
-
+        print text_format.MessageToString(self.meta)

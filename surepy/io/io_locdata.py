@@ -3,6 +3,7 @@
 Methods for file input/output with Dataset objects.
 
 """
+import time
 import io
 import warnings
 
@@ -49,20 +50,16 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
         dataframe = pd.read_table(path, sep=sep, skiprows=1, nrows=nrows, names=columns)
 
     dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
-    dat.meta.state = metadata_pb2.RAW
-    dat.meta.experimental_setup =  {}
-    dat.meta['Experimental sample'] =  {}
-    dat.meta['File type'] = 'custom'
-    dat.meta['File path'] = str(path)
-    dat.meta['Units'] = {'Position_x': 'nm', 'Position_y': 'nm'}
-    dat.meta['History'] = [{'Method:': 'load_txt_file', 'Parameter': [path, sep, columns, nrows]}]
 
-    meta_ = metadata_pb2.Metadata()
-    meta_.production_date = int(time.time())
-    meta_.source = 'design'
-    meta_.state = metadata_pb2.RAW
-    meta_.history.append('collection')
-    meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
+    dat.meta.creation_date = int(time.time())
+    dat.meta.state = metadata_pb2.RAW
+    dat.meta.file_type = metadata_pb2.CUSTOM
+    dat.meta.file_path = str(path)
+    # todo: add unit
+    #dat.meta.history.add(name='load_txt_file', parameter=)
+    # todo: add parameter
+    #dat.meta['History'] = [{'Method:': 'load_txt_file', 'Parameter': [path, sep, columns, nrows]}]
+
 
     return dat
 
@@ -125,13 +122,19 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
     dataframe = pd.read_table(path, sep=" ", skiprows=1, nrows=nrows, names=columns)
 
     dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
-    dat.meta['State'] = 'raw'
-    dat.meta['Experimental setup'] =  {}
-    dat.meta['Experimental sample'] =  {}
-    dat.meta['File type'] = 'rapidStorm'
-    dat.meta['File path'] = str(path)
-    dat.meta['Units'] = {'Position_x': 'nm', 'Position_y': 'nm'}
-    dat.meta['History'] = [{'Method:': 'load_rapidSTORM_file', 'Parameter': [path, nrows]}]
+
+    dat.meta.creation_date = int(time.time())
+    dat.meta.state = metadata_pb2.RAW
+    dat.meta.file_type = metadata_pb2.RAPIDSTORM
+    dat.meta.file_path = str(path)
+
+    # dat.meta['State'] = 'raw'
+    # dat.meta['Experimental setup'] =  {}
+    # dat.meta['Experimental sample'] =  {}
+    # dat.meta['File type'] = 'rapidStorm'
+    # dat.meta['File path'] = str(path)
+    # dat.meta['Units'] = {'Position_x': 'nm', 'Position_y': 'nm'}
+    # dat.meta['History'] = [{'Method:': 'load_rapidSTORM_file', 'Parameter': [path, nrows]}]
 
     return dat
 
@@ -192,13 +195,19 @@ def load_Elyra_file(path, nrows=None, **kwargs):
         dataframe = pd.read_table(stream, sep="\t", skiprows=1, nrows=nrows, names=columns)
 
     dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
-    dat.meta['State'] = 'raw'
-    dat.meta['Experimental setup'] =  {}
-    dat.meta['Experimental sample'] =  {}
-    dat.meta['File type'] = 'Elyra'
-    dat.meta['File path'] = str(path)
-    dat.meta['Units'] = {'Position_x': 'nm', 'Position_y': 'nm'}
-    dat.meta['History'] = [{'Method:': 'load_Elyra_file', 'Parameter': [path, nrows]}]
+
+    dat.meta.creation_date = int(time.time())
+    dat.meta.state = metadata_pb2.RAW
+    dat.meta.file_type = metadata_pb2.ELYRA
+    dat.meta.file_path = str(path)
+
+    # dat.meta['State'] = 'raw'
+    # dat.meta['Experimental setup'] =  {}
+    # dat.meta['Experimental sample'] =  {}
+    # dat.meta['File type'] = 'Elyra'
+    # dat.meta['File path'] = str(path)
+    # dat.meta['Units'] = {'Position_x': 'nm', 'Position_y': 'nm'}
+    # dat.meta['History'] = [{'Method:': 'load_Elyra_file', 'Parameter': [path, nrows]}]
 
     return dat
 

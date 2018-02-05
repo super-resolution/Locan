@@ -12,6 +12,7 @@ import xml.etree.ElementTree as etree
 
 from surepy import LocData
 import surepy.constants
+from surepy.data import metadata_pb2
 
 # todo: take out **kwargs
 
@@ -24,7 +25,7 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
     Parameters
     ----------
     path : str or Path object
-        File path for a rapidSTORM file to load.
+        File path for a localization file to load.
     sep : str
         separator between column values (Default: ',')
     columns : list of str or None
@@ -48,13 +49,20 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
         dataframe = pd.read_table(path, sep=sep, skiprows=1, nrows=nrows, names=columns)
 
     dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
-    dat.meta['State'] = 'raw'
-    dat.meta['Experimental setup'] =  {}
+    dat.meta.state = metadata_pb2.RAW
+    dat.meta.experimental_setup =  {}
     dat.meta['Experimental sample'] =  {}
     dat.meta['File type'] = 'custom'
     dat.meta['File path'] = str(path)
     dat.meta['Units'] = {'Position_x': 'nm', 'Position_y': 'nm'}
     dat.meta['History'] = [{'Method:': 'load_txt_file', 'Parameter': [path, sep, columns, nrows]}]
+
+    meta_ = metadata_pb2.Metadata()
+    meta_.production_date = int(time.time())
+    meta_.source = 'design'
+    meta_.state = metadata_pb2.RAW
+    meta_.history.append('collection')
+    meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
 
     return dat
 

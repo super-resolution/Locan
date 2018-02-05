@@ -54,24 +54,3 @@ ELYRA_KEYS = {
 }
 
 
-# Standard keys for metadata in LocData
-
-META_DICT = {
-    'Identifier':'',
-    'Comment': '',
-    'Production date': '',
-    'Modification date': '', # last modification
-    'State': '',  # [raw, modified]
-    'Source': '', # [experiment, simulation, design, import]
-    'Experimental setup': {},
-    'Experimental sample': {},
-    'File type': '', # [rapidStorm, Elyra]
-    'File path': '',
-    'Simulation': {'Description': '', 'Method': '', 'Parameter': {}},
-    'Number of elements': '',
-    'Number of frames': '',
-    'Units': {},
-    'History': [{'Method:': '', 'Parameter': {}}], # list of modifications with function name and parameter for applied method
-    'Ancestor id': '',
-    }
-

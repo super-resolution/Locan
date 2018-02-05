@@ -7,24 +7,57 @@ syntax = "proto2";
 
 package surepy;
 
+enum Source {
+    UNKNOWN_SOURCE = 0;
+    DESIGN = 1;
+    EXPERIMENT = 2;
+    SIMULATION = 3;
+    IMPORT = 4;
+}
+
 enum State {
-    UNKNOWN = 0;
+    UNKNOWN_STATE = 0;
     RAW = 1;
     MODIFIED = 2;
 }
 
-// Next id: 11
+enum File_type {
+    UNKNOWN_FILE_TYPE = 0;
+    CUSTOM = 1;
+    RAPIDSTORM = 2;
+    ELYRA = 3;
+    THUNDERSTORM = 4;
+}
+
+message Operation {
+    optional string name = 1;
+    optional string parameter = 2;
+}
+
+// Next id: 18
 message Metadata {
   optional string identifier = 1;
+  optional string comment = 2;
   // Timestamp in seconds since Unix epoch
-  optional int64 production_date = 2;
+  optional int64 creation_date = 3;
   // Timestamp in seconds since Unix epoch
-  optional int64 modification_date = 3;
-  optional string source = 4;
-  optional State state = 5;
-  repeated string history = 6;
-  optional int64 element_count = 7;
-  optional int64 frame_count = 8;
+  optional int64 modification_date = 4;
+  // Timestamp in seconds since Unix epoch
+  optional int64 production_date = 5;
+
+  optional Source source = 6;
+  optional State state = 7;
+  repeated Operation history = 8;
   repeated string ancestor_identifiers = 9;
-  optional string comment = 10;
+
+  repeated string unit = 10;
+  optional int64 element_count = 11;
+  optional int64 frame_count = 12;
+
+  optional File_type file_type = 13;
+  optional string file_path = 14;
+  optional string experimental_setup = 15;
+  optional string experimental_sample = 16;
+
+  optional string simulation = 17;
 }

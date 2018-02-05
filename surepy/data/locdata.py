@@ -71,15 +71,20 @@ class LocData():
 
         # meta
         self.meta.identifier = str(self.__class__.count)
-        self.meta.production_date = int(time.time())
-        self.meta.source = 'design'
+        self.meta.creation_date = int(time.time())
+        self.meta.source = metadata_pb2.DESIGN
         self.meta.state = metadata_pb2.RAW
-        self.meta.history.append('instantiated')
+        self.meta.history.add(name = 'instantiate')
+
         self.meta.element_count = len(self.data.index)
         if 'Frame' in self.data.columns:
             self.meta.frame_count = len(self.data['Frame'].unique())
 
-        if meta is not None:
+        if meta is None:
+            pass
+        elif isinstance(meta, dict):
+            text_format.Merge(meta, self.meta)
+        else:
             self.meta.MergeFrom(meta)
 
         # coordinate labels
@@ -100,12 +105,17 @@ class LocData():
 
         dataframe = dataframe
         meta_ = metadata_pb2.Metadata()
-        meta_.production_date = int(time.time())
-        meta_.source = 'design'
-        meta_.state = metadata_pb2.RAW
-        meta_.history.append('instantiated from dataframe')
 
-        if meta is not None:
+        meta_.creation_date = int(time.time())
+        meta_.source = metadata_pb2.DESIGN
+        meta_.state = metadata_pb2.RAW
+        meta_.history.add(name = 'LocData.from_dataframe')
+
+        if meta is None:
+            pass
+        elif isinstance(meta, dict):
+            text_format.Merge(meta, meta_)
+        else:
             meta_.MergeFrom(meta)
 
         return cls(dataframe=dataframe, meta=meta_, **kwargs)
@@ -122,10 +132,14 @@ class LocData():
 
         meta_.modification_date = int(time.time())
         meta_.state = metadata_pb2.MODIFIED
-        meta_.history.append('selection')
         meta_.ancestor_identifiers.append(locdata.meta.identifier)
+        meta_.history.add(name = 'LocData.from_selection')
 
-        if meta is not None:
+        if meta is None:
+            pass
+        elif isinstance(meta, dict):
+            text_format.Merge(meta, meta_)
+        else:
             meta_.MergeFrom(meta)
 
         return cls(references=references, indices=indices, meta=meta_, **kwargs)
@@ -138,13 +152,18 @@ class LocData():
         dataframe = pd.DataFrame([ref.properties for ref in references])
 
         meta_ = metadata_pb2.Metadata()
-        meta_.production_date = int(time.time())
-        meta_.source = 'design'
-        meta_.state = metadata_pb2.RAW
-        meta_.history.append('collection')
-        meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
 
-        if meta is not None:
+        meta_.creation_date = int(time.time())
+        meta_.source = metadata_pb2.DESIGN
+        meta_.state = metadata_pb2.RAW
+        meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
+        meta_.history.add(name = 'LocData.from_collection')
+
+        if meta is None:
+            pass
+        elif isinstance(meta, dict):
+            text_format.Merge(meta, meta_)
+        else:
             meta_.MergeFrom(meta)
 
         return cls(references=references, dataframe=dataframe, meta=meta_, **kwargs)
@@ -169,15 +188,19 @@ class LocData():
         """
 
         dataframe = pd.concat([i.data for i in locdata], ignore_index=True)
-
         meta_ = metadata_pb2.Metadata()
-        meta_.production_date = int(time.time())
-        meta_.source = 'design'
-        meta_.state = metadata_pb2.MODIFIED
-        meta_.history.append('concatenated')
-        meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdata]
 
-        if meta is not None:
+        meta_.creation_date = int(time.time())
+        meta_.source = metadata_pb2.DESIGN
+        meta_.state = metadata_pb2.MODIFIED
+        meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdata]
+        meta_.history.add(name = 'concat')
+
+        if meta is None:
+            pass
+        elif isinstance(meta, dict):
+            text_format.Merge(meta, meta_)
+        else:
             meta_.MergeFrom(meta)
 
         return cls(dataframe=dataframe, meta=meta_, **kwargs)
@@ -243,7 +266,6 @@ class LocData():
             self.references = None
             return 1
         else:
-            self
             self.dataframe = self.dataframe.reset_index()
             self.indices = None
             self.references = None

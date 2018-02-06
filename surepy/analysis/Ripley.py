@@ -1,22 +1,24 @@
 """
 This module provides methods for computing Ripley's k function.
 """
-import
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+
+from astropy.stats import RipleysKEstimator
 
 from surepy.analysis.analysis import Analysis
 
 
 class Ripleys_h_function(Analysis):
     """
-    Compute the number of localizations in each frame.
+    Compute Ripley's h function.
 
     Parameters
     ----------
     locdata : LocData object
         Localization data.
-    normalization : str or int or float or None
-        The data is normalized to a property of locdata (specified by property name) or to a number. It is not
-        normalized for normalization being None (default: None).
+
 
     Attributes
     ----------
@@ -32,41 +34,36 @@ class Ripleys_h_function(Analysis):
     """
     count = 0
 
-    def __init__(self, locdata, meta=None, normalization=None):
-        super().__init__(locdata, meta=meta, normalization=normalization)
+    def __init__(self, locdata, meta=None, radii=np.linspace(0, 100, 10)):
+        super().__init__(locdata, meta=meta, radii=radii)
 
 
-    def _compute_results(self, locdata, normalization=None):
+    def _compute_results(self, locdata, radii = np.linspace(0, 100, 10)):
 
-        if normalization is None:
-            normalization_factor = 1
-        elif isinstance(normalization, str):
-            normalization_factor = locdata.properties[normalization]
-        elif isinstance(normalization, (int, float)):
-            normalization_factor = normalization
-        else:
-            raise TypeError('normalization should be None, a number or a valid property name.')
+        if locdata.coordinate_labels == {'Position_x', 'Position_y', 'Position_z'}:
+            raise NotImplementedError('Ripley\'s k function is only implemented for 2D data.')
 
-        return locdata.data.groupby('Frame').size() / normalization_factor
+        x_min, y_min, x_max, y_max = [float(n) for n in locdata.bounding_box.hull.flatten()]
+        area = float(locdata.properties['Region_measure_bb'])
+
+        RKest = RipleysKEstimator(area, x_max, y_max, x_min, y_min)
+
+        res_data = RKest(data=locdata.coordinates, radii=radii, mode='none')
+        res_csr = RKest.poisson(radii)
+
+        return pd.DataFrame({'radius': radii, 'Ripley_h_data':res_data, 'Ripley_h_csr':res_csr})
 
 
-    def hist(self, ax, bins='auto'):
-        """ Provide histogram as matplotlib axes object showing hist(results). """
-        ax.hist(self.results.values, bins=bins, normed=True, log=False)
-        ax.set(title = 'Localizations per Frame',
-               xlabel = 'number of localizations',
-               ylabel = 'PDF'
-               )
 
-    def plot(self, ax, window=1):
+    def plot(self, ax):
         """ Provide plot as matplotlib axes object showing the running average of results over window size. """
-        self.results.rolling(window=window, center=True).mean().plot(ax=ax)
-        ax.set(title = 'Localizations per Frame',
-               xlabel = 'Frame',
-               ylabel = 'number of localizations'
+        self.results.plot(ax=ax)
+        ax.set(title = 'Ripley\'s h function',
+               xlabel = 'Radius',
+               ylabel = 'Ripley\'s h function'
                )
         ax.text(0.1,0.9,
-                "window = " + str(window),
+                "Maximum: " + 'not yet',
                 transform = ax.transAxes
                 )
 

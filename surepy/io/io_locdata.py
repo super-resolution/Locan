@@ -52,6 +52,7 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
     dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
 
     dat.meta.creation_date = int(time.time())
+    dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
     dat.meta.file_type = metadata_pb2.CUSTOM
     dat.meta.file_path = str(path)
@@ -123,6 +124,7 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
     dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
 
     dat.meta.creation_date = int(time.time())
+    dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
     dat.meta.file_type = metadata_pb2.RAPIDSTORM
     dat.meta.file_path = str(path)
@@ -194,6 +196,7 @@ def load_Elyra_file(path, nrows=None, **kwargs):
     dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
 
     dat.meta.creation_date = int(time.time())
+    dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
     dat.meta.file_type = metadata_pb2.ELYRA
     dat.meta.file_path = str(path)

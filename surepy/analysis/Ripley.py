@@ -1,10 +1,12 @@
 """
 This module provides methods for computing Ripley's k function.
 """
+import
+
 from surepy.analysis.analysis import Analysis
 
 
-class Ripleys_k_function(Analysis):
+class Ripleys_h_function(Analysis):
     """
     Compute the number of localizations in each frame.
 

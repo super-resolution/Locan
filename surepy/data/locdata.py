@@ -129,7 +129,20 @@ class LocData():
         indices = indices
         meta_ = metadata_pb2.Metadata()
         meta_.CopyFrom(locdata.meta)
-        meta_.ClearField("identifier")
+        try:
+            meta_.ClearField("identifier")
+        except ValueError:
+            pass
+
+        try:
+            meta_.ClearField("event_count")
+        except ValueError:
+            pass
+
+        try:
+            meta_.ClearField("frame_count")
+        except ValueError:
+            pass
 
         meta_.modification_date = int(time.time())
         meta_.state = metadata_pb2.MODIFIED
@@ -277,4 +290,25 @@ class LocData():
 
 
     def print_meta(self):
+        '''
+        Print Locdata.metadata.
+        '''
         print (text_format.MessageToString(self.meta))
+
+
+    def print_summary(self):
+        '''
+        Print a summary containing the most common metadata keys.
+        '''
+        meta_ = metadata_pb2.Metadata()
+        meta_.identifier = self.meta.identifier
+        meta_.creation_date = self.meta.creation_date
+        meta_.modification_date = self.meta.modification_date
+        meta_.source = self.meta.source
+        meta_.state = self.meta.state
+        meta_.element_count = self.meta.element_count
+        meta_.frame_count = self.meta.frame_count
+
+        print (text_format.MessageToString(meta_))
+
+

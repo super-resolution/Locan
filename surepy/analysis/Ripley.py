@@ -48,16 +48,17 @@ class Ripleys_h_function(Analysis):
 
         RKest = RipleysKEstimator(area, x_max, y_max, x_min, y_min)
 
-        res_data = RKest(data=locdata.coordinates, radii=radii, mode='none')
-        res_csr = RKest.poisson(radii)
+        res_data = RKest.Hfunction(data=locdata.coordinates, radii=radii, mode='none')
+        #res_csr = RKest.poisson(radii)
 
-        return pd.DataFrame({'radius': radii, 'Ripley_h_data':res_data, 'Ripley_h_csr':res_csr})
+        # return pd.DataFrame({'radius': radii, 'Ripley_h_data':res_data, 'Ripley_h_csr':res_csr})
+        return pd.DataFrame({'radius': radii, 'Ripley_h_data': res_data})
 
 
 
     def plot(self, ax):
         """ Provide plot as matplotlib axes object showing the running average of results over window size. """
-        self.results.plot(ax=ax)
+        self.results.plot(x='radius', ax=ax)
         ax.set(title = 'Ripley\'s h function',
                xlabel = 'Radius',
                ylabel = 'Ripley\'s h function'

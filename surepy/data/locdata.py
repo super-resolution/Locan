@@ -302,6 +302,7 @@ class LocData():
         '''
         meta_ = metadata_pb2.Metadata()
         meta_.identifier = self.meta.identifier
+        meta_.comment = self.meta.comment
         meta_.creation_date = self.meta.creation_date
         meta_.modification_date = self.meta.modification_date
         meta_.source = self.meta.source

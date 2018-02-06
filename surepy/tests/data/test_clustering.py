@@ -31,6 +31,12 @@ def test_clustering_hdbscan(locdata):
     #print(clust.data.head())
     assert (len(clust) == 5)
 
+def test_clustering_hdbscan_with_noise(locdata):
+    #print(locdata.data.head())
+    clust = clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = False, noise=True)
+    #print(clust.data.head())
+    assert (len(clust) == 2)
+
 def test_clustering_hdbscan_3D(locdata_3D):
     #print(locdata.data.head())
     clust = clustering_hdbscan(locdata_3D, min_cluster_size = 5, allow_single_cluster = False)

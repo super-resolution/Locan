@@ -29,7 +29,7 @@ def clustering(locdata, **kwargs):
     raise NotImplementedError
 
 
-def clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = False):
+def clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = False, noise=False):
     """
     Cluster localizations in locdata using the hdbscan clustering algorithm.
 
@@ -41,11 +41,15 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = Fal
         minimumm cluster size in HDBSCAN algorithm (default: 5)
     allow_single_cluster : bool
         allowing to return single cluster (default: False)
+    noise : bool
+        Flag indicating if the first cluster represents noise. If True a tuple of LocData objects is returned with
+        noise and cluster collection. If False a single LocData object is returned.
 
     Returns
     -------
-    LocData
+    LocData or tuple of LocData
         A new LocData instance assembling all generated selections (i.e. localization cluster).
+        If noise is True the first LocData object is a selection of all localizations that are defined as noise.
     """
     labels = hdbscan.HDBSCAN(
         min_cluster_size=min_cluster_size,
@@ -54,16 +58,25 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = Fal
     ).fit_predict(locdata.coordinates)
 
     grouped = locdata.data.groupby(labels)
-    selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
-    col = LocData.from_collection(*selections)
+
+    if noise:
+        selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
+        noise = selections[0]
+        collection = LocData.from_collection(*selections[1:])
+    else:
+        selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
+        collection = LocData.from_collection(*selections)
 
     # metadata
-    del col.meta.history[:]
-    col.meta.history.add(name='clustering_hdbscan',
+    del collection.meta.history[:]
+    collection.meta.history.add(name='clustering_hdbscan',
                          parameter='locdata={}, min_cluster_size={}, allow_single_cluster={}'.format(
                              locdata, min_cluster_size, allow_single_cluster))
 
-    return col
+    if noise:
+        return noise, collection
+    else:
+        return collection
 
 
 

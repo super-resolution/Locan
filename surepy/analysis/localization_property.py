@@ -21,6 +21,8 @@ class Localization_property(Analysis):
         Localization data.
     property : str
         The property to analyze.
+    index : str or None
+        The property name that should serve as index (i.e. x-axis in x-y-plot)
 
     Attributes
     ----------

@@ -32,7 +32,9 @@ def select_by_condition(locdata, condition, **kwargs):
     new_locdata = LocData.from_selection(locdata=locdata, indices=new_indices, **kwargs)
 
     # metadata
-    new_locdata.meta['History'].append({'Method:': 'select_by_condition', 'Parameter': [locdata, condition]})
+    del new_locdata.meta.history[:]
+    new_locdata.meta.history.add(name='select_by_condition',
+                         parameter='locdata={}, condition={}'.format(locdata, condition))
 
     return new_locdata
 

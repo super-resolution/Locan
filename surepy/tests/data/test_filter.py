@@ -16,3 +16,4 @@ def locdata_simple():
 def test_select_by_condition(locdata_simple):
     dat_s = select_by_condition(locdata_simple, 'Position_x>1')
     assert (len(dat_s) == 2)
+    # dat_s.print_meta()

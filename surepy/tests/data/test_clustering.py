@@ -36,3 +36,4 @@ def test_clustering_hdbscan_3D(locdata_3D):
     clust = clustering_hdbscan(locdata_3D, min_cluster_size = 5, allow_single_cluster = False)
     #print(clust.data.head())
     assert (len(clust) == 5)
+    # clust.print_meta()

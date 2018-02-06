@@ -34,6 +34,11 @@ message Operation {
     optional string parameter = 2;
 }
 
+message Unit {
+    optional string property = 1;
+    optional string unit = 2;
+}
+
 // Next id: 18
 message Metadata {
   optional string identifier = 1;
@@ -50,7 +55,7 @@ message Metadata {
   repeated Operation history = 8;
   repeated string ancestor_identifiers = 9;
 
-  repeated string unit = 10;
+  repeated Unit unit = 10;
   optional int64 element_count = 11;
   optional int64 frame_count = 12;
 

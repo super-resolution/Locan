@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='data/metadata.proto',
   package='surepy',
   syntax='proto2',
-  serialized_pb=_b('\n\x13\x64\x61ta/metadata.proto\x12\x06surepy\",\n\tOperation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tparameter\x18\x02 \x01(\t\"\xba\x03\n\x08Metadata\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x15\n\rcreation_date\x18\x03 \x01(\x03\x12\x19\n\x11modification_date\x18\x04 \x01(\x03\x12\x17\n\x0fproduction_date\x18\x05 \x01(\x03\x12\x1e\n\x06source\x18\x06 \x01(\x0e\x32\x0e.surepy.Source\x12\x1c\n\x05state\x18\x07 \x01(\x0e\x32\r.surepy.State\x12\"\n\x07history\x18\x08 \x03(\x0b\x32\x11.surepy.Operation\x12\x1c\n\x14\x61ncestor_identifiers\x18\t \x03(\t\x12\x0c\n\x04unit\x18\n \x03(\t\x12\x15\n\relement_count\x18\x0b \x01(\x03\x12\x13\n\x0b\x66rame_count\x18\x0c \x01(\x03\x12$\n\tfile_type\x18\r \x01(\x0e\x32\x11.surepy.File_type\x12\x11\n\tfile_path\x18\x0e \x01(\t\x12\x1a\n\x12\x65xperimental_setup\x18\x0f \x01(\t\x12\x1b\n\x13\x65xperimental_sample\x18\x10 \x01(\t\x12\x12\n\nsimulation\x18\x11 \x01(\t*T\n\x06Source\x12\x12\n\x0eUNKNOWN_SOURCE\x10\x00\x12\n\n\x06\x44\x45SIGN\x10\x01\x12\x0e\n\nEXPERIMENT\x10\x02\x12\x0e\n\nSIMULATION\x10\x03\x12\n\n\x06IMPORT\x10\x04*1\n\x05State\x12\x11\n\rUNKNOWN_STATE\x10\x00\x12\x07\n\x03RAW\x10\x01\x12\x0c\n\x08MODIFIED\x10\x02*[\n\tFile_type\x12\x15\n\x11UNKNOWN_FILE_TYPE\x10\x00\x12\n\n\x06\x43USTOM\x10\x01\x12\x0e\n\nRAPIDSTORM\x10\x02\x12\t\n\x05\x45LYRA\x10\x03\x12\x10\n\x0cTHUNDERSTORM\x10\x04')
+  serialized_pb=_b('\n\x13\x64\x61ta/metadata.proto\x12\x06surepy\",\n\tOperation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tparameter\x18\x02 \x01(\t\"&\n\x04Unit\x12\x10\n\x08property\x18\x01 \x01(\t\x12\x0c\n\x04unit\x18\x02 \x01(\t\"\xc8\x03\n\x08Metadata\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x15\n\rcreation_date\x18\x03 \x01(\x03\x12\x19\n\x11modification_date\x18\x04 \x01(\x03\x12\x17\n\x0fproduction_date\x18\x05 \x01(\x03\x12\x1e\n\x06source\x18\x06 \x01(\x0e\x32\x0e.surepy.Source\x12\x1c\n\x05state\x18\x07 \x01(\x0e\x32\r.surepy.State\x12\"\n\x07history\x18\x08 \x03(\x0b\x32\x11.surepy.Operation\x12\x1c\n\x14\x61ncestor_identifiers\x18\t \x03(\t\x12\x1a\n\x04unit\x18\n \x03(\x0b\x32\x0c.surepy.Unit\x12\x15\n\relement_count\x18\x0b \x01(\x03\x12\x13\n\x0b\x66rame_count\x18\x0c \x01(\x03\x12$\n\tfile_type\x18\r \x01(\x0e\x32\x11.surepy.File_type\x12\x11\n\tfile_path\x18\x0e \x01(\t\x12\x1a\n\x12\x65xperimental_setup\x18\x0f \x01(\t\x12\x1b\n\x13\x65xperimental_sample\x18\x10 \x01(\t\x12\x12\n\nsimulation\x18\x11 \x01(\t*T\n\x06Source\x12\x12\n\x0eUNKNOWN_SOURCE\x10\x00\x12\n\n\x06\x44\x45SIGN\x10\x01\x12\x0e\n\nEXPERIMENT\x10\x02\x12\x0e\n\nSIMULATION\x10\x03\x12\n\n\x06IMPORT\x10\x04*1\n\x05State\x12\x11\n\rUNKNOWN_STATE\x10\x00\x12\x07\n\x03RAW\x10\x01\x12\x0c\n\x08MODIFIED\x10\x02*[\n\tFile_type\x12\x15\n\x11UNKNOWN_FILE_TYPE\x10\x00\x12\n\n\x06\x43USTOM\x10\x01\x12\x0e\n\nRAPIDSTORM\x10\x02\x12\t\n\x05\x45LYRA\x10\x03\x12\x10\n\x0cTHUNDERSTORM\x10\x04')
 )
 
 _SOURCE = _descriptor.EnumDescriptor(
@@ -52,8 +52,8 @@ _SOURCE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=522,
-  serialized_end=606,
+  serialized_start=576,
+  serialized_end=660,
 )
 _sym_db.RegisterEnumDescriptor(_SOURCE)
 
@@ -79,8 +79,8 @@ _STATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=608,
-  serialized_end=657,
+  serialized_start=662,
+  serialized_end=711,
 )
 _sym_db.RegisterEnumDescriptor(_STATE)
 
@@ -114,8 +114,8 @@ _FILE_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=659,
-  serialized_end=750,
+  serialized_start=713,
+  serialized_end=804,
 )
 _sym_db.RegisterEnumDescriptor(_FILE_TYPE)
 
@@ -171,6 +171,44 @@ _OPERATION = _descriptor.Descriptor(
   ],
   serialized_start=31,
   serialized_end=75,
+)
+
+
+_UNIT = _descriptor.Descriptor(
+  name='Unit',
+  full_name='surepy.Unit',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='property', full_name='surepy.Unit.property', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='unit', full_name='surepy.Unit.unit', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=77,
+  serialized_end=115,
 )
 
 
@@ -246,7 +284,7 @@ _METADATA = _descriptor.Descriptor(
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='unit', full_name='surepy.Metadata.unit', index=9,
-      number=10, type=9, cpp_type=9, label=3,
+      number=10, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -312,15 +350,17 @@ _METADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=78,
-  serialized_end=520,
+  serialized_start=118,
+  serialized_end=574,
 )
 
 _METADATA.fields_by_name['source'].enum_type = _SOURCE
 _METADATA.fields_by_name['state'].enum_type = _STATE
 _METADATA.fields_by_name['history'].message_type = _OPERATION
+_METADATA.fields_by_name['unit'].message_type = _UNIT
 _METADATA.fields_by_name['file_type'].enum_type = _FILE_TYPE
 DESCRIPTOR.message_types_by_name['Operation'] = _OPERATION
+DESCRIPTOR.message_types_by_name['Unit'] = _UNIT
 DESCRIPTOR.message_types_by_name['Metadata'] = _METADATA
 DESCRIPTOR.enum_types_by_name['Source'] = _SOURCE
 DESCRIPTOR.enum_types_by_name['State'] = _STATE
@@ -333,6 +373,13 @@ Operation = _reflection.GeneratedProtocolMessageType('Operation', (_message.Mess
   # @@protoc_insertion_point(class_scope:surepy.Operation)
   ))
 _sym_db.RegisterMessage(Operation)
+
+Unit = _reflection.GeneratedProtocolMessageType('Unit', (_message.Message,), dict(
+  DESCRIPTOR = _UNIT,
+  __module__ = 'data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:surepy.Unit)
+  ))
+_sym_db.RegisterMessage(Unit)
 
 Metadata = _reflection.GeneratedProtocolMessageType('Metadata', (_message.Message,), dict(
   DESCRIPTOR = _METADATA,

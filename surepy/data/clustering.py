@@ -58,7 +58,10 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = Fal
     col = LocData.from_collection(*selections)
 
     # metadata
-    col.meta['History'] = list({'Method:': 'clustering_hdbscan', 'Parameter': [min_cluster_size, allow_single_cluster]})
+    del col.meta.history[:]
+    col.meta.history.add(name='clustering_hdbscan',
+                         parameter='locdata={}, min_cluster_size={}, allow_single_cluster={}'.format(
+                             locdata, min_cluster_size, allow_single_cluster))
 
     return col
 

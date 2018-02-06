@@ -74,7 +74,6 @@ class LocData():
         self.meta.creation_date = int(time.time())
         self.meta.source = metadata_pb2.DESIGN
         self.meta.state = metadata_pb2.RAW
-        self.meta.history.add(name = 'instantiate')
 
         self.meta.element_count = len(self.data.index)
         if 'Frame' in self.data.columns:

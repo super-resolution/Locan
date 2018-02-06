@@ -55,11 +55,10 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
     dat.meta.state = metadata_pb2.RAW
     dat.meta.file_type = metadata_pb2.CUSTOM
     dat.meta.file_path = str(path)
-    # todo: add unit
-    #dat.meta.history.add(name='load_txt_file', parameter=)
-    # todo: add parameter
-    #dat.meta['History'] = [{'Method:': 'load_txt_file', 'Parameter': [path, sep, columns, nrows]}]
 
+    del dat.meta.history[:]
+    dat.meta.history.add(name='load_txt_file',
+                         parameter='path={}, sep={}, columns={}, nrows={}'.format(path, sep, columns, nrows))
 
     return dat
 
@@ -128,13 +127,11 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
     dat.meta.file_type = metadata_pb2.RAPIDSTORM
     dat.meta.file_path = str(path)
 
-    # dat.meta['State'] = 'raw'
-    # dat.meta['Experimental setup'] =  {}
-    # dat.meta['Experimental sample'] =  {}
-    # dat.meta['File type'] = 'rapidStorm'
-    # dat.meta['File path'] = str(path)
-    # dat.meta['Units'] = {'Position_x': 'nm', 'Position_y': 'nm'}
-    # dat.meta['History'] = [{'Method:': 'load_rapidSTORM_file', 'Parameter': [path, nrows]}]
+    for property in sorted(list(set(columns).intersection({'Position_x', 'Position_y', 'Position_z'}))):
+        dat.meta.unit.add(property=property, unit='nm')
+
+    del dat.meta.history[:]
+    dat.meta.history.add(name='load_rapidSTORM_file', parameter='path={}, nrows={}'.format(path, nrows))
 
     return dat
 
@@ -201,13 +198,8 @@ def load_Elyra_file(path, nrows=None, **kwargs):
     dat.meta.file_type = metadata_pb2.ELYRA
     dat.meta.file_path = str(path)
 
-    # dat.meta['State'] = 'raw'
-    # dat.meta['Experimental setup'] =  {}
-    # dat.meta['Experimental sample'] =  {}
-    # dat.meta['File type'] = 'Elyra'
-    # dat.meta['File path'] = str(path)
-    # dat.meta['Units'] = {'Position_x': 'nm', 'Position_y': 'nm'}
-    # dat.meta['History'] = [{'Method:': 'load_Elyra_file', 'Parameter': [path, nrows]}]
+    del dat.meta.history[:]
+    dat.meta.history.add(name='load_Elyra_file', parameter='path={}, nrows={}'.format(path, nrows))
 
     return dat
 

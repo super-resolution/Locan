@@ -7,7 +7,9 @@ Methods for simulating localization data.
 import numpy as np
 import pandas as pd
 from sklearn.datasets.samples_generator import make_blobs
+
 from surepy import LocData
+from surepy.data import metadata_pb2
 
 
 def simulate(**kwargs):
@@ -65,10 +67,12 @@ def simulate_csr(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z_
 
     dat = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
 
-    dat.meta['Source'] = 'simulation'
-    dat.meta['State'] = 'raw'
-    dat.meta['History'] = [].append({'Method': 'simulate_csr',
-                                     'Parameter': [n_samples, x_range, y_range, z_range, seed]})
+    # metadata
+    dat.meta.source = metadata_pb2.SIMULATION
+    del dat.meta.history[:]
+    dat.meta.history.add(name='simulate_csr',
+                         parameter='n_samples={}, x_range={}, y_range={}, z_range={}, seed={}'.format(
+                             n_samples, x_range, y_range, z_range, seed))
 
     return dat
 
@@ -124,11 +128,13 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,1
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
-    dat.meta['Source'] = 'simulation'
-    dat.meta['State'] = 'raw'
-    dat.meta['History'].append({'Method:': 'simulate_blobs',
-                                'Parameter': [n_centers, n_samples, n_features, n_centers, cluster_std, seed]
-                                })
+    # metadata
+    dat.meta.source = metadata_pb2.SIMULATION
+    del dat.meta.history[:]
+    dat.meta.history.add(name='simulate_blobs',
+                         parameter='n_centers={}, n_samples={}, n_features={}, center_box={}, cluster_std={}, '
+                                   'seed={}'.format(
+                             n_centers, n_samples, n_features, center_box, cluster_std, seed))
 
     return dat
 

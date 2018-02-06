@@ -10,6 +10,7 @@ def test_get_correct_column_names_from_rapidSTORM_header():
 
 def test_loading_rapidSTORM_file():
     dat = io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt', nrows=10)
+    #dat.print_meta()
     assert (len(dat) == 10)
 
 def test_get_correct_column_names_from_Elyra_header():
@@ -35,5 +36,6 @@ def test_loading_txt_file():
     with pytest.warns(UserWarning):
         dat = io.load_txt_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/five_blobs.txt', columns=['c1'], nrows=10)
     # print(dat.data)
+    assert (len(dat) == 10)
 
 

@@ -1,0 +1,22 @@
+name: test_surepy_env
+
+channels:
+- conda-forge
+
+dependencies:
+
+# essential dependencies
+- python=3
+- numpy
+- pandas
+- matplotlib
+- scipy
+- protobuf
+- ruamel.yaml
+
+# dependencies specific to a particular method
+- fast-histogram
+- hdbscan
+- asdf
+- astropy
+- scikit-image

@@ -4,18 +4,17 @@
 Metadata
 ========
 
-Each data class carries metadata that give details about the data history.
+Each instance of the LocData class carries metadata that give details about the data history.
 
-Each analysis class carries metadata that includes input parameters.
+Each instance of an analysis class carries metadata that includes input parameters for reprocessing.
 
 Metadata is saved together with data or analysis results in order to provide human- and machine-readable information
 and serve for information exchange between methods.
 
-Metadata consisting of parameter settings can e.g. be used in an analysis pipeline or for batch processing.
+Metadata containting method names and  parameter settings can e.g. be used in an analysis pipeline or for
+batch processing.
 
-All metadata will be made of (nested) key:value pairs (represented by a python dictionary).
-
-In each class metadata is a single variable with type dict.
+All metadata is structured as (nested) key:value pairs and implemented through Google's protobuf format.
 
 YAML_  seems to be the preferred file format for such metadata. For a python implementation we use
 ruamel.yaml_ .
@@ -23,11 +22,20 @@ ruamel.yaml_ .
 .. _YAML: http://www.yaml.org/spec/1.2/spec.html
 .. _ruamel.yaml: http://yaml.readthedocs.io/en/latest/index.html
 
-This way metadata can be standardized by providing certain keywords. It is easily readable and printable. And it can
-be saved in a YAML or any other text file format. It can possibly also serve as YAML header in a ASDF file format.
+The YAML format can possibly also serve as YAML header in a ASDF file format.
+
 
 Structure of metadata for data classes
 =======================================
+
+The current structure for metadata of the Locdata class is defined in metadata.proto.
+
+The current structure for metadata of Analysis classes is define in analysis_metadata.proto.
+
+
+The following list most likely needs updates:
+
+.. todo update list
 
 LocData:
 ---------

@@ -13,7 +13,9 @@ TheProject is organized by the following directory structure:
         - build
         - dist
 
-        - Surepy
+        - docs
+
+        - surepy
 
             - data
                 - properties
@@ -35,13 +37,6 @@ TheProject is organized by the following directory structure:
             - io
             - render
             - simulation
-
             - gui
-            - view
 
             - tests
-
-        - docs
-
-
-

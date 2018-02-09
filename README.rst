@@ -7,6 +7,9 @@ Single-molecule localization microscopy (SMLM) techniques rely on finding the po
 emitters in space and reconstructing a super-resolved image over time.
 The generated localizations are analyzed point-by-point for statistical and structural insight.
 
-Surepy is based on python 3, the standard SciPy packages and QT.
+Implementation notes
+--------------------
+
+This library is based on Python 3, QT, the standard SciPy and additional packages as listed in environment.yml.
 
 

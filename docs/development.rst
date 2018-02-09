@@ -4,20 +4,6 @@
 Development
 ===========================
 
-Libraries:
-==========
-
-We rely on the following packages throughout the project:
-
-    * standard packages from python 3
-    * standard SciPy packages (numpy, pandas, matplotlib)
-
-The analysis procedures make use of further packages including:
-
-    * pathlib
-    * shapely
-    * fast_histogram
-
 
 Import Conventions:
 ====================

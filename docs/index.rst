@@ -17,11 +17,6 @@ This project was started at the University of Würzburg and builds on various ap
 localization data. Read more about the :ref:`project name <name>`.
 
 
-Implementation notes
-====================
-
-* This library uses Python 3 with standard SciPy and additional packages as listed in :ref:`development`.
-
 
 .. toctree::
    :maxdepth: 1

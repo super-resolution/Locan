@@ -14,9 +14,11 @@ dependencies:
 - protobuf
 - ruamel.yaml
 
+
 # dependencies specific to a particular method
 - fast-histogram
 - hdbscan
 - asdf
 - astropy
 - scikit-image
+- shapely

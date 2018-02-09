@@ -4,7 +4,7 @@
 Methods
 ========
 
-TheProject will provide methods to work on the basic data structures and carry out analysis procedures.
+Surepy will provide methods to work on the basic data structures and carry out analysis procedures.
 
 The methods in this context can either be stand-alone functions with a well-defined input and output and absolutely
 no side-effects;

@@ -91,8 +91,10 @@ class Analysis():
         """ Load results."""
         raise NotImplementedError
 
-    def plot(self, ax):
+    def plot(self, ax=None):
         """ Provide an axes instance with plot of results."""
+        if ax is None:
+            ax = plt.gca()
         # ax.plot(results)
         raise NotImplementedError
 

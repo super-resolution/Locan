@@ -97,8 +97,11 @@ def load_rapidSTORM_header(path):
     # turn identifiers into valuable LocData keys
     column_keys = []
     for i in identifiers:
-        column_keys.append(surepy.constants.RAPIDSTORM_KEYS[i])
-
+        if i in surepy.constants.RAPIDSTORM_KEYS:
+            column_keys.append(surepy.constants.RAPIDSTORM_KEYS[i])
+        else:
+            warnings.warn('{} is not a Surepy property standard.'.format(i), UserWarning)
+            column_keys.append(i)
     return column_keys
 
 

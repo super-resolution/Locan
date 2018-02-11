@@ -29,7 +29,7 @@ def clustering(locdata, **kwargs):
     raise NotImplementedError
 
 
-def clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = False, noise=False):
+def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_cluster = False, kdims=False noise=False):
     """
     Cluster localizations in locdata using the hdbscan clustering algorithm.
 
@@ -37,6 +37,7 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = Fal
     ----------
     locdata : LocData
         specifying the localization data on which to perform the manipulation.
+    kdims : list of Propery keywords to be used for clustering. If None, locdata.coordinates will be used
     min_cluster_size : int
         minimumm cluster size in HDBSCAN algorithm (default: 5)
     allow_single_cluster : bool
@@ -51,11 +52,15 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = Fal
         A new LocData instance assembling all generated selections (i.e. localization cluster).
         If noise is True the first LocData object is a selection of all localizations that are defined as noise.
     """
+    if kdims is None:
+        fit_data = locdata.coordinates
+    else:
+        fit_data = locdata.data[kdims]
     labels = hdbscan.HDBSCAN(
         min_cluster_size=min_cluster_size,
         allow_single_cluster=allow_single_cluster,
         gen_min_span_tree=False
-    ).fit_predict(locdata.coordinates)
+    ).fit_predict(fitdata)
 
     grouped = locdata.data.groupby(labels)
 

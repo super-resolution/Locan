@@ -25,6 +25,7 @@ HULL_KEYS = {'bounding_box', 'convex_hull', 'oriented_bounding_box', 'alpha_shap
 RAPIDSTORM_KEYS = {
     'Position-0-0': 'Position_x',
     'Position-1-0': 'Position_y',
+    'Position-2-0': 'Position_z',
     'ImageNumber-0-0': 'Frame',
     'Amplitude-0-0': 'Intensity',
     'FitResidues-0-0': 'Chi_square',

@@ -52,7 +52,7 @@ class Localization_precision(Analysis):
         grouped = locdata.data.groupby('Frame')
 
         # find nearest neighbors
-        min = locdata.data['Frame'].min() # i do not think you need unique
+        min = locdata.data['Frame'].min()
         max = locdata.data['Frame'].max()
 
         results = pd.DataFrame()

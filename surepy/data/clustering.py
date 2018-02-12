@@ -29,7 +29,7 @@ def clustering(locdata, **kwargs):
     raise NotImplementedError
 
 
-def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_cluster = False, kdims=False noise=False):
+def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_cluster = False, noise=False):
     """
     Cluster localizations in locdata using the hdbscan clustering algorithm.
 

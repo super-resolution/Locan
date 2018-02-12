@@ -37,7 +37,8 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
     ----------
     locdata : LocData
         specifying the localization data on which to perform the manipulation.
-    kdims : list of Propery keywords to be used for clustering. If None, locdata.coordinates will be used
+    kdims : list of string
+        Propery keywords to be used for clustering. If None, locdata.coordinates will be used.
     min_cluster_size : int
         minimumm cluster size in HDBSCAN algorithm (default: 5)
     allow_single_cluster : bool

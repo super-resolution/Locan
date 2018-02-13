@@ -1,17 +1,9 @@
 """
 This module provides a template for an analysis class.
 """
+import time
+from surepy.analysis import metadata_analysis_pb2
 
-
-META_DICT = {
-    'Analysis': {
-        'Method': '', # analysis class or method
-        'Parameter': {} # parameter for analysis function
-    },
-    'Data': {}, # input locdata.meta
-    'Results type': '', # results type
-    'Comments': '' # user comments
-}
 
 class Analysis():
     """
@@ -23,6 +15,8 @@ class Analysis():
     ----------
     locdata : LocData
         Input data.
+    meta : Metadata protobuf message or dictionary
+        Metadata about the current analysis routine.
     kwargs : kwarg
         Parameters for the analysis routine.
 
@@ -36,8 +30,8 @@ class Analysis():
         The numeric results as derived from the analysis method.
     parameter : dict
         Current parameters for the analysis routine.
-    meta : dict
-        meta data
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
     """
     count=0
 
@@ -50,15 +44,21 @@ class Analysis():
         self.locdata = locdata
         self.results = self._compute_results(locdata, **kwargs)
 
-        self.meta = {
-                'Analysis': {
-                    'Method': self.__class__,
-                    'Parameter': self.parameter
-                    },
-                'Data': locdata.meta
-                }
-        if meta is not None:
-            self.meta.update(meta)
+        # meta
+        self.meta = metadata_analysis_pb2.Metadata()
+        self.meta.identifier = str(self.__class__.count)
+        self.meta.creation_date = int(time.time())
+        self.meta.method.name = str(self.__class__)
+        self.meta.method.parameter = str(kwargs)
+        #  self.meta.locdata = locdata.meta
+
+        if meta is None:
+            pass
+        elif isinstance(meta, dict):
+            for key, value in meta.items():
+                setattr(self.meta, key, value)
+        else:
+            self.meta.MergeFrom(meta)
 
 
     def __del__(self):

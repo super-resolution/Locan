@@ -65,6 +65,10 @@ class Bounding_box():
         self.region_measure = np.prod(self.width)
         self.subregion_measure = np.sum(self.width)*2
 
+    @property
+    def vertices(self):
+        raise NotImplementedError
+
 
 class Convex_hull_scipy():
     """
@@ -145,7 +149,7 @@ class Convex_hull_shapely():
 
         self.hull = MultiPoint(points).convex_hull
         # self.vertex_indices = None
-        self.points_on_boundary = len(self.hull.exterior.coords)
+        self.points_on_boundary = len(self.hull.exterior.coords)-1  # the first point is repeated in exterior.coords
         self.points_on_boundary_rel = self.points_on_boundary / len(points)
         self.region_measure = self.hull.area
         self.subregion_measure = self.hull.length

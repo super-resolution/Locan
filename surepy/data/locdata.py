@@ -24,7 +24,7 @@ class LocData():
         Dataframe with localization data.
     indices : slice object or list(int) or None
         Indices for dataframe in references that makes up the data.
-    meta : Metadata protobuf message
+    meta : Metadata protobuf message or dictionary
         Metadata about the current dataset and its history.
 
     Attributes

@@ -124,7 +124,14 @@ def test_LocData_add_column_to_dataframe(df_simple):
     # print(col.data.columns)
     assert all(list(col.data.columns == ['Localization_density_bb', 'Position_x', 'Position_y', 'Region_measure_bb', 'Subregion_measure_bb', 'new']))
 
+def test_LocData_handling_metadata(df_simple):
+    dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
+    dat.meta.comment = 'new comment'
+    assert (dat.meta.comment == 'new comment')
 
+    dat.meta.map['variable key'] = 'new comment'
+    print(dat.meta.map)
+    assert (dat.meta.map == {'variable key': 'new comment'})
 
 
 

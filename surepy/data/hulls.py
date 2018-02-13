@@ -37,6 +37,25 @@ class Hull():
 class Bounding_box():
     """
     Class with bounding box computed using the shapely method.
+
+    Parameters
+    ----------
+    points : ndarray of double, shape (npoints, ndim)
+        Coordinates of input points.
+
+    Attributes
+    ----------
+    hull : array of arrays
+        Array of point coordinates that represent [[min_coordinates], [max_coordinates]].
+    dimension : int
+        Spatial dimension of hull
+    width : array of float
+        Array with differences between max and min for each coordinate.
+    region_measure : float
+        Hull measure, i.e. area or volume
+    subregion_measure : float
+        Measure of the sub-dimensional region, i.e. circumference or surface
+
     """
 
     def __init__(self, points):
@@ -60,12 +79,14 @@ class Convex_hull_scipy():
     ----------
     hull : hull object
         hull object from the corresponding algorithm
-    vertex_indices : indices for points
-        indices identifying a polygon of all points that make up the hull
     dimension : int
         spatial dimension of hull
-    width : array-like of float
-        length in x, y[, and z]-dimension of aligned hulls or max length of oriented hulls
+    vertex_indices : indices for points
+        indices identifying a polygon of all points that make up the hull
+    points_on_boundary : int
+        absolute number of points that are part of the convex hull.
+    points_on_boundary_rel : int
+        The number of points on the hull relative to all input points
     region_measure : float
         hull measure, i.e. area or volume
     subregion_measure : float
@@ -78,6 +99,58 @@ class Convex_hull_scipy():
         self.dimension = np.shape(points)[1]
         self.hull = ConvexHull(points)
         self.vertex_indices = self.hull.vertices
+        self.points_on_boundary = len(self.vertex_indices)
+        self.points_on_boundary_rel = self.points_on_boundary / len(points)
         self.region_measure = self.hull.volume if self.dimension==3 else self.hull.area
         self.subregion_measure = None # todo: compute
+
+
+class Convex_hull_shapely():
+    """
+    Class with convex hull computed using the scipy.spatial.ConvexHull method.
+
+    Parameters
+    ----------
+    points : ndarray of double, shape (npoints, ndim)
+        Coordinates of input points.
+
+    Attributes
+    ----------
+    hull : hull object
+        Polygon object from the .convex_hull method
+    dimension : int
+        Spatial dimension of hull
+    vertices : array of coordinate tuples
+        Coordinates of points that make up the hull.
+    vertex_indices : indices for points
+        indices identifying a polygon of all points that make up the hull
+    points_on_boundary : int
+        The absolute number of points on the hull
+    points_on_boundary_rel : int
+        The number of points on the hull relative to all input points
+    region_measure : float
+        hull measure, i.e. area or volume
+    subregion_measure : float
+        measure of the sub-dimensional region, i.e. circumference or surface
+
+    """
+
+    def __init__(self, points):
+
+        self.dimension = np.shape(points)[1]
+        if self.dimension >= 3:
+            raise TypeError('Convex_hull_shapely only takes 1 or 2-dimensional points as input.')
+
+        from shapely.geometry import MultiPoint
+
+        self.hull = MultiPoint(points).convex_hull
+        # self.vertex_indices = None
+        self.points_on_boundary = len(self.hull.exterior.coords)
+        self.points_on_boundary_rel = self.points_on_boundary / len(points)
+        self.region_measure = self.hull.area
+        self.subregion_measure = self.hull.length
+
+    @property
+    def vertices(self):
+        return np.array(self.hull.exterior.coords)
 

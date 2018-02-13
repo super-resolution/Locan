@@ -22,3 +22,6 @@ dependencies:
 - astropy
 - scikit-image
 - shapely
+
+# dependencies for development
+- pytest

@@ -18,5 +18,5 @@ def test_Localization_precision(locdata):
     # print(locdata.data.head())
     lp = Localization_precision(locdata=locdata, meta={'comment': 'my comment'})
     #print(lp.meta)
-    assert (lp.meta.method.name == "<class \'surepy.analysis.localization_precision.Localization_precision\'>")
+    assert (lp.meta.method.name == "Localization_precision")
     assert (lp.meta.comment == 'my comment')

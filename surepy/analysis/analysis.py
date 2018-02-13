@@ -48,7 +48,7 @@ class Analysis():
         self.meta = metadata_analysis_pb2.Metadata()
         self.meta.identifier = str(self.__class__.count)
         self.meta.creation_date = int(time.time())
-        self.meta.method.name = str(self.__class__)
+        self.meta.method.name = str(self.__class__.__name__)
         self.meta.method.parameter = str(kwargs)
         #  self.meta.locdata = locdata.meta
 

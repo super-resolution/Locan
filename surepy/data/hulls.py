@@ -36,7 +36,7 @@ class Hull():
 
 class Bounding_box():
     """
-    Class with bounding box computed using the shapely method.
+    Class with bounding box computed using numpy operations.
 
     Parameters
     ----------
@@ -154,3 +154,46 @@ class Convex_hull_shapely():
     def vertices(self):
         return np.array(self.hull.exterior.coords)
 
+
+class Oriented_bounding_box_shapely():
+    """
+    Class with oriented bounding box computed using the shapely minimum_rotated_rectangle method.
+
+    Parameters
+    ----------
+    points : ndarray of double, shape (npoints, ndim)
+        Coordinates of input points.
+
+    Attributes
+    ----------
+    hull : hull object
+        Polygon object from the minimum_rotated_rectangle method
+    dimension : int
+        Spatial dimension of hull
+    vertices : array of coordinate tuples
+        Coordinates of points that make up the hull.
+    width : array of float
+        Array with lengths of box edges.
+    region_measure : float
+        hull measure, i.e. area or volume
+    subregion_measure : float
+        measure of the sub-dimensional region, i.e. circumference or surface
+
+    """
+
+    def __init__(self, points):
+
+        self.dimension = np.shape(points)[1]
+        if self.dimension >= 3:
+            raise TypeError('Convex_hull_shapely only takes 1 or 2-dimensional points as input.')
+
+        from shapely.geometry import LineString, MultiPoint
+
+        self.hull = MultiPoint(points).minimum_rotated_rectangle
+        self.width = np.array([LineString(self.vertices[0:2]).length, LineString(self.vertices[1:3]).length])
+        self.region_measure = self.hull.area
+        self.subregion_measure = self.hull.length
+
+    @property
+    def vertices(self):
+        return np.array(self.hull.exterior.coords)

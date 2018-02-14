@@ -253,18 +253,6 @@ class LocData():
         return len(self.data.index)
 
 
-    def save(self, path):
-        """
-        Save LocData object in an appropriate way.
-
-        Parameters
-        ----------
-        path : str
-            Filepath for saving LocData.
-        """
-        raise NotImplementedError
-
-
     def reduce(self):
         """
         Update dataframe, reset dataframe.index, delete all references, set indices to None.

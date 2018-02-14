@@ -9,3 +9,4 @@ from surepy.analysis.localization_precision import *
 from surepy.analysis.nearest_neighbor import *
 from surepy.analysis.localization_property import *
 from surepy.analysis.Ripley import *
+from surepy.analysis.analysis_example import *

@@ -8,22 +8,21 @@ syntax = "proto2";
 package surepy;
 
 
-message Operation {
+message Operation_ {
     optional string name = 1;
     optional string parameter = 2;
 }
 
 
 // Next id: 8
-message Metadata {
+message Metadata_ {
   optional string identifier = 1;
   optional string comment = 2;
   // Timestamp in seconds since Unix epoch
   optional int64 creation_date = 3;
   // Timestamp in seconds since Unix epoch
   optional int64 modification_date = 4;
-  // Timestamp in seconds since Unix epoch
-  optional Operation method = 5;
+  optional Operation_ method = 5;
 
   //optional surepy.metadata_pb2.Metadata locdata = 6
 

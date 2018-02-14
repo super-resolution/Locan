@@ -19,28 +19,28 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='analysis/metadata_analysis.proto',
   package='surepy',
   syntax='proto2',
-  serialized_pb=_b('\n analysis/metadata_analysis.proto\x12\x06surepy\",\n\tOperation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tparameter\x18\x02 \x01(\t\"\xd8\x01\n\x08Metadata\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x15\n\rcreation_date\x18\x03 \x01(\x03\x12\x19\n\x11modification_date\x18\x04 \x01(\x03\x12!\n\x06method\x18\x05 \x01(\x0b\x32\x11.surepy.Operation\x12&\n\x03map\x18\x07 \x03(\x0b\x32\x19.surepy.Metadata.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01')
+  serialized_pb=_b('\n analysis/metadata_analysis.proto\x12\x06surepy\"-\n\nOperation_\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tparameter\x18\x02 \x01(\t\"\xdb\x01\n\tMetadata_\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x15\n\rcreation_date\x18\x03 \x01(\x03\x12\x19\n\x11modification_date\x18\x04 \x01(\x03\x12\"\n\x06method\x18\x05 \x01(\x0b\x32\x12.surepy.Operation_\x12\'\n\x03map\x18\x07 \x03(\x0b\x32\x1a.surepy.Metadata_.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01')
 )
 
 
 
 
-_OPERATION = _descriptor.Descriptor(
-  name='Operation',
-  full_name='surepy.Operation',
+_OPERATION_ = _descriptor.Descriptor(
+  name='Operation_',
+  full_name='surepy.Operation_',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='surepy.Operation.name', index=0,
+      name='name', full_name='surepy.Operation_.name', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='parameter', full_name='surepy.Operation.parameter', index=1,
+      name='parameter', full_name='surepy.Operation_.parameter', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -59,26 +59,26 @@ _OPERATION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=44,
-  serialized_end=88,
+  serialized_end=89,
 )
 
 
-_METADATA_MAPENTRY = _descriptor.Descriptor(
+_METADATA__MAPENTRY = _descriptor.Descriptor(
   name='MapEntry',
-  full_name='surepy.Metadata.MapEntry',
+  full_name='surepy.Metadata_.MapEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='surepy.Metadata.MapEntry.key', index=0,
+      name='key', full_name='surepy.Metadata_.MapEntry.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='value', full_name='surepy.Metadata.MapEntry.value', index=1,
+      name='value', full_name='surepy.Metadata_.MapEntry.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -96,54 +96,54 @@ _METADATA_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=265,
-  serialized_end=307,
+  serialized_start=269,
+  serialized_end=311,
 )
 
-_METADATA = _descriptor.Descriptor(
-  name='Metadata',
-  full_name='surepy.Metadata',
+_METADATA_ = _descriptor.Descriptor(
+  name='Metadata_',
+  full_name='surepy.Metadata_',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='identifier', full_name='surepy.Metadata.identifier', index=0,
+      name='identifier', full_name='surepy.Metadata_.identifier', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='comment', full_name='surepy.Metadata.comment', index=1,
+      name='comment', full_name='surepy.Metadata_.comment', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='creation_date', full_name='surepy.Metadata.creation_date', index=2,
+      name='creation_date', full_name='surepy.Metadata_.creation_date', index=2,
       number=3, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='modification_date', full_name='surepy.Metadata.modification_date', index=3,
+      name='modification_date', full_name='surepy.Metadata_.modification_date', index=3,
       number=4, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='method', full_name='surepy.Metadata.method', index=4,
+      name='method', full_name='surepy.Metadata_.method', index=4,
       number=5, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='map', full_name='surepy.Metadata.map', index=5,
+      name='map', full_name='surepy.Metadata_.map', index=5,
       number=7, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -152,7 +152,7 @@ _METADATA = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_METADATA_MAPENTRY, ],
+  nested_types=[_METADATA__MAPENTRY, ],
   enum_types=[
   ],
   options=None,
@@ -161,40 +161,40 @@ _METADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=91,
-  serialized_end=307,
+  serialized_start=92,
+  serialized_end=311,
 )
 
-_METADATA_MAPENTRY.containing_type = _METADATA
-_METADATA.fields_by_name['method'].message_type = _OPERATION
-_METADATA.fields_by_name['map'].message_type = _METADATA_MAPENTRY
-DESCRIPTOR.message_types_by_name['Operation'] = _OPERATION
-DESCRIPTOR.message_types_by_name['Metadata'] = _METADATA
+_METADATA__MAPENTRY.containing_type = _METADATA_
+_METADATA_.fields_by_name['method'].message_type = _OPERATION_
+_METADATA_.fields_by_name['map'].message_type = _METADATA__MAPENTRY
+DESCRIPTOR.message_types_by_name['Operation_'] = _OPERATION_
+DESCRIPTOR.message_types_by_name['Metadata_'] = _METADATA_
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-Operation = _reflection.GeneratedProtocolMessageType('Operation', (_message.Message,), dict(
-  DESCRIPTOR = _OPERATION,
+Operation_ = _reflection.GeneratedProtocolMessageType('Operation_', (_message.Message,), dict(
+  DESCRIPTOR = _OPERATION_,
   __module__ = 'analysis.metadata_analysis_pb2'
-  # @@protoc_insertion_point(class_scope:surepy.Operation)
+  # @@protoc_insertion_point(class_scope:surepy.Operation_)
   ))
-_sym_db.RegisterMessage(Operation)
+_sym_db.RegisterMessage(Operation_)
 
-Metadata = _reflection.GeneratedProtocolMessageType('Metadata', (_message.Message,), dict(
+Metadata_ = _reflection.GeneratedProtocolMessageType('Metadata_', (_message.Message,), dict(
 
   MapEntry = _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), dict(
-    DESCRIPTOR = _METADATA_MAPENTRY,
+    DESCRIPTOR = _METADATA__MAPENTRY,
     __module__ = 'analysis.metadata_analysis_pb2'
-    # @@protoc_insertion_point(class_scope:surepy.Metadata.MapEntry)
+    # @@protoc_insertion_point(class_scope:surepy.Metadata_.MapEntry)
     ))
   ,
-  DESCRIPTOR = _METADATA,
+  DESCRIPTOR = _METADATA_,
   __module__ = 'analysis.metadata_analysis_pb2'
-  # @@protoc_insertion_point(class_scope:surepy.Metadata)
+  # @@protoc_insertion_point(class_scope:surepy.Metadata_)
   ))
-_sym_db.RegisterMessage(Metadata)
-_sym_db.RegisterMessage(Metadata.MapEntry)
+_sym_db.RegisterMessage(Metadata_)
+_sym_db.RegisterMessage(Metadata_.MapEntry)
 
 
-_METADATA_MAPENTRY.has_options = True
-_METADATA_MAPENTRY._options = _descriptor._ParseOptions(descriptor_pb2.MessageOptions(), _b('8\001'))
+_METADATA__MAPENTRY.has_options = True
+_METADATA__MAPENTRY._options = _descriptor._ParseOptions(descriptor_pb2.MessageOptions(), _b('8\001'))
 # @@protoc_insertion_point(module_scope)

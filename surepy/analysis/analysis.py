@@ -45,7 +45,7 @@ class Analysis():
         self.results = self._compute_results(locdata, **kwargs)
 
         # meta
-        self.meta = metadata_analysis_pb2.Metadata()
+        self.meta = metadata_analysis_pb2.Metadata_()
         self.meta.identifier = str(self.__class__.count)
         self.meta.creation_date = int(time.time())
         self.meta.method.name = str(self.__class__.__name__)

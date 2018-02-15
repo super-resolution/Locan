@@ -49,8 +49,11 @@ class Analysis_example(Analysis):
         return (results)
 
 
-    def hist(self, ax, property='a', bins='auto', fit=True):
+    def hist(self, ax=None, show=True, property='a', bins='auto', fit=True):
         """ Provide histogram as matplotlib axes object showing hist(results). """
+        if ax is None:
+            fig, ax = plt.subplots(nrows=1, ncols=1)
+
         ax.hist(self.results[property].values, bins=bins, normed=True, log=False)
         ax.set(title = 'Normal Data',
                xlabel = property,
@@ -70,27 +73,74 @@ class Analysis_example(Analysis):
                     transform=ax.transAxes
                     )
 
+            # set attributes with secondary results
             attribute_center = property + '_center'
             attribute_sigma = property + '_center'
             self.attribute_center = loc
             self.attribute_sigma = scale
 
+        #show figure
+        if show:  # this part is needed if anyone wants to modify the figure
+            plt.show()
 
-    def plot(self, ax=None, property=None, window=1):
+
+    def plot(self, ax=None, show=True, property=None, window=1):
         """ Provide plot as matplotlib axes object showing the running average of results over window size. """
         if ax is None:
-            pass #todo
+            fig, ax = plt.subplots(nrows=1, ncols=1)
+
         self.results.rolling(window=window, center=True).mean().plot(ax=ax, y=property, legend=False)
         ax.set(title = 'Normal Data',
                xlabel = 'index',
-               ylabel = property
+               ylabel = property,
+               label = self.meta.identifier
                )
         ax.text(0.1,0.9,
                 "window = " + str(window),
                 transform = ax.transAxes
                 )
+        ax.legend()
+
+        #show figure
+        if show:  # this part is needed if anyone wants to modify the figure
+            plt.show()
 
 
-    def save_as_yaml(self):
-        """ Save results in a YAML format, that can e.g. serve as Origin import."""
-        raise NotImplementedError
+    def report(self, path=None, show=True):
+        '''
+        Provide a report that is either displayed or saved as pdf.
+
+        Parameter
+        ---------
+        path : string or Path object
+            File path for a report file. If path is None the report will be displayed.
+
+        Returns
+        -------
+
+        '''
+        # instantiate a figure with axes elements
+        fig, ax = plt.subplots(nrows=1, ncols=3)
+
+        # provide the axes elements (i.e. the plots)
+        self.plot(ax=ax[0])
+        self.hist(ax=ax[1])
+        ax[2].text(0.8, 0.9,
+                  "some text",
+                  transform=ax[2].transAxes
+                  )
+
+        # adjust figure layout
+        plt.tight_layout()
+
+        # save figure as pdf
+        if path is not None:
+            plt.savefig(fname=path, dpi=None, facecolor='w', edgecolor='w',
+                        orientation='portrait', papertype=None, format=None,
+                        transparent=False, bbox_inches=None, pad_inches=0.1,
+                        frameon=None)
+
+        #show figure
+        if show:
+            plt.show()
+

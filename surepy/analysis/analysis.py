@@ -1,5 +1,7 @@
 """
-This module provides a template for an analysis class.
+This module provides a template for a specialized analysis class.
+It also provides helper functions to be used in specialized analysis classes.
+And it provides standard interface functions to be used in specialized analysis classes.
 """
 import time
 from surepy.analysis import metadata_analysis_pb2
@@ -7,59 +9,24 @@ from surepy.analysis import metadata_analysis_pb2
 
 class Analysis():
     """
-    An abstract class for analysis methods to be used on LocData objects.
+    An (abstract) class for analysis methods to be used on LocData objects.
 
-    The analysis code should go in _compute_results() which is automatically called upon instantiation.
+    This class only serves for illustration of a typical specialized analysis class and provides names for typical
+    interface functions.
 
-    Parameters
-    ----------
-    locdata : LocData
-        Input data.
-    meta : Metadata protobuf message or dictionary
-        Metadata about the current analysis routine.
-    kwargs : kwarg
-        Parameters for the analysis routine.
-
-    Attributes
-    -----------
-    count : int (class attribute)
-        A counter for counting Analysis instantiations.
-    locdata : LocData
-        reference to the LocData object specified as input data.
-    results : pandas data frame or array or array of arrays or None
-        The numeric results as derived from the analysis method.
-    parameter : dict
-        Current parameters for the analysis routine.
-    meta : Metadata protobuf message
-        Metadata about the current analysis routine.
+    The interface functions are implemented in stand-alone functions that are called from a particular Analysis method.
     """
     count=0
 
-    def __init__(self, locdata, meta=None, **kwargs):
-        """ Provide default atributes."""
+    def __init__(self):
         Analysis.count += 1
         self.__class__.count += 1
 
-        self.parameter = kwargs
-        self.locdata = locdata
-        self.results = self._compute_results(locdata, **kwargs)
-
-        # meta
-        self.meta = metadata_analysis_pb2.Metadata_()
-        self.meta.identifier = str(self.__class__.count)
-        self.meta.creation_date = int(time.time())
-        self.meta.method.name = str(self.__class__.__name__)
-        self.meta.method.parameter = str(kwargs)
-        #  self.meta.locdata = locdata.meta
-
-        if meta is None:
-            pass
-        elif isinstance(meta, dict):
-            for key, value in meta.items():
-                setattr(self.meta, key, value)
-        else:
-            self.meta.MergeFrom(meta)
-
+        self.locdata = None
+        self.algorithm = None
+        self.params = None
+        self.meta = None
+        self.results = None
 
     def __del__(self):
         """ updating the counter upon deletion of class instance. """
@@ -70,33 +37,61 @@ class Analysis():
         """ Return results in a printable format."""
         return str(self.results)
 
-    def _compute_results(self, locdata, **kwargs):
+    def compute(self):
         """ Apply analysis routine with the specified parameters on locdata and return results."""
         raise NotImplementedError
 
-    def save(self):
-        # todo: an appropriate file format needs to be identified.
-        """ Save results."""
+    def save(self, path):
+        """ Save Analysis object."""
         raise NotImplementedError
 
-    def save_as_txt(self):
+    def load(self, path):
+        """ Load Analysis object."""
+        raise NotImplementedError
+
+    def save_results(self, path):
         """ Save results in a text format, that can e.g. serve as Origin import."""
-        raise NotImplementedError
-
-    def save_as_yaml(self):
-        """ Save results in a text format, that can e.g. serve as Origin import."""
-        raise NotImplementedError
-
-    def load(self, results):
-        """ Load results."""
         raise NotImplementedError
 
     def plot(self, ax):
         """ Provide an axes instance with plot of results."""
-        # ax.plot(results)
         raise NotImplementedError
 
-    def hist(self, ax):
-        """ Provide an axes instance with histogram of results."""
-        # ax.hist(results)
+    def report(self, ax):
+        """ Show a report about analysis results."""
         raise NotImplementedError
+
+
+#### helper functions
+
+    def _init_meta(self, meta=None):
+        '''
+        Initializes metadata for analysis method from standard settings and user input.
+
+        Parameter
+        ---------
+        meta : Metadata protobuf message or dict
+            Metadata about the current analysis routine.
+
+        Returns:
+        Metadata protobuf message
+            Metadata about the current analysis routine.
+        '''
+        meta_ = metadata_analysis_pb2.AMetadata()
+        meta_.identifier = str(self.__class__.count)
+        meta_.creation_date = int(time.time())
+        meta_.method.name = str(self.__class__.__name__)
+        meta_.method.algorithm = str(self.algorithm.__name__)
+        meta_.method.parameter = str(self.params)
+
+        if meta is None:
+            pass
+        else:
+            try:
+                meta_.MergeFrom(meta)
+            except TypeError:
+                for key, value in meta.items():
+                    setattr(meta_, key, value)
+
+        return meta_
+

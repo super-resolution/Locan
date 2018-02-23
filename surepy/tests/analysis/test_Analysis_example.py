@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 from surepy import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
+import surepy.analysis.analysis_example as an
 import surepy.tests.test_data
-from surepy.analysis import Analysis_example
 
 @pytest.fixture()
 def locdata():
@@ -15,7 +15,10 @@ def locdata():
 
 def test_Analysis_example(locdata):
     #print(locdata.data.head())
-    ae = Analysis_example(locdata=None, param=1)
-    #print(ae.results)
-    assert (len(list(ae.results)) == 2)
+    ae = an.Analysis_example(locdata=None, algorithm=an.algorithm_1, limits=(100,110), meta={'comment': ' this is an example'})
+    assert (ae.results == None)
+    ae.compute()
+    assert (len(list(ae.results)) == 10)
 
+    # print(ae.results)
+    # print(ae.meta)

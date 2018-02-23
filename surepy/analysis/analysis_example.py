@@ -1,6 +1,3 @@
-"""
-This module provides methods for analysis.
-"""
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,126 +6,195 @@ from scipy import stats
 from surepy.analysis.analysis import Analysis
 
 
+def algorithm_1(data=None, limits=(0, 10)):
+    ''' Provides a list of data values. data is actually not used.'''
+    results = [i for i in range(*limits)]  # some complicated algorithm
+    return results
+
+
+def algorithm_2(data=None, n_sample=100, seed=None):
+    ''' Provides random normal distributed data. data is actually not used.'''
+    np.random.seed(seed)
+    dict = {'a': np.random.normal(size=n_sample),
+            'b': np.random.normal(size=n_sample)}
+    results = pd.DataFrame.from_dict(dict)
+    return results
+
 
 class Analysis_example(Analysis):
-    """
+    '''
     Compute some data and provide a plot and histogram with secondary data (e.g. from fitting plot or histogram).
+
+    This is a specialized analysis class implementing an example analysis routine. For illustrating the analysis procedure it only takes a LocData object, creates some random data as result and
+    provides plots and a report of the results. For providing the random data two algorithms are available.
 
     Parameters
     ----------
     locdata : LocData object
         Localization data.
-    param : int or float
-        Some parameter.
+    algorithm : string
+        name of algorithm
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
+    kwargs :
+        Parameter that are passed to the algorithm.
 
     Attributes
     ----------
     count : int
         A counter for counting instantiations.
+    locdata : LocData object
+        Localization data.
+    algorithm : callable
+        name of algorithm
     parameter : dict
         A dictionary with all settings for the current computation.
-    results : numpy array
-        Distances between the nearest localizations in two consecutive frames.
     meta : Metadata protobuf message
         Metadata about the current analysis routine.
-    """
+    results : numpy array or pandas DataFrame
+        Computed results.
+    '''
     count = 0
 
-    def __init__(self, locdata, meta=None, param=None):
-        super().__init__(locdata, meta=meta, param=param)
+    def __init__(self, locdata, algorithm=algorithm_1, meta=None, **kwargs):
+        super().__init__()
+        self.locdata = locdata
+        self.algorithm = algorithm
+        self.parameter = kwargs
+        self.meta = self._init_meta(meta=meta)
 
-        self.secondary_param_1 = None
-        self.secondary_param_2 = None
+        self.results = None
+        self.secondary_results = None
 
+    def compute(self):
+        data = self.locdata  # take certain elements from locdata
+        self.results = self.algorithm(data=data, **self.parameter)  # some complicated algorithm
+        return None
 
-    def _compute_results(self, locdata, param=None):
-        # some results
-        dict = {'a': np.random.normal(size=10),
-                'b': np.random.normal(size=10)}
-        results = pd.DataFrame.from_dict(dict)
-        return (results)
+    def save_results(self, path):
+        return self.results  # this should be saving the data
 
-
-    def hist(self, ax=None, show=True, property='a', bins='auto', fit=True):
-        """ Provide histogram as matplotlib axes object showing hist(results). """
+    def plot(self, ax=None, show=True):
+        '''
+        A specialized plot to give a standardized visualization of results.
+        '''
         if ax is None:
             fig, ax = plt.subplots(nrows=1, ncols=1)
 
-        ax.hist(self.results[property].values, bins=bins, normed=True, log=False)
-        ax.set(title = 'Normal Data',
-               xlabel = property,
-               ylabel = 'PDF'
+        ax.plot(self.results)
+        ax.set(title='Normal Data',
+               xlabel=property,
+               ylabel='PDF'
                )
 
-        # fit distributions:
+        # show figure
+        if show:  # this part is needed if anyone wants to modify the figure
+            plt.show()
+
+        return None
+
+    def plot_2(self, ax=None, show=True, bins='auto', normed=True, log=False, fit=True):
+        '''
+        A specialized plot to give a standardized visualization of results - in this case a histogram of results.
+        '''
+        if ax is None:
+            fig = plt.figure(figsize=(8, 3))
+            ax = fig.subplots(nrows=1, ncols=2)
+            plt.subplots_adjust(wspace=0)
+
+        # create histogram on first axes
+        hist, bins, _ = ax[0].hist(self.results.values, bins=bins, normed=normed, log=log,
+                                   label=list(self.results))
+        ax[0].set(title='Normal Data',
+                  xlabel='property',
+                  ylabel='PDF'
+                  )
+
+        # create legend and results text on second axes
+        h, l = ax[0].get_legend_handles_labels()
+        ax[1].legend(h, l,
+                     loc='upper left',
+                     bbox_to_anchor=(0, 1),
+                     title='Legend',
+                     frameon=False,
+                     borderaxespad=0)
+
+        ax[1].set_axis_off()
+
+        # fit distributions
         if fit:
-            # MLE fit of normal distribution on data
-            loc, scale = stats.norm.fit(self.results[property].values)
+            self.plot_histogram_fit(ax=ax, show=False)
 
-            # plot
-            x_values = np.linspace(stats.norm.ppf(0.01, loc=loc, scale=scale), stats.norm.ppf(0.99, loc=loc, scale=scale), 100)
-            ax.plot(x_values, stats.norm.pdf(x_values, loc=loc, scale=scale), 'r-', lw = 3, alpha = 0.6, label = 'norm pdf')
-            ax.text(0.1, 0.9,
-                    'center: ' + str(loc) + '\n' + 'sigma: ' + str(scale),
-                    transform=ax.transAxes
-                    )
-
-            # set attributes with secondary results
-            attribute_center = property + '_center'
-            attribute_sigma = property + '_center'
-            self.attribute_center = loc
-            self.attribute_sigma = scale
-
-        #show figure
+        # show figure
         if show:  # this part is needed if anyone wants to modify the figure
+            plt.tight_layout()
             plt.show()
 
+        return None
 
-    def plot(self, ax=None, show=True, property=None, window=1):
-        """ Provide plot as matplotlib axes object showing the running average of results over window size. """
+    def plot_histogram_fit(self, ax=None, show=True):
+        '''
+        A specialized plot to give a standardized visualization of results - in this case a histogram of results.
+        '''
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            fig = plt.figure(figsize=(8, 3))
+            ax = fig.subplots(nrows=1, ncols=2)
+            plt.subplots_adjust(wspace=0)
 
-        self.results.rolling(window=window, center=True).mean().plot(ax=ax, y=property, legend=False)
-        ax.set(title = 'Normal Data',
-               xlabel = 'index',
-               ylabel = property,
-               label = self.meta.identifier
-               )
-        ax.text(0.1,0.9,
-                "window = " + str(window),
-                transform = ax.transAxes
-                )
-        ax.legend()
+        # fit distributions
+        loc, scale = self.fit_histogram(data=self.results['a'].values, id='a')
 
-        #show figure
-        if show:  # this part is needed if anyone wants to modify the figure
+        # plot fit
+        x_values = np.linspace(stats.norm.ppf(0.01, loc=loc, scale=scale),
+                               stats.norm.ppf(0.99, loc=loc, scale=scale), 100)
+        ax[0].plot(x_values, stats.norm.pdf(x_values, loc=loc, scale=scale), 'r-', lw=3, alpha=0.6,
+                   label='norm pdf')
+
+        # present fit results
+        ax[1].text(0, 0.5, 'Fit Results:')
+        ax[1].text(0, 0.5,
+                   'center: ' + str(loc) + '\n' + 'sigma: ' + str(scale),
+                   horizontalalignment='left',
+                   verticalalignment='top',
+                   transform=ax[1].transAxes,
+                   clip_on=False
+                   )
+
+        ax[1].set_axis_off()
+
+        # show figure
+        if show:
+            plt.tight_layout()
             plt.show()
 
+        return None
+
+    def fit_histogram(self, data, id):
+
+        # MLE fit of distribution on data
+        loc, scale = stats.norm.fit(data)
+
+        attribute_center = id + '_center'
+        attribute_sigma = id + '_sigma'
+        self.attribute_center = loc
+        self.attribute_sigma = scale
+
+        return loc, scale
+
+    # there will be other specific visualization methods for other analysis routines.
 
     def report(self, path=None, show=True):
         '''
         Provide a report that is either displayed or saved as pdf.
-
-        Parameter
-        ---------
-        path : string or Path object
-            File path for a report file. If path is None the report will be displayed.
-
-        Returns
-        -------
-
+        The report is a figure summarizing all visual representations. It is arranged specifically for a particular
+        analysis routine.
         '''
-        # instantiate a figure with axes elements
-        fig, ax = plt.subplots(nrows=1, ncols=3)
+        fig = plt.figure(figsize=(8.3, 11.7))
+        ax = fig.subplots(nrows=3, ncols=2)
 
         # provide the axes elements (i.e. the plots)
-        self.plot(ax=ax[0])
-        self.hist(ax=ax[1])
-        ax[2].text(0.8, 0.9,
-                  "some text",
-                  transform=ax[2].transAxes
-                  )
+        self.plot(ax=ax[0][0], show=False)
+        self.plot_2(ax=ax[1][0:2], show=False)
 
         # adjust figure layout
         plt.tight_layout()
@@ -140,7 +206,9 @@ class Analysis_example(Analysis):
                         transparent=False, bbox_inches=None, pad_inches=0.1,
                         frameon=None)
 
-        #show figure
+        # show figure
         if show:
             plt.show()
+
+        return None
 

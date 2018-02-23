@@ -15,10 +15,12 @@ def locdata():
 
 def test_Analysis_example(locdata):
     #print(locdata.data.head())
-    ae = an.Analysis_example(locdata=None, algorithm=an.algorithm_1, limits=(100,110), meta={'comment': ' this is an example'})
+    ae = an.Analysis_example_algorithm_1(locdata=None, limits=(100,110), meta={'comment': ' this is an example'})
     assert (ae.results == None)
     ae.compute()
     assert (len(list(ae.results)) == 10)
 
     # print(ae.results)
     # print(ae.meta)
+    print(ae.meta)
+    ae.plot()

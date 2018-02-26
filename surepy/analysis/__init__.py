@@ -4,7 +4,7 @@ collection objects.
 """
 
 from surepy.analysis.localizations_per_frame import Localizations_per_frame
-# from surepy.analysis.uncertainty import *
+from surepy.analysis.uncertainty import Localization_uncertainty_from_intensity
 from surepy.analysis.localization_precision import Localization_precision
 from surepy.analysis.nearest_neighbor import Nearest_neighbor_distances
 # from surepy.analysis.localization_property import *

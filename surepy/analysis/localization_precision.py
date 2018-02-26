@@ -51,7 +51,7 @@ def _localization_precision(locdata, radius=50):
     return (results)
 
 
-#### The analysis classes
+# The base analysis class
 
 class _Localization_precision():
     """

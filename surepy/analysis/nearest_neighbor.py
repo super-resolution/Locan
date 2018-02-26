@@ -66,8 +66,7 @@ def _nearest_neighbor_distances(points, k=1, other_points=None):
     return pd.DataFrame({'nn_distance': distances[...,k-1], 'nn_index': indices[...,k-1]})
 
 
-#### The analysis classes
-
+# The base analysis class
 
 class _Nearest_neighbor_distances():
     """

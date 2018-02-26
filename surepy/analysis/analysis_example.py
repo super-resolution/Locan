@@ -36,7 +36,7 @@ def _algorithm_2(data=None, n_sample=100, seed=None):
     return results
 
 #
-#### The analysis classes
+##### The base analysis class
 #
 # Now we want a class implementing this algorithm to be used with locdata. Also the results from this algorithm should
 # be reused in some visual representation that is specific for this analysis routine.

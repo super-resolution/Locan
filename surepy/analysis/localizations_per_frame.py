@@ -1,6 +1,8 @@
 """
 This module provides methods for analysis.
 """
+import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from surepy.analysis.analysis_tools import _init_meta, _update_meta
@@ -22,8 +24,7 @@ def _localizations_per_frame(data, normalization=None):
     return data.data.groupby('Frame').size() / normalization_factor
 
 
-#### The analysis classes
-
+# The base analysis class
 
 class _Localizations_per_frame():
     """

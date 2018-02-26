@@ -35,4 +35,4 @@ def _update_meta(self, meta=None):
 # saving data
 
 def save_results(self, path):
-    self.results.to_csv(path=path)
+    self.results.to_csv(path_or_buf=path, sep='\t')

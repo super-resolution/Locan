@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
 
-from surepy.analysis.analysis_tools import _init_meta, _update_meta
+from surepy.analysis.analysis_tools import _init_meta, _update_meta, save_results
 
 #
 #### The algorithms
@@ -214,9 +214,6 @@ class Analysis_example_algorithm_2(_Analysis_example):
 # Now we have a class structure with results that can be further processed.
 # Secondary results from e.g. fit procedures are added to the analysis class as new attributes.
 #
-
-def save_results(self, path):
-    pass
 
 
 def plot(self, ax=None, show=True):

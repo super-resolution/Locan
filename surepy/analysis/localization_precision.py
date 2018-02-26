@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from scipy import stats
 
-from surepy.analysis.analysis_tools import _init_meta, _update_meta
+from surepy.analysis.analysis_tools import _init_meta, _update_meta, save_results
 
 
 #### The algorithms
@@ -98,6 +98,9 @@ class _Localization_precision():
     def __str__(self):
         """ Return results in a printable format."""
         return str(self.results)
+
+    def save_results(self, path):
+        return save_results(self, path)
 
     def plot(self, ax, property=None, window=1):
         return plot(self, ax, property, window)

@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 import matplotlib.pyplot as plt
 
-from surepy.analysis.analysis_tools import _init_meta, _update_meta
+from surepy.analysis.analysis_tools import _init_meta, _update_meta, save_results
 
 
 #### The algorithms

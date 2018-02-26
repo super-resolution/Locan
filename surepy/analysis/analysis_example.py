@@ -114,7 +114,7 @@ class _Analysis_example():
 
 
 #
-# This specific analysis classes inherit from Analysis to get the _init_metadata function and reduce duplication in the init function.
+# This specific analysis classes inherit from _Analysis.
 #
 # The classes for each particular algorith are defined as:
 #

@@ -3,10 +3,12 @@ This module provides methods for analysis.
 """
 import matplotlib.pyplot as plt
 
-from surepy.analysis.analysis_tools import Analysis
+from surepy.analysis.analysis_tools import _init_meta, _update_meta
 
 
-def localizations_per_frame(data, normalization=None):
+#### The algorithms
+
+def _localizations_per_frame(data, normalization=None):
     ''' Algorithm to compute localizations per frame.'''
     if normalization is None:
         normalization_factor = 1
@@ -20,89 +22,166 @@ def localizations_per_frame(data, normalization=None):
     return data.data.groupby('Frame').size() / normalization_factor
 
 
-class Localizations_per_frame(Analysis):
+#### The analysis classes
+
+
+class _Localizations_per_frame():
     """
-    Compute the number of localizations in each frame.
+    The base class for specialized analysis classes to be used on LocData objects.
 
     Parameters
     ----------
     locdata : LocData object
         Localization data.
-    normalization : str or int or float or None
-        The data is normalized to a property of locdata (specified by property name) or to a number. It is not
-        normalized for normalization being None (default: None).
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
+    kwargs :
+        Parameter that are passed to the algorithm.
 
     Attributes
     ----------
     count : int
         A counter for counting instantiations.
+    locdata : LocData object
+        Localization data.
     parameter : dict
         A dictionary with all settings for the current computation.
-    results : pandas data frame
-        The number of localizations per frame or
-        the number of localizations per frame normalized to region_measure(hull).
-    meta : dict
-        meta data
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
+    results : numpy array or pandas DataFrame
+        Computed results.
     """
     count = 0
 
-    def __init__(self, locdata, algorithm=localizations_per_frame, meta=None, **kwargs):
-        super().__init__()
+    def __init__(self, locdata, meta, **kwargs):
+        self.__class__.count += 1
+
         self.locdata = locdata
-        self.algorithm = algorithm
         self.parameter = kwargs
-        self.meta = self._init_meta(meta=meta)
-
+        self.meta = _init_meta(self)
+        self.meta = _update_meta(self, meta)
         self.results = None
-        self.secondary_results = None
 
-    def compute(self):
-        data = self.locdata  # take certain elements from locdata
-        self.results = self.algorithm(data=data, **self.parameter)  # some complicated algorithm
-        return None
 
+    def __del__(self):
+        """ updating the counter upon deletion of class instance. """
+        self.__class__.count -= 1
+
+    def __str__(self):
+        """ Return results in a printable format."""
+        return str(self.results)
+
+    def save_results(self, path):
+        return save_results(self, path)
 
     def plot(self, ax=None, show=True, window=1):
-        '''
-        Provide plot as matplotlib axes object showing the running average of results over window size.
-        '''
-        if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
-
-        self.results.rolling(window=window, center=True).mean().plot(ax=ax)
-
-        ax.set(title = 'Localizations per Frame',
-               xlabel = 'Frame',
-               ylabel = 'number of localizations'
-               )
-
-        ax.text(0.1,0.9,
-                "window = " + str(window),
-                transform = ax.transAxes
-                )
-
-        # show figure
-        if show:  # this part is needed if anyone wants to modify the figure
-            plt.show()
-
-        return None
-
+        return plot(self, ax, show, window)
 
     def hist(self, ax=None, show=True, bins='auto'):
-        '''
-        Provide histogram as matplotlib axes object showing hist(results).
-        '''
-        if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+        return hist(self, ax, show, bins)
 
-        ax.hist(self.results.values, bins=bins, normed=True, log=False)
-        ax.set(title = 'Localizations per Frame',
-               xlabel = 'number of localizations',
-               ylabel = 'PDF'
-               )
 
-        # show figure
-        if show:  # this part is needed if anyone wants to modify the figure
-            plt.show()
+    def compute(self):
+        """ Apply analysis routine with the specified parameters on locdata and return results."""
+        raise NotImplementedError
 
-        return None
+    def save(self, path):
+        """ Save Analysis object."""
+        raise NotImplementedError
+
+    def load(self, path):
+        """ Load Analysis object."""
+        raise NotImplementedError
+
+    def report(self, ax):
+        """ Show a report about analysis results."""
+        raise NotImplementedError
+
+
+
+# The specific analysis classes
+
+class Localizations_per_frame(_Localizations_per_frame):
+    '''
+    Compute localizations per frame.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        Localization data.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
+    kwargs :
+        Parameter that are passed to the algorithm.
+
+    Attributes
+    ----------
+    count : int
+        A counter for counting instantiations.
+    locdata : LocData object
+        Localization data.
+    parameter : dict
+        A dictionary with all settings for the current computation.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
+    results : numpy array or pandas DataFrame
+        Computed results.
+    '''
+    count = 0
+
+    def __init__(self, locdata=None, meta=None, normalization=None):
+        super().__init__(locdata=locdata, meta=meta, normalization=normalization)
+
+    def compute(self):
+        data = self.locdata
+        self.results = _localizations_per_frame(data=data, **self.parameter)
+        return self
+
+
+
+#### Interface functions
+
+def plot(self, ax=None, show=True, window=1):
+    '''
+    Provide plot as matplotlib axes object showing the running average of results over window size.
+    '''
+    if ax is None:
+        fig, ax = plt.subplots(nrows=1, ncols=1)
+
+    self.results.rolling(window=window, center=True).mean().plot(ax=ax)
+
+    ax.set(title = 'Localizations per Frame',
+           xlabel = 'Frame',
+           ylabel = 'number of localizations'
+           )
+
+    ax.text(0.1,0.9,
+            "window = " + str(window),
+            transform = ax.transAxes
+            )
+
+    # show figure
+    if show:  # this part is needed if anyone wants to modify the figure
+        plt.show()
+
+    return None
+
+
+def hist(self, ax=None, show=True, bins='auto'):
+    '''
+    Provide histogram as matplotlib axes object showing hist(results).
+    '''
+    if ax is None:
+        fig, ax = plt.subplots(nrows=1, ncols=1)
+
+    ax.hist(self.results.values, bins=bins, normed=True, log=False)
+    ax.set(title = 'Localizations per Frame',
+           xlabel = 'number of localizations',
+           ylabel = 'PDF'
+           )
+
+    # show figure
+    if show:  # this part is needed if anyone wants to modify the figure
+        plt.show()
+
+    return None

@@ -3,7 +3,7 @@ The module analysis_classes contains classes for applying analysis functions on 
 collection objects.
 """
 
-# from surepy.analysis.localizations_per_frame import *
+from surepy.analysis.localizations_per_frame import Localizations_per_frame
 # from surepy.analysis.uncertainty import *
 # from surepy.analysis.localization_precision import *
 # from surepy.analysis.nearest_neighbor import *

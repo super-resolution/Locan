@@ -31,3 +31,8 @@ def _update_meta(self, meta=None):
                 setattr(meta_, key, value)
 
     return meta_
+
+# saving data
+
+def save_results(self, path):
+    self.results.to_csv(path=path)

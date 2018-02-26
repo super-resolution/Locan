@@ -95,6 +95,13 @@ class _Analysis_example():
     def plot(self, ax=None, show=True):
         return plot(self, ax, show)
 
+    def hist(self, ax=None, show=True, bins='auto', normed=True, log=False, fit=True):
+        return plot_2(self, ax, show, bins, normed, log, fit)
+
+    def report(self, path=None, show=True):
+        """ Show a report about analysis results."""
+        return report(self, path, show)
+
 
     def compute(self):
         """ Apply analysis routine with the specified parameters on locdata and return results."""
@@ -108,9 +115,7 @@ class _Analysis_example():
         """ Load Analysis object."""
         raise NotImplementedError
 
-    def report(self, ax):
-        """ Show a report about analysis results."""
-        raise NotImplementedError
+
 
 
 #
@@ -264,7 +269,7 @@ def plot_2(self, ax=None, show=True, bins='auto', normed=True, log=False, fit=Tr
 
     # fit distributions
     if fit:
-        self.plot_histogram_fit(ax=ax, show=False)
+        plot_histogram_fit(self, ax=ax, show=False)
 
     # show figure
     if show:  # this part is needed if anyone wants to modify the figure
@@ -284,7 +289,7 @@ def plot_histogram_fit(self, ax=None, show=True):
         plt.subplots_adjust(wspace=0)
 
     # fit distributions
-    loc, scale = self.fit_histogram(data=self.results['a'].values, id='a')
+    loc, scale = fit_histogram(self, data=self.results['a'].values, id='a')
 
     # plot fit
     x_values = np.linspace(stats.norm.ppf(0.01, loc=loc, scale=scale),
@@ -338,7 +343,7 @@ def report(self, path=None, show=True):
 
     # provide the axes elements (i.e. the plots)
     self.plot(ax=ax[0][0], show=False)
-    self.plot_2(ax=ax[1][0:2], show=False)
+    self.hist(ax=ax[1][0:2], show=False)
 
     # adjust figure layout
     plt.tight_layout()

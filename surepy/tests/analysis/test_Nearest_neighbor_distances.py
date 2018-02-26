@@ -26,10 +26,10 @@ def other_locdata_simple():
 # tests
 
 def test_Nearest_neighbor_distances(locdata_simple, other_locdata_simple):
-    nn_1 = Nearest_neighbor_distances(locdata_simple)
-    # print(nn_1.results)
+    nn_1 = Nearest_neighbor_distances(locdata_simple).compute()
+    #print(nn_1.results)
     assert(nn_1.results['nn_index'].iloc[0] == 1)
 
-    nn_2 = Nearest_neighbor_distances(locdata_simple, other_locdata=other_locdata_simple)
+    nn_2 = Nearest_neighbor_distances(locdata_simple, other_locdata=other_locdata_simple).compute()
     # print(nn_2.results)
     assert(nn_2.results['nn_distance'].iloc[0] == 14.142135623730951)

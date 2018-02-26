@@ -16,6 +16,6 @@ def locdata_blobs():
 
 def test_Ripleys_k_function(locdata_blobs):
     radii = np.linspace(0,100,20)
-    rhf = Ripleys_h_function(locdata_blobs, radii=radii)
+    rhf = Ripleys_h_function(locdata_blobs, radii=radii).compute()
     #print(rhf.results)
     assert (len(rhf.results) == len(radii))

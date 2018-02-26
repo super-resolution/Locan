@@ -17,5 +17,6 @@ def locdata():
 def test_Localization_precision(locdata):
     # print(locdata.data.head())
     lp = Localization_precision(locdata=locdata)
+    lp.compute()
     # print(lp.results)
     assert (len(lp.results) == 33)

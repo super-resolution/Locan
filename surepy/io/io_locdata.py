@@ -10,10 +10,45 @@ import warnings
 import numpy as np
 import pandas as pd
 import xml.etree.ElementTree as etree
+from asdf import AsdfFile
+from asdf import open as asdf_open
+from google.protobuf import json_format
 
 from surepy import LocData
 import surepy.constants
 from surepy.data import metadata_pb2
+
+
+def save_asdf(locdata, path):
+    """
+    Save LocData attributes in an asdf file.
+
+    In the Advanced Scientific Data Format (ASDF) file format we store metadata, properties and column names as human-
+    readable yaml header. The data is stored as binary numpy array.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        The LocData object to be saved.
+    path : str or Path object
+        File path including file name to save to.
+    """
+    # Prepare tree
+    meta_json = json_format.MessageToJson(locdata.meta, including_default_value_fields=False)
+    tree = {
+        'data': locdata.data.values,
+        'columns': list(locdata.data),
+        'properties': locdata.properties,
+        'meta': meta_json
+    }
+
+    # Create the ASDF file object from tree
+    af = AsdfFile(tree)
+
+    # Write the data to a new file
+    af.write_to(path)
+
+
 
 # todo: take out **kwargs
 
@@ -36,8 +71,8 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
 
     Returns
     -------
-    Dataset
-        a new instance of Dataset with all localizations.
+    LocData
+        A new instance of LocData with all localizations.
     """
     # define columns
     if columns is None:
@@ -115,8 +150,8 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
 
     Returns
     -------
-    Dataset
-        a new instance of Dataset with all localizations.
+    LocData
+        A new instance of LocData with all localizations.
     """
     columns = load_rapidSTORM_header(path)
     dataframe = pd.read_table(path, sep=" ", skiprows=1, nrows=nrows, names=columns)
@@ -180,8 +215,8 @@ def load_Elyra_file(path, nrows=None, **kwargs):
 
     Returns
     -------
-    Dataset
-        a new instance of Dataset with all localizations.
+    LocData
+        A new instance of LocData with all localizations.
     """
     columns = load_Elyra_header(path)
 
@@ -207,4 +242,22 @@ def load_Elyra_file(path, nrows=None, **kwargs):
     return dat
 
 
+def load_asdf_file(path):
+    """
+    Load data from ASDF localization file.
 
+    Parameters
+    ----------
+    path : string or Path object
+        File path for a rapidSTORM file to load.
+
+    Returns
+    -------
+    LocData
+        A new instance of LocData with all localizations.
+    """
+    with asdf_open(path) as af:
+        new_df = pd.DataFrame({k: af.tree['data'][:, n] for n, k in enumerate(af.tree['columns'])})
+    locdata = LocData(dataframe=new_df)
+    locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta)
+    return locdata

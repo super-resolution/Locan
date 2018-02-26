@@ -1,5 +1,7 @@
 import warnings
 import pytest
+import pandas as pd
+from pandas.testing import assert_frame_equal
 import surepy.constants
 import surepy.io.io_locdata as io
 import surepy.tests.test_data
@@ -10,7 +12,7 @@ def test_get_correct_column_names_from_rapidSTORM_header():
 
 def test_loading_rapidSTORM_file():
     dat = io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt', nrows=10)
-    print(dat.data.head())
+    #print(dat.data.head())
     #dat.print_meta()
     assert (len(dat) == 10)
 
@@ -39,4 +41,12 @@ def test_loading_txt_file():
     # print(dat.data)
     assert (len(dat) == 10)
 
+def test_save_asdf(locdata_fix):
+    io.save_asdf(locdata_fix, path=surepy.constants.ROOT_DIR + '/tests/test_data/locdata.asdf')
 
+def test_load_asdf_file(locdata_fix):
+    locdata = io.load_asdf_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/locdata.asdf')
+    # print(locdata.data)
+    assert_frame_equal(locdata.data, locdata_fix.data)
+    assert(locdata.meta.identifier == locdata_fix.meta.identifier)
+    assert(locdata.properties == locdata_fix.properties)

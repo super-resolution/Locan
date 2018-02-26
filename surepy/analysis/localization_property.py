@@ -7,7 +7,7 @@ import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from scipy import stats
 
-from surepy.analysis.analysis import Analysis
+from surepy.analysis.analysis_tools import Analysis
 
 
 

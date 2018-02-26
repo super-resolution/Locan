@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from surepy.analysis.analysis import Analysis
+from surepy.analysis.analysis_tools import Analysis
 
 
 class Localization_uncertainty_from_intensity(Analysis):

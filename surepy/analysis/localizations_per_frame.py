@@ -3,10 +3,11 @@ This module provides methods for analysis.
 """
 import matplotlib.pyplot as plt
 
-from surepy.analysis.analysis import Analysis
+from surepy.analysis.analysis_tools import Analysis
 
 
 def localizations_per_frame(data, normalization=None):
+    ''' Algorithm to compute localizations per frame.'''
     if normalization is None:
         normalization_factor = 1
     elif isinstance(normalization, str):

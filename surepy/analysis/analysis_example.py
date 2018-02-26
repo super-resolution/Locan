@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
 
-from surepy.analysis.analysis import Analysis
+from surepy.analysis.analysis_tools import _init_meta, _update_meta
 
 #
 #### The algorithms
@@ -21,13 +21,13 @@ from surepy.analysis.analysis import Analysis
 # The user will not have to use this particular function directly.
 #
 
-def algorithm_1(data=None, limits=(0, 10)):
+def _algorithm_1(data=None, limits=(0, 10)):
     ''' Provides a list of data values. data is actually not used.'''
     results = [i for i in range(*limits)]  # some complicated algorithm
     return results
 
 
-def algorithm_2(data=None, n_sample=100, seed=None):
+def _algorithm_2(data=None, n_sample=100, seed=None):
     ''' Provides random normal distributed data. data is actually not used.'''
     np.random.seed(seed)
     dict = {'a': np.random.normal(size=n_sample),
@@ -40,15 +40,86 @@ def algorithm_2(data=None, n_sample=100, seed=None):
 #
 # Now we want a class implementing this algorithm to be used with locdata. Also the results from this algorithm should
 # be reused in some visual representation that is specific for this analysis routine.
-# Therefore we have a class that holds results and organizes metadata (and provides the specific plotting routine ?).
+# Therefore we have a class that holds results and organizes metadata and provides the specific plotting routine.
 #
+
+class _Analysis_example():
+    """
+    The base class for specialized analysis classes to be used on LocData objects.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        Localization data.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
+    kwargs :
+        Parameter that are passed to the algorithm.
+
+    Attributes
+    ----------
+    count : int
+        A counter for counting instantiations.
+    locdata : LocData object
+        Localization data.
+    parameter : dict
+        A dictionary with all settings for the current computation.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
+    results : numpy array or pandas DataFrame
+        Computed results.
+    """
+    count = 0
+
+    def __init__(self, locdata, meta, **kwargs):
+        self.__class__.count += 1
+
+        self.locdata = locdata
+        self.parameter = kwargs
+        self.meta = _init_meta(self)
+        self.meta = _update_meta(self, meta)
+        self.results = None
+
+
+    def __del__(self):
+        """ updating the counter upon deletion of class instance. """
+        self.__class__.count -= 1
+
+    def __str__(self):
+        """ Return results in a printable format."""
+        return str(self.results)
+
+    def save_results(self, path):
+        return save_results(self, path)
+
+    def plot(self, ax=None, show=True):
+        return plot(self, ax, show)
+
+
+    def compute(self):
+        """ Apply analysis routine with the specified parameters on locdata and return results."""
+        raise NotImplementedError
+
+    def save(self, path):
+        """ Save Analysis object."""
+        raise NotImplementedError
+
+    def load(self, path):
+        """ Load Analysis object."""
+        raise NotImplementedError
+
+    def report(self, ax):
+        """ Show a report about analysis results."""
+        raise NotImplementedError
+
+
 #
 # This specific analysis classes inherit from Analysis to get the _init_metadata function and reduce duplication in the init function.
 #
 # The classes for each particular algorith are defined as:
 #
 
-class Analysis_example_algorithm_1(Analysis):
+class Analysis_example_algorithm_1(_Analysis_example):
     '''
     Example for an analysis class implementing algorithm_2.
     Compute some data and provide a plot and histogram with secondary data (e.g. from fitting plot or histogram).
@@ -86,14 +157,12 @@ class Analysis_example_algorithm_1(Analysis):
 
     def compute(self):
         data = self.locdata  # take certain elements from locdata
-        self.results = algorithm_1(data=data, **self.parameter)  # some complicated algorithm
-        return None
-
-    def plot(self, ax=None, show=True):
-        return plot(self, ax, show)
+        self.results = _algorithm_1(data=data, **self.parameter)  # some complicated algorithm
+        return self
 
 
-class Analysis_example_algorithm_2(Analysis):
+
+class Analysis_example_algorithm_2(_Analysis_example):
     '''
     Example for an analysis class implementing algorithm_2.
     Compute some data and provide a plot and histogram with secondary data (e.g. from fitting plot or histogram).
@@ -128,12 +197,11 @@ class Analysis_example_algorithm_2(Analysis):
 
     def __init__(self, locdata=None, meta=None, n_sample=100, seed=None):
         super().__init__(locdata=locdata, meta=meta, n_sample=n_sample, seed=seed)
-        self.plot_2 = plot_2(self)
 
     def compute(self):
         data = self.locdata  # take certain elements from locdata
-        self.results = algorithm_2(data=data, **self.parameter)  # some complicated algorithm
-        return None
+        self.results = _algorithm_2(data=data, **self.parameter)  # some complicated algorithm
+        return self
 
 #
 #### Interface functions
@@ -143,7 +211,7 @@ class Analysis_example_algorithm_2(Analysis):
 #
 
 def save_results(self, path):
-    return self.results  # this should be saving the data
+    pass
 
 
 def plot(self, ax=None, show=True):

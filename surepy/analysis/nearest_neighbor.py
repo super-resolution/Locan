@@ -5,7 +5,7 @@ This module provides methods for nearest-neighbor analysis.
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
-from surepy.analysis.analysis import Analysis
+from surepy.analysis.analysis_tools import Analysis
 
 
 def pdf_nnDistances_csr_2D(x, density):

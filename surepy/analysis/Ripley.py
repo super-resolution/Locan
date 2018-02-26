@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 from astropy.stats import RipleysKEstimator
 
-from surepy.analysis.analysis import Analysis
+from surepy.analysis.analysis_tools import Analysis
 
 
 class Ripleys_h_function(Analysis):

@@ -6,7 +6,7 @@ from surepy import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
 import surepy.tests.test_data
-from surepy.analysis import Ripleys_h_function
+from surepy.analysis import Ripleys_k_function, Ripleys_l_function, Ripleys_h_function
 
 
 @pytest.fixture()
@@ -16,6 +16,24 @@ def locdata_blobs():
 
 def test_Ripleys_k_function(locdata_blobs):
     radii = np.linspace(0,100,20)
+    rhf = Ripleys_k_function(locdata_blobs, radii=radii).compute()
+    print(rhf.results[0:5])
+    assert (len(rhf.results) == len(radii))
+
+def test_Ripleys_k_function(locdata_blobs):
+    radii = np.linspace(0,100,20)
+    rhf = Ripleys_k_function(locdata_blobs, radii=radii, region_measure=1, other_locdata=locdata_blobs).compute()
+    print(rhf.results[0:5])
+    assert (len(rhf.results) == len(radii))
+
+def test_Ripleys_l_function(locdata_blobs):
+    radii = np.linspace(0,100,20)
+    rhf = Ripleys_l_function(locdata_blobs, radii=radii).compute()
+    print(rhf.results[0:5])
+    assert (len(rhf.results) == len(radii))
+
+def test_Ripleys_h_function(locdata_blobs):
+    radii = np.linspace(0,100,20)
     rhf = Ripleys_h_function(locdata_blobs, radii=radii).compute()
-    #print(rhf.results)
+    print(rhf.results[0:5])
     assert (len(rhf.results) == len(radii))

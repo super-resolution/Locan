@@ -67,7 +67,7 @@ class Bounding_box():
 
     @property
     def vertices(self):
-        raise NotImplementedError
+        return self.hull.T
 
 
 class Convex_hull_scipy():
@@ -105,8 +105,12 @@ class Convex_hull_scipy():
         self.vertex_indices = self.hull.vertices
         self.points_on_boundary = len(self.vertex_indices)
         self.points_on_boundary_rel = self.points_on_boundary / len(points)
-        self.region_measure = self.hull.volume if self.dimension==3 else self.hull.area
-        self.subregion_measure = None # todo: compute
+        self.region_measure = self.hull.volume
+        self.subregion_measure = self.hull.area
+
+    @property
+    def vertices(self):
+        return self.hull.points[self.hull.vertices]
 
 
 class Convex_hull_shapely():

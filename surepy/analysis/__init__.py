@@ -7,5 +7,5 @@ from surepy.analysis.uncertainty import Localization_uncertainty_from_intensity
 from surepy.analysis.localization_precision import Localization_precision
 from surepy.analysis.nearest_neighbor import Nearest_neighbor_distances
 from surepy.analysis.localization_property import Localization_property
-from surepy.analysis.Ripley import Ripleys_h_function
+from surepy.analysis.ripley.ripley import Ripleys_h_function
 from surepy.analysis.analysis_example import Analysis_example_algorithm_1, Analysis_example_algorithm_2

@@ -4,6 +4,7 @@ Methods for filtering LocData objects.
 
 '''
 
+import numpy as np
 from surepy import LocData
 
 
@@ -79,7 +80,6 @@ def select_by_image_mask(selection, mask, pixel_size, **kwargs):
     raise NotImplementedError
 
 
-
 def exclude_sparce_points(selection, threshold_density, **kwargs):
     """
     Exclude localizations by thresholding a local density.
@@ -97,3 +97,26 @@ def exclude_sparce_points(selection, threshold_density, **kwargs):
         a new instance of Selection referring to the same Dataset as the input Selection.
     """
     raise NotImplementedError
+
+
+def random_subset(locdata, number_points):
+    """
+    Take a random subset of localizations.
+
+    Parameters
+    ----------
+    locdata : LocData
+        Specifying the localization data from which to select localization data.
+    number_points : int
+        Number of localizations to randomly choose from locdata.
+
+    Returns
+    -------
+    LocData
+        a new instance of LocData carrying the subset of localizations.
+    """
+    indices = np.random.choice(len(locdata), size=number_points)
+    new_locdata = LocData.from_selection(locdata, indices)
+    new_locdata.meta.history.add(name='random subset')
+
+    return new_locdata

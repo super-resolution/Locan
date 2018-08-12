@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from surepy import LocData
-from surepy.data.filter import select_by_condition
+from surepy.data.filter import select_by_condition, random_subset
 
 
 @pytest.fixture()
@@ -17,3 +17,9 @@ def test_select_by_condition(locdata_simple):
     dat_s = select_by_condition(locdata_simple, 'Position_x>1')
     assert (len(dat_s) == 2)
     # dat_s.print_meta()
+
+def test_random_subset(locdata_simple):
+    dat_s = random_subset(locdata_simple, number_points=3)
+    assert (len(dat_s) == 3)
+    dat_s.print_meta()
+    print(dat_s.data)

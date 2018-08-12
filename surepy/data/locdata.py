@@ -135,7 +135,7 @@ class LocData():
             pass
 
         try:
-            meta_.ClearField("event_count")
+            meta_.ClearField("element_count")
         except ValueError:
             pass
 

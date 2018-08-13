@@ -12,6 +12,7 @@ from skimage import exposure
 import surepy.data.properties.statistics
 
 
+# todo: fix problem with rescale
 def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=(2, 98), cmap='magma'):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
@@ -25,7 +26,7 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=(2,
     ax : matplotlib axes
         The axes on which to show the image
     show : bool
-        Flag indicating if plt.show() is active.
+        Flag indicating if plt.show() and the creation of a colorbar is active.
     bin_size : int or float
         x and y size of bins
     range : [[min,max],[min,max]] or 'auto' or 'zero'
@@ -38,7 +39,6 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=(2,
     cmap : str or Colormap instance
         The colormap used to map normalized data values to RGBA colors.
         We recommend to use one of 'viridis', 'plasma', 'magma', 'inferno', 'hot', 'hsv'.
-
 
     Returns
     -------

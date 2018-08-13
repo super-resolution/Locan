@@ -49,11 +49,13 @@ def _ripleys_k_function(points, radii, region_measure=1, other_points=None):
 
 def _ripleys_l_function(points, radii, region_measure=1, other_points=None):
     """
-    Evaluates Ripley's L function. For parameter description
+    Evaluates Ripley's L function which is different for 2D and 3D data points. For parameter description
     see _ripleys_k_function.
     """
-
-    return np.sqrt(_ripleys_k_function(points, radii, region_measure, other_points) / np.pi)
+    if np.shape(points)[1] == 2:
+        return np.sqrt(_ripleys_k_function(points, radii, region_measure, other_points) / np.pi)
+    elif np.shape(points)[1] == 3:
+        return np.cbrt(_ripleys_k_function(points, radii, region_measure, other_points) * 3 / 4 / np.pi)
 
 
 def _ripleys_h_function(points, radii, region_measure=1, other_points=None):

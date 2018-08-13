@@ -24,13 +24,13 @@ def test_Ripleys_k_function(locdata_blobs):
     #print(rhf.results[0:5])
     assert (len(rhf.results) == len(radii))
 
-def test_Ripleys_k_function(locdata_blobs_3D):
+def test_Ripleys_k_function_3d(locdata_blobs_3D):
     radii = np.linspace(0,100,20)
     rhf = Ripleys_k_function(locdata_blobs_3D, radii=radii).compute()
     #print(rhf.results[0:5])
     assert (len(rhf.results) == len(radii))
 
-def test_Ripleys_k_function(locdata_blobs):
+def test_Ripleys_k_function_estimate(locdata_blobs):
     radii = np.linspace(0,100,20)
     rhf = Ripleys_k_function(locdata_blobs, radii=radii, region_measure=1, other_locdata=locdata_blobs).compute()
     #print(rhf.results[0:5])

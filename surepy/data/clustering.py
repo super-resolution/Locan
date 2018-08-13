@@ -10,6 +10,7 @@ from hdbscan import HDBSCAN
 from sklearn.cluster import DBSCAN
 
 from surepy import LocData
+from surepy.constants import N_JOBS
 
 
 def clustering(locdata, **kwargs):
@@ -81,7 +82,7 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = Fal
         return collection
 
 
-# todo: set n_jobs as global constant.
+
 def clustering_dbscan(locdata, eps=20, min_samples=5, noise=False):
     """
     Cluster localizations in locdata using the dbscan clustering algorithm as implemented in sklearn.
@@ -107,7 +108,7 @@ def clustering_dbscan(locdata, eps=20, min_samples=5, noise=False):
     """
     labels = DBSCAN(
         eps=eps, min_samples=min_samples, metric='euclidean', metric_params=None, algorithm='auto',
-        leaf_size=30, p=None, n_jobs=1
+        leaf_size=30, p=None, n_jobs=N_JOBS
     ).fit_predict(locdata.coordinates)
 
     grouped = locdata.data.groupby(labels)

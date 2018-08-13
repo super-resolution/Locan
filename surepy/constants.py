@@ -56,3 +56,8 @@ ELYRA_KEYS = {
 }
 
 
+# The number of cores that are used in parallel for some algorithms.
+# Following the scikit convention: n_jobs is the number of parallel jobs to run.
+# If -1, then the number of jobs is set to the number of CPU cores.
+
+N_JOBS = 1

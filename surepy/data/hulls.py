@@ -49,6 +49,8 @@ class Bounding_box():
         Array of point coordinates that represent [[min_coordinates], [max_coordinates]].
     dimension : int
         Spatial dimension of hull
+    vertices : array of coordinate tuples
+        Coordinates of points that make up the hull.
     width : array of float
         Array with differences between max and min for each coordinate.
     region_measure : float
@@ -85,6 +87,8 @@ class Convex_hull_scipy():
         hull object from the corresponding algorithm
     dimension : int
         spatial dimension of hull
+    vertices : array of coordinate tuples
+        Coordinates of points that make up the hull.
     vertex_indices : indices for points
         indices identifying a polygon of all points that make up the hull
     points_on_boundary : int

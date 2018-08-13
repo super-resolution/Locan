@@ -29,7 +29,7 @@ def test_Convex_hull_scipy(locdata_simple):
     true_convex_hull_indices = np.array([0, 4, 3, 2, 1])
     H = Convex_hull_scipy(locdata_simple.coordinates)
     np.testing.assert_array_equal(H.vertex_indices, true_convex_hull_indices)
-    assert (H.region_measure == 14.659642811429332)
+    assert (H.region_measure == 12.5)
 
 # def test_Convex_hull_scipy(few_random_points):
 #     true_convex_hull_indices = np.array([1, 4, 0, 5, 9])

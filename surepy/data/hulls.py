@@ -49,6 +49,8 @@ class Bounding_box():
         Array of point coordinates that represent [[min_coordinates], [max_coordinates]].
     dimension : int
         Spatial dimension of hull
+    vertices : array of coordinate tuples
+        Coordinates of points that make up the hull.
     width : array of float
         Array with differences between max and min for each coordinate.
     region_measure : float
@@ -67,7 +69,7 @@ class Bounding_box():
 
     @property
     def vertices(self):
-        raise NotImplementedError
+        return self.hull.T
 
 
 class Convex_hull_scipy():
@@ -85,6 +87,8 @@ class Convex_hull_scipy():
         hull object from the corresponding algorithm
     dimension : int
         spatial dimension of hull
+    vertices : array of coordinate tuples
+        Coordinates of points that make up the hull.
     vertex_indices : indices for points
         indices identifying a polygon of all points that make up the hull
     points_on_boundary : int
@@ -105,8 +109,12 @@ class Convex_hull_scipy():
         self.vertex_indices = self.hull.vertices
         self.points_on_boundary = len(self.vertex_indices)
         self.points_on_boundary_rel = self.points_on_boundary / len(points)
-        self.region_measure = self.hull.volume if self.dimension==3 else self.hull.area
-        self.subregion_measure = None # todo: compute
+        self.region_measure = self.hull.volume
+        self.subregion_measure = self.hull.area
+
+    @property
+    def vertices(self):
+        return self.hull.points[self.hull.vertices]
 
 
 class Convex_hull_shapely():

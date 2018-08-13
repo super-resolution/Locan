@@ -29,7 +29,7 @@ def simulate(**kwargs):
     raise NotImplementedError
 
 
-def simulate_csr(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z_range = None, seed=0):
+def simulate_csr(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z_range = None, seed=None):
     """
     Provide a dataset of localizations that are spatially-distributed on a rectangular shape or cubic volume by
     complete spatial randomness.
@@ -63,7 +63,7 @@ def simulate_csr(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z_
     dict = {}
     for i, j in zip(('x', 'y', 'z'), (x_range, y_range, z_range)):
         if j is not None:
-            dict.update({'Position_' + i: None if j is None else np.random.uniform(*j, n_samples)})
+            dict.update({'Position_' + i: np.random.uniform(*j, n_samples)})
 
     dat = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
 
@@ -83,7 +83,7 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,1
     shape.
 
     The data consists of  normal distributed point cluster with blob centers being distributed by complete
-    spatial randomness. Teh simulation uses the make_blobs method from sklearn with corresponding parameters.
+    spatial randomness. The simulation uses the make_blobs method from sklearn with corresponding parameters.
 
     Parameters
     ----------

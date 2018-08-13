@@ -4,8 +4,16 @@ This module provides methods for rendering locdata objects.
 
 '''
 
+import numpy as np
+import matplotlib.pyplot as plt
+import fast_histogram
+from skimage import exposure
 
-def render2D(locdata, ax, bin_size=10, range='auto', rescale=(2, 98)):
+import surepy.data.properties.statistics
+
+
+# todo: fix problem with rescale
+def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=(2, 98), cmap='magma'):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
 
@@ -13,14 +21,24 @@ def render2D(locdata, ax, bin_size=10, range='auto', rescale=(2, 98)):
 
     Parameters
     ----------
+    locdata : LocData object
+        Localization data.
+    ax : matplotlib axes
+        The axes on which to show the image
+    show : bool
+        Flag indicating if plt.show() and the creation of a colorbar is active.
     bin_size : int or float
         x and y size of bins
     range : [[min,max],[min,max]] or 'auto' or 'zero'
         defining the binned region by [min, max] ranges from input;
         for 'auto' by [min, max] ranges from data; for 'zero' by [0, max] ranges from data.
-    rescale : tuple or 'equal'
-        rescale intensity values to be within percentile (tuple with upper and lower bounds)
-        or equalize histogram ('equal').
+    rescale : tuple, None, or 'equal'
+        rescale intensity values to be within percentile (tuple with upper and lower bounds provided in percent).
+        For None intensity values are rescaled to the min and max possible values of the given representation.
+        For 'equal' intensity values are rescaled by histogram equalization.
+    cmap : str or Colormap instance
+        The colormap used to map normalized data values to RGBA colors.
+        We recommend to use one of 'viridis', 'plasma', 'magma', 'inferno', 'hot', 'hsv'.
 
     Returns
     -------
@@ -28,10 +46,10 @@ def render2D(locdata, ax, bin_size=10, range='auto', rescale=(2, 98)):
         mappable to create colorbar
 
     """
-    import fast_histogram
-    from skimage import exposure
-    import numpy as np
-    import surepy.data.properties.statistics
+
+    # Provide matplotlib axes if not provided
+    if ax is None:
+        fig, ax = plt.subplots(nrows=1, ncols=1)
 
     # determine ranges
     if isinstance(range, str):
@@ -76,15 +94,21 @@ def render2D(locdata, ax, bin_size=10, range='auto', rescale=(2, 98)):
     if isinstance(rescale, str):
         if rescale == 'equal':
             img = exposure.equalize_hist(img)
+    elif rescale is None:
+        img = exposure.rescale_intensity(img)
     else:
-        p2, p98 = np.percentile(img, rescale)
-        img = exposure.rescale_intensity(img, in_range=(p2, p98))
+        p_low, p_up = np.percentile(img, rescale)
+        img = exposure.rescale_intensity(img, in_range=(p_low, p_up))
 
-    # todo: colormaps: 'viridis', 'plasma', 'magma', 'inferno', 'hot', 'hsv'
-    mappable = ax.imshow(img, origin='low', extent=[*range[0], *range[1]], cmap='magma')
+    mappable = ax.imshow(img, origin='low', extent=[*range[0], *range[1]], cmap=cmap)
     ax.set(title='Image (%.0f nm per bin)' % bin_size,
            xlabel='Position_x',
            ylabel='Position_y'
            )
+
+    # show figure
+    if show:
+        plt.colorbar(mappable)
+        plt.show()
 
     return mappable

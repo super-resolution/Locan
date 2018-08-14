@@ -45,5 +45,6 @@ def test_Ripleys_l_function(locdata_blobs):
 def test_Ripleys_h_function(locdata_blobs):
     radii = np.linspace(0,100,20)
     rhf = Ripleys_h_function(locdata_blobs, radii=radii).compute()
-    #print(rhf.results[0:5])
+    #print(rhf.results[5:11])
     assert (len(rhf.results) == len(radii))
+    assert (len(rhf.get_maximum())==2)

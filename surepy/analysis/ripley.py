@@ -306,6 +306,14 @@ class Ripleys_h_function(_Ripley):
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_h_data': ripley})
         return self
 
+
+    def get_maximum(self):
+        index = self.results['Ripley_h_data'].idxmax()
+        #self.maximum = {'radius': index, 'H value': self.results.loc[index]}
+        self.maximum = self.results.iloc[index]
+        return self.maximum
+
+
 ##### Interface functions
 
 
@@ -317,17 +325,23 @@ def plot(self, ax=None, show=True):
         fig, ax = plt.subplots(nrows=1, ncols=1)
 
     self.results.plot(x='radius', ax=ax)
-    ax.set(title = 'Ripley\'s h function',
+
+    if self.results.columns[0] == 'Ripley_k_data':
+        title = 'Ripley\'s k function'
+    elif self.results.columns[0] == 'Ripley_l_data':
+        title = 'Ripley\'s k function'
+    elif self.results.columns[0] == 'Ripley_h_data':
+        title = 'Ripley\'s h function'
+    else:
+        title = None
+
+    ax.set(title = title,
            xlabel = 'Radius',
-           ylabel = 'Ripley\'s h function'
+           ylabel = self.results.columns[0]
            )
-    ax.text(0.1,0.9,
-            "Maximum: " + 'not yet',
-            transform = ax.transAxes
-            )
 
     # show figure
-    if show:  # this part is needed if anyone wants to modify the figure
+    if show:
         plt.show()
 
     return None

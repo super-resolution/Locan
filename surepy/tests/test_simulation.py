@@ -1,4 +1,7 @@
-from surepy.simulation import simulate_csr, simulate_blobs
+import pytest
+import pandas as pd
+from surepy import LocData
+from surepy.simulation import simulate_csr, simulate_blobs, resample
 
 
 def test_simulate_csr():
@@ -36,3 +39,20 @@ def test_simulate_blobs_3D():
     assert ('Position_z' in dat.data.columns)
 
 
+@pytest.fixture()
+def locdata_simple():
+    dict = {
+        'Position_x': [0, 0, 1, 4, 5],
+        'Position_y': [0, 1, 3, 4, 1],
+        'Position_z': [0, 1, 3, 4, 1],
+        'Intensity': [0, 1, 3, 4, 1],
+        'Uncertainty_x': [10, 30, 100, 300, 0],
+        'Uncertainty_y': [10, 30, 100, 300, 10],
+        'Uncertainty_z': [10, 30, 100, 300, 10],
+        }
+    return LocData(dataframe=pd.DataFrame.from_dict(dict))
+
+def test_resample(locdata_simple):
+    dat = resample(locdata=locdata_simple, number_samples=3)
+    #print(dat.data)
+    assert (len(dat)==15)

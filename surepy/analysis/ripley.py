@@ -327,11 +327,11 @@ def plot(self, ax=None, show=True):
     self.results.plot(x='radius', ax=ax)
 
     if self.results.columns[0] == 'Ripley_k_data':
-        title = 'Ripley\'s k function'
+        title = 'Ripley\'s K function'
     elif self.results.columns[0] == 'Ripley_l_data':
-        title = 'Ripley\'s k function'
+        title = 'Ripley\'s L function'
     elif self.results.columns[0] == 'Ripley_h_data':
-        title = 'Ripley\'s h function'
+        title = 'Ripley\'s H function'
     else:
         title = None
 

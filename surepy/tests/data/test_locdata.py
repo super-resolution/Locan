@@ -44,8 +44,8 @@ def test_LocData(df_simple):
     for x, y in zip(dat.coordinates, [[0, 0], [0, 1], [1, 3], [4, 4], [5, 1]]):
         assert np.all(x == np.array(y))
     assert (dat.meta.comment == COMMENT_METADATA.comment)
-    dat.print_meta()
-    dat.print_summary()
+    # dat.print_meta()
+    # dat.print_summary()
 
 def test_LocData_from_dataframe(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
@@ -133,7 +133,7 @@ def test_LocData_handling_metadata(df_simple):
     assert (dat.meta.comment == 'new comment')
 
     dat.meta.map['variable key'] = 'new comment'
-    print(dat.meta.map)
+    # print(dat.meta.map)
     assert (dat.meta.map == {'variable key': 'new comment'})
 
 

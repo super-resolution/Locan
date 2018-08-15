@@ -22,5 +22,5 @@ def test_Analysis_example(locdata):
 
     # print(ae.results)
     # print(ae.meta)
-    print(ae.meta)
-    ae.plot()
+    # print(ae.meta)
+    # ae.plot()

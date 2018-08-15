@@ -77,10 +77,14 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
     # define columns
     if columns is None:
         dataframe = pd.read_table(path, sep=sep, skiprows=0, nrows=nrows)
+
+        for c in dataframe.columns:
+            if c not in surepy.constants.PROPERTY_KEYS:
+                warnings.warn('{} is not a Surepy property standard.'.format(c), UserWarning)
     else:
         for c in columns:
             if c not in surepy.constants.PROPERTY_KEYS:
-                warnings.warn('A property key is not Surepy standard.', UserWarning)
+                warnings.warn('{} is not a Surepy property standard.'.format(c), UserWarning)
 
         dataframe = pd.read_table(path, sep=sep, skiprows=1, nrows=nrows, names=columns)
 
@@ -132,8 +136,11 @@ def load_rapidSTORM_header(path):
     # turn identifiers into valuable LocData keys
     column_keys = []
     for i in identifiers:
-        column_keys.append(surepy.constants.RAPIDSTORM_KEYS[i])
-
+        if i in surepy.constants.RAPIDSTORM_KEYS:
+            column_keys.append(surepy.constants.RAPIDSTORM_KEYS[i])
+        else:
+            warnings.warn('{} is not a Surepy property standard.'.format(i), UserWarning)
+            column_keys.append(i)
     return column_keys
 
 
@@ -196,8 +203,13 @@ def load_Elyra_header(path):
 
     # turn identifiers into valuable LocData keys
     column_keys = []
+
     for i in identifiers:
-        column_keys.append(surepy.constants.ELYRA_KEYS[i])
+        if i in surepy.constants.ELYRA_KEYS:
+            column_keys.append(surepy.constants.ELYRA_KEYS[i])
+        else:
+            warnings.warn('{} is not a Surepy property standard.'.format(i), UserWarning)
+            column_keys.append(i)
 
     return column_keys
 

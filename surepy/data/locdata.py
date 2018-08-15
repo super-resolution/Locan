@@ -162,7 +162,7 @@ class LocData():
 
     @classmethod
     def from_collection(cls, *args, meta=None, **kwargs):
-
+        # todo: here and in concat  I would normaly expect a list of references like in numpy.concatenate instead of *args
         references = args
         dataframe = pd.DataFrame([ref.properties for ref in references])
 

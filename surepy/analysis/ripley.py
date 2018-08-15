@@ -278,6 +278,8 @@ class Ripleys_h_function(_Ripley):
         Metadata about the current analysis routine.
     results : pandas data frame
         Data frame with radii as provided and Ripley's H function.
+    Ripley_h_maximum : pandas data frame
+        Data frame with radius and Ripley's H value for the radius at which the H function has its maximum.
     """
     count = 0
 

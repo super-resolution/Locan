@@ -60,6 +60,7 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
         fit_data = locdata.coordinates
     else:
         fit_data = locdata.data[kdims]
+
     labels = HDBSCAN(
         min_cluster_size=min_cluster_size,
         allow_single_cluster=allow_single_cluster,
@@ -79,8 +80,8 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
     # metadata
     del collection.meta.history[:]
     collection.meta.history.add(name='clustering_hdbscan',
-                         parameter='locdata={}, min_cluster_size={}, allow_single_cluster={}'.format(
-                             locdata, min_cluster_size, allow_single_cluster))
+                         parameter='locdata={}, min_cluster_size={}, kdims={}, allow_single_cluster={}'.format(
+                             locdata, min_cluster_size, kdims, allow_single_cluster))
 
     if noise:
         return noise, collection
@@ -89,7 +90,7 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
 
 
 
-def clustering_dbscan(locdata, eps=20, min_samples=5, noise=False):
+def clustering_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False):
     """
     Cluster localizations in locdata using the dbscan clustering algorithm as implemented in sklearn.
 
@@ -102,6 +103,8 @@ def clustering_dbscan(locdata, eps=20, min_samples=5, noise=False):
     min_samples : int
         The number of samples in a neighborhood for a point to be considered as a core point.
         This includes the point itself.
+    kdims : list of string
+        Propery keywords to be used for clustering. If None, locdata.coordinates will be used.
     noise : bool
         Flag indicating if the first cluster represents noise. If True a tuple of LocData objects is returned with
         noise and cluster collection. If False a single LocData object is returned.
@@ -112,10 +115,15 @@ def clustering_dbscan(locdata, eps=20, min_samples=5, noise=False):
         A new LocData instance assembling all generated selections (i.e. localization cluster).
         If noise is True the first LocData object is a selection of all localizations that are defined as noise.
     """
+    if kdims is None:
+        fit_data = locdata.coordinates
+    else:
+        fit_data = locdata.data[kdims]
+
     labels = DBSCAN(
         eps=eps, min_samples=min_samples, metric='euclidean', metric_params=None, algorithm='auto',
         leaf_size=30, p=None, n_jobs=N_JOBS
-    ).fit_predict(locdata.coordinates)
+    ).fit_predict(fit_data)
 
     grouped = locdata.data.groupby(labels)
 
@@ -130,8 +138,8 @@ def clustering_dbscan(locdata, eps=20, min_samples=5, noise=False):
     # metadata
     del collection.meta.history[:]
     collection.meta.history.add(name='clustering_dbscan',
-                         parameter='locdata={}, eps={}, min_samples={}'.format(
-                             locdata, eps, min_samples))
+                         parameter='locdata={}, eps={}, min_samples={}, kdims={}'.format(
+                             locdata, eps, min_samples, kdims))
 
     if noise:
         return noise, collection

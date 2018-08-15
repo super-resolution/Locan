@@ -77,6 +77,10 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
     # define columns
     if columns is None:
         dataframe = pd.read_table(path, sep=sep, skiprows=0, nrows=nrows)
+
+        for c in dataframe.columns:
+            if c not in surepy.constants.PROPERTY_KEYS:
+                warnings.warn('{} is not a Surepy property standard.'.format(c), UserWarning)
     else:
         for c in columns:
             if c not in surepy.constants.PROPERTY_KEYS:
@@ -199,11 +203,9 @@ def load_Elyra_header(path):
 
     # turn identifiers into valuable LocData keys
     column_keys = []
-    for i in identifiers:
-        column_keys.append(surepy.constants.ELYRA_KEYS[i])
 
     for i in identifiers:
-        if i in surepy.constants.RAPIDSTORM_KEYS:
+        if i in surepy.constants.ELYRA_KEYS:
             column_keys.append(surepy.constants.ELYRA_KEYS[i])
         else:
             warnings.warn('{} is not a Surepy property standard.'.format(i), UserWarning)

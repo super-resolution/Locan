@@ -15,7 +15,7 @@ def locdata():
 
 
 def test_Localization_property(locdata):
-    lprop = Localization_property(locdata=locdata, property='Intensity', index='Frame')
-    # print(lprop.results)
+    lprop = Localization_property(locdata=locdata, property='Intensity', index='Frame').compute()
+    #print(lprop.results)
     assert(lprop.results.index.name == 'Frame')
     assert(lprop.results.columns == pd.Index(['Intensity'], dtype='object'))

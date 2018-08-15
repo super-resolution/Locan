@@ -4,6 +4,8 @@ Methods for simulating localization data.
 
 '''
 
+import time
+
 import numpy as np
 import pandas as pd
 from sklearn.datasets.samples_generator import make_blobs
@@ -29,7 +31,7 @@ def simulate(**kwargs):
     raise NotImplementedError
 
 
-def simulate_csr(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z_range = None, seed=0):
+def simulate_csr(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z_range = None, seed=None):
     """
     Provide a dataset of localizations that are spatially-distributed on a rectangular shape or cubic volume by
     complete spatial randomness.
@@ -63,7 +65,7 @@ def simulate_csr(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z_
     dict = {}
     for i, j in zip(('x', 'y', 'z'), (x_range, y_range, z_range)):
         if j is not None:
-            dict.update({'Position_' + i: None if j is None else np.random.uniform(*j, n_samples)})
+            dict.update({'Position_' + i: np.random.uniform(*j, n_samples)})
 
     dat = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
 
@@ -83,7 +85,7 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,1
     shape.
 
     The data consists of  normal distributed point cluster with blob centers being distributed by complete
-    spatial randomness. Teh simulation uses the make_blobs method from sklearn with corresponding parameters.
+    spatial randomness. The simulation uses the make_blobs method from sklearn with corresponding parameters.
 
     Parameters
     ----------
@@ -140,3 +142,82 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,1
 
 
 
+def resample(locdata, number_samples=10):
+    """
+    Resample locdata according to localization uncertainty. Per localization *number_samples* new localizations
+    are simulated normally distributed around the localization coordinates with a standard deviation set to the
+    uncertainty in each dimension.
+    The resulting LocData object carries new localizations with the following properties: 'Position_x',
+    'Position_y'[, 'Position_z'], 'Origin_index'
+
+    Parameters
+    ----------
+    locdata : LocData object
+        Localization data to be resampled
+    number_samples : int
+        The number of localizations generated for each original localization.
+
+    Returns
+    -------
+    locdata : LocData object
+        New localization data with simulated coordinates.
+    """
+
+    # generate dataframe
+    list = []
+    for i in range(len(locdata)):
+        new_d = {}
+        new_d.update({'Origin_index': np.full(number_samples, i)})
+        x_values = np.random.normal(loc=locdata.data.iloc[i]['Position_x'],
+                                    scale=locdata.data.iloc[i]['Uncertainty_x'],
+                                    size=number_samples
+                                    )
+        new_d.update({'Position_x': x_values})
+
+        y_values = np.random.normal(loc=locdata.data.iloc[i]['Position_y'],
+                                    scale=locdata.data.iloc[i]['Uncertainty_y'],
+                                    size=number_samples
+                                    )
+        new_d.update({'Position_y': y_values})
+
+        try:
+            z_values = np.random.normal(loc=locdata.data.iloc[i]['Position_z'],
+                                        scale=locdata.data.iloc[i]['Uncertainty_z'],
+                                        size=number_samples
+                                        )
+            new_d.update({'Position_z': z_values})
+        except KeyError:
+            pass
+
+        list.append(pd.DataFrame(new_d))
+
+    dataframe = pd.concat(list, ignore_index=True)
+
+    # metadata
+    meta_ = metadata_pb2.Metadata()
+    meta_.CopyFrom(locdata.meta)
+    try:
+        meta_.ClearField("identifier")
+    except ValueError:
+        pass
+
+    try:
+        meta_.ClearField("element_count")
+    except ValueError:
+        pass
+
+    try:
+        meta_.ClearField("frame_count")
+    except ValueError:
+        pass
+
+    meta_.modification_date = int(time.time())
+    meta_.state = metadata_pb2.MODIFIED
+    meta_.ancestor_identifiers.append(locdata.meta.identifier)
+    meta_.history.add(name='resample',
+                      parameter='locdata={}, number_samples={}'.format(locdata, number_samples))
+
+    # instantiate
+    new_locdata = LocData.from_dataframe(dataframe=dataframe, meta=meta_)
+
+    return new_locdata

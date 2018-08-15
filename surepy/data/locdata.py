@@ -24,7 +24,7 @@ class LocData():
         Dataframe with localization data.
     indices : slice object or list(int) or None
         Indices for dataframe in references that makes up the data.
-    meta : Metadata protobuf message
+    meta : Metadata protobuf message or dictionary
         Metadata about the current dataset and its history.
 
     Attributes
@@ -135,7 +135,7 @@ class LocData():
             pass
 
         try:
-            meta_.ClearField("event_count")
+            meta_.ClearField("element_count")
         except ValueError:
             pass
 
@@ -251,18 +251,6 @@ class LocData():
     def __len__(self):
         """ Return the length of data, i.e. the number of elements (localizations or collection elements)."""
         return len(self.data.index)
-
-
-    def save(self, path):
-        """
-        Save LocData object in an appropriate way.
-
-        Parameters
-        ----------
-        path : str
-            Filepath for saving LocData.
-        """
-        raise NotImplementedError
 
 
     def reduce(self):

@@ -39,7 +39,7 @@ message Unit {
     optional string unit = 2;
 }
 
-// Next id: 18
+// Next id: 19
 message Metadata {
   optional string identifier = 1;
   optional string comment = 2;
@@ -65,4 +65,6 @@ message Metadata {
   optional string experimental_sample = 16;
 
   optional string simulation = 17;
+  map<string, string> map = 18;
+
 }

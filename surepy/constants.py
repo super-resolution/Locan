@@ -15,6 +15,7 @@ PROPERTY_KEYS = ['Index', 'Position_x', 'Position_y', 'Position_z', 'Frame', 'In
                  'Psf_sigma_x', 'Psf_sigma_y', 'Psf_sigma_z', 'Uncertainty_x', 'Uncertainty_y', 'Uncertainty_z',
                  'Channel', 'Index', 'Cluster_label', 'Two_kernel_improvement']
 
+
 # Keys (i.e. names) for the most common hulls
 
 HULL_KEYS = {'bounding_box', 'convex_hull', 'oriented_bounding_box', 'alpha_shape'}
@@ -55,3 +56,8 @@ ELYRA_KEYS = {
 }
 
 
+# The number of cores that are used in parallel for some algorithms.
+# Following the scikit convention: n_jobs is the number of parallel jobs to run.
+# If -1, then the number of jobs is set to the number of CPU cores.
+
+N_JOBS = 1

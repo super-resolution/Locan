@@ -1,0 +1,31 @@
+// This is a protobuf file. Pass it through the protobuf compiler to generate
+// Python code:
+//
+// protoc --python_out=. metadata_analysis.proto
+// protoc -I=./surepy --python_out=./surepy  ./surepy/analysis/metadata_analysis.proto
+syntax = "proto2";
+
+package surepy;
+
+//import "surepy/data/metadata.proto";
+
+
+message Analysis_routine {
+    optional string name = 1;
+    optional string algorithm = 2;
+    optional string parameter = 3;
+}
+
+
+// Next id: 8
+message AMetadata {
+  optional string identifier = 1;
+  optional string comment = 2;
+  // Timestamp in seconds since Unix epoch
+  optional int64 creation_date = 3;
+  // Timestamp in seconds since Unix epoch
+  optional int64 modification_date = 4;
+  optional Analysis_routine method = 5;
+//  optional Metadata locdata_meta = 6;
+  map<string, string> map = 7;
+}

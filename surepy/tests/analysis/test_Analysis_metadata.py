@@ -16,7 +16,7 @@ def locdata():
 
 def test_Localization_precision(locdata):
     # print(locdata.data.head())
-    lp = Localization_precision(locdata=locdata)
-    lp.compute()
-    # print(lp.results)
-    assert (len(lp.results) == 33)
+    lp = Localization_precision(locdata=locdata, meta={'comment': 'my comment'})
+    #print(lp.meta)
+    assert (lp.meta.method.name == "Localization_precision")
+    assert (lp.meta.comment == 'my comment')

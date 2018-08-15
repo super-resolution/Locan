@@ -283,8 +283,12 @@ class Ripleys_h_function(_Ripley):
 
     def __init__(self, locdata, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb', other_locdata=None):
         super().__init__(locdata=locdata, radii=radii, region_measure=region_measure, other_locdata=other_locdata, meta=meta)
+        self._Ripley_h_maximum = None
 
     def compute(self):
+        # reset secondary results
+        self._Ripley_h_maximum = None
+
         points = self.locdata.coordinates
 
         # turn other_locdata into other_points
@@ -307,11 +311,18 @@ class Ripleys_h_function(_Ripley):
         return self
 
 
-    def get_maximum(self):
-        index = self.results['Ripley_h_data'].idxmax()
-        #self.maximum = {'radius': index, 'H value': self.results.loc[index]}
-        self.maximum = self.results.iloc[index]
-        return self.maximum
+    @property
+    def Ripley_h_maximum(self):
+        if self._Ripley_h_maximum is None:
+            index = self.results['Ripley_h_data'].idxmax()
+            self._Ripley_h_maximum = self.results.iloc[index]
+            return self._Ripley_h_maximum
+        else:
+            return self._Ripley_h_maximum
+
+    @Ripley_h_maximum.deleter
+    def Ripley_h_maximum(self):
+        self._Ripley_h_maximum = None
 
 
 ##### Interface functions

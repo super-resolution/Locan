@@ -29,7 +29,7 @@ Welcome to Surepy's documentation!
    aim
    design
    outlook
-   ./source/modules
+
 
 .. toctree::
    :maxdepth: 1
@@ -58,7 +58,8 @@ Welcome to Surepy's documentation!
    :caption: API Documentation
    :name: apitoc
 
-..   project
+   ./source/modules
+
 
 Indices and tables
 ==================

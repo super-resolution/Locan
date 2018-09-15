@@ -7,30 +7,50 @@
 Welcome to Surepy's documentation!
 ======================================
 
-.. include:: ../README.rst
-
-
-Project background
-==================
-
-This project was started at the University of Würzburg and builds on various approaches to deal with single-molecule
-localization data. Read more about the :ref:`project name <name>`.
-
+.. include:: ./introduction.rst
 
 
 .. toctree::
    :maxdepth: 1
-   :caption: General Documentation
+   :caption: Getting started
+   :name: mastertoc
+   :glob:
+
+   installation
+   tutorials
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: User Guide
    :name: mastertoc
    :glob:
 
    aim
    design
    outlook
+   ./source/modules
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Developer Guide
+   :name: mastertoc
+   :glob:
+
    documentation
    development
-   name
-   ./source/modules
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Project Details
+   :name: mastertoc
+   :glob:
+
+   background
+   contributions
+   history
+   licence
 
 
 .. toctree::

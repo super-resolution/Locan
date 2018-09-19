@@ -33,7 +33,8 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=(2,
         defining the binned region by [min, max] ranges from input;
         for 'auto' by [min, max] ranges from data; for 'zero' by [0, max] ranges from data.
     rescale : tuple, None, or 'equal'
-        rescale intensity values to be within percentile (tuple with upper and lower bounds provided in percent).
+        rescale intensity values to be within percentile of max and min intensities
+        (tuple with upper and lower bounds provided in percent).
         For None intensity values are rescaled to the min and max possible values of the given representation.
         For 'equal' intensity values are rescaled by histogram equalization.
     cmap : str or Colormap instance
@@ -65,8 +66,6 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=(2,
                                   [stats['Position_y_min'], stats['Position_y_max']]])
 
         elif range == 'zero':
-
-
             try:
                 range = np.array([np.array([0, 0]),
                                    [locdata.properties[x] for x in ['Position_x_max', 'Position_y_max']]]
@@ -95,13 +94,14 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=(2,
         if rescale == 'equal':
             img = exposure.equalize_hist(img)
     elif rescale is None:
-        img = exposure.rescale_intensity(img)
+        img = exposure.rescale_intensity(img) #scaling to min/max of img intensities
     else:
-        p_low, p_up = np.percentile(img, rescale)
-        img = exposure.rescale_intensity(img, in_range=(p_low, p_up))
+        minmax = (img.min(), img.max())
+        rescale_abs = tuple(np.multiply(np.divide(rescale, 100), (minmax[1] - minmax[0])) + minmax[0])
+        img = exposure.rescale_intensity(img, in_range=rescale_abs)
 
     mappable = ax.imshow(img, origin='low', extent=[*range[0], *range[1]], cmap=cmap)
-    ax.set(title='Image (%.0f nm per bin)' % bin_size,
+    ax.set(title='Image ({:.0f} nm per bin)'.format(bin_size),
            xlabel='Position_x',
            ylabel='Position_y'
            )

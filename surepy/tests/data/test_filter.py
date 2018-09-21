@@ -18,7 +18,7 @@ def locdata_simple():
 
 def test_select_by_condition(locdata_simple):
     dat_s = select_by_condition(locdata_simple, 'Position_x>1')
-    assert (len(dat_s) == 2)
+    assert (len(dat_s) == 4)
     # dat_s.print_meta()
 
 def test_random_subset(locdata_simple):

@@ -40,7 +40,7 @@ def select_by_condition(locdata, condition, **kwargs):
     return new_locdata
 
 
-def select_by_region(selection, region, **kwargs):
+def select_by_region(locdata, roi, **kwargs):
     """
     Select localizations within specified rectangle, ellipse, polygon or 3D equivalents.
 
@@ -48,15 +48,25 @@ def select_by_region(selection, region, **kwargs):
     ----------
     locdata : LocData
         Specifying the localization data from which to select localization data.
-    region :
-        region of interest.
+    roi : dict
+        Region of interest as specified by dictionary with keys 'points' and 'type'. Points are a list of tuples
+        representing 1D, 2D or 3D coordinates. Type is a string identifyer that can be either rectangle, ellipse, or polygon.
 
     Returns
     -------
     LocData
         a new instance of LocData referring to the specified dataset.
     """
-    raise NotImplementedError
+    # todo implement ellipse and polygon for 2D and 3D
+
+    if roi['type']=='rectangle':
+        if len(roi['points'])==2:
+            return select_by_condition(locdata, condition='{0} <= Position_x <= {1}'.format(*roi['points']) )
+        if len(roi['points'])==4:
+            return select_by_condition(locdata, condition='{0} <= Position_x <= {1} and {2} <= Position_y <= {3}'.format(*roi['points']) )
+        if len(roi['points'])==6:
+            return select_by_condition(locdata, condition='{0} <= Position_x <= {1} and {2} <= Position_y <= {3} and {4} <= Position_z <= {5}'.format(*roi['points']) )
+
 
 
 def select_by_image_mask(selection, mask, pixel_size, **kwargs):

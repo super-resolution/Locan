@@ -15,12 +15,15 @@ def locdata():
 
 def test_rois (locdata):
     roim = Roi_manager()
+    roim.add_rectangle((1,10,1,10))
+    assert (roim.rois==[{'points': (1, 10, 1, 10), 'type': 'rectangle'}])
+    roim.clear()
+    assert (roim.rois==[])
+    roim.clear()
     roim.add_rectangles([(1,100,1,100),(100,200,100,200)])
-    #print(roim.rois)
     assert (roim.rois==[{'points': (1, 100, 1, 100), 'type': 'rectangle'},
                         {'points': (100, 200, 100, 200), 'type': 'rectangle'}])
     #roim.select_by_drawing(locdata)
-    roim.clear()
-    assert (roim.rois==[])
+
     #print(roim.rois)
 

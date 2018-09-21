@@ -99,6 +99,18 @@ class Roi_manager():
     def __init__(self):
         self.rois = []
 
+    def add_rectangle(self, extents):
+        roi_dict = {'points': extents, 'type': 'rectangle'}
+        self.rois.append(roi_dict)
+
+    def add_ellipse(self, extents):
+        roi_dict = {'points': extents, 'type': 'ellipse'}
+        self.rois.append(roi_dict)
+
+    def add_polygone(self, vertices):
+        roi_dict = {'points': vertices, 'type': 'polygon'}
+        self.rois.append(roi_dict)
+
     def add_rectangles(self, extents):
         roi_list = []
         for element in extents:
@@ -107,16 +119,21 @@ class Roi_manager():
         self.rois += roi_list
 
     def add_ellipses(self, extents):
-        raise NotImplementedError
+        roi_list = []
+        for element in extents:
+            roi_dict = {'points': element, 'type': 'ellipse'}
+            roi_list.append(roi_dict)
+        self.rois += roi_list
 
     def add_polygons(self, vertices_list):
-        raise NotImplementedError
+        roi_list = []
+        for vertices in vertices_list:
+            roi_dict = {'points': vertices, 'type': 'polygon'}
+            roi_list.append(roi_dict)
+        self.rois += roi_list
 
     def clear(self):
         self.rois = []
-
-    def locdata(self):
-        raise NotImplementedError
 
     def select_by_drawing(self, locdata, type='rectangle', **kwargs):
         """

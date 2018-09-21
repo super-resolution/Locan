@@ -42,19 +42,19 @@ def select_by_condition(locdata, condition, **kwargs):
 
 def select_by_region(selection, region, **kwargs):
     """
-    Select localizations within specified rectangle, circle, polygon or 3D equivalents.
+    Select localizations within specified rectangle, ellipse, polygon or 3D equivalents.
 
     Parameters
     ----------
-    selection : Selection
-        specifying the localization data from which to select localization data.
+    locdata : LocData
+        Specifying the localization data from which to select localization data.
     region :
         region of interest.
 
     Returns
     -------
-    Selection
-        a new instance of Selection referring to the specified dataset.
+    LocData
+        a new instance of LocData referring to the specified dataset.
     """
     raise NotImplementedError
 

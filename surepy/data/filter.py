@@ -19,6 +19,8 @@ def select_by_condition(locdata, condition, **kwargs):
     condition : string
         Conditions as input in select method.
         More precise: query specifications to be used with pandas query.
+    kwargs :
+        kwargs valid for Locdata.from_selection()
 
     Returns
     -------
@@ -51,6 +53,8 @@ def select_by_region(locdata, roi, **kwargs):
     roi : dict
         Region of interest as specified by dictionary with keys 'points' and 'type'. Points are a list of tuples
         representing 1D, 2D or 3D coordinates. Type is a string identifyer that can be either rectangle, ellipse, or polygon.
+    kwargs :
+        kwargs valid for Locdata.from_selection()
 
     Returns
     -------
@@ -61,11 +65,11 @@ def select_by_region(locdata, roi, **kwargs):
 
     if roi['type']=='rectangle':
         if len(roi['points'])==2:
-            return select_by_condition(locdata, condition='{0} <= Position_x <= {1}'.format(*roi['points']) )
+            return select_by_condition(locdata, condition='{0} <= Position_x <= {1}'.format(*roi['points']), **kwargs )
         if len(roi['points'])==4:
-            return select_by_condition(locdata, condition='{0} <= Position_x <= {1} and {2} <= Position_y <= {3}'.format(*roi['points']) )
+            return select_by_condition(locdata, condition='{0} <= Position_x <= {1} and {2} <= Position_y <= {3}'.format(*roi['points']), **kwargs )
         if len(roi['points'])==6:
-            return select_by_condition(locdata, condition='{0} <= Position_x <= {1} and {2} <= Position_y <= {3} and {4} <= Position_z <= {5}'.format(*roi['points']) )
+            return select_by_condition(locdata, condition='{0} <= Position_x <= {1} and {2} <= Position_y <= {3} and {4} <= Position_z <= {5}'.format(*roi['points']), **kwargs )
 
 
 

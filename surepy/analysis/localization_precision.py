@@ -23,29 +23,32 @@ def _localization_precision(locdata, radius=50):
     results = pd.DataFrame()
 
     for i in range(min, max - 1):
-        points = grouped.get_group(i)[locdata.coordinate_labels]
-        other_points = grouped.get_group(i + 1)[locdata.coordinate_labels]
+        try:
+            points = grouped.get_group(i)[locdata.coordinate_labels]
+            other_points = grouped.get_group(i + 1)[locdata.coordinate_labels]
 
-        # print(points)
+            # print(points)
 
-        nn = NearestNeighbors(radius=radius, metric='euclidean').fit(other_points)
-        distances, indices = nn.radius_neighbors(points)
+            nn = NearestNeighbors(radius=radius, metric='euclidean').fit(other_points)
+            distances, indices = nn.radius_neighbors(points)
 
-        if len(distances):
-            for n, (dists, inds) in enumerate(zip(distances, indices)):
-                if len(dists):
-                    min_distance = np.amin(dists)
-                    min_position = np.argmin(dists)
-                    min_index = inds[min_position]
-                    difference = points.iloc[n] - other_points.iloc[min_index]
+            if len(distances):
+                for n, (dists, inds) in enumerate(zip(distances, indices)):
+                    if len(dists):
+                        min_distance = np.amin(dists)
+                        min_position = np.argmin(dists)
+                        min_index = inds[min_position]
+                        difference = points.iloc[n] - other_points.iloc[min_index]
 
-                    df = difference.to_frame().T
-                    df = df.rename(columns={'Position_x': 'Position_delta_x',
-                                            'Position_y': 'Position_delta_y',
-                                            'Position_z': 'Position_delta_z'})
-                    df = df.assign(Position_distance=min_distance)
-                    df = df.assign(Frame=i)
-                    results = results.append(df)
+                        df = difference.to_frame().T
+                        df = df.rename(columns={'Position_x': 'Position_delta_x',
+                                                'Position_y': 'Position_delta_y',
+                                                'Position_z': 'Position_delta_z'})
+                        df = df.assign(Position_distance=min_distance)
+                        df = df.assign(Frame=i)
+                        results = results.append(df)
+        except KeyError:
+            pass
 
     results.reset_index(inplace=True, drop=True)
     return (results)

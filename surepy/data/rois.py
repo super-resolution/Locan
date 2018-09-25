@@ -6,6 +6,7 @@ Methods for managing regions of interest.
 
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector, PolygonSelector, EllipseSelector
+from ruamel.yaml import YAML
 
 from surepy.render import render2D
 
@@ -153,3 +154,13 @@ class Roi_manager():
         selector = _MplSelector(ax, type=type)
         plt.show()
         self.rois = selector.rois
+
+    def save(self, path):
+        yaml = YAML()
+        yaml.dump(self.rois, path)
+
+    def load(self, path):
+        yaml = YAML(typ='safe')
+        with open(path) as file:
+            self.rois = yaml.load(file)
+

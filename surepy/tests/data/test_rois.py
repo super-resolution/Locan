@@ -1,8 +1,10 @@
 import pytest
-import matplotlib.pyplot as plt
+
+from surepy import LocData
+from surepy.constants import ROOT_DIR
 from surepy.data.rois import Roi_manager
 from surepy.simulation import simulate_blobs
-from surepy.render import render2D
+
 
 # fixtures
 
@@ -16,14 +18,29 @@ def locdata():
 def test_rois (locdata):
     roim = Roi_manager()
     roim.add_rectangle((1,10,1,10))
+    roim.reference = locdata
     assert (roim.rois==[{'points': (1, 10, 1, 10), 'type': 'rectangle'}])
     roim.clear()
     assert (roim.rois==[])
     roim.clear()
-    roim.add_rectangles([(1,100,1,100),(100,200,100,200)])
-    assert (roim.rois==[{'points': (1, 100, 1, 100), 'type': 'rectangle'},
-                        {'points': (100, 200, 100, 200), 'type': 'rectangle'}])
+    roim.add_rectangles([(1,500,1,500),(500,1000,500,1000)])
+    assert (roim.rois==[{'points': (1, 500,1,500), 'type': 'rectangle'},
+                        {'points': (500,1000,500,1000), 'type': 'rectangle'}])
+    assert(isinstance(roim.locdata, LocData))
+    assert(len(roim.locdatas)==2)
     #roim.select_by_drawing(locdata)
 
     #print(roim.rois)
+
+def test_rois_io():
+    roim = Roi_manager()
+    roim.add_rectangle([1,10,1,10])
+
+    path = ROOT_DIR + '/tests/test_data/rois.yaml'
+    roim.save(path = path)
+
+    roim_2 = Roi_manager()
+    roim_2.load(path = path)
+    assert(roim.rois == roim_2.rois)
+    #print(roim_2.rois)
 

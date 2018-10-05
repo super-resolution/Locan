@@ -188,6 +188,7 @@ class LocData():
 
     @classmethod
     def concat(cls, *locdata, meta=None, **kwargs):
+        #todo: change to locdata : list of LocData objects
         """
         Concatenate LocData objects.
 

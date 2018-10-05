@@ -3,11 +3,15 @@
 Methods for managing regions of interest.
 
 '''
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector, PolygonSelector, EllipseSelector
 from ruamel.yaml import YAML
 
+from surepy import LocData
+import surepy.io.io_locdata as io
+from surepy.data.filter import select_by_region
 from surepy.render import render2D
 
 
@@ -95,10 +99,48 @@ class Roi_manager():
     rois : List of dict
         A list of rois where each roi is a dict with keys 'points' and 'type'. Points are a list of tuples
         representing 2D or 3D coordinates. Type is a string identifyer that can be either rectangle, ellipse, or polygon.
+
+    reference : LocData object or path object to localization file
+        Reference to localization data for which the region of interests are defined.
     """
+    #todo: add method to return locdata objects
 
     def __init__(self):
         self.rois = []
+        self.reference = None
+
+    @property
+    def locdata(self):
+       """ Return the LocData object from which all rois are derived. """
+       if isinstance(self.reference, LocData):
+           locdata = self.reference
+
+       elif isinstance(self.reference, str) or isinstance(self.reference, Path):
+           path = Path(self.reference)
+           locdata = io.load_rapidSTORM_file(path)
+
+       else:
+           raise AttributeError('No reference to LocData or file path is given.')
+
+       return locdata
+
+
+    @property
+    def locdatas(self):
+       """ Return a list with LocData objects for all specified rois. """
+       if isinstance(self.reference, LocData):
+           locdatas = [select_by_region(self.reference, roi) for roi in self.rois]
+
+       elif isinstance(self.reference, str) or isinstance(self.reference, Path):
+           path = Path(self.reference)
+           locdata = io.load_rapidSTORM_file(path)
+           locdatas = [select_by_region(locdata, roi) for roi in self.rois]
+
+       else:
+           raise AttributeError('No reference to LocData or file path is given.')
+
+       return locdatas
+
 
     def add_rectangle(self, extents):
         roi_dict = {'points': extents, 'type': 'rectangle'}
@@ -137,6 +179,7 @@ class Roi_manager():
         self.rois = []
 
     def select_by_drawing(self, locdata, type='rectangle', **kwargs):
+        # todo: use metadata from locdata for reference
         """
         Select from rendered image by drawing rois.
 
@@ -156,11 +199,12 @@ class Roi_manager():
         self.rois = selector.rois
 
     def save(self, path):
+        _path = Path(path)
         yaml = YAML()
-        yaml.dump(self.rois, path)
+        yaml.dump([self.rois, self.reference], _path)
 
     def load(self, path):
         yaml = YAML(typ='safe')
         with open(path) as file:
-            self.rois = yaml.load(file)
+            self.rois, self.reference = yaml.load(file)
 

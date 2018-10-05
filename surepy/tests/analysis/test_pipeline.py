@@ -1,6 +1,8 @@
 import pytest
+
 import numpy as np
 import pandas as pd
+
 from surepy import LocData
 from surepy.analysis.pipeline import Pipeline, Pipeline_test
 

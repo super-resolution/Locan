@@ -5,19 +5,9 @@ pipeline over a sequence of localization data objects.
 
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
-
 from surepy import LocData
-from surepy.analysis.pipeline import Pipeline_test
-from surepy.data.hulls import Convex_hull_scipy
 import surepy.io.io_locdata as io
 from surepy.data.rois import Roi_manager
-from surepy.data.filter import select_by_region
-from surepy.render import render2D
-from surepy.analysis import Localization_precision, Localizations_per_frame, Localization_property
-from surepy.data.filter import select_by_condition, random_subset
-from surepy.data.clustering import clustering_hdbscan, clustering_dbscan
 
 
 def batch_process(elements, pipeline):

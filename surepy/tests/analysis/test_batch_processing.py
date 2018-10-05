@@ -1,7 +1,9 @@
 import pytest
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
+
 from surepy import LocData
 from surepy.constants import ROOT_DIR
 from surepy.data.rois import Roi_manager

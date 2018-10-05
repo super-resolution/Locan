@@ -94,6 +94,11 @@ class Roi_manager():
     """
     Class to manage a collection of regions of interest from which new LocData objects can be generated.
 
+    Parameters
+    ----------
+    reference : LocData object or path object to localization file
+        Reference to localization data for which the region of interests are defined.
+
     Attributes
     ----------
     rois : List of dict
@@ -103,11 +108,11 @@ class Roi_manager():
     reference : LocData object or path object to localization file
         Reference to localization data for which the region of interests are defined.
     """
-    #todo: add method to return locdata objects
+    #todo: use protobuf metadata
 
-    def __init__(self):
+    def __init__(self, reference=None):
         self.rois = []
-        self.reference = None
+        self.reference = reference
 
     @property
     def locdata(self):

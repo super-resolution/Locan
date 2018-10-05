@@ -165,6 +165,7 @@ class LocData():
         # todo: here and in concat  I would normaly expect a list of references like in numpy.concatenate instead of *args
         references = args
         dataframe = pd.DataFrame([ref.properties for ref in references])
+        # todo: add Localization_count to dataframe
 
         meta_ = metadata_pb2.Metadata()
 

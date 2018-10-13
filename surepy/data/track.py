@@ -17,7 +17,7 @@ from surepy import LocData
 from surepy.constants import N_JOBS
 
 
-def link_trackpy(locdata, search_range=40, memory=0, **kwargs):
+def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     """
     Track localizations, i.e. cluster localizations in time when nearby in successive frames. This function applies the trackpy linking method to LocData objects.
 
@@ -39,7 +39,6 @@ def link_trackpy(locdata, search_range=40, memory=0, **kwargs):
     pandas Series
         a series with 'particle' values indicating the track number.
     """
-    dat = locdata
     df = link_df(locdata.data, search_range=search_range, memory=memory, pos_columns=locdata.coordinate_labels,
                     t_column='Frame', **kwargs)
     return df['particle']
@@ -67,7 +66,7 @@ def track(locdata, search_range=40, memory=1, **kwargs):
     Locdata
         a new LocData instance assembling all generated selections (i.e. localization cluster).
     """
-    df = link_trackpy(locdata,search_range, memory, **kwargs)
+    df = link_locdata(locdata,search_range, memory, **kwargs)
 
     grouped = df.groupby(df)
 

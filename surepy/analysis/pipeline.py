@@ -86,6 +86,7 @@ class Pipeline():
         self.locdata = locdata
         self.identifier = None
         self.roi = None
+
         self.rhf = None
         self.noise = None
         self.clust = None

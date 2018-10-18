@@ -4,8 +4,8 @@ Methods for simulating localization data.
 
 '''
 
+import sys
 import time
-import inspect
 
 import numpy as np
 import pandas as pd
@@ -14,6 +14,7 @@ from sklearn.datasets.samples_generator import make_blobs
 from surepy import LocData
 from surepy.data import metadata_pb2
 
+#todo: correct history updates
 
 def simulate(**kwargs):
     """
@@ -232,8 +233,7 @@ def simulate_tracks(number_walks=1, number_steps=10, ranges = ((0,10000),(0,1000
     # metadata
     locdata.meta.source = metadata_pb2.SIMULATION
     del locdata.meta.history[:]
-    locdata.meta.history.add(name='simulate_track',
-                         parameter=str(parameter))
+    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 
     return locdata
 

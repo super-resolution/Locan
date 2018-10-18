@@ -8,18 +8,13 @@ import numpy as np
 import pandas as pd
 from trackpy import link_df
 
-
-from sklearn.neighbors import NearestNeighbors
-from scipy import stats
-
-
 from surepy import LocData
-from surepy.constants import N_JOBS
 
 
 def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     """
-    Track localizations, i.e. cluster localizations in time when nearby in successive frames. This function applies the trackpy linking method to LocData objects.
+    Track localizations, i.e. cluster localizations in time when nearby in successive frames.
+    This function applies the trackpy linking method to LocData objects.
 
     Parameters
     ----------
@@ -36,12 +31,14 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
 
     Returns
     -------
-    pandas Series
-        a series with 'particle' values indicating the track number.
+    pandas DataFrame
+        A DataFrame with 'Index' referring to the locdata indices and 'Track' values indicating the track number.
     """
     df = link_df(locdata.data, search_range=search_range, memory=memory, pos_columns=locdata.coordinate_labels,
                     t_column='Frame', **kwargs)
-    return df['particle']
+    df.reset_index(inplace=True)
+    df.rename({'index':'Index', 'particle':'Track'})
+    return df[['Index', 'Track']]
 
 
 def track(locdata, search_range=40, memory=1, **kwargs):
@@ -68,9 +65,9 @@ def track(locdata, search_range=40, memory=1, **kwargs):
     """
     df = link_locdata(locdata,search_range, memory, **kwargs)
 
-    grouped = df.groupby(df)
+    grouped = df.groupby('Track')
 
-    selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
+    selections = [LocData.from_selection(locdata=locdata, indices=group['Index'].values) for _, group in grouped]
     collection = LocData.from_collection(*selections)
 
     # metadata

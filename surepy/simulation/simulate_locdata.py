@@ -4,6 +4,7 @@ Methods for simulating localization data.
 
 '''
 
+import sys
 import time
 
 import numpy as np
@@ -13,6 +14,7 @@ from sklearn.datasets.samples_generator import make_blobs
 from surepy import LocData
 from surepy.data import metadata_pb2
 
+#todo: correct history updates
 
 def simulate(**kwargs):
     """
@@ -139,6 +141,101 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,1
                              n_centers, n_samples, n_features, center_box, cluster_std, seed))
 
     return dat
+
+
+def _random_walk(number_walks=1, number_steps=10, dimensions=2, diffusion_constant=1, time_step=10):
+    '''
+    Random walk simulation
+
+    Parameters
+    ----------
+    number_walks: int
+        Number of walks
+    number_steps : int
+        Number of time steps (i.e. frames)
+    dimensions : int
+        spatial dimensions to simulate
+    diffusion_constant : int or float
+        Diffusion constant in units length per seconds^2
+    time_step : float
+        Time per frame (or simulation step) in seconds.
+
+    Returns
+    -------
+    tuple of arrays
+        (times, positions), where shape(times) is 1 and shape of positions is (number_walks, number_steps, dimensions)
+    '''
+
+    # equally spaced time steps
+    times = np.arange(number_steps) * time_step
+
+    # random step sizes according to the diffusion constant
+    random_numbers = np.random.randint(0, 2, size=(number_walks, number_steps, dimensions))
+    step_size = np.sqrt(2 * dimensions * diffusion_constant * time_step)
+    steps = np.where(random_numbers == 0, -step_size, +step_size)
+
+    # walker positions
+    positions = np.cumsum(steps, axis=1)
+
+    return times, positions
+
+
+def simulate_tracks(number_walks=1, number_steps=10, ranges = ((0,10000),(0,10000)), diffusion_constant=1,
+                    time_step=10, seed=None):
+    """
+    Provide a dataset of localizations representing random walks with starting points being spatially-distributed
+    on a rectangular shape or cubic volume by complete spatial randomness.
+
+    Parameters
+    ----------
+    number_walks: int
+        Number of walks
+    number_steps : int
+        Number of time steps (i.e. frames)
+    ranges : tuple of tuples of two ints
+        the ranges for valid x[, y, z]-coordinates
+    diffusion_constant : int or float
+        Diffusion constant with unit length per seconds^2
+    time_step : float
+        Time per frame (or simulation step) in seconds.
+    seed : int
+        random number generation seed
+
+    Returns
+    -------
+    LocData
+        A new LocData instance with localization data.
+    """
+    parameter = locals()
+
+    if seed is not None:
+        np.random.seed(seed)
+
+    start_positions = np.array([np.random.uniform(*_range, size=number_walks) for _range in ranges]).T
+
+    times, positions = _random_walk(number_walks=number_walks, number_steps=number_steps, dimensions=len(ranges),
+                                    diffusion_constant=diffusion_constant, time_step=time_step)
+
+    new_positions = np.concatenate([
+        start_position + position
+        for start_position, position in zip(start_positions, positions)
+    ])
+
+    locdata_dict = {
+        'Position_' + label: position_values
+        for _, position_values, label in zip(ranges, new_positions.T, ('x', 'y', 'z'))
+    }
+
+    locdata_dict.update(Frame=np.tile(range(len(times)), (number_walks)))
+
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(locdata_dict))
+
+    # metadata
+    locdata.meta.source = metadata_pb2.SIMULATION
+    del locdata.meta.history[:]
+    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+
+    return locdata
 
 
 

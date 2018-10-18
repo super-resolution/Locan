@@ -1,11 +1,14 @@
 '''
 
-Methods for clustering localization data in LocData objects..
+Methods for clustering localization data in LocData objects.
 
 '''
 
 import numpy as np
 import pandas as pd
+from sklearn.neighbors import NearestNeighbors
+from scipy import stats
+
 from hdbscan import HDBSCAN
 from sklearn.cluster import DBSCAN
 
@@ -145,5 +148,3 @@ def clustering_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False):
         return noise, collection
     else:
         return collection
-
-

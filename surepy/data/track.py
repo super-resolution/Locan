@@ -4,6 +4,8 @@ Methods for tracking localizations (i.e. clustering localization data in time) i
 
 '''
 
+import sys
+
 import numpy as np
 import pandas as pd
 from trackpy import link_df
@@ -37,7 +39,7 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     df = link_df(locdata.data, search_range=search_range, memory=memory, pos_columns=locdata.coordinate_labels,
                     t_column='Frame', **kwargs)
     df.reset_index(inplace=True)
-    df.rename({'index':'Index', 'particle':'Track'})
+    df.rename(columns={'index': 'Index', 'particle': 'Track'}, inplace=True)
     return df[['Index', 'Track']]
 
 
@@ -63,6 +65,8 @@ def track(locdata, search_range=40, memory=1, **kwargs):
     Locdata
         a new LocData instance assembling all generated selections (i.e. localization cluster).
     """
+    parameter = locals()
+
     df = link_locdata(locdata,search_range, memory, **kwargs)
 
     grouped = df.groupby('Track')
@@ -71,9 +75,7 @@ def track(locdata, search_range=40, memory=1, **kwargs):
     collection = LocData.from_collection(*selections)
 
     # metadata
-    del collection.meta.history[:]
-    collection.meta.history.add(name='track',
-                                parameter='locdata={}, radius={}'.format(
-                                    locdata, search_range))
+    del locdata.meta.history[:]
+    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 
     return collection

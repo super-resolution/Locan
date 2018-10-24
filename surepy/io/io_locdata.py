@@ -48,6 +48,31 @@ def save_asdf(locdata, path):
     # Write the data to a new file
     af.write_to(path)
 
+# todo: handle ambiguous mapping of sigma key for 3D data
+def save_thunderstorm_csv(locdata, path):
+    """
+    Save LocData attributes Thunderstorm-readable csv-file.
+
+    In the Thunderstorm csv-file file format we store only localization data with Thunderstorm-readable column names.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        The LocData object to be saved.
+    path : str or Path object
+        File path including file name to save to.
+    """
+    # get data from locdata object
+    dataframe = locdata.data
+
+    # create reverse mapping to Thunderstorm columns
+    inv_map = {v: k for k, v in surepy.constants.THUNDERSTORM_KEYS.items()}
+
+    # rename columns
+    dataframe = dataframe.rename(index=str, columns=inv_map, inplace=False)
+
+    # write to csv
+    dataframe.to_csv(path, float_format='%.10g', index=False)
 
 
 # todo: take out **kwargs

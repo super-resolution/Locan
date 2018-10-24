@@ -20,15 +20,15 @@ def transform(selection, *args):
 
     Parameters
     ----------
-    selection : Selection
+    locdata : LocData object
         specifying the localization data on which to perform the manipulation.
     args :
         transformation parameters
 
     Returns
     -------
-    Selection
-        a new instance of Selection referring to the same Dataset as the input Selection.
+    locdata : LocData object
+        New localization data with randomized coordinates.
     """
     raise NotImplementedError
 
@@ -86,3 +86,4 @@ def randomize(locdata, hull_region='bb'):
         raise NotImplementedError
 
     return new_locdata
+

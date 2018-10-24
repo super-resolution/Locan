@@ -55,6 +55,26 @@ ELYRA_KEYS = {
     'Z Slice': 'Slice_z'
 }
 
+# Mapping column names in Thunderstorm files to LocData property keys
+# todo: add Thunderstorm Keys to documentation
+# todo: uncertainty_xy and sigma [nm] are mapped to Uncertainty_x and Psf_sigma_x. Possible conflict?
+
+THUNDERSTORM_KEYS = {
+    'id': 'Index',
+    'frame': 'Frame',
+    'x [nm]': 'Position_x',
+    'y [nm]': 'Position_y',
+    'z [nm]': 'Position_z',
+    'uncertainty_xy [nm]': 'Uncertainty_x',
+    'uncertainty_z [nm]': 'Uncertainty_z',
+    'intensity [photon]': 'Intensity',
+    'offset [photon]': 'Local_background',
+    'chi2': 'Chi_square',
+    'sigma1 [nm]': 'Psf_sigma_x',
+    'sigma2 [nm]': 'Psf_sigma_y',
+    'sigma [nm]': 'Psf_sigma_x'
+}
+
 
 # The number of cores that are used in parallel for some algorithms.
 # Following the scikit convention: n_jobs is the number of parallel jobs to run.

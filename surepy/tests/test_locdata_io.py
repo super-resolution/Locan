@@ -50,3 +50,5 @@ def test_load_asdf_file(locdata_fix):
     assert_frame_equal(locdata.data, locdata_fix.data)
     assert(locdata.meta.identifier == locdata_fix.meta.identifier)
     assert(locdata.properties == locdata_fix.properties)
+
+# todo: tests for Thundrstorm IO

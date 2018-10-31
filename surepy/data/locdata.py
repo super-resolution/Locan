@@ -90,15 +90,20 @@ class LocData():
         # coordinate labels
         self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'Position_x', 'Position_y', 'Position_z'})))
 
+        # properties
+        self.properties['Localization_count'] = len(self.data.index)
+
         # property for mean spatial coordinates (centroids)
         self.properties.update(dict(self.data[self.coordinate_labels].mean()))
 
         # property for bounding box measures
-        self.bounding_box = surepy.data.hulls.Bounding_box(self.coordinates)
-        self.properties['Region_measure_bb'] = self.bounding_box.region_measure
-        self.properties['Subregion_measure_bb'] = self.bounding_box.subregion_measure
-        self.properties['Localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure
-
+        try:
+            self.bounding_box = surepy.data.hulls.Bounding_box(self.coordinates)
+            self.properties['Region_measure_bb'] = self.bounding_box.region_measure
+            self.properties['Subregion_measure_bb'] = self.bounding_box.subregion_measure
+            self.properties['Localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure
+        except ValueError:
+            pass
 
     @classmethod
     def from_dataframe(cls, dataframe=pd.DataFrame(), meta=None, **kwargs):

@@ -3,11 +3,9 @@ This module provides methods for building an analysis pipeline. Pipeline refers 
 a single localization data object.
 """
 
-from surepy import LocData
 from surepy.data.hulls import Convex_hull_scipy
-from surepy.analysis import Localization_precision, Localizations_per_frame, Localization_property
-from surepy.data.filter import select_by_condition, random_subset
-from surepy.data.clustering import clustering_hdbscan, clustering_dbscan
+from surepy.data.filter import select_by_condition
+from surepy.data.cluster.clustering import clustering_hdbscan
 
 
 # todo: define and use _Pipeline with metadata similar to locdata

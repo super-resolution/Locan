@@ -1,3 +1,9 @@
+'''
+This module provides functions for drift correction of localization data.
+
+The functions take LocData as input and compute new LocData objects.
+'''
+
 def drift_correction(selection, *args):
     """
     Transform coordinates to correct for slow drift.

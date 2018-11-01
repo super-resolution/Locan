@@ -1,8 +1,10 @@
 '''
 
-Methods for tracking localizations (i.e. clustering localization data in time) in LocData objects.
+This module provides functions for tracking localizations (i.e. clustering localization data in time).
 
+The functions take LocData as input and compute new LocData objects.
 '''
+
 
 import sys
 

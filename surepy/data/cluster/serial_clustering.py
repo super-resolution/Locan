@@ -5,13 +5,7 @@ import sys
 import itertools
 from inspect import signature
 
-import numpy as np
-import pandas as pd
-
-
 from surepy import LocData
-from surepy.analysis.analysis_tools import _init_meta, _update_meta, save_results
-
 
 
 def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
@@ -22,15 +16,13 @@ def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
     ----------
     locdata : LocData object
         Localization data.
-    meta : Metadata protobuf message
-        Metadata about the current analysis routine.
-    algorithm : Surepy clustering function
-        The clustering algorithm to use on locdata.
+    algorithm : callable
+        The surepy clustering algorithm to use on locdata.
     parameter_lists : dict
         A dictionary with all parameter lists that are to be iterated. The keys should be identical to parameter names
         of the used algorithm.
-    kwargs :
-        List of parameters that are passed to the algorithm.
+    kwargs : dict
+        Optional keyword arguments that are passed to the algorithm.
 
     Returns
     -------

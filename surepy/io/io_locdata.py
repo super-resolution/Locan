@@ -1,6 +1,6 @@
 """
 
-Methods for file input/output with Dataset objects.
+This module provides functions for file input/output with LocData objects.
 
 """
 import time

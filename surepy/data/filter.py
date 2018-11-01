@@ -1,8 +1,10 @@
 '''
 
-Methods for filtering LocData objects.
+This module provides function for filtering LocData objects.
 
+The functions take LocData as input and compute new LocData objects.
 '''
+
 
 import numpy as np
 from surepy import LocData

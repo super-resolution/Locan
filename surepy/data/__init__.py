@@ -1,3 +1,5 @@
 """
-The module locData contains classes to hold and deal with single-molecule localization data.
+
+This module contains classes and functions to deal with single-molecule localization data.
+
 """

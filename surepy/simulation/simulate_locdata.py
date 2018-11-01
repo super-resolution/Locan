@@ -1,6 +1,6 @@
 '''
 
-Methods for simulating localization data.
+This module provides functions to simulate localization data and return LocData objects.
 
 '''
 

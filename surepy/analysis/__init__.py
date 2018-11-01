@@ -1,5 +1,5 @@
 """
-The module analysis provides classes for carrying out standardized analysis procedures on localization data.
+The module analysis provides classes with methods for carrying out standardized analysis procedures on localization data.
 """
 
 from surepy.analysis.localizations_per_frame import Localizations_per_frame

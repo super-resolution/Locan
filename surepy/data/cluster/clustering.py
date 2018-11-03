@@ -1,11 +1,16 @@
 '''
 
-Methods for clustering localization data in LocData objects..
+Methods for clustering localization data in LocData objects.
 
 '''
 
+import sys
+
 import numpy as np
 import pandas as pd
+from sklearn.neighbors import NearestNeighbors
+from scipy import stats
+
 from hdbscan import HDBSCAN
 from sklearn.cluster import DBSCAN
 
@@ -56,6 +61,8 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
         A new LocData instance assembling all generated selections (i.e. localization cluster).
         If noise is True the first LocData object is a selection of all localizations that are defined as noise.
     """
+    parameter = locals()
+
     if kdims is None:
         fit_data = locdata.coordinates
     else:
@@ -79,9 +86,7 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
 
     # metadata
     del collection.meta.history[:]
-    collection.meta.history.add(name='clustering_hdbscan',
-                         parameter='locdata={}, min_cluster_size={}, kdims={}, allow_single_cluster={}'.format(
-                             locdata, min_cluster_size, kdims, allow_single_cluster))
+    collection.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 
     if noise:
         return noise, collection
@@ -115,6 +120,8 @@ def clustering_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False):
         A new LocData instance assembling all generated selections (i.e. localization cluster).
         If noise is True the first LocData object is a selection of all localizations that are defined as noise.
     """
+    parameter = locals()
+
     if kdims is None:
         fit_data = locdata.coordinates
     else:
@@ -137,13 +144,9 @@ def clustering_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False):
 
     # metadata
     del collection.meta.history[:]
-    collection.meta.history.add(name='clustering_dbscan',
-                         parameter='locdata={}, eps={}, min_samples={}, kdims={}'.format(
-                             locdata, eps, min_samples, kdims))
+    collection.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 
     if noise:
         return noise, collection
     else:
         return collection
-
-

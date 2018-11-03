@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from surepy import LocData
-from surepy.simulation import simulate_csr, simulate_blobs, resample
+from surepy.simulation import simulate_csr, simulate_blobs, resample, simulate_tracks
 
 
 def test_simulate_csr():
@@ -56,3 +56,12 @@ def test_resample(locdata_simple):
     dat = resample(locdata=locdata_simple, number_samples=3)
     #print(dat.data)
     assert (len(dat)==15)
+
+
+def test_simulate_tracks():
+    dat = simulate_tracks(number_walks=2, number_steps=3)
+    print(dat.data)
+    print(dat.meta)
+    assert (len(dat) == 6)
+    assert(len(dat.coordinate_labels)==2)
+

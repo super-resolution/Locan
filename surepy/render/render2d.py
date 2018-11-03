@@ -1,6 +1,6 @@
 '''
 
-This module provides methods for rendering locdata objects.
+This module provides functions for rendering locdata objects in 2D.
 
 '''
 

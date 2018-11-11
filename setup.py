@@ -21,13 +21,13 @@ setup(
         'Surepy/tests/test_data': ['*.txt']
         },
 
-    author = "Surepy Contributors",
+    author = "Surepy Developers",
     author_email = "",
 
     description = ("Single-molecule localization software under development"),
     long_description=read('README.rst'),
 
-    license="",
+    license="BSD-3",
     keywords = "fluorescence super-resolution single-molecule localization microscopy smlm storm dstorm palm paint",
     url = "",
 

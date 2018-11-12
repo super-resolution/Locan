@@ -1,4 +1,6 @@
 #
+# Minimal dependencies to use surepy
+#
 # Create new environment: conda env create --file "file_path/environment.yml"
 # Update existing environment: conda env update --file "file_path/environment.yml"
 #

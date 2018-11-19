@@ -17,7 +17,8 @@ from surepy.render import render2D
 
 class _MplSelector():
     '''
-    Class to use matplotlib widgets (RectangleSelector, EllipseSelector or PolygonSelector) on render localizations data.
+    Class to use matplotlib widgets (RectangleSelector, EllipseSelector or PolygonSelector) on rendered localization
+    data.
 
     Parameters
     ----------
@@ -90,29 +91,115 @@ class _MplSelector():
             print('rois: {}'.format(self.rois))
 
 
+class Roi():
+    """
+    Class for a region of interest on LocData (roi).
+
+    Roi objects define a region of interest for a referenced LocData object. Roi objects can be managed by the
+    Roi_manager.
+
+    Parameters
+    ----------
+    reference : LocData object or path object to localization file
+        Reference to localization data for which the region of interests are defined.
+    meta : Metadata protobuf message or dictionary
+        Metadata about the current roi (currently only the file path).
+
+    Attributes
+    ----------
+    reference : LocData object or path object
+        Reference to localization data for which the region of interests are defined. It can be a LocData object or
+        a path pointing to a localization file.
+    points : list or tuple of tuples
+        Points are a list of tuples representing 2D or 3D coordinates.
+    type : str
+        Type is a string indicating the roi shape. It can be either rectangle, ellipse, or polygon.
+    """
+    # todo: clearify valid localization files.
+    # todo: use protobuf metadata
+
+    def __init__(self, reference=None, points=(), type='rectangle'):
+        if isinstance(reference, LocData):
+            try:
+                self.reference = reference.meta.file
+            except AttributeError:
+                self.reference = None
+        elif reference is None:
+            self.reference = reference
+        elif isinstance(reference, str) or isinstance(reference, Path):
+            self.reference = str(reference)
+        else:
+            raise AttributeError('Parameter for reference needs to be LocData object or path object or None.')
+
+        self._locdata = reference if isinstance(reference, LocData) else None
+        self.points = points
+        self.type = type
+
+    def save(self, path):
+        _path = Path(path)
+        yaml = YAML()
+        yaml.dump([self.reference, self.points, self.type], _path)
+
+    def load(self, path):
+        yaml = YAML(typ='safe')
+        with open(path) as file:
+            self.reference, self.points, self.type = yaml.load(file)
+        self._locdata = self.reference if isinstance(self.reference, LocData) else None
+
+    def locdata(self):
+        new_locdata = None
+        return new_locdata
+
+
+def select_by_drawing(locdata, type='rectangle', **kwargs):
+    # todo: use metadata from locdata for reference
+    """
+    Select region of interest from rendered image by drawing rois.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        The localization data from which to select localization data.
+    type : str
+        rectangle (default), ellipse, or polygon specifying the selection widget to use.
+    kwargs :
+        kwargs as specified for render2D
+
+    Returns
+    -------
+    list
+        A list of Roi objects
+    """
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    render2D(locdata, ax=ax, show=False, **kwargs)
+    selector = _MplSelector(ax, type=type)
+    plt.show()
+    roi_list = [Roi(reference=locdata, points=roi['points'], type=roi['type']) for roi in selector.rois]
+    return roi_list
+
+
+
+
+
 class Roi_manager():
     """
     Class to manage a collection of regions of interest from which new LocData objects can be generated.
 
     Parameters
     ----------
-    reference : LocData object or path object to localization file
-        Reference to localization data for which the region of interests are defined.
+    rois : List of Roi objects
+        A list of rois specified as Roi objects.
 
     Attributes
     ----------
-    rois : List of dict
-        A list of rois where each roi is a dict with keys 'points' and 'type'. Points are a list of tuples
-        representing 2D or 3D coordinates. Type is a string identifyer that can be either rectangle, ellipse, or polygon.
+    rois : List of Roi objects
+        A list of rois specified as Roi objects.
 
-    reference : LocData object or path object to localization file
-        Reference to localization data for which the region of interests are defined.
     """
-    #todo: use protobuf metadata
 
-    def __init__(self, reference=None):
-        self.rois = []
-        self.reference = reference
+
+    def __init__(self, rois=None):
+        self.rois = rois
 
     @property
     def locdata(self):
@@ -183,33 +270,7 @@ class Roi_manager():
     def clear(self):
         self.rois = []
 
-    def select_by_drawing(self, locdata, type='rectangle', **kwargs):
-        # todo: use metadata from locdata for reference
-        """
-        Select from rendered image by drawing rois.
 
-        Parameters
-        ----------
-        locdata : LocData object
-            The localization data from which to select localization data.
-        type : str
-            rectangle (default), ellipse, or polygon specifying the selection widget to use.
-        kwargs :
-            kwargs as specified for render2D
-        """
-        fig, ax = plt.subplots(nrows=1, ncols=1)
-        render2D(locdata, ax=ax, show=False, **kwargs)
-        selector = _MplSelector(ax, type=type)
-        plt.show()
-        self.rois = selector.rois
 
-    def save(self, path):
-        _path = Path(path)
-        yaml = YAML()
-        yaml.dump([self.rois, self.reference], _path)
 
-    def load(self, path):
-        yaml = YAML(typ='safe')
-        with open(path) as file:
-            self.rois, self.reference = yaml.load(file)
 

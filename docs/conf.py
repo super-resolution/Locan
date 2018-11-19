@@ -22,6 +22,7 @@ import sys
 sys.path.insert(0, os.path.abspath('../surepy'))
 
 
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -31,13 +32,18 @@ sys.path.insert(0, os.path.abspath('../surepy'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'sphinx.ext.napoleon',
     'sphinx.ext.inheritance_diagram'
     ]
+
+# autosummary settings
+autosummary_generate = True  # Make _autosummary files and include them
 
 # Napoleon settings
 napoleon_google_docstring = True
@@ -66,8 +72,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Surepy'
-copyright = '2017, SuperResGroup'
-author = 'SuperResGroup'
+copyright = '2018, Surepy Developers'
+author = 'Surepy Developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -1,27 +1,42 @@
-name: test_surepy_env
+#
+# Minimal dependencies to use surepy
+#
+# Create new environment: conda env create --file "file_path/environment.yml"
+# Update existing environment: conda env update --file "file_path/environment.yml"
+#
+
+# Name of the environment
+name: surepy
 
 channels:
+- defaults
 - conda-forge
 
 dependencies:
+# Python tests
+- python>=3.5
+- pytest-runner
 
-# essential dependencies
-- python=3
+# Scientific python
 - numpy
 - pandas
-- matplotlib
 - scipy
-- protobuf
-- ruamel.yaml
-
-
-# dependencies specific to a particular method
-- fast-histogram
-- hdbscan
-- asdf
-- astropy
+- scikit-learn
 - scikit-image
-- shapely
+- matplotlib
 
-# dependencies for development
-- pytest
+# User interface
+- pyside2
+
+# Google
+- protobuf
+
+# File formats
+- ruamel.yaml
+- asdf
+
+# Data analysis tools
+- hdbscan
+- fast-histogram
+- shapely
+- trackpy

@@ -52,9 +52,10 @@ def select_by_region(locdata, roi, **kwargs):
     ----------
     locdata : LocData
         Specifying the localization data from which to select localization data.
-    roi : dict
-        Region of interest as specified by dictionary with keys 'points' and 'type'. Points are a list of tuples
-        representing 1D, 2D or 3D coordinates. Type is a string identifyer that can be either rectangle, ellipse, or polygon.
+    roi : Roi Object or dict
+        Region of interest as specified by Roi or dictionary with keys 'points' and 'type'. For Roi objects the
+        reference attribute is ignored. Points are a list of tuples representing 1D, 2D or 3D coordinates.
+        Type is a string identifier that can be either rectangle, ellipse, or polygon.
     kwargs :
         kwargs valid for Locdata.from_selection()
 
@@ -64,15 +65,24 @@ def select_by_region(locdata, roi, **kwargs):
         a new instance of LocData referring to the specified dataset.
     """
     # todo implement ellipse and polygon for 2D and 3D
+    try:
+        _roi = dict(points=roi.points, type=roi.type)
+    except AttributeError:
+        _roi = roi
 
-    if roi['type']=='rectangle':
-        if len(roi['points'])==2:
-            return select_by_condition(locdata, condition='{0} <= Position_x <= {1}'.format(*roi['points']), **kwargs )
-        if len(roi['points'])==4:
-            return select_by_condition(locdata, condition='{0} <= Position_x <= {1} and {2} <= Position_y <= {3}'.format(*roi['points']), **kwargs )
-        if len(roi['points'])==6:
-            return select_by_condition(locdata, condition='{0} <= Position_x <= {1} and {2} <= Position_y <= {3} and {4} <= Position_z <= {5}'.format(*roi['points']), **kwargs )
+    if _roi['type']=='rectangle':
+        if len(_roi['points'])==2:
+            return select_by_condition(locdata, condition='{0} <= Position_x <= {1}'.format(*_roi['points']), **kwargs )
+        if len(_roi['points'])==4:
+            return select_by_condition(locdata, condition='{0} <= Position_x <= {1} and '
+                                                          '{2} <= Position_y <= {3}'.format(*_roi['points']), **kwargs )
+        if len(_roi['points'])==6:
+            return select_by_condition(locdata, condition='{0} <= Position_x <= {1} and '
+                                                          '{2} <= Position_y <= {3} and '
+                                                          '{4} <= Position_z <= {5}'.format(*_roi['points']), **kwargs )
 
+    else:
+        raise NotImplementedError
 
 
 def select_by_image_mask(selection, mask, pixel_size, **kwargs):

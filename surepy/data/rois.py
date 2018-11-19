@@ -120,10 +120,11 @@ class Roi():
 
     def __init__(self, reference=None, points=(), type='rectangle'):
         if isinstance(reference, LocData):
-            try:
-                self.reference = reference.meta.file
-            except AttributeError:
-                self.reference = None
+            self.reference = reference.meta.file_path
+            # try:
+            #     self.reference = reference.meta.file_path
+            # except AttributeError:
+            #     self.reference = None
         elif reference is None:
             self.reference = reference
         elif isinstance(reference, str) or isinstance(reference, Path):
@@ -135,20 +136,54 @@ class Roi():
         self.points = points
         self.type = type
 
-    def save(self, path):
+
+    def to_yaml(self, path):
+        '''
+        Save Roi object in yaml format.
+
+        Parameters
+        ----------
+        path : str or Path object
+            path for yaml file
+        '''
         _path = Path(path)
         yaml = YAML()
         yaml.dump([self.reference, self.points, self.type], _path)
 
-    def load(self, path):
+
+    def from_yaml(self, path):
+        '''
+        Read Roi object from yaml format.
+
+        Parameters
+        ----------
+        path : str or Path object
+            path for yaml file
+        '''
         yaml = YAML(typ='safe')
         with open(path) as file:
             self.reference, self.points, self.type = yaml.load(file)
         self._locdata = self.reference if isinstance(self.reference, LocData) else None
 
-    def locdata(self):
-        new_locdata = None
-        return new_locdata
+
+    def locdata(self, **kwargs):
+        '''
+        Localization data according to roi specifications.
+
+        Parameters
+        ----------
+        kwargs :
+            kwargs valid for Locdata.from_selection()
+
+        Returns
+        -------
+        LocData
+            A new instance of LocData with all localizations within region of interest.
+        '''
+        # todo implement ellipse and polygon for 2D and 3D
+
+        return select_by_region(self._locdata, self, **kwargs)
+
 
 
 def select_by_drawing(locdata, type='rectangle', **kwargs):
@@ -176,101 +211,3 @@ def select_by_drawing(locdata, type='rectangle', **kwargs):
     plt.show()
     roi_list = [Roi(reference=locdata, points=roi['points'], type=roi['type']) for roi in selector.rois]
     return roi_list
-
-
-
-
-
-class Roi_manager():
-    """
-    Class to manage a collection of regions of interest from which new LocData objects can be generated.
-
-    Parameters
-    ----------
-    rois : List of Roi objects
-        A list of rois specified as Roi objects.
-
-    Attributes
-    ----------
-    rois : List of Roi objects
-        A list of rois specified as Roi objects.
-
-    """
-
-
-    def __init__(self, rois=None):
-        self.rois = rois
-
-    @property
-    def locdata(self):
-       """ Return the LocData object from which all rois are derived. """
-       if isinstance(self.reference, LocData):
-           locdata = self.reference
-
-       elif isinstance(self.reference, str) or isinstance(self.reference, Path):
-           path = Path(self.reference)
-           locdata = io.load_rapidSTORM_file(path)
-
-       else:
-           raise AttributeError('No reference to LocData or file path is given.')
-
-       return locdata
-
-
-    @property
-    def locdatas(self):
-       """ Return a list with LocData objects for all specified rois. """
-       if isinstance(self.reference, LocData):
-           locdatas = [select_by_region(self.reference, roi) for roi in self.rois]
-
-       elif isinstance(self.reference, str) or isinstance(self.reference, Path):
-           path = Path(self.reference)
-           locdata = io.load_rapidSTORM_file(path)
-           locdatas = [select_by_region(locdata, roi) for roi in self.rois]
-
-       else:
-           raise AttributeError('No reference to LocData or file path is given.')
-
-       return locdatas
-
-
-    def add_rectangle(self, extents):
-        roi_dict = {'points': extents, 'type': 'rectangle'}
-        self.rois.append(roi_dict)
-
-    def add_ellipse(self, extents):
-        roi_dict = {'points': extents, 'type': 'ellipse'}
-        self.rois.append(roi_dict)
-
-    def add_polygone(self, vertices):
-        roi_dict = {'points': vertices, 'type': 'polygon'}
-        self.rois.append(roi_dict)
-
-    def add_rectangles(self, extents):
-        roi_list = []
-        for element in extents:
-            roi_dict = {'points': element, 'type': 'rectangle'}
-            roi_list.append(roi_dict)
-        self.rois += roi_list
-
-    def add_ellipses(self, extents):
-        roi_list = []
-        for element in extents:
-            roi_dict = {'points': element, 'type': 'ellipse'}
-            roi_list.append(roi_dict)
-        self.rois += roi_list
-
-    def add_polygons(self, vertices_list):
-        roi_list = []
-        for vertices in vertices_list:
-            roi_dict = {'points': vertices, 'type': 'polygon'}
-            roi_list.append(roi_dict)
-        self.rois += roi_list
-
-    def clear(self):
-        self.rois = []
-
-
-
-
-

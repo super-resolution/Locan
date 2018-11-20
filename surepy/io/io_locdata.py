@@ -287,20 +287,21 @@ def load_locdata(path, type, **kwargs):
     path : string or Path object
         File path for a rapidSTORM file to load.
     type : str
-        A string indicating the file type. Must be one of None, text, rstorm, elyra, asdf.
+        A string indicating the file type. Must be None or one of those defined in LocData metadata:
+        CUSTOM, RAPIDSTORM, ELYRA
 
     Returns
     -------
     LocData
         A new instance of LocData with all localizations.
     """
-    if type is None or type == 'text':
+    if type is None or type.upper() == 'CUSTOM':
         return load_txt_file(path, **kwargs)
-    elif type == 'rstorm':
+    elif type.upper() == 'RAPIDSTORM':
         return load_rapidSTORM_file(path, **kwargs)
-    elif type == 'elyra':
+    elif type.upper() == 'ELYRA':
         return load_Elyra_file(path, **kwargs)
-    elif type == 'asdf':
+    elif type.upper() == 'ASDF':
         return load_asdf_file(path, **kwargs)
     else:
         raise TypeError(f'There is no read function for type {type}.')

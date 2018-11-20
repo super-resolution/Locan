@@ -6,6 +6,7 @@ from surepy.constants import ROOT_DIR
 from surepy.io.io_locdata import load_txt_file
 from surepy.data.rois import Roi
 
+
 # fixtures
 
 @pytest.fixture()
@@ -17,23 +18,23 @@ def locdata():
     }
     return LocData(dataframe=pd.DataFrame.from_dict(dict))
 
+
 # tests
 
 def test_Roi(locdata):
     #print(locdata.meta)
     roi = Roi(points=(1, 10, 1, 10), type='rectangle')
+    assert(repr(roi)=='Roi(reference=None, points=(1, 10, 1, 10), type=rectangle, meta=None)')
     assert(roi.reference is None)
-    assert(roi._locdata is None)
     assert(roi.points==(1, 10, 1, 10))
 
     roi = Roi(reference=locdata, points=(1, 10, 1, 10), type='rectangle')
-    assert(roi.reference == '')
-    assert(roi._locdata is locdata)
+    assert(roi.reference is locdata)
     assert(roi.points==(1, 10, 1, 10))
 
-    roi = Roi(reference=dict(path='my/path/to/file', type='None'), points=(1, 10, 1, 10), type='rectangle')
-    assert(roi.reference['path']=='my/path/to/file')
-    assert(roi._locdata is None)
+    roi = Roi(reference='FILE', meta=dict(file_path='my/path/to/file', file_type='None'),
+              points=(1, 10, 1, 10), type='rectangle')
+    assert(roi.meta['file_path']=='my/path/to/file')
 
     roi = Roi(reference=locdata, points=(0,3), type='rectangle')
     dat_1 = roi.locdata()
@@ -47,7 +48,8 @@ def test_Roi(locdata):
 
 
 def test_rois_io():
-    roi = Roi(reference=dict(path='my/path/to/file', type='None'), points=(1, 10, 1, 10), type='polygon')
+    roi = Roi(reference='FILE', meta=dict(file_path='my/path/to/file', file_type='None'),
+              points=(1, 10, 1, 10), type='polygon')
 
     path = ROOT_DIR + '/tests/test_data/roi.yaml'
     roi.to_yaml(path = path)
@@ -57,6 +59,7 @@ def test_rois_io():
     roi_2.from_yaml(path = path)
     assert(roi_2.type=='polygon')
 
+
 def test_roi_locdata_from_file():
     dat = load_txt_file(path=ROOT_DIR + '/tests/test_data/five_blobs.txt')
 
@@ -64,7 +67,7 @@ def test_roi_locdata_from_file():
     dat_1 = roi_1.locdata()
     assert(len(dat_1)==5)
 
-    roi_2 = Roi(reference=dict(path=ROOT_DIR + '/tests/test_data/five_blobs.txt', type='text'),
+    roi_2 = Roi(reference='FILE', meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=None),
               points=(1, 500, 1, 500),
               type='rectangle')
     dat_2 = roi_2.locdata()

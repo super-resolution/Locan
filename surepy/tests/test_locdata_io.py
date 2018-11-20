@@ -57,11 +57,11 @@ def test_load_asdf_file(locdata_fix):
 
 def test_load_locdata():
     dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt',
-                          type='rstorm',
+                          type='RAPIDSTORM',
                           nrows=10)
     assert (len(dat) == 10)
     dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt',
-                          type='elyra',
+                          type='ELYRA',
                           nrows=10)
     assert (len(dat) == 10)
 

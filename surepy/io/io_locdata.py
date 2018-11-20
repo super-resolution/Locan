@@ -273,3 +273,34 @@ def load_asdf_file(path):
     locdata = LocData(dataframe=new_df)
     locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta)
     return locdata
+
+
+def load_locdata(path, type, **kwargs):
+    """
+    Load data from localization file as specified by type.
+
+    This function is a wrapper for read functions for the various types of SMLM data.
+
+
+    Parameters
+    ----------
+    path : string or Path object
+        File path for a rapidSTORM file to load.
+    type : str
+        A string indicating the file type. Must be one of None, text, rstorm, elyra, asdf.
+
+    Returns
+    -------
+    LocData
+        A new instance of LocData with all localizations.
+    """
+    if type is None or type == 'text':
+        return load_txt_file(path, **kwargs)
+    elif type == 'rstorm':
+        return load_rapidSTORM_file(path, **kwargs)
+    elif type == 'elyra':
+        return load_Elyra_file(path, **kwargs)
+    elif type == 'asdf':
+        return load_asdf_file(path, **kwargs)
+    else:
+        raise TypeError(f'There is no read function for type {type}.')

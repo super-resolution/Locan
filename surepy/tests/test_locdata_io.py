@@ -50,3 +50,18 @@ def test_load_asdf_file(locdata_fix):
     assert_frame_equal(locdata.data, locdata_fix.data)
     assert(locdata.meta.identifier == locdata_fix.meta.identifier)
     assert(locdata.properties == locdata_fix.properties)
+
+    # dat = io.load_asdf_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/locdata.asdf', nrows=10)
+    # assert (len(dat) == 10)
+
+
+def test_load_locdata():
+    dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+                          type='rstorm',
+                          nrows=10)
+    assert (len(dat) == 10)
+    dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt',
+                          type='elyra',
+                          nrows=10)
+    assert (len(dat) == 10)
+

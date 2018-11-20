@@ -107,11 +107,13 @@ class Roi():
 
     Attributes
     ----------
-    reference : LocData object or path object
+    reference : LocData object or dict
         Reference to localization data for which the region of interests are defined. It can be a LocData object or
-        a path pointing to a localization file.
-    points : list or tuple of tuples
-        Points are a list of tuples representing 2D or 3D coordinates.
+        a dict with keys path and type for a path pointing to a localization file and a string indicating the file type.
+        Indicator string: storm,
+    points : tuple or tuple of tuples
+        Points are a tuple with extends (i.e. min and max values for each coordinate) for rectangle or ellipse.
+        It is a tuple or list of tuples representing 2D or 3D coordinates (i.e. vertices) for polygon.
     type : str
         Type is a string indicating the roi shape. It can be either rectangle, ellipse, or polygon.
     """
@@ -146,9 +148,15 @@ class Roi():
         path : str or Path object
             path for yaml file
         '''
+        # prepare floats for yaml representation
+        # todo: correct for different shapes
+        if self.type=='rectangle':
+            points_for_yaml = tuple([float(pt) for pt in self.points])
+
         _path = Path(path)
+
         yaml = YAML()
-        yaml.dump([self.reference, self.points, self.type], _path)
+        yaml.dump([self.reference, points_for_yaml, self.type], _path)
 
 
     def from_yaml(self, path):
@@ -182,7 +190,10 @@ class Roi():
         '''
         # todo implement ellipse and polygon for 2D and 3D
 
-        return select_by_region(self._locdata, self, **kwargs)
+        if isinstance(self._locdata, LocData):
+            return select_by_region(self._locdata, self, **kwargs)
+        elif isinstance(self.reference, str):
+            _locdata =
 
 
 

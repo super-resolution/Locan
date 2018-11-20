@@ -110,14 +110,12 @@ class Roi():
     reference : LocData object or dict
         Reference to localization data for which the region of interests are defined. It can be a LocData object or
         a dict with keys path and type for a path pointing to a localization file and a string indicating the file type.
-        Indicator string: storm,
     points : tuple or tuple of tuples
         Points are a tuple with extends (i.e. min and max values for each coordinate) for rectangle or ellipse.
         It is a tuple or list of tuples representing 2D or 3D coordinates (i.e. vertices) for polygon.
     type : str
         Type is a string indicating the roi shape. It can be either rectangle, ellipse, or polygon.
     """
-    # todo: clearify valid localization files.
     # todo: use protobuf metadata
 
     def __init__(self, reference=None, points=(), type='rectangle'):
@@ -129,10 +127,10 @@ class Roi():
             #     self.reference = None
         elif reference is None:
             self.reference = reference
-        elif isinstance(reference, str) or isinstance(reference, Path):
-            self.reference = str(reference)
+        elif isinstance(reference, dict):
+            self.reference = reference
         else:
-            raise AttributeError('Parameter for reference needs to be LocData object or path object or None.')
+            raise AttributeError('Parameter for reference needs to be LocData object or dict with path and type.')
 
         self._locdata = reference if isinstance(reference, LocData) else None
         self.points = points
@@ -152,6 +150,8 @@ class Roi():
         # todo: correct for different shapes
         if self.type=='rectangle':
             points_for_yaml = tuple([float(pt) for pt in self.points])
+        else:
+            points_for_yaml = self.points
 
         _path = Path(path)
 
@@ -192,8 +192,9 @@ class Roi():
 
         if isinstance(self._locdata, LocData):
             return select_by_region(self._locdata, self, **kwargs)
-        elif isinstance(self.reference, str):
-            _locdata =
+        elif isinstance(self.reference, dict):
+            _locdata =  io.load_locdata(**self.reference)
+            return select_by_region(_locdata, self, **kwargs)
 
 
 

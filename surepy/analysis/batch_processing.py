@@ -7,7 +7,7 @@ from pathlib import Path
 
 from surepy import LocData
 import surepy.io.io_locdata as io
-from surepy.data.rois import Roi_manager
+from surepy.data.rois import Roi
 
 
 def batch_process(elements, pipeline):
@@ -16,8 +16,9 @@ def batch_process(elements, pipeline):
 
     Parameters
     ----------
-    elements : list of LocData or path objects or Roi_Manager
-        Elements that refer to localization data to be processed serially. Path objects should point to localization files or roi.yaml files to be analyzed.
+    elements : list of LocData or path or Roi objects
+        Elements that refer to localization data to be processed serially. Path objects should point to
+        localization files or roi.yaml files to be analyzed.
 
     pipeline : class name
         Class definition for a specific analysis pipeline

@@ -296,15 +296,34 @@ def load_locdata(path, type=1, **kwargs):
     LocData
         A new instance of LocData with all localizations.
     """
-    # todo fix protobuf constants for ASDF
+    # todo fix protobuf constants for ASDF == 4
 
-    if type == 1 or type.upper() == 'CUSTOM':
-        return load_txt_file(path, **kwargs)
-    elif type == 2 or type.upper() == 'RAPIDSTORM':
-        return load_rapidSTORM_file(path, **kwargs)
-    elif type == 3 or type.upper() == 'ELYRA':
-        return load_Elyra_file(path, **kwargs)
-    elif type == 4 or type.upper() == 'ASDF':
-        return load_asdf_file(path, **kwargs)
+    if isinstance(type, int):
+
+        if type == 1:
+            return load_txt_file(path, **kwargs)
+        elif type == 2:
+            return load_rapidSTORM_file(path, **kwargs)
+        elif type == 3:
+            return load_Elyra_file(path, **kwargs)
+        elif type == 4:
+            return load_asdf_file(path, **kwargs)
+        else:
+            raise TypeError(f'There is no read function for type {type}.')
+
+
+    if isinstance(type, str):
+
+        if type.upper() == 'CUSTOM':
+            return load_txt_file(path, **kwargs)
+        elif type.upper() == 'RAPIDSTORM':
+            return load_rapidSTORM_file(path, **kwargs)
+        elif type.upper() == 'ELYRA':
+            return load_Elyra_file(path, **kwargs)
+        elif type.upper() == 'ASDF':
+            return load_asdf_file(path, **kwargs)
+        else:
+            raise TypeError(f'There is no read function for type {type}.')
+
     else:
         raise TypeError(f'There is no read function for type {type}.')

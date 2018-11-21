@@ -22,7 +22,7 @@ def locdata():
 
 # tests
 
-def test_Roi_0(locdata):
+def test_Roi(locdata):
     roi = Roi(points=(1, 10, 1, 10), type='rectangle')
     assert(repr(roi)=='Roi(reference=None, points=(1, 10, 1, 10), type=rectangle, meta=)')
     assert(roi.reference is None)
@@ -84,7 +84,7 @@ def test_Roi_locdata(locdata):
     del (roi)
 
 
-def test_rois_io(locdata):
+def test_Roi_io(locdata):
     path = ROOT_DIR + '/tests/test_data/roi.yaml'
 
     roi = Roi(reference=locdata, points=(1, 500, 1, 500), type='rectangle')

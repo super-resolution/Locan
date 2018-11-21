@@ -4,11 +4,15 @@ Methods for managing regions of interest.
 
 '''
 from pathlib import Path
+import warnings
 
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector, PolygonSelector, EllipseSelector
 from ruamel.yaml import YAML
 
+from google.protobuf import json_format
+
+from surepy.data import metadata_pb2
 from surepy import LocData
 import surepy.io.io_locdata as io
 from surepy.data.filter import select_by_region
@@ -102,7 +106,7 @@ class Roi():
     ----------
     reference : LocData object, str, or None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
-        "FILE" for indicating reference to a saved SMLM file, or None for indicating no specific reference.
+        True for indicating reference to a saved SMLM file, or None for indicating no specific reference.
     points : tuple or tuple of tuples
         Points are a tuple with extends (i.e. min and max values for each coordinate) for rectangle or ellipse.
         It is a tuple or list of tuples representing 2D or 3D coordinates (i.e. vertices) for polygon.
@@ -117,29 +121,38 @@ class Roi():
     ----------
     reference : LocData object, str, or None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
-        "FILE" for indicating reference to a saved SMLM file, or None for indicating no specific reference.
+        True for indicating reference to a saved SMLM file, or None for indicating no specific reference.
     points : tuple or tuple of tuples
         Points are a tuple with extends (i.e. min and max values for each coordinate) for rectangle or ellipse.
         It is a tuple or list of tuples representing 2D or 3D coordinates (i.e. vertices) for polygon.
     type : str
         Type is a string indicating the roi shape. It can be either rectangle, ellipse, or polygon.
     meta : dict
-        Dict with keys file_path and file_type for a path pointing to a localization file and a string indicating the
-        file type. The string should be according to locdata metadata.
+        Dict with keys file_path and file_type for a path pointing to a localization file and an integer indicating the
+        file type. The integer should be according to surepy.data.metadata_pb2.file_type.
     """
-    # todo: use protobuf metadata
-    # todo: include meta : Metadata protobuf message or dictionary : Metadata about the current roi (currently only the file path).
 
     def __init__(self, reference=None, points=(), type='rectangle', meta=None):
 
         self.reference = reference
         self.points = points
         self.type = type
-        self.meta = meta
+        self.meta = metadata_pb2.Metadata()
 
-        if isinstance(reference, LocData):
-            meta_dict = dict(file_path=reference.meta.file_path, file_type=reference.meta.file_path)
-            self.meta = meta_dict
+        # meta
+        if isinstance(reference, LocData) and reference.meta.file_path:
+            self.meta.file_path = reference.meta.file_path
+            self.meta.file_type = reference.meta.file_type
+        else:
+            pass
+
+        if meta is None:
+            pass
+        elif isinstance(meta, dict):
+            for key, value in meta.items():
+                setattr(self.meta, key, value)
+        else:
+            self.meta.MergeFrom(meta)
 
 
     def __repr__(self):
@@ -155,25 +168,38 @@ class Roi():
         path : str, Path object, or None
             Path for yaml file. If None a roi file path is generated from the metadata.
         '''
+
         # prepare path
         if path is None:
-            _file_path = Path(self.meta['file_path'])
+            _file_path = Path(self.meta.file_path)
             _roi_file = _file_path.stem + '_roi.yaml'
             _path = _file_path.with_name(_roi_file)
-            self.meta['roi_path'] = str(_path)
         else:
             _path = Path(path)
-            self.meta['roi_path'] = str(_path)
 
-        # prepare floats for yaml representation
+        # prepare points for yaml representation - numpy.float has to be converted to float
         # todo: correct for different shapes
         if self.type=='rectangle':
             points_for_yaml = tuple([float(pt) for pt in self.points])
         else:
             points_for_yaml = self.points
 
+        # prepare reference for yaml representation - reference to LocData cannot be represented
+        if isinstance(self.reference, LocData):
+            if self.reference.meta.file_path or self.meta.file_path:
+                reference_for_yaml = True
+            else:
+                warnings.warn('The localization data has to be saved and the file path provided, '
+                              'or the reference is lost.', UserWarning)
+                reference_for_yaml = None
+        else:
+            reference_for_yaml = self.reference
+
+        # Prepare meta
+        meta_json = json_format.MessageToJson(self.meta, including_default_value_fields=False)
+
         yaml = YAML()
-        yaml.dump([self.reference, points_for_yaml, self.type, self.meta], _path)
+        yaml.dump([reference_for_yaml, points_for_yaml, self.type, meta_json], _path)
 
 
     def from_yaml(self, path):
@@ -187,7 +213,9 @@ class Roi():
         '''
         yaml = YAML(typ='safe')
         with open(path) as file:
-            self.reference, self.points, self.type, self.meta = yaml.load(file)
+            reference, points, type, meta = yaml.load(file)
+
+        self.reference, self.points, self.type, self.meta = reference, points, type, json_format.Parse(meta, self.meta)
 
 
     def locdata(self, **kwargs):
@@ -208,8 +236,8 @@ class Roi():
 
         if isinstance(self.reference, LocData):
             return select_by_region(self.reference, self, **kwargs)
-        elif self.reference=='FILE':
-            locdata =  io.load_locdata(self.meta['file_path'], self.meta['file_type'])
+        elif self.reference is True:
+            locdata =  io.load_locdata(self.meta.file_path, self.meta.file_type)
             return select_by_region(locdata, self, **kwargs)
 
 

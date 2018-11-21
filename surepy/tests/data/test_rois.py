@@ -1,3 +1,4 @@
+import warnings
 import pytest
 import pandas as pd
 
@@ -21,43 +22,103 @@ def locdata():
 
 # tests
 
-def test_Roi(locdata):
-    #print(locdata.meta)
+def test_Roi_0(locdata):
     roi = Roi(points=(1, 10, 1, 10), type='rectangle')
-    assert(repr(roi)=='Roi(reference=None, points=(1, 10, 1, 10), type=rectangle, meta=None)')
+    assert(repr(roi)=='Roi(reference=None, points=(1, 10, 1, 10), type=rectangle, meta=)')
     assert(roi.reference is None)
     assert(roi.points==(1, 10, 1, 10))
+    assert(roi.meta.file_path=='')
+    assert(roi.meta.file_type==0)
+    del(roi)
 
     roi = Roi(reference=locdata, points=(1, 10, 1, 10), type='rectangle')
     assert(roi.reference is locdata)
     assert(roi.points==(1, 10, 1, 10))
+    assert(roi.meta.file_path=='')
+    assert(roi.meta.file_type==0)
+    # print(locdata.meta)
+    # print(roi)
+    # print(True if locdata.meta.file_path else False)
+    # print(locdata.meta.file_type)
+    # print()
+    del(roi)
 
-    roi = Roi(reference='FILE', meta=dict(file_path='my/path/to/file', file_type='None'),
-              points=(1, 10, 1, 10), type='rectangle')
-    assert(roi.meta['file_path']=='my/path/to/file')
+    roi = Roi(reference=locdata, points=(1, 10, 1, 10), type='rectangle', meta=dict(file_path='my/path/to/file', file_type=0))
+    assert(roi.meta.file_path=='my/path/to/file')
+    assert(roi.meta.file_type==0)
+    del (roi)
+
+    roi = Roi(reference=True, points=(1, 10, 1, 10), type='rectangle', meta=dict(file_path='my/path/to/file', file_type=0))
+    assert(roi.meta.file_path=='my/path/to/file')
+    assert(roi.meta.file_type==0)
+    del (roi)
+
+
+def test_Roi_locdata(locdata):
 
     roi = Roi(reference=locdata, points=(0,3), type='rectangle')
     dat_1 = roi.locdata()
     assert(len(dat_1)==6)
+    del (roi)
+
     roi = Roi(reference=locdata, points=(0,3,0,3), type='rectangle')
     dat_1 = roi.locdata()
     assert(len(dat_1)==5)
+    del (roi)
+
     roi = Roi(reference=locdata, points=(0,3,0,3,0,3), type='rectangle')
     dat_1 = roi.locdata()
     assert(len(dat_1)==4)
+    del (roi)
+
+    roi = Roi(reference=True, points=(1, 500, 1, 500), type='rectangle',
+              meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1))
+    dat_1 = roi.locdata()
+    assert(len(dat_1)==5)
+    del (roi)
+
+    roi = Roi(reference=None, points=(1, 500, 1, 500), type='rectangle',
+              meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1))
+    dat_1 = roi.locdata()
+    assert(dat_1 is None)
+    del (roi)
 
 
-def test_rois_io():
-    roi = Roi(reference='FILE', meta=dict(file_path='my/path/to/file', file_type='None'),
-              points=(1, 10, 1, 10), type='polygon')
-
+def test_rois_io(locdata):
     path = ROOT_DIR + '/tests/test_data/roi.yaml'
-    roi.to_yaml(path = path)
 
-    roi_2 = Roi()
-    assert(roi_2.type=='rectangle')
-    roi_2.from_yaml(path = path)
-    assert(roi_2.type=='polygon')
+    roi = Roi(reference=locdata, points=(1, 500, 1, 500), type='rectangle')
+    with pytest.warns(UserWarning):
+        roi.to_yaml(path=path)
+
+    roi_new = Roi()
+    roi_new.from_yaml(path = path)
+    assert(repr(roi_new) == 'Roi(reference=None, points=[1.0, 500.0, 1.0, 500.0], type=rectangle, meta=)')
+    dat_1 = roi_new.locdata()
+    assert(dat_1==None)
+    del(roi, dat_1)
+
+    roi = Roi(reference=True, points=(1, 500, 1, 500), type='rectangle',
+              meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1))
+    roi.to_yaml(path=path)
+    roi_new = Roi()
+    roi_new.from_yaml(path = path)
+    print(roi_new)
+    assert(roi_new.reference == True)
+    dat_1 = roi_new.locdata()
+    assert(len(dat_1)==5)
+    del(roi, dat_1)
+
+    roi = Roi(reference=locdata, points=(1, 500, 1, 500), type='rectangle',
+              meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1))
+    roi.to_yaml(path=path)
+    roi_new = Roi()
+    roi_new.from_yaml(path = path)
+    print(roi_new)
+    assert(roi_new.reference == True)
+    dat_1 = roi_new.locdata()
+    assert(len(dat_1)==5)
+    del(roi, dat_1)
 
 
 def test_roi_locdata_from_file():
@@ -67,7 +128,7 @@ def test_roi_locdata_from_file():
     dat_1 = roi_1.locdata()
     assert(len(dat_1)==5)
 
-    roi_2 = Roi(reference='FILE', meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=None),
+    roi_2 = Roi(reference=True, meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1),
               points=(1, 500, 1, 500),
               type='rectangle')
     dat_2 = roi_2.locdata()

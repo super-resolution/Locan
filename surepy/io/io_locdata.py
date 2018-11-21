@@ -275,7 +275,7 @@ def load_asdf_file(path):
     return locdata
 
 
-def load_locdata(path, type, **kwargs):
+def load_locdata(path, type=1, **kwargs):
     """
     Load data from localization file as specified by type.
 
@@ -286,22 +286,25 @@ def load_locdata(path, type, **kwargs):
     ----------
     path : string or Path object
         File path for a rapidSTORM file to load.
-    type : str
-        A string indicating the file type. Must be None or one of those defined in LocData metadata:
-        CUSTOM, RAPIDSTORM, ELYRA
+    type : Int or str
+        Integer or string indicating the file type.
+        The integer should be according to surepy.data.metadata_pb2.file_type.
+        String can be one of custom, rapidstorm, elyra, asdf.
 
     Returns
     -------
     LocData
         A new instance of LocData with all localizations.
     """
-    if type is None or type.upper() == 'CUSTOM':
+    # todo fix protobuf constants for ASDF
+
+    if type == 1 or type.upper() == 'CUSTOM':
         return load_txt_file(path, **kwargs)
-    elif type.upper() == 'RAPIDSTORM':
+    elif type == 2 or type.upper() == 'RAPIDSTORM':
         return load_rapidSTORM_file(path, **kwargs)
-    elif type.upper() == 'ELYRA':
+    elif type == 3 or type.upper() == 'ELYRA':
         return load_Elyra_file(path, **kwargs)
-    elif type.upper() == 'ASDF':
+    elif type == 4 or type.upper() == 'ASDF':
         return load_asdf_file(path, **kwargs)
     else:
         raise TypeError(f'There is no read function for type {type}.')

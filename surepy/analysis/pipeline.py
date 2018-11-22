@@ -12,7 +12,6 @@ from surepy.data.cluster.clustering import clustering_hdbscan
 from surepy.analysis.analysis_tools import _init_meta, _update_meta, save_results
 
 
-# todo: define and use _Pipeline with metadata similar to locdata
 class Pipeline():
     """
     The base class for specialized analysis pipelines to be used on LocData objects.

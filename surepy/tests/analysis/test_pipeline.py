@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 
 from surepy import LocData
+from surepy.constants import ROOT_DIR
 from surepy.analysis.pipeline import Pipeline, compute_test
 
 # fixtures
@@ -37,3 +38,6 @@ def test_Pipeline_2(locdata_simple):
     assert(pipe.test==True)
     # print(f'results: {pipe.test}')
     # print(f'meta: {pipe.meta}')
+
+    path = ROOT_DIR + '/tests/test_data/pipe.txt'
+    pipe.save_protocol(path)

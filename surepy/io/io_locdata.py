@@ -285,7 +285,7 @@ def load_locdata(path, type=1, **kwargs):
     Parameters
     ----------
     path : string or Path object
-        File path for a rapidSTORM file to load.
+        File path for a localization data file to load.
     type : Int or str
         Integer or string indicating the file type.
         The integer should be according to surepy.data.metadata_pb2.file_type.

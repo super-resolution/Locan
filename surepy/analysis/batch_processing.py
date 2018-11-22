@@ -10,7 +10,7 @@ import surepy.io.io_locdata as io
 from surepy.data.rois import Roi
 
 
-def batch_process(elements, pipeline):
+def batch_process(elements, type='locdata', pipeline):
     """
     A batch process carrying out an analysis routine as specified in pipeline class.
 
@@ -19,7 +19,9 @@ def batch_process(elements, pipeline):
     elements : list of LocData or path or Roi objects
         Elements that refer to localization data to be processed serially. Path objects should point to
         localization files or roi.yaml files to be analyzed.
-
+    type : str, int, list of str, list of int
+        Indicator what type of data is specified by elements. Choose from one of the following: "locdata"
+        for LocData objects, integer or indicator string for file type, "roi" for Roi object with valid file reference.
     pipeline : class name
         Class definition for a specific analysis pipeline
 
@@ -29,10 +31,39 @@ def batch_process(elements, pipeline):
         Each pipeline object carries the various analysis results for each file/roi combination.
     """
 
+    if isinstance(type, list):
+        if len(elements)!= len(type):
+            raise TypeError('The length of type as to be the same as the length of elements.')
+        types = type
+    else:
+        types = [type] * len(elements)
+
+
+    if isinstance(type, str):
+        pass
+
+    elif isinstance(type, int):
+        raise NotImplementedError
+
+
+    def run_pipe(element):
+        '''
+        Run pipeline
+        '''
+
+        pipe = pipeline(element)
+        pipe.roi = 0
+        pipe.compute()
+
+        return pipe
+
+
     results = []
     path = None
+    for element, _type in zip(elements, types):
 
-    for element in elements:
+        if _type == 'locdata':
+            run_pipe(element)
 
         if isinstance(element, LocData):
             print('Computing pipeline for locdata objects.')

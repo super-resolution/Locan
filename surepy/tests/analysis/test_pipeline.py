@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from surepy import LocData
-from surepy.analysis.pipeline import Pipeline, Pipeline_test
+from surepy.analysis.pipeline import Pipeline, compute_test
 
 # fixtures
 
@@ -19,12 +19,21 @@ def locdata_simple():
 
 # tests
 
-def test_Pipeline_test(locdata_simple):
+def test_Pipeline(locdata_simple):
+    ''' use Pipeline by passing an instance '''
     pipe = Pipeline(locdata_simple)
-    assert(pipe.file is None)
+    compute_test(pipe)
+    assert(pipe.test==True)
+    # print(f'results: {pipe.test}')
+    # print(f'meta: {pipe.meta}')
 
-    pipe = Pipeline_test(locdata_simple)
-    assert(pipe.test is None)
+def test_Pipeline_2(locdata_simple):
+    ''' use Pipeline by inheritance - recommended. '''
+    class MyPipe(Pipeline):
+        compute = compute_test
+
+    pipe = MyPipe(locdata_simple)
     pipe.compute()
-    assert(pipe.test is True)
-
+    assert(pipe.test==True)
+    # print(f'results: {pipe.test}')
+    # print(f'meta: {pipe.meta}')

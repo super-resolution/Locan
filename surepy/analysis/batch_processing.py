@@ -1,6 +1,7 @@
 """
-This module provides methods for batch processing. Batch processing refers to running an analysis procedure or
-pipeline over a sequence of localization data objects.
+Methods for batch processing.
+
+Batch processing refers to running an analysis procedure or pipeline over a sequence of localization data objects.
 """
 
 from pathlib import Path

@@ -5,7 +5,7 @@ import pandas as pd
 from surepy import LocData
 from surepy.constants import ROOT_DIR
 from surepy.io.io_locdata import load_txt_file
-from surepy.data.rois import Roi
+from surepy.data.rois import Roi, load_from_roi_file
 
 
 # fixtures
@@ -91,9 +91,9 @@ def test_Roi_io(locdata):
     with pytest.warns(UserWarning):
         roi.to_yaml(path=path)
 
-    roi_new = Roi()
-    roi_new.from_yaml(path = path)
-    assert(repr(roi_new) == 'Roi(reference=None, points=[1.0, 500.0, 1.0, 500.0], type=rectangle, meta=)')
+    roi_new = Roi().from_yaml(path = path)
+    assert(roi_new.reference == None)
+
     dat_1 = roi_new.locdata()
     assert(dat_1==None)
     del(roi, dat_1)
@@ -101,9 +101,7 @@ def test_Roi_io(locdata):
     roi = Roi(reference=True, points=(1, 500, 1, 500), type='rectangle',
               meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1))
     roi.to_yaml(path=path)
-    roi_new = Roi()
-    roi_new.from_yaml(path = path)
-    print(roi_new)
+    roi_new = Roi().from_yaml(path = path)
     assert(roi_new.reference == True)
     dat_1 = roi_new.locdata()
     assert(len(dat_1)==5)
@@ -112,8 +110,7 @@ def test_Roi_io(locdata):
     roi = Roi(reference=locdata, points=(1, 500, 1, 500), type='rectangle',
               meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1))
     roi.to_yaml(path=path)
-    roi_new = Roi()
-    roi_new.from_yaml(path = path)
+    roi_new = Roi().from_yaml(path = path)
     print(roi_new)
     assert(roi_new.reference == True)
     dat_1 = roi_new.locdata()
@@ -133,3 +130,14 @@ def test_roi_locdata_from_file():
               type='rectangle')
     dat_2 = roi_2.locdata()
     assert(len(dat_2)==5)
+
+
+def test_load_from_roi_file():
+    path = ROOT_DIR + '/tests/test_data/roi.yaml'
+
+    roi = Roi(reference=True, points=(1, 500, 1, 500), type='rectangle',
+              meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1))
+    roi.to_yaml(path=path)
+
+    dat = load_from_roi_file(path)
+    assert(len(dat)==5)

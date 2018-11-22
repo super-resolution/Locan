@@ -5,6 +5,7 @@ Methods for managing regions of interest.
 '''
 from pathlib import Path
 import warnings
+import time
 
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector, PolygonSelector, EllipseSelector
@@ -113,8 +114,8 @@ class Roi():
     type : str
         Type is a string indicating the roi shape. It can be either rectangle, ellipse, or polygon.
     meta : dict
-        Dict with keys file_path and file_type for a path pointing to a localization file and a string indicating the
-        file type. The string should be according to locdata metadata.
+        Dict with keys file_path and file_type for a path pointing to a localization file and an integer indicating the
+        file type. The integer should be according to surepy.data.metadata_pb2.file_type.
 
 
     Attributes
@@ -202,7 +203,8 @@ class Roi():
         yaml.dump([reference_for_yaml, points_for_yaml, self.type, meta_json], _path)
 
 
-    def from_yaml(self, path):
+    @classmethod
+    def from_yaml(cls, path, meta=None):
         '''
         Read Roi object from yaml format.
 
@@ -213,9 +215,23 @@ class Roi():
         '''
         yaml = YAML(typ='safe')
         with open(path) as file:
-            reference, points, type, meta = yaml.load(file)
+            reference, points, type, meta_yaml = yaml.load(file)
 
-        self.reference, self.points, self.type, self.meta = reference, points, type, json_format.Parse(meta, self.meta)
+        # meta
+        meta_ = metadata_pb2.Metadata()
+        meta_ = json_format.Parse(meta_yaml, meta_)
+        meta_.modification_date = int(time.time())
+        meta_.history.add(name = 'Roi.from_yaml')
+
+        if meta is None:
+            pass
+        elif isinstance(meta, dict):
+            for key, value in meta.items():
+                setattr(meta_, key, value)
+        else:
+            meta_.MergeFrom(meta)
+
+        return cls(reference=reference, points=points, type=type, meta=meta_)
 
 
     def locdata(self, **kwargs):
@@ -233,6 +249,7 @@ class Roi():
             A new instance of LocData with all localizations within region of interest.
         '''
         # todo implement ellipse and polygon for 2D and 3D
+        # todo modify meta for locdata
 
         if isinstance(self.reference, LocData):
             return select_by_region(self.reference, self, **kwargs)
@@ -267,3 +284,25 @@ def select_by_drawing(locdata, type='rectangle', **kwargs):
     plt.show()
     roi_list = [Roi(reference=locdata, points=roi['points'], type=roi['type']) for roi in selector.rois]
     return roi_list
+
+
+def load_from_roi_file(path):
+    """
+    Load data from a Roi file.
+
+    Parameters
+    ----------
+    path : string or Path object
+        File path for a Roi file to load.
+
+    Returns
+    -------
+    LocData
+        A new instance of LocData with all localizations.
+    """
+    roi = Roi.from_yaml(path)
+    locdata = roi.locdata()
+
+    locdata.meta.history.add(name='load_from_roi_file')
+
+    return locdata

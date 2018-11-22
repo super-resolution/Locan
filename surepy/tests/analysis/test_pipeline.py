@@ -41,3 +41,19 @@ def test_Pipeline_2(locdata_simple):
 
     path = ROOT_DIR + '/tests/test_data/pipe.txt'
     pipe.save_protocol(path)
+
+def test_Pipeline_3(locdata_simple):
+    class MyPipe(Pipeline):
+        compute = compute_test
+
+    pipe = MyPipe(locdata_simple)
+    assert(isinstance(pipe.locdata, LocData))
+
+    path = ROOT_DIR + '/tests/test_data/five_blobs.txt'
+    pipe = MyPipe(dict(file_path=path, file_type=1))
+    assert(isinstance(pipe.locdata, LocData))
+
+
+    path = ROOT_DIR + '/tests/test_data/roi.yaml'
+    pipe = MyPipe(dict(file_path=path, file_type='roi'))
+    assert(isinstance(pipe.locdata, LocData))

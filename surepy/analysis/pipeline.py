@@ -6,6 +6,9 @@ analysis, where a preliminary result serves as input to the next analysis step, 
 different results in parallel.
 """
 
+from surepy import LocData
+import surepy.io.io_locdata as io
+from surepy.data.rois import Roi, load_from_roi_file
 from surepy.data.hulls import Convex_hull_scipy
 from surepy.data.filter import select_by_condition
 from surepy.data.cluster.clustering import clustering_hdbscan
@@ -24,8 +27,10 @@ class Pipeline():
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data.
+    locdata : LocData object, Roi object, or dict
+        Localization data or a dict with keys file_path and file_type for a path pointing to a localization file and
+        an integer indicating the file type. The integer should be according to surepy.data.metadata_pb2.file_type.
+        If the file_Type is "roi" a Roi object is loaded from the given file_path.
     meta : Metadata protobuf message
         Metadata about the current analysis routine.
 
@@ -44,13 +49,23 @@ class Pipeline():
 
     def __init__(self, locdata, meta=None):
         self.__class__.count += 1
-        self.locdata = locdata
+
         self.parameter = None # is needed to init metadata_analysis_pb2.
         self.meta = _init_meta(self)
         self.meta = _update_meta(self, meta)
 
-        self.identifier = None
-        self.roi = None
+        # prepare locdata as general input
+        if isinstance(locdata, LocData):
+            self.locdata = locdata
+        elif isinstance(locdata, Roi):
+            self.locdata = locdata.locdata()
+        elif isinstance(locdata, dict) and locdata['file_type']=='roi':
+            self.locdata = load_from_roi_file(path=locdata['file_path'])
+        elif isinstance(locdata, dict):
+            self.locdata =  io.load_locdata(path=locdata['file_path'], type=locdata['file_type'])
+
+
+
 
     def compute(self):
         """ The analysis routine to be applied on locdata."""

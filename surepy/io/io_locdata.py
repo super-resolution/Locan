@@ -279,7 +279,7 @@ def load_Elyra_file(path, nrows=None, **kwargs):
     return dat
 
 
-def load_asdf_file(path):
+def load_asdf_file(path, nrows=None):
     """
     Load data from ASDF localization file.
 
@@ -287,6 +287,8 @@ def load_asdf_file(path):
     ----------
     path : string or Path object
         File path for a rapidSTORM file to load.
+    nrows : int, default: None
+        The number of localizations to load from file. None means that all available rows are loaded.
 
     Returns
     -------
@@ -294,7 +296,7 @@ def load_asdf_file(path):
         A new instance of LocData with all localizations.
     """
     with asdf_open(path) as af:
-        new_df = pd.DataFrame({k: af.tree['data'][:, n] for n, k in enumerate(af.tree['columns'])})
+        new_df = pd.DataFrame({k: af.tree['data'][slice(nrows), n] for n, k in enumerate(af.tree['columns'])})
         locdata = LocData(dataframe=new_df)
         locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta)
     return locdata

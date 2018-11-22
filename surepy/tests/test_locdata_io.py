@@ -51,6 +51,8 @@ def test_load_asdf_file(locdata_fix):
     assert(locdata.meta.identifier == locdata_fix.meta.identifier)
     assert(locdata.properties == locdata_fix.properties)
 
+# todo: tests for Thundrstorm IO
+
     # dat = io.load_asdf_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/locdata.asdf', nrows=10)
     # assert (len(dat) == 10)
 

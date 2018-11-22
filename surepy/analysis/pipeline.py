@@ -7,7 +7,7 @@ different results in parallel.
 """
 
 from surepy import LocData
-import surepy.io.io_locdata as io
+from surepy.io.io_locdata import load_locdata
 from surepy.data.rois import Roi, load_from_roi_file
 from surepy.data.hulls import Convex_hull_scipy
 from surepy.data.filter import select_by_condition
@@ -62,14 +62,13 @@ class Pipeline():
         elif isinstance(locdata, dict) and locdata['file_type']=='roi':
             self.locdata = load_from_roi_file(path=locdata['file_path'])
         elif isinstance(locdata, dict):
-            self.locdata =  io.load_locdata(path=locdata['file_path'], type=locdata['file_type'])
-
-
+            self.locdata = load_locdata(path=locdata['file_path'], type=locdata['file_type'])
 
 
     def compute(self):
         """ The analysis routine to be applied on locdata."""
         raise NotImplementedError
+
 
     def save_protocol(self, path):
         '''
@@ -88,12 +87,13 @@ class Pipeline():
 
 def compute_test(self):
     ''' A pipeline definition for testing.'''
-    print('This is running ok!')
+    print('compute_test() is running ok!')
     self.test = True
+
     return self
 
 
-def compute(self):
+def compute_clust(self):
     '''A Pipeline definition for standard cluster analysis. '''
 
     # compute cluster

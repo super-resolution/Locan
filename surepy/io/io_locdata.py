@@ -295,8 +295,8 @@ def load_asdf_file(path):
     """
     with asdf_open(path) as af:
         new_df = pd.DataFrame({k: af.tree['data'][:, n] for n, k in enumerate(af.tree['columns'])})
-    locdata = LocData(dataframe=new_df)
-    locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta)
+        locdata = LocData(dataframe=new_df)
+        locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta)
     return locdata
 
 

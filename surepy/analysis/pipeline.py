@@ -12,7 +12,7 @@ from surepy.data.rois import Roi, load_from_roi_file
 from surepy.data.hulls import Convex_hull_scipy
 from surepy.data.filter import select_by_condition
 from surepy.data.cluster.clustering import clustering_hdbscan
-from surepy.analysis.analysis_tools import _init_meta, _update_meta, save_results
+from surepy.analysis.analysis_tools import _init_meta, _update_meta
 
 
 class Pipeline():
@@ -28,9 +28,9 @@ class Pipeline():
     Parameters
     ----------
     locdata : LocData object, Roi object, or dict
-        Localization data or a dict with keys file_path and file_type for a path pointing to a localization file and
+        Localization data or a dict with keys `file_path` and `file_type` for a path pointing to a localization file and
         an integer indicating the file type. The integer should be according to surepy.data.metadata_pb2.file_type.
-        If the file_Type is "roi" a Roi object is loaded from the given file_path.
+        If the `file_type` is "roi" a Roi object is loaded from the given `file_path`.
     meta : Metadata protobuf message
         Metadata about the current analysis routine.
 
@@ -63,6 +63,11 @@ class Pipeline():
             self.locdata = load_from_roi_file(path=locdata['file_path'])
         elif isinstance(locdata, dict):
             self.locdata = load_locdata(path=locdata['file_path'], type=locdata['file_type'])
+
+
+    def __del__(self):
+        """ updating the counter upon deletion of class instance. """
+        self.__class__.count -= 1
 
 
     def compute(self):

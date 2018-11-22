@@ -1,11 +1,8 @@
 import pytest
 import numpy as np
 import pandas as pd
+
 from surepy import LocData
-from surepy.data.rois import Roi_manager
-from surepy.simulation import simulate_blobs
-from surepy.data.filter import select_by_condition, random_subset, select_by_region
-from surepy.constants import ROOT_DIR
 from surepy.data.track import track
 
 

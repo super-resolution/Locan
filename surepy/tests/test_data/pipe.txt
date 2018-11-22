@@ -2,6 +2,7 @@ Analysis Pipeline: MyPipe
 
 def compute_test(self):
     ''' A pipeline definition for testing.'''
-    print('This is running ok!')
+    print('compute_test() is running ok!')
     self.test = True
+
     return self

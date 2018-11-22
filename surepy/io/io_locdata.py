@@ -48,6 +48,31 @@ def save_asdf(locdata, path):
     # Write the data to a new file
     af.write_to(path)
 
+# todo: handle ambiguous mapping of sigma key for 3D data
+def save_thunderstorm_csv(locdata, path):
+    """
+    Save LocData attributes Thunderstorm-readable csv-file.
+
+    In the Thunderstorm csv-file file format we store only localization data with Thunderstorm-readable column names.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        The LocData object to be saved.
+    path : str or Path object
+        File path including file name to save to.
+    """
+    # get data from locdata object
+    dataframe = locdata.data
+
+    # create reverse mapping to Thunderstorm columns
+    inv_map = {v: k for k, v in surepy.constants.THUNDERSTORM_KEYS.items()}
+
+    # rename columns
+    dataframe = dataframe.rename(index=str, columns=inv_map, inplace=False)
+
+    # write to csv
+    dataframe.to_csv(path, float_format='%.10g', index=False)
 
 
 # todo: take out **kwargs
@@ -273,3 +298,71 @@ def load_asdf_file(path):
     locdata = LocData(dataframe=new_df)
     locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta)
     return locdata
+
+
+def load_thunderstorm_header(path):
+    """
+    Load csv header from a Thunderstorm single-molecule localization file and identify column names.
+
+    Parameters
+    ----------
+    path : str or Path object
+        File path for a Thunderstorm file to load.
+
+    Returns
+    -------
+    list of str
+        A list of valid dataset property keys as derived from the Thunderstorm identifiers.
+    """
+
+    # read csv header
+    with open(path) as file:
+        header = file.readline().split('\n')[0]
+
+    # list identifiers
+    identifiers = [x.strip('"') for x in header.split(',')]
+
+    column_keys = []
+    for i in identifiers:
+        if i in surepy.constants.THUNDERSTORM_KEYS:
+            column_keys.append(surepy.constants.THUNDERSTORM_KEYS[i])
+        else:
+            warnings.warn('{} is not a Surepy property standard.'.format(i), UserWarning)
+            column_keys.append(i)
+    return column_keys
+
+
+def load_thunderstorm_file(path, nrows=None, **kwargs):
+    """
+    Load data from a Thunderstorm single-molecule localization file.
+
+    Parameters
+    ----------
+    path : string or Path object
+        File path for a Thunderstorm file to load.
+    nrows : int, default: None
+        The number of localizations to load from file. None means that all available rows are loaded.
+
+    Returns
+    -------
+    LocData
+        A new instance of LocData with all localizations.
+    """
+    columns = load_thunderstorm_header(path)
+    dataframe = pd.read_csv(path, sep=',', skiprows=1, nrows=nrows, names=columns)
+
+    dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
+
+    dat.meta.creation_date = int(time.time())
+    dat.meta.source = metadata_pb2.EXPERIMENT
+    dat.meta.state = metadata_pb2.RAW
+    dat.meta.file_type = metadata_pb2.THUNDERSTORM
+    dat.meta.file_path = str(path)
+
+    for property in sorted(list(set(columns).intersection({'Position_x', 'Position_y', 'Position_z'}))):
+        dat.meta.unit.add(property=property, unit='nm')
+
+    del dat.meta.history[:]
+    dat.meta.history.add(name='load_thundestorm_file', parameter='path={}, nrows={}'.format(path, nrows))
+
+    return dat

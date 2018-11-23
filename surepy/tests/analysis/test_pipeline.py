@@ -53,7 +53,6 @@ def test_Pipeline_3(locdata_simple):
     pipe = MyPipe(dict(file_path=path, file_type=1))
     assert(isinstance(pipe.locdata, LocData))
 
-
     path = ROOT_DIR + '/tests/test_data/roi.yaml'
     pipe = MyPipe(dict(file_path=path, file_type='roi'))
     assert(isinstance(pipe.locdata, LocData))

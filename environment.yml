@@ -13,8 +13,11 @@ channels:
 - conda-forge
 
 dependencies:
-# Python tests
+# Python
 - python>=3.5
+- numba
+
+# Python tests
 - pytest-runner
 
 # Scientific python

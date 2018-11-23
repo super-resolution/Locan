@@ -9,5 +9,4 @@ from surepy.analysis.nearest_neighbor import Nearest_neighbor_distances
 from surepy.analysis.localization_property import Localization_property
 from surepy.analysis.analysis_example import Analysis_example_algorithm_1, Analysis_example_algorithm_2
 from surepy.analysis.ripley import Ripleys_k_function, Ripleys_l_function, Ripleys_h_function
-from surepy.analysis.batch_processing import batch_process
-from surepy.analysis.pipeline import Pipeline, Pipeline_test, Pipeline_cluster
+from surepy.analysis.pipeline import Pipeline

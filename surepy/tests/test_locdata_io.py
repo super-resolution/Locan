@@ -26,6 +26,17 @@ def test_loading_Elyra_file():
     dat = io.load_Elyra_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt', nrows=10)
     assert (len(dat) == 10)
 
+
+def test_get_correct_column_names_from_Thunderstorm_header():
+    columns = io.load_thunderstorm_header(path=surepy.constants.ROOT_DIR + '/tests/test_data/Thunderstorm_dstorm_data.csv')
+    assert (columns == ['Index', 'Frame', 'Position_x', 'Position_y', 'Psf_sigma_x', 'Intensity', 'Local_background',
+     'bkgstd [photon]', 'Chi_square', 'uncertainty [nm]'])
+
+def test_loading_Thunderstorm_file():
+    dat = io.load_thunderstorm_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/Thunderstorm_dstorm_data.csv',
+                                    nrows=10)
+    assert (len(dat) == 10)
+
 def test_loading_txt_file():
     dat = io.load_txt_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/five_blobs.txt', nrows=10)
     # print(dat.data)
@@ -51,4 +62,17 @@ def test_load_asdf_file(locdata_fix):
     assert(locdata.meta.identifier == locdata_fix.meta.identifier)
     assert(locdata.properties == locdata_fix.properties)
 
-# todo: tests for Thundrstorm IO
+    dat = io.load_asdf_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/locdata.asdf', nrows=5)
+    assert (len(dat) == 5)
+
+
+def test_load_locdata():
+    dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+                          type='RAPIDSTORM',
+                          nrows=10)
+    assert (len(dat) == 10)
+    dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt',
+                          type='ELYRA',
+                          nrows=10)
+    assert (len(dat) == 10)
+

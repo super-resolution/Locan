@@ -122,7 +122,7 @@ def test_LocData_add_column_to_dataframe(df_simple):
     col = LocData.from_collection(sel_1, sel_2, meta=COMMENT_METADATA)
     col.dataframe = col.dataframe.assign(new= np.arange(2))
     # print(col.data.columns)
-    assert all(list(col.data.columns == ['Localization_density_bb', 'Position_x', 'Position_y', 'Region_measure_bb', 'Subregion_measure_bb', 'new']))
+    assert all(list(col.data.columns == ['Localization_count', 'Localization_density_bb', 'Position_x', 'Position_y', 'Region_measure_bb', 'Subregion_measure_bb', 'new']))
 
 
 # locdata and metadata

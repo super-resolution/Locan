@@ -279,7 +279,7 @@ def load_Elyra_file(path, nrows=None, **kwargs):
     return dat
 
 
-def load_asdf_file(path):
+def load_asdf_file(path, nrows=None):
     """
     Load data from ASDF localization file.
 
@@ -287,6 +287,8 @@ def load_asdf_file(path):
     ----------
     path : string or Path object
         File path for a rapidSTORM file to load.
+    nrows : int, default: None
+        The number of localizations to load from file. None means that all available rows are loaded.
 
     Returns
     -------
@@ -294,9 +296,9 @@ def load_asdf_file(path):
         A new instance of LocData with all localizations.
     """
     with asdf_open(path) as af:
-        new_df = pd.DataFrame({k: af.tree['data'][:, n] for n, k in enumerate(af.tree['columns'])})
-    locdata = LocData(dataframe=new_df)
-    locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta)
+        new_df = pd.DataFrame({k: af.tree['data'][slice(nrows), n] for n, k in enumerate(af.tree['columns'])})
+        locdata = LocData(dataframe=new_df)
+        locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta)
     return locdata
 
 
@@ -366,3 +368,57 @@ def load_thunderstorm_file(path, nrows=None, **kwargs):
     dat.meta.history.add(name='load_thundestorm_file', parameter='path={}, nrows={}'.format(path, nrows))
 
     return dat
+
+
+def load_locdata(path, type=1, **kwargs):
+    """
+    Load data from localization file as specified by type.
+
+    This function is a wrapper for read functions for the various types of SMLM data.
+
+
+    Parameters
+    ----------
+    path : string or Path object
+        File path for a localization data file to load.
+    type : Int or str
+        Integer or string indicating the file type.
+        The integer should be according to surepy.data.metadata_pb2.file_type.
+        String can be one of custom, rapidstorm, elyra, asdf.
+
+    Returns
+    -------
+    LocData
+        A new instance of LocData with all localizations.
+    """
+    # todo fix protobuf constants for ASDF == 4
+
+    if isinstance(type, int):
+
+        if type == 1:
+            return load_txt_file(path, **kwargs)
+        elif type == 2:
+            return load_rapidSTORM_file(path, **kwargs)
+        elif type == 3:
+            return load_Elyra_file(path, **kwargs)
+        elif type == 4:
+            return load_asdf_file(path, **kwargs)
+        else:
+            raise TypeError(f'There is no read function for type {type}.')
+
+
+    if isinstance(type, str):
+
+        if type.upper() == 'CUSTOM':
+            return load_txt_file(path, **kwargs)
+        elif type.upper() == 'RAPIDSTORM':
+            return load_rapidSTORM_file(path, **kwargs)
+        elif type.upper() == 'ELYRA':
+            return load_Elyra_file(path, **kwargs)
+        elif type.upper() == 'ASDF':
+            return load_asdf_file(path, **kwargs)
+        else:
+            raise TypeError(f'There is no read function for type {type}.')
+
+    else:
+        raise TypeError(f'There is no read function for type {type}.')

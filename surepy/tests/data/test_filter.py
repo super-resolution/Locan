@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from surepy import LocData
-from surepy.data.rois import Roi_manager
+from surepy.data.rois import Roi
 from surepy.simulation import simulate_blobs
 from surepy.data.filter import select_by_condition, random_subset, select_by_region
 
@@ -27,16 +27,23 @@ def test_random_subset(locdata_simple):
     # dat_s.print_meta()
     # print(dat_s.data)
 
-def test_rois (locdata_simple):
-    roim = Roi_manager()
-    roim.add_rectangle((0,3))
-    dat_1 = select_by_region(locdata_simple, roi=roim.rois[0])
+def test_select_by_region (locdata_simple):
+    roi_dict = dict(points=(0,3), type='rectangle')
+    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
     assert(len(dat_1)==6)
-    roim.clear()
-    roim.add_rectangle((0,3,0,3))
-    dat_1 = select_by_region(locdata_simple, roi=roim.rois[0])
+    roi_dict = dict(points=(0,3,0,3), type='rectangle')
+    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
     assert(len(dat_1)==5)
-    roim.clear()
-    roim.add_rectangle((0,3,0,3,0,3))
-    dat_1 = select_by_region(locdata_simple, roi=roim.rois[0])
+    roi_dict = dict(points=(0,3,0,3,0,3), type='rectangle')
+    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
+    assert(len(dat_1)==4)
+
+    roi = Roi(points=(0,3), type='rectangle')
+    dat_1 = select_by_region(locdata_simple, roi=roi)
+    assert(len(dat_1)==6)
+    roi = dict(points=(0,3,0,3), type='rectangle')
+    dat_1 = select_by_region(locdata_simple, roi=roi)
+    assert(len(dat_1)==5)
+    roi = dict(points=(0,3,0,3,0,3), type='rectangle')
+    dat_1 = select_by_region(locdata_simple, roi=roi)
     assert(len(dat_1)==4)

@@ -1,6 +1,8 @@
 '''
-This module provides functions for drift correction of localization data.
 
+Applying drift correction on localization coordinates.
+
+This module provides functions for drift correction of localization data.
 The functions take LocData as input and compute new LocData objects.
 '''
 

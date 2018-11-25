@@ -1,11 +1,11 @@
-'''
+"""
 
-Filter localization data
+Filter localization data.
 
 This module provides functions for filtering LocData objects.
 The functions take LocData as input and compute new LocData objects.
 
-'''
+"""
 
 import numpy as np
 from surepy import LocData

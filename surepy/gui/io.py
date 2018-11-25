@@ -1,15 +1,15 @@
-'''
+"""
 
-This module provides methods for user interaction with paths and file names.
+Functions for user interaction with paths and file names.
 
-'''
+"""
 
 def file_dialog(directory=None, message='Select a file...', filter='Text files (*.txt);; All files (*)'):
     """
     Select file names in a ui dialog.
 
-    Parameter
-    ---------
+    Parameters
+    ----------
     directory : str or None
         directory path (Default: None)
 
@@ -33,10 +33,12 @@ def file_dialog(directory=None, message='Select a file...', filter='Text files (
             from PySide.QtGui import QApplication, QFileDialog
 
     if directory is None:
-        dir = './'
+        directory_ = './'
+    else:
+        directory_=directory
 
     app = QApplication([directory])
-    fname = QFileDialog.getOpenFileNames(None, message, directory, filter=filter)
+    fname = QFileDialog.getOpenFileNames(None, message, directory=directory_, filter=filter)
 
     if isinstance(fname, tuple):
         return fname[0]

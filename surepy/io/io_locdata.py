@@ -1,6 +1,14 @@
 """
 
-This module provides functions for file input/output with LocData objects.
+File input/output for localization data.
+
+There are functions for reading the following file structures (with an indicator string in paranthesis):
+
+* custom text file (CUSTOM)
+* rapidSTORM file format (RAPIDSTORM)
+* Elyra file format (ELYRA)
+* Thunderstorm file format (THUNDERSTORM)
+* asdf file format (ASDF)
 
 """
 import time

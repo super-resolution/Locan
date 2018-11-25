@@ -1,3 +1,11 @@
+"""
+
+Transform localization data.
+
+This module takes localization data and applies transformation procedures on coordinates or other properties.
+
+"""
+
 import numpy as np
 import pandas as pd
 

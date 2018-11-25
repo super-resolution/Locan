@@ -1,5 +1,24 @@
 """
-The module analysis provides classes with methods for carrying out standardized analysis procedures on localization data.
+Standard analysis procedures.
+
+This module contains classes and functions for carrying out standardized analysis procedures on localization data.
+All functions typically take LocData objects as input and provide an analysis class with derived analysis results
+and standard functions for presentation.
+
+Submodules:
+-----------
+
+.. autosummary::
+   :toctree: ./
+
+   localization_precision
+   localization_property
+   localizations_per_frame
+   nearest_neighbor
+   pipeline
+   ripley
+   uncertainty
+
 """
 
 from surepy.analysis.localizations_per_frame import Localizations_per_frame

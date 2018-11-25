@@ -9,6 +9,7 @@ Surepy consists of the following modules:
    analysis
    data
    gui
+   io
    simulation
 
 
@@ -17,7 +18,7 @@ Surepy consists of the following modules:
 #
 #
 #
-# io
+#
 # render
 # simulation
 # tests

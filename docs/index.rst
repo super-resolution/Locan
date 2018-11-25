@@ -13,7 +13,7 @@ Welcome to Surepy's documentation!
 .. toctree::
    :maxdepth: 1
    :caption: Getting started
-   :name: mastertoc
+   :name: mastertoc_start
    :glob:
 
    installation
@@ -23,7 +23,7 @@ Welcome to Surepy's documentation!
 .. toctree::
    :maxdepth: 1
    :caption: User Guide
-   :name: mastertoc
+   :name: mastertoc_use
    :glob:
 
    aim
@@ -34,7 +34,7 @@ Welcome to Surepy's documentation!
 .. toctree::
    :maxdepth: 1
    :caption: Developer Guide
-   :name: mastertoc
+   :name: mastertoc_develop
    :glob:
 
    documentation
@@ -44,13 +44,12 @@ Welcome to Surepy's documentation!
 .. toctree::
    :maxdepth: 1
    :caption: Project Details
-   :name: mastertoc
+   :name: mastertoc_project
    :glob:
 
    background
    contributions
-   history
-   licence
+   license
 
 
 .. toctree::

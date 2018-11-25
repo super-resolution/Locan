@@ -6,12 +6,13 @@ Surepy consists of the following modules:
 .. autosummary::
    :toctree: generated/
 
+   analysis
    simulation
 
 
 '''
 
-# analysis
+#
 # data
 # gui
 # io

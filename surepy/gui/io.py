@@ -1,8 +1,8 @@
-'''
+"""
 
-This module provides methods for user interaction with paths and file names.
+Functions for user interaction with paths and file names.
 
-'''
+"""
 
 def file_dialog(directory=None, message='Select a file...', filter='Text files (*.txt);; All files (*)'):
     """

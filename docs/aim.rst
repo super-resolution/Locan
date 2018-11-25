@@ -14,6 +14,3 @@ The package provides:
 
 
 The package can be used in Python scripts or Jupyther notebooks.
-
-We also provide a QT-based user interface to visualize localization data and perform the most standard data
-manipulation and analysis procedures.

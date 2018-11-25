@@ -2,9 +2,6 @@
 
 .. currentmodule:: {{ fullname }}
 
-
-.. rubric:: Description
-
 .. automodule:: {{ fullname }}
 
 

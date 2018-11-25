@@ -9,7 +9,9 @@ Dependencies
 
 * python 3
 * Google protobuf
-* standard scipy and other libraries as shown in environment.yml.
+* standard scipy and other libraries
+
+A list with all requirements is given in environment.yml.
 
 
 Install from source directory

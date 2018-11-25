@@ -8,8 +8,8 @@ def file_dialog(directory=None, message='Select a file...', filter='Text files (
     """
     Select file names in a ui dialog.
 
-    Parameter
-    ---------
+    Parameters
+    ----------
     directory : str or None
         directory path (Default: None)
 

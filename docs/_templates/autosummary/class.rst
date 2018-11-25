@@ -1,16 +1,14 @@
-{{ fullname }}
-{{ underline }}
+{{ fullname | escape | underline }}
 
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
    :members:
    :undoc-members:
+   :special-members: __init__
    :show-inheritance:
 
    {% block methods -%}
-   .. automethod:: __init__
-
    {% if methods -%}
    .. rubric:: **Methods**
 

@@ -1,3 +1,9 @@
+"""
+
+A class to carry localization data.
+
+"""
+
 import time
 
 from google.protobuf import text_format

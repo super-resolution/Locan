@@ -1,8 +1,11 @@
-'''
+"""
 
-Methods for managing regions of interest.
+Region of interest.
 
-'''
+This module provides functions for managing regions of interest in localization data.
+
+"""
+
 from pathlib import Path
 import warnings
 import time

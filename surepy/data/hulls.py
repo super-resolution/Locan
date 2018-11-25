@@ -1,3 +1,11 @@
+"""
+
+Hull objects of localization data.
+
+This module computes specific hulls and related properties for LocData objects.
+
+"""
+
 import numpy as np
 
 class Hull():

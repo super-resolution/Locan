@@ -7,13 +7,14 @@ Surepy consists of the following modules:
    :toctree: generated/
 
    analysis
+   data
    simulation
 
 
 '''
 
 #
-# data
+#
 # gui
 # io
 # render

@@ -1,9 +1,12 @@
-'''
+"""
+
+Track localizations.
 
 This module provides functions for tracking localizations (i.e. clustering localization data in time).
-
 The functions take LocData as input and compute new LocData objects.
-'''
+It makes use of the trackpy package.
+
+"""
 
 
 import sys
@@ -30,8 +33,8 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     memory : integer, optional
         the maximum number of frames during which a feature can vanish,
         then reappear nearby, and be considered the same particle. 0 by default.
-   kwargs :
-       Parameters passed to trackpy.link_df().
+    kwargs :
+        Parameters passed to trackpy.link_df().
 
     Returns
     -------
@@ -59,8 +62,8 @@ def track(locdata, search_range=40, memory=1, **kwargs):
     memory : integer, optional
         the maximum number of frames during which a feature can vanish, then reappear nearby,
         and be considered the same particle. 0 by default.
-   kwargs :
-       Parameters passed to trackpy.link_df.
+    kwargs :
+        Parameters passed to trackpy.link_df.
 
     Returns
     -------

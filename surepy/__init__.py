@@ -1,4 +1,4 @@
-'''
+"""
 .. currentmodule:: surepy
 
 Surepy consists of the following modules:
@@ -12,18 +12,10 @@ Surepy consists of the following modules:
    io
    render
    simulation
+   tests
+   constants
 
-
-'''
-
-#
-#
-#
-#
-#
-# simulation
-# tests
-# constants
+"""
 
 from surepy.data.locdata import LocData
 

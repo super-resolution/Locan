@@ -1,7 +1,7 @@
-API Doc
-=======
+.. _modules:
 
-.. toctree::
-   :maxdepth: 4
+API Reference
+=============
 
-   surepy
+.. automodule:: surepy
+

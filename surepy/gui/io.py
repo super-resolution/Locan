@@ -33,10 +33,12 @@ def file_dialog(directory=None, message='Select a file...', filter='Text files (
             from PySide.QtGui import QApplication, QFileDialog
 
     if directory is None:
-        dir = './'
+        directory_ = './'
+    else:
+        directory_=directory
 
     app = QApplication([directory])
-    fname = QFileDialog.getOpenFileNames(None, message, directory, filter=filter)
+    fname = QFileDialog.getOpenFileNames(None, message, directory=directory_, filter=filter)
 
     if isinstance(fname, tuple):
         return fname[0]

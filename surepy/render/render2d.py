@@ -1,8 +1,8 @@
-'''
+"""
 
 This module provides functions for rendering locdata objects in 2D.
 
-'''
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt

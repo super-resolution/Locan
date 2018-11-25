@@ -10,6 +10,7 @@ Surepy consists of the following modules:
    data
    gui
    io
+   render
    simulation
 
 
@@ -19,7 +20,7 @@ Surepy consists of the following modules:
 #
 #
 #
-# render
+#
 # simulation
 # tests
 # constants

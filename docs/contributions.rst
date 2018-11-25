@@ -16,5 +16,5 @@ Various Contributions
 * Sebastian Reinhard
 * Felix Repp
 * Sven Proppert
+* Felix Wäldchen
 * Steve Wolter
-

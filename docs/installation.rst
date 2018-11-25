@@ -11,17 +11,21 @@ Dependencies
 * Google protobuf
 * standard scipy and other libraries
 
-A list with all requirements is given in environment.yml.
+A list with all requirements is given in `environment.yml`.
 
 
 Install from source directory
 ------------------------------
 
-Use setuptools to install Surepy from sources.
+Use setuptools to install Surepy from sources::
 
-python setup.py install
+    python setup.py install
 
 Install google protobuf
 -----------------------
 
-Download and install protobuf-all-3.5.1.zip
+Download protobuf-all-3.5.1.zip.
+
+Enter the directory protobuf-3.5.1/python and run::
+
+    Python setup.py install

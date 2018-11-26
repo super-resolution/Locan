@@ -29,3 +29,4 @@ Download protobuf-all-3.5.1.zip.
 Enter the directory protobuf-3.5.1/python and run::
 
     Python setup.py install
+

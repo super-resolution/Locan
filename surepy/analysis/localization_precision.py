@@ -247,7 +247,7 @@ class Localization_precision(_Localization_precision):
                )
 
         if fit:
-            self.distribution_statistics = Distribution_fits(analysis_class=self, loc_property=loc_property)
+            self.distribution_statistics = Distribution_fits(analysis_class=self)
             self.distribution_statistics.fit_distribution(loc_property=loc_property)
             self.distribution_statistics.plot_distribution_fit(ax=ax, show=False, loc_property=loc_property)
 

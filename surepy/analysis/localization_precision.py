@@ -185,7 +185,7 @@ class Localization_precision(_Localization_precision):
         else:
             self.distribution_statistics.fit_distribution(loc_property=loc_property)
 
-    def plot(self, ax=None, show=True, loc_property=None, window=1):
+    def plot(self, ax=None, show=True, loc_property=None, window=1, **kwargs):
         """
         Provide plot as matplotlib axes object showing the running average of results over window size.
 
@@ -199,6 +199,8 @@ class Localization_precision(_Localization_precision):
             The property for which to plot localization precision; if None all plots are shown.
         window: int
             Window for running average that is applied before plotting.
+        kwargs : dict
+            parameters passed to matplotlib.pyplot.plot().
         """
         if ax is None:
             fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -207,7 +209,8 @@ class Localization_precision(_Localization_precision):
         self.results.rolling(window=window, center=True).mean().plot(ax=ax,
                                                                      x='Frame',
                                                                      y=loc_property,
-                                                                     legend=False)
+                                                                     legend=False,
+                                                                     ** kwargs)
         ax.set(title=f'Localization Precision (window={window})',
                xlabel='Frame',
                ylabel=loc_property
@@ -218,7 +221,7 @@ class Localization_precision(_Localization_precision):
             plt.show()
 
 
-    def hist(self, ax=None, show=True, loc_property='Position_distance', bins='auto', fit=True):
+    def hist(self, ax=None, show=True, loc_property='Position_distance', bins='auto', fit=True, **kwargs):
         """
         Provide histogram as matplotlib axes object showing the distributions of results.
 
@@ -234,13 +237,14 @@ class Localization_precision(_Localization_precision):
             Bin specifications (passed to matplotlib.hist).
         fit: Bool
             Flag indicating if distributions fit are shown.
-
+        kwargs : dict
+            parameters passed to matplotlib.pyplot.hist().
         """
         if ax is None:
             fig, ax = plt.subplots(nrows=1, ncols=1)
 
         # prepare plot
-        ax.hist(self.results[loc_property].values, bins=bins, density=True, log=False)
+        ax.hist(self.results[loc_property].values, bins=bins, density=True, log=False, **kwargs)
         ax.set(title='Localization Precision',
                xlabel=loc_property,
                ylabel='PDF'
@@ -333,7 +337,7 @@ class Distribution_fits:
             sigma, loc, scale = self.pairwise_2D.fit(self.analysis_class.results[loc_property].values, floc=0, fscale=1)
             self.Position_distance_sigma = sigma
 
-    def plot_distribution_fit(self, ax=None, show=True, loc_property='Position_distance'):
+    def plot_distribution_fit(self, ax=None, show=True, loc_property='Position_distance', **kwargs):
         """
         Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
 
@@ -345,6 +349,8 @@ class Distribution_fits:
             Flag indicating if plt.show() is active.
         loc_property : LocData property
             The property for which to plot the distribution fit.
+        kwargs : dict
+            parameters passed to matplotlib.pyplot.plot().
         """
 
         if ax is None:
@@ -358,14 +364,14 @@ class Distribution_fits:
             x_values = np.linspace(stats.norm.ppf(0.01, loc=_center, scale=_sigma),
                                    stats.norm.ppf(0.99, loc=_center, scale=_sigma), 100)
             ax.plot(x_values, stats.norm.pdf(x_values, loc=_center, scale=_sigma), 'r-', lw=3, alpha=0.6,
-                    label='fitted pdf')
+                    label='fitted pdf', **kwargs)
 
         elif loc_property == 'Position_distance':
             _sigma = self.Position_distance_sigma
             x_values = np.linspace(self.pairwise_2D.ppf(0.01, sigma=_sigma),
                                    self.pairwise_2D.ppf(0.99, sigma=_sigma), 100)
             ax.plot(x_values, self.pairwise_2D.pdf(x_values, sigma=_sigma), 'r-', lw=3, alpha=0.6,
-                    label='fitted pdf')
+                    label='fitted pdf', **kwargs)
 
         if show:
             plt.show()

@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 from scipy import stats
 
+from surepy.constants import N_JOBS
 from surepy.analysis.analysis_tools import _init_meta, _update_meta, save_results
 
 
@@ -41,7 +42,7 @@ def _localization_precision(locdata, radius=50):
 
             # print(points)
 
-            nn = NearestNeighbors(radius=radius, metric='euclidean').fit(other_points)
+            nn = NearestNeighbors(radius=radius, metric='euclidean', n_jobs=N_JOBS).fit(other_points)
             distances, indices = nn.radius_neighbors(points)
 
             if len(distances):
@@ -383,5 +384,6 @@ class Distribution_fits:
                              'Position_distance_sigma']
         statistics_list = ''
         for key in statistic_attributes:
-            statistics_list += f'{key}: {getattr(self, key, None)}\n'
+            if getattr(self, key, None) is not None:
+                statistics_list += f'{key}: {getattr(self, key, None)}\n'
         return (statistics_list)

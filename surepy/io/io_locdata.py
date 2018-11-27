@@ -384,7 +384,6 @@ def load_locdata(path, type=1, **kwargs):
 
     This function is a wrapper for read functions for the various types of SMLM data.
 
-
     Parameters
     ----------
     path : string or Path object
@@ -399,7 +398,7 @@ def load_locdata(path, type=1, **kwargs):
     LocData
         A new instance of LocData with all localizations.
     """
-    # todo fix protobuf constants for ASDF == 4
+    # todo fix protobuf constants for ASDF == 5
 
     if isinstance(type, int):
 
@@ -410,6 +409,8 @@ def load_locdata(path, type=1, **kwargs):
         elif type == 3:
             return load_Elyra_file(path, **kwargs)
         elif type == 4:
+            return load_thunderstorm_file(path, **kwargs)
+        elif type == 5:
             return load_asdf_file(path, **kwargs)
         else:
             raise TypeError(f'There is no read function for type {type}.')
@@ -423,6 +424,8 @@ def load_locdata(path, type=1, **kwargs):
             return load_rapidSTORM_file(path, **kwargs)
         elif type.upper() == 'ELYRA':
             return load_Elyra_file(path, **kwargs)
+        elif type.upper() == 'THUNDERSTORM':
+            return load_thunderstorm_file(path, **kwargs)
         elif type.upper() == 'ASDF':
             return load_asdf_file(path, **kwargs)
         else:

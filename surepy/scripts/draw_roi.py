@@ -47,11 +47,10 @@ def draw_roi(directory=None, type=1, roi_file_indicator='_roi'):
     print(rois)
 
     # save roi
-    roi_file = file.stem + roi_file_indicator + '.yaml'
-    roi_path = file.with_name(roi_file)
-
-    rois[0].to_yaml(path=roi_path)
-    # todo can we save the list of rois to one file?
+    for i, roi in enumerate(rois):
+        roi_file = file.stem + roi_file_indicator + f'_{i}.yaml'
+        roi_path = file.with_name(roi_file)
+        roi.to_yaml(path=roi_path)
 
 
 def main(args=None):

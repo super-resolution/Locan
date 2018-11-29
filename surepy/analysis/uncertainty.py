@@ -1,3 +1,18 @@
+"""
+Compute localization uncertainty.
+
+Localization uncertainty depends on a number of experimental factors including camera and photophysical characteristics
+as outlined in [1]_ [2]_. We provide functions to compute an uncertainty estimate from available localization properties.
+
+References
+----------
+.. [1] K.I. Mortensen, L. S. Churchman, J. A. Spudich, H. Flyvbjerg, Nat. Methods 7 (2010): 377–384.
+.. [2] Rieger B., Stallinga S., The lateral and axial localization uncertainty in super-resolution light microscopy.
+   Chemphyschem 17;15(4), 2014:664-70. doi: 10.1002/cphc.201300711
+
+"""
+
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

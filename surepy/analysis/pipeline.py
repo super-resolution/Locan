@@ -1,5 +1,5 @@
 """
-Methods for building an analysis pipeline.
+Building an analysis pipeline.
 
 Pipeline refers to sequential analysis steps applied to a single LocData object. Pipeline thus include true piped
 analysis, where a preliminary result serves as input to the next analysis step, but also workflows that provide
@@ -22,6 +22,9 @@ class Pipeline():
     The custom analysis routine has to be added by implementing the compute(self) method. Results are provided as
     customized attributes. We suggest abbreviated standard names for the most common procedures:
 
+    * lp - Localization Precision
+    * lprop - Localization Property
+    * lpf - Localizations per Frame
     * rhf - Ripley H function
     * clust - locdata with clustered elements
 

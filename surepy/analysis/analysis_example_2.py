@@ -1,5 +1,6 @@
 """
-This module provides an example for a specialized analysis class.
+Example for a specialized analysis class.
+
 It includes two algorithms for specific analysis routines.
 And it provides standard interface functions modified for the specific analysis routine like report.
 """
@@ -9,7 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
 
-from surepy.analysis.analysis_base import _init_meta, _update_meta, save_results
+from surepy.analysis.analysis_base import _Analysis
 
 #
 #### The algorithms
@@ -43,79 +44,7 @@ def _algorithm_2(data=None, n_sample=100, seed=None):
 # Therefore we have a class that holds results and organizes metadata and provides the specific plotting routine.
 #
 
-class _Analysis_example():
-    """
-    The base class for specialized analysis classes to be used on LocData objects.
-
-    Parameters
-    ----------
-    locdata : LocData object
-        Localization data.
-    meta : Metadata protobuf message
-        Metadata about the current analysis routine.
-    kwargs :
-        Parameter that are passed to the algorithm.
-
-    Attributes
-    ----------
-    count : int
-        A counter for counting instantiations.
-    locdata : LocData object
-        Localization data.
-    parameter : dict
-        A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
-        Metadata about the current analysis routine.
-    results : numpy array or pandas DataFrame
-        Computed results.
-    """
-    count = 0
-
-    def __init__(self, locdata, meta, **kwargs):
-        self.__class__.count += 1
-
-        self.locdata = locdata
-        self.parameter = kwargs
-        self.meta = _init_meta(self)
-        self.meta = _update_meta(self, meta)
-        self.results = None
-
-
-    def __del__(self):
-        """ updating the counter upon deletion of class instance. """
-        self.__class__.count -= 1
-
-    def __str__(self):
-        """ Return results in a printable format."""
-        return str(self.results)
-
-    def save_results(self, path):
-        return save_results(self, path)
-
-    def plot(self, ax=None, show=True):
-        return plot(self, ax, show)
-
-    def hist(self, ax=None, show=True, bins='auto', normed=True, log=False, fit=True):
-        return plot_2(self, ax, show, bins, normed, log, fit)
-
-    def report(self, path=None, show=True):
-        """ Show a report about analysis results."""
-        return report(self, path, show)
-
-
-    def compute(self):
-        """ Apply analysis routine with the specified parameters on locdata and return results."""
-        raise NotImplementedError
-
-    def save(self, path):
-        """ Save Analysis object."""
-        raise NotImplementedError
-
-    def load(self, path):
-        """ Load Analysis object."""
-        raise NotImplementedError
-
-
+# class: analysis.analysis_base._Analysis
 
 
 #
@@ -124,7 +53,14 @@ class _Analysis_example():
 # The classes for each particular algorith are defined as:
 #
 
-class Analysis_example_algorithm_1(_Analysis_example):
+
+#
+# This specific analysis classes inherit from _Analysis.
+#
+# The classes for each particular algorith are defined as:
+#
+
+class Analysis_example_algorithm_1(_Analysis):
     '''
     Example for an analysis class implementing algorithm_2.
     Compute some data and provide a plot and histogram with secondary data (e.g. from fitting plot or histogram).
@@ -167,7 +103,7 @@ class Analysis_example_algorithm_1(_Analysis_example):
 
 
 
-class Analysis_example_algorithm_2(_Analysis_example):
+class Analysis_example_algorithm_2(_Analysis):
     '''
     Example for an analysis class implementing algorithm_2.
     Compute some data and provide a plot and histogram with secondary data (e.g. from fitting plot or histogram).

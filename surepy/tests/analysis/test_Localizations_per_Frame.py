@@ -15,8 +15,7 @@ def locdata():
 
 def test_Localizations_per_frame(locdata):
     #print(locdata.data.head())
-    ana = Localizations_per_frame(locdata=locdata, normalization=None, meta={'comment': 'this is an example'})
-    assert(ana.results == None)
+    ana = Localizations_per_frame(locdata=locdata, norm=None, meta={'comment': 'this is an example'})
     assert(ana.meta.comment == 'this is an example')
 
     ana.compute()

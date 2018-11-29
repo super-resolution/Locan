@@ -1,6 +1,7 @@
 """
 This module provides methods for nearest-neighbor analysis.
 """
+# todo: add fit
 
 import numpy as np
 import pandas as pd

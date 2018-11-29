@@ -18,10 +18,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import warnings
 
-from surepy.analysis.analysis_tools import _init_meta, _update_meta, save_results
+from surepy.analysis.analysis_base import _Analysis
 
-
-# The algorithms
+##### The algorithms
 
 def _localization_uncertainty_from_intensity(locdata):
 
@@ -40,86 +39,9 @@ def _localization_uncertainty_from_intensity(locdata):
     return pd.DataFrame(results)
 
 
-# The base analysis class
+##### The specific analysis classes
 
-class _Localization_uncertainty():
-    """
-    The base class for specialized analysis classes to be used on LocData objects.
-
-    Parameters
-    ----------
-    locdata : LocData object
-        Localization data.
-    meta : Metadata protobuf message
-        Metadata about the current analysis routine.
-    kwargs :
-        Parameter that are passed to the algorithm.
-
-    Attributes
-    ----------
-    count : int
-        A counter for counting instantiations.
-    locdata : LocData object
-        Localization data.
-    parameter : dict
-        A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
-        Metadata about the current analysis routine.
-    results : numpy array or pandas DataFrame
-        Computed results.
-    """
-    count = 0
-
-    def __init__(self, locdata, meta, **kwargs):
-        self.__class__.count += 1
-
-        self.locdata = locdata
-        self.parameter = kwargs
-        self.meta = _init_meta(self)
-        self.meta = _update_meta(self, meta)
-        self.results = None
-
-
-    def __del__(self):
-        """ updating the counter upon deletion of class instance. """
-        self.__class__.count -= 1
-
-    def __str__(self):
-        """ Return results in a printable format."""
-        return str(self.results)
-
-    def save_results(self, path):
-        return save_results(self, path)
-
-
-
-    def plot(self):
-        raise NotImplementedError
-
-    def hist(self):
-        raise NotImplementedError
-
-    def compute(self):
-        """ Apply analysis routine with the specified parameters on locdata and return results."""
-        raise NotImplementedError
-
-    def save(self, path):
-        """ Save Analysis object."""
-        raise NotImplementedError
-
-    def load(self, path):
-        """ Load Analysis object."""
-        raise NotImplementedError
-
-    def report(self, ax):
-        """ Show a report about analysis results."""
-        raise NotImplementedError
-
-
-
-# The specific analysis classes
-
-class Localization_uncertainty_from_intensity(_Localization_uncertainty):
+class Localization_uncertainty_from_intensity(_Analysis):
     """
     Compute the localization uncertainty for each localization's spatial coordinate in locdata.
 

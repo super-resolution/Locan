@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from surepy.analysis.analysis_tools import _init_meta, _update_meta, save_results
+from surepy.analysis.analysis_base import _init_meta, _update_meta, save_results
 
 
 #### The algorithms

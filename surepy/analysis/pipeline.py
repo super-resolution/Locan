@@ -12,7 +12,7 @@ from surepy.data.rois import Roi, load_from_roi_file
 from surepy.data.hulls import Convex_hull_scipy
 from surepy.data.filter import select_by_condition
 from surepy.data.cluster.clustering import clustering_hdbscan
-from surepy.analysis.analysis_tools import _init_meta, _update_meta
+from surepy.analysis.analysis_base import _init_meta, _update_meta
 
 
 class Pipeline():

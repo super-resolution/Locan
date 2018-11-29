@@ -20,10 +20,10 @@ from sklearn.neighbors import NearestNeighbors
 from scipy import stats
 
 from surepy.constants import N_JOBS
-from surepy.analysis.analysis_tools import _init_meta, _update_meta, save_results
+from surepy.analysis.analysis_base import _Analysis, _update_meta
 
 
-#### The algorithms
+##### The algorithms
 
 def _localization_precision(locdata, radius=50):
     # group localizations
@@ -67,70 +67,10 @@ def _localization_precision(locdata, radius=50):
     return (results)
 
 
-# The base analysis class
-
-class _Localization_precision():
-    """
-    Base class.
-
-    Parameters
-    ----------
-    locdata : LocData object
-        Localization data.
-    meta : Metadata protobuf message
-        Metadata about the current analysis routine.
-    kwargs :
-        Parameter that are passed to the algorithm.
-
-    Attributes
-    ----------
-    count : int
-        A counter for counting instantiations.
-    locdata : LocData object
-        Localization data.
-    parameter : dict
-        A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
-        Metadata about the current analysis routine.
-    """
-    count = 0
-
-    def __init__(self, locdata, meta, **kwargs):
-        self.__class__.count += 1
-
-        self.locdata = locdata
-        self.parameter = kwargs
-        self.meta = _init_meta(self)
-        self.meta = _update_meta(self, meta)
-
-    def __del__(self):
-        """ updating the counter upon deletion of class instance. """
-        self.__class__.count -= 1
-
-    def save_results(self, path):
-        return save_results(self, path)
-
-    def compute(self):
-        """ Apply analysis routine with the specified parameters on locdata and return results."""
-        raise NotImplementedError
-
-    def save(self, path):
-        """ Save Analysis object."""
-        raise NotImplementedError
-
-    def load(self, path):
-        """ Load Analysis object."""
-        raise NotImplementedError
-
-    def report(self, ax):
-        """ Show a report about analysis results."""
-        raise NotImplementedError
+##### The specific analysis classes
 
 
-# The specific analysis classes
-
-
-class Localization_precision(_Localization_precision):
+class Localization_precision(_Analysis):
     """
     Compute the localization precision from consecutive nearby localizations.
 
@@ -261,11 +201,19 @@ class Localization_precision(_Localization_precision):
             plt.show()
 
 
-#### Interface functions and classes
+#### Auxiliary functions and classes
 
 class Pairwise_distance_distribution_2d(stats.rv_continuous):
     '''
-    Define continuous distribution class for fitting the distribution of Position_distances.
+    Define continuous distribution class (inheriting from scipy.stats.rv_continuous) for fitting the distribution
+    of Position_distances (referred to as pairwise displacement distribution in [1]_)
+
+    References
+    ----------
+    .. [1] Endesfelder, U., Malkusch, S., Fricke, F., and Heilemann, M. (2014) A simple method to estimate the average
+       localization precision of a single-molecule localization microscopy experiment.
+       Histochemistry and cell biology 141, 629–638
+
     '''
 
     def _pdf(self, x, sigma):

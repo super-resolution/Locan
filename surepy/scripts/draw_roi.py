@@ -9,7 +9,7 @@ The roi is then saved as _roi.yaml file.
 
 To run the script::
 
-    python draw_roi.py -d <directory> -t <file type> -i <roi file indicator>
+    draw_roi.py -d <directory> -t <file type> -i <roi file indicator>
 '''
 
 import argparse

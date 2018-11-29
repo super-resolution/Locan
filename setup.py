@@ -47,7 +47,7 @@ URL = ""
 # dependencies
 PYTHON_REQUIRES = '>=3.5'
 SETUP_REQUIRES = ['pytest-runner']
-INSTALL_REQUIRES = ['numpy>=1.8', 'pandas', 'matplotlib']
+INSTALL_REQUIRES = ['numpy>=1.8', 'pandas', 'matplotlib', 'protobuf']
 TESTS_REQUIRE = ['pytest']
 
 # entry points to register scripts

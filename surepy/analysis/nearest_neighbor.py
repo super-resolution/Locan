@@ -131,12 +131,12 @@ def hist(self, ax=None, show=True, bins='auto', density=True, fit=False, **kwarg
     bins : int, list or 'auto'
         Bin specification as used in matplotlib.hist
     density : bool
-        Flag for normalization as used in matplotlib.hist. True returns probability density functino; None returns
+        Flag for normalization as used in matplotlib.hist. True returns probability density function; None returns
         counts.
     fit : bool
         Flag indicating to fit pdf of nearest-neighbor distances under complete spatial randomness.
     kwargs : dict
-        Additional arguments passed to matplotlib.plot().
+        Other parameters passed to matplotlib.plot().
     """
     if ax is None:
         fig, ax = plt.subplots(nrows=1, ncols=1)

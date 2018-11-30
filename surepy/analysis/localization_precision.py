@@ -141,7 +141,7 @@ class Localization_precision(_Analysis):
         window: int
             Window for running average that is applied before plotting.
         kwargs : dict
-            parameters passed to matplotlib.pyplot.plot().
+            Other parameters passed to matplotlib.pyplot.plot().
         """
         if ax is None:
             fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -179,7 +179,7 @@ class Localization_precision(_Analysis):
         fit: Bool
             Flag indicating if distributions fit are shown.
         kwargs : dict
-            parameters passed to matplotlib.pyplot.hist().
+            Other parameters passed to matplotlib.pyplot.hist().
         """
         if ax is None:
             fig, ax = plt.subplots(nrows=1, ncols=1)

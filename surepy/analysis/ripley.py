@@ -273,6 +273,15 @@ class Ripleys_h_function(_Analysis):
 def plot(self, ax=None, show=True):
     '''
     Provide plot of results as matplotlib axes object.
+
+    Parameters
+    ----------
+    ax : matplotlib axes
+        The axes on which to show the image
+    show : bool
+        Flag indicating if plt.show() is active.
+    kwargs : dict
+        Other parameters passed to matplotlib.pyplot.plot().
     '''
     if ax is None:
         fig, ax = plt.subplots(nrows=1, ncols=1)

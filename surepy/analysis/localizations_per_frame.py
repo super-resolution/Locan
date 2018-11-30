@@ -79,7 +79,7 @@ class Localizations_per_frame(_Analysis):
         window: int
             Window for running average that is applied before plotting.
         kwargs : dict
-            parameters passed to matplotlib.pyplot.plot().
+            Other parameters passed to matplotlib.pyplot.plot().
         """
         if ax is None:
             fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -113,12 +113,12 @@ class Localizations_per_frame(_Analysis):
         fit: Bool
             Flag indicating if distributions fit are shown.
         kwargs : dict
-            parameters passed to matplotlib.pyplot.hist().
+            Other parameters passed to matplotlib.pyplot.hist().
         """
         if ax is None:
             fig, ax = plt.subplots(nrows=1, ncols=1)
 
-        ax.hist(self.results.values, bins=bins, normed=True, log=False, **kwargs)
+        ax.hist(self.results.values, bins=bins, density=True, log=False, **kwargs)
         ax.set(title = 'Localizations per Frame',
                xlabel = 'number of localizations',
                ylabel = 'PDF'

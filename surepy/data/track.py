@@ -26,15 +26,15 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     Parameters
     ----------
     locdata : LocData
-        specifying the localization data on which to perform the manipulation.
+        Localization data on which to perform the manipulation.
     search_range : float or tuple
-        the maximum distance features can move between frames,
+        The maximum distance features can move between frames,
         optionally per dimension
     memory : integer, optional
-        the maximum number of frames during which a feature can vanish,
+        The maximum number of frames during which a feature can vanish,
         then reappear nearby, and be considered the same particle. 0 by default.
     kwargs :
-        Parameters passed to trackpy.link_df().
+        Other parameters passed to trackpy.link_df().
 
     Returns
     -------
@@ -48,7 +48,7 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     return df[['Index', 'Track']]
 
 
-def track(locdata, search_range=40, memory=1, **kwargs):
+def track(locdata, search_range=40, memory=0, **kwargs):
     """
     Cluster (in time) localizations in LocData that are nearby in successive frames. Clustered localizations are
     identified by the trackpy linking method.
@@ -56,14 +56,14 @@ def track(locdata, search_range=40, memory=1, **kwargs):
     Parameters
     ----------
     locdata : LocData
-        specifying the localization data on which to perform the manipulation.
+        Localization data on which to perform the manipulation.
     search_range : float or tuple
-        the maximum distance features can move between frames, optionally per dimension
+        The maximum distance features can move between frames, optionally per dimension
     memory : integer, optional
-        the maximum number of frames during which a feature can vanish, then reappear nearby,
-        and be considered the same particle. 0 by default.
+        The maximum number of frames during which a feature can vanish, then reappear nearby,
+        and be considered the same particle.
     kwargs :
-        Parameters passed to trackpy.link_df.
+        Other parameters passed to trackpy.link_df.
 
     Returns
     -------

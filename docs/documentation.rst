@@ -21,3 +21,58 @@ To update the documentation from sources delete ``/docs/sources/generated`` and 
 
     sphinx-html -b html -E YOUR_PATH\Surepy\docs YOUR_PATH\Surepy\docs\_build
 
+
+Example docstring
+-----------------
+We try to follow standard docstring as illustrated here::
+
+    def function(par=None, **kwargs):
+        """
+        Short title.
+
+        Long description.
+
+        Parameters
+        ----------
+        par : None, other type
+            Description
+
+        Other parameters
+        ----------------
+        kwargs : dict
+            Parameters passed to some other documented function
+
+        Returns
+        -------
+        None
+        """
+        return None
+
+
+    class SomeClass:
+        """
+        Short title.
+
+        Long description.
+
+        Parameters
+        ----------
+        par : None, other type
+            Description
+
+        Other parameters
+        ----------------
+        kwargs : dict
+            Parameters passed to some other documented function
+
+        Arguments
+        ---------
+        arg : None, other type
+            Description
+
+        References
+        ----------
+        .. [1] some reference
+        """
+        return None
+

@@ -4,7 +4,6 @@
 
 .. automodule:: {{ fullname }}
 
-
 {% if classes %}
 .. rubric:: Classes
 

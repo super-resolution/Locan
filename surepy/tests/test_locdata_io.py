@@ -69,7 +69,7 @@ def test_load_asdf_file(locdata_fix):
 
 def test__map_file_type_to_load_function():
     file_type = io._map_file_type_to_load_function(type=1)
-    print(file_type)
+    # print(file_type)
 
 
 def test_load_locdata():

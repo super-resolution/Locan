@@ -15,6 +15,7 @@ Constants to be used throughout the project.
 
 """
 import os
+from enum import Enum
 
 
 #: Root directory for path operations.
@@ -29,6 +30,22 @@ PROPERTY_KEYS = ['Index', 'Position_x', 'Position_y', 'Position_z', 'Frame', 'In
 
 #: Keys for the most common hulls.
 HULL_KEYS = {'bounding_box', 'convex_hull', 'oriented_bounding_box', 'alpha_shape'}
+
+# File types
+class File_type(Enum):
+    """
+    File types for localization files.
+
+    The listed file types are supported with input/output functions in io.io_locdata.
+    The types correspond to the metadata keys for LocData objects. That is they are equal to the file types in
+    the protobuf message metadata_pb2.
+    """
+    UNKNOWN_FILE_TYPE = 0
+    CUSTOM = 1
+    RAPIDSTORM = 2
+    ELYRA = 3
+    THUNDERSTORM = 4
+    ASDF = 5
 
 
 #: Mapping column names in RapidSTORM files to LocData property keys

@@ -6,6 +6,7 @@ import surepy.constants
 import surepy.io.io_locdata as io
 import surepy.tests.test_data
 
+
 def test_get_correct_column_names_from_rapidSTORM_header():
     columns = io.load_rapidSTORM_header(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt')
     assert (columns == ['Position_x', 'Position_y', 'Frame', 'Intensity', 'Chi_square', 'Local_background'])
@@ -66,11 +67,17 @@ def test_load_asdf_file(locdata_fix):
     assert (len(dat) == 5)
 
 
+def test__map_file_type_to_load_function():
+    file_type = io._map_file_type_to_load_function(type=1)
+    print(file_type)
+
+
 def test_load_locdata():
     dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt',
                           type='RAPIDSTORM',
                           nrows=10)
     assert (len(dat) == 10)
+
     dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt',
                           type='ELYRA',
                           nrows=10)

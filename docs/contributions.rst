@@ -10,6 +10,7 @@ Idea and Lead
 
 Various Contributions
 ---------------------
+(in alphabetical order)
 
 * Sarah Aufmkolk
 * Philip Kollmansberger

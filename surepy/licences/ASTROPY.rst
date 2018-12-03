@@ -1,6 +1,6 @@
 Package or Code
 ---------------
-:ref:`https://github.com/astropy/astropy`
+<https://github.com/astropy/astropy>
 
 Licence
 -------

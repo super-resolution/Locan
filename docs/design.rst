@@ -10,21 +10,14 @@ Outline:
 We aim at designing a standard class structure to hold and deal with localization data and analysis results
 (see :ref:`Data structures <datastructures>`).
 
-:ref:`Metadata <Metadata>` will be part of each data class and either added by user input or generated during
+:ref:`Metadata <metadata>` will be part of each data class and either added by user input or generated during
 manipulation of data classes.
 
-:ref:`Methods <Methods>` will either create or manipulate these data structures or perform some analysis routine
+Locdata, the data class for localization data, carries certain properties that describe individual or
+averaged features of the underlying localizations or groups thereof. We suggest a canonical set of
+:ref:`properties`.
+
+:ref:`Methods <methods>` will either create or manipulate these data structures or perform some analysis routine
 and provide the results in an appropriate form.
 
-An overview on useful methods that will be designed in the long run is given in :ref:`outlook`.
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Design Considerations
-
-   datastructures
-   properties
-   metadata
-   methods
-   directories
-
+The project is organized by this :ref:`directory structure <directories>`.

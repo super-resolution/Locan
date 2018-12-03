@@ -29,9 +29,4 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-Surepy makes use of libraries that are compatibly licensed as listed here.
-
-Name: example
-Files: surepy/_lib/example/*
-License: 3-clause BSD
-For details, see surepy/_lib/example/LICENSE.txt
+Surepy makes use of libraries and code that are compatibly licensed as listed in the licences directory.

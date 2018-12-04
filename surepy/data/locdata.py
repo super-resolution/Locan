@@ -62,11 +62,8 @@ class LocData():
     """
     count=0
 
-    # todo: delete kwargs
-    # todo: change dataframe to _dataframe
-
     def __init__(self, references=None, dataframe=pd.DataFrame(), indices=None,
-                 meta=None, **kwargs):
+                 meta=None):
         self.__class__.count += 1
 
         self.references = references
@@ -112,7 +109,7 @@ class LocData():
             pass
 
     @classmethod
-    def from_dataframe(cls, dataframe=pd.DataFrame(), meta=None, **kwargs):
+    def from_dataframe(cls, dataframe=pd.DataFrame(), meta=None):
 
         dataframe = dataframe
         meta_ = metadata_pb2.Metadata()
@@ -130,11 +127,11 @@ class LocData():
         else:
             meta_.MergeFrom(meta)
 
-        return cls(dataframe=dataframe, meta=meta_, **kwargs)
+        return cls(dataframe=dataframe, meta=meta_)
 
 
     @classmethod
-    def from_selection(cls, locdata, indices=slice(0, None), meta=None, **kwargs):
+    def from_selection(cls, locdata, indices=slice(0, None), meta=None):
 
         references = locdata
         indices = indices
@@ -168,11 +165,11 @@ class LocData():
         else:
             meta_.MergeFrom(meta)
 
-        return cls(references=references, indices=indices, meta=meta_, **kwargs)
+        return cls(references=references, indices=indices, meta=meta_)
 
 
     @classmethod
-    def from_collection(cls, *args, meta=None, **kwargs):
+    def from_collection(cls, *args, meta=None):
         # todo: here and in concat  I would normaly expect a list of references like in numpy.concatenate instead of *args
         references = args
         dataframe = pd.DataFrame([ref.properties for ref in references])
@@ -194,11 +191,11 @@ class LocData():
         else:
             meta_.MergeFrom(meta)
 
-        return cls(references=references, dataframe=dataframe, meta=meta_, **kwargs)
+        return cls(references=references, dataframe=dataframe, meta=meta_)
 
 
     @classmethod
-    def concat(cls, *locdata, meta=None, **kwargs):
+    def concat(cls, *locdata, meta=None):
         #todo: change to locdata : list of LocData objects
         """
         Concatenate LocData objects.
@@ -233,7 +230,7 @@ class LocData():
         else:
             meta_.MergeFrom(meta)
 
-        return cls(dataframe=dataframe, meta=meta_, **kwargs)
+        return cls(dataframe=dataframe, meta=meta_)
 
 
     @property

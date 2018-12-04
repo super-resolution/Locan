@@ -82,6 +82,7 @@ def test_LocData_from_collection(df_simple):
     assert (len(col.references) == 2)
     assert (len(col) == 2)
     assert (col.meta.comment == 'some user comment')
+    #print(col.properties)
 
 def test_LocData_concat(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple)

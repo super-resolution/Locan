@@ -219,7 +219,6 @@ class LocData():
         """
         references = locdatas
         dataframe = pd.DataFrame([ref.properties for ref in references])
-        # todo: add Localization_count to dataframe
 
         meta_ = metadata_pb2.Metadata()
 

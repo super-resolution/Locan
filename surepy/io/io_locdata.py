@@ -83,9 +83,7 @@ def save_thunderstorm_csv(locdata, path):
     dataframe.to_csv(path, float_format='%.10g', index=False)
 
 
-# todo: take out **kwargs
-
-def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
+def load_txt_file(path, sep=',', columns=None, nrows=None):
     """
     Load localization data from a txt file.
 
@@ -121,7 +119,7 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
 
         dataframe = pd.read_table(path, sep=sep, skiprows=1, nrows=nrows, names=columns)
 
-    dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
+    dat = LocData.from_dataframe(dataframe=dataframe)
 
     dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
@@ -177,7 +175,7 @@ def load_rapidSTORM_header(path):
     return column_keys
 
 
-def load_rapidSTORM_file(path, nrows=None, **kwargs):
+def load_rapidSTORM_file(path, nrows=None):
     """
     Load data from a rapidSTORM single-molecule localization file.
 
@@ -196,7 +194,7 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
     columns = load_rapidSTORM_header(path)
     dataframe = pd.read_table(path, sep=" ", skiprows=1, nrows=nrows, names=columns)
 
-    dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
+    dat = LocData.from_dataframe(dataframe=dataframe)
 
     dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
@@ -247,7 +245,7 @@ def load_Elyra_header(path):
     return column_keys
 
 
-def load_Elyra_file(path, nrows=None, **kwargs):
+def load_Elyra_file(path, nrows=None):
     """
     Load data from a rapidSTORM single-molecule localization file.
 
@@ -273,7 +271,7 @@ def load_Elyra_file(path, nrows=None, **kwargs):
         stream = io.StringIO(string)
         dataframe = pd.read_table(stream, sep="\t", skiprows=1, nrows=nrows, names=columns)
 
-    dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
+    dat = LocData.from_dataframe(dataframe=dataframe)
 
     dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
@@ -342,7 +340,7 @@ def load_thunderstorm_header(path):
     return column_keys
 
 
-def load_thunderstorm_file(path, nrows=None, **kwargs):
+def load_thunderstorm_file(path, nrows=None):
     """
     Load data from a Thunderstorm single-molecule localization file.
 
@@ -361,7 +359,7 @@ def load_thunderstorm_file(path, nrows=None, **kwargs):
     columns = load_thunderstorm_header(path)
     dataframe = pd.read_csv(path, sep=',', skiprows=1, nrows=nrows, names=columns)
 
-    dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
+    dat = LocData.from_dataframe(dataframe=dataframe)
 
     dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
@@ -454,7 +452,7 @@ def _map_file_type_to_load_function(type):
     else:
         raise TypeError(f'There is no read function for type {type}.')
 
-def load_locdata(path, type=1, **kwargs):
+def load_locdata(path, type=1, nrows=None):
     """
     Load data from localization file as specified by type.
 
@@ -467,6 +465,8 @@ def load_locdata(path, type=1, **kwargs):
     type : int, str, surepy.constants.File_type, metadata_pb2
         Indicator for the file type.
         Integer or string should be according to surepy.constants.File_type.
+    nrows : int, default: None
+        The number of localizations to load from file. None means that all available rows are loaded.
 
     Returns
     -------
@@ -475,4 +475,4 @@ def load_locdata(path, type=1, **kwargs):
     """
     # todo fix protobuf constants for ASDF == 5
 
-    return _map_file_type_to_load_function(type)(path, **kwargs)
+    return _map_file_type_to_load_function(type)(path=path, nrows=nrows)

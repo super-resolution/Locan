@@ -83,3 +83,13 @@ def test_load_locdata():
                           nrows=10)
     assert (len(dat) == 10)
 
+    dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt',
+                          type='elyra',
+                          nrows=10)
+    assert (len(dat) == 10)
+
+    dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt',
+                          type=3,
+                          nrows=10)
+    assert (len(dat) == 10)
+

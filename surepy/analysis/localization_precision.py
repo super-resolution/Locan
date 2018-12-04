@@ -95,12 +95,13 @@ class Localization_precision(_Analysis):
         Metadata about the current analysis routine.
     results : numpy array or pandas DataFrame
         Computed results.
-    distribution_statistics : Distribution_fits object
+    distribution_statistics : Distribution_fits object, None
         Distribution parameters derived from MLE fitting of results.
     """
 
     def __init__(self, locdata=None, meta=None, radius=50):
         super().__init__(locdata=locdata, meta=meta, radius=radius)
+        self.distribution_statistics = None
 
     def compute(self):
         """ Run the computation. """
@@ -140,6 +141,9 @@ class Localization_precision(_Analysis):
             The property for which to plot localization precision; if None all plots are shown.
         window: int
             Window for running average that is applied before plotting.
+
+        Other Parameters
+        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.plot().
         """
@@ -178,6 +182,9 @@ class Localization_precision(_Analysis):
             Bin specifications (passed to matplotlib.hist).
         fit: Bool
             Flag indicating if distributions fit are shown.
+
+        Other Parameters
+        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.hist().
         """
@@ -192,9 +199,11 @@ class Localization_precision(_Analysis):
                )
 
         if fit:
-            self.distribution_statistics = Distribution_fits(analysis_class=self)
-            self.distribution_statistics.fit_distribution(loc_property=loc_property)
-            self.distribution_statistics.plot_distribution_fit(ax=ax, show=False, loc_property=loc_property)
+            if isinstance(self.distribution_statistics, Distribution_fits):
+                self.distribution_statistics.plot_distribution_fit(ax=ax, show=False, loc_property=loc_property)
+            else:
+                self.fit_distributions()
+                self.distribution_statistics.plot_distribution_fit(ax=ax, show=False, loc_property=loc_property)
 
         # show figure
         if show:

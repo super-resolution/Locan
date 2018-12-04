@@ -8,7 +8,6 @@ It makes use of the trackpy package.
 
 """
 
-
 import sys
 
 import numpy as np

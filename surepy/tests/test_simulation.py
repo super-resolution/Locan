@@ -60,8 +60,8 @@ def test_resample(locdata_simple):
 
 def test_simulate_tracks():
     dat = simulate_tracks(number_walks=2, number_steps=3)
-    print(dat.data)
-    print(dat.meta)
+    #print(dat.data)
+    #print(dat.meta)
     assert (len(dat) == 6)
     assert(len(dat.coordinate_labels)==2)
 

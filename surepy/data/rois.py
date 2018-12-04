@@ -237,14 +237,9 @@ class Roi():
         return cls(reference=reference, points=points, type=type, meta=meta_)
 
 
-    def locdata(self, **kwargs):
+    def locdata(self):
         '''
         Localization data according to roi specifications.
-
-        Parameters
-        ----------
-        kwargs :
-            kwargs valid for Locdata.from_selection()
 
         Returns
         -------
@@ -255,10 +250,10 @@ class Roi():
         # todo modify meta for locdata
 
         if isinstance(self.reference, LocData):
-            return select_by_region(self.reference, self, **kwargs)
+            return select_by_region(self.reference, self)
         elif self.reference is True:
             locdata =  io.load_locdata(self.meta.file_path, self.meta.file_type)
-            return select_by_region(locdata, self, **kwargs)
+            return select_by_region(locdata, self)
 
 
 

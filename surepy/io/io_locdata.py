@@ -359,6 +359,9 @@ def load_thunderstorm_file(path, nrows=None):
     columns = load_thunderstorm_header(path)
     dataframe = pd.read_csv(path, sep=',', skiprows=1, nrows=nrows, names=columns)
 
+    # correct data formats
+    dataframe
+
     dat = LocData.from_dataframe(dataframe=dataframe)
 
     dat.meta.creation_date = int(time.time())

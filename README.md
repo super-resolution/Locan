@@ -30,7 +30,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 Developers
 ----------
 
-See the list of [contributors](docs/contributions.rst)) who participated in this project.
+See the list of [contributors](docs/contributions.rst) who participated in this project.
 
 License
 -------

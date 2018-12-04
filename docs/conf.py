@@ -152,28 +152,30 @@ htmlhelp_basename = 'Surepy_doc'
 
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
-    #
-    # 'papersize': 'letterpaper',
+    'papersize': 'a4paper',
 
     # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
+    'pointsize': '11pt',
 
     # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
+    'preamble': '\setcounter{tocdepth}{2}',
 
     # Latex figure (float) alignment
-    #
     # 'figure_align': 'htbp',
+
+    'classoptions': ',openany,oneside',
+    #'babel' : '\\usepackage[ngerman]{babel}'
 }
+
+# A Logo to add in the LaTeX document
+#latex_logo = '_static/logo.png'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'Surepy.tex', 'Surepy Documentation',
-     'SuperResGroup', 'manual'),
+     author, 'manual'),
 ]
 
 

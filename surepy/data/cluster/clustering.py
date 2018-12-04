@@ -26,6 +26,9 @@ def clustering(locdata, **kwargs):
     ----------
     locdata : LocData
         specifying the localization data on which to perform the manipulation.
+
+    Other Parameters
+    ----------------
     kwargs : dict
         Parameters for specified clustering algorithm.
 

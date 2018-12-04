@@ -135,6 +135,9 @@ def hist(self, ax=None, show=True, bins='auto', density=True, fit=False, **kwarg
         counts.
     fit : bool
         Flag indicating to fit pdf of nearest-neighbor distances under complete spatial randomness.
+
+    Other Parameters
+    ----------------
     kwargs : dict
         Other parameters passed to matplotlib.plot().
     """

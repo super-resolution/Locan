@@ -59,7 +59,7 @@ def select_by_region(locdata, roi):
     Returns
     -------
     LocData
-        a new instance of LocData referring to the specified dataset.
+        New instance of LocData referring to the specified dataset.
     """
     # todo implement ellipse and polygon for 2D and 3D
     try:

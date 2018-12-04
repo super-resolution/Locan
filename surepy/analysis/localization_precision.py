@@ -307,6 +307,10 @@ class Distribution_fits:
             Flag indicating if plt.show() is active.
         loc_property : LocData property
             The property for which to plot the distribution fit.
+
+
+        Other Parameters
+        ----------------
         kwargs : dict
             parameters passed to matplotlib.pyplot.plot().
         """

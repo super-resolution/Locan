@@ -78,6 +78,9 @@ class Localizations_per_frame(_Analysis):
             Flag indicating if plt.show() is active.
         window: int
             Window for running average that is applied before plotting.
+
+        Other Parameters
+        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.plot().
         """
@@ -112,6 +115,9 @@ class Localizations_per_frame(_Analysis):
             Bin specifications (passed to matplotlib.hist).
         fit: Bool
             Flag indicating if distributions fit are shown.
+
+        Other Parameters
+        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.hist().
         """

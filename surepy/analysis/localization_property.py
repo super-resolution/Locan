@@ -74,6 +74,9 @@ class Localization_property(_Analysis):
             Flag indicating if plt.show() is active.
         window: int
             Window for running average that is applied before plotting.
+
+        Other Parameters
+        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.plot().
         """
@@ -110,6 +113,9 @@ class Localization_property(_Analysis):
             Flag for plotting on a log scale.
         fit: Bool
             Flag indicating if distributions fit are shown.
+
+        Other Parameters
+        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.hist().
         """

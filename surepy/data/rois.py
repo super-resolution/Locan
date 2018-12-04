@@ -250,11 +250,10 @@ class Roi():
         # todo modify meta for locdata
 
         if isinstance(self.reference, LocData):
-            return select_by_region(self.reference, self)
+            return select_by_region(locdata=self.reference, roi=self)
         elif self.reference is True:
-            locdata =  io.load_locdata(self.meta.file_path, self.meta.file_type)
-            return select_by_region(locdata, self)
-
+            locdata = io.load_locdata(self.meta.file_path, self.meta.file_type)
+            return select_by_region(locdata=locdata, roi=self)
 
 
 def select_by_drawing(locdata, type='rectangle', **kwargs):
@@ -268,6 +267,9 @@ def select_by_drawing(locdata, type='rectangle', **kwargs):
         The localization data from which to select localization data.
     type : str
         rectangle (default), ellipse, or polygon specifying the selection widget to use.
+
+    Other Parameters
+    ----------------
     kwargs :
         kwargs as specified for render2D
 

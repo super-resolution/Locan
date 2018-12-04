@@ -18,6 +18,9 @@ class _Analysis():
         Localization data.
     meta : Metadata protobuf message
         Metadata about the current analysis routine.
+
+    Other Parameters
+    ----------------
     kwargs :
         Parameter that are passed to the algorithm.
 

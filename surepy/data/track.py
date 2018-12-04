@@ -77,7 +77,7 @@ def track(locdata, search_range=40, memory=0, **kwargs):
     grouped = df.groupby('Track')
 
     selections = [LocData.from_selection(locdata=locdata, indices=group['Index'].values) for _, group in grouped]
-    collection = LocData.from_collection(*selections)
+    collection = LocData.from_collection(selections)
 
     # metadata
     del locdata.meta.history[:]

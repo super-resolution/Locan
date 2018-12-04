@@ -47,10 +47,10 @@ def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
             ('noise' in kwargs and kwargs['noise']):
 
         noise_locdata = [res[0] for res in results]
-        noise_collection = LocData.from_collection(*noise_locdata)
+        noise_collection = LocData.from_collection(noise_locdata)
         noise_collection.dataframe = noise_collection.dataframe.assign(**dictionary)
         collection_locdata = [res[1] for res in results]
-        collection = LocData.from_collection(*collection_locdata)
+        collection = LocData.from_collection(collection_locdata)
         collection.dataframe = collection.dataframe.assign(**dictionary)
 
         # metadata for noise_collection
@@ -59,7 +59,7 @@ def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
 
     else:
         noise_collection = None
-        collection = LocData.from_collection(*results)
+        collection = LocData.from_collection(results)
         collection.dataframe = collection.dataframe.assign(**dictionary)
 
     # metadata for collection

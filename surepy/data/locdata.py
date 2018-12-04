@@ -35,8 +35,8 @@ class LocData():
 
     Attributes
     ----------
-    count : int (class attribute)
-        A counter for counting locdata instantiations.
+    count : int
+        A counter for counting locdata instantiations (class attribute).
 
     references : LocData or list(LocData) or None
         A locData reference or an array with references to locData objects referring to the selected localizations
@@ -49,6 +49,8 @@ class LocData():
         Metadata about the current dataset and its history.
     properties : Pandas DataFrame
         List of properties generated from data.
+    coordinate_labels : list of str
+        The available coordinate properties.
 
     bounding_box : Hull object
         Object representing the axis-aligned minimal bounding box.
@@ -61,6 +63,7 @@ class LocData():
 
     """
     count=0
+    """ A counter for counting LocData instantiations (class attribute). """
 
     def __init__(self, references=None, dataframe=pd.DataFrame(), indices=None,
                  meta=None):
@@ -110,7 +113,21 @@ class LocData():
 
     @classmethod
     def from_dataframe(cls, dataframe=pd.DataFrame(), meta=None):
+        """
+        Create new LocData object from pandas DataFrame with localization data.
 
+        Parameters
+        ----------
+        dataframe : pandas DataFrame
+            Localization data.
+        meta : Metadata protobuf message
+            Metadata about the current dataset and its history.
+
+        Returns
+        -------
+        LocData object
+            A new LocData instance with dataframe representing the concatenated data.
+        """
         dataframe = dataframe
         meta_ = metadata_pb2.Metadata()
 
@@ -132,6 +149,21 @@ class LocData():
 
     @classmethod
     def from_selection(cls, locdata, indices=slice(0, None), meta=None):
+        """
+        Create `LocData` from selected elements in another `LocData`.
+
+        Parameters
+        ----------
+        locdata : LocData object
+            Locdata objects from which to select elements.
+        meta : Metadata protobuf message
+            Metadata about the current dataset and its history.
+
+        Returns
+        -------
+        LocData object
+            A new LocData instance with dataframe representing the selected data.
+        """
 
         references = locdata
         indices = indices
@@ -169,9 +201,23 @@ class LocData():
 
 
     @classmethod
-    def from_collection(cls, *args, meta=None):
-        # todo: here and in concat  I would normaly expect a list of references like in numpy.concatenate instead of *args
-        references = args
+    def from_collection(cls, locdatas, meta=None):
+        """
+        Create new LocData object by collecting LocData objects.
+
+        Parameters
+        ----------
+        locdatas : list of LocData objects
+            Locdata objects to collect.
+        meta : Metadata protobuf message
+            Metadata about the current dataset and its history.
+
+        Returns
+        -------
+        LocData object
+            A new LocData instance with dataframe representing the concatenated data.
+        """
+        references = locdatas
         dataframe = pd.DataFrame([ref.properties for ref in references])
         # todo: add Localization_count to dataframe
 
@@ -195,31 +241,30 @@ class LocData():
 
 
     @classmethod
-    def concat(cls, *locdata, meta=None):
-        #todo: change to locdata : list of LocData objects
+    def concat(cls, locdatas, meta=None):
         """
         Concatenate LocData objects.
 
         Parameters
         ----------
-        locdata : LocData object
+        locdatas : list of LocData objects
             Locdata objects to concatenate.
         meta : Metadata protobuf message
             Metadata about the current dataset and its history.
 
         Returns
         -------
-        locdata object
-            A new locdata instance with dataframe representing the concatenated data.
+        LocData object
+            A new LocData instance with dataframe representing the concatenated data.
         """
 
-        dataframe = pd.concat([i.data for i in locdata], ignore_index=True)
+        dataframe = pd.concat([i.data for i in locdatas], ignore_index=True)
         meta_ = metadata_pb2.Metadata()
 
         meta_.creation_date = int(time.time())
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.MODIFIED
-        meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdata]
+        meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdatas]
         meta_.history.add(name = 'concat')
 
         if meta is None:
@@ -241,7 +286,6 @@ class LocData():
            df = self.references.data.iloc[self.indices]
            df = df.reset_index()
            df = pd.merge(df, self.dataframe, left_index=True, right_index=True, how='outer')
-           # todo: alternative: df = df.assign(**self.dataframe.dict())
            return df
        else:
            return self.dataframe
@@ -254,7 +298,7 @@ class LocData():
 
 
     def __del__(self):
-        """ updating the counter upon deletion of class instance. """
+        """ Updating the counter upon deletion of class instance. """
         self.__class__.count -= 1
 
 
@@ -270,7 +314,7 @@ class LocData():
         Returns
         -------
         Int
-            a flag set to 1 indicating if reference was changed, or set to 0 if no change was applied.
+            Flag set to 1 indicating if reference was changed, or set to 0 if no change was applied.
         """
         if self.references is None:
             return 0

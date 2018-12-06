@@ -86,7 +86,7 @@ class Localization_precision(_Analysis):
     Attributes
     ----------
     count : int
-        A counter for counting instantiations.
+        A counter for counting instantiations (class attribute).
     locdata : LocData object
         Localization data.
     parameter : dict
@@ -98,7 +98,6 @@ class Localization_precision(_Analysis):
     distribution_statistics : Distribution_fits object, None
         Distribution parameters derived from MLE fitting of results.
     """
-
     def __init__(self, locdata=None, meta=None, radius=50):
         super().__init__(locdata=locdata, meta=meta, radius=radius)
         self.distribution_statistics = None

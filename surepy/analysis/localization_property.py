@@ -27,7 +27,7 @@ def _localization_property(locdata, loc_property='Intensity', index=None):
 ##### The specific analysis classes
 
 class Localization_property(_Analysis):
-    '''
+    """
     Analyze localization property with respect to probability density or variation over a specified index.
 
     Parameters
@@ -42,7 +42,7 @@ class Localization_property(_Analysis):
     Attributes
     ----------
     count : int
-        A counter for counting instantiations.
+        A counter for counting instantiations (class attribute).
     locdata : LocData object
         Localization data.
     parameter : dict
@@ -53,9 +53,7 @@ class Localization_property(_Analysis):
         Computed results.
     distribution_statistics : Distribution_stats object, None
         Distribution parameters derived from MLE fitting of results.
-    '''
-    count = 0
-
+    """
     def __init__(self, locdata=None, meta=None, loc_property='Intensity', index=None):
         super().__init__(locdata=locdata, meta=meta, loc_property=loc_property, index=index)
         self.distribution_statistics = None
@@ -65,18 +63,23 @@ class Localization_property(_Analysis):
         self.results = _localization_property(locdata=data, **self.parameter)
         return self
 
-    def fit_distributions(self, distribution=stats.expon):
+    def fit_distributions(self, distribution=stats.expon, with_constraints=True):
         """
         Fit probability density functions to the distributions of `loc_property` values in the results
         using MLE (scipy.stats).
+
+        If with_constraints is true we put the following constraints on the fit procedure:
+        If distribution is expon then floc=np.min(self.analysis_class.results[self.loc_property].values).
 
         Parameters
         ----------
         distribution : str or scipy.stats distribution object
             Distribution model to fit.
+        with_constraints : bool
+            Flag to use predefined constraints on fit parameters.
         """
         self.distribution_statistics = _Distribution_stats(self)
-        self.distribution_statistics.fit(distribution)
+        self.distribution_statistics.fit(distribution, with_constraints=with_constraints)
 
 
     def plot(self, ax=None, show=True, window=1, **kwargs):
@@ -159,6 +162,7 @@ class Localization_property(_Analysis):
 
         return None
 
+# todo add Dependence_stats to fit a plot to a linear function, log function, or exponential decay.
 
 class _Distribution_stats:
     """

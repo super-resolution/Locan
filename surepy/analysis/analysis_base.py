@@ -28,7 +28,7 @@ class _Analysis():
     Attributes
     ----------
     count : int
-        A counter for counting instantiations.
+        A counter for counting instantiations (class attribute).
     locdata : LocData object
         Localization data.
     parameter : dict
@@ -37,6 +37,7 @@ class _Analysis():
         Metadata about the current analysis routine.
     """
     count = 0
+    """ A counter for counting Analysis class instantiations (class attribute)."""
 
     def __init__(self, locdata, meta, **kwargs):
         self.__class__.count += 1
@@ -54,21 +55,13 @@ class _Analysis():
         """ Apply analysis routine with the specified parameters on locdata and return results."""
         raise NotImplementedError
 
-    def save(self, path):
-        """ Save Analysis object."""
-        raise NotImplementedError
-
-    def load(self, path):
-        """ Load Analysis object."""
-        raise NotImplementedError
-
     def report(self, ax):
         """ Show a report about analysis results."""
         raise NotImplementedError
 
 
 
-# Dealing with metadata
+##### Dealing with metadata
 
 def _init_meta(self):
     meta_ = metadata_analysis_pb2.AMetadata()
@@ -92,7 +85,8 @@ def _update_meta(self, meta=None):
 
     return meta_
 
-# Dealing with scipy.stats
+
+##### Dealing with scipy.stats
 
 def _list_parameters(distribution):
     """

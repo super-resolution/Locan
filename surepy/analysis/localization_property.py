@@ -10,16 +10,16 @@ import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 from scipy import stats
 
-from surepy.analysis.analysis_base import _Analysis
+from surepy.analysis.analysis_base import _Analysis, _list_parameters
 
 
 ##### The algorithms
 
-def _localization_property(locdata, property='Intensity', index=None):
+def _localization_property(locdata, loc_property='Intensity', index=None):
     if index is None:
-        results = locdata.data[[property]]
+        results = locdata.data[[loc_property]]
     else:
-        results = locdata.data[[property, index]].set_index(index)
+        results = locdata.data[[loc_property, index]].set_index(index)
 
     return results
 
@@ -34,7 +34,7 @@ class Localization_property(_Analysis):
     ----------
     locdata : LocData object
         Localization data.
-    property : str
+    loc_property : str
         The property to analyze.
     index : str or None
         The property name that should serve as index (i.e. x-axis in x-y-plot)
@@ -51,16 +51,33 @@ class Localization_property(_Analysis):
         Metadata about the current analysis routine.
     results : numpy array or pandas DataFrame
         Computed results.
+    distribution_statistics : Distribution_stats object, None
+        Distribution parameters derived from MLE fitting of results.
     '''
     count = 0
 
-    def __init__(self, locdata=None, meta=None, property='Intensity', index=None):
-        super().__init__(locdata=locdata, meta=meta, property=property, index=index)
+    def __init__(self, locdata=None, meta=None, loc_property='Intensity', index=None):
+        super().__init__(locdata=locdata, meta=meta, loc_property=loc_property, index=index)
+        self.distribution_statistics = None
 
     def compute(self):
         data = self.locdata
         self.results = _localization_property(locdata=data, **self.parameter)
         return self
+
+    def fit_distributions(self, distribution=stats.expon):
+        """
+        Fit probability density functions to the distributions of `loc_property` values in the results
+        using MLE (scipy.stats).
+
+        Parameters
+        ----------
+        distribution : str or scipy.stats distribution object
+            Distribution model to fit.
+        """
+        self.distribution_statistics = _Distribution_stats(self)
+        self.distribution_statistics.fit(distribution)
+
 
     def plot(self, ax=None, show=True, window=1, **kwargs):
         """
@@ -85,9 +102,9 @@ class Localization_property(_Analysis):
 
         self.results.rolling(window=window, center=True).mean().plot(ax=ax, legend=False, **kwargs)
         # todo: check rolling on arbitrary index
-        ax.set(title=f"{self.parameter['property']}({self.parameter['index']}) (window={window})",
+        ax.set(title=f"{self.parameter['loc_property']}({self.parameter['index']}) (window={window})",
                xlabel = self.parameter['index'],
-               ylabel = self.parameter['property']
+               ylabel = self.parameter['loc_property']
                )
 
         # show figure
@@ -112,7 +129,7 @@ class Localization_property(_Analysis):
         log : Bool
             Flag for plotting on a log scale.
         fit: Bool
-            Flag indicating if distributions fit are shown.
+            Flag indicating if distribution fit is shown.
 
         Other Parameters
         ----------------
@@ -123,33 +140,111 @@ class Localization_property(_Analysis):
             fig, ax = plt.subplots(nrows=1, ncols=1)
 
         ax.hist(self.results.values, bins=bins, density=True, log=log)
-        ax.set(title = self.parameter['property'],
-               xlabel = self.parameter['property'],
+        ax.set(title = self.parameter['loc_property'],
+               xlabel = self.parameter['loc_property'],
                ylabel = 'PDF'
                )
 
         # fit distributions:
         if fit:
-            # MLE fit of exponential distribution
-            loc, scale = stats.expon.fit(self.results.values, floc=np.min(self.results.values))
-
-            # plot
-            x_values = np.linspace(stats.expon.ppf(0.001, loc=loc, scale=scale),
-                                   stats.expon.ppf(0.999, loc=loc, scale=scale), 100)
-            ax.plot(x_values, stats.expon.pdf(x_values, loc=loc, scale=scale), 'r-', lw = 3, alpha = 0.6,
-                    label = 'exponential pdf')
-            ax.text(0.1, 0.8,
-                    'loc: ' + str(loc) + '\n' + 'scale: {:3.2f}'.format(scale),
-                    transform=ax.transAxes
-                    )
-
-            attribute_loc = self.parameter['property'] + '_loc'
-            attribute_scale = self.parameter['property'] + '_scale'
-            self.attribute_loc = loc    # todo fix attribute name
-            self.attribute_scale = scale # todo fix attribute name
+            if isinstance(self.distribution_statistics, _Distribution_stats):
+                self.distribution_statistics.plot(ax=ax, show=False)
+            else:
+                self.fit_distributions()
+                self.distribution_statistics.plot(ax=ax, show=False)
 
         # show figure
         if show:
             plt.show()
 
         return None
+
+
+class _Distribution_stats:
+    """
+    Handle for distribution fits.
+
+    This class is typically instantiated by Localization_property methods.
+    It holds the statistical parameters derived by fitting the result distributions using MLE (scipy.stats).
+    Statistical parameters are defined as described in
+    :ref:(https://docs.scipy.org/doc/scipy/reference/tutorial/stats/continuous.html)
+
+    Parameters
+    ----------
+    analyis_class : Localization_precision object
+        The analysis class with result data to fit.
+
+    Attributes
+    ----------
+    analyis_class : Localization_precision object
+        The analysis class with result data to fit.
+    loc_property : LocData property
+        The property for which to fit an appropriate distribution
+    distribution : str or scipy.stats distribution object
+        Distribution model to fit.
+    parameters :
+    """
+    def __init__(self, analysis_class):
+        self.analysis_class = analysis_class
+        self.loc_property = self.analysis_class.parameter['loc_property']
+        self.distribution = None
+        self.parameters = None
+
+    def fit(self, distribution, with_constraints=True):
+        """
+        Fit scipy.stats.distribution to analysis_class.results[loc_property].
+
+        If with_constraints is true we put the following constraints on the fit procedure:
+        If distribution is expon then floc=np.min(self.analysis_class.results[self.loc_property].values).
+
+        Parameters
+        ----------
+        distribution : str or scipy.stats distribution object
+            Distribution model to fit.
+        with_constraints : bool
+            Flag to use predefined constraints on fit parameters.
+        """
+        self.distribution = distribution
+        self.parameters = _list_parameters(distribution)
+
+        if with_constraints and self.distribution == stats.expon:
+            # MLE fit of exponential distribution with constraints
+            fit_results = stats.expon.fit(self.analysis_class.results[self.loc_property].values,
+                                         floc=np.min(self.analysis_class.results[self.loc_property].values))
+            for parameter, result in zip(self.parameters, fit_results):
+                setattr(self, parameter, result)
+        else:
+            fit_results = self.distribution.fit(self.analysis_class.results[self.loc_property].values)
+            for parameter, result in zip(self.parameters, fit_results):
+                setattr(self, parameter, result)
+
+    def plot(self, ax=None, show=True, **kwargs):
+        """
+        Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
+
+        Parameters
+        ----------
+        ax : matplotlib axes
+            The axes on which to show the image.
+        show : bool
+            Flag indicating if plt.show() is active.
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            parameters passed to matplotlib.pyplot.plot().
+        """
+        if ax is None:
+            fig, ax = plt.subplots(nrows=1, ncols=1)
+
+        # plot fit curve
+        x_values = np.linspace(self.distribution.ppf(0.001, **self.parameter_dict()),
+                               self.distribution.ppf(0.999, **self.parameter_dict()), 100)
+        ax.plot(x_values, self.distribution.pdf(x_values, **self.parameter_dict()), 'r-', lw=3, alpha=0.6,
+                label=str(self.distribution) + ' pdf', **kwargs)
+        if show:
+            plt.show()
+
+    def parameter_dict(self):
+        statistics_list = {k: self.__dict__[k] for k in self.parameters}
+        return statistics_list

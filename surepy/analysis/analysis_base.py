@@ -6,6 +6,7 @@ It also provides helper functions to be used in specialized analysis classes.
 
 import time
 from surepy.analysis import metadata_analysis_pb2
+from scipy import stats
 
 
 class _Analysis():
@@ -91,3 +92,33 @@ def _update_meta(self, meta=None):
 
     return meta_
 
+# Dealing with scipy.stats
+
+def _list_parameters(distribution):
+    """
+    List parameters for scipy.stats.distribution.
+
+    Parameters
+    ----------
+    distribution : str or scipy.stats distribution object
+        Distribution of choice.
+
+    Returns
+    -------
+    list of str
+        A list of distribution parameter strings.
+    """
+    if isinstance(distribution, str):
+        distribution = getattr(stats, distribution)
+    if distribution.shapes:
+        parameters = [name.strip() for name in distribution.shapes.split(',')]
+    else:
+        parameters = []
+    if distribution.name in stats._discrete_distns._distn_names:
+        parameters += ['loc']
+    elif distribution.name in stats._continuous_distns._distn_names:
+        parameters += ['loc', 'scale']
+    else:
+        raise TypeError("Distribution name not found in discrete or continuous lists.")
+
+    return parameters

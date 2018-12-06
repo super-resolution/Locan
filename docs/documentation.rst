@@ -76,3 +76,13 @@ We try to follow standard docstring as illustrated here::
         """
         return None
 
+Examples
+--------
+
+In some examples we use the ipython directive sphinx extension:
+
+.. ipython:: python
+
+   x = 2
+   print('hello')
+   x*3

@@ -40,7 +40,9 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'sphinx.ext.napoleon',
-    'sphinx.ext.inheritance_diagram'
+    'sphinx.ext.inheritance_diagram',
+    'IPython.sphinxext.ipython_console_highlighting',
+    'IPython.sphinxext.ipython_directive'
     ]
 
 # autosummary settings

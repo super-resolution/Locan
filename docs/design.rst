@@ -4,6 +4,15 @@
 Package Design
 ===========================
 
+.. toctree::
+   :hidden:
+
+   datastructures
+   metadata
+   properties
+   methods
+   directories
+
 Outline:
 ========
 

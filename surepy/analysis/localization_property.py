@@ -136,8 +136,9 @@ class Localization_property(_Analysis):
             Bin specifications (passed to matplotlib.hist).
         log : Bool
             Flag for plotting on a log scale.
-        fit: Bool
-            Flag indicating if distribution fit is shown.
+        fit: Bool or None
+            Flag indicating if distribution fit is shown. The fit will only be computed if `distribution_statistics`
+             is None.
 
         Other Parameters
         ----------------

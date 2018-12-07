@@ -54,6 +54,8 @@ def test_Distribution_fits(locdata_simple):
     lp.fit_distributions(loc_property=None)
     assert(lp.distribution_statistics.Position_delta_x_center==-1.6666666666666667)
     #print(lp.distribution_statistics)
+    lp.fit_distributions(loc_property='Position_delta_x', floc=0)
+    assert(lp.distribution_statistics.Position_delta_x_center==0)
 
 def test_Localization_precision_histogram(locdata_simple):
     #print(locdata_simple.data)

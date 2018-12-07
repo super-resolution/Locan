@@ -108,7 +108,7 @@ class Localization_precision(_Analysis):
         self.results = _localization_precision(locdata=data, **self.parameter)
         return self
 
-    def fit_distributions(self, loc_property=None):
+    def fit_distributions(self, loc_property=None, **kwargs):
         """
         Fit probability density functions to the distributions of `loc_property` values in the results
         using MLE (scipy.stats).
@@ -122,9 +122,9 @@ class Localization_precision(_Analysis):
         if loc_property is None:
             for prop in ['Position_delta_x', 'Position_delta_y', 'Position_delta_z', 'Position_distance']:
                 if prop in self.results.columns:
-                    self.distribution_statistics.fit(loc_property=prop)
+                    self.distribution_statistics.fit(loc_property=prop, **kwargs)
         else:
-            self.distribution_statistics.fit(loc_property=loc_property)
+            self.distribution_statistics.fit(loc_property=loc_property, **kwargs)
 
     def plot(self, ax=None, show=True, loc_property=None, window=1, **kwargs):
         """
@@ -280,7 +280,7 @@ class _DistributionFits:
         self.Position_distance_sigma = None
 
 
-    def fit(self, loc_property='Position_distance'):
+    def fit(self, loc_property='Position_distance', **kwargs):
         '''
         Fit distributions of results using a MLE fit (scipy.stats) and provide fit results.
 
@@ -292,14 +292,14 @@ class _DistributionFits:
 
         if 'Position_delta_' in loc_property:
             # MLE fit of distribution on data
-            loc, scale = stats.norm.fit(self.analysis_class.results[loc_property].values)
+            loc, scale = stats.norm.fit(self.analysis_class.results[loc_property].values, **kwargs)
             self.parameters.extend([loc_property + '_center', loc_property + '_sigma'])
             setattr(self, loc_property + '_center', loc)
             setattr(self, loc_property + '_sigma', scale)
 
         elif loc_property == 'Position_distance':
             # MLE fit of distribution on data with fixed loc and scale
-            sigma, loc, scale = self.pairwise_distribution.fit(self.analysis_class.results[loc_property].values, floc=0, fscale=1)
+            sigma, loc, scale = self.pairwise_distribution.fit(self.analysis_class.results[loc_property].values, floc=0, fscale=1, **kwargs)
             self.parameters.extend(['Position_distance_sigma'])
             self.Position_distance_sigma = sigma
 
@@ -345,18 +345,6 @@ class _DistributionFits:
 
         if show:
             plt.show()
-
-    # def __str__(self):
-    #     # todo: delete this function
-    #     statistic_attributes = ['Position_delta_x_center', 'Position_delta_x_sigma',
-    #                          'Position_delta_y_center', 'Position_delta_y_sigma',
-    #                          'Position_delta_z_center', 'Position_delta_z_sigma',
-    #                          'Position_distance_sigma']
-    #     statistics_list = ''
-    #     for key in statistic_attributes:
-    #         if getattr(self, key, None) is not None:
-    #             statistics_list += f'{key}: {getattr(self, key, None)}\n'
-    #     return statistics_list
 
     def parameter_dict(self):
         """ Dictionary of fitted parameters. """

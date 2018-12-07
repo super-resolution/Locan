@@ -63,13 +63,13 @@ class Localization_property(_Analysis):
         self.results = _localization_property(locdata=data, **self.parameter)
         return self
 
-    def fit_distributions(self, distribution=stats.expon, with_constraints=True):
+    def fit_distributions(self, distribution=stats.expon, with_constraints=True, **kwargs):
         """
         Fit probability density functions to the distributions of `loc_property` values in the results
         using MLE (scipy.stats).
 
         If with_constraints is true we put the following constraints on the fit procedure:
-        If distribution is expon then floc=np.min(self.analysis_class.results[self.loc_property].values).
+        If distribution is expon then `floc=np.min(self.analysis_class.results[self.loc_property].values)`.
 
         Parameters
         ----------
@@ -77,9 +77,14 @@ class Localization_property(_Analysis):
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """
         self.distribution_statistics = _DistributionFits(self)
-        self.distribution_statistics.fit(distribution, with_constraints=with_constraints)
+        self.distribution_statistics.fit(distribution, with_constraints=with_constraints, **kwargs)
 
 
     def plot(self, ax=None, show=True, window=1, **kwargs):
@@ -194,7 +199,7 @@ class _DistributionFits:
         self.distribution = None
         self.parameters = None
 
-    def fit(self, distribution, with_constraints=True):
+    def fit(self, distribution, with_constraints=True, **kwargs):
         """
         Fit scipy.stats.distribution to analysis_class.results[loc_property].
 
@@ -207,6 +212,11 @@ class _DistributionFits:
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """
         self.distribution = distribution
         self.parameters = _list_parameters(distribution)
@@ -214,11 +224,11 @@ class _DistributionFits:
         if with_constraints and self.distribution == stats.expon:
             # MLE fit of exponential distribution with constraints
             fit_results = stats.expon.fit(self.analysis_class.results[self.loc_property].values,
-                                         floc=np.min(self.analysis_class.results[self.loc_property].values))
+                                         floc=np.min(self.analysis_class.results[self.loc_property].values), **kwargs)
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
         else:
-            fit_results = self.distribution.fit(self.analysis_class.results[self.loc_property].values)
+            fit_results = self.distribution.fit(self.analysis_class.results[self.loc_property].values, **kwargs)
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
 

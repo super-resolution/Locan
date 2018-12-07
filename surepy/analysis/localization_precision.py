@@ -199,10 +199,10 @@ class Localization_precision(_Analysis):
 
         if fit:
             if isinstance(self.distribution_statistics, _DistributionFits):
-                self.distribution_statistics.plot_distribution_fit(ax=ax, show=False, loc_property=loc_property)
+                self.distribution_statistics.plot(ax=ax, show=False, loc_property=loc_property)
             else:
                 self.fit_distributions()
-                self.distribution_statistics.plot_distribution_fit(ax=ax, show=False, loc_property=loc_property)
+                self.distribution_statistics.plot(ax=ax, show=False, loc_property=loc_property)
 
         # show figure
         if show:
@@ -303,7 +303,7 @@ class _DistributionFits:
             self.parameters.extend(['Position_distance_sigma'])
             self.Position_distance_sigma = sigma
 
-    def plot_distribution_fit(self, ax=None, show=True, loc_property='Position_distance', **kwargs):
+    def plot(self, ax=None, show=True, loc_property='Position_distance', **kwargs):
         """
         Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
 

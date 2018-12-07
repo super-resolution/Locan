@@ -42,7 +42,7 @@ def test_Distribution_fits(locdata_simple):
     distribution_statistics = _DistributionFits(lp)
     #print(distribution_statistics)
     distribution_statistics.fit()
-    distribution_statistics.plot_distribution_fit(show=False)
+    distribution_statistics.plot(show=False)
     # print(dist_fits.Position_delta_x_center)
     # print(dist_fits.Position_distance_sigma)
     assert(distribution_statistics.Position_delta_x_center is None)

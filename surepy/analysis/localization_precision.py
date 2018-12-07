@@ -20,7 +20,7 @@ from sklearn.neighbors import NearestNeighbors
 from scipy import stats
 
 from surepy.constants import N_JOBS
-from surepy.analysis.analysis_base import _Analysis, _update_meta
+from surepy.analysis.analysis_base import _Analysis, _list_parameters
 
 
 ##### The algorithms
@@ -118,13 +118,13 @@ class Localization_precision(_Analysis):
         loc_property : LocData property
             The property for which to fit an appropriate distribution; if None all plots are shown.
         """
-        self.distribution_statistics = Distribution_fits(self)
+        self.distribution_statistics = _DistributionFits(self)
         if loc_property is None:
             for prop in ['Position_delta_x', 'Position_delta_y', 'Position_delta_z', 'Position_distance']:
                 if prop in self.results.columns:
-                    self.distribution_statistics.fit_distribution(loc_property=prop)
+                    self.distribution_statistics.fit(loc_property=prop)
         else:
-            self.distribution_statistics.fit_distribution(loc_property=loc_property)
+            self.distribution_statistics.fit(loc_property=loc_property)
 
     def plot(self, ax=None, show=True, loc_property=None, window=1, **kwargs):
         """
@@ -198,7 +198,7 @@ class Localization_precision(_Analysis):
                )
 
         if fit:
-            if isinstance(self.distribution_statistics, Distribution_fits):
+            if isinstance(self.distribution_statistics, _DistributionFits):
                 self.distribution_statistics.plot_distribution_fit(ax=ax, show=False, loc_property=loc_property)
             else:
                 self.fit_distributions()
@@ -228,7 +228,7 @@ class Pairwise_distance_distribution_2d(stats.rv_continuous):
         return x / (2 * sigma ** 2) * np.exp(- x ** 2 / (4 * sigma ** 2))
 
 
-class Distribution_fits:
+class _DistributionFits:
     """
     Handle for distribution fits.
 
@@ -244,7 +244,7 @@ class Distribution_fits:
     ----------
     analyis_class : Localization_precision object
         The analysis class with result data to fit.
-    pairwise_2D : Pairwise_distance_distribution_2d
+    pairwise_distribution : Pairwise_distance_distribution_2d
         Continuous distribution function used to fit Position_distances
     Position_delta_x_center : float
         Center of the normal distribution fitted to Position_delta_x.
@@ -266,10 +266,11 @@ class Distribution_fits:
         self.analysis_class = analysis_class
 
         # continuous distributions
-        self.pairwise_2D = Pairwise_distance_distribution_2d(name='pairwise', a=0.)
+        self.pairwise_distribution = Pairwise_distance_distribution_2d(name='pairwise', a=0.)
         # todo: 3D
 
         # fitted parameters for distributions
+        self.parameters = []
         self.Position_delta_x_center = None
         self.Position_delta_x_sigma = None
         self.Position_delta_y_center = None
@@ -278,20 +279,28 @@ class Distribution_fits:
         self.Position_delta_z_sigma = None
         self.Position_distance_sigma = None
 
-    def fit_distribution(self, loc_property='Position_distance'):
+
+    def fit(self, loc_property='Position_distance'):
         '''
         Fit distributions of results using a MLE fit (scipy.stats) and provide fit results.
+
+        Parameters
+        ----------
+        loc_property : LocData property
+            The property for which to fit an appropriate distribution
         '''
 
         if 'Position_delta_' in loc_property:
             # MLE fit of distribution on data
             loc, scale = stats.norm.fit(self.analysis_class.results[loc_property].values)
+            self.parameters.extend([loc_property + '_center', loc_property + '_sigma'])
             setattr(self, loc_property + '_center', loc)
             setattr(self, loc_property + '_sigma', scale)
 
         elif loc_property == 'Position_distance':
             # MLE fit of distribution on data with fixed loc and scale
-            sigma, loc, scale = self.pairwise_2D.fit(self.analysis_class.results[loc_property].values, floc=0, fscale=1)
+            sigma, loc, scale = self.pairwise_distribution.fit(self.analysis_class.results[loc_property].values, floc=0, fscale=1)
+            self.parameters.extend(['Position_distance_sigma'])
             self.Position_distance_sigma = sigma
 
     def plot_distribution_fit(self, ax=None, show=True, loc_property='Position_distance', **kwargs):
@@ -329,21 +338,29 @@ class Distribution_fits:
 
         elif loc_property == 'Position_distance':
             _sigma = self.Position_distance_sigma
-            x_values = np.linspace(self.pairwise_2D.ppf(0.01, sigma=_sigma),
-                                   self.pairwise_2D.ppf(0.99, sigma=_sigma), 100)
-            ax.plot(x_values, self.pairwise_2D.pdf(x_values, sigma=_sigma), 'r-', lw=3, alpha=0.6,
+            x_values = np.linspace(self.pairwise_distribution.ppf(0.01, sigma=_sigma),
+                                   self.pairwise_distribution.ppf(0.99, sigma=_sigma), 100)
+            ax.plot(x_values, self.pairwise_distribution.pdf(x_values, sigma=_sigma), 'r-', lw=3, alpha=0.6,
                     label='fitted pdf', **kwargs)
 
         if show:
             plt.show()
 
-    def __str__(self):
-        statistic_attributes = ['Position_delta_x_center', 'Position_delta_x_sigma',
-                             'Position_delta_y_center', 'Position_delta_y_sigma',
-                             'Position_delta_z_center', 'Position_delta_z_sigma',
-                             'Position_distance_sigma']
-        statistics_list = ''
-        for key in statistic_attributes:
-            if getattr(self, key, None) is not None:
-                statistics_list += f'{key}: {getattr(self, key, None)}\n'
-        return (statistics_list)
+    # def __str__(self):
+    #     # todo: delete this function
+    #     statistic_attributes = ['Position_delta_x_center', 'Position_delta_x_sigma',
+    #                          'Position_delta_y_center', 'Position_delta_y_sigma',
+    #                          'Position_delta_z_center', 'Position_delta_z_sigma',
+    #                          'Position_distance_sigma']
+    #     statistics_list = ''
+    #     for key in statistic_attributes:
+    #         if getattr(self, key, None) is not None:
+    #             statistics_list += f'{key}: {getattr(self, key, None)}\n'
+    #     return statistics_list
+
+    def parameter_dict(self):
+        """ Dictionary of fitted parameters. """
+        if self.parameters is None:
+            return None
+        else:
+            return {k: self.__dict__[k] for k in self.parameters}

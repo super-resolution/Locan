@@ -8,7 +8,7 @@ import surepy.constants
 import surepy.io.io_locdata as io
 import surepy.tests.test_data
 from surepy.analysis import Localization_property
-from surepy.analysis.localization_property import _Distribution_stats
+from surepy.analysis.localization_property import _DistributionFits
 
 
 @pytest.fixture()
@@ -16,9 +16,9 @@ def locdata():
     return io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt', nrows=100)
 
 
-def test_Distribution_stats(locdata):
+def test_DistributionFits(locdata):
     lprop = Localization_property(locdata=locdata, loc_property='Intensity').compute()
-    ds = _Distribution_stats(lprop)
+    ds = _DistributionFits(lprop)
     ds.fit(distribution=stats.expon)
     #ds.plot()
     assert(ds.parameters == ['loc', 'scale'])

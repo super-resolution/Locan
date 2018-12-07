@@ -78,7 +78,7 @@ class Localization_property(_Analysis):
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
         """
-        self.distribution_statistics = _Distribution_stats(self)
+        self.distribution_statistics = _DistributionFits(self)
         self.distribution_statistics.fit(distribution, with_constraints=with_constraints)
 
 
@@ -150,7 +150,7 @@ class Localization_property(_Analysis):
 
         # fit distributions:
         if fit:
-            if isinstance(self.distribution_statistics, _Distribution_stats):
+            if isinstance(self.distribution_statistics, _DistributionFits):
                 self.distribution_statistics.plot(ax=ax, show=False)
             else:
                 self.fit_distributions()
@@ -164,7 +164,7 @@ class Localization_property(_Analysis):
 
 # todo add Dependence_stats to fit a plot to a linear function, log function, or exponential decay.
 
-class _Distribution_stats:
+class _DistributionFits:
     """
     Handle for distribution fits.
 
@@ -250,5 +250,8 @@ class _Distribution_stats:
             plt.show()
 
     def parameter_dict(self):
-        statistics_list = {k: self.__dict__[k] for k in self.parameters}
-        return statistics_list
+        """ Dictionary of fitted parameters. """
+        if self.parameters is None:
+            return None
+        else:
+            return {k: self.__dict__[k] for k in self.parameters}

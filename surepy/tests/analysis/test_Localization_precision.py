@@ -6,7 +6,7 @@ from surepy import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
 import surepy.tests.test_data
-from surepy.analysis.localization_precision import Localization_precision, Distribution_fits
+from surepy.analysis.localization_precision import Localization_precision, _DistributionFits
 
 
 @pytest.fixture()
@@ -39,9 +39,9 @@ def test_Localization_precision_plot(locdata):
 def test_Distribution_fits(locdata_simple):
     #print(locdata_simple.data)
     lp = Localization_precision(locdata=locdata_simple).compute()
-    distribution_statistics = Distribution_fits(lp)
+    distribution_statistics = _DistributionFits(lp)
     #print(distribution_statistics)
-    distribution_statistics.fit_distribution()
+    distribution_statistics.fit()
     distribution_statistics.plot_distribution_fit(show=False)
     # print(dist_fits.Position_delta_x_center)
     # print(dist_fits.Position_distance_sigma)
@@ -69,3 +69,4 @@ def test_Localization_precision_histogram(locdata_simple):
     #print(f'sigma: {lp.distribution_statistics.Position_delta_x_sigma}')
     assert(lp.distribution_statistics.Position_delta_x_center==-1.6666666666666667)
     assert (lp.distribution_statistics.Position_delta_x_sigma == 0.74535599249993)
+    print(lp.distribution_statistics.parameter_dict())

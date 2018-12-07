@@ -112,7 +112,7 @@ class Localizations_per_frame(_Analysis):
         # prepare plot
         self.results.rolling(window=window, center=True).mean().plot(ax=ax, **kwargs)
 
-        ax.set(title=f'Localizations per Frame (window={window})',
+        ax.set(title=f'Localizations per Frame\n (window={window})',
                xlabel = 'Frame',
                ylabel = self.results.name
                )

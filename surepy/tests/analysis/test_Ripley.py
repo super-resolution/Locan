@@ -23,7 +23,7 @@ def test_Ripleys_k_function(locdata_blobs):
     rhf = Ripleys_k_function(locdata_blobs, radii=radii).compute()
     #print(rhf.results[0:5])
     assert (len(rhf.results) == len(radii))
-    rhf.plot()
+    #rhf.plot()
 
 def test_Ripleys_k_function_3d(locdata_blobs_3D):
     radii = np.linspace(0,100,20)
@@ -53,4 +53,4 @@ def test_Ripleys_h_function(locdata_blobs):
     assert (len(rhf.Ripley_h_maximum)==2)
     del rhf.Ripley_h_maximum
     assert (len(rhf.Ripley_h_maximum)==2)
-    rhf.plot()
+    #rhf.plot()

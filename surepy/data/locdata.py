@@ -257,7 +257,7 @@ class LocData():
             A new LocData instance with dataframe representing the concatenated data.
         """
 
-        dataframe = pd.concat([i.data for i in locdatas], ignore_index=True)
+        dataframe = pd.concat([i.data for i in locdatas], ignore_index=True, sort=False)
         meta_ = metadata_pb2.Metadata()
 
         meta_.creation_date = int(time.time())

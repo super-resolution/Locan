@@ -181,7 +181,7 @@ class Nearest_neighbor_distances(_Analysis):
                 self.fit_distributions()
                 self.distribution_statistics.plot(ax=ax, show=False)
 
-        ax.set(title = 'k-Nearest Neigbor Distances'+' (k = ' + str(self.parameter['k'])+')',
+        ax.set(title = 'k-Nearest Neigbor Distances\n'+' (k = ' + str(self.parameter['k'])+')',
                xlabel = 'distance (nm)',
                ylabel = 'pdf' if density else 'counts'
                )

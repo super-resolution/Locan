@@ -1,12 +1,24 @@
 """
-This module provides methods for computing Ripley's k function.
+
+Compute Ripley's k function.
+
+Spatial clustering of localization data is characterized by Ripley's k or related functions. We follow the definition
+of l and h functions in [2]_.
+
+References
+----------
+.. [1] B.D. Ripley (1977) Modelling spatial patterns. Journal of the Royal Statistical Society, 172–212
+.. [2] Kiskowski, M. A., Hancock, J. F., and Kenworthy, A. K. (2009) On the use of Ripley's K-function and its
+   derivatives to analyze domain size. Biophysical journal 97, 1095–1103
+
 """
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 
-from surepy.analysis.analysis_tools import _init_meta, _update_meta, save_results
+from surepy.analysis.analysis_base import _Analysis
 
 
 #### The algorithms
@@ -67,82 +79,9 @@ def _ripleys_h_function(points, radii, region_measure=1, other_points=None):
     return _ripleys_l_function(points, radii, region_measure, other_points) - radii
 
 
-##### The base analysis class
-
-class _Ripley():
-    """
-    The base class for specialized analysis classes to be used on LocData objects.
-
-    Parameters
-    ----------
-    locdata : LocData object
-        Localization data.
-    meta : Metadata protobuf message
-        Metadata about the current analysis routine.
-    kwargs :
-        Parameter that are passed to the algorithm.
-
-    Attributes
-    ----------
-    count : int
-        A counter for counting instantiations.
-    locdata : LocData object
-        Localization data.
-    parameter : dict
-        A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
-        Metadata about the current analysis routine.
-    results : numpy array or pandas DataFrame
-        Computed results.
-    """
-    count = 0
-
-    def __init__(self, locdata, meta, **kwargs):
-        self.__class__.count += 1
-
-        self.locdata = locdata
-        self.parameter = kwargs
-        self.meta = _init_meta(self)
-        self.meta = _update_meta(self, meta)
-        self.results = None
-
-
-    def __del__(self):
-        """ updating the counter upon deletion of class instance. """
-        self.__class__.count -= 1
-
-    def __str__(self):
-        """ Return results in a printable format."""
-        return str(self.results)
-
-    def save_results(self, path):
-        return save_results(self, path)
-
-    def plot(self, ax=None, show=True):
-        return plot(self, ax, show)
-
-
-
-    def compute(self):
-        """ Apply analysis routine with the specified parameters on locdata and return results."""
-        raise NotImplementedError
-
-    def save(self, path):
-        """ Save Analysis object."""
-        raise NotImplementedError
-
-    def load(self, path):
-        """ Load Analysis object."""
-        raise NotImplementedError
-
-    def report(self, ax):
-        """ Show a report about analysis results."""
-        raise NotImplementedError
-
-
 ##### The specific analysis classes
 
-class Ripleys_k_function(_Ripley):
+class Ripleys_k_function(_Analysis):
     """
     Compute Ripley's K function for two- or three-dimensional data at the given radii.
 
@@ -172,7 +111,8 @@ class Ripleys_k_function(_Ripley):
     count = 0
 
     def __init__(self, locdata, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb', other_locdata=None):
-        super().__init__(locdata=locdata, radii=radii, region_measure=region_measure, other_locdata=other_locdata, meta=meta)
+        super().__init__(locdata=locdata, meta=meta,
+                         radii=radii, region_measure=region_measure, other_locdata=other_locdata)
 
     def compute(self):
         points = self.locdata.coordinates
@@ -196,8 +136,11 @@ class Ripleys_k_function(_Ripley):
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_k_data': ripley})
         return self
 
+    def plot(self, ax=None, show=True):
+        plot(self, ax, show)
 
-class Ripleys_l_function(_Ripley):
+
+class Ripleys_l_function(_Analysis):
     """
     Compute Ripley's L function for two- or three-dimensional data at the given radii.
 
@@ -251,8 +194,11 @@ class Ripleys_l_function(_Ripley):
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_l_data': ripley})
         return self
 
+    def plot(self, ax=None, show=True):
+        plot(self, ax, show)
 
-class Ripleys_h_function(_Ripley):
+
+class Ripleys_h_function(_Analysis):
     """
     Compute Ripley's H function for two- or three-dimensional data at the given radii.
 
@@ -326,6 +272,9 @@ class Ripleys_h_function(_Ripley):
     def Ripley_h_maximum(self):
         self._Ripley_h_maximum = None
 
+    def plot(self, ax=None, show=True):
+        plot(self, ax, show)
+
 
 ##### Interface functions
 
@@ -333,6 +282,15 @@ class Ripleys_h_function(_Ripley):
 def plot(self, ax=None, show=True):
     '''
     Provide plot of results as matplotlib axes object.
+
+    Parameters
+    ----------
+    ax : matplotlib axes
+        The axes on which to show the image
+    show : bool
+        Flag indicating if plt.show() is active.
+    kwargs : dict
+        Other parameters passed to matplotlib.pyplot.plot().
     '''
     if ax is None:
         fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -350,7 +308,7 @@ def plot(self, ax=None, show=True):
 
     ax.set(title = title,
            xlabel = 'Radius',
-           ylabel = self.results.columns[0]
+           ylabel = self.results.columns[1]
            )
 
     # show figure

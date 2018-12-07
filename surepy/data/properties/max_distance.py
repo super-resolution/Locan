@@ -1,3 +1,11 @@
+"""
+Compute maximum distance.
+
+The maximum distance between any two localizations in locdata is computed.
+This value represents a new property of locdata.
+
+"""
+
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
@@ -9,13 +17,12 @@ def max_distance(locdata):
     Parameters
     ----------
     locdata : LocData
-        localization data
+        Localization data
 
     Returns
     -------
     dict
-        A dict with key being the property name and the value being
-        the maximum distance between any two localizations in locdata.
+        A dict with key `Max_distance` and the corresponding value being the maximum distance.
     """
     D = pdist(locdata.coordinates)
     D = squareform(D)

@@ -83,9 +83,7 @@ def save_thunderstorm_csv(locdata, path):
     dataframe.to_csv(path, float_format='%.10g', index=False)
 
 
-# todo: take out **kwargs
-
-def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
+def load_txt_file(path, sep=',', columns=None, nrows=None):
     """
     Load localization data from a txt file.
 
@@ -121,7 +119,7 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
 
         dataframe = pd.read_table(path, sep=sep, skiprows=1, nrows=nrows, names=columns)
 
-    dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
+    dat = LocData.from_dataframe(dataframe=dataframe)
 
     dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
@@ -177,7 +175,7 @@ def load_rapidSTORM_header(path):
     return column_keys
 
 
-def load_rapidSTORM_file(path, nrows=None, **kwargs):
+def load_rapidSTORM_file(path, nrows=None):
     """
     Load data from a rapidSTORM single-molecule localization file.
 
@@ -196,7 +194,7 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
     columns = load_rapidSTORM_header(path)
     dataframe = pd.read_table(path, sep=" ", skiprows=1, nrows=nrows, names=columns)
 
-    dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
+    dat = LocData.from_dataframe(dataframe=dataframe)
 
     dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
@@ -247,7 +245,7 @@ def load_Elyra_header(path):
     return column_keys
 
 
-def load_Elyra_file(path, nrows=None, **kwargs):
+def load_Elyra_file(path, nrows=None):
     """
     Load data from a rapidSTORM single-molecule localization file.
 
@@ -273,7 +271,7 @@ def load_Elyra_file(path, nrows=None, **kwargs):
         stream = io.StringIO(string)
         dataframe = pd.read_table(stream, sep="\t", skiprows=1, nrows=nrows, names=columns)
 
-    dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
+    dat = LocData.from_dataframe(dataframe=dataframe)
 
     dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
@@ -342,7 +340,7 @@ def load_thunderstorm_header(path):
     return column_keys
 
 
-def load_thunderstorm_file(path, nrows=None, **kwargs):
+def load_thunderstorm_file(path, nrows=None):
     """
     Load data from a Thunderstorm single-molecule localization file.
 
@@ -361,7 +359,11 @@ def load_thunderstorm_file(path, nrows=None, **kwargs):
     columns = load_thunderstorm_header(path)
     dataframe = pd.read_csv(path, sep=',', skiprows=1, nrows=nrows, names=columns)
 
-    dat = LocData.from_dataframe(dataframe=dataframe, **kwargs)
+    # correct data formats
+    integer_Frames = pd.to_numeric(dataframe['Frame'], downcast='integer')
+    dataframe['Frame'] = integer_Frames
+
+    dat = LocData.from_dataframe(dataframe=dataframe)
 
     dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
@@ -377,56 +379,104 @@ def load_thunderstorm_file(path, nrows=None, **kwargs):
 
     return dat
 
+def _map_file_type_to_load_function(type):
 
-def load_locdata(path, type=1, **kwargs):
+    """
+    Interpret user input for file_type.
+
+    Parameters
+    ----------
+    type : int or string
+        Identifiyer for file type
+
+    Returns
+    -------
+    Name of function for loading the localization file of `type`.
+    """
+    if isinstance(type, int):
+
+        if type == 1:
+            return load_txt_file
+        elif type == 2:
+            return load_rapidSTORM_file
+        elif type == 3:
+            return load_Elyra_file
+        elif type == 4:
+            return load_thunderstorm_file
+        elif type == 5:
+            return load_asdf_file
+        else:
+            raise TypeError(f'There is no load function for type {type}.')
+
+    elif isinstance(type, str):
+
+        if type.upper() == 'CUSTOM':
+            return load_txt_file
+        elif type.upper() == 'RAPIDSTORM':
+            return load_rapidSTORM_file
+        elif type.upper() == 'ELYRA':
+            return load_Elyra_file
+        elif type.upper() == 'THUNDERSTORM':
+            return load_thunderstorm_file
+        elif type.upper() == 'ASDF':
+            return load_asdf_file
+        else:
+            raise TypeError(f'There is no load function for type {type}.')
+
+    elif isinstance(type, surepy.constants.File_type):
+
+        if type is surepy.constants.File_type.CUSTOM:
+            return load_txt_file
+        elif type is surepy.constants.File_type.RAPIDSTORM:
+            return load_rapidSTORM_file
+        elif type is surepy.constants.File_type.ELYRA:
+            return load_Elyra_file
+        elif type is surepy.constants.File_type.THUNDERSTORM:
+            return load_thunderstorm_file
+        elif type is surepy.constants.File_type.ASDF:
+            return load_asdf_file
+        else:
+            raise TypeError(f'There is no load function for type {type}.')
+
+    elif isinstance(type, metadata_pb2):
+
+        if type is metadata_pb2.CUSTOM:
+            return load_txt_file
+        elif type is metadata_pb2.RAPIDSTORM:
+            return load_rapidSTORM_file
+        elif type is metadata_pb2.ELYRA:
+            return load_Elyra_file
+        elif type is metadata_pb2.THUNDERSTORM:
+            return load_thunderstorm_file
+        # elif type is metadata_pb2.ASDF:
+        #     return load_asdf_file
+        else:
+            raise TypeError(f'There is no load function for type {type}.')
+
+    else:
+        raise TypeError(f'There is no read function for type {type}.')
+
+def load_locdata(path, type=1, nrows=None):
     """
     Load data from localization file as specified by type.
 
     This function is a wrapper for read functions for the various types of SMLM data.
 
-
     Parameters
     ----------
     path : string or Path object
         File path for a localization data file to load.
-    type : Int or str
-        Integer or string indicating the file type.
-        The integer should be according to surepy.data.metadata_pb2.file_type.
-        String can be one of custom, rapidstorm, elyra, asdf.
+    type : int, str, surepy.constants.File_type, metadata_pb2
+        Indicator for the file type.
+        Integer or string should be according to surepy.constants.File_type.
+    nrows : int, default: None
+        The number of localizations to load from file. None means that all available rows are loaded.
 
     Returns
     -------
     LocData
         A new instance of LocData with all localizations.
     """
-    # todo fix protobuf constants for ASDF == 4
+    # todo fix protobuf constants for ASDF == 5
 
-    if isinstance(type, int):
-
-        if type == 1:
-            return load_txt_file(path, **kwargs)
-        elif type == 2:
-            return load_rapidSTORM_file(path, **kwargs)
-        elif type == 3:
-            return load_Elyra_file(path, **kwargs)
-        elif type == 4:
-            return load_asdf_file(path, **kwargs)
-        else:
-            raise TypeError(f'There is no read function for type {type}.')
-
-
-    if isinstance(type, str):
-
-        if type.upper() == 'CUSTOM':
-            return load_txt_file(path, **kwargs)
-        elif type.upper() == 'RAPIDSTORM':
-            return load_rapidSTORM_file(path, **kwargs)
-        elif type.upper() == 'ELYRA':
-            return load_Elyra_file(path, **kwargs)
-        elif type.upper() == 'ASDF':
-            return load_asdf_file(path, **kwargs)
-        else:
-            raise TypeError(f'There is no read function for type {type}.')
-
-    else:
-        raise TypeError(f'There is no read function for type {type}.')
+    return _map_file_type_to_load_function(type)(path=path, nrows=nrows)

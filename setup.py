@@ -1,35 +1,79 @@
 import os
 from setuptools import setup, find_packages
 
+#
+# utility functions
+#
+
 def read(fname):
     '''
     Utility function to read the README file.
     '''
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-setup(
-    name = "Surepy",
-    version = "0.1dev",
+#
+# Set constants for setup
+#
 
-    packages=find_packages(),
-    scripts=[],
+# project name
+NAME = "Surepy"
 
-    package_data={
+# version updated manually
+VERSION = 0.1
+
+# include packages
+PACKAGES = find_packages()
+
+# include files other than python code
+PACKAGE_DATA = {
         # Include *.txt files in the test/test_data directory:
         'Surepy/tests/test_data': ['*.txt']
-        },
+        }
 
-    author = "Surepy Developers",
-    author_email = "",
+#
+SCRIPTS = []
 
-    description = ("Single-molecule localization software under development"),
-    long_description=read('README.rst'),
+# contact information
+AUTHOR = "Surepy Developers"
+AUTHOR_EMAIL = ""
 
-    license="BSD-3",
-    keywords = "fluorescence super-resolution single-molecule localization microscopy smlm storm dstorm palm paint",
-    url = "",
+# information about the project
+DESCRIPTION = ("Single-molecule localization software under development")
+LONG_DESCRIPTION = read('README.rst')
+LICENSE = "BSD-3"
+KEYWORDS = "fluorescence super-resolution single-molecule localization microscopy smlm storm dstorm palm paint"
+URL = ""
 
-    # dependencies
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+# dependencies
+PYTHON_REQUIRES = '>=3.5'
+SETUP_REQUIRES = ['pytest-runner']
+INSTALL_REQUIRES = ['numpy>=1.8', 'pandas', 'matplotlib', 'protobuf']
+TESTS_REQUIRE = ['pytest']
+
+# entry points to register scripts
+ENTRY_POINTS = '''
+    [console_scripts]
+    draw_roi=surepy.scripts.draw_roi:main
+    '''
+
+
+
+setup(
+    name = NAME,
+    version = VERSION,
+    packages = PACKAGES,
+    scripts = SCRIPTS,
+    package_data = PACKAGE_DATA,
+    author = AUTHOR,
+    author_email = AUTHOR_EMAIL,
+    description = DESCRIPTION,
+    long_description = LONG_DESCRIPTION,
+    license = LICENSE,
+    keywords = KEYWORDS,
+    url = URL,
+    python_requires = PYTHON_REQUIRES,
+    setup_requires = SETUP_REQUIRES,
+    tests_require = TESTS_REQUIRE,
+    install_requires = INSTALL_REQUIRES,
+    entry_points = ENTRY_POINTS,
 )

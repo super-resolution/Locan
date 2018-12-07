@@ -21,11 +21,11 @@ Use setuptools to install Surepy from sources::
 
     python setup.py install
 
-Install google protobuf
+
+Run tests
 -----------------------
 
-Download protobuf-all-3.5.1.zip.
+Use setuptools (which is configured for running pytest) to run the tests::
 
-Enter the directory protobuf-3.5.1/python and run::
+    Python setup.py test
 
-    Python setup.py install

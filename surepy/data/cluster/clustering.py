@@ -26,6 +26,9 @@ def clustering(locdata, **kwargs):
     ----------
     locdata : LocData
         specifying the localization data on which to perform the manipulation.
+
+    Other Parameters
+    ----------------
     kwargs : dict
         Parameters for specified clustering algorithm.
 
@@ -79,10 +82,10 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
     if noise:
         selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
         noise = selections[0]
-        collection = LocData.from_collection(*selections[1:])
+        collection = LocData.from_collection(selections[1:])
     else:
         selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
-        collection = LocData.from_collection(*selections)
+        collection = LocData.from_collection(selections)
 
     # metadata
     del collection.meta.history[:]
@@ -137,10 +140,10 @@ def clustering_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False):
     if noise:
         selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
         noise = selections[0]
-        collection = LocData.from_collection(*selections[1:])
+        collection = LocData.from_collection(selections[1:])
     else:
         selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
-        collection = LocData.from_collection(*selections)
+        collection = LocData.from_collection(selections)
 
     # metadata
     del collection.meta.history[:]

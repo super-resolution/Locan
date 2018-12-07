@@ -14,7 +14,6 @@ Welcome to Surepy's documentation!
    :maxdepth: 1
    :caption: Getting started
    :name: mastertoc_start
-   :glob:
 
    installation
    tutorials
@@ -24,7 +23,6 @@ Welcome to Surepy's documentation!
    :maxdepth: 1
    :caption: User Guide
    :name: mastertoc_use
-   :glob:
 
    aim
    design
@@ -35,7 +33,6 @@ Welcome to Surepy's documentation!
    :maxdepth: 1
    :caption: Developer Guide
    :name: mastertoc_develop
-   :glob:
 
    documentation
    development
@@ -45,7 +42,6 @@ Welcome to Surepy's documentation!
    :maxdepth: 1
    :caption: Project Details
    :name: mastertoc_project
-   :glob:
 
    background
    contributions

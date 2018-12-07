@@ -11,6 +11,7 @@ Surepy consists of the following modules:
    gui
    io
    render
+   scripts
    simulation
    tests
    constants

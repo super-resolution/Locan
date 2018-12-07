@@ -1,28 +1,54 @@
 """
-Constants to be used throughout the project
+
+Constants to be used throughout the project.
+
+.. autosummary::
+   :toctree: ./
+
+   ROOT_DIR
+   PROPERTY_KEYS
+   HULL_KEYS
+   RAPIDSTORM_KEYS
+   ELYRA_KEYS
+   THUNDERSTORM_KEYS
+   N_JOBS
+
 """
 import os
+from enum import Enum
 
 
-# set root directory for path operations
-
+#: Root directory for path operations.
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-# Keys (i.e. names) for the most common LocData properties
-
+#: Keys for the most common LocData properties.
 PROPERTY_KEYS = ['Index', 'Position_x', 'Position_y', 'Position_z', 'Frame', 'Intensity', 'Local_background', 'Chi_square',
                  'Psf_sigma_x', 'Psf_sigma_y', 'Psf_sigma_z', 'Uncertainty_x', 'Uncertainty_y', 'Uncertainty_z',
                  'Channel', 'Index', 'Cluster_label', 'Two_kernel_improvement']
 
 
-# Keys (i.e. names) for the most common hulls
-
+#: Keys for the most common hulls.
 HULL_KEYS = {'bounding_box', 'convex_hull', 'oriented_bounding_box', 'alpha_shape'}
 
+# File types
+class File_type(Enum):
+    """
+    File types for localization files.
 
-# Mapping column names in RapidSTORM files to LocData property keys
+    The listed file types are supported with input/output functions in io.io_locdata.
+    The types correspond to the metadata keys for LocData objects. That is they are equal to the file types in
+    the protobuf message metadata_pb2.
+    """
+    UNKNOWN_FILE_TYPE = 0
+    CUSTOM = 1
+    RAPIDSTORM = 2
+    ELYRA = 3
+    THUNDERSTORM = 4
+    ASDF = 5
 
+
+#: Mapping column names in RapidSTORM files to LocData property keys
 RAPIDSTORM_KEYS = {
     'Position-0-0': 'Position_x',
     'Position-1-0': 'Position_y',
@@ -35,9 +61,7 @@ RAPIDSTORM_KEYS = {
 }
 
 
-# Mapping column names in Zeiss Elyra files to LocData property keys
-# todo: add Elyra keys to documentation.
-
+#: Mapping column names in Zeiss Elyra files to LocData property keys
 ELYRA_KEYS = {
     'Index': 'Index',
     'First Frame': 'Frame',
@@ -55,10 +79,7 @@ ELYRA_KEYS = {
     'Z Slice': 'Slice_z'
 }
 
-# Mapping column names in Thunderstorm files to LocData property keys
-# todo: add Thunderstorm Keys to documentation
-# todo: uncertainty_xy and sigma [nm] are mapped to Uncertainty_x and Psf_sigma_x. Possible conflict?
-
+#: Mapping column names in Thunderstorm files to LocData property keys
 THUNDERSTORM_KEYS = {
     'id': 'Index',
     'frame': 'Frame',
@@ -74,10 +95,10 @@ THUNDERSTORM_KEYS = {
     'sigma2 [nm]': 'Psf_sigma_y',
     'sigma [nm]': 'Psf_sigma_x'
 }
+# todo: uncertainty_xy and sigma [nm] are mapped to Uncertainty_x and Psf_sigma_x. Possible conflict?
+# todo: map "bkgstd [photon]","chi2","uncertainty [nm]" to something usefull
 
-
-# The number of cores that are used in parallel for some algorithms.
-# Following the scikit convention: n_jobs is the number of parallel jobs to run.
-# If -1, then the number of jobs is set to the number of CPU cores.
-
+#: The number of cores that are used in parallel for some algorithms.
+#: Following the scikit convention: n_jobs is the number of parallel jobs to run.
+#: If -1, then the number of jobs is set to the number of CPU cores.
 N_JOBS = 1

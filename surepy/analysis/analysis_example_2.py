@@ -53,9 +53,16 @@ def _algorithm_2(data=None, n_sample=100, seed=None):
 # The classes for each particular algorith are defined as:
 #
 
+
+#
+# This specific analysis classes inherit from _Analysis.
+#
+# The classes for each particular algorith are defined as:
+#
+
 class Analysis_example_algorithm_1(_Analysis):
     '''
-    Example for an analysis class implementing algorithm_1.
+    Example for an analysis class implementing algorithm_2.
     Compute some data and provide a plot and histogram with secondary data (e.g. from fitting plot or histogram).
 
     This is a specialized analysis class implementing an example analysis routine. For illustrating the analysis

@@ -1,17 +1,24 @@
+"""
+
+Compute statistics for localization data.
+
+These values represent new properties of locdata.
+
+"""
 import pandas as pd
 from surepy import LocData
 
 def statistics(locdata, statistic_keys = ('count', 'min', 'max', 'mean', 'median', 'std', 'sem')):
     """
-    Compute statistics for localization data.
+    Compute selected statistical parameter for localization data.
 
     Parameters
     ----------
     locdata : LocData or Pandas DataFrame
-        localization data
+        Localization data
 
     statistic_keys : tuple of strings
-        pandas statistic functions. Default: ('count', 'min', 'max', 'mean', 'median', 'std', 'sem')
+        Pandas statistic functions. Default: ('count', 'min', 'max', 'mean', 'median', 'std', 'sem')
 
     Returns
     -------
@@ -23,6 +30,8 @@ def statistics(locdata, statistic_keys = ('count', 'min', 'max', 'mean', 'median
         data = locdata.data
     elif isinstance(locdata, pd.DataFrame):
         data = locdata
+    else:
+        raise TypeError('locdata should be of type Locdata or Pandas.DataFrame.')
 
     statistics = data.agg(statistic_keys)
     if isinstance(statistic_keys, str):

@@ -1,8 +1,8 @@
 '''
-This module provides functions that compute additional properties for locdata objects.
+Compute additional properties for locdata objects.
 
-The functions take locdata as input, compute the new property, and return a dict with the property name as key
-and the corresponding values.
+These functions take locdata as input, compute one or more new properties, and return a dict with the property names
+as key and the corresponding values.
 '''
 
 from surepy.data.properties.max_distance import *

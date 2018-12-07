@@ -1,5 +1,5 @@
 """
-Methods for building an analysis pipeline.
+Building an analysis pipeline.
 
 Pipeline refers to sequential analysis steps applied to a single LocData object. Pipeline thus include true piped
 analysis, where a preliminary result serves as input to the next analysis step, but also workflows that provide
@@ -12,7 +12,7 @@ from surepy.data.rois import Roi, load_from_roi_file
 from surepy.data.hulls import Convex_hull_scipy
 from surepy.data.filter import select_by_condition
 from surepy.data.cluster.clustering import clustering_hdbscan
-from surepy.analysis.analysis_tools import _init_meta, _update_meta
+from surepy.analysis.analysis_base import _init_meta, _update_meta
 
 
 class Pipeline():
@@ -22,6 +22,9 @@ class Pipeline():
     The custom analysis routine has to be added by implementing the compute(self) method. Results are provided as
     customized attributes. We suggest abbreviated standard names for the most common procedures:
 
+    * lp - Localization Precision
+    * lprop - Localization Property
+    * lpf - Localizations per Frame
     * rhf - Ripley H function
     * clust - locdata with clustered elements
 

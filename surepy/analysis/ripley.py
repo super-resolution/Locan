@@ -136,6 +136,9 @@ class Ripleys_k_function(_Analysis):
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_k_data': ripley})
         return self
 
+    def plot(self, ax=None, show=True):
+        plot(self, ax, show)
+
 
 class Ripleys_l_function(_Analysis):
     """
@@ -190,6 +193,9 @@ class Ripleys_l_function(_Analysis):
                                            region_measure=region_measure, other_points=other_points)
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_l_data': ripley})
         return self
+
+    def plot(self, ax=None, show=True):
+        plot(self, ax, show)
 
 
 class Ripleys_h_function(_Analysis):
@@ -266,6 +272,9 @@ class Ripleys_h_function(_Analysis):
     def Ripley_h_maximum(self):
         self._Ripley_h_maximum = None
 
+    def plot(self, ax=None, show=True):
+        plot(self, ax, show)
+
 
 ##### Interface functions
 
@@ -299,7 +308,7 @@ def plot(self, ax=None, show=True):
 
     ax.set(title = title,
            xlabel = 'Radius',
-           ylabel = self.results.columns[0]
+           ylabel = self.results.columns[1]
            )
 
     # show figure

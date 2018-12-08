@@ -20,4 +20,6 @@ Surepy consists of the following modules:
 
 from surepy.data.locdata import LocData
 
+__version__ = 0.1
+
 __all__ = ['LocData']

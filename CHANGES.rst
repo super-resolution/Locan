@@ -2,114 +2,7 @@
 Changelog for revisions
 =======================
 
-
-0.2 (unreleased)
-================
-
-
-New Features
-------------
-
-surepy.analysis
-^^^^^^^^^^^^^^^
--
-
-surepy.data
-^^^^^^^^^^^^^^^
--
-
-surepy.gui
-^^^^^^^^^^^^^^^
--
-
-surepy.io
-^^^^^^^^^^^^^^^
--
-
-surepy.render
-^^^^^^^^^^^^^^^
--
-
-surepy.scripts
-^^^^^^^^^^^^^^^
--
-
-surepy.simulation
-^^^^^^^^^^^^^^^
--
-
-
-API Changes
------------
-
-surepy.analysis
-^^^^^^^^^^^^^^^
--
-
-surepy.data
-^^^^^^^^^^^^^^^
--
-
-surepy.gui
-^^^^^^^^^^^^^^^
--
-
-surepy.io
-^^^^^^^^^^^^^^^
--
-
-surepy.render
-^^^^^^^^^^^^^^^
--
-
-surepy.scripts
-^^^^^^^^^^^^^^^
--
-
-surepy.simulation
-^^^^^^^^^^^^^^^
--
-
-Bug Fixes
----------
-
-
-surepy.analysis
-^^^^^^^^^^^^^^^
--
-
-surepy.data
-^^^^^^^^^^^^^^^
--
-
-surepy.gui
-^^^^^^^^^^^^^^^
--
-
-surepy.io
-^^^^^^^^^^^^^^^
--
-
-surepy.render
-^^^^^^^^^^^^^^^
--
-
-surepy.scripts
-^^^^^^^^^^^^^^^
--
-
-surepy.simulation
-^^^^^^^^^^^^^^^
--
-
-
-Other Changes and Additions
----------------------------
-
--
-
-
-0.1 (date)
+0.1 (9.12.2018)
 ========================
 
 New Features
@@ -153,7 +46,7 @@ surepy.scripts
 - draw_roi
 
 surepy.simulation
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^
 - simulate_locdata
 
 
@@ -161,9 +54,17 @@ Other Changes and Additions
 ---------------------------
 
 surepy.tests
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^
 - corresponding unit tests
 
 docs
-^^^^^^^^^^^^^^^
+^^^^^
 - rst files for sphinx documentation.
+
+surepy
+^^^^^^^
+- CHANGES.rst
+- LICENSE.md
+- README.md
+- environment.yml
+- environment_dev.yml

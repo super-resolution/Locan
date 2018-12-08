@@ -39,7 +39,7 @@ AUTHOR_EMAIL = ""
 
 # information about the project
 DESCRIPTION = ("Single-molecule localization software under development")
-LONG_DESCRIPTION = read('README.rst')
+LONG_DESCRIPTION = read('README.md')
 LICENSE = "BSD-3"
 KEYWORDS = "fluorescence super-resolution single-molecule localization microscopy smlm storm dstorm palm paint"
 URL = ""

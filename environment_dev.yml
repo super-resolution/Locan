@@ -1,0 +1,20 @@
+#
+# Further tools for surepy development
+#
+#
+# Update existing environment: conda env update --file "./environment_dev.yml"
+# 
+
+# Name of the environment
+name: surepy
+
+channels:
+- defaults
+- conda-forge
+
+dependencies:
+# Development related
+- sphinx
+- sphinx_rtd_theme
+- nbval
+- ipython

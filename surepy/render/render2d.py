@@ -45,7 +45,6 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=Tru
     -------
     matplotlib.image.AxesImage (rtype from imshow)
         mappable to create colorbar
-
     """
 
     # Provide matplotlib axes if not provided
@@ -68,14 +67,14 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=Tru
         elif range == 'zero':
             try:
                 range = np.array([np.array([0, 0]),
-                                   [locdata.properties[x] for x in ['Position_x_max', 'Position_y_max']]]
-                                  ).T
+                                  [locdata.properties[x] for x in ['Position_x_max', 'Position_y_max']]
+                                  ]).T
             except KeyError:
                 stats = surepy.data.properties.statistics(locdata.data[['Position_x', 'Position_y']],
                                                           statistic_keys=('max'))
                 range = np.array([np.array([0, 0]),
-                                  [stats['Position_x_max'], stats['Position_y_max']]]
-                                 ).T
+                                  [stats['Position_x_max'], stats['Position_y_max']]
+                                  ]).T
 
     else:
         range = np.array(range)
@@ -93,7 +92,7 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=Tru
     if rescale is None or rescale is False:
         pass
     elif rescale is True:
-        img = exposure.rescale_intensity(img) #scaling to min/max of img intensities
+        img = exposure.rescale_intensity(img)  # scaling to min/max of img intensities
     elif isinstance(rescale, tuple):
         minmax = (img.min(), img.max())
         rescale_abs = tuple(np.multiply(np.divide(rescale, 100), (minmax[1] - minmax[0])) + minmax[0])

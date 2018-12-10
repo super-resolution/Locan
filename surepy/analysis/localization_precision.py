@@ -100,6 +100,7 @@ class Localization_precision(_Analysis):
     """
     def __init__(self, locdata=None, meta=None, radius=50):
         super().__init__(locdata=locdata, meta=meta, radius=radius)
+        self.results = None
         self.distribution_statistics = None
 
     def compute(self):
@@ -213,8 +214,16 @@ class Localization_precision(_Analysis):
 
 class Pairwise_distance_distribution_2d(stats.rv_continuous):
     '''
-    Define continuous distribution class (inheriting from scipy.stats.rv_continuous) for fitting the distribution
+    A random variable describing the distribution
     of Position_distances (referred to as pairwise displacement distribution in [1]_)
+
+    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
+    overriding teh _pdf method.
+
+    Parameters
+    ----------
+    sigma : float
+        Shape parameter.
 
     References
     ----------
@@ -348,7 +357,4 @@ class _DistributionFits:
 
     def parameter_dict(self):
         """ Dictionary of fitted parameters. """
-        if self.parameters is None:
-            return None
-        else:
-            return {k: self.__dict__[k] for k in self.parameters}
+        return {k: self.__dict__[k] for k in self.parameters}

@@ -203,14 +203,12 @@ class NNDistances_csr_2d(stats.rv_continuous):
 
     Parameters
     ----------
-    x : float
-        distance
-    density : float
-        density of points
+    shapes : float
+        Shape parameter `density`, being the density of points.
 
     References
     ----------
-    .. [1] todo
+    .. [1] # todo
 
     """
 
@@ -247,9 +245,9 @@ class _DistributionFits:
         self.analysis_class = analysis_class
         self.loc_property = 'nn_distance'
         self.distribution = None
-        self.parameters = None
+        self.parameters = []
 
-    def fit(self, with_constraints=True):
+    def fit(self, with_constraints=True, **kwargs):
         """
         Fit scipy.stats.distribution to analysis_class.results[loc_property].
 
@@ -262,6 +260,11 @@ class _DistributionFits:
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Parameters passed to the `distribution.fit()` method.
         """
         self.distribution = NNDistances_csr_2d()
         # todo: add 3D
@@ -270,12 +273,13 @@ class _DistributionFits:
 
         if with_constraints:
             fit_results = self.distribution.fit(data=self.analysis_class.results[self.loc_property].values,
-                                                density=self.analysis_class.localization_density, floc=0, fscale=1)
+                                                density=self.analysis_class.localization_density,
+                                                floc=0, fscale=1, **kwargs)
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
         else:
             fit_results = self.distribution.fit(data=self.analysis_class.results[self.loc_property].values,
-                                                density=self.analysis_class.localization_density)
+                                                density=self.analysis_class.localization_density, **kwargs)
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
 
@@ -308,7 +312,4 @@ class _DistributionFits:
 
     def parameter_dict(self):
         """ Dictionary of fitted parameters. """
-        if self.parameters is None:
-            return None
-        else:
-            return {k: self.__dict__[k] for k in self.parameters}
+        return {k: self.__dict__[k] for k in self.parameters}

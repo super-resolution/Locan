@@ -118,6 +118,11 @@ class Localization_precision(_Analysis):
         ----------
         loc_property : LocData property
             The property for which to fit an appropriate distribution; if None all plots are shown.
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Parameters passed to the `distribution.fit()` method.
         """
         self.distribution_statistics = _DistributionFits(self)
         if loc_property is None:
@@ -282,6 +287,11 @@ class _DistributionFits:
         ----------
         loc_property : LocData property
             The property for which to fit an appropriate distribution
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Parameters passed to the `distribution.fit()` method.
         '''
         # prepare parameters
         if 'Position_delta_' in loc_property:

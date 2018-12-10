@@ -192,7 +192,8 @@ class _DistributionFits:
         The property for which to fit an appropriate distribution
     distribution : str or scipy.stats distribution object
         Distribution model to fit.
-    parameters :
+    parameters : list of string
+        Distribution parameters.
     """
     def __init__(self, analysis_class):
         self.analysis_class = analysis_class

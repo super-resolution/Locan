@@ -218,12 +218,12 @@ class Pairwise_distance_distribution_2d(stats.rv_continuous):
     of Position_distances (referred to as pairwise displacement distribution in [1]_)
 
     The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
-    overriding teh _pdf method.
+    overriding the _pdf method.
 
     Parameters
     ----------
-    sigma : float
-        Shape parameter.
+    shapes : float
+        Shape parameter `sigma`.
 
     References
     ----------
@@ -255,39 +255,24 @@ class _DistributionFits:
         The analysis class with result data to fit.
     pairwise_distribution : Pairwise_distance_distribution_2d
         Continuous distribution function used to fit Position_distances
-    Position_delta_x_center : float
-        Center of the normal distribution fitted to Position_delta_x.
-    Position_delta_x_sigma : float
-        Sigma of the normal distribution fitted to Position_delta_x.
-    Position_delta_y_center : float
-        Center of the normal distribution fitted to Position_delta_y.
-    Position_delta_y_sigma : float
-        Sigma of the normal distribution fitted to Position_delta_y.
-    Position_delta_z_center : float
-        Center of the normal distribution fitted to Position_delta_z.
-    Position_delta_z_sigma : float
-        Sigma of the normal distribution fitted to Position_delta_z.
-    Position_distance_sigma : float
-        Sigma of the pairwise distance distribution from fitting Position_distance.
+    parameters : list of string
+        Distribution parameters.
+
+    Notes
+    -----
+    Attributes for fit parameter are generated dynamically, named as loc_property + distribution parameters and listed
+    in parameters.
     """
 
     def __init__(self, analysis_class):
         self.analysis_class = analysis_class
+        self.distribution = None
+        self._dist_parameters = None
+        self.parameters = []
 
         # continuous distributions
         self.pairwise_distribution = Pairwise_distance_distribution_2d(name='pairwise', a=0.)
         # todo: 3D
-
-        # fitted parameters for distributions
-        self.parameters = []
-        self.Position_delta_x_center = None
-        self.Position_delta_x_sigma = None
-        self.Position_delta_y_center = None
-        self.Position_delta_y_sigma = None
-        self.Position_delta_z_center = None
-        self.Position_delta_z_sigma = None
-        self.Position_distance_sigma = None
-
 
     def fit(self, loc_property='Position_distance', **kwargs):
         '''
@@ -298,19 +283,31 @@ class _DistributionFits:
         loc_property : LocData property
             The property for which to fit an appropriate distribution
         '''
-
+        # prepare parameters
         if 'Position_delta_' in loc_property:
-            # MLE fit of distribution on data
-            loc, scale = stats.norm.fit(self.analysis_class.results[loc_property].values, **kwargs)
-            self.parameters.extend([loc_property + '_center', loc_property + '_sigma'])
-            setattr(self, loc_property + '_center', loc)
-            setattr(self, loc_property + '_sigma', scale)
-
+            self.distribution = stats.norm
+            self._dist_parameters = [(loc_property + '_' + param) for param in ['loc', 'scale']]
         elif loc_property == 'Position_distance':
-            # MLE fit of distribution on data with fixed loc and scale
-            sigma, loc, scale = self.pairwise_distribution.fit(self.analysis_class.results[loc_property].values, floc=0, fscale=1, **kwargs)
-            self.parameters.extend(['Position_distance_sigma'])
-            self.Position_distance_sigma = sigma
+            self.distribution = self.pairwise_distribution
+            self._dist_parameters = [(loc_property + '_' + param) for param in ['sigma', 'loc', 'scale']]
+        else:
+            raise TypeError('Unknown localization property.')
+
+        for param in self._dist_parameters:
+            if param not in self.parameters:
+                self.parameters.append(param)
+
+        # MLE fit of distribution on data
+        if 'Position_delta_' in loc_property:
+            fit_results = self.distribution.fit(self.analysis_class.results[loc_property].values, **kwargs)
+        elif loc_property == 'Position_distance':
+            fit_results = self.distribution.fit(self.analysis_class.results[loc_property].values,
+                                                floc=0, fscale=1, **kwargs)
+        else:
+            raise TypeError('Unknown localization property.')
+
+        for parameter, result in zip(self._dist_parameters, fit_results):
+            setattr(self, parameter, result)
 
     def plot(self, ax=None, show=True, loc_property='Position_distance', **kwargs):
         """
@@ -325,7 +322,6 @@ class _DistributionFits:
         loc_property : LocData property
             The property for which to plot the distribution fit.
 
-
         Other Parameters
         ----------------
         kwargs : dict
@@ -337,12 +333,12 @@ class _DistributionFits:
 
         # plot fit curve
         if 'Position_delta_' in loc_property:
-            _center = getattr(self, loc_property + '_center')
-            _sigma = getattr(self, loc_property + '_sigma')
+            _loc = getattr(self, loc_property + '_loc')
+            _scale = getattr(self, loc_property + '_scale')
 
-            x_values = np.linspace(stats.norm.ppf(0.01, loc=_center, scale=_sigma),
-                                   stats.norm.ppf(0.99, loc=_center, scale=_sigma), 100)
-            ax.plot(x_values, stats.norm.pdf(x_values, loc=_center, scale=_sigma), 'r-', lw=3, alpha=0.6,
+            x_values = np.linspace(stats.norm.ppf(0.01, loc=_loc, scale=_scale),
+                                   stats.norm.ppf(0.99, loc=_loc, scale=_scale), 100)
+            ax.plot(x_values, stats.norm.pdf(x_values, loc=_loc, scale=_scale), 'r-', lw=3, alpha=0.6,
                     label='fitted pdf', **kwargs)
 
         elif loc_property == 'Position_distance':

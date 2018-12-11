@@ -47,32 +47,38 @@ def test_LocData(df_simple):
     # dat.print_meta()
     # dat.print_summary()
 
+
 def test_LocData_from_dataframe(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
+    assert(list(dat.properties.keys())==['Localization_count', 'Position_x', 'Position_y',
+                                        'Region_measure_bb', 'Subregion_measure_bb', 'Localization_density_bb'])
     assert (len(dat) == 5)
     assert (dat.meta.comment == COMMENT_METADATA.comment)
+
+
+# this test is not running wihtin complete test run. But it works when run by itself.
+# def test_LocData_count(df_simple):
+#     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
+#     assert (LocData.count == 1)
+#     dat_2 = LocData.from_dataframe(dataframe=df_simple)
+#     assert(dat.properties == dat_2.properties)
+#     assert (LocData.count == 2)
+#     del(dat)
+#     assert (LocData.count == 1)
+
 
 def test_LocData_from_dataframe_with_meta_dict(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta={'comment':'some user comment'})
     assert (len(dat) == 5)
     assert (dat.meta.comment == COMMENT_METADATA.comment)
 
-# todo: identify assertion failure
-# def test_LocData_class_count(df_simple):
-#     dat_1 = LocData.from_dataframe(dataframe=df_simple)
-#     assert (LocData.count == 1)
-#     dat_2 = LocData.from_dataframe(dataframe=df_simple)
-#     # print(dat_2.properties)
-#     assert(dat_1.properties == dat_2.properties)
-#     assert (LocData.count == 2)
-#     del(dat_1)
-#     assert (LocData.count == 1)
 
 def test_LocData_from_selection(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple)
     sel = LocData.from_selection(locdata=dat, indices=[1,3,4], meta=COMMENT_METADATA)
     assert (len(sel) == 3)
     assert (sel.meta.comment == COMMENT_METADATA.comment)
+
 
 def test_LocData_from_collection(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple)
@@ -81,8 +87,9 @@ def test_LocData_from_collection(df_simple):
     col = LocData.from_collection([sel_1, sel_2], meta=COMMENT_METADATA)
     assert (len(col.references) == 2)
     assert (len(col) == 2)
-    assert (col.meta.comment == 'some user comment')
+    assert (col.meta.comment == COMMENT_METADATA.comment)
     #print(col.properties)
+
 
 def test_LocData_concat(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple)
@@ -90,7 +97,8 @@ def test_LocData_concat(df_simple):
     sel_2 = LocData.from_selection(locdata=dat, indices=[3, 4])
     col = LocData.concat([sel_1, sel_2], meta=COMMENT_METADATA)
     assert (len(col) == 5)
-    assert (col.meta.comment == 'some user comment')
+    assert (col.meta.comment == COMMENT_METADATA.comment)
+
 
 def test_LocData_reduce(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
@@ -113,8 +121,19 @@ def test_LocData_add_column_to_dataframe(df_simple):
     # from selection
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
     sel = LocData.from_selection(locdata=dat, indices=[0, 1, 2])
-    sel.dataframe = sel.dataframe.assign(new= np.arange(3))
-    assert all(list(sel.data.columns == ['index', 'Position_x', 'Position_y', 'new']))
+    sel.dataframe = sel.dataframe.assign(new=np.arange(3))
+    assert(list(sel.dataframe.columns)==['new'])
+    assert(list(sel.references.dataframe.columns)==['Position_x', 'Position_y'])
+    assert all(list(sel.data.columns == ['Position_x', 'Position_y', 'new']))
+    sel.reduce()
+    assert all(list(sel.dataframe.columns == ['Position_x', 'Position_y', 'new']))
+
+    # sel_2 = LocData.from_selection(locdata=sel, indices=[0, 2])
+    # print(sel_2.data)
+    # print(sel_2.references.data)
+    # print(sel_2.references.references.data)
+    # sel_2.reduce()
+    # print(sel_2.data)
 
     # from collection
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
@@ -123,7 +142,8 @@ def test_LocData_add_column_to_dataframe(df_simple):
     col = LocData.from_collection([sel_1, sel_2], meta=COMMENT_METADATA)
     col.dataframe = col.dataframe.assign(new= np.arange(2))
     # print(col.data.columns)
-    assert all(list(col.data.columns == ['Localization_count', 'Localization_density_bb', 'Position_x', 'Position_y', 'Region_measure_bb', 'Subregion_measure_bb', 'new']))
+    assert all(list(col.data.columns == ['Localization_count', 'Localization_density_bb', 'Position_x', 'Position_y',
+                                         'Region_measure_bb', 'Subregion_measure_bb', 'new']))
 
 
 # locdata and metadata
@@ -136,6 +156,4 @@ def test_LocData_handling_metadata(df_simple):
     dat.meta.map['variable key'] = 'new comment'
     # print(dat.meta.map)
     assert (dat.meta.map == {'variable key': 'new comment'})
-
-
 

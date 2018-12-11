@@ -80,7 +80,7 @@ surepy.analysis
 
 surepy.data
 ^^^^^^^^^^^^^^^
-- corrected index issues in track and Locdata_from_selection().
+- corrected index issues in track and Locdata_data.
 
 surepy.gui
 ^^^^^^^^^^^^^^^

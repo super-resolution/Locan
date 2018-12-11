@@ -65,7 +65,7 @@ def test_Localization_precision_histogram(locdata_simple):
         assert (lp.distribution_statistics.Position_delta_x_loc)
 
     lp.hist(loc_property='Position_delta_x',fit=True, show=False)
-    print(lp.distribution_statistics.parameter_dict())
+    #print(lp.distribution_statistics.parameter_dict())
     assert(lp.distribution_statistics.Position_delta_x_loc)
     assert(lp.distribution_statistics.Position_delta_x_scale)
 

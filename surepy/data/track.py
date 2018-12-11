@@ -46,8 +46,8 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     df = link_df(locdata.data, search_range=search_range, memory=memory, pos_columns=locdata.coordinate_labels,
                     t_column='Frame', **kwargs)
     df.reset_index(inplace=True)
-    df.rename(columns={'index': 'Index', 'particle': 'Track'}, inplace=True)
-    return df[['Index', 'Track']]
+    df.rename(columns={'index': 'Index_link', 'particle': 'Track'}, inplace=True)
+    return df[['Index_link', 'Track']]
 
 
 def track(locdata, search_range=40, memory=0, **kwargs):
@@ -81,7 +81,7 @@ def track(locdata, search_range=40, memory=0, **kwargs):
 
     grouped = df.groupby('Track')
 
-    selections = [LocData.from_selection(locdata=locdata, indices=group['Index'].values) for _, group in grouped]
+    selections = [LocData.from_selection(locdata=locdata, indices=group['Index_link'].values) for _, group in grouped]
     collection = LocData.from_collection(selections)
 
     # metadata

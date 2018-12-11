@@ -360,6 +360,8 @@ def load_thunderstorm_file(path, nrows=None):
     dataframe = pd.read_csv(path, sep=',', skiprows=1, nrows=nrows, names=columns)
 
     # correct data formats
+    integer_Index = pd.to_numeric(dataframe['Original_index'], downcast='integer')
+    dataframe['Original_index'] = integer_Index
     integer_Frames = pd.to_numeric(dataframe['Frame'], downcast='integer')
     dataframe['Frame'] = integer_Frames
 

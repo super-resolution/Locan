@@ -19,7 +19,7 @@ def test_loading_rapidSTORM_file():
 
 def test_get_correct_column_names_from_Elyra_header():
     columns = io.load_Elyra_header(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt')
-    assert (columns == ['Index', 'Frame', 'Frames_number', 'Frames_missing', 'Position_x', 'Position_y',
+    assert (columns == ['Original_index', 'Frame', 'Frames_number', 'Frames_missing', 'Position_x', 'Position_y',
                         'Precision', 'Intensity', 'Local_background', 'Chi_square', 'Psf_half_width', 'Channel',
                         'Slice_z'])
 
@@ -30,12 +30,13 @@ def test_loading_Elyra_file():
 
 def test_get_correct_column_names_from_Thunderstorm_header():
     columns = io.load_thunderstorm_header(path=surepy.constants.ROOT_DIR + '/tests/test_data/Thunderstorm_dstorm_data.csv')
-    assert (columns == ['Index', 'Frame', 'Position_x', 'Position_y', 'Psf_sigma_x', 'Intensity', 'Local_background',
+    assert (columns == ['Original_index', 'Frame', 'Position_x', 'Position_y', 'Psf_sigma_x', 'Intensity', 'Local_background',
      'bkgstd [photon]', 'Chi_square', 'uncertainty [nm]'])
 
 def test_loading_Thunderstorm_file():
     dat = io.load_thunderstorm_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/Thunderstorm_dstorm_data.csv',
                                     nrows=10)
+    #print(dat.data.columns)
     assert (len(dat) == 10)
 
 def test_loading_txt_file():

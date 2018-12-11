@@ -80,7 +80,7 @@ surepy.analysis
 
 surepy.data
 ^^^^^^^^^^^^^^^
--
+- corrected index issues in track and Locdata_from_selection().
 
 surepy.gui
 ^^^^^^^^^^^^^^^
@@ -88,7 +88,7 @@ surepy.gui
 
 surepy.io
 ^^^^^^^^^^^^^^^
--
+- changed types for column values returned from load_thunderstorm_file.
 
 surepy.render
 ^^^^^^^^^^^^^^^

@@ -304,9 +304,16 @@ class LocData():
         return len(self.data.index)
 
 
-    def reduce(self):
+    def reduce(self, reset_index=False):
         """
-        Update dataframe, reset dataframe.index, delete all references, set indices to None.
+        Clean up references.
+
+        This includes to update `Locdata.dataframe` and set `LocData.references` and `LocData.indices` to None.
+
+        Parameters
+        ----------
+        reset_index : Bool
+            Flag indicating if the index is reset to integer values. If True the previous index values are discarded.
 
         Returns
         -------
@@ -314,14 +321,19 @@ class LocData():
             Flag set to 1 indicating if reference was changed, or set to 0 if no change was applied.
         """
         if self.references is None:
-            return 0
+            return_value = 0
         elif isinstance(self.references, LocData):
             self.dataframe = self.data
             self.indices = None
             self.references = None
-            return 1
+            return_value = 1
         else:
             raise ValueError('reference has undefined value.')
+
+        if reset_index is True:
+            self.dataframe.reset_index(drop=True, inplace=True)
+
+        return return_value
 
 
     def print_meta(self):

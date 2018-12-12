@@ -19,11 +19,10 @@ class LocData():
 
     Data consist of individual elements being either localizations or other LocData objects. Both, localizations and
     Locdata objects have properties. Properties come from the original data or are added by analysis procedures.
-    Analysis classes can take LocData objects as input on which to perform their action.
 
     Parameters
     ----------
-    references : LocData or list(LocData) or None
+    references : LocData, list(LocData), or None
         A locData reference or an array with references to locData objects referring to the selected localizations
         in dataset.
     dataframe : Pandas DataFrame or None
@@ -36,9 +35,9 @@ class LocData():
     Attributes
     ----------
     count : int
-        A counter for counting locdata instantiations (class attribute).
+        A counter for counting LocData instantiations (class attribute).
 
-    references : LocData or list(LocData) or None
+    references : LocData, list(LocData) or None
         A locData reference or an array with references to locData objects referring to the selected localizations
         in dataframe.
     dataframe : Pandas DataFrame or None
@@ -283,7 +282,6 @@ class LocData():
        dataframe. """
        if isinstance(self.references, LocData):
            df = self.references.data.iloc[self.indices]
-           df = df.reset_index()
            df = pd.merge(df, self.dataframe, left_index=True, right_index=True, how='outer')
            return df
        else:
@@ -306,9 +304,16 @@ class LocData():
         return len(self.data.index)
 
 
-    def reduce(self):
+    def reduce(self, reset_index=False):
         """
-        Update dataframe, reset dataframe.index, delete all references, set indices to None.
+        Clean up references.
+
+        This includes to update `Locdata.dataframe` and set `LocData.references` and `LocData.indices` to None.
+
+        Parameters
+        ----------
+        reset_index : Bool
+            Flag indicating if the index is reset to integer values. If True the previous index values are discarded.
 
         Returns
         -------
@@ -316,18 +321,19 @@ class LocData():
             Flag set to 1 indicating if reference was changed, or set to 0 if no change was applied.
         """
         if self.references is None:
-            return 0
+            return_value = 0
         elif isinstance(self.references, LocData):
-            self.dataframe = self.references.data.iloc[self.indices]
-            self.dataframe = self.dataframe.reset_index()
+            self.dataframe = self.data
             self.indices = None
             self.references = None
-            return 1
+            return_value = 1
         else:
-            self.dataframe = self.dataframe.reset_index()
-            self.indices = None
-            self.references = None
-            return 1
+            raise ValueError('reference has undefined value.')
+
+        if reset_index is True:
+            self.dataframe.reset_index(drop=True, inplace=True)
+
+        return return_value
 
 
     def print_meta(self):
@@ -352,5 +358,3 @@ class LocData():
         meta_.frame_count = self.meta.frame_count
 
         print (text_format.MessageToString(meta_))
-
-

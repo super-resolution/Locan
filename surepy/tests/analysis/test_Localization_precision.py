@@ -31,44 +31,41 @@ def test_Localization_precision(locdata_simple):
     for prop in ['Position_delta_x', 'Position_delta_y', 'Position_distance']:
         assert(prop in lp.results.columns)
 
+
 def test_Localization_precision_plot(locdata):
     lp = Localization_precision(locdata=locdata).compute()
     lp.plot(window=10, show=False)
-    #print(lp.results)
+    # print(lp.results)
+
 
 def test_Distribution_fits(locdata_simple):
     #print(locdata_simple.data)
     lp = Localization_precision(locdata=locdata_simple).compute()
     distribution_statistics = _DistributionFits(lp)
-    #print(distribution_statistics)
     distribution_statistics.fit()
+    assert('Position_distance_sigma' in distribution_statistics.parameters)
     distribution_statistics.plot(show=False)
-    # print(dist_fits.Position_delta_x_center)
-    # print(dist_fits.Position_distance_sigma)
-    assert(distribution_statistics.Position_delta_x_center is None)
-    assert(distribution_statistics.Position_distance_sigma is not None)
-    lp.fit_distributions(loc_property='Position_delta_x')
-    assert(lp.distribution_statistics.Position_delta_x_center==-1.6666666666666667)
-    #print(lp.distribution_statistics)
 
     lp.fit_distributions(loc_property=None)
-    assert(lp.distribution_statistics.Position_delta_x_center==-1.6666666666666667)
+    assert(lp.distribution_statistics.Position_delta_x_loc)
     #print(lp.distribution_statistics)
+
     lp.fit_distributions(loc_property='Position_delta_x', floc=0)
-    assert(lp.distribution_statistics.Position_delta_x_center==0)
+    assert(lp.distribution_statistics.parameters)
+    assert(lp.distribution_statistics.parameter_dict())
+    assert(lp.distribution_statistics.Position_delta_x_loc==0)
+
 
 def test_Localization_precision_histogram(locdata_simple):
-    #print(locdata_simple.data)
     lp = Localization_precision(locdata=locdata_simple).compute()
     #lp.hist(fit=True)
 
     with pytest.raises(AttributeError):
         lp.hist(loc_property='Position_delta_x',fit=False, show=False)
-        assert (lp.distribution_statistics.Position_delta_x_center == -1.6666666666666667)
+        assert (lp.distribution_statistics.Position_delta_x_loc)
 
     lp.hist(loc_property='Position_delta_x',fit=True, show=False)
-    #print(f'center: {lp.distribution_statistics.Position_delta_x_center}')
-    #print(f'sigma: {lp.distribution_statistics.Position_delta_x_sigma}')
-    assert(lp.distribution_statistics.Position_delta_x_center==-1.6666666666666667)
-    assert (lp.distribution_statistics.Position_delta_x_sigma == 0.74535599249993)
-    print(lp.distribution_statistics.parameter_dict())
+    #print(lp.distribution_statistics.parameter_dict())
+    assert(lp.distribution_statistics.Position_delta_x_loc)
+    assert(lp.distribution_statistics.Position_delta_x_scale)
+

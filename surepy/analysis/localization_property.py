@@ -192,13 +192,14 @@ class _DistributionFits:
         The property for which to fit an appropriate distribution
     distribution : str or scipy.stats distribution object
         Distribution model to fit.
-    parameters :
+    parameters : list of string
+        Distribution parameters.
     """
     def __init__(self, analysis_class):
         self.analysis_class = analysis_class
         self.loc_property = self.analysis_class.parameter['loc_property']
         self.distribution = None
-        self.parameters = None
+        self.parameters = []
 
     def fit(self, distribution, with_constraints=True, **kwargs):
         """
@@ -220,7 +221,8 @@ class _DistributionFits:
             Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """
         self.distribution = distribution
-        self.parameters = _list_parameters(distribution)
+        for param in _list_parameters(distribution):
+            self.parameters.append(self.loc_property +  '_' + param)
 
         if with_constraints and self.distribution == stats.expon:
             # MLE fit of exponential distribution with constraints
@@ -232,6 +234,7 @@ class _DistributionFits:
             fit_results = self.distribution.fit(self.analysis_class.results[self.loc_property].values, **kwargs)
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
+
 
     def plot(self, ax=None, show=True, **kwargs):
         """
@@ -262,7 +265,6 @@ class _DistributionFits:
 
     def parameter_dict(self):
         """ Dictionary of fitted parameters. """
-        if self.parameters is None:
-            return None
-        else:
-            return {k: self.__dict__[k] for k in self.parameters}
+        return {k: self.__dict__[k] for k in self.parameters}
+
+

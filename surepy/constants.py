@@ -23,7 +23,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 #: Keys for the most common LocData properties.
-PROPERTY_KEYS = ['Index', 'Position_x', 'Position_y', 'Position_z', 'Frame', 'Intensity', 'Local_background', 'Chi_square',
+PROPERTY_KEYS = ['Index', 'Original_index', 'Position_x', 'Position_y', 'Position_z', 'Frame', 'Intensity', 'Local_background', 'Chi_square',
                  'Psf_sigma_x', 'Psf_sigma_y', 'Psf_sigma_z', 'Uncertainty_x', 'Uncertainty_y', 'Uncertainty_z',
                  'Channel', 'Index', 'Cluster_label', 'Two_kernel_improvement']
 
@@ -63,7 +63,7 @@ RAPIDSTORM_KEYS = {
 
 #: Mapping column names in Zeiss Elyra files to LocData property keys
 ELYRA_KEYS = {
-    'Index': 'Index',
+    'Index': 'Original_index',
     'First Frame': 'Frame',
     'Number Frames': 'Frames_number',
     'Frames Missing': 'Frames_missing',
@@ -81,7 +81,7 @@ ELYRA_KEYS = {
 
 #: Mapping column names in Thunderstorm files to LocData property keys
 THUNDERSTORM_KEYS = {
-    'id': 'Index',
+    'id': 'Original_index',
     'frame': 'Frame',
     'x [nm]': 'Position_x',
     'y [nm]': 'Position_y',
@@ -96,7 +96,7 @@ THUNDERSTORM_KEYS = {
     'sigma [nm]': 'Psf_sigma_x'
 }
 # todo: uncertainty_xy and sigma [nm] are mapped to Uncertainty_x and Psf_sigma_x. Possible conflict?
-# todo: map "bkgstd [photon]","chi2","uncertainty [nm]" to something usefull
+# todo: map "bkgstd [photon]", "uncertainty [nm]" to something usefull
 
 #: The number of cores that are used in parallel for some algorithms.
 #: Following the scikit convention: n_jobs is the number of parallel jobs to run.

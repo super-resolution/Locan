@@ -19,7 +19,7 @@ def read(fname):
 NAME = "Surepy"
 
 # version updated manually
-VERSION = 0.1
+VERSION = 0.1.x
 
 # include packages
 PACKAGES = find_packages()

@@ -141,3 +141,8 @@ def test_load_from_roi_file():
 
     dat = load_from_roi_file(path)
     assert(len(dat)==5)
+
+    dat_2 = load_from_roi_file(path, meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1))
+    assert(len(dat_2)==5)
+
+

@@ -26,5 +26,5 @@ def pair_files(files, source, target):
     tuple
         Tuple with source and target file names or Path objects.
     """
-    pairs = [(file, file.with_name(file.stem.replace(source, target))) for file in files if source in str(file)]
+    pairs = [(file, file.with_name(file.name.replace(source, target))) for file in files if source in str(file)]
     return pairs

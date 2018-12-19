@@ -8,8 +8,8 @@ from surepy.data.hulls import  Bounding_box, Convex_hull_scipy
 @pytest.fixture()
 def locdata_simple():
     dict = {
-        'Position_x': [0, 0, 1, 4, 5],
-        'Position_y': [0, 1, 3, 4, 1]
+        'Position_x': [0, 0, 1, 4, 1, 5],
+        'Position_y': [0, 1, 3, 4, 3, 1]
     }
     return LocData(dataframe=pd.DataFrame.from_dict(dict))
 
@@ -26,7 +26,7 @@ def test_Bounding_box(locdata_simple):
 
 
 def test_Convex_hull_scipy(locdata_simple):
-    true_convex_hull_indices = np.array([0, 4, 3, 2, 1])
+    true_convex_hull_indices = np.array([0, 5, 3, 2, 1])
     H = Convex_hull_scipy(locdata_simple.coordinates)
     np.testing.assert_array_equal(H.vertex_indices, true_convex_hull_indices)
     assert (H.region_measure == 12.5)
@@ -36,3 +36,12 @@ def test_Convex_hull_scipy(locdata_simple):
 #     H = Convex_hull_scipy(few_random_points)
 #     np.testing.assert_array_equal(H.vertex_indices, true_convex_hull_indices)
 #     assert (H.region_measure == 2.6960242565501966)
+
+def test_Convex_hull_scipy_small():
+    dict = {
+        'Position_x': [0, 0, 0],
+        'Position_y': [0, 1, 1]
+    }
+    locdata = LocData(dataframe=pd.DataFrame.from_dict(dict))
+    with pytest.raises(TypeError):
+        Convex_hull_scipy(locdata.coordinates)

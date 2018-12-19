@@ -111,6 +111,11 @@ class Convex_hull_scipy():
     """
 
     def __init__(self, points):
+        if len(points)<6:
+            unique_points = np.array(list(set(tuple(point) for point in points)))
+            if len(unique_points) < 3:
+                raise TypeError('Convex_hull needs at least 3 different points as input.')
+
         from scipy.spatial import ConvexHull
         self.dimension = np.shape(points)[1]
         self.hull = ConvexHull(points)

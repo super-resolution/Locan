@@ -102,14 +102,17 @@ def compute_test(self):
 
 
 def compute_clust(self):
-    '''A Pipeline definition for standard cluster analysis. '''
+    """ A Pipeline definition for standard cluster analysis. """
+
+    # import required modules
+    from pathlib import Path
+    from surepy.data.cluster import clustering_dbscan
+    from surepy.data.hulls import Convex_hull_scipy
+    from surepy.data.filter import select_by_condition
 
     # compute cluster
-    self.noise, self.clust = clustering_hdbscan(self.locdata, min_cluster_size=5, allow_single_cluster=False, noise=True)
-
-    # compute Localization_count
-    localization_count = [len(self.clust.references[i]) for i in range(len(self.clust))]
-    self.clust.dataframe = self.clust.dataframe.assign(Localization_count=localization_count)
+    self.noise, self.clust = clustering_hdbscan(self.locdata, min_cluster_size=5, allow_single_cluster=False,
+                                                noise=True)
 
     # compute convex hull
     Hs = [Convex_hull_scipy(self.clust.references[i].coordinates) for i in range(len(self.clust))]
@@ -120,5 +123,10 @@ def compute_clust(self):
 
     # free memory
     self.clust_selection.reduce()
+
+    # epilogue
+    self.indicator = self.count - 1  # indices should start with 0
+    self.file_indicator = Path(self.locdata.meta.file_path).stem
+    print(f'Finished: {self.indicator}')
 
     return self

@@ -1,11 +1,14 @@
-import pytest
+from pathlib import Path
 
+import pytest
 import numpy as np
 import pandas as pd
 
 from surepy import LocData
 from surepy.constants import ROOT_DIR
-from surepy.analysis.pipeline import Pipeline, compute_test
+from surepy.io.io_locdata import load_txt_file
+from surepy.analysis.pipeline import Pipeline, compute_test, compute_clust
+
 
 # fixtures
 
@@ -28,7 +31,7 @@ def test_Pipeline(locdata_simple):
     # print(f'results: {pipe.test}')
     # print(f'meta: {pipe.meta}')
 
-def test_Pipeline_2(locdata_simple):
+def test_Pipeline_class_method(locdata_simple):
     ''' use Pipeline by inheritance - recommended. '''
     class MyPipe(Pipeline):
         compute = compute_test
@@ -42,7 +45,7 @@ def test_Pipeline_2(locdata_simple):
     path = ROOT_DIR + '/tests/test_data/pipe.txt'
     pipe.save_protocol(path)
 
-def test_Pipeline_3(locdata_simple):
+def test_Pipeline_from_path_and_roi(locdata_simple):
     class MyPipe(Pipeline):
         compute = compute_test
 
@@ -55,4 +58,14 @@ def test_Pipeline_3(locdata_simple):
 
     path = ROOT_DIR + '/tests/test_data/roi.yaml'
     pipe = MyPipe(dict(file_path=path, file_type='roi'))
+    assert(isinstance(pipe.locdata, LocData))
+
+
+def test_Pipeline_clust(locdata_simple):
+    class MyPipe(Pipeline):
+        compute = compute_clust
+
+    path = Path(ROOT_DIR + '/tests/Test_data/five_blobs.txt')
+    pipe = MyPipe(dict(file_path=path, file_type=1)).compute()
+    assert(len(pipe.clust)!=0)
     assert(isinstance(pipe.locdata, LocData))

@@ -8,7 +8,7 @@ Development
 Import Conventions:
 ====================
 
-The following import conventions are used throughout TheProject source code and documentation:
+The following import conventions are used throughout Surepy source code and documentation:
 
 * import numpy as np
 * import pandas as pd
@@ -26,3 +26,11 @@ For testing we use py.test_.
 A test suite is provided in Surepy/tests.
 
 For unit testing we supply test data as data files located in tests/test_data.
+
+
+To remember:
+============
+
+* Provide commit messages with subject in imperative style (see 'Chris Beams, How to Write a Git Commit Message'_)
+
+.. _'How to Write a Git Commit Message': https://chris.beams.io/posts/git-commit/

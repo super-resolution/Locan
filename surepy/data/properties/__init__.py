@@ -3,6 +3,15 @@ Compute additional properties for locdata objects.
 
 These functions take locdata as input, compute one or more new properties, and return a dict with the property names
 as key and the corresponding values.
+
+Submodules:
+-----------
+
+.. autosummary::
+   :toctree: ./
+
+   max_distance
+   statistics
 '''
 
 from surepy.data.properties.max_distance import *

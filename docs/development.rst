@@ -31,6 +31,6 @@ For unit testing we supply test data as data files located in tests/test_data.
 To remember:
 ============
 
-* Provide commit messages with subject in imperative style (see 'Chris Beams, How to Write a Git Commit Message'_)
+* Provide commit messages with subject in imperative style (see `Chris Beams, How to Write a Git Commit Message`_).
 
-.. _'How to Write a Git Commit Message': https://chris.beams.io/posts/git-commit/
+.. _Chris Beams, How to Write a Git Commit Message: https://chris.beams.io/posts/git-commit/

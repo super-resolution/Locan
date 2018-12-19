@@ -40,8 +40,8 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
 
     Returns
     -------
-    pandas DataFrame
-        A DataFrame with 'Index' referring to the locdata indices and 'Track' values indicating the track number.
+    pandas Series
+        A series named 'Track' referring to the track number.
     """
     df = link_df(locdata.data, search_range=search_range, memory=memory, pos_columns=locdata.coordinate_labels,
                     t_column='Frame', **kwargs)
@@ -73,7 +73,7 @@ def track(locdata, search_range=40, memory=0, **kwargs):
     Returns
     -------
     Locdata
-        a new LocData instance assembling all generated selections (i.e. localization cluster).
+        A new LocData instance assembling all generated selections (i.e. localization cluster).
     """
     parameter = locals()
 

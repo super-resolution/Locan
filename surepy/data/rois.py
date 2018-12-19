@@ -103,8 +103,7 @@ class Roi():
     """
     Class for a region of interest on LocData (roi).
 
-    Roi objects define a region of interest for a referenced LocData object. Roi objects can be managed by the
-    Roi_manager.
+    Roi objects define a region of interest for a referenced LocData object.
 
     Parameters
     ----------
@@ -286,7 +285,7 @@ def select_by_drawing(locdata, type='rectangle', **kwargs):
     return roi_list
 
 
-def load_from_roi_file(path):
+def load_from_roi_file(path, meta=None):
     """
     Load data from a Roi file.
 
@@ -294,15 +293,16 @@ def load_from_roi_file(path):
     ----------
     path : string or Path object
         File path for a Roi file to load.
+    meta : tuple or None
+        Metadata that could carry alternative file specification (dict with file_path and file_type as defined for Roi
+        objects) from which locdata is loaded while applying given roi specifications.
 
     Returns
     -------
     LocData
         A new instance of LocData with all localizations.
     """
-    roi = Roi.from_yaml(path)
+    roi = Roi.from_yaml(path, meta)
     locdata = roi.locdata()
-
     locdata.meta.history.add(name='load_from_roi_file')
-
     return locdata

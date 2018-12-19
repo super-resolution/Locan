@@ -194,6 +194,10 @@ def load_rapidSTORM_file(path, nrows=None):
     columns = load_rapidSTORM_header(path)
     dataframe = pd.read_table(path, sep=" ", skiprows=1, nrows=nrows, names=columns)
 
+    # correct data formats
+    integer_Frames = pd.to_numeric(dataframe['Frame'], downcast='integer')
+    dataframe['Frame'] = integer_Frames
+
     dat = LocData.from_dataframe(dataframe=dataframe)
 
     dat.meta.creation_date = int(time.time())

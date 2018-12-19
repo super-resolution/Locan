@@ -256,9 +256,10 @@ class _DistributionFits:
             fig, ax = plt.subplots(nrows=1, ncols=1)
 
         # plot fit curve
-        x_values = np.linspace(self.distribution.ppf(0.001, **self.parameter_dict()),
-                               self.distribution.ppf(0.999, **self.parameter_dict()), 100)
-        ax.plot(x_values, self.distribution.pdf(x_values, **self.parameter_dict()), 'r-', lw=3, alpha=0.6,
+        parameter = self.parameter_dict().values()
+        x_values = np.linspace(self.distribution.ppf(0.001, *parameter),
+                               self.distribution.ppf(0.999, *parameter), 100)
+        ax.plot(x_values, self.distribution.pdf(x_values, *parameter), 'r-', lw=3, alpha=0.6,
                 label=str(self.distribution) + ' pdf', **kwargs)
         if show:
             plt.show()

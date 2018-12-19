@@ -18,8 +18,16 @@ def read(fname):
 # project name
 NAME = "Surepy"
 
-# version updated manually
-VERSION = 0.1.x
+# Version
+# updated manually
+#VERSION = 0.1.x
+
+# Get the version string. Cannot be done with import!
+g = {}
+with open(os.path.join('surepy', 'version.py'), 'rt') as version_file:
+    exec(version_file.read(), g)
+    VERSION = g['__version__']
+
 
 # include packages
 PACKAGES = find_packages()

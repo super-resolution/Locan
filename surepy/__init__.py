@@ -18,8 +18,8 @@ Surepy consists of the following modules:
 
 """
 
+from surepy.version import __version__
 from surepy.data.locdata import LocData
 
-__version__ = 0.2
 
-__all__ = ['LocData']
+__all__ = ['__version__', 'LocData']

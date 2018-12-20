@@ -148,7 +148,7 @@ class Localization_property(_Analysis):
         if ax is None:
             fig, ax = plt.subplots(nrows=1, ncols=1)
 
-        ax.hist(self.results.values, bins=bins, density=True, log=log)
+        ax.hist(self.results.values, bins=bins, density=True, log=log, **kwargs)
         ax.set(title = self.parameter['loc_property'],
                xlabel = self.parameter['loc_property'],
                ylabel = 'PDF'

@@ -1,25 +1,45 @@
 import pytest
-import numpy as np
 import pandas as pd
 from surepy import LocData
 from surepy.data.rois import Roi
-from surepy.simulation import simulate_blobs
 from surepy.data.filter import select_by_condition, random_subset, select_by_region
 
 
 @pytest.fixture()
 def locdata_simple():
-    dict = {
+    dict_ = {
         'Position_x': [0, 1, 2, 3, 0, 1, 4, 5],
         'Position_y': [0, 1, 2, 3, 1, 4, 5, 1],
         'Position_z': [0, 1, 2, 3, 4, 4, 4, 5]
     }
-    return LocData(dataframe=pd.DataFrame.from_dict(dict))
+    return LocData(dataframe=pd.DataFrame.from_dict(dict_))
+
 
 def test_select_by_condition(locdata_simple):
     dat_s = select_by_condition(locdata_simple, 'Position_x>1')
     assert (len(dat_s) == 4)
     # dat_s.print_meta()
+
+
+def test_LocData_selection_from_collection(locdata_simple):
+    sel = []
+    for i in range(4):
+        sel.append(select_by_condition(locdata_simple, f'Position_x>{i}'))
+    col = LocData.from_collection(sel)
+    assert (len(col) == 4)
+    assert (len(col.references) == 4)
+    print(col.data)
+
+    col_sel = select_by_condition(col, 'Localization_count>2')
+    assert (len(col_sel) == 3)
+    print(col_sel.data)
+    assert(col_sel.references is col)
+
+    col_sel_sel = select_by_condition(col_sel, 'Localization_count<4')
+    assert (len(col_sel_sel) == 1)
+    print(col_sel_sel.data)
+    assert(col_sel_sel.references is col_sel)
+
 
 def test_random_subset(locdata_simple):
     dat_s = random_subset(locdata_simple, number_points=3)
@@ -27,23 +47,24 @@ def test_random_subset(locdata_simple):
     # dat_s.print_meta()
     # print(dat_s.data)
 
-def test_select_by_region (locdata_simple):
-    roi_dict = dict(points=(0,3), type='rectangle')
-    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
-    assert(len(dat_1)==6)
-    roi_dict = dict(points=(0,3,0,3), type='rectangle')
-    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
-    assert(len(dat_1)==5)
-    roi_dict = dict(points=(0,3,0,3,0,3), type='rectangle')
-    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
-    assert(len(dat_1)==4)
 
-    roi = Roi(points=(0,3), type='rectangle')
+def test_select_by_region(locdata_simple):
+    roi_dict = dict(points=(0, 3), type='rectangle')
+    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
+    assert(len(dat_1) == 6)
+    roi_dict = dict(points=(0, 3, 0, 3), type='rectangle')
+    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
+    assert(len(dat_1) == 5)
+    roi_dict = dict(points=(0, 3, 0, 3, 0, 3), type='rectangle')
+    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
+    assert(len(dat_1) == 4)
+
+    roi = Roi(points=(0, 3), type='rectangle')
     dat_1 = select_by_region(locdata_simple, roi=roi)
-    assert(len(dat_1)==6)
-    roi = dict(points=(0,3,0,3), type='rectangle')
+    assert(len(dat_1) == 6)
+    roi = dict(points=(0, 3, 0, 3), type='rectangle')
     dat_1 = select_by_region(locdata_simple, roi=roi)
-    assert(len(dat_1)==5)
-    roi = dict(points=(0,3,0,3,0,3), type='rectangle')
+    assert(len(dat_1) == 5)
+    roi = dict(points=(0, 3, 0, 3, 0, 3), type='rectangle')
     dat_1 = select_by_region(locdata_simple, roi=roi)
-    assert(len(dat_1)==4)
+    assert(len(dat_1) == 4)

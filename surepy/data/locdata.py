@@ -13,7 +13,7 @@ import surepy.data.hulls
 from surepy.data import metadata_pb2
 
 
-class LocData():
+class LocData:
     """
     This class carries localization data, aggregated properties and meta data.
 
@@ -61,7 +61,7 @@ class LocData():
         Object representing the alpha-shape of all localizations.
 
     """
-    count=0
+    count = 0
     """ A counter for counting LocData instantiations (class attribute). """
 
     def __init__(self, references=None, dataframe=pd.DataFrame(), indices=None,
@@ -93,7 +93,9 @@ class LocData():
             self.meta.MergeFrom(meta)
 
         # coordinate labels
-        self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'Position_x', 'Position_y', 'Position_z'})))
+        self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'Position_x',
+                                                                                  'Position_y',
+                                                                                  'Position_z'})))
 
         # properties
         self.properties['Localization_count'] = len(self.data.index)
@@ -133,7 +135,7 @@ class LocData():
         meta_.creation_date = int(time.time())
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.RAW
-        meta_.history.add(name = 'LocData.from_dataframe')
+        meta_.history.add(name='LocData.from_dataframe')
 
         if meta is None:
             pass
@@ -155,6 +157,8 @@ class LocData():
         ----------
         locdata : LocData object
             Locdata objects from which to select elements.
+        indices : slice object or list(int) or None
+            Indices for elements in locdata that make up the new data.
         meta : Metadata protobuf message
             Metadata about the current dataset and its history.
 
@@ -186,7 +190,7 @@ class LocData():
         meta_.modification_date = int(time.time())
         meta_.state = metadata_pb2.MODIFIED
         meta_.ancestor_identifiers.append(locdata.meta.identifier)
-        meta_.history.add(name = 'LocData.from_selection')
+        meta_.history.add(name='LocData.from_selection')
 
         if meta is None:
             pass
@@ -225,7 +229,7 @@ class LocData():
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.RAW
         meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
-        meta_.history.add(name = 'LocData.from_collection')
+        meta_.history.add(name='LocData.from_collection')
 
         if meta is None:
             pass
@@ -263,7 +267,7 @@ class LocData():
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.MODIFIED
         meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdatas]
-        meta_.history.add(name = 'concat')
+        meta_.history.add(name='concat')
 
         if meta is None:
             pass
@@ -278,20 +282,20 @@ class LocData():
 
     @property
     def data(self):
-       """ Return a pandas dataframe with all elements either copied from the reference or referencing the current
-       dataframe. """
-       if isinstance(self.references, LocData):
-           df = self.references.data.iloc[self.indices]
-           df = pd.merge(df, self.dataframe, left_index=True, right_index=True, how='outer')
-           return df
-       else:
-           return self.dataframe
+        """ Return a pandas dataframe with all elements either copied from the reference or referencing the current
+        dataframe. """
+        if isinstance(self.references, LocData):
+            df = self.references.data.iloc[self.indices]
+            df = pd.merge(df, self.dataframe, left_index=True, right_index=True, how='outer')
+            return df
+        else:
+            return self.dataframe
 
 
     @property
     def coordinates(self):
-       """ Return a numpy ndarray with all coordinate values. """
-       return self.data[self.coordinate_labels].values
+        """ Return a numpy ndarray with all coordinate values. """
+        return self.data[self.coordinate_labels].values
 
 
     def __del__(self):
@@ -337,16 +341,16 @@ class LocData():
 
 
     def print_meta(self):
-        '''
+        """
         Print Locdata.metadata.
-        '''
-        print (text_format.MessageToString(self.meta))
+        """
+        print(text_format.MessageToString(self.meta))
 
 
     def print_summary(self):
-        '''
+        """
         Print a summary containing the most common metadata keys.
-        '''
+        """
         meta_ = metadata_pb2.Metadata()
         meta_.identifier = self.meta.identifier
         meta_.comment = self.meta.comment
@@ -357,4 +361,4 @@ class LocData():
         meta_.element_count = self.meta.element_count
         meta_.frame_count = self.meta.frame_count
 
-        print (text_format.MessageToString(meta_))
+        print(text_format.MessageToString(meta_))

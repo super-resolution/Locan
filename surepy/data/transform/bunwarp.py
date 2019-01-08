@@ -1,14 +1,25 @@
-'''
+"""
+
+Transform localization data with a BunwarpJ transformation matrix.
+
+This module provides functions to transform coordinates in LocData objects by applying a B-spline transformation as
+defined with the ImageJ/Fiji plugin BunwarpJ_ [1]_, [2]_.
+
+.. _BunwarpJ: https://imagej.net/BUnwarpJ
 
 References
 ----------
 
-1) I. Arganda-Carreras, C. O. S. Sorzano, R. Marabini, J.-M. Carazo, C. Ortiz-de Solorzano, and J. Kybic, "Consistent and Elastic Registration of Histological Sections using Vector-Spline Regularization," Lecture Notes in Computer Science, Springer Berlin / Heidelberg, volume 4241/2006, CVAMIA: Computer Vision Approaches to Medical Image Analysis, pages 85-95, 2006.
+.. [1] I. Arganda-Carreras, C. O. S. Sorzano, R. Marabini, J.-M. Carazo, C. Ortiz-de Solorzano, and J. Kybic,
+"Consistent and Elastic Registration of Histological Sections using Vector-Spline Regularization",
+Lecture Notes in Computer Science, Springer Berlin / Heidelberg, volume 4241/2006,
+CVAMIA: Computer Vision Approaches to Medical Image Analysis, pages 85-95, 2006.
 
-2) C.Ó. Sánchez Sorzano, P. Thévenaz, M. Unser, "Elastic Registration of Biological Images Using Vector-Spline Regularization", IEEE Transactions on Biomedical Engineering, vol. 52, no. 4, pp. 652-663, April 2005.
+.. [2] C.Ó. Sánchez Sorzano, P. Thévenaz, M. Unser,
+"Elastic Registration of Biological Images Using Vector-Spline Regularization",
+IEEE Transactions on Biomedical Engineering, vol. 52, no. 4, pp. 652-663, April 2005.
 
-'''
-
+"""
 
 import numpy as np
 import pandas as pd
@@ -20,6 +31,9 @@ from surepy import LocData
 
 @jit(nopython=True)
 def _unwarp(loc_input_1, matrix_X, matrix_Y, pixel_size, real_size):
+    """
+    Apply transformation.
+    """
     for i in range(loc_input_1.shape[0]):  # drauf achten das x der erste Eintrag und Y der zweite Eintrag ist
 
         x_1 = (loc_input_1[i][0] * 10 ** -9 / real_size[0]) * pixel_size[
@@ -55,37 +69,35 @@ def _unwarp(loc_input_1, matrix_X, matrix_Y, pixel_size, real_size):
 
 
 def _read_matrix(path):
-    '''
+    """
     Read file with raw matrix from BunwarpJ.
 
-    Parameter
-    ---------
+    Parameters
+    ----------
     path : path object
         Path to file with a raw matrix from BunwarpJ.
 
-    Return
-    ------
+    Returns
+    -------
     tuple
         image height and width
     array
         x transformation array
     array
         y transformation array
-    '''
-
+    """
     with open(path) as file:
         header = list(islice(file, 2))
 
-    #Get image heigth and width
+    # Get image heigth and width
     width = int(header[0].split("=")[1])
     height = int(header[1].split("=")[1])
     trans_size = np.array([width, height])
 
     trans_matrix_x = pd.read_csv(path, skiprows=4, header=None, nrows=trans_size[1],
-                                      delim_whitespace=True).as_matrix()
+                                 delim_whitespace=True).as_matrix()
     trans_matrix_y = pd.read_csv(path, skiprows=(6 + trans_size[1]), header=None,
-                                      delim_whitespace=True).as_matrix()
-
+                                 delim_whitespace=True).as_matrix()
 
     return (trans_size, trans_matrix_x, trans_matrix_y)
 

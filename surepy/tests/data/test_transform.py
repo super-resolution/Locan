@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from surepy import LocData
+import surepy.constants
 from surepy.io.io_locdata import load_rapidSTORM_file
 from surepy.data.transform import randomize
 from surepy.data.transform.bunwarp import _read_matrix, bunwarp
@@ -22,17 +23,17 @@ def test_randomize(locdata_simple):
     #locdata_randomized.print_meta()
     assert (len(locdata_randomized) == len(locdata_simple))
 
+# todo: test colocalization of bead data
+def test_bunwarp_raw_transformation():
+    matrix_path = surepy.constants.ROOT_DIR + '/tests/test_data/transform/BunwarpJ_transformation_raw_green.txt'
+    dat_green = load_rapidSTORM_file(path=surepy.constants.ROOT_DIR +
+                                          '/tests/test_data/transform/rapidSTORM_beads_green.txt')
+    dat_red = load_rapidSTORM_file(path=surepy.constants.ROOT_DIR +
+                                        '/tests/test_data/transform/rapidSTORM_beads_red.txt')
 
-# todo: create useful small test
-def test_read_matrix(locdata_simple):
-    dstorm_file = r'C:\Users\Soeren\MyData\Programming\Python\Analysis projects\181023_Bunwarp registration_Patrick\\' \
-           r'Twocolor\K35_647_4.txt'
-    path = r'C:\Users\Soeren\MyData\Programming\Python\Analysis projects\181023_Bunwarp registration_Patrick\\' \
-           r'Twocolor\matrix.txt'
-#    print(len(_read_matrix(path)))
+    image_height_width, x_transformation_array, y_transformation_array = _read_matrix(path=matrix_path)
+    assert(all(image_height_width==[130, 130]))
 
-    dat = load_rapidSTORM_file(dstorm_file)
-    new_loc = bunwarp(dat, path)
+    dat_green_transformed = bunwarp(locdata=dat_green, matrix_path=matrix_path)
 
-    print(new_loc.data.head())
-    #render2D(dat)
+    # render2D(dat_green)

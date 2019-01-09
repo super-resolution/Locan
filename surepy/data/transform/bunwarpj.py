@@ -1,6 +1,6 @@
 """
 
-Transform localization data with a BunwarpJ transformation matrix.
+Transform localization data with a BUnwarpJ transformation matrix.
 
 This module provides functions to transform coordinates in LocData objects by applying a B-spline transformation as
 defined with the ImageJ/Fiji plugin BunwarpJ_ [1]_, [2]_.
@@ -11,13 +11,13 @@ References
 ----------
 
 .. [1] I. Arganda-Carreras, C. O. S. Sorzano, R. Marabini, J.-M. Carazo, C. Ortiz-de Solorzano, and J. Kybic,
-"Consistent and Elastic Registration of Histological Sections using Vector-Spline Regularization",
-Lecture Notes in Computer Science, Springer Berlin / Heidelberg, volume 4241/2006,
-CVAMIA: Computer Vision Approaches to Medical Image Analysis, pages 85-95, 2006.
+   "Consistent and Elastic Registration of Histological Sections using Vector-Spline Regularization",
+   Lecture Notes in Computer Science, Springer Berlin / Heidelberg, volume 4241/2006,
+   CVAMIA: Computer Vision Approaches to Medical Image Analysis, pages 85-95, 2006.
 
 .. [2] C.Ó. Sánchez Sorzano, P. Thévenaz, M. Unser,
-"Elastic Registration of Biological Images Using Vector-Spline Regularization",
-IEEE Transactions on Biomedical Engineering, vol. 52, no. 4, pp. 652-663, April 2005.
+   "Elastic Registration of Biological Images Using Vector-Spline Regularization",
+   IEEE Transactions on Biomedical Engineering, vol. 52, no. 4, pp. 652-663, April 2005.
 
 """
 

@@ -1,4 +1,4 @@
-'''
+"""
 
 Transform localization data.
 
@@ -6,15 +6,16 @@ This module provides functions that take locdata as input, transform the localiz
 and return a new LocData object.
 
 
-Surepy.transform consists of the following modules:
+Submodules:
+-----------
 
 .. autosummary::
    :toctree: ./
 
-    bunwarp
-    transformation
+   bunwarpj
+   transformation
 
-'''
+"""
 
-from surepy.data.transform.bunwarp import *
+from surepy.data.transform.bunwarpj import *
 from surepy.data.transform.transformation import *

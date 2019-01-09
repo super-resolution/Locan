@@ -4,7 +4,7 @@ from pathlib import Path
 from surepy.constants import ROOT_DIR
 from surepy.io.io_locdata import load_txt_file
 from surepy.data.cluster.clustering import clustering_hdbscan, clustering_dbscan
-from surepy.data.cluster.serial_clustering import serial_clustering
+from surepy.data.cluster.utils import serial_clustering
 
 
 # fixtures

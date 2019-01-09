@@ -5,7 +5,7 @@ from surepy import LocData
 import surepy.constants
 from surepy.io.io_locdata import load_rapidSTORM_file
 from surepy.data.transform import randomize
-from surepy.data.transform.bunwarp import _read_matrix, bunwarp
+from surepy.data.transform.bunwarpj import _read_matrix, bunwarp
 
 from surepy.render import render2D
 

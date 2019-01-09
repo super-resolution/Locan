@@ -14,21 +14,25 @@ import surepy.data.hulls
 from surepy.simulation import simulate_csr
 
 
-def transform(selection, *args):
+def transform(locdata, *args):
     """
-    Transform coordinates e.g. for correcting chromatic aberrations.
+    Transform coordinates for correcting various aberrations.
 
     Parameters
     ----------
     locdata : LocData object
-        specifying the localization data on which to perform the manipulation.
+        Localization data on which to perform the manipulation.
     args :
         transformation parameters
 
     Returns
     -------
     locdata : LocData object
-        New localization data with randomized coordinates.
+        New localization data with tansformed coordinates.
+
+    Notes
+    -----
+    Not yet implemented.
     """
     raise NotImplementedError
 

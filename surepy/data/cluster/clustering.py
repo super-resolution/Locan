@@ -17,27 +17,31 @@ from sklearn.cluster import DBSCAN
 from surepy import LocData
 from surepy.constants import N_JOBS
 
-
-def clustering(locdata, **kwargs):
-    """
-    Cluster localizations in LocData using a specified clustering algorithm.
-
-    Parameters
-    ----------
-    locdata : LocData
-        specifying the localization data on which to perform the manipulation.
-
-    Other Parameters
-    ----------------
-    kwargs : dict
-        Parameters for specified clustering algorithm.
-
-    Returns
-    -------
-    Collection
-        a new instance of Collection assembling all generated selections (i.e. localization cluster).
-    """
-    raise NotImplementedError
+# A general function for clustering should maybe be implemented.
+#
+# def find_cluster(locdata, algorithm, **kwargs):
+#     """
+#     Cluster localizations in LocData using a specified clustering algorithm.
+#
+#     Parameters
+#     ----------
+#     locdata : LocData
+#         Localization data on which to perform the manipulation.
+#     algorithm : str
+#         Name of the cluster function to use on `locdata`.
+#
+#     Other Parameters
+#     ----------------
+#     kwargs : dict
+#         Parameters for specified clustering algorithm.
+#
+#     Returns
+#     -------
+#     LocData
+#         A new instance of LocData (representing a collection of Locdata)
+#         assembling all generated selections (i.e. localization cluster).
+#     """
+#     raise NotImplementedError
 
 
 def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_cluster = False, noise=False):

@@ -22,4 +22,4 @@ def locdata_fix():
         'Intensity': np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(dict)
-    return LocData(dataframe=df)
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': 1000000001})

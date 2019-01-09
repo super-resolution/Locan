@@ -1,5 +1,7 @@
 """
-This module provides methods to run and analyse a series of clustering processes to identify optimal parameters.
+
+Utility methods for clustering locdata.
+
 """
 import sys
 import itertools

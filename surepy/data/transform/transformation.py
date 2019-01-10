@@ -5,6 +5,7 @@ Transform localization data.
 This module takes localization data and applies transformation procedures on coordinates or other properties.
 
 """
+import time
 
 import numpy as np
 import pandas as pd
@@ -12,6 +13,7 @@ import pandas as pd
 from surepy import LocData
 import surepy.data.hulls
 from surepy.simulation import simulate_csr
+from surepy.data import metadata_pb2
 
 
 def transform(locdata, *args):
@@ -35,6 +37,76 @@ def transform(locdata, *args):
     Not yet implemented.
     """
     raise NotImplementedError
+
+
+def transform_affine(locdata, matrix=None, offset=None):
+    """
+    Transform `points` or coordinates in `locdata` by an affine transformation.
+
+    Parameters
+    ----------
+    locdata : ndarray or LocData object
+        Localization data on which to perform the manipulation.
+    matrix :
+        Transformation matrix.
+    offset : tuple of int or float
+        Values for translation.
+
+    Returns
+    -------
+    locdata : ndarray or LocData object
+        New localization data with tansformed coordinates.
+    """
+    # adjust input
+    if isinstance(locdata, LocData):
+        points = locdata.coordinates
+    else:
+        points = locdata
+
+    # transform
+    if matrix is None:
+        m = np.identity(len(points[0]))
+    else:
+        m = matrix
+    if offset is None:
+        o = np.zeros(len(points[0]))
+    else:
+        o = offset
+
+    transformed_points = np.array([np.dot(m, point) + o for point in points])
+
+    # prepare output
+    if isinstance(locdata, LocData):
+        # update metadata
+        meta_ = metadata_pb2.Metadata()
+        meta_.CopyFrom(locdata.meta)
+        try:
+            meta_.ClearField("identifier")
+        except ValueError:
+            pass
+
+        try:
+            meta_.ClearField("element_count")
+        except ValueError:
+            pass
+
+        try:
+            meta_.ClearField("frame_count")
+        except ValueError:
+            pass
+
+        meta_.modification_date = int(time.time())
+        meta_.state = metadata_pb2.MODIFIED
+        meta_.ancestor_identifiers.append(locdata.meta.identifier)
+        meta_.history.add(name='transform_affine', parameter=f'matrix={matrix}, offset={offset}')
+
+        # new LocData object
+        new_locdata = LocData.from_dataframe(pd.DataFrame(transformed_points, columns=locdata.coordinate_labels),
+                                             meta=meta_)
+        return new_locdata
+
+    else:
+        return transformed_points
 
 
 def randomize(locdata, hull_region='bb'):

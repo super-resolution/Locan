@@ -4,7 +4,7 @@ import pandas as pd
 from surepy import LocData
 import surepy.constants
 from surepy.io.io_locdata import load_rapidSTORM_file
-from surepy.data.transform import randomize
+from surepy.data.transform import randomize, transform_affine
 from surepy.data.transform.bunwarpj import _read_matrix, bunwarp
 
 from surepy.render import render2D
@@ -37,3 +37,15 @@ def test_bunwarp_raw_transformation():
     dat_green_transformed = bunwarp(locdata=dat_green, matrix_path=matrix_path)
 
     # render2D(dat_green)
+
+
+def test_transform_affine(locdata_simple):
+    # with points as input
+    new_points = transform_affine(locdata_simple.coordinates, matrix=((0,1),(-1,0)), offset=(10,10))
+    assert(np.all(new_points==[[10, 10], [11, 10], [13, 9], [14, 6], [11, 5]]))
+
+    # with locdata as input
+    new_locdata = transform_affine(locdata_simple, matrix=((0,1),(-1,0)), offset=(10,10))
+    assert(np.all(new_locdata.coordinates==[[10, 10], [11, 10], [13, 9], [14, 6], [11, 5]]))
+    # print(new_locdata.data)
+    # print(new_locdata.meta)

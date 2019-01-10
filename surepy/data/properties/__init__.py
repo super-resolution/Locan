@@ -10,9 +10,11 @@ Submodules:
 .. autosummary::
    :toctree: ./
 
+   cbc
    max_distance
    statistics
 '''
 
 from surepy.data.properties.max_distance import *
 from surepy.data.properties.statistics import *
+from surepy.data.properties.cbc import *

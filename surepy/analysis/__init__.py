@@ -19,6 +19,7 @@ Submodules:
    ripley
    uncertainty
    cbc
+
 """
 
 from surepy.analysis.analysis_example import Analysis_example_algorithm_1, Analysis_example_algorithm_2

@@ -6,7 +6,7 @@ using the so-called coordinate-based colocalization algorithm [1]_.
 
 References
 ----------
-.. [1]: Malkusch S, Endesfelder U, Mondry J, Gelléri M, Verveer PJ, Heilemann M.,
+.. [1] Malkusch S, Endesfelder U, Mondry J, Gelléri M, Verveer PJ, Heilemann M.,
    Coordinate-based colocalization analysis of single-molecule localization microscopy data.
    Histochem Cell Biol. 2012, 137(1):1-10.
    doi: 10.1007/s00418-011-0880-5
@@ -89,11 +89,11 @@ def _coordinate_based_colocalization(points, other_points=None, radius=100, n_st
 
 class Coordinate_based_colocalization(_Analysis):
     """
-    Compute a colocalization index for each localization by coordinate-based colocalization.
+    Compute a colocalization index for each localization by coordinate-based colocalization (CBC).
 
-    The colocalization index is calculated for each point in <points_1> by finding nearest neighbors in <points_1>
-    or <points_2> within `radius`. A normalized number of nearest neighbors at a certain radius is computed for
-    `n_steps` equally-sized steps of increasing radii ranging from 0 to `radius`.
+    The colocalization index is calculated for each localization in `locdata` by finding nearest neighbors in
+    `locdata` or `other_locdata` within `radius`. A normalized number of nearest neighbors at a certain radius is
+    computed for `n_steps` equally-sized steps of increasing radii ranging from 0 to `radius`.
     The Spearman rank correlation coefficent is computed for these values and weighted by
     Exp[-nearestNeighborDistance/distanceMax].
 

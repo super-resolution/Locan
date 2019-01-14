@@ -2,6 +2,11 @@
 
 Analyze localization property.
 
+Localizations come with a range of properties including position coordinates, emission strength, local background etc..
+Most properties represent random variables that were drawn from an unknown probability distribution.
+It is often useful to analyze the properties from all localizations within a selection and estimate the corresponding
+probability distribution.
+
 """
 
 import numpy as np

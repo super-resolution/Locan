@@ -112,21 +112,40 @@ def select_by_image_mask(selection, mask, pixel_size):
     raise NotImplementedError
 
 
-def exclude_sparce_points(selection, threshold_density):
+def exclude_sparce_points(locdata, other_locdata, radius, min_samples):
     """
     Exclude localizations by thresholding a local density.
 
+    A subset of localizations, that exhibit a small local density of localizations from locdata or alternatively from
+    other_locdata, is identified as noise and excluded.
+    Noise is identified by using a nearest-neighbor search (sklearn.neighbors.NearestNeighbors) to find all
+    localizations within a circle (sphere) of the given `radius`. If the number of localizations is below the
+    threshold value `min_samples`, the localization is considered to be noise.
+
+    The method identifies the same noise points as done by the clustering algorithm DBSCAN [1]_.
+
     Parameters
     ----------
-    selection : Selection
-        specifying the localization data on which to perform the manipulation.
-    threshold_density : float
-        all points with a local density below the threshold will be excluded.
+    locdata : LocData
+        Specifying the localization data from which to exclude localization data.
+    radius: float
+        Radius of a circle or sphere in which neighbors are identified.
+    min_samples : int
+        The minimum number of samples in the neighborhood that need to be found for each localization to not be
+        identified as noise.
 
     Returns
     -------
-    Selection
-        a new instance of Selection referring to the same Dataset as the input Selection.
+    Tuple of LocData
+        Two Locdata objects are returned, one carrying all noise localizations, the other carrying all localizations
+        except noise.
+
+    References
+    ----------
+    .. [1] Martin Ester, Hans-Peter Kriegel, Jörg Sander, Xiaowei Xu,
+       A density-based algorithm for discovering clusters in large spatial databases with noise.
+       In: Evangelos Simoudis, Jiawei Han, Usama M. Fayyad (Hrsg.): Proceedings of the Second International Conference
+       on Knowledge Discovery and Data Mining (KDD-96). AAAI Press, 1996, S. 226-231, ISBN 1-57735-004-9.
     """
     raise NotImplementedError
 

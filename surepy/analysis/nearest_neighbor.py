@@ -1,5 +1,23 @@
 """
+
 This module provides methods for nearest-neighbor analysis.
+
+Nearest-neigbor distance distributions provide information about deviations from a spatial homogeneous Poisson process
+(i.e. complete spatial randomness, CSR).
+Point-event distances are given by the distance between a random point (not being an event) and the nearest event.
+The point-event distance distribution is estimated from a number of random sample points and plotted in comparison to
+the analytical function for equal localization density.
+
+For a homogeneous Poisson process with intensity \[Rho] (expected number of points per unit area) the distance from a
+randomly chosen event to the nearest other event (nearest-neighbor distance) is distributed according to the following
+probability density (pdf) or cumulative density function (cdf):
+
+* pdf (w)=2 \[Rho]\[Pi]w exp(-\[Rho]\[Pi]w^2)
+* cdf (w)=1-exp (-\[Rho]\[Pi]w^2)
+
+The same distribution holds for point-event distances if events are distributed as a homogeneous Poisson process with
+intensity \[Rho].
+
 """
 # todo: add fit
 

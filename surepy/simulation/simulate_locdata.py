@@ -1,10 +1,26 @@
-'''
+"""
 
 Simulate localization data.
 
 This module provides functions to simulate localization data and return LocData objects.
 
-'''
+Localizations are often distributed either by a spatial process of complete-spatial randomness or following a
+Neyman-Scott process [1]_. For a Neyman-Scott process parent events (representing single emitters) yield a random number
+of offspring events (representing localizations due to repeated blinking). The total number of emitters is specified
+by <Parent Event Number>. The number of offspring events is Poisson distributed with mean <Offspring Number>.
+The spatial distribution of parent events is distributed according to complete-spatial randomness;
+the spatial distribution of offspring events is Gauss-distributed with the given <Standard Deviation> for each emitter.
+
+Intensity distributions are often simulated in the following way: Each localization is given an emission strength drawn
+from an intensity distribution that is either "Exponential" or "Poisson" with <Mean Intensity>.
+
+References
+----------
+.. [1] Neyman, J. & Scott, E. L.,
+   A Theory of the Spatial Distribution of Galaxies.
+   Astrophysical Journal 1952, vol. 116, p.144.
+
+"""
 
 import sys
 import time

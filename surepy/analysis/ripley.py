@@ -5,6 +5,30 @@ Compute Ripley's k function.
 Spatial clustering of localization data is characterized by Ripley's k or related functions. We follow the definition
 of l and h functions in [2]_.
 
+Ripley's k function is computed for 2D and 3D data as described in (2) in order to provide evidence for deviations from
+a spatial homogeneous Poisson process (i.e. complete spatial randomness, CSR).
+Ripley' s k function is estimated by summing over test points being a random subset of all points:
+
+k (r)=1/(\[Lambda] (n-1)) \!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(i\), \(n\)]\(
+\*SubscriptBox[\(N\), \(pi\)] \((r)\)\)\)
+
+here pi is the ith point of n test points, Subscript[N, pi] is the number of points within the region of radius r
+around pi, and \[Lambda] is the density of all points.
+
+Ripley's l function is:
+
+* l(r)=Sqrt[(k(r))/\[Pi]] in 2D and
+* l(r)=Power[(3k(r))/(4\[Pi]), (3)^-1]in 3D
+
+And Ripley's h function is:
+
+h(r)=l(r)-r
+
+Ripley's h function is computed for a series of radii (rangin from min distance to max dinstance by distance step) and
+from a limited number of test localizations (No test localizations) randomly chosen from the list of localizations in
+the chosen selection.
+
 References
 ----------
 .. [1] B.D. Ripley (1977) Modelling spatial patterns. Journal of the Royal Statistical Society, 172–212

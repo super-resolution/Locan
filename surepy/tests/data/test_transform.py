@@ -22,6 +22,8 @@ def test_randomize(locdata_simple):
     locdata_randomized = randomize(locdata_simple, hull_region='bb')
     #locdata_randomized.print_meta()
     assert (len(locdata_randomized) == len(locdata_simple))
+    # print(locdata_randomized.meta)
+    assert locdata_randomized.meta.history[-1].name == 'randomize'
 
 # todo: test colocalization of bead data
 def test_bunwarp_raw_transformation():
@@ -35,6 +37,8 @@ def test_bunwarp_raw_transformation():
     assert(all(image_height_width==[130, 130]))
 
     dat_green_transformed = bunwarp(locdata=dat_green, matrix_path=matrix_path)
+    # print(dat_green_transformed.meta)
+    assert dat_green_transformed.meta.history[-1].name == 'bunwarp'
 
     # render2D(dat_green)
 
@@ -48,4 +52,5 @@ def test_transform_affine(locdata_simple):
     new_locdata = transform_affine(locdata_simple, matrix=((0,1),(-1,0)), offset=(10,10))
     assert(np.all(new_locdata.coordinates==[[10, 10], [11, 10], [13, 9], [14, 6], [11, 5]]))
     # print(new_locdata.data)
-    print(new_locdata.meta)
+    # print(new_locdata.meta)
+    assert new_locdata.meta.history[-1].name == 'transform_affine'

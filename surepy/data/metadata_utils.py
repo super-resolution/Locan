@@ -10,7 +10,7 @@ import time
 from surepy.data import metadata_pb2
 
 
-def _modify_meta(locdata, meta=None):
+def _modify_meta(locdata, function_name=None, parameter=None, meta=None):
     """
     Update metadata in Locdata after modification of locdata.
 
@@ -18,6 +18,10 @@ def _modify_meta(locdata, meta=None):
     ----------
     locdata : LocData
         original locdata before modification
+    function_name : str
+        Name of function that was applied for modification.
+    parameter : dict
+        Parameter for function that was applied for modification.
     meta : Metadata protobuf message
         Metadata about the current dataset and its history.
 
@@ -46,6 +50,7 @@ def _modify_meta(locdata, meta=None):
     meta_.modification_date = int(time.time())
     meta_.state = metadata_pb2.MODIFIED
     meta_.ancestor_identifiers.append(locdata.meta.identifier)
+    meta_.history.add(name=function_name, parameter=str(parameter))
 
     if meta is None:
         pass

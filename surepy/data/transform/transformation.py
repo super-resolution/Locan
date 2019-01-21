@@ -5,6 +5,7 @@ Transform localization data.
 This module takes localization data and applies transformation procedures on coordinates or other properties.
 
 """
+import sys
 import time
 
 import numpy as np
@@ -13,7 +14,7 @@ import pandas as pd
 from surepy import LocData
 import surepy.data.hulls
 from surepy.simulation import simulate_csr
-from surepy.data import metadata_pb2
+from surepy.data.metadata_utils import _modify_meta
 
 
 def transform(locdata, *args):
@@ -57,6 +58,8 @@ def transform_affine(locdata, matrix=None, offset=None):
     locdata : ndarray or LocData object
         New localization data with tansformed coordinates.
     """
+    local_parameter = locals()
+
     # adjust input
     if isinstance(locdata, LocData):
         points = locdata.coordinates
@@ -77,32 +80,14 @@ def transform_affine(locdata, matrix=None, offset=None):
 
     # prepare output
     if isinstance(locdata, LocData):
-        # update metadata
-        meta_ = metadata_pb2.Metadata()
-        meta_.CopyFrom(locdata.meta)
-        try:
-            meta_.ClearField("identifier")
-        except ValueError:
-            pass
-
-        try:
-            meta_.ClearField("element_count")
-        except ValueError:
-            pass
-
-        try:
-            meta_.ClearField("frame_count")
-        except ValueError:
-            pass
-
-        meta_.modification_date = int(time.time())
-        meta_.state = metadata_pb2.MODIFIED
-        meta_.ancestor_identifiers.append(locdata.meta.identifier)
-        meta_.history.add(name='transform_affine', parameter=f'matrix={matrix}, offset={offset}')
-
         # new LocData object
-        new_locdata = LocData.from_dataframe(pd.DataFrame(transformed_points, columns=locdata.coordinate_labels),
-                                             meta=meta_)
+        new_locdata = LocData.from_dataframe(pd.DataFrame(transformed_points, columns=locdata.coordinate_labels))
+
+        # update metadata
+        meta_ = _modify_meta(locdata, function_name=sys._getframe().f_code.co_name, parameter=local_parameter,
+                             meta=None)
+        new_locdata.meta = meta_
+
         return new_locdata
 
     else:
@@ -126,6 +111,7 @@ def randomize(locdata, hull_region='bb'):
     locdata : LocData object
         New localization data with randomized coordinates.
     """
+    local_parameter = locals()
 
     if hull_region is 'bb':
         try:
@@ -160,6 +146,10 @@ def randomize(locdata, hull_region='bb'):
 
     else:
         raise NotImplementedError
+
+    # update metadata
+    meta_ = _modify_meta(locdata, function_name=sys._getframe().f_code.co_name, parameter=local_parameter, meta=None)
+    new_locdata.meta = meta_
 
     return new_locdata
 

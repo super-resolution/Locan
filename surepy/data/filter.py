@@ -6,13 +6,13 @@ This module provides functions for filtering LocData objects.
 The functions take LocData as input and compute new LocData objects.
 
 """
+import sys
 
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
 from surepy import LocData
 from surepy.constants import N_JOBS
-from surepy.data import metadata_pb2
 from surepy.data.metadata_utils import _modify_meta
 
 
@@ -33,6 +33,7 @@ def select_by_condition(locdata, condition):
     LocData
         a new instance of LocData referring to the specified dataset.
     """
+    local_parameter = locals()
 
     # select
     new_indices = locdata.data.query(condition).index.values.tolist()
@@ -40,10 +41,9 @@ def select_by_condition(locdata, condition):
     # instantiate
     new_locdata = LocData.from_selection(locdata=locdata, indices=new_indices)
 
-    # metadata
-    del new_locdata.meta.history[:]
-    new_locdata.meta.history.add(name='select_by_condition',
-                         parameter='locdata={}, condition={}'.format(locdata, condition))
+    # update metadata
+    meta_ = _modify_meta(locdata, function_name=sys._getframe().f_code.co_name, parameter=local_parameter, meta=None)
+    new_locdata.meta = meta_
 
     return new_locdata
 
@@ -92,6 +92,8 @@ def select_by_region(locdata, roi, reduce=True):
 
     if reduce:
         new_locdata.reduce()
+
+    # meta is updated by select_by_condition function. No further updates needed.
 
     return new_locdata
 
@@ -154,6 +156,8 @@ def exclude_sparse_points(locdata, other_locdata=None, radius=50, min_samples=5)
        In: Evangelos Simoudis, Jiawei Han, Usama M. Fayyad (Hrsg.): Proceedings of the Second International Conference
        on Knowledge Discovery and Data Mining (KDD-96). AAAI Press, 1996, S. 226-231, ISBN 1-57735-004-9.
     """
+    local_parameter = locals()
+
     if other_locdata is None:
         nn = NearestNeighbors(metric='euclidean', n_jobs=N_JOBS).fit(locdata.coordinates)
         neighbor_points_list = nn.radius_neighbors(radius=radius, return_distance=False)
@@ -163,13 +167,12 @@ def exclude_sparse_points(locdata, other_locdata=None, radius=50, min_samples=5)
         neighbor_points_list = nn.radius_neighbors(locdata.coordinates, radius=radius, return_distance=False)
 
     indices_to_keep = [len(pts) >= min_samples for pts in neighbor_points_list]
+    new_locdata = LocData.from_selection(locdata, indices_to_keep)
 
     # update metadata
-    meta_ = _modify_meta(locdata, meta=None)
-    meta_.history.add(name='exclude_sparse_points',
-                      parameter=f'other_locdata={other_locdata}, radius={radius}, min_samples={min_samples}')
+    meta_ = _modify_meta(locdata, function_name=sys._getframe().f_code.co_name, parameter=local_parameter, meta=None)
+    new_locdata.meta = meta_
 
-    new_locdata = LocData.from_selection(locdata, indices_to_keep, meta=meta_)
     return new_locdata
 
 
@@ -189,8 +192,13 @@ def random_subset(locdata, number_points):
     LocData
         a new instance of LocData carrying the subset of localizations.
     """
+    local_parameter = locals()
+
     indices = np.random.choice(len(locdata), size=number_points)
     new_locdata = LocData.from_selection(locdata, indices)
-    new_locdata.meta.history.add(name='random subset')
+
+    # update metadata
+    meta_ = _modify_meta(locdata, function_name=sys._getframe().f_code.co_name, parameter=local_parameter, meta=None)
+    new_locdata = LocData.from_selection(locdata, indices, meta=meta_)
 
     return new_locdata

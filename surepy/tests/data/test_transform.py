@@ -48,4 +48,4 @@ def test_transform_affine(locdata_simple):
     new_locdata = transform_affine(locdata_simple, matrix=((0,1),(-1,0)), offset=(10,10))
     assert(np.all(new_locdata.coordinates==[[10, 10], [11, 10], [13, 9], [14, 6], [11, 5]]))
     # print(new_locdata.data)
-    # print(new_locdata.meta)
+    print(new_locdata.meta)

@@ -20,6 +20,7 @@ References
    IEEE Transactions on Biomedical Engineering, vol. 52, no. 4, pp. 652-663, April 2005.
 
 """
+import sys
 
 import numpy as np
 import pandas as pd
@@ -27,6 +28,7 @@ from itertools import islice
 from numba import jit
 
 from surepy import LocData
+from surepy.data.metadata_utils import _modify_meta
 
 
 @jit(nopython=True)
@@ -119,13 +121,17 @@ def bunwarp(locdata, matrix_path):
     locdata : LocData object
         New localization data with transformed coordinates.
     """
+    local_parameter = locals()
+
     (trans_size, trans_matrix_x, trans_matrix_y) = _read_matrix(matrix_path)
     loc_max = np.max(locdata.coordinates, axis=0)
     trans_array = _unwarp(locdata.coordinates.T, trans_matrix_x, trans_matrix_y, trans_size, loc_max)
 
     df = pd.DataFrame({'Position_x': trans_array[0], 'Position_y': trans_array[1]})
-
-    # todo: add meta data
     new_locdata = LocData.from_dataframe(df)
+
+    # update metadata
+    meta_ = _modify_meta(locdata, function_name=sys._getframe().f_code.co_name, parameter=local_parameter, meta=None)
+    new_locdata.meta = meta_
 
     return new_locdata

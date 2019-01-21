@@ -66,7 +66,7 @@ def test_select_by_region(locdata_simple):
     dat_1 = select_by_region(locdata_simple, roi=roi_dict)
     assert(len(dat_1) == 4)
 
-    roi = Roi(points=(0, 3), type='rectangle')
+    roi = Roi(region_specs=(0, 3), type='rectangle')
     dat_1 = select_by_region(locdata_simple, roi=roi)
     assert(len(dat_1) == 6)
     roi = dict(points=(0, 3, 0, 3), type='rectangle')

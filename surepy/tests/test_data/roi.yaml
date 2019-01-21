@@ -1,8 +1,9 @@
 - true
-- - 1.0
+- - - 1.0
+    - 1.0
   - 500.0
-  - 1.0
   - 500.0
+  - 0.0
 - rectangle
 - "{\n  \"fileType\": \"CUSTOM\",\n  \"filePath\": \"C:\\\\Users\\\\Soeren\\\\MyData\\\
   \\Programming\\\\Python\\\\Projects\\\\Surepy\\\\surepy/tests/test_data/five_blobs.txt\"\

@@ -50,16 +50,15 @@ def select_by_condition(locdata, condition):
 
 def select_by_region(locdata, roi, reduce=True):
     """
-    Select localizations within specified rectangle, ellipse, polygon or 3D equivalents.
+    Select localizations within specified region. Region can be rectangle, ellipse, polygon or 3D equivalents.
 
     Parameters
     ----------
     locdata : LocData
         Specifying the localization data from which to select localization data.
     roi : Roi Object or dict
-        Region of interest as specified by Roi or dictionary with keys 'points' and 'type'. For Roi objects the
-        reference attribute is ignored. Points are a list of tuples representing 1D, 2D or 3D coordinates.
-        Type is a string identifier that can be either rectangle, ellipse, or polygon.
+        Region of interest as specified by Roi or dictionary with keys 'region_specs' and 'type'. For Roi objects the
+        reference attribute is ignored. Allowed values for `region_specs` and `type` are defined for Roi objects.
     reduce : Bool
         Return the reduced LocData object or keep references alive.
 
@@ -70,23 +69,15 @@ def select_by_region(locdata, roi, reduce=True):
     """
     # todo implement ellipse and polygon for 2D and 3D
     try:
-        _roi = dict(points=roi.points, type=roi.type)
+        roi_ = dict(region_specs=roi.region_specs, type=roi.type)
     except AttributeError:
-        _roi = roi
+        roi_ = roi
 
-    if _roi['type']=='rectangle':
-        if len(_roi['points'])==2:
-            new_locdata = select_by_condition(locdata, condition='{0} <= Position_x <= {1}'.format(*_roi['points']))
-        elif len(_roi['points'])==4:
-            new_locdata = select_by_condition(locdata, condition='{0} <= Position_x <= {1} and '
-                                                          '{2} <= Position_y <= {3}'.format(*_roi['points']))
-        elif len(_roi['points'])==6:
-            new_locdata = select_by_condition(locdata, condition='{0} <= Position_x <= {1} and '
-                                                          '{2} <= Position_y <= {3} and '
-                                                          '{4} <= Position_z <= {5}'.format(*_roi['points']))
-        else:
-            raise TypeError('Point dimensions must be  1, 2 or 3.')
-
+    if roi_['type'] == 'rectangle' and roi_['region_specs'][-1] == 0:
+        min_x, min_y = roi_['region_specs'][0]
+        max_x, max_y = list((a + b for a, b in zip(roi_['region_specs'][0], roi_['region_specs'][1:3])))
+        new_locdata = select_by_condition(locdata, condition=f'{min_x} <= Position_x <= {max_x} and '
+                                            f'{min_y} <= Position_y <= {max_y}')
     else:
         raise NotImplementedError
 
@@ -94,7 +85,6 @@ def select_by_region(locdata, roi, reduce=True):
         new_locdata.reduce()
 
     # meta is updated by select_by_condition function. No further updates needed.
-
     return new_locdata
 
 

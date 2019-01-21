@@ -38,8 +38,9 @@ class _MplSelector():
     Attributes
     ----------
     rois : List of dict
-        A list of rois where each element is a dict with keys 'points' and 'type'. Points are a list of tuples
-        representing 2D or 3D coordinates. Type is a string identifyer that can be either rectangle, ellipse, or polygon.
+        A list of rois where each element is a dict with keys `region_specs` and 'type'. `region_specs` contain a tuple
+        with specifications for the chosen region type (see ``Roi``).
+        Type is a string identifyer that can be either rectangle, ellipse, or polygon.
 
     '''
 
@@ -78,25 +79,41 @@ class _MplSelector():
             self.selector = RectangleSelector(ax, self.selector_callback, drawtype='box', interactive=True)
             self.type = 'rectangle'
 
-        if event.key in ['E', 'e']:
+        elif event.key in ['E', 'e']:
             print('EllipseSelector activated.')
             self.selector = EllipseSelector(ax, self.selector_callback, drawtype='box', interactive=True)
             self.type = 'ellipse'
 
-        if event.key in ['T', 't']:
+        elif event.key in ['T', 't']:
             print('PolygonSelector activated.')
             self.selector = PolygonSelector(ax, self.p_selector_callback)
             self.type = 'polygon'
 
-        if event.key in ['+'] and self.selector.active and (self.type=='rectangle' or self.type=='ellipse'):
-            print('Roi was added')
-            self.rois.append({'points':self.selector.extents, 'type':self.type})
+        else:
+            pass
+
+        if event.key in ['+'] and self.selector.active and self.type=='rectangle':
+            print('Roi was added.')
+            region_specs = (self.selector.corners[0], self.selector.extents[1]-self.selector.extents[0],
+                            self.selector.extents[3]-self.selector.extents[2], 0.)
+            self.rois.append({'region_specs': region_specs, 'type':self.type})
             print('rois: {}'.format(self.rois))
 
-        if event.key in ['+'] and self.selector.active and self.type=='polygon':
-            print('Roi was added')
-            self.rois.append({'points':self.selector.verts, 'type':self.type})
+        elif event.key in ['+'] and self.selector.active and self.type=='ellipse':
+            print('Roi was added.')
+            region_specs = (self.selector.center, self.selector.extents[1]-self.selector.extents[0],
+                            self.selector.extents[3]-self.selector.extents[2], 0.)
+
+            self.rois.append({'region_specs': region_specs, 'type': self.type})
             print('rois: {}'.format(self.rois))
+
+        elif event.key in ['+'] and self.selector.active and self.type=='polygon':
+            print('Roi was added.')
+            self.rois.append({'region_specs': self.selector.verts, 'type': self.type})
+            print('rois: {}'.format(self.rois))
+
+        else:
+            pass
 
 
 class Roi():
@@ -110,11 +127,14 @@ class Roi():
     reference : LocData object, str, or None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
         True for indicating reference to a saved SMLM file, or None for indicating no specific reference.
-    points : tuple or tuple of tuples
-        Points are a tuple with extends (i.e. min and max values for each coordinate) for rectangle or ellipse.
-        It is a tuple or list of tuples representing 2D or 3D coordinates (i.e. vertices) for polygon.
+    region_specs : tuple
+        2D rois are defined by the following tuples:
+        * rectangle: ((corner_x, corner_y), width, height, angle)
+        * ellipse: ((center_x, center_y), width, height, angle)
+        * polygon: ((point1_x, point1_y), (point2_x, point2_y), ...)
     type : str
-        Type is a string indicating the roi shape. It can be either rectangle, ellipse, or polygon.
+        Type is a string indicating the roi shape. In 2D it can be either rectangle, ellipse, or closed polygon.
+        In 3D it can be either cuboid or ellipsoid.
     meta : dict
         Dict with keys file_path and file_type for a path pointing to a localization file and an integer indicating the
         file type. The integer should be according to surepy.data.metadata_pb2.file_type.
@@ -125,20 +145,25 @@ class Roi():
     reference : LocData object, str, or None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
         True for indicating reference to a saved SMLM file, or None for indicating no specific reference.
-    points : tuple or tuple of tuples
-        Points are a tuple with extends (i.e. min and max values for each coordinate) for rectangle or ellipse.
-        It is a tuple or list of tuples representing 2D or 3D coordinates (i.e. vertices) for polygon.
+    region_specs : tuple
+        2D rois are defined by the following tuples:
+        * rectangle: ((corner_x, corner_y), width, height, angle)
+        * ellipse: ((center_x, center_y), width, height, angle)
+        * polygon: ((point1_x, point1_y), (point2_x, point2_y), ...)
     type : str
-        Type is a string indicating the roi shape. It can be either rectangle, ellipse, or polygon.
+        Type is a string indicating the roi shape.
+        In 1D it can be `interval`.
+        In 2D it can be either `rectangle`, `ellipse`, or closed `polygon`.
+        In 3D it can be either `cuboid` or `ellipsoid` (not implemented yet).
     meta : dict
         Dict with keys file_path and file_type for a path pointing to a localization file and an integer indicating the
         file type. The integer should be according to surepy.data.metadata_pb2.file_type.
     """
 
-    def __init__(self, reference=None, points=(), type='rectangle', meta=None):
+    def __init__(self, reference=None, region_specs=(), type='rectangle', meta=None):
 
         self.reference = reference
-        self.points = points
+        self.region_specs = region_specs
         self.type = type
         self.meta = metadata_pb2.Metadata()
 
@@ -159,7 +184,7 @@ class Roi():
 
 
     def __repr__(self):
-        return f'Roi(reference={self.reference}, points={self.points}, type={self.type}, meta={self.meta})'
+        return f'Roi(reference={self.reference}, region_specs={self.region_specs}, type={self.type}, meta={self.meta})'
 
 
     def to_yaml(self, path=None):
@@ -182,10 +207,13 @@ class Roi():
 
         # prepare points for yaml representation - numpy.float has to be converted to float
         # todo: correct for different shapes
-        if self.type=='rectangle':
-            points_for_yaml = tuple([float(pt) for pt in self.points])
-        else:
-            points_for_yaml = self.points
+        # if self.type=='rectangle':
+        #     region_specs_for_yaml = self.region_specs
+        #     region_specs_for_yaml = tuple([float(pt) for pt in self.region_specs])
+        # else:
+        #     region_specs_for_yaml = self.region_specs
+        region_specs_for_yaml = list((float(v) for v in self.region_specs[0])), \
+                                float(self.region_specs[1]), float(self.region_specs[2]), float(self.region_specs[3])
 
         # prepare reference for yaml representation - reference to LocData cannot be represented
         if isinstance(self.reference, LocData):
@@ -202,7 +230,7 @@ class Roi():
         meta_json = json_format.MessageToJson(self.meta, including_default_value_fields=False)
 
         yaml = YAML()
-        yaml.dump([reference_for_yaml, points_for_yaml, self.type, meta_json], _path)
+        yaml.dump([reference_for_yaml, region_specs_for_yaml, self.type, meta_json], _path)
 
 
     @classmethod
@@ -217,7 +245,7 @@ class Roi():
         '''
         yaml = YAML(typ='safe')
         with open(path) as file:
-            reference, points, type, meta_yaml = yaml.load(file)
+            reference, region_specs, type, meta_yaml = yaml.load(file)
 
         # meta
         meta_ = metadata_pb2.Metadata()
@@ -233,7 +261,7 @@ class Roi():
         else:
             meta_.MergeFrom(meta)
 
-        return cls(reference=reference, points=points, type=type, meta=meta_)
+        return cls(reference=reference, region_specs=region_specs, type=type, meta=meta_)
 
 
     def locdata(self):
@@ -281,10 +309,11 @@ def select_by_drawing(locdata, type='rectangle', **kwargs):
     render2D(locdata, ax=ax, show=False, **kwargs)
     selector = _MplSelector(ax, type=type)
     plt.show()
-    roi_list = [Roi(reference=locdata, points=roi['points'], type=roi['type']) for roi in selector.rois]
+    roi_list = [Roi(reference=locdata, region_specs=roi['region_specs'], type=roi['type']) for roi in selector.rois]
     return roi_list
 
 
+# todo: rename parameter meta
 def load_from_roi_file(path, meta=None):
     """
     Load data from a Roi file.

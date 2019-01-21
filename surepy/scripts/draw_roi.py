@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''
+"""
 Script to define regions of interest by drawing a boundary.
 
 With this script you can choose a file name, open the localization file and draw a rectangular region of interest.
@@ -10,14 +10,14 @@ The roi is then saved as _roi.yaml file.
 To run the script::
 
     draw_roi.py -d <directory> -t <file type> -i <roi file indicator>
-'''
+"""
 
 import argparse
 from pathlib import Path
 
 from surepy.gui.io import file_dialog
 import surepy.io.io_locdata as io
-from surepy.data.rois import Roi, select_by_drawing
+from surepy.data.rois import select_by_drawing
 
 
 def draw_roi(directory=None, type=1, roi_file_indicator='_roi'):
@@ -62,7 +62,8 @@ def main(args=None):
     parser.add_argument('-t', '--type', dest='type', type=int, default=1,
                         help='Integer or string indicating the file type.')
     parser.add_argument('-i', '--indicator', dest='roi_file_indicator', type=str, default='_roi',
-                        help='Indicator to add to the localization file name and use as roi file name (with further extension .yaml).')
+                        help='Indicator to add to the localization file name and use as roi file name '
+                             '(with further extension .yaml).')
 
     returned_args = parser.parse_args(args)
 

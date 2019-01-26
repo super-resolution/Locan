@@ -1,11 +1,12 @@
 import warnings
 import pytest
+import numpy as np
 import pandas as pd
 
 from surepy import LocData
 from surepy.constants import ROOT_DIR
 from surepy.io.io_locdata import load_txt_file
-from surepy.data.rois import Roi, load_from_roi_file
+from surepy.data.rois import RoiRegion, Roi, load_from_roi_file
 
 
 # fixtures
@@ -19,8 +20,61 @@ def locdata():
     }
     return LocData(dataframe=pd.DataFrame.from_dict(dict))
 
+@pytest.fixture()
+def points():
+    return np.array([[0, 0], [0.5, 0.5], [100, 100], [1, 1], [1.1, 0.9]])
 
 # tests
+
+def test_RoiRegion(points):
+    region_dict = dict(
+        interval=dict(region_type='interval', region_specs=(0,1)),
+        rectangle=dict(region_type='rectangle', region_specs=((0, 0), 2, 1, 10)),
+        ellipse=dict(region_type='ellipse', region_specs=((1, 1), 2, 1, 10)),
+        polygon=dict(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))),
+        polygon_fail=dict(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5)))
+    )
+
+    rr = RoiRegion(**region_dict['interval'])
+    assert str(rr) == str({'region_type': 'interval', 'region_specs': (0,1)})
+    assert len(rr.contains(points[:,0])) == 1
+    assert np.allclose(rr.polygon, region_dict['interval']['region_specs'])
+    assert rr.dimension == 1
+    assert rr.centroid == 0.5
+    assert rr.max_distance == 1
+    assert rr.region_measure == 1
+    assert rr.subregion_measure is None
+
+    rr = RoiRegion(**region_dict['rectangle'])
+    assert str(rr) == str({'region_type': 'rectangle', 'region_specs': ((0, 0), 2, 1, 10)})
+    assert len(rr.contains(points)) == 3
+    assert len(rr.polygon) == 5
+    assert rr.dimension == 2
+    assert rr.centroid != (0, 0)
+    assert rr.max_distance == np.sqrt(5)
+    assert rr.region_measure == 2
+    assert rr.subregion_measure == 6
+
+    rr = RoiRegion(**region_dict['ellipse'])
+    assert str(rr) == str({'region_type': 'ellipse', 'region_specs': ((1, 1), 2, 1, 10)})
+    assert len(rr.contains(points)) == 3
+    assert len(rr.polygon) == 26
+    assert rr.dimension == 2
+    assert rr.centroid == (1, 1)
+    assert rr.max_distance == 2
+    assert rr.region_measure == 1.5707963267948966
+    assert rr.subregion_measure == 4.844224108065043
+
+    rr = RoiRegion(**region_dict['polygon'])
+    assert str(rr) == str({'region_type': 'polygon', 'region_specs': ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))})
+    assert len(rr.contains(points)) == 1
+    assert len(rr.polygon) == 5
+    assert rr.dimension == 2
+    assert rr.centroid
+    assert rr.max_distance == np.sqrt(2)
+    assert rr.region_measure == 0.75
+    assert rr.subregion_measure == 3.618033988749895
+
 
 def test_Roi(locdata):
     roi = Roi(region_specs=((1, 1), 10, 10, 0.), type='rectangle')

@@ -10,6 +10,11 @@ The roi is then saved as _roi.yaml file.
 To run the script::
 
     draw_roi.py -d <directory> -t <file type> -i <roi file indicator>
+
+Try for instance::
+
+    draw_roi.py -d "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi"
+
 """
 
 import argparse

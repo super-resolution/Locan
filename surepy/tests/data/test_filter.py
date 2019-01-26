@@ -15,6 +15,14 @@ def locdata_simple():
     }
     return LocData(dataframe=pd.DataFrame.from_dict(dict_))
 
+@pytest.fixture()
+def locdata_simple_2D():
+    dict_ = {
+        'Position_x': [0, 1, 2, 3, 0, 1, 4, 5],
+        'Position_y': [0, 1, 2, 3, 1, 4, 5, 1]
+    }
+    return LocData(dataframe=pd.DataFrame.from_dict(dict_))
+
 
 def test_select_by_condition(locdata_simple):
     dat_s = select_by_condition(locdata_simple, 'Position_x>1')
@@ -75,6 +83,12 @@ def test_select_by_region(locdata_simple):
     roi = dict(points=(0, 3, 0, 3, 0, 3), type='rectangle')
     dat_1 = select_by_region(locdata_simple, roi=roi)
     assert(len(dat_1) == 4)
+
+
+def test_select_by_region_with_polygon(locdata_simple_2D):
+    roi_dict = dict(type='polygon', region_specs=((0, 0), (0, 3), (3, 3), (3, 0)))
+    dat_1 = select_by_region(locdata_simple_2D, roi=roi_dict)
+    assert len(dat_1) == 2
 
 
 def test_exclude_sparse_points(locdata_simple):

@@ -10,6 +10,7 @@ import sys
 
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
+import matplotlib.path as mpath
 
 from surepy import LocData
 from surepy.constants import N_JOBS
@@ -78,9 +79,24 @@ def select_by_region(locdata, roi, reduce=True):
         max_x, max_y = list((a + b for a, b in zip(roi_['region_specs'][0], roi_['region_specs'][1:3])))
         new_locdata = select_by_condition(locdata, condition=f'{min_x} <= Position_x <= {max_x} and '
                                             f'{min_y} <= Position_y <= {max_y}')
+
+    if roi_['type'] == 'ellipse':
+        pass
+
+    if roi_['type'] == 'polygon':
+        polygon = roi_['region_specs']
+        path = mpath.Path(polygon)
+        inside = path.contains_points(locdata.coordinates)
+        new_indices = np.where(inside)
+        new_locdata = LocData.from_selection(locdata=locdata, indices=new_indices)
+
     else:
         raise NotImplementedError
 
+
+
+
+    # finish
     if reduce:
         new_locdata.reduce()
 

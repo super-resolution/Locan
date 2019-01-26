@@ -25,7 +25,7 @@ def max_distance(locdata):
         A dict with key `Max_distance` and the corresponding value being the maximum distance.
     """
     D = pdist(locdata.coordinates)
-    D = squareform(D)
+    #D = squareform(D)
     distance = np.nanmax(D)
 
     # indices of identified points (not used yet)

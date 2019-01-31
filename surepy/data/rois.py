@@ -680,11 +680,11 @@ class Roi:
         if self.properties_for_roi:
             pfr = self.properties_for_roi
         else:
-            pfr = self.reference.coordinate_labels[0:self._region.dimension]
+            pfr = locdata.coordinate_labels[0:self._region.dimension]
 
         points = locdata.data[pfr]
         indices_inside = self._region.contains(points)
-        new_locdata = LocData.from_selection(locdata=self.reference, indices=indices_inside)
+        new_locdata = LocData.from_selection(locdata=locdata, indices=indices_inside)
 
         # finish
         if reduce:

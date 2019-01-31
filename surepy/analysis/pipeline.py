@@ -8,7 +8,7 @@ different results in parallel.
 
 from surepy import LocData
 from surepy.io.io_locdata import load_locdata
-from surepy.data.rois import Roi, load_from_roi_file
+from surepy.data.rois import Roi
 from surepy.data.hulls import Convex_hull_scipy
 from surepy.data.filter import select_by_condition
 from surepy.data.cluster.clustering import clustering_hdbscan
@@ -63,9 +63,9 @@ class Pipeline():
         elif isinstance(locdata, Roi):
             self.locdata = locdata.locdata()
         elif isinstance(locdata, dict) and locdata['file_type']=='roi':
-            self.locdata = load_from_roi_file(path=locdata['file_path'])
+            self.locdata = Roi.from_yaml(path=locdata['file_path']).locdata()
         elif isinstance(locdata, dict):
-            self.locdata = load_locdata(path=locdata['file_path'], type=locdata['file_type'])
+            self.locdata = load_locdata(path=locdata['file_path'], file_type=locdata['file_type'])
 
 
     def __del__(self):

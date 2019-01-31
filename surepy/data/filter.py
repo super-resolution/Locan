@@ -15,6 +15,7 @@ import matplotlib.path as mpath
 from surepy import LocData
 from surepy.constants import N_JOBS
 from surepy.data.metadata_utils import _modify_meta
+from surepy.data.rois import RoiRegion
 
 
 def select_by_condition(locdata, condition):
@@ -49,7 +50,7 @@ def select_by_condition(locdata, condition):
     return new_locdata
 
 
-def select_by_region(locdata, roi, reduce=True):
+def _select_by_region(locdata, roi, reduce=True):
     """
     Select localizations within specified region. Region can be rectangle, ellipse, polygon or 3D equivalents.
 
@@ -103,6 +104,58 @@ def select_by_region(locdata, roi, reduce=True):
     # meta is updated by select_by_condition function. No further updates needed.
     return new_locdata
 
+def select_by_region(locdata, region, reduce=True):
+    """
+    Select localizations within specified region of interest.
+
+    Parameters
+    ----------
+    locdata : LocData
+        Specifying the localization data from which to select localization data.
+    region : RoiRegion Object, or dict
+        Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
+        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
+    reduce : Bool
+        Return the reduced LocData object or keep references alive.
+
+    Returns
+    -------
+    LocData
+        New instance of LocData referring to the specified dataset.
+    """
+    if isinstance(region, dict):
+        roi = RoiRegion(region_specs=region.region_specs, type=region.type)
+    except AttributeError:
+        roi_ = region
+
+    if roi_['type'] == 'rectangle' and roi_['region_specs'][-1] == 0:
+        min_x, min_y = roi_['region_specs'][0]
+        max_x, max_y = list((a + b for a, b in zip(roi_['region_specs'][0], roi_['region_specs'][1:3])))
+        new_locdata = select_by_condition(locdata, condition=f'{min_x} <= Position_x <= {max_x} and '
+                                            f'{min_y} <= Position_y <= {max_y}')
+
+    if roi_['type'] == 'ellipse':
+        pass
+
+    if roi_['type'] == 'polygon':
+        polygon = roi_['region_specs']
+        path = mpath.Path(polygon)
+        inside = path.contains_points(locdata.coordinates)
+        new_indices = np.where(inside)
+        new_locdata = LocData.from_selection(locdata=locdata, indices=new_indices)
+
+    else:
+        raise NotImplementedError
+
+
+
+
+    # finish
+    if reduce:
+        new_locdata.reduce()
+
+    # meta is updated by select_by_condition function. No further updates needed.
+    return new_locdata
 
 def select_by_image_mask(selection, mask, pixel_size):
     """

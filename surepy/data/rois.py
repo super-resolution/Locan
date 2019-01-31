@@ -4,55 +4,19 @@ Region of interest.
 
 This module provides functions for managing regions of interest in localization data.
 
-A Roi as defined by the class Roi is an object that defines a region of interest within a specific localization
+The Roi class is an object that defines a region of interest within a localization
 dataset. It is therefore related to region specifications and a unique LocData object.
 
-The Roi object provides methods for saving all specifications to a roi file, for loading them, and for returning LocData
-with localizations within the roi region.
+The Roi object provides methods for saving all specifications to a yaml file, for loading them, and for returning
+LocData with localizations selected to be within the roi region.
 
-The roi region is provided as a RoiRegion object or another class instance that provides methods for getting a
-printable representation (that can also be saved in a yaml file), for returning a matplotlib patch that can be
-shown in a graph, for finding points within the region.
-
-As a result we propose the following classes:
-
-class Roi():
-    Parameters
-    ----------
-    same as attributes
-
-    Attributes
-    ----------
-    reference : LocData object, str, or None
-        Reference to localization data for which the region of interests are defined. It can be a LocData object,
-        True for indicating reference to a saved SMLM file, or None for indicating no specific reference.
-    region : RoiRegion or list of RoiRegion
-        Object specifying the geometrical region of interest. In case a list of RoiRegion is provided it is the union
-        that makes up the region of interest.
-    properties : tuple of string
-        Localization properties in LocData object on which the region will be projected (for instance the
-        coordinate_labels).
-
-    ***** the following could be incorporated in reference?! *****
-    meta : dict or better surepy.data.metadata_pb2 object
-        Dict with keys file_path and file_type for a path pointing to a localization file and an integer indicating the
-        file type. The integer should be according to surepy.data.metadata_pb2.file_type.
-
-    Methods
-    -------
-    to_yaml()
-        save specifications to yaml file
-    from_yaml() : class method
-        load specifications from yaml file and create Roi object
-    locdata()
-        return LocData object with all localizations from within the region of interest.
-
-
+The roi region is provided as a RoiRegion object that provides methods for getting a
+printable representation (that can be saved in a yaml file), for returning a matplotlib patch that can be
+shown in a graph, and for finding points within the region.
 """
 
 from pathlib import Path
 import warnings
-import time
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -60,22 +24,19 @@ import matplotlib.path as mPath
 import matplotlib.patches as mPatches
 from matplotlib.widgets import RectangleSelector, PolygonSelector, EllipseSelector
 from scipy.spatial.distance import pdist
-
 from ruamel.yaml import YAML
 from shapely.geometry import Polygon as shPolygon
-
 from google.protobuf import json_format
 
 from surepy.data import metadata_pb2
 from surepy import LocData
 import surepy.io.io_locdata as io
-from surepy.data.filter import select_by_region
 from surepy.render import render2D
 
 
-class RoiRegion():
+class RoiRegion:
     """
-    Region object for application that use regions of interest.
+    Region object to specify regions of interest.
 
     A region that defines a region of interest with methods for getting a printable representation (that can also be
     saved in a yaml file), for returning a matplotlib patch that can be shown in a graph, for finding points within
@@ -83,30 +44,31 @@ class RoiRegion():
 
     Parameters
     ----------
+    region_type : str
+        A string indicating the roi shape.
+        In 1D it can be `interval`.
+        In 2D it can be either `rectangle`, `ellipse`, or closed `polygon`.
+        In 3D it can be either `cuboid` or `ellipsoid` or `polyhedron` (not implemented yet).
     region_specs : tuple
         1D rois are defined by the following tuple:
         * interval: (start, stop)
         2D rois are defined by the following tuples:
         * rectangle: ((corner_x, corner_y), width, height, angle)
         * ellipse: ((center_x, center_y), width, height, angle)
-        * polygon: ((point1_x, point1_y), (point2_x, point2_y), ...)
+        * polygon: ((point1_x, point1_y), (point2_x, point2_y), ..., (point1_x, point1_y))
         3D rois are defined by the following tuples:
         * cuboid: ((corner_x, corner_y, corner_z), length, width, height, angle_1, angle_2, angle_3)
         * ellipsoid: ((center_x, center_y, center_z), length, width, height, angle_1, angle_2, angle_3)
         * polyhedron: (...)
-    type : str
-        Type is a string indicating the roi shape.
-        In 1D it can be `interval`.
-        In 2D it can be either `rectangle`, `ellipse`, or closed `polygon`.
-        In 3D it can be either `cuboid` or `ellipsoid` or `polyhedron` (not implemented yet).
+
 
     Attributes
     ----------
+    region_type : str
+        Type of region
     region_specs : tuple
         Specifications for region
-    type : str
-        Type of region
-    region : RoiRegion object
+    _region : RoiRegion object
         RoiRegion instance for the specified region type.
     polygon : ndarray of tuples
         Array of points for a closed polygon approximating the region of interest in clockwise orientation. The first
@@ -116,17 +78,11 @@ class RoiRegion():
     centroid : tuple of float
         Centroid coordinates
     max_distance : array-like of float
-        maximum distance between any two points in the region
+        Maximum distance between any two points in the region
     region_measure : float
-        hull measure, i.e. area or volume
+        Hull measure, i.e. area or volume
     subregion_measure : float
-        measure of the sub-dimensional region, i.e. circumference or surface
-
-    Methods
-    -------
-
-    mpl_patch(axes)
-        Add patch for the specified region to axes
+        Measure of the sub-dimensional region, i.e. circumference or surface.
     """
 
     def __init__(self, region_type, region_specs):
@@ -197,7 +153,8 @@ class RoiRegion():
         patch : matplotlib.patches object
             Matplotlib patch for the specified region
         """
-        return self._region.as_artist()
+        return self._region.as_artist(origin=origin, **kwargs)
+
 
 class _RoiInterval:
 
@@ -208,7 +165,7 @@ class _RoiInterval:
             self.region_specs = region_specs
 
     def __repr__(self):
-        return (dict(region_type='interval', region_specs=self.region_specs))
+        return dict(region_type='interval', region_specs=self.region_specs)
 
     def contains(self, points):
         inside_indices = np.where((points >= self.region_specs[0]) & (points <= self.region_specs[1]))
@@ -241,8 +198,11 @@ class _RoiInterval:
     def subregion_measure(self):
         return None
 
+    def as_artist(self, origin=(0, 0), **kwargs):
+        raise NotImplementedError
 
-class _RoiRectangle():
+
+class _RoiRectangle:
 
     def __init__(self, region_specs):
         if len(region_specs) != 4:
@@ -251,7 +211,7 @@ class _RoiRectangle():
             self.region_specs = region_specs
 
     def __repr__(self):
-        return (dict(region_type='rectangle', region_specs=self.region_specs))
+        return dict(region_type='rectangle', region_specs=self.region_specs)
 
     def contains(self, points):
         corner, width, height, angle = self.region_specs
@@ -286,7 +246,7 @@ class _RoiRectangle():
         center_x = center_before_rotation_x * np.cos(angle) - center_before_rotation_y * np.sin(angle)
         center_y = center_before_rotation_x * np.sin(angle) + center_before_rotation_y * np.cos(angle)
 
-        return (center_x, center_y)
+        return center_x, center_y
 
     @property
     def max_distance(self):
@@ -303,8 +263,17 @@ class _RoiRectangle():
         _, width, height, _ = self.region_specs
         return 2 * width + 2 * height
 
+    def as_artist(self, origin=(0, 0), **kwargs):
+        from matplotlib.patches import Rectangle
+        corner, width, height, angle = self.region_specs
+        xy = corner[0] - origin[0], corner[1] - origin[1]
+        mpl_params = self.mpl_properties_default('patch')
+        mpl_params.update(kwargs)
 
-class _RoiEllipse():
+        return Rectangle(xy=xy, width=width, height=height, angle=angle, **mpl_params)
+
+
+class _RoiEllipse:
 
     def __init__(self, region_specs):
         if len(region_specs) != 4:
@@ -313,7 +282,7 @@ class _RoiEllipse():
             self.region_specs = region_specs
 
     def __repr__(self):
-        return (dict(region_type='ellipse', region_specs=self.region_specs))
+        return dict(region_type='ellipse', region_specs=self.region_specs)
 
     def contains(self, points):
         center, width, height, angle = self.region_specs
@@ -329,7 +298,7 @@ class _RoiEllipse():
 
         rad_cc = (xct**2/(width/2.)**2) + (yct**2/(height/2.)**2)
 
-        inside_indices = np.where(rad_cc <1.)[0]
+        inside_indices = np.where(rad_cc < 1.)[0]
         return inside_indices
 
     @property
@@ -379,7 +348,7 @@ class _RoiEllipse():
         return Ellipse(xy=xy, width=width, height=height, angle=angle, **mpl_params)
 
 
-class _RoiPolygon():
+class _RoiPolygon:
 
     def __init__(self, region_specs):
         if region_specs[0] != region_specs[-1]:
@@ -388,7 +357,7 @@ class _RoiPolygon():
             self.region_specs = region_specs
 
     def __repr__(self):
-        return (dict(region_type='polygon', region_specs=self.region_specs))
+        return dict(region_type='polygon', region_specs=self.region_specs)
 
     def contains(self, points):
         polygon_path = mPath.Path(self.region_specs, closed=True)
@@ -411,8 +380,8 @@ class _RoiPolygon():
 
     @property
     def max_distance(self):
-        D = pdist(self.region_specs[0:-1])
-        return np.nanmax(D)
+        distances = pdist(self.region_specs[0:-1])
+        return np.nanmax(distances)
 
     @property
     def region_measure(self):
@@ -424,9 +393,12 @@ class _RoiPolygon():
         polygon = shPolygon(self.region_specs)
         return polygon.length
 
+    def as_artist(self, origin=(0, 0), **kwargs):
+        raise NotImplementedError
 
-class _MplSelector():
-    '''
+
+class _MplSelector:
+    """
     Class to use matplotlib widgets (RectangleSelector, EllipseSelector or PolygonSelector) on rendered localization
     data.
 
@@ -440,25 +412,25 @@ class _MplSelector():
     Attributes
     ----------
     rois : List of dict
-        A list of rois where each element is a dict with keys `region_specs` and 'type'. `region_specs` contain a tuple
+        A list of rois where each element is a dict with keys `region_specs` and 'region_type'. `region_specs` contain a tuple
         with specifications for the chosen region type (see ``Roi``).
-        Type is a string identifyer that can be either rectangle, ellipse, or polygon.
-
-    '''
+        The region_type is a string identifyer that can be either rectangle, ellipse, or polygon.
+    """
 
     def __init__(self, ax, type='rectangle'):
         self.rois = []
+        self.ax = ax
 
-        if type=='rectangle':
-            self.selector = RectangleSelector(ax, self.selector_callback, drawtype='box', interactive=True)
+        if type == 'rectangle':
+            self.selector = RectangleSelector(self.ax, self.selector_callback, drawtype='box', interactive=True)
             self.type = type
 
-        elif type=='ellipse':
-            self.selector = EllipseSelector(ax, self.selector_callback)
+        elif type == 'ellipse':
+            self.selector = EllipseSelector(self.ax, self.selector_callback)
             self.type = type
 
-        elif type=='polygon':
-            self.selector = PolygonSelector(ax, self.p_selector_callback)
+        elif type == 'polygon':
+            self.selector = PolygonSelector(self.ax, self.p_selector_callback)
             self.type = type
 
         else:
@@ -467,7 +439,7 @@ class _MplSelector():
         plt.connect('key_press_event', self.key_pressed_callback)
 
     def selector_callback(self, eclick, erelease):
-        "eclick and erelease are matplotlib events at press and release."
+        """ eclick and erelease are matplotlib events at press and release."""
         print('startposition: {}'.format((eclick.xdata, eclick.ydata)))
         print('endposition  : {}'.format((erelease.xdata, erelease.ydata)))
 
@@ -478,47 +450,48 @@ class _MplSelector():
         print('Key pressed.')
         if event.key in ['R', 'r']:
             print('RectangleSelector activated.')
-            self.selector = RectangleSelector(ax, self.selector_callback, drawtype='box', interactive=True)
+            self.selector = RectangleSelector(self.ax, self.selector_callback, drawtype='box', interactive=True)
             self.type = 'rectangle'
 
         elif event.key in ['E', 'e']:
             print('EllipseSelector activated.')
-            self.selector = EllipseSelector(ax, self.selector_callback, drawtype='box', interactive=True)
+            self.selector = EllipseSelector(self.ax, self.selector_callback, drawtype='box', interactive=True)
             self.type = 'ellipse'
 
         elif event.key in ['T', 't']:
             print('PolygonSelector activated.')
-            self.selector = PolygonSelector(ax, self.p_selector_callback)
+            self.selector = PolygonSelector(self.ax, self.p_selector_callback)
             self.type = 'polygon'
 
         else:
             pass
 
-        if event.key in ['+'] and self.selector.active and self.type=='rectangle':
+        if event.key in ['+'] and self.selector.active and self.type == 'rectangle':
             print('Roi was added.')
-            region_specs = (self.selector.corners[0], self.selector.extents[1]-self.selector.extents[0],
+            region_specs = (np.flip(self.selector.geometry[:, 0]), self.selector.extents[1]-self.selector.extents[0],
                             self.selector.extents[3]-self.selector.extents[2], 0.)
-            self.rois.append({'region_specs': region_specs, 'type':self.type})
+            self.rois.append({'region_specs': region_specs, 'region_type': self.type})
             print('rois: {}'.format(self.rois))
 
-        elif event.key in ['+'] and self.selector.active and self.type=='ellipse':
+        elif event.key in ['+'] and self.selector.active and self.type == 'ellipse':
             print('Roi was added.')
             region_specs = (self.selector.center, self.selector.extents[1]-self.selector.extents[0],
                             self.selector.extents[3]-self.selector.extents[2], 0.)
 
-            self.rois.append({'region_specs': region_specs, 'type': self.type})
+            self.rois.append({'region_specs': region_specs, 'region_type': self.type})
             print('rois: {}'.format(self.rois))
 
-        elif event.key in ['+'] and self.selector.active and self.type=='polygon':
+        elif event.key in ['+'] and self.selector.active and self.type == 'polygon':
             print('Roi was added.')
-            self.rois.append({'region_specs': self.selector.verts, 'type': self.type})
+            vertices_ = self.selector.verts.append(self.selector.verts[0])
+            self.rois.append({'region_specs': vertices_, 'region_type': self.type})
             print('rois: {}'.format(self.rois))
 
         else:
             pass
 
 
-class Roi():
+class Roi:
     """
     Class for a region of interest on LocData (roi).
 
@@ -526,166 +499,202 @@ class Roi():
 
     Parameters
     ----------
-    reference : LocData object, str, or None
+    reference : LocData object, dict or surepy.data.metadata_pb2 object, or None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
-        True for indicating reference to a saved SMLM file, or None for indicating no specific reference.
+        a reference to a saved SMLM file, or None for indicating no specific reference.
+        When referencing a saved SMLM file, reference must be a dict or surepy.data.metadata_pb2 with keys `file_path`
+        and `file_type` for a path pointing to a localization file and an integer indicating the file type.
+        The integer should be according to surepy.data.metadata_pb2.file_type.
+    region_type : str
+        A string indicating the roi shape.
+        In 1D it can be `interval`.
+        In 2D it can be either `rectangle`, `ellipse`, or closed `polygon`.
+        In 3D it can be either `cuboid` or `ellipsoid` or `polyhedron` (not implemented yet).
     region_specs : tuple
+        1D rois are defined by the following tuple:
+        * interval: (start, stop)
         2D rois are defined by the following tuples:
         * rectangle: ((corner_x, corner_y), width, height, angle)
         * ellipse: ((center_x, center_y), width, height, angle)
-        * polygon: ((point1_x, point1_y), (point2_x, point2_y), ...)
-    type : str
-        Type is a string indicating the roi shape. In 2D it can be either rectangle, ellipse, or closed polygon.
-        In 3D it can be either cuboid or ellipsoid.
-    meta : dict
-        Dict with keys file_path and file_type for a path pointing to a localization file and an integer indicating the
-        file type. The integer should be according to surepy.data.metadata_pb2.file_type.
+        * polygon: ((point1_x, point1_y), (point2_x, point2_y), ..., (point1_x, point1_y))
+        3D rois are defined by the following tuples:
+        * cuboid: ((corner_x, corner_y, corner_z), length, width, height, angle_1, angle_2, angle_3)
+        * ellipsoid: ((center_x, center_y, center_z), length, width, height, angle_1, angle_2, angle_3)
+        * polyhedron: (...)
+    properties_for_roi : tuple of string
+        Localization properties in LocData object on which the region selection will be applied (for instance the
+        coordinate_labels).
 
 
     Attributes
     ----------
-    reference : LocData object, str, or None
+    reference : LocData object, surepy.data.metadata_pb2 object, or None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
-        True for indicating reference to a saved SMLM file, or None for indicating no specific reference.
-    region_specs : tuple
-        2D rois are defined by the following tuples:
-        * rectangle: ((corner_x, corner_y), width, height, angle)
-        * ellipse: ((center_x, center_y), width, height, angle)
-        * polygon: ((point1_x, point1_y), (point2_x, point2_y), ...)
-    type : str
-        Type is a string indicating the roi shape.
-        In 1D it can be `interval`.
-        In 2D it can be either `rectangle`, `ellipse`, or closed `polygon`.
-        In 3D it can be either `cuboid` or `ellipsoid` (not implemented yet).
-    meta : dict
-        Dict with keys file_path and file_type for a path pointing to a localization file and an integer indicating the
-        file type. The integer should be according to surepy.data.metadata_pb2.file_type.
+        a reference to a saved SMLM file, or None for indicating no specific reference.
+        When referencing a saved SMLM file, reference have attributes `file_path`
+        and `file_type` for a path pointing to a localization file and an integer indicating the file type.
+        The integer should be according to surepy.data.metadata_pb2.file_type.
+    _region : RoiRegion or list of RoiRegion
+        Object specifying the geometrical region of interest. In case a list of RoiRegion is provided it is the union
+        that makes up the region of interest.
+    properties_for_roi : tuple of string
+        Localization properties in LocData object on which the region selection will be applied (for instance the
+        coordinate_labels).
+
+    Methods
+    -------
+    to_yaml()
+        save specifications to yaml file
+    from_yaml() : class method
+        load specifications from yaml file and create Roi object
+    locdata()
+        return LocData object with all localizations from within the region of interest.
     """
 
-    def __init__(self, reference=None, region_specs=(), type='rectangle', meta=None):
-
-        self.reference = reference
-        self.region_specs = region_specs
-        self.type = type
-        self.meta = metadata_pb2.Metadata()
-
-        # meta
-        if isinstance(reference, LocData) and reference.meta.file_path:
-            self.meta.file_path = reference.meta.file_path
-            self.meta.file_type = reference.meta.file_type
+    def __init__(self, reference=None, region_type='', region_specs=None, properties_for_roi=()):
+        if isinstance(reference, dict):
+            self.reference = metadata_pb2.Metadata()
+            for key, value in reference.items():
+                setattr(self.reference, key, value)
+        elif isinstance(reference, metadata_pb2.Metadata):
+            self.reference = metadata_pb2.Metadata()
+            self.reference.MergeFrom(reference)
         else:
-            pass
+            self.reference = reference
 
-        if meta is None:
-            pass
-        elif isinstance(meta, dict):
-            for key, value in meta.items():
-                setattr(self.meta, key, value)
-        else:
-            self.meta.MergeFrom(meta)
-
+        self._region = RoiRegion(region_type=region_type, region_specs=region_specs)
+        self.properties_for_roi = properties_for_roi
 
     def __repr__(self):
-        return f'Roi(reference={self.reference}, region_specs={self.region_specs}, type={self.type}, meta={self.meta})'
-
+        return f'Roi(reference={self.reference}, ' \
+            f'region_type={self._region.region_type}, ' \
+            f'region_specs={self._region.region_specs},' \
+            f' properties_for_roi={self.properties_for_roi})'
 
     def to_yaml(self, path=None):
-        '''
+        """
         Save Roi object in yaml format.
 
         Parameters
         ----------
         path : str, Path object, or None
             Path for yaml file. If None a roi file path is generated from the metadata.
-        '''
+        """
 
         # prepare path
-        if path is None:
-            _file_path = Path(self.meta.file_path)
+        if path is None and isinstance(self.reference, LocData):
+            _file_path = Path(self.reference.meta.file_path)
+            _roi_file = _file_path.stem + '_roi.yaml'
+            _path = _file_path.with_name(_roi_file)
+        elif path is None and isinstance(self.reference, metadata_pb2.Metadata):
+            _file_path = Path(self.reference.file_path)
             _roi_file = _file_path.stem + '_roi.yaml'
             _path = _file_path.with_name(_roi_file)
         else:
             _path = Path(path)
 
-        # prepare points for yaml representation - numpy.float has to be converted to float
-        if self.type == 'rectangle' or self.type == 'ellipse':
-            region_specs_for_yaml = tuple((float(v) for v in self.region_specs[0])), \
-                                    float(self.region_specs[1]), \
-                                    float(self.region_specs[2]), \
-                                    float(self.region_specs[3])
-        elif self.type == 'polygon':
-            region_specs_for_yaml = tuple(((float(c) for c in point) for point in self.region_specs))
-
         # prepare reference for yaml representation - reference to LocData cannot be represented
-        if isinstance(self.reference, LocData):
-            if self.reference.meta.file_path or self.meta.file_path:
-                reference_for_yaml = True
+        if self.reference is None:
+            reference_for_yaml = None
+        elif isinstance(self.reference, LocData):
+            if self.reference.meta.file_path:
+                meta_ = metadata_pb2.Metadata()
+                meta_.file_path = self.reference.meta.file_path
+                meta_.file_type = self.reference.meta.file_type
+                reference_for_yaml = json_format.MessageToJson(meta_, including_default_value_fields=False)
             else:
                 warnings.warn('The localization data has to be saved and the file path provided, '
                               'or the reference is lost.', UserWarning)
                 reference_for_yaml = None
         else:
-            reference_for_yaml = self.reference
+            reference_for_yaml = json_format.MessageToJson(self.reference, including_default_value_fields=False)
 
-        # Prepare meta
-        meta_json = json_format.MessageToJson(self.meta, including_default_value_fields=False)
+        # prepare points for yaml representation - numpy.float has to be converted to float
+        def nested_change(iterable, func):
+            if isinstance(iterable, (list, tuple)):
+                return [nested_change(x, func) for x in iterable]
+            return func(iterable)
+
+        region_specs_for_yaml = nested_change(self._region.region_specs, float)
+
+        region_type_for_yaml = self._region.region_type
+        properties_for_roi_for_yaml = self.properties_for_roi
 
         yaml = YAML()
-        yaml.dump([reference_for_yaml, region_specs_for_yaml, self.type, meta_json], _path)
-
+        output = dict(reference=reference_for_yaml,
+                      region_type=region_type_for_yaml,
+                      region_specs=region_specs_for_yaml,
+                      properties_for_roi=properties_for_roi_for_yaml)
+        yaml.dump(output, _path)
 
     @classmethod
-    def from_yaml(cls, path, meta=None):
-        '''
+    def from_yaml(cls, path):
+        """
         Read Roi object from yaml format.
 
         Parameters
         ----------
         path : str or Path object
             Path for yaml file.
-        '''
+        """
         yaml = YAML(typ='safe')
         with open(path) as file:
-            reference, region_specs, type, meta_yaml = yaml.load(file)
+            yaml_output = yaml.load(file)
 
-        # meta
-        meta_ = metadata_pb2.Metadata()
-        meta_ = json_format.Parse(meta_yaml, meta_)
-        meta_.modification_date = int(time.time())
-        meta_.history.add(name = 'Roi.from_yaml')
-
-        if meta is None:
-            pass
-        elif isinstance(meta, dict):
-            for key, value in meta.items():
-                setattr(meta_, key, value)
+        if yaml_output['reference'] is not None:
+            reference_ = metadata_pb2.Metadata()
+            reference_ = json_format.Parse(yaml_output['reference'], reference_)
         else:
-            meta_.MergeFrom(meta)
+            reference_ = yaml_output['reference']
 
-        return cls(reference=reference, region_specs=region_specs, type=type, meta=meta_)
+        region_type_ = yaml_output['region_type']
+        region_specs_ = yaml_output['region_specs']
+        properties_for_roi_ = yaml_output['properties_for_roi']
 
+        return cls(reference=reference_, region_type=region_type_, region_specs=region_specs_, properties_for_roi=properties_for_roi_)
 
-    def locdata(self):
-        '''
+    def locdata(self, reduce=True):
+        """
         Localization data according to roi specifications.
+
+        The ROI is applied on locdata properties as specified in self.properties_for_roi or by taking the first
+        applicable locdata.coordinate_labels.
+
+        Parameters
+        ----------
+        reduce : Bool
+            Return the reduced LocData object or keep references alive.
 
         Returns
         -------
         LocData
             A new instance of LocData with all localizations within region of interest.
-        '''
-        # todo implement ellipse and polygon for 2D and 3D
-        # todo modify meta for locdata
-
+        """
         if isinstance(self.reference, LocData):
-            return select_by_region(locdata=self.reference, roi=self)
-        elif self.reference is True:
-            locdata = io.load_locdata(self.meta.file_path, self.meta.file_type)
-            return select_by_region(locdata=locdata, roi=self)
+            locdata = self.reference
+        elif isinstance(self.reference, metadata_pb2.Metadata):
+            locdata = io.load_locdata(self.reference.file_path, self.reference.file_type)
+        else:
+            raise AttributeError('Valid reference to locdata is missing.')
+
+        if self.properties_for_roi:
+            pfr = self.properties_for_roi
+        else:
+            pfr = self.reference.coordinate_labels[0:self._region.dimension]
+
+        points = locdata.data[pfr]
+        indices_inside = self._region.contains(points)
+        new_locdata = LocData.from_selection(locdata=self.reference, indices=indices_inside)
+
+        # finish
+        if reduce:
+            new_locdata.reduce()
+
+        # meta
+        return new_locdata
 
 
 def select_by_drawing(locdata, type='rectangle', **kwargs):
-    # todo: use metadata from locdata for reference
     """
     Select region of interest from rendered image by drawing rois.
 
@@ -710,29 +719,6 @@ def select_by_drawing(locdata, type='rectangle', **kwargs):
     render2D(locdata, ax=ax, show=False, **kwargs)
     selector = _MplSelector(ax, type=type)
     plt.show()
-    roi_list = [Roi(reference=locdata, region_specs=roi['region_specs'], type=roi['type']) for roi in selector.rois]
+    roi_list = [Roi(reference=locdata, region_specs=roi['region_specs'],
+                    region_type=roi['region_type']) for roi in selector.rois]
     return roi_list
-
-
-# todo: rename parameter meta
-def load_from_roi_file(path, meta=None):
-    """
-    Load data from a Roi file.
-
-    Parameters
-    ----------
-    path : string or Path object
-        File path for a Roi file to load.
-    meta : tuple or None
-        Metadata that could carry alternative file specification (dict with file_path and file_type as defined for Roi
-        objects) from which locdata is loaded while applying given roi specifications.
-
-    Returns
-    -------
-    LocData
-        A new instance of LocData with all localizations.
-    """
-    roi = Roi.from_yaml(path, meta)
-    locdata = roi.locdata()
-    locdata.meta.history.add(name='load_from_roi_file')
-    return locdata

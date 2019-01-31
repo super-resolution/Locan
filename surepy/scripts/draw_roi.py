@@ -45,7 +45,7 @@ def draw_roi(directory=None, type=1, roi_file_indicator='_roi'):
     print(file)
 
     # load data
-    dat = io.load_locdata(path=file, type=type)
+    dat = io.load_locdata(path=file, file_type=type)
 
     # set roi
     rois = select_by_drawing(locdata=dat, bin_size=50, rescale='equal')

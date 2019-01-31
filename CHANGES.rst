@@ -12,11 +12,14 @@ New Features
 
 surepy.analysis
 ^^^^^^^^^^^^^^^
--
+- Implemented an analysis class Coordinate_based_colocalization.
 
 surepy.data
 ^^^^^^^^^^^^^^^
--
+- Implemented a function exclude_sparse_points to eliminate localizations in low local density regions.
+- Implemented a function to apply affine coordinate transformations.
+- Implemented a function to to apply a Bunwarp-transformation based on the raw transformation matrix from the ImageJ
+  plugin BUnwarpJ
 
 surepy.gui
 ^^^^^^^^^^^^^^^
@@ -48,7 +51,7 @@ surepy.analysis
 
 surepy.data
 ^^^^^^^^^^^^^^^
--
+- Implemented a new region of interest management. A RoiRegion class was defined as region object in Roi objects.
 
 surepy.gui
 ^^^^^^^^^^^^^^^

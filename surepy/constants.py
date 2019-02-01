@@ -57,7 +57,10 @@ RAPIDSTORM_KEYS = {
     'Amplitude-0-0': 'Intensity',
     'FitResidues-0-0': 'Chi_square',
     'LocalBackground-0-0': 'Local_background',
-    'TwoKernelImprovement-0-0': 'Two_kernel_improvement'
+    'TwoKernelImprovement-0-0': 'Two_kernel_improvement',
+    'Position-0-0-uncertainty': 'Uncertainty_x',
+    'Position-1-0-uncertainty': 'Uncertainty_y',
+    'Position-2-0-uncertainty': 'Uncertainty_z'
 }
 
 

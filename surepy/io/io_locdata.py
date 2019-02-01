@@ -56,6 +56,7 @@ def save_asdf(locdata, path):
     # Write the data to a new file
     af.write_to(path)
 
+
 # todo: handle ambiguous mapping of sigma key for 3D data
 def save_thunderstorm_csv(locdata, path):
     """
@@ -385,84 +386,86 @@ def load_thunderstorm_file(path, nrows=None):
 
     return dat
 
-def _map_file_type_to_load_function(type):
+
+def _map_file_type_to_load_function(file_type):
 
     """
     Interpret user input for file_type.
 
     Parameters
     ----------
-    type : int or string
-        Identifiyer for file type
+    file_type : int or string
+        Identifier for file type
 
     Returns
     -------
     Name of function for loading the localization file of `type`.
     """
-    if isinstance(type, int):
+    if isinstance(file_type, int):
 
-        if type == 1:
+        if file_type == 1:
             return load_txt_file
-        elif type == 2:
+        elif file_type == 2:
             return load_rapidSTORM_file
-        elif type == 3:
+        elif file_type == 3:
             return load_Elyra_file
-        elif type == 4:
+        elif file_type == 4:
             return load_thunderstorm_file
-        elif type == 5:
+        elif file_type == 5:
             return load_asdf_file
         else:
             raise TypeError(f'There is no load function for type {type}.')
 
-    elif isinstance(type, str):
+    elif isinstance(file_type, str):
 
-        if type.upper() == 'CUSTOM':
+        if file_type.upper() == 'CUSTOM':
             return load_txt_file
-        elif type.upper() == 'RAPIDSTORM':
+        elif file_type.upper() == 'RAPIDSTORM':
             return load_rapidSTORM_file
-        elif type.upper() == 'ELYRA':
+        elif file_type.upper() == 'ELYRA':
             return load_Elyra_file
-        elif type.upper() == 'THUNDERSTORM':
+        elif file_type.upper() == 'THUNDERSTORM':
             return load_thunderstorm_file
-        elif type.upper() == 'ASDF':
+        elif file_type.upper() == 'ASDF':
             return load_asdf_file
         else:
-            raise TypeError(f'There is no load function for type {type}.')
+            raise TypeError(f'There is no load function for type {file_type}.')
 
-    elif isinstance(type, surepy.constants.File_type):
+    elif isinstance(file_type, surepy.constants.File_type):
 
-        if type is surepy.constants.File_type.CUSTOM:
+        if file_type is surepy.constants.File_type.CUSTOM:
             return load_txt_file
-        elif type is surepy.constants.File_type.RAPIDSTORM:
+        elif file_type is surepy.constants.File_type.RAPIDSTORM:
             return load_rapidSTORM_file
-        elif type is surepy.constants.File_type.ELYRA:
+        elif file_type is surepy.constants.File_type.ELYRA:
             return load_Elyra_file
-        elif type is surepy.constants.File_type.THUNDERSTORM:
+        elif file_type is surepy.constants.File_type.THUNDERSTORM:
             return load_thunderstorm_file
-        elif type is surepy.constants.File_type.ASDF:
+        elif file_type is surepy.constants.File_type.ASDF:
             return load_asdf_file
         else:
-            raise TypeError(f'There is no load function for type {type}.')
+            raise TypeError(f'There is no load function for type {file_type}.')
 
-    elif isinstance(type, metadata_pb2):
+    elif isinstance(file_type, metadata_pb2):
 
-        if type is metadata_pb2.CUSTOM:
+        if file_type is metadata_pb2.CUSTOM:
             return load_txt_file
-        elif type is metadata_pb2.RAPIDSTORM:
+        elif file_type is metadata_pb2.RAPIDSTORM:
             return load_rapidSTORM_file
-        elif type is metadata_pb2.ELYRA:
+        elif file_type is metadata_pb2.ELYRA:
             return load_Elyra_file
-        elif type is metadata_pb2.THUNDERSTORM:
+        elif file_type is metadata_pb2.THUNDERSTORM:
             return load_thunderstorm_file
         # elif type is metadata_pb2.ASDF:
         #     return load_asdf_file
         else:
-            raise TypeError(f'There is no load function for type {type}.')
+            raise TypeError(f'There is no load function for type {file_type}.')
 
     else:
-        raise TypeError(f'There is no read function for type {type}.')
+        raise TypeError(f'There is no read function for type {file_type}.')
 
-def load_locdata(path, type=1, nrows=None):
+
+def load_locdata(path, file_type=1, nrows=None):
     """
     Load data from localization file as specified by type.
 
@@ -472,7 +475,7 @@ def load_locdata(path, type=1, nrows=None):
     ----------
     path : string or Path object
         File path for a localization data file to load.
-    type : int, str, surepy.constants.File_type, metadata_pb2
+    file_type : int, str, surepy.constants.File_type, metadata_pb2
         Indicator for the file type.
         Integer or string should be according to surepy.constants.File_type.
     nrows : int, default: None
@@ -485,4 +488,4 @@ def load_locdata(path, type=1, nrows=None):
     """
     # todo fix protobuf constants for ASDF == 5
 
-    return _map_file_type_to_load_function(type)(path=path, nrows=nrows)
+    return _map_file_type_to_load_function(file_type)(path=path, nrows=nrows)

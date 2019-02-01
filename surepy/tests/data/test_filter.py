@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from surepy import LocData
-from surepy.data.rois import Roi
+from surepy.data.rois import RoiRegion
 from surepy.data.filter import select_by_condition, random_subset, select_by_region, exclude_sparse_points
 from surepy.data.transform import transform_affine
 
@@ -56,25 +56,13 @@ def test_random_subset(locdata_simple):
 
 
 def test_select_by_region(locdata_simple):
-    roi_dict = dict(points=(0, 3), type='rectangle')
-    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
-    assert(len(dat_1) == 6)
-    roi_dict = dict(points=(0, 3, 0, 3), type='rectangle')
-    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
-    assert(len(dat_1) == 5)
-    roi_dict = dict(points=(0, 3, 0, 3, 0, 3), type='rectangle')
-    dat_1 = select_by_region(locdata_simple, roi=roi_dict)
-    assert(len(dat_1) == 4)
+    roi_dict = dict(region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
+    dat = select_by_region(locdata=locdata_simple, region=roi_dict, properties_for_roi=['Position_y', 'Position_z'])
+    assert(len(dat) == 1)
 
-    roi = Roi(points=(0, 3), type='rectangle')
-    dat_1 = select_by_region(locdata_simple, roi=roi)
-    assert(len(dat_1) == 6)
-    roi = dict(points=(0, 3, 0, 3), type='rectangle')
-    dat_1 = select_by_region(locdata_simple, roi=roi)
-    assert(len(dat_1) == 5)
-    roi = dict(points=(0, 3, 0, 3, 0, 3), type='rectangle')
-    dat_1 = select_by_region(locdata_simple, roi=roi)
-    assert(len(dat_1) == 4)
+    roi_region = RoiRegion(region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
+    dat = select_by_region(locdata_simple, region=roi_region)
+    assert(len(dat) == 2)
 
 
 def test_exclude_sparse_points(locdata_simple):

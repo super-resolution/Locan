@@ -69,28 +69,27 @@ def test_load_asdf_file(locdata_fix):
 
 
 def test__map_file_type_to_load_function():
-    file_type = io._map_file_type_to_load_function(type=1)
+    file_type = io._map_file_type_to_load_function(file_type=1)
     # print(file_type)
 
 
 def test_load_locdata():
     dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt',
-                          type='RAPIDSTORM',
+                          file_type='RAPIDSTORM',
                           nrows=10)
     assert (len(dat) == 10)
 
     dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt',
-                          type='ELYRA',
+                          file_type='ELYRA',
                           nrows=10)
     assert (len(dat) == 10)
 
     dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt',
-                          type='elyra',
+                          file_type='elyra',
                           nrows=10)
     assert (len(dat) == 10)
 
     dat = io.load_locdata(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt',
-                          type=3,
+                          file_type=3,
                           nrows=10)
     assert (len(dat) == 10)
-

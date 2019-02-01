@@ -44,6 +44,7 @@ Welcome to Surepy's documentation!
    :name: mastertoc_project
 
    background
+   changes_link
    contributions
    license
 

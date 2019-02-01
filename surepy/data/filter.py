@@ -10,10 +10,12 @@ import sys
 
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
+import matplotlib.path as mpath
 
 from surepy import LocData
 from surepy.constants import N_JOBS
 from surepy.data.metadata_utils import _modify_meta
+from surepy.data.rois import Roi
 
 
 def select_by_condition(locdata, condition):
@@ -48,18 +50,20 @@ def select_by_condition(locdata, condition):
     return new_locdata
 
 
-def select_by_region(locdata, roi, reduce=True):
+def select_by_region(locdata, region, properties_for_roi=(), reduce=True):
     """
-    Select localizations within specified rectangle, ellipse, polygon or 3D equivalents.
+    Select localizations within specified region of interest.
 
     Parameters
     ----------
     locdata : LocData
         Specifying the localization data from which to select localization data.
-    roi : Roi Object or dict
-        Region of interest as specified by Roi or dictionary with keys 'points' and 'type'. For Roi objects the
-        reference attribute is ignored. Points are a list of tuples representing 1D, 2D or 3D coordinates.
-        Type is a string identifier that can be either rectangle, ellipse, or polygon.
+    region : RoiRegion Object, or dict
+        Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
+        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
+    properties_for_roi : tuple of string
+        Localization properties in LocData object on which the region selection will be applied (for instance the
+        coordinate_labels).
     reduce : Bool
         Return the reduced LocData object or keep references alive.
 
@@ -68,33 +72,20 @@ def select_by_region(locdata, roi, reduce=True):
     LocData
         New instance of LocData referring to the specified dataset.
     """
-    # todo implement ellipse and polygon for 2D and 3D
-    try:
-        _roi = dict(points=roi.points, type=roi.type)
-    except AttributeError:
-        _roi = roi
-
-    if _roi['type']=='rectangle':
-        if len(_roi['points'])==2:
-            new_locdata = select_by_condition(locdata, condition='{0} <= Position_x <= {1}'.format(*_roi['points']))
-        elif len(_roi['points'])==4:
-            new_locdata = select_by_condition(locdata, condition='{0} <= Position_x <= {1} and '
-                                                          '{2} <= Position_y <= {3}'.format(*_roi['points']))
-        elif len(_roi['points'])==6:
-            new_locdata = select_by_condition(locdata, condition='{0} <= Position_x <= {1} and '
-                                                          '{2} <= Position_y <= {3} and '
-                                                          '{4} <= Position_z <= {5}'.format(*_roi['points']))
-        else:
-            raise TypeError('Point dimensions must be  1, 2 or 3.')
-
+    if isinstance(region, dict):
+        roi = Roi(reference=locdata, region_specs=region['region_specs'], region_type=region['region_type'],
+                  properties_for_roi=properties_for_roi)
     else:
-        raise NotImplementedError
+        roi = Roi(reference=locdata, region_specs=region.region_specs, region_type=region.region_type,
+                  properties_for_roi=properties_for_roi)
 
+    new_locdata = roi.locdata()
+
+    # finish
     if reduce:
         new_locdata.reduce()
 
     # meta is updated by select_by_condition function. No further updates needed.
-
     return new_locdata
 
 

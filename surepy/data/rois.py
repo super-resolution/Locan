@@ -224,6 +224,7 @@ class _RoiRectangle:
         polygon_path = mPath.Path(polygon, closed=True)
         mask = polygon_path.contains_points(points)
         inside_indices = np.where(mask)[0]
+        plt.close()
         return inside_indices
 
     @property
@@ -233,6 +234,7 @@ class _RoiRectangle:
         rect = mPatches.Rectangle(corner, width, height, angle=angle, fill=False, edgecolor='b', linewidth=1)
         ax.add_patch(rect)
         polygon = rect.get_patch_transform().transform(rect.get_path().vertices)
+        plt.close()
         return polygon[::-1]
 
     @property
@@ -268,10 +270,7 @@ class _RoiRectangle:
         from matplotlib.patches import Rectangle
         corner, width, height, angle = self.region_specs
         xy = corner[0] - origin[0], corner[1] - origin[1]
-        mpl_params = self.mpl_properties_default('patch')
-        mpl_params.update(kwargs)
-
-        return Rectangle(xy=xy, width=width, height=height, angle=angle, **mpl_params)
+        return Rectangle(xy=xy, width=width, height=height, angle=angle, **kwargs)
 
 
 class _RoiEllipse:
@@ -309,6 +308,7 @@ class _RoiEllipse:
         rect = mPatches.Ellipse(center, width, height, angle=angle, fill=False, edgecolor='b', linewidth=1)
         ax.add_patch(rect)
         polygon = rect.get_patch_transform().transform(rect.get_path().vertices)
+        plt.close()
         return polygon[::-1]
 
     @property
@@ -343,10 +343,7 @@ class _RoiEllipse:
         from matplotlib.patches import Ellipse
         center, width, height, angle = self.region_specs
         xy = center[0] - origin[0], center[1] - origin[1]
-        mpl_params = self.mpl_properties_default('patch')
-        mpl_params.update(kwargs)
-
-        return Ellipse(xy=xy, width=width, height=height, angle=angle, **mpl_params)
+        return Ellipse(xy=xy, width=width, height=height, angle=angle, **kwargs)
 
 
 class _RoiPolygon:
@@ -395,7 +392,10 @@ class _RoiPolygon:
         return polygon.length
 
     def as_artist(self, origin=(0, 0), **kwargs):
-        raise NotImplementedError
+        from matplotlib.patches import Polygon
+        #xy = self.region_specs[:,0] - origin[0], self.region_specs[:,1] - origin[1]
+        xy = self.region_specs
+        return Polygon(xy=xy, closed=True, **kwargs)
 
 
 class _MplSelector:
@@ -543,7 +543,7 @@ class Roi:
         coordinate_labels).
     """
 
-    def __init__(self, reference=None, region_type='', region_specs=None, properties_for_roi=()):
+    def __init__(self, region_type, region_specs, reference=None, properties_for_roi=()):
         if isinstance(reference, dict):
             self.reference = metadata_pb2.Metadata()
             self.reference.file_path = reference['file_path']
@@ -655,7 +655,8 @@ class Roi:
         region_specs_ = yaml_output['region_specs']
         properties_for_roi_ = yaml_output['properties_for_roi']
 
-        return cls(reference=reference_, region_type=region_type_, region_specs=region_specs_, properties_for_roi=properties_for_roi_)
+        return cls(reference=reference_, region_type=region_type_, region_specs=region_specs_,
+                   properties_for_roi=properties_for_roi_)
 
     def locdata(self, reduce=True):
         """
@@ -686,7 +687,7 @@ class Roi:
         else:
             pfr = locdata.coordinate_labels[0:self._region.dimension]
 
-        points = locdata.data[pfr]
+        points = locdata.data[pfr].values
         indices_inside = self._region.contains(points)
         new_locdata = LocData.from_selection(locdata=locdata, indices=indices_inside)
 

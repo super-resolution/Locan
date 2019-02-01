@@ -76,6 +76,11 @@ def test_RoiRegion(points):
     assert rr.region_measure == 0.75
     assert rr.subregion_measure == 3.618033988749895
 
+def test_Roi(locdata):
+    roi = Roi(reference=locdata, region_specs=((0, 0), 2, 1, 10), region_type='rectangle')
+    new_dat = roi.locdata()
+    assert len(new_dat) == 2
+
 
 def test_Roi_io(locdata):
     path = ROOT_DIR + '/tests/test_data/roi.yaml'
@@ -122,7 +127,17 @@ def test_roi_locdata_from_file(locdata):
     dat_1 = roi.locdata()
     assert(len(dat_1) == 1)
 
-# todo test _as_artist methods
+
+def test_as_artist():
+    roiR = Roi(reference=locdata, region_specs=((0, 0), 0.5, 0.5, 10), region_type='rectangle')
+    roiE = Roi(reference=locdata, region_specs=((0.5, 0.5), 0.2, 0.3, 10), region_type='ellipse')
+    roiP = Roi(reference=locdata, region_specs=((0, 0.8), (0.1, 0.9), (0.6, 0.9), (0.7, 0.7), (0, 0.8)),
+               region_type='polygon')
+    fig, ax = plt.subplots()
+    ax.add_patch(roiR._region.as_artist())
+    ax.add_patch(roiE._region.as_artist())
+    ax.add_patch(roiP._region.as_artist())
+    # plt.show()
 
 
 def test_select_by_drawing():

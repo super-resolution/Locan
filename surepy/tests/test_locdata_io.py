@@ -5,6 +5,7 @@ from pandas.testing import assert_frame_equal
 import surepy.constants
 import surepy.io.io_locdata as io
 import surepy.tests.test_data
+from surepy.data import metadata_pb2
 
 
 def test_get_correct_column_names_from_rapidSTORM_header():
@@ -70,7 +71,13 @@ def test_load_asdf_file(locdata_fix):
 
 def test__map_file_type_to_load_function():
     file_type = io._map_file_type_to_load_function(file_type=1)
-    # print(file_type)
+    assert callable(file_type)
+    file_type = io._map_file_type_to_load_function(file_type='RAPIDSTORM')
+    assert callable(file_type)
+    file_type = io._map_file_type_to_load_function(file_type=surepy.constants.File_type.RAPIDSTORM)
+    assert callable(file_type)
+    file_type = io._map_file_type_to_load_function(file_type=metadata_pb2.RAPIDSTORM)
+    assert callable(file_type)
 
 
 def test_load_locdata():

@@ -388,81 +388,48 @@ def load_thunderstorm_file(path, nrows=None):
 
 
 def _map_file_type_to_load_function(file_type):
-
     """
     Interpret user input for file_type.
 
     Parameters
     ----------
-    file_type : int or string
-        Identifier for file type
+    file_type : int, str, surepy.constants.File_type, metadata_pb2
+        Identifier for the file type. Integer or string should be according to surepy.constants.File_type.
 
     Returns
     -------
     Name of function for loading the localization file of `type`.
     """
-    if isinstance(file_type, int):
+    look_up_table = dict(
+        load_txt_file=load_txt_file,
+        load_rapidSTORM_file=load_rapidSTORM_file,
+        load_Elyra_file=load_Elyra_file,
+        load_thunderstorm_file=load_thunderstorm_file,
+        load_asdf_file=load_asdf_file,
+    )
 
-        if file_type == 1:
-            return load_txt_file
-        elif file_type == 2:
-            return load_rapidSTORM_file
-        elif file_type == 3:
-            return load_Elyra_file
-        elif file_type == 4:
-            return load_thunderstorm_file
-        elif file_type == 5:
-            return load_asdf_file
+    from enum import Enum
+    class LoadFunction(Enum):
+        load_txt_file = 1
+        load_rapidSTORM_file = 2
+        load_Elyra_file = 3
+        load_thunderstorm_file = 4
+        load_asdf_file = 5
+
+    try:
+        if isinstance(file_type, int):
+            function_name = LoadFunction(file_type).name
+        elif isinstance(file_type, str):
+            function_name = LoadFunction(surepy.constants.File_type[file_type.upper()].value).name
+        elif isinstance(file_type, surepy.constants.File_type):
+            function_name = LoadFunction(file_type.value).name
+        elif isinstance(file_type, metadata_pb2):
+            function_name = LoadFunction(file_type).name
         else:
-            raise TypeError(f'There is no load function for type {type}.')
-
-    elif isinstance(file_type, str):
-
-        if file_type.upper() == 'CUSTOM':
-            return load_txt_file
-        elif file_type.upper() == 'RAPIDSTORM':
-            return load_rapidSTORM_file
-        elif file_type.upper() == 'ELYRA':
-            return load_Elyra_file
-        elif file_type.upper() == 'THUNDERSTORM':
-            return load_thunderstorm_file
-        elif file_type.upper() == 'ASDF':
-            return load_asdf_file
-        else:
-            raise TypeError(f'There is no load function for type {file_type}.')
-
-    elif isinstance(file_type, surepy.constants.File_type):
-
-        if file_type is surepy.constants.File_type.CUSTOM:
-            return load_txt_file
-        elif file_type is surepy.constants.File_type.RAPIDSTORM:
-            return load_rapidSTORM_file
-        elif file_type is surepy.constants.File_type.ELYRA:
-            return load_Elyra_file
-        elif file_type is surepy.constants.File_type.THUNDERSTORM:
-            return load_thunderstorm_file
-        elif file_type is surepy.constants.File_type.ASDF:
-            return load_asdf_file
-        else:
-            raise TypeError(f'There is no load function for type {file_type}.')
-
-    elif isinstance(file_type, metadata_pb2):
-
-        if file_type is metadata_pb2.CUSTOM:
-            return load_txt_file
-        elif file_type is metadata_pb2.RAPIDSTORM:
-            return load_rapidSTORM_file
-        elif file_type is metadata_pb2.ELYRA:
-            return load_Elyra_file
-        elif file_type is metadata_pb2.THUNDERSTORM:
-            return load_thunderstorm_file
-        # elif type is metadata_pb2.ASDF:
-        #     return load_asdf_file
-        else:
-            raise TypeError(f'There is no load function for type {file_type}.')
-
-    else:
-        raise TypeError(f'There is no read function for type {file_type}.')
+            raise TypeError
+        return look_up_table[function_name]
+    except ValueError:
+        raise ValueError(f'There is no load function for type {file_type}.')
 
 
 def load_locdata(path, file_type=1, nrows=None):

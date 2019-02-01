@@ -30,6 +30,7 @@ from google.protobuf import json_format
 
 from surepy.data import metadata_pb2
 from surepy import LocData
+import surepy.constants
 import surepy.io.io_locdata as io
 from surepy.render import render2D
 
@@ -499,12 +500,12 @@ class Roi:
 
     Parameters
     ----------
-    reference : LocData object, dict or surepy.data.metadata_pb2 object, or None
+    reference : LocData object, dict, surepy.data.metadata_pb2 object, or None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
         a reference to a saved SMLM file, or None for indicating no specific reference.
         When referencing a saved SMLM file, reference must be a dict or surepy.data.metadata_pb2 with keys `file_path`
-        and `file_type` for a path pointing to a localization file and an integer indicating the file type.
-        The integer should be according to surepy.data.metadata_pb2.file_type.
+        and `file_type` for a path pointing to a localization file and an integer or string indicating the file type.
+        Integer or string should be according to surepy.constants.File_type.
     region_type : str
         A string indicating the roi shape.
         In 1D it can be `interval`.
@@ -530,8 +531,8 @@ class Roi:
     ----------
     reference : LocData object, surepy.data.metadata_pb2 object, or None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
-        a reference to a saved SMLM file, or None for indicating no specific reference.
-        When referencing a saved SMLM file, reference have attributes `file_path`
+        a reference (surepy.data.metadata_pb2) to a saved SMLM file, or None for indicating no specific reference.
+        When referencing a saved SMLM file, reference as attributes `file_path`
         and `file_type` for a path pointing to a localization file and an integer indicating the file type.
         The integer should be according to surepy.data.metadata_pb2.file_type.
     _region : RoiRegion or list of RoiRegion
@@ -545,8 +546,20 @@ class Roi:
     def __init__(self, reference=None, region_type='', region_specs=None, properties_for_roi=()):
         if isinstance(reference, dict):
             self.reference = metadata_pb2.Metadata()
-            for key, value in reference.items():
-                setattr(self.reference, key, value)
+            self.reference.file_path = reference['file_path']
+            ft_ = reference['file_type']
+
+            if isinstance(reference['file_type'], int):
+                self.reference.file_type = ft_
+            elif isinstance(reference['file_type'], str):
+                self.reference.file_type = surepy.constants.File_type[ft_.upper()].value
+            elif isinstance(reference['file_type'], surepy.constants.File_type):
+                self.reference.file_type = ft_
+            elif isinstance(reference['file_type'], metadata_pb2):
+                self.reference.file_type = ft_.file_type
+            else:
+                raise TypeError
+
         elif isinstance(reference, metadata_pb2.Metadata):
             self.reference = metadata_pb2.Metadata()
             self.reference.MergeFrom(reference)

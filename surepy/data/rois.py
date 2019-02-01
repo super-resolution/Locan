@@ -540,15 +540,6 @@ class Roi:
     properties_for_roi : tuple of string
         Localization properties in LocData object on which the region selection will be applied (for instance the
         coordinate_labels).
-
-    Methods
-    -------
-    to_yaml()
-        save specifications to yaml file
-    from_yaml() : class method
-        load specifications from yaml file and create Roi object
-    locdata()
-        return LocData object with all localizations from within the region of interest.
     """
 
     def __init__(self, reference=None, region_type='', region_specs=None, properties_for_roi=()):

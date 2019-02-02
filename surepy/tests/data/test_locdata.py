@@ -4,6 +4,7 @@ import pandas as pd
 
 from surepy.data import metadata_pb2
 from surepy.data.locdata import LocData
+from surepy.data.rois import RoiRegion
 
 
 # fixtures
@@ -188,3 +189,16 @@ def test_LocData_handling_metadata(df_simple):
     dat.meta.map['variable key'] = 'new comment'
     # print(dat.meta.map)
     assert (dat.meta.map == {'variable key': 'new comment'})
+
+# locdata and regions
+
+def test_locdata_region(df_simple):
+    roi_dict = dict(region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
+    roi_region = RoiRegion(**roi_dict)
+    dat = LocData.from_dataframe(dataframe=df_simple)
+    dat.region = roi_region
+    assert isinstance(dat._region, RoiRegion)
+    dat.region = roi_dict
+    assert isinstance(dat._region, RoiRegion)
+    assert dat.region.region_measure==2
+    print(dat.properties)

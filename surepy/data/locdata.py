@@ -5,10 +5,12 @@ A class to carry localization data.
 """
 
 import time
+import warnings
 
 from google.protobuf import text_format
 import pandas as pd
 
+from surepy.data.region import RoiRegion
 import surepy.data.hulls
 from surepy.data import metadata_pb2
 
@@ -51,6 +53,8 @@ class LocData:
     coordinate_labels : list of str
         The available coordinate properties.
 
+    region : RoiRegion object
+        Object representing the region supporting all localizations.
     bounding_box : Hull object
         Object representing the axis-aligned minimal bounding box.
     oriented_bounding_box : Hull object
@@ -73,6 +77,13 @@ class LocData:
         self.indices = indices
         self.meta = metadata_pb2.Metadata()
         self.properties = {}
+
+        # regions and hulls
+        self._region = None
+        self._bounding_box = None
+        self._oriented_bounding_box = None
+        self._convex_hull = None
+        self._alpha_shape = None
 
         # meta
         self.meta.identifier = str(self.__class__.count)
@@ -110,7 +121,30 @@ class LocData:
             self.properties['Subregion_measure_bb'] = self.bounding_box.subregion_measure
             self.properties['Localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure
         except ValueError:
+            warnings.warn('Properties related to bounding box could not be computed.', UserWarning)
             pass
+
+    @property
+    def region(self):
+        return self._region
+
+    @region.setter
+    def region(self, region):
+        # todo add check if all localizations are within region. If not put out a warning.
+        if isinstance(region, RoiRegion):
+            self._region = region
+        elif isinstance(region, dict):
+            self._region = RoiRegion(**region)
+
+        # property for region measures
+        try:
+            self.properties['Region_measure'] = self._region.region_measure
+            self.properties['Subregion_measure'] = self._region.subregion_measure
+            self.properties['Localization_density'] = self.meta.element_count / self._region.region_measure
+        except ValueError:
+            warnings.warn('Properties related to region could not be computed.', UserWarning)
+            pass
+
 
     @classmethod
     def from_dataframe(cls, dataframe=pd.DataFrame(), meta=None):

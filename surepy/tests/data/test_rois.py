@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 from surepy import LocData
 from surepy.constants import ROOT_DIR
 from surepy.io.io_locdata import load_txt_file
-from surepy.data.rois import RoiRegion, Roi, select_by_drawing
+from surepy.data.region import RoiRegion
+from surepy.data.rois import Roi, select_by_drawing
 from surepy.data import metadata_pb2
 
 

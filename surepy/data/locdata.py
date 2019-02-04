@@ -115,16 +115,17 @@ class LocData:
         self.properties.update(dict(self.data[self.coordinate_labels].mean()))
 
         # property for bounding box measures
-        try:
-            self.bounding_box = surepy.data.hulls.Bounding_box(self.coordinates)
-            if self.bounding_box.region_measure:
-                self.properties['Region_measure_bb'] = self.bounding_box.region_measure
-                self.properties['Localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure
-            if self.bounding_box.subregion_measure:
-                self.properties['Subregion_measure_bb'] = self.bounding_box.subregion_measure
-        except ValueError:
-            warnings.warn('Properties related to bounding box could not be computed.', UserWarning)
-            pass
+        if len(self.data.index) > 1:
+            try:
+                self.bounding_box = surepy.data.hulls.Bounding_box(self.coordinates)
+                if self.bounding_box.region_measure:
+                    self.properties['Region_measure_bb'] = self.bounding_box.region_measure
+                    self.properties['Localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure
+                if self.bounding_box.subregion_measure:
+                    self.properties['Subregion_measure_bb'] = self.bounding_box.subregion_measure
+            except ValueError:
+                warnings.warn('Properties related to bounding box could not be computed.', UserWarning)
+                pass
 
     @property
     def region(self):

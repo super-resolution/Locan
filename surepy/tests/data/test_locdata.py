@@ -29,6 +29,11 @@ def df_line():
     }
     return pd.DataFrame.from_dict(dict_)
 
+@pytest.fixture()
+def df_empty():
+    dict_ = {
+    }
+    return pd.DataFrame.from_dict(dict_)
 
 @pytest.fixture()
 def df_other_simple():
@@ -54,14 +59,24 @@ def test_LocData(df_simple):
     # dat.print_meta()
     # dat.print_summary()
 
+def test_LocData_empty(df_empty):
+    dat = LocData(dataframe=df_empty)
+    assert (len(dat) == 0)
+    assert (dat.coordinate_labels == [])
 
 def test_LocData_from_dataframe(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-    assert(list(dat.properties.keys()) == ['Localization_count', 'Position_x', 'Position_y',
-                                           'Region_measure_bb', 'Subregion_measure_bb', 'Localization_density_bb'])
+    print(dat.properties.keys())
+    assert(list(dat.properties.keys()) == ['Localization_count', 'Position_x', 'Position_y', 'Region_measure_bb',
+                                           'Localization_density_bb', 'Subregion_measure_bb'])
     assert (len(dat) == 5)
     assert (dat.meta.comment == COMMENT_METADATA.comment)
 
+def test_LocData_from_dataframe_empty(df_empty):
+    dat = LocData.from_dataframe(dataframe=df_empty)
+    assert (len(dat) == 0)
+    assert (dat.coordinate_labels == [])
+    print(dat.data)
 
 # this test is not running wihtin complete test run. But it works when run by itself.
 # def test_LocData_count(df_simple):
@@ -89,10 +104,12 @@ def test_LocData_from_selection(df_simple):
     assert (sel.meta.comment == COMMENT_METADATA.comment)
 
     sel_sel = LocData.from_selection(locdata=sel, indices=[0, 2], meta={'comment': 'Selection of a selection.'})
-    print(sel_sel.meta.comment)
+    assert sel_sel.meta.comment == 'Selection of a selection.'
     assert (len(sel_sel) == 2)
     assert (sel_sel.references is sel)
-    print(sel_sel.data)
+
+    sel_empty = LocData.from_selection(locdata=dat, indices=[], meta={'comment': 'This selection is empty.'})
+    assert sel_empty.data.index.values.size == 0
 
 
 def test_LocData_from_collection(df_simple):
@@ -109,6 +126,9 @@ def test_LocData_from_collection(df_simple):
 def test_LocData_selection_from_collection(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple)
     sel = []
+    col = LocData.from_collection(sel)
+    assert len(col) == 0
+
     for i in range(4):
         sel.append(LocData.from_selection(locdata=dat, indices=[i]))
     col = LocData.from_collection(sel, meta=COMMENT_METADATA)
@@ -204,4 +224,3 @@ def test_locdata_region(df_simple):
     dat.region = roi_dict
     assert isinstance(dat._region, RoiRegion)
     assert dat.region.region_measure==2
-    print(dat.properties)

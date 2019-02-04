@@ -6,6 +6,9 @@ from surepy.data import metadata_pb2
 from surepy.data.locdata import LocData
 from surepy.data.rois import RoiRegion
 
+# todo check for selections that return zero data points
+# todo check for empty dataframe
+# todo check for single localization
 
 # fixtures
 

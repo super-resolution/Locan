@@ -117,9 +117,11 @@ class LocData:
         # property for bounding box measures
         try:
             self.bounding_box = surepy.data.hulls.Bounding_box(self.coordinates)
-            self.properties['Region_measure_bb'] = self.bounding_box.region_measure
-            self.properties['Subregion_measure_bb'] = self.bounding_box.subregion_measure
-            self.properties['Localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure
+            if self.bounding_box.region_measure:
+                self.properties['Region_measure_bb'] = self.bounding_box.region_measure
+                self.properties['Localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure
+            if self.bounding_box.subregion_measure:
+                self.properties['Subregion_measure_bb'] = self.bounding_box.subregion_measure
         except ValueError:
             warnings.warn('Properties related to bounding box could not be computed.', UserWarning)
             pass
@@ -131,19 +133,20 @@ class LocData:
     @region.setter
     def region(self, region):
         # todo add check if all localizations are within region. If not put out a warning.
-        if isinstance(region, RoiRegion):
+        if isinstance(region, RoiRegion) or region is None:
             self._region = region
         elif isinstance(region, dict):
             self._region = RoiRegion(**region)
+        else:
+            raise TypeError
 
         # property for region measures
-        try:
-            self.properties['Region_measure'] = self._region.region_measure
-            self.properties['Subregion_measure'] = self._region.subregion_measure
-            self.properties['Localization_density'] = self.meta.element_count / self._region.region_measure
-        except ValueError:
-            warnings.warn('Properties related to region could not be computed.', UserWarning)
-            pass
+        if self._region is not None:
+            if self._region.region_measure:
+                self.properties['Region_measure'] = self._region.region_measure
+                self.properties['Localization_density'] = self.meta.element_count / self._region.region_measure
+            if self._region.subregion_measure:
+                self.properties['Subregion_measure'] = self._region.subregion_measure
 
 
     @classmethod
@@ -190,7 +193,7 @@ class LocData:
         Parameters
         ----------
         locdata : LocData object
-            Locdata objects from which to select elements.
+            Locdata object from which to select elements.
         indices : slice object or list(int) or None
             Indices for elements in locdata that make up the new data.
         meta : Metadata protobuf message
@@ -234,7 +237,9 @@ class LocData:
         else:
             meta_.MergeFrom(meta)
 
-        return cls(references=references, indices=indices, meta=meta_)
+        new_locdata = cls(references=references, indices=indices, meta=meta_)
+        new_locdata.region = references.region
+        return new_locdata
 
 
     @classmethod

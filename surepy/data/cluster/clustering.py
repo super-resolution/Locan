@@ -91,7 +91,15 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
         selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
         collection = LocData.from_collection(selections)
 
+    # set regions
+    if noise:
+        noise.region = locdata.region
+    collection.region = locdata.region
+
     # metadata
+    if noise:
+        del noise.meta.history[:]
+        noise.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
     del collection.meta.history[:]
     collection.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 
@@ -149,7 +157,15 @@ def clustering_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False):
         selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
         collection = LocData.from_collection(selections)
 
+    # set regions
+    if noise:
+        noise.region = locdata.region
+    collection.region = locdata.region
+
     # metadata
+    if noise:
+        del noise.meta.history[:]
+        noise.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
     del collection.meta.history[:]
     collection.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 

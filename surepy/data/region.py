@@ -121,23 +121,23 @@ class RoiRegion:
 
     def as_artist(self, origin=(0, 0), **kwargs):
         """
-        Matplotlib patch object for this region (`matplotlib.patches.Ellipse`).
+        Matplotlib patch object for this region (e.g. `matplotlib.patches.Ellipse`).
 
         Parameters:
         -----------
-        origin : array_like, optional
-            The ``(x, y)`` pixel position of the origin of the displayed image.
+        origin : array_like
+            The (x, y) pixel position of the origin of the displayed image.
             Default is (0, 0).
 
         Other Parameters
         ----------------
-        kwargs : `dict`
+        kwargs : dict
             Other parameters passed to the `matplotlib.patches` object.
 
         Returns
         -------
         patch : matplotlib.patches object
-            Matplotlib patch for the specified region
+            Matplotlib patch for the specified region.
         """
         return self._region.as_artist(origin=origin, **kwargs)
 

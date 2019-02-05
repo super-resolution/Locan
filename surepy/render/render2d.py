@@ -48,6 +48,9 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=Tru
     """
 
     # Provide matplotlib axes if not provided
+    if not len(locdata):
+        raise ValueError('Locdata does not contain any data points.')
+
     if ax is None:
         fig, ax = plt.subplots(nrows=1, ncols=1)
 

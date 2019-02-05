@@ -77,6 +77,26 @@ def test_RoiRegion(points):
     assert rr.region_measure == 0.75
     assert rr.subregion_measure == 3.618033988749895
 
+
+# This test is just for visualization
+# def test_show_regions_as_artist(points):
+#     roiI = Roi(reference=locdata, region_specs=(0, 0), region_type='interval')
+#     roiR = Roi(reference=locdata, region_specs=((0, 0), 2, 1, 0), region_type='rectangle')
+#     roiE = Roi(reference=locdata, region_specs=((1, 1), 2, 1, 0), region_type='ellipse')
+#     assert len(roiE._region.contains(points)) == 2
+#     roiP = Roi(reference=locdata, region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0)),
+#                region_type='polygon')
+#     fig, ax = plt.subplots()
+#     ax.scatter(points[:,0], points[:,1])
+#     # ax.add_patch(roiI._region.as_artist())
+#     ax.add_patch(roiR._region.as_artist(fill=False))
+#     ax.add_patch(roiE._region.as_artist(fill=False))
+#     ax.add_patch(roiP._region.as_artist(fill=False))
+#     ax.set_xlim([0, 3])
+#     ax.set_ylim([0, 3])
+#     plt.show()
+
+
 def test_Roi(locdata):
     roi = Roi(reference=locdata, region_specs=((0, 0), 2, 1, 10), region_type='rectangle')
     new_dat = roi.locdata()

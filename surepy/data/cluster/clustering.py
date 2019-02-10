@@ -44,7 +44,7 @@ from surepy.constants import N_JOBS
 #     raise NotImplementedError
 
 
-def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_cluster = False, noise=False):
+def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_cluster = False, noise=False, **kwargs):
     """
     Cluster localizations in locdata using the hdbscan clustering algorithm.
 
@@ -62,6 +62,11 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
         Flag indicating if the first cluster represents noise. If True a tuple of LocData objects is returned with
         noise and cluster collection. If False a single LocData object is returned.
 
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to `hdbscan.HDBSCAN`.
+
     Returns
     -------
     LocData or tuple of LocData
@@ -78,7 +83,8 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
     labels = HDBSCAN(
         min_cluster_size=min_cluster_size,
         allow_single_cluster=allow_single_cluster,
-        gen_min_span_tree=False
+        gen_min_span_tree=False,
+        **kwargs
     ).fit_predict(fit_data)
 
     grouped = locdata.data.groupby(labels)
@@ -110,7 +116,7 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
 
 
 
-def clustering_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False):
+def clustering_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False, **kwargs):
     """
     Cluster localizations in locdata using the dbscan clustering algorithm as implemented in sklearn.
 
@@ -129,6 +135,11 @@ def clustering_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False):
         Flag indicating if the first cluster represents noise. If True a tuple of LocData objects is returned with
         noise and cluster collection. If False a single LocData object is returned.
 
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to `sklearn.cluster.DBSCAN`.
+
     Returns
     -------
     LocData or tuple of LocData
@@ -143,8 +154,7 @@ def clustering_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False):
         fit_data = locdata.data[kdims]
 
     labels = DBSCAN(
-        eps=eps, min_samples=min_samples, metric='euclidean', metric_params=None, algorithm='auto',
-        leaf_size=30, p=None, n_jobs=N_JOBS
+        eps=eps, min_samples=min_samples, n_jobs=N_JOBS, **kwargs
     ).fit_predict(fit_data)
 
     grouped = locdata.data.groupby(labels)

@@ -40,9 +40,12 @@ import time
 import numpy as np
 import pandas as pd
 from sklearn.datasets.samples_generator import make_blobs
+from shapely.geometry import Polygon
 
 from surepy import LocData
 from surepy.data import metadata_pb2
+from surepy.data.region import RoiRegion
+
 
 #todo: correct history updates
 
@@ -138,7 +141,7 @@ def simulate_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed = None
     return locdata
 
 
-
+# todo: delete
 def simulate_csr_(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z_range = None, seed=None):
     """
     Provide a dataset of localizations that are spatially-distributed on a rectangular shape or cubic volume by
@@ -187,62 +190,116 @@ def simulate_csr_(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z
     return dat
 
 
-
-
-
-
-
-def simulate_csr_(n_samples=100, n_features=2, feature_range=(-10.0, 10.0), seed = None):
+def make_csr_on_disc(n_samples=100, radius=1.0, seed=None):
     """
-    Provide a dataset of localizations that are spatially-distributed by complete spatial
-    randomness within the boundarys given by `feature_range`.
+    Provide points that are spatially-distributed on a disc by complete spatial randomness.
 
     Parameters
     ----------
     n_samples : int
-        total number of localizations
-    n_features : int
-        The number of features for each sample.
-    feature_range : pair of floats (min, max) or sequence of pair of floats
-        The bounding box for each cluster center when centers are
-        generated at random. If sequence the number of elements but be equal to n_features.
+       total number of localizations
+    radius : float
+        radius of the disc
     seed : int
-        random number generation seed
+       random number generation seed
 
     Returns
     -------
-    X : array of shape [n_samples, n_features]
-        The generated samples.
-    y : array of shape [n_samples]
-        The integer labels for cluster membership of each sample.
-
-    Returns
-    -------
-    LocData
-        A new LocData instance with localization data.
+    array of shape [n_samples, 2]
+       The generated samples.
     """
-
     if seed is not None:
         np.random.seed(seed)
 
-    dict = {}
-    for i, j in zip(('x', 'y', 'z'), (x_range, y_range, z_range)):
-        if j is not None:
-            dict.update({'Position_' + i: np.random.uniform(*j, n_samples)})
+    # angular and radial coordinates of Poisson points
+    theta = np.random.rand(n_samples) * 2 * np.pi
+    rho = radius * np.sqrt(np.random.rand(n_samples))
 
-    dat = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
+    # Convert from polar to Cartesian coordinates
+    xx = rho * np.cos(theta)
+    yy = rho * np.sin(theta)
 
-    # metadata
-    dat.meta.source = metadata_pb2.SIMULATION
-    del dat.meta.history[:]
-    dat.meta.history.add(name='simulate_csr',
-                         parameter='n_samples={}, x_range={}, y_range={}, z_range={}, seed={}'.format(
-                             n_samples, x_range, y_range, z_range, seed))
-
-    return dat
+    samples = np.array((xx, yy)).T
+    return samples
 
 
-def _make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
+# def make_csr_on_ellipse(n_samples=100, radius=1.0, seed=None):
+#     """
+#     Provide points that are spatially-distributed on an ellipse by complete spatial randomness.
+#
+#     Parameters
+#     ----------
+#     n_samples : int
+#        total number of localizations
+#     radius : float or tuple of float
+#         radius of the disc or radii of ellipse
+#     seed : int
+#        random number generation seed
+#
+#     Returns
+#     -------
+#     array of shape [n_samples, 2]
+#        The generated samples.
+#     """
+#     n_features = 2  # implementation for 2D only
+#
+#     if seed is not None:
+#         np.random.seed(seed)
+#
+#     # if radius is given as list, it must be consistent with n_features
+#     if hasattr(radius, "__len__"):
+#         if len(radius) != n_features:
+#             raise ValueError(f"Length of `radius` not consistent with "
+#                              f"number of features. Got radius = {radius} "
+#                              f"and radius = {radius}")
+#         else:
+#             radii = radius
+#     elif isinstance(radius, (float, np.float)):
+#         radii = np.full(n_features, radius)
+#
+#     # # area of disk
+#     # r = radii[0]
+#     # areaTotal = np.pi * r ** 2
+#     #
+#     # # intensity (ie mean density) of the Poisson process
+#     # lambda0 = n_samples / areaTotal
+#     #
+#     # # Simulate Poisson point process
+#     # numbPoints = scipy.stats.poisson(lambda0 * areaTotal).rvs()  # Poisson number of points
+#     # theta = 2 * np.pi * scipy.stats.uniform.rvs(0, 1, ((numbPoints, 1)))  # angular coordinates of Poisson points
+#     # rho = r * np.sqrt(scipy.stats.uniform.rvs(0, 1, ((numbPoints, 1))))  # radial coordinates of Poisson points
+#
+#     # angular coordinates of Poisson points
+#     theta = np.random.rand(n_samples) * 2 * np.pi
+#     # radial coordinates of Poisson points
+#     rho = radius * np.sqrt(np.random.rand(n_samples))
+#
+#     # Convert from polar to Cartesian coordinates
+#     xx = rho * np.cos(theta)
+#     yy = rho * np.sin(theta)
+#
+#     samples = np.array((xx, yy)).T
+#     return samples
+#
+#     # print(radii)
+#
+#     # if len(np.shape(feature_range)) == 1:
+#     #     samples = np.random.uniform(*feature_range, size=(n_samples, n_features))
+#     # else:
+#     #     if np.shape(feature_range)[0] != n_features:
+#     #         raise ValueError(f'The number of feature_range elements (if sequence) must be equal to n_features.')
+#     #     else:
+#     #         samples = np.random.rand(n_samples, n_features)
+#     #         for i, (low, high) in enumerate(feature_range):
+#     #             if low < high:
+#     #                 samples[:,i] = samples[:,i] * (high - low) + low
+#     #             else:
+#     #                 raise ValueError(f'The first value of feature_range {low} must be smaller than the second one '
+#     #                                  f'{high}.')
+#     # return samples
+
+
+def make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
                 shuffle = True, seed = None):
     """
     Generate spots with equally distributed points inside. Centers are spatially-distributed by complete spatial
@@ -256,16 +313,13 @@ def _make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
         If array-like, each element of the sequence indicates
         the number of samples per cluster.
     n_features : int
-        The number of features for each sample.
+        The number of features for each sample. One of (1, 2, 3).
     centers : int or array of shape [n_centers, n_features]
         The number of centers to generate, or the fixed center locations.
         If n_samples is an int and centers is None, 3 centers are generated.
-        If n_samples is array-like, centers must be
-        either None or an array of length equal to the length of n_samples.
+        If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
     radius : tuple of floats or sequence of tuple of floats
-        The radius for the spots. If tuple, the number of elements must be equal to n_features. If sequence of tuples,
-        the length of sequence must be equal to the number of centers and the length of each tuple must be equal to
-        n_features.
+        The radius for the spots. If tuple, the number of elements must be equal to the number of centers.
     feature_range : pair of floats (min, max) or sequence of pair of floats
         The bounding box for each cluster center when centers are
         generated at random. If sequence the number of elements but be equal to n_features.
@@ -281,6 +335,53 @@ def _make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
     y : array of shape [n_samples]
         The integer labels for cluster membership of each sample.
     """
+    if seed is not None:
+        np.random.seed(seed)
+
+    # centers
+
+
+    # radius: if radius is given as list, it must be consistent with the n_centers
+    if (hasattr(radius, "__len__") and len(radius) != n_centers):
+        raise ValueError("Length of `radii` not consistent with "
+                         "number of centers. Got centers = {} "
+                         "and radii = {}".format(centers, radius))
+
+    if isinstance(radius, (float, np.float)):
+        radii = np.full(len(centers), radius)
+
+    # discs
+    if n_features == 1:
+        raise NotImplementedError
+    elif n_features == 3:
+        raise NotImplementedError
+    elif n_features == 2:
+        disk_samples = [make_csr_on_disc(n_samples=n, radius=r, seed=seed) for n, r in zip(n_sample_list, radii)]
+
+    # shift and concatenate
+
+    # shuffle
+
+    # return samples
+    samples = 0
+    return samples
+
+
+    if len(np.shape(feature_range)) == 1:
+        samples = np.random.uniform(*feature_range, size=(n_samples, n_features))
+    else:
+        if np.shape(feature_range)[0] != n_features:
+            raise ValueError(f'The number of feature_range elements (if sequence) must be equal to n_features.')
+        else:
+            samples = np.random.rand(n_samples, n_features)
+            for i, (low, high) in enumerate(feature_range):
+                if low < high:
+                    samples[:,i] = samples[:,i] * (high - low) + low
+                else:
+                    raise ValueError(f'The first value of feature_range {low} must be smaller than the second one '
+                                     f'{high}.')
+
+
     from collections.abc import Iterable
 
     if np.issubdtype(n_samples, np.signedinteger):  # or use: if isinstance(n_samples, (int, np.integer)):
@@ -320,15 +421,6 @@ def _make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
             # todo: centers = check_array(centers)
         n_features = centers.shape[1]
 
-
-    # radius: if radius is given as list, it must be consistent with the n_centers
-    if (hasattr(radius, "__len__") and len(radius) != n_centers):
-        raise ValueError("Length of `radii` not consistent with "
-                         "number of centers. Got centers = {} "
-                         "and radii = {}".format(centers, radius))
-
-    if isinstance(radius, (float, np.float)):
-        radius = np.full(len(centers), radius)
 
     X = []
     y = []
@@ -425,6 +517,7 @@ def simulate_spots(n_samples = 100, n_features = 2, centers = None, cluster_std 
     return dat
 
 
+
 def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,10000), cluster_std=10, seed=None):
     """
     Provide a dataset of localizations with coordinates and labels that are spatially-distributed on a rectangular
@@ -485,6 +578,56 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,1
                              n_centers, n_samples, n_features, center_box, cluster_std, seed))
 
     return dat
+
+def make_csr_on_region(region, n_samples=100, seed=None):
+    """
+    Provide points that are spatially-distributed inside a polygon by complete spatial randomness.
+
+    Parameters
+    ----------
+    region : RoiRegion Object, or dict
+        Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
+        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
+    n_samples : int
+       total number of localizations
+    seed : int
+       random number generation seed
+
+    Returns
+    -------
+    array of shape [n_samples, 2]
+       The generated samples.
+    """
+    if seed is not None:
+        np.random.seed(seed)
+
+    if isinstance(region, dict):
+        region_ = RoiRegion(region_specs=region['region_specs'], region_type=region['region_type'])
+    else:
+        region_ = region
+
+    # todo: add function .bounds to RoiRegion
+    shapely_polygon = Polygon(region_.polygon)
+    min_x, min_y, max_x, max_y = shapely_polygon.bounds
+    bounding_box = ((min_x, max_x), (min_y, max_y))
+
+    n_remaining = n_samples
+    samples = []
+    while n_remaining > 1:
+        new_samples = np.random.rand(n_samples, region_.dimension)
+        for i, (low, high) in enumerate(bounding_box):
+            if low < high:
+                new_samples[:, i] = new_samples[:, i] * (high - low) + low
+            else:
+                raise ValueError(f'The first value of feature_range {low} must be smaller than the second one '
+                                 f'{high}.')
+        new_samples = new_samples[region_.contains(new_samples)]
+        samples.append(new_samples)
+        n_remaining = n_remaining - len(new_samples)
+
+    samples = np.concatenate(samples)
+    samples = samples[0: n_samples]
+    return samples
 
 
 def _random_walk(number_walks=1, number_steps=10, dimensions=2, diffusion_constant=1, time_step=10):
@@ -580,7 +723,6 @@ def simulate_tracks(number_walks=1, number_steps=10, ranges = ((0,10000),(0,1000
     locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 
     return locdata
-
 
 
 def resample(locdata, number_samples=10):

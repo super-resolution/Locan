@@ -1,7 +1,9 @@
 import pytest
 import pandas as pd
+import matplotlib.pyplot as plt
 from surepy import LocData
-from surepy.simulation import make_csr, simulate_csr, simulate_blobs, resample, simulate_tracks
+from surepy.simulation import make_csr, simulate_csr, make_csr_on_disc, make_csr_on_region, make_spots, \
+    simulate_blobs, resample, simulate_tracks
 
 def test_make_csr():
     points = make_csr(n_samples=5, n_features=1, feature_range=(0,10), seed=None)
@@ -18,11 +20,37 @@ def test_simulate_csr():
     assert all(dat.data.columns == ['Position_x', 'Position_y'])
     dat = simulate_csr(n_samples=5, n_features=4, feature_range=(0, 1.), seed = None)
     assert all(dat.data.columns == ['Position_x', 'Position_y', 'Position_z', 'Feature_0'])
-    print(dat.data)
 
+def test_make_csr_in_circle():
+    samples = make_csr_on_disc(n_samples=10, radius=2.0, seed = None)
+    assert len(samples) == 10
+    # fig, ax = plt.subplots(nrows=1, ncols=1)
+    # plt.scatter(samples[:,0], samples[:,1])
+    # ax.axis('equal')
+    # plt.show()
 
+def test_make_spots():
+    samples = make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
+               shuffle=True, seed=None)
+    print(samples)
 
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    plt.scatter(samples[:,0], samples[:,1])
+    ax.axis('equal')
+    plt.show()
 
+def test_make_csr_on_region():
+    region_dict = dict(region_type='polygon', region_specs=((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
+    samples = make_csr_on_region(region_dict, n_samples=1000, seed=None)
+    assert len(samples) == 1000
+    # todo add tests for other regions and 3D case
+
+    # fig, ax = plt.subplots(nrows=1, ncols=1)
+    # plt.scatter(samples[:,0], samples[:,1])
+    # ax.axis('equal')
+    # plt.show()
+
+##########################
 def test_simulate_csr_():
     dat = simulate_csr(n_samples = 10, x_range = (0,10000), y_range = None, z_range = None, seed=None)
     assert(len(dat) == 10)

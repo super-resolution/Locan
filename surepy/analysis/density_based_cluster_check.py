@@ -106,6 +106,7 @@ def _check_cluster(locdata, meta=None, algorithm=clustering_hdbscan, algo_parame
     return results
 
 def _normalize_rho(results):
+    pass
     # localization_density, eta, rho = 0, 0, 0
     #
     #

@@ -1,10 +1,29 @@
 import pytest
 import pandas as pd
 from surepy import LocData
-from surepy.simulation import simulate_csr, simulate_blobs, resample, simulate_tracks
+from surepy.simulation import make_csr, simulate_csr, simulate_blobs, resample, simulate_tracks
 
+def test_make_csr():
+    points = make_csr(n_samples=5, n_features=1, feature_range=(0,10), seed=None)
+    assert(points.shape==(5, 1))
+    points = make_csr(n_samples=5, n_features=2, feature_range=(0,10), seed=None)
+    assert(points.shape==(5, 2))
+    points = make_csr(n_samples=5, n_features=2, feature_range=((-10, -5), (5, 10)), seed=None)
+    assert(points.shape==(5, 2))
+    points = make_csr(n_samples=5, n_features=3, feature_range=((-10, -5), (5, 10), (100, 200)), seed=None)
+    assert(points.shape==(5, 3))
 
 def test_simulate_csr():
+    dat = simulate_csr(n_samples=5, n_features=2, feature_range=(0, 1.), seed = None)
+    assert all(dat.data.columns == ['Position_x', 'Position_y'])
+    dat = simulate_csr(n_samples=5, n_features=4, feature_range=(0, 1.), seed = None)
+    assert all(dat.data.columns == ['Position_x', 'Position_y', 'Position_z', 'Feature_0'])
+    print(dat.data)
+
+
+
+
+def test_simulate_csr_():
     dat = simulate_csr(n_samples = 10, x_range = (0,10000), y_range = None, z_range = None, seed=None)
     assert(len(dat) == 10)
     assert(len(dat.coordinate_labels)==1)

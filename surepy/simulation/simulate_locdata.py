@@ -544,9 +544,11 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,1
 
     return dat
 
+
+# todo add 3D
 def make_csr_on_region(region, n_samples=100, seed=None):
     """
-    Provide points that are spatially-distributed inside a polygon by complete spatial randomness.
+    Provide points that are spatially-distributed inside the specified region by complete spatial randomness.
 
     Parameters
     ----------
@@ -595,6 +597,52 @@ def make_csr_on_region(region, n_samples=100, seed=None):
     return samples
 
 # todo add simulate_csr_on_region()
+def simulate_csr_on_region(region, n_samples=100, seed=None):
+    """
+    Provide a dataset of localizations with coordinates that are spatially-distributed inside teh specified region by
+    complete spatial randomness..
+
+    Parameters
+    ----------
+    region : RoiRegion Object, or dict
+        Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
+        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
+    n_samples : int
+       total number of localizations
+    seed : int
+       random number generation seed
+
+    Returns
+    -------
+    LocData
+        A new LocData instance with localization data.
+    """
+    parameter = locals()
+
+    samples = make_csr_on_region(region=region, n_samples=n_samples, seed=seed)
+
+    property_names = []
+    for i in range(np.shape(samples)[-1]):
+        if i == 0:
+            property_names.append('Position_x')
+        elif i == 1:
+            property_names.append('Position_y')
+        elif i == 2:
+            property_names.append('Position_z')
+
+    dict = {}
+    for name, data in zip(property_names, samples.T):
+        dict.update({name: data})
+
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
+
+    # metadata
+    locdata.meta.source = metadata_pb2.SIMULATION
+    del locdata.meta.history[:]
+    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+
+    return locdata
+
 
 def _random_walk(number_walks=1, number_steps=10, dimensions=2, diffusion_constant=1, time_step=10):
     '''

@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from surepy import LocData
 from surepy.simulation import make_csr, simulate_csr, make_csr_on_disc, make_csr_on_region, make_spots, \
-    simulate_csr_on_disc, simulate_csr_on_region, simulate_blobs, resample, simulate_tracks
+    simulate_csr_on_disc, simulate_csr_on_region, simulate_spots, simulate_blobs, resample, simulate_tracks
 
 
 def test_make_csr():
@@ -87,6 +87,13 @@ def test_make_spots():
     # plt.scatter(samples[:,0], samples[:,1])
     # ax.axis('equal')
     # plt.show()
+
+
+def test_simulate_spots():
+    dat = simulate_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
+                       shuffle=True, seed=None)
+    assert len(dat) == 100
+    assert dat.meta.element_count == 100
 
 
 def test_make_csr_on_region():

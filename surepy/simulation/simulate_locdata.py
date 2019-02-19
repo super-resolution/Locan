@@ -265,10 +265,10 @@ def simulate_csr_on_disc(n_samples=100, radius=1.0, seed=None):
 
 
 def make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
-                shuffle = True, seed = None):
+               shuffle = True, seed = None):
     """
     Generate spots with equally distributed points inside. Centers are spatially-distributed by complete spatial
-    randomness within the boundarys given by `feature_range`. The number of dimensions is specified by `n_features`.
+    randomness within the boundaries given by `feature_range`. The number of dimensions is specified by `n_features`.
 
     Parameters
     ----------
@@ -393,34 +393,30 @@ def make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_ra
     return samples, labels
 
 
-
-def simulate_spots(n_samples = 100, n_features = 2, centers = None, cluster_std = 1.0, center_box = (-10.0, 10.0),
+def simulate_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
                    shuffle = True, seed = None):
     """
-    Provide a dataset of localizations with coordinates and labels that are spatially-distributed spots (circular or
-    elliptic) with equally distributed points inside. The spot centers are distributed by complete spatial randomness.
+    Provide a dataset of localizations with coordinates and labels that are spatially-distributed spots with
+    homogeneously distributed points inside. Centers are spatially-distributed by complete spatial
+    randomness within the boundaries given by `feature_range`. The number of dimensions is specified by `n_features`.
 
     Parameters
     ----------
     n_samples : int or array-like
-        If int, it is the total number of points equally divided among
-        clusters.
-        If array-like, each element of the sequence indicates
-        the number of samples per cluster.
+        If int, it is the total number of points equally divided among clusters.
+        If array-like, each element of the sequence indicates the number of samples per cluster.
     n_features : int
-        The number of features for each sample.
+        The number of features for each sample. One of (1, 2, 3).
     centers : int or array of shape [n_centers, n_features]
         The number of centers to generate, or the fixed center locations.
+        If centers is an array, n_features is taken from centers shape.
         If n_samples is an int and centers is None, 3 centers are generated.
-        If n_samples is array-like, centers must be
-        either None or an array of length equal to the length of n_samples.
-    radii : tuple of floats or sequence of tuple of floats
-        The radii for the spots. If tuple, the number of elements must be equal to n_features. If sequence of tuples,
-        the length of sequence must be equal to the number of centers and the length of each tuple must be equal to
-        n_features.
-    center_box : pair of floats (min, max), optional (default=(-10.0, 10.0))
+        If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
+    radius : float or sequence of floats
+        The radius for the spots. If tuple, the number of elements must be equal to the number of centers.
+    feature_range : pair of floats (min, max) or sequence of pair of floats
         The bounding box for each cluster center when centers are
-        generated at random.
+        generated at random. If sequence the number of elements but be equal to n_features.
     shuffle : boolean, optional (default=True)
         Shuffle the samples.
     seed : int
@@ -431,34 +427,38 @@ def simulate_spots(n_samples = 100, n_features = 2, centers = None, cluster_std 
     LocData
         A new LocData instance with localization data.
     """
+    parameter = locals()
+
     if seed is not None:
         np.random.seed(seed)
 
-    points, labels = _make_spots(n_samples=n_samples, n_features=n_features, centers=n_centers, cluster_std=cluster_std,
-                                center_box=center_box, random_state = seed)
+    samples, labels = make_spots(n_samples=n_samples, n_features=n_features, centers=centers, radius=radius,
+                                 feature_range=feature_range, shuffle = shuffle, seed = seed)
 
-    if n_features == 1:
-        dataframe = pd.DataFrame(np.stack((points[:, 0], labels), axis=-1),
-                                 columns=['Position_x', 'Cluster_label'])
-    if n_features == 2:
-        dataframe = pd.DataFrame(np.stack((points[:, 0], points[:, 1], labels), axis=-1),
-                                 columns=['Position_x', 'Position_y', 'Cluster_label'])
-    if n_features == 3:
-        dataframe = pd.DataFrame(np.stack((points[:, 0], points[:, 1], points[:, 2], labels), axis=-1),
-                                 columns=['Position_x', 'Position_y', 'Position_z', 'Cluster_label'])
+    property_names = []
+    for i in range(n_features):
+        if i == 0:
+            property_names.append('Position_x')
+        elif i == 1:
+            property_names.append('Position_y')
+        elif i == 2:
+            property_names.append('Position_z')
+        else:
+            property_names.append(f'Feature_{i-3}')
 
-    dat = LocData.from_dataframe(dataframe=dataframe)
+    dict = {}
+    for name, data in zip(property_names, samples.T):
+        dict.update({name: data})
+    dict.update({'Cluster_label': labels})
+
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
 
     # metadata
-    dat.meta.source = metadata_pb2.SIMULATION
-    del dat.meta.history[:]
-    dat.meta.history.add(name='simulate_blobs',
-                         parameter='n_centers={}, n_samples={}, n_features={}, center_box={}, cluster_std={}, '
-                                   'seed={}'.format(
-                             n_centers, n_samples, n_features, center_box, cluster_std, seed))
+    locdata.meta.source = metadata_pb2.SIMULATION
+    del locdata.meta.history[:]
+    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 
-    return dat
-
+    return locdata
 
 
 def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,10000), cluster_std=10, seed=None):

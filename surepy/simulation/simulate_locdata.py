@@ -223,7 +223,7 @@ def make_csr_on_disc(n_samples=100, radius=1.0, seed=None):
     return samples
 
 
-def simulate__csr_on_disc(n_samples=100, radius=1.0, seed=None):
+def simulate_csr_on_disc(n_samples=100, radius=1.0, seed=None):
     """
     Provide a dataset of localizations with coordinates that are spatially-distributed on a disc by complete spatial
     randomness..
@@ -273,17 +273,16 @@ def make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_ra
     Parameters
     ----------
     n_samples : int or array-like
-        If int, it is the total number of points equally divided among
-        clusters.
-        If array-like, each element of the sequence indicates
-        the number of samples per cluster.
+        If int, it is the total number of points equally divided among clusters.
+        If array-like, each element of the sequence indicates the number of samples per cluster.
     n_features : int
         The number of features for each sample. One of (1, 2, 3).
     centers : int or array of shape [n_centers, n_features]
         The number of centers to generate, or the fixed center locations.
+        If centers is an array, n_features is taken from centers shape.
         If n_samples is an int and centers is None, 3 centers are generated.
         If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
-    radius : tuple of floats or sequence of tuple of floats
+    radius : float or sequence of floats
         The radius for the spots. If tuple, the number of elements must be equal to the number of centers.
     feature_range : pair of floats (min, max) or sequence of pair of floats
         The bounding box for each cluster center when centers are
@@ -295,125 +294,104 @@ def make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_ra
 
     Returns
     -------
-    X : array of shape [n_samples, n_features]
+    samples : array of shape [n_samples, n_features]
         The generated samples.
-    y : array of shape [n_samples]
+    labels : array of shape [n_samples]
         The integer labels for cluster membership of each sample.
     """
     if seed is not None:
         np.random.seed(seed)
 
-    # centers
+    # check n_feature consistent with feature_range
+    if (len(np.shape(feature_range)) != 1) and (np.shape(feature_range)[0] != n_features):
+        raise ValueError(f'The number of feature_range elements (if sequence) must be equal to n_features.')
 
+    # n_samples, centers, n_centers
+    if isinstance(n_samples, (int, np.integer)):
+        # Set n_centers by looking at centers arg
+        if centers is None:
+            centers = 3
+
+        if isinstance(centers, (int, np.integer)):
+            n_centers = centers
+            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=seed)
+        else:  # if centers is array
+            if n_features != np.shape(centers)[1]:
+                raise ValueError(f'n_features must be the same as the dimensions for each center. '
+                                 f'Got n_features: {n_features} and center dimensions: {np.shape(centers)[1]} instead.')
+            n_centers = np.shape(centers)[0]
+
+    else:  # if n_samples is array
+        n_centers = len(n_samples)  # Set n_centers by looking at [n_samples] arg
+        if centers is None:
+            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=seed)
+        elif isinstance(centers, (int, np.integer)):
+            if centers != len(n_samples):
+                raise ValueError(f"Length of `n_samples` not consistent"
+                                 f" with number of centers. Got length of n_samples = {n_centers} "
+                                 f"and centers = {centers}")
+            centers = make_csr(n_samples=centers, n_features=n_features, feature_range=feature_range, seed=seed)
+        else:  # if centers is array
+            try:
+                assert len(centers) == n_centers
+            except TypeError:
+                raise ValueError(f"Parameter `centers` must be array-like or None. "
+                                 f"Got {centers} instead")
+            except AssertionError:
+                raise ValueError(f"Length of `n_samples` not consistent"
+                                 f" with number of centers. Got length of n_samples = {n_centers} "
+                                 f"and number of centers = {len(centers)}")
+            if n_features != np.shape(centers)[1]:
+                raise ValueError(f'n_features must be the same as the dimensions for each center. '
+                                 f'Got n_features: {n_features} and center dimensions: {centers.shape[1]} instead.')
+
+    # set n_samples_per_center
+    if isinstance(n_samples, (int, np.integer)):
+        n_samples_per_center = [int(n_samples // n_centers)] * n_centers
+        for i in range(n_samples % n_centers):
+            n_samples_per_center[i] += 1
+    else:
+        n_samples_per_center = n_samples
 
     # radius: if radius is given as list, it must be consistent with the n_centers
-    if (hasattr(radius, "__len__") and len(radius) != n_centers):
-        raise ValueError("Length of `radii` not consistent with "
-                         "number of centers. Got centers = {} "
-                         "and radii = {}".format(centers, radius))
-
-    if isinstance(radius, (float, np.float)):
+    if hasattr(radius, "__len__"):
+        if len(radius) != n_centers:
+            raise ValueError(f"Length of `radius` not consistent with "
+                             f"number of centers. Got number of centers = {n_centers} "
+                             f"and radius = {radius}")
+        else:
+            radii = radius
+    else:  # if isinstance(radius, (float, np.float)):
         radii = np.full(len(centers), radius)
 
     # discs
+    disk_samples = []
+    labels = []
     if n_features == 1:
         raise NotImplementedError
     elif n_features == 3:
         raise NotImplementedError
     elif n_features == 2:
-        disk_samples = [make_csr_on_disc(n_samples=n, radius=r, seed=seed) for n, r in zip(n_sample_list, radii)]
+        for i, (number, r, center) in enumerate(zip(n_samples_per_center, radii, centers)):
+            pts = make_csr_on_disc(n_samples=number, radius=r, seed=seed)
+            pts = pts + center
+            disk_samples.append(pts)
+            labels += [i] * number
 
     # shift and concatenate
+    samples = np.concatenate(disk_samples)
+    labels = np.array(labels)
 
     # shuffle
+    if shuffle:
+        total_n_samples = np.sum(n_samples)
+        indices = np.arange(total_n_samples)
+        np.random.shuffle(indices)
+        samples = samples[indices]
+        labels = labels[indices]
 
-    # return samples
-    samples = 0
-    return samples
+    return samples, labels
 
-
-    if len(np.shape(feature_range)) == 1:
-        samples = np.random.uniform(*feature_range, size=(n_samples, n_features))
-    else:
-        if np.shape(feature_range)[0] != n_features:
-            raise ValueError(f'The number of feature_range elements (if sequence) must be equal to n_features.')
-        else:
-            samples = np.random.rand(n_samples, n_features)
-            for i, (low, high) in enumerate(feature_range):
-                if low < high:
-                    samples[:,i] = samples[:,i] * (high - low) + low
-                else:
-                    raise ValueError(f'The first value of feature_range {low} must be smaller than the second one '
-                                     f'{high}.')
-
-
-    from collections.abc import Iterable
-
-    if np.issubdtype(n_samples, np.signedinteger):  # or use: if isinstance(n_samples, (int, np.integer)):
-        # Set n_centers by looking at centers arg
-        if centers is None:
-            centers = 3
-
-        if np.issubdtype(centers, np.signedinteger):
-            n_centers = centers
-            centers = np.random.rand((n_centers, n_features)) * center_box
-            # centers = generator.uniform(center_box[0], center_box[1],
-            #                             size=(n_centers, n_features))
-
-        else:
-            #todo: centers = check_array(centers)
-            n_features = centers.shape[1]
-            n_centers = centers.shape[0]
-
-    else:
-        # Set n_centers by looking at [n_samples] arg
-        n_centers = len(n_samples)
-        if centers is None:
-            centers = np.random.rand((n_centers, n_features)) * center_box
-            # centers = generator.uniform(center_box[0], center_box[1],
-            #                             size=(n_centers, n_features))
-        try:
-            assert len(centers) == n_centers
-        except TypeError:
-            raise ValueError("Parameter `centers` must be array-like. "
-                             "Got {!r} instead".format(centers))
-        except AssertionError:
-            raise ValueError("Length of `n_samples` not consistent"
-                             " with number of centers. Got n_samples = {} "
-                             "and centers = {}".format(n_samples, centers))
-        else:
-            pass
-            # todo: centers = check_array(centers)
-        n_features = centers.shape[1]
-
-
-    X = []
-    y = []
-
-    if isinstance(n_samples, Iterable):
-        n_samples_per_center = n_samples
-    else:
-        n_samples_per_center = [int(n_samples // n_centers)] * n_centers
-
-        for i in range(n_samples % n_centers):
-            n_samples_per_center[i] += 1
-#
-#     for i, (n, std) in enumerate(zip(n_samples_per_center, cluster_std)):
-#         X.append(generator.normal(loc=centers[i], scale=std,
-#                                   size=(n, n_features)))
-#         y += [i] * n
-#
-#     X = np.concatenate(X)
-#     y = np.array(y)
-#
-#     if shuffle:
-#         total_n_samples = np.sum(n_samples)
-#         indices = np.arange(total_n_samples)
-#         generator.shuffle(indices)
-#         X = X[indices]
-#         y = y[indices]
-#
-#   return X, y
 
 
 def simulate_spots(n_samples = 100, n_features = 2, centers = None, cluster_std = 1.0, center_box = (-10.0, 10.0),
@@ -596,7 +574,7 @@ def make_csr_on_region(region, n_samples=100, seed=None):
     samples = samples[0: n_samples]
     return samples
 
-# todo add simulate_csr_on_region()
+
 def simulate_csr_on_region(region, n_samples=100, seed=None):
     """
     Provide a dataset of localizations with coordinates that are spatially-distributed inside teh specified region by

@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from surepy import LocData
 from surepy.simulation import make_csr, simulate_csr, make_csr_on_disc, make_csr_on_region, make_spots, \
-    simulate__csr_on_disc, simulate_csr_on_region, simulate_blobs, resample, simulate_tracks
+    simulate_csr_on_disc, simulate_csr_on_region, simulate_blobs, resample, simulate_tracks
 
 
 def test_make_csr():
@@ -33,20 +33,60 @@ def test_make_csr_on_disc():
     # plt.show()
 
 
-def test_simulate__csr_on_disc():
-    dat = simulate__csr_on_disc(n_samples=100, radius=1.0, seed=None)
+def test_simulate_csr_on_disc():
+    dat = simulate_csr_on_disc(n_samples=100, radius=1.0, seed=None)
     assert all(dat.data.columns == ['Position_x', 'Position_y'])
 
 
 def test_make_spots():
-    samples = make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
+    samples, labels = make_spots()
+    assert len(samples) == 100
+    assert max(labels) + 1 == 3
+    samples, labels = make_spots(n_samples=100, n_features=2, centers=1,
+                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    assert len(samples) == 100
+    assert max(labels) + 1 == 1
+    samples, labels = make_spots(n_samples=100, n_features=2, centers=5,
+                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    samples, labels = make_spots(n_samples=100, n_features=2, centers=((0, 0), (0, 1)),
+                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    samples, labels = make_spots(n_samples=(1, 2), n_features=2, centers=None,
+                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    samples, labels = make_spots(n_samples=(1, 2, 3, 4, 5), n_features=2, centers=5,
+                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    samples, labels = make_spots(n_samples=(1, 2), n_features=2, centers=((0, 0), (0, 1)),
+                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    samples, labels = make_spots(n_samples=10, n_features=2, centers=None,
+                         radius=1.0, feature_range=((0, 2), (-1, 0)), shuffle=True, seed=None)
+    samples, labels = make_spots(n_samples=10, n_features=2, centers=((0, 1), (0, 1)),
+                         radius=(1, 2), feature_range=(0, 1), shuffle=True, seed=None)
+    samples, labels = make_spots(n_samples=10, n_features=2, centers=2,
+                         radius=(1, 2), feature_range=(0, 1), shuffle=True, seed=None)
+    with pytest.raises(ValueError):
+        samples, labels = make_spots(n_samples=10, n_features=3, centers=None,
+                         radius=1.0, feature_range=((0, 2), (-1, 0)), shuffle=True, seed=None)
+    with pytest.raises(ValueError):
+        samples, labels = make_spots(n_samples=100, n_features=3, centers=((0, 1), (0, 1)), radius=1.0, feature_range=(0, 1),
                          shuffle=True, seed=None)
-    print(samples)
+    with pytest.raises(ValueError):
+        samples, labels = make_spots(n_samples=(1,2,3), n_features=2, centers=((0, 1), (0, 1)),
+                             radius=1.0, feature_range=(0, 1), shuffle=True, seed=None)
+    with pytest.raises(ValueError):
+        samples, labels = make_spots(n_samples=10, n_features=2, centers=((0, 1), (0, 1)),
+                             radius=(1, 2, 3), feature_range=(0, 1), shuffle=True, seed=None)
+    with pytest.raises(ValueError):
+        samples, labels = make_spots(n_samples=10, n_features=2, centers=2,
+                             radius=(1, 2, 3), feature_range=(0, 1), shuffle=True, seed=None)
 
-    fig, ax = plt.subplots(nrows=1, ncols=1)
-    plt.scatter(samples[:,0], samples[:,1])
-    ax.axis('equal')
-    plt.show()
+    samples, labels = make_spots(n_samples=1000, n_features=2, centers=5,
+                         radius=(1, 2, 3, 4, 5), feature_range=(-10.0, 10.0), shuffle=False, seed=None)
+    assert len(samples) == len(labels)
+    # print(labels)
+
+    # fig, ax = plt.subplots(nrows=1, ncols=1)
+    # plt.scatter(samples[:,0], samples[:,1])
+    # ax.axis('equal')
+    # plt.show()
 
 
 def test_make_csr_on_region():

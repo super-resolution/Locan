@@ -223,80 +223,45 @@ def make_csr_on_disc(n_samples=100, radius=1.0, seed=None):
     return samples
 
 
-# def make_csr_on_ellipse(n_samples=100, radius=1.0, seed=None):
-#     """
-#     Provide points that are spatially-distributed on an ellipse by complete spatial randomness.
-#
-#     Parameters
-#     ----------
-#     n_samples : int
-#        total number of localizations
-#     radius : float or tuple of float
-#         radius of the disc or radii of ellipse
-#     seed : int
-#        random number generation seed
-#
-#     Returns
-#     -------
-#     array of shape [n_samples, 2]
-#        The generated samples.
-#     """
-#     n_features = 2  # implementation for 2D only
-#
-#     if seed is not None:
-#         np.random.seed(seed)
-#
-#     # if radius is given as list, it must be consistent with n_features
-#     if hasattr(radius, "__len__"):
-#         if len(radius) != n_features:
-#             raise ValueError(f"Length of `radius` not consistent with "
-#                              f"number of features. Got radius = {radius} "
-#                              f"and radius = {radius}")
-#         else:
-#             radii = radius
-#     elif isinstance(radius, (float, np.float)):
-#         radii = np.full(n_features, radius)
-#
-#     # # area of disk
-#     # r = radii[0]
-#     # areaTotal = np.pi * r ** 2
-#     #
-#     # # intensity (ie mean density) of the Poisson process
-#     # lambda0 = n_samples / areaTotal
-#     #
-#     # # Simulate Poisson point process
-#     # numbPoints = scipy.stats.poisson(lambda0 * areaTotal).rvs()  # Poisson number of points
-#     # theta = 2 * np.pi * scipy.stats.uniform.rvs(0, 1, ((numbPoints, 1)))  # angular coordinates of Poisson points
-#     # rho = r * np.sqrt(scipy.stats.uniform.rvs(0, 1, ((numbPoints, 1))))  # radial coordinates of Poisson points
-#
-#     # angular coordinates of Poisson points
-#     theta = np.random.rand(n_samples) * 2 * np.pi
-#     # radial coordinates of Poisson points
-#     rho = radius * np.sqrt(np.random.rand(n_samples))
-#
-#     # Convert from polar to Cartesian coordinates
-#     xx = rho * np.cos(theta)
-#     yy = rho * np.sin(theta)
-#
-#     samples = np.array((xx, yy)).T
-#     return samples
-#
-#     # print(radii)
-#
-#     # if len(np.shape(feature_range)) == 1:
-#     #     samples = np.random.uniform(*feature_range, size=(n_samples, n_features))
-#     # else:
-#     #     if np.shape(feature_range)[0] != n_features:
-#     #         raise ValueError(f'The number of feature_range elements (if sequence) must be equal to n_features.')
-#     #     else:
-#     #         samples = np.random.rand(n_samples, n_features)
-#     #         for i, (low, high) in enumerate(feature_range):
-#     #             if low < high:
-#     #                 samples[:,i] = samples[:,i] * (high - low) + low
-#     #             else:
-#     #                 raise ValueError(f'The first value of feature_range {low} must be smaller than the second one '
-#     #                                  f'{high}.')
-#     # return samples
+def simulate__csr_on_disc(n_samples=100, radius=1.0, seed=None):
+    """
+    Provide a dataset of localizations with coordinates that are spatially-distributed on a disc by complete spatial
+    randomness..
+
+    Parameters
+    ----------
+    n_samples : int
+       total number of localizations
+    radius : float
+        radius of the disc
+    seed : int
+       random number generation seed
+
+    Returns
+    -------
+    LocData
+        A new LocData instance with localization data.
+    """
+    parameter = locals()
+
+    samples = make_csr_on_disc(n_samples=n_samples, radius=radius, seed=seed)
+
+    property_names = []
+    property_names.append('Position_x')
+    property_names.append('Position_y')
+
+    dict = {}
+    for name, data in zip(property_names, samples.T):
+        dict.update({name: data})
+
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
+
+    # metadata
+    locdata.meta.source = metadata_pb2.SIMULATION
+    del locdata.meta.history[:]
+    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+
+    return locdata
 
 
 def make_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
@@ -629,6 +594,7 @@ def make_csr_on_region(region, n_samples=100, seed=None):
     samples = samples[0: n_samples]
     return samples
 
+# todo add simulate_csr_on_region()
 
 def _random_walk(number_walks=1, number_steps=10, dimensions=2, diffusion_constant=1, time_step=10):
     '''

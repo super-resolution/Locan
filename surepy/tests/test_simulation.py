@@ -2,8 +2,9 @@ import pytest
 import pandas as pd
 import matplotlib.pyplot as plt
 from surepy import LocData
-from surepy.simulation import make_csr, simulate_csr, make_csr_on_disc, make_csr_on_region, make_spots, \
-    simulate_csr_on_disc, simulate_csr_on_region, simulate_spots, simulate_blobs, resample, simulate_tracks
+from surepy.simulation import make_csr, simulate_csr, make_csr_on_disc, make_csr_on_region, make_Matern, make_Thomas, \
+    simulate_csr_on_disc, simulate_csr_on_region, simulate_Matern, simulate_Thomas, simulate_blobs, \
+    resample, simulate_tracks
 
 
 def test_make_csr():
@@ -39,47 +40,47 @@ def test_simulate_csr_on_disc():
 
 
 def test_make_spots():
-    samples, labels = make_spots()
+    samples, labels = make_Matern()
     assert len(samples) == 100
     assert max(labels) + 1 == 3
-    samples, labels = make_spots(n_samples=100, n_features=2, centers=1,
-                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    samples, labels = make_Matern(n_samples=100, n_features=2, centers=1,
+                                  radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
     assert len(samples) == 100
     assert max(labels) + 1 == 1
-    samples, labels = make_spots(n_samples=100, n_features=2, centers=5,
-                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
-    samples, labels = make_spots(n_samples=100, n_features=2, centers=((0, 0), (0, 1)),
-                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
-    samples, labels = make_spots(n_samples=(1, 2), n_features=2, centers=None,
-                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
-    samples, labels = make_spots(n_samples=(1, 2, 3, 4, 5), n_features=2, centers=5,
-                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
-    samples, labels = make_spots(n_samples=(1, 2), n_features=2, centers=((0, 0), (0, 1)),
-                         radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
-    samples, labels = make_spots(n_samples=10, n_features=2, centers=None,
-                         radius=1.0, feature_range=((0, 2), (-1, 0)), shuffle=True, seed=None)
-    samples, labels = make_spots(n_samples=10, n_features=2, centers=((0, 1), (0, 1)),
-                         radius=(1, 2), feature_range=(0, 1), shuffle=True, seed=None)
-    samples, labels = make_spots(n_samples=10, n_features=2, centers=2,
-                         radius=(1, 2), feature_range=(0, 1), shuffle=True, seed=None)
+    samples, labels = make_Matern(n_samples=100, n_features=2, centers=5,
+                                  radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    samples, labels = make_Matern(n_samples=100, n_features=2, centers=((0, 0), (0, 1)),
+                                  radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    samples, labels = make_Matern(n_samples=(1, 2), n_features=2, centers=None,
+                                  radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    samples, labels = make_Matern(n_samples=(1, 2, 3, 4, 5), n_features=2, centers=5,
+                                  radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    samples, labels = make_Matern(n_samples=(1, 2), n_features=2, centers=((0, 0), (0, 1)),
+                                  radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=None)
+    samples, labels = make_Matern(n_samples=10, n_features=2, centers=None,
+                                  radius=1.0, feature_range=((0, 2), (-1, 0)), shuffle=True, seed=None)
+    samples, labels = make_Matern(n_samples=10, n_features=2, centers=((0, 1), (0, 1)),
+                                  radius=(1, 2), feature_range=(0, 1), shuffle=True, seed=None)
+    samples, labels = make_Matern(n_samples=10, n_features=2, centers=2,
+                                  radius=(1, 2), feature_range=(0, 1), shuffle=True, seed=None)
     with pytest.raises(ValueError):
-        samples, labels = make_spots(n_samples=10, n_features=3, centers=None,
-                         radius=1.0, feature_range=((0, 2), (-1, 0)), shuffle=True, seed=None)
+        samples, labels = make_Matern(n_samples=10, n_features=3, centers=None,
+                                      radius=1.0, feature_range=((0, 2), (-1, 0)), shuffle=True, seed=None)
     with pytest.raises(ValueError):
-        samples, labels = make_spots(n_samples=100, n_features=3, centers=((0, 1), (0, 1)), radius=1.0, feature_range=(0, 1),
-                         shuffle=True, seed=None)
+        samples, labels = make_Matern(n_samples=100, n_features=3, centers=((0, 1), (0, 1)), radius=1.0, feature_range=(0, 1),
+                                      shuffle=True, seed=None)
     with pytest.raises(ValueError):
-        samples, labels = make_spots(n_samples=(1,2,3), n_features=2, centers=((0, 1), (0, 1)),
-                             radius=1.0, feature_range=(0, 1), shuffle=True, seed=None)
+        samples, labels = make_Matern(n_samples=(1, 2, 3), n_features=2, centers=((0, 1), (0, 1)),
+                                      radius=1.0, feature_range=(0, 1), shuffle=True, seed=None)
     with pytest.raises(ValueError):
-        samples, labels = make_spots(n_samples=10, n_features=2, centers=((0, 1), (0, 1)),
-                             radius=(1, 2, 3), feature_range=(0, 1), shuffle=True, seed=None)
+        samples, labels = make_Matern(n_samples=10, n_features=2, centers=((0, 1), (0, 1)),
+                                      radius=(1, 2, 3), feature_range=(0, 1), shuffle=True, seed=None)
     with pytest.raises(ValueError):
-        samples, labels = make_spots(n_samples=10, n_features=2, centers=2,
-                             radius=(1, 2, 3), feature_range=(0, 1), shuffle=True, seed=None)
+        samples, labels = make_Matern(n_samples=10, n_features=2, centers=2,
+                                      radius=(1, 2, 3), feature_range=(0, 1), shuffle=True, seed=None)
 
-    samples, labels = make_spots(n_samples=1000, n_features=2, centers=5,
-                         radius=(1, 2, 3, 4, 5), feature_range=(-10.0, 10.0), shuffle=False, seed=None)
+    samples, labels = make_Matern(n_samples=1000, n_features=2, centers=5,
+                                  radius=(1, 2, 3, 4, 5), feature_range=(-10.0, 10.0), shuffle=False, seed=None)
     assert len(samples) == len(labels)
     # print(labels)
 
@@ -90,8 +91,37 @@ def test_make_spots():
 
 
 def test_simulate_spots():
-    dat = simulate_spots(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
-                       shuffle=True, seed=None)
+    dat = simulate_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
+                          shuffle=True, seed=None)
+    assert len(dat) == 100
+    assert dat.meta.element_count == 100
+
+
+def test_make_Thomas():
+    samples, labels = make_Thomas(n_samples=10, n_features=2, centers=None, cluster_std=1.0,
+                                  feature_range=(-10.0, 10.0), shuffle = True, seed = None)
+    assert len(samples) == 10
+    assert max(labels) + 1 == 3
+    samples, labels = make_Thomas(n_samples=10, n_features=2, centers=5, cluster_std=10,
+                                  feature_range=(-10.0, 10.0), shuffle = True, seed = None)
+    assert len(samples) == 10
+    assert max(labels) + 1 == 5
+    samples, labels = make_Thomas(n_samples=(1,2,3), n_features=2, centers=None, cluster_std=10,
+                                  feature_range=(-10.0, 10.0), shuffle = True, seed = None)
+    assert len(samples) == 6
+    assert max(labels) + 1 == 3
+    samples, labels = make_Thomas(n_samples=(1,2,3), n_features=2, centers=((1, 1), (10, 10), (100, 100)),
+                                  cluster_std=(1, 10, 100),
+                                  feature_range=(-10.0, 10.0), shuffle = True, seed = None)
+    assert len(samples) == 6
+    assert max(labels) + 1 == 3
+    samples, labels = make_Thomas(n_samples=10, shuffle = False)
+    assert len(samples) == 10
+
+
+def test_simulate_Thomas():
+    dat = simulate_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feature_range=(-10.0, 10.0),
+                          shuffle=True, seed=None)
     assert len(dat) == 100
     assert dat.meta.element_count == 100
 
@@ -118,7 +148,6 @@ def test_simulate_csr_():
     dat = simulate_csr(n_samples = 10, x_range=(0,10000), y_range=None, z_range=None, seed=None)
     assert(len(dat) == 10)
     assert(len(dat.coordinate_labels)==1)
-    # dat.print_meta()
 
     dat = simulate_csr(n_samples = 10, x_range = (0,10000), y_range = (0,10000), z_range=None, seed=None)
     assert(len(dat) == 10)
@@ -134,7 +163,6 @@ def test_simulate_blobs_1D():
     assert (len(dat) == 100)
     assert(len(dat.coordinate_labels)==1)
     assert ('Position_x' in dat.data.columns)
-    # dat.print_meta()
 
 def test_simulate_blobs_2D():
     dat = simulate_blobs(n_centers=10, n_samples=100, n_features=2, center_box=(0, 10000), cluster_std=10, seed=None)

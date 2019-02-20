@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from surepy import LocData
 from surepy.simulation import make_csr, simulate_csr, make_csr_on_disc, make_csr_on_region, make_Matern, make_Thomas, \
     simulate_csr_on_disc, simulate_csr_on_region, simulate_Matern, simulate_Thomas, simulate_blobs, \
-    resample, simulate_tracks
+    resample, simulate_tracks, simulate_csr_
 
 
 def test_make_csr():
@@ -145,15 +145,15 @@ def test_simulate_csr_on_region():
 
 ##########################
 def test_simulate_csr_():
-    dat = simulate_csr(n_samples = 10, x_range=(0,10000), y_range=None, z_range=None, seed=None)
+    dat = simulate_csr_(n_samples = 10, x_range=(0,10000), y_range=None, z_range=None, seed=None)
     assert(len(dat) == 10)
     assert(len(dat.coordinate_labels)==1)
 
-    dat = simulate_csr(n_samples = 10, x_range = (0,10000), y_range = (0,10000), z_range=None, seed=None)
+    dat = simulate_csr_(n_samples = 10, x_range = (0,10000), y_range = (0,10000), z_range=None, seed=None)
     assert(len(dat) == 10)
     assert(len(dat.coordinate_labels)==2)
 
-    dat = simulate_csr(n_samples = 10, x_range = (0,10000), y_range = (0,10000), z_range = (0,10000), seed=None)
+    dat = simulate_csr_(n_samples = 10, x_range = (0,10000), y_range = (0,10000), z_range = (0,10000), seed=None)
     assert(len(dat) == 10)
     assert(len(dat.coordinate_labels)==3)
 

@@ -49,7 +49,7 @@ from surepy.data import metadata_pb2
 from surepy.data.region import RoiRegion
 
 
-def make_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed = None):
+def make_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed=None):
     """
     Provide points that are spatially-distributed by complete spatial
     randomness within the boundarys given by `feature_range`.
@@ -82,14 +82,14 @@ def make_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed = None):
             samples = np.random.rand(n_samples, n_features)
             for i, (low, high) in enumerate(feature_range):
                 if low < high:
-                    samples[:,i] = samples[:,i] * (high - low) + low
+                    samples[:, i] = samples[:, i] * (high - low) + low
                 else:
                     raise ValueError(f'The first value of feature_range {low} must be smaller than the second one '
                                      f'{high}.')
     return samples
 
 
-def simulate_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed = None):
+def simulate_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed=None):
     """
     Provide a dataset of localizations with coordinates that are spatially-distributed by complete spatial
     randomness within the boundarys given by `feature_range`.
@@ -124,13 +124,13 @@ def simulate_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed = None
         elif i == 2:
             property_names.append('Position_z')
         else:
-            property_names.append(f'Feature_{i-3}')
+            property_names.append(f'Feature_{i - 3}')
 
-    dict = {}
+    dict_ = {}
     for name, data in zip(property_names, samples.T):
-        dict.update({name: data})
+        dict_.update({name: data})
 
-    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
 
     # metadata
     locdata.meta.source = metadata_pb2.SIMULATION
@@ -141,7 +141,7 @@ def simulate_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed = None
 
 
 # todo: delete
-def simulate_csr_(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z_range = None, seed=None):
+def simulate_csr_(n_samples=10000, x_range=(0, 10000), y_range=(0, 10000), z_range=None, seed=None):
     """
     Provide a dataset of localizations that are spatially-distributed on a rectangular shape or cubic volume by
     complete spatial randomness.
@@ -172,12 +172,12 @@ def simulate_csr_(n_samples = 10000, x_range = (0,10000), y_range = (0,10000), z
     if seed is not None:
         np.random.seed(seed)
 
-    dict = {}
+    dict_ = {}
     for i, j in zip(('x', 'y', 'z'), (x_range, y_range, z_range)):
         if j is not None:
-            dict.update({'Position_' + i: np.random.uniform(*j, n_samples)})
+            dict_.update({'Position_' + i: np.random.uniform(*j, n_samples)})
 
-    dat = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
+    dat = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
 
     # metadata
     dat.meta.source = metadata_pb2.SIMULATION
@@ -245,15 +245,13 @@ def simulate_csr_on_disc(n_samples=100, radius=1.0, seed=None):
 
     samples = make_csr_on_disc(n_samples=n_samples, radius=radius, seed=seed)
 
-    property_names = []
-    property_names.append('Position_x')
-    property_names.append('Position_y')
+    property_names = ['Position_x', 'Position_y']
 
-    dict = {}
+    dict_ = {}
     for name, data in zip(property_names, samples.T):
-        dict.update({name: data})
+        dict_.update({name: data})
 
-    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
 
     # metadata
     locdata.meta.source = metadata_pb2.SIMULATION
@@ -264,7 +262,7 @@ def simulate_csr_on_disc(n_samples=100, radius=1.0, seed=None):
 
 
 def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
-                shuffle = True, seed = None):
+                shuffle=True, seed=None):
     """
     Generate spots with equally distributed points inside. Centers are spatially-distributed by complete spatial
     randomness within the boundaries given by `feature_range`. The number of dimensions is specified by `n_features`.
@@ -393,7 +391,7 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
 
 
 def simulate_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
-                    shuffle = True, seed = None):
+                    shuffle=True, seed=None):
     """
     Provide a dataset of localizations with coordinates and labels that are spatially-distributed spots with
     homogeneously distributed points inside. Centers are spatially-distributed by complete spatial
@@ -432,7 +430,7 @@ def simulate_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, featu
         np.random.seed(seed)
 
     samples, labels = make_Matern(n_samples=n_samples, n_features=n_features, centers=centers, radius=radius,
-                                  feature_range=feature_range, shuffle = shuffle, seed = seed)
+                                  feature_range=feature_range, shuffle=shuffle, seed=seed)
 
     property_names = []
     for i in range(n_features):
@@ -443,14 +441,14 @@ def simulate_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, featu
         elif i == 2:
             property_names.append('Position_z')
         else:
-            property_names.append(f'Feature_{i-3}')
+            property_names.append(f'Feature_{i - 3}')
 
-    dict = {}
+    dict_ = {}
     for name, data in zip(property_names, samples.T):
-        dict.update({name: data})
-    dict.update({'Cluster_label': labels})
+        dict_.update({name: data})
+    dict_.update({'Cluster_label': labels})
 
-    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
 
     # metadata
     locdata.meta.source = metadata_pb2.SIMULATION
@@ -585,7 +583,7 @@ def make_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feat
 
 
 def simulate_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feature_range=(-10.0, 10.0),
-                    shuffle = True, seed = None):
+                    shuffle=True, seed=None):
     """
     Provide a dataset of localizations with coordinates and labels that are spatially-distributed spots with
     with normally distributed points inside. Centers are spatially-distributed by complete spatial
@@ -624,7 +622,7 @@ def simulate_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, 
         np.random.seed(seed)
 
     samples, labels = make_Thomas(n_samples=n_samples, n_features=n_features, centers=centers, cluster_std=cluster_std,
-                                  feature_range=feature_range, shuffle = shuffle, seed = seed)
+                                  feature_range=feature_range, shuffle=shuffle, seed=seed)
 
     property_names = []
     for i in range(n_features):
@@ -635,14 +633,14 @@ def simulate_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, 
         elif i == 2:
             property_names.append('Position_z')
         else:
-            property_names.append(f'Feature_{i-3}')
+            property_names.append(f'Feature_{i - 3}')
 
-    dict = {}
+    dict_ = {}
     for name, data in zip(property_names, samples.T):
-        dict.update({name: data})
-    dict.update({'Cluster_label': labels})
+        dict_.update({name: data})
+    dict_.update({'Cluster_label': labels})
 
-    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
 
     # metadata
     locdata.meta.source = metadata_pb2.SIMULATION
@@ -652,7 +650,7 @@ def simulate_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, 
     return locdata
 
 
-def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,10000), cluster_std=10, seed=None):
+def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0, 10000), cluster_std=10, seed=None):
     """
     Provide a dataset of localizations with coordinates and labels that are spatially-distributed on a rectangular
     shape.
@@ -689,7 +687,7 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0,1
         np.random.seed(seed)
 
     points, labels = make_blobs(n_samples=n_samples, n_features=n_features, centers=n_centers, cluster_std=cluster_std,
-                                center_box=center_box, random_state = seed)
+                                center_box=center_box, random_state=seed)
 
     if n_features == 1:
         dataframe = pd.DataFrame(np.stack((points[:, 0], labels), axis=-1),
@@ -799,11 +797,11 @@ def simulate_csr_on_region(region, n_samples=100, seed=None):
         elif i == 2:
             property_names.append('Position_z')
 
-    dict = {}
+    dict_ = {}
     for name, data in zip(property_names, samples.T):
-        dict.update({name: data})
+        dict_.update({name: data})
 
-    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict))
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
 
     # metadata
     locdata.meta.source = metadata_pb2.SIMULATION
@@ -814,7 +812,7 @@ def simulate_csr_on_region(region, n_samples=100, seed=None):
 
 
 def _random_walk(number_walks=1, number_steps=10, dimensions=2, diffusion_constant=1, time_step=10):
-    '''
+    """
     Random walk simulation
 
     Parameters
@@ -834,8 +832,7 @@ def _random_walk(number_walks=1, number_steps=10, dimensions=2, diffusion_consta
     -------
     tuple of arrays
         (times, positions), where shape(times) is 1 and shape of positions is (number_walks, number_steps, dimensions)
-    '''
-
+    """
     # equally spaced time steps
     times = np.arange(number_steps) * time_step
 
@@ -850,7 +847,7 @@ def _random_walk(number_walks=1, number_steps=10, dimensions=2, diffusion_consta
     return times, positions
 
 
-def simulate_tracks(number_walks=1, number_steps=10, ranges = ((0,10000),(0,10000)), diffusion_constant=1,
+def simulate_tracks(number_walks=1, number_steps=10, ranges=((0, 10000), (0, 10000)), diffusion_constant=1,
                     time_step=10, seed=None):
     """
     Provide a dataset of localizations representing random walks with starting points being spatially-distributed
@@ -896,7 +893,7 @@ def simulate_tracks(number_walks=1, number_steps=10, ranges = ((0,10000),(0,1000
         for _, position_values, label in zip(ranges, new_positions.T, ('x', 'y', 'z'))
     }
 
-    locdata_dict.update(Frame=np.tile(range(len(times)), (number_walks)))
+    locdata_dict.update(Frame=np.tile(range(len(times)), number_walks))
 
     locdata = LocData.from_dataframe(dataframe=pd.DataFrame(locdata_dict))
 

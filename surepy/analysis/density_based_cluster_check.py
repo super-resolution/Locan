@@ -20,6 +20,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 
+from surepy import LocData
 from surepy.analysis.analysis_base import _Analysis
 from surepy.data.cluster.clustering import clustering_hdbscan, clustering_dbscan
 from surepy.data.filter import random_subset
@@ -28,7 +29,7 @@ from surepy.data.hulls import Convex_hull_scipy
 
 #### The algorithms
 
-def _analyze(locdata, algorithm=clustering_hdbscan, algo_parameter={}, hull='bb'):
+def _density_based_cluster_check_parameter_for_single_dataset(locdata, algorithm=clustering_hdbscan, algo_parameter={}, hull='bb'):
     """
     Compute localization density, relative area coverage by the clusters (eta), average density of localizations
     within apparent clusters (rho) for a single localization dataset.
@@ -83,27 +84,30 @@ def _analyze(locdata, algorithm=clustering_hdbscan, algo_parameter={}, hull='bb'
     return localization_density, eta, rho
 
 
-def _check_cluster(locdata, meta=None, algorithm=clustering_hdbscan, algo_parameter={}, hull='bb', bins=10,
-                   divide='random'):
-
+def _density_based_cluster_check(locdata, meta=None, algorithm=clustering_hdbscan, algo_parameter={}, hull='bb',
+                                 bins=10, divide='random'):
+    """
+    Compute localization density, relative area coverage by the clusters (eta), average density of localizations
+    within apparent clusters (rho) for the sequence of divided localization datasets.
+    """
     numbers_loc = np.round( len(locdata) / (np.arange(bins) + 1))
     numbers_loc = np.flip(numbers_loc).astype(int)
 
     # take random subsets of localizations
-    # todo: maybe add sequential subsets
     if divide == 'random':
         locdatas = [random_subset(locdata, number_points=n_pts) for n_pts in numbers_loc]
     elif divide == 'sequential':
-        locdatas = [random_subset(locdata, number_points=n_pts) for n_pts in numbers_loc] # fix
+        locdatas = [LocData.from_selection(locdata, indices=range(n_pts)) for n_pts in numbers_loc]
     else:
         raise TypeError(f'String input for divide {divide} is not valid.')
 
-    results_ = [_analyze(locd, algorithm=algorithm, algo_parameter=algo_parameter, hull=hull)
+    results_ = [_density_based_cluster_check_parameter_for_single_dataset(locd, algorithm=algorithm, algo_parameter=algo_parameter, hull=hull)
                 for locd in locdatas]
 
     results = pd.DataFrame(data = results_,
                            columns=['localization_density', 'eta', 'rho'])
     return results
+
 
 def _normalize_rho(results):
     pass
@@ -163,7 +167,7 @@ class DensityBasedClusterCheck(_Analysis):
 
     def compute(self):
         #self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_k_data': ripley})
-        self.results = _check_cluster(self.locdata, **self.parameter)
+        self.results = _density_based_cluster_check(self.locdata, **self.parameter)
         return self
 
 

@@ -3,7 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from surepy import LocData
 from surepy.simulation import make_csr, simulate_csr, make_csr_on_disc, make_csr_on_region, make_Matern, make_Thomas, \
-    simulate_csr_on_disc, simulate_csr_on_region, simulate_Matern, simulate_Thomas, simulate_blobs, \
+    make_Thomas_on_region, simulate_Thomas_on_region, simulate_csr_on_disc, simulate_csr_on_region, \
+    simulate_Matern, simulate_Thomas, simulate_blobs, \
     resample, simulate_tracks, simulate_csr_
 
 
@@ -130,6 +131,8 @@ def test_make_csr_on_region():
     region_dict = dict(region_type='polygon', region_specs=((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
     samples = make_csr_on_region(region_dict, n_samples=1000, seed=None)
     assert len(samples) == 1000
+    samples = make_csr_on_region(region_dict, n_samples=2, seed=None)
+    assert len(samples) == 2
     # todo add tests for other regions and 3D case
     # fig, ax = plt.subplots(nrows=1, ncols=1)
     # plt.scatter(samples[:,0], samples[:,1])
@@ -142,6 +145,46 @@ def test_simulate_csr_on_region():
     dat = simulate_csr_on_region(region_dict, n_samples=100, seed=None)
     assert all(dat.data.columns == ['Position_x', 'Position_y'])
 
+
+def test_make_Thomas_on_region():
+    region_dict = dict(region_type='polygon', region_specs=((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
+    samples, labels = make_Thomas_on_region(region=region_dict)
+    assert len(samples) == 100
+    assert max(labels) + 1 == 3
+    samples, labels = make_Thomas_on_region(region=region_dict, n_samples=10, centers=None, cluster_std=1.0,
+                                            shuffle = True, seed = None)
+    assert len(samples) == 10
+    assert max(labels) + 1 == 3
+    samples, labels = make_Thomas_on_region(region=region_dict, n_samples=10, centers=5, cluster_std=10,
+                                            shuffle = True, seed = None)
+    assert len(samples) == 10
+    assert max(labels) + 1 == 5
+    samples, labels = make_Thomas_on_region(region=region_dict, n_samples=(1,2,3), centers=None, cluster_std=10,
+                                            shuffle = True, seed = None)
+    assert len(samples) == 6
+    assert max(labels) + 1 == 3
+    samples, labels = make_Thomas_on_region(region=region_dict, n_samples=(1,2,3),
+                                            centers=((1, 1), (10, 10), (100, 100)),
+                                            cluster_std=(1, 10, 100),
+                                            shuffle = True, seed = None)
+    assert len(samples) == 6
+    assert max(labels) + 1 == 3
+    samples, labels = make_Thomas_on_region(region=region_dict, n_samples=10, shuffle = False)
+    assert len(samples) == 10
+
+    # fig, ax = plt.subplots(nrows=1, ncols=1)
+    # plt.scatter(samples[:,0], samples[:,1])
+    # ax.axis('equal')
+    # plt.show()
+
+
+def test_simulate_Thomas_on_region():
+    region_dict = dict(region_type='polygon', region_specs=((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
+    dat = simulate_Thomas_on_region(region_dict, n_samples=1000, centers=5, cluster_std=0.1, seed=None)
+    assert all(dat.data.columns == ['Position_x', 'Position_y'])
+
+    # dat.data.plot(x='Position_x', y='Position_y', kind='scatter')
+    # plt.show()
 
 ##########################
 def test_simulate_csr_():

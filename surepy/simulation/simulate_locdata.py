@@ -747,7 +747,7 @@ def make_csr_on_region(region, n_samples=100, seed=None):
 
     n_remaining = n_samples
     samples = []
-    while n_remaining > 1:
+    while n_remaining > 0:
         new_samples = np.random.rand(n_samples, region_.dimension)
         for i, (low, high) in enumerate(bounding_box):
             if low < high:
@@ -787,6 +787,167 @@ def simulate_csr_on_region(region, n_samples=100, seed=None):
     parameter = locals()
 
     samples = make_csr_on_region(region=region, n_samples=n_samples, seed=seed)
+
+    property_names = []
+    for i in range(np.shape(samples)[-1]):
+        if i == 0:
+            property_names.append('Position_x')
+        elif i == 1:
+            property_names.append('Position_y')
+        elif i == 2:
+            property_names.append('Position_z')
+
+    dict_ = {}
+    for name, data in zip(property_names, samples.T):
+        dict_.update({name: data})
+
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
+
+    # metadata
+    locdata.meta.source = metadata_pb2.SIMULATION
+    del locdata.meta.history[:]
+    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+
+    return locdata
+
+
+def make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
+                          shuffle=True, seed=None):
+    """
+    Provide points that are spatially-distributed spots
+    with normally distributed points inside. Centers are spatially-distributed by complete spatial
+    randomness within the region. The number of dimensions also called `n_features` is given by the `region` dimensions.
+
+    Parameters
+    ----------
+    region : RoiRegion Object, or dict
+        Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
+        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
+    n_samples : int or array-like
+        If int, it is the total number of points equally divided among clusters.
+        If array-like, each element of the sequence indicates the number of samples per cluster.
+    centers : int or array of shape [n_centers, n_features]
+        The number of centers to generate, or the fixed center locations.
+        If centers is an array, n_features is taken from centers shape.
+        If n_samples is an int and centers is None, 3 centers are generated.
+        If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
+    cluster_std : float or sequence of floats
+        The standard deviation for the spots. If sequence, the number of elements must be equal to the number of centers.
+    feature_range : pair of floats (min, max) or sequence of pair of floats
+        The bounding box for each cluster center when centers are
+        generated at random. If sequence the number of elements must be equal to n_features.
+    shuffle : boolean
+        Shuffle the samples.
+    seed : int
+        random number generation seed
+
+    Returns
+    -------
+    array of shape [n_samples, 2]
+       The generated samples.
+    """
+    if isinstance(region, dict):
+        region_ = RoiRegion(region_specs=region['region_specs'], region_type=region['region_type'])
+    else:
+        region_ = region
+
+    if isinstance(n_samples, (int, np.integer)):
+        # Set n_centers by looking at centers arg
+        if centers is None:
+            centers = 3
+
+        if isinstance(centers, (int, np.integer)):
+            n_centers = centers
+            centers = make_csr_on_region(region=region, n_samples=n_centers, seed=seed)
+        else:  # if centers is array
+            if region_.dimension != np.shape(centers)[1]:
+                raise ValueError(f'Region dimensions must be the same as the dimensions for each center. '
+                                 f'Got region dimension: {region_.dimension} and '
+                                 f'center dimensions: {np.shape(centers)[1]} instead.')
+            n_centers = np.shape(centers)[0]
+            # todo add check if centers in region else raise ValueError
+
+    else:  # if n_samples is array
+        n_centers = len(n_samples)  # Set n_centers by looking at [n_samples] arg
+        if centers is None:
+            centers = make_csr_on_region(region=region, n_samples=n_centers, seed=seed)
+        elif isinstance(centers, (int, np.integer)):
+            if centers != len(n_samples):
+                raise ValueError(f"Length of `n_samples` not consistent"
+                                 f" with number of centers. Got length of n_samples = {n_centers} "
+                                 f"and centers = {centers}")
+            centers = make_csr_on_region(region=region, n_samples=centers, seed=seed)
+        else:  # if centers is array
+            try:
+                assert len(centers) == n_centers
+            except TypeError:
+                raise ValueError(f"Parameter `centers` must be array-like or None. "
+                                 f"Got {centers} instead")
+            except AssertionError:
+                raise ValueError(f"Length of `n_samples` not consistent"
+                                 f" with number of centers. Got length of n_samples = {n_centers} "
+                                 f"and number of centers = {len(centers)}")
+            if region_.dimension != np.shape(centers)[1]:
+                raise ValueError(f'Region dimensions must be the same as the dimensions for each center. '
+                                 f'Got Region dimensions: {region_.dimension} and '
+                                 f'center dimensions: {centers.shape[1]} instead.')
+
+        # set n_samples_per_center
+    if isinstance(n_samples, (int, np.integer)):
+        n_samples_per_center = [int(n_samples // n_centers)] * n_centers
+        for i in range(n_samples % n_centers):
+            n_samples_per_center[i] += 1
+    else:
+        n_samples_per_center = n_samples
+
+    samples, labels = make_Thomas(n_samples=n_samples_per_center, n_features=region_.dimension, centers=centers,
+                                  cluster_std=cluster_std, shuffle=shuffle, seed=seed)
+
+    return samples, labels
+
+
+def simulate_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
+                              shuffle=True, seed=None):
+    """
+    Provide a dataset of localizations with coordinates and labels that are spatially-distributed spots
+    with normally distributed points inside. Centers are spatially-distributed by complete spatial
+    randomness within the region. The number of dimensions also called `n_features` is given by the `region` dimensions.
+
+    Parameters
+    ----------
+    region : RoiRegion Object, or dict
+        Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
+        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
+    n_samples : int or array-like
+        If int, it is the total number of points equally divided among clusters.
+        If array-like, each element of the sequence indicates the number of samples per cluster.
+    centers : int or array of shape [n_centers, n_features]
+        The number of centers to generate, or the fixed center locations.
+        If centers is an array, n_features is taken from centers shape.
+        If n_samples is an int and centers is None, 3 centers are generated.
+        If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
+    cluster_std : float or sequence of floats
+        The standard deviation for the spots. If sequence, the number of elements must be equal to the number of centers.
+    feature_range : pair of floats (min, max) or sequence of pair of floats
+        The bounding box for each cluster center when centers are
+        generated at random. If sequence the number of elements must be equal to n_features.
+    shuffle : boolean
+        Shuffle the samples.
+    seed : int
+        random number generation seed
+
+    Returns
+    -------
+    LocData
+        A new LocData instance with localization data.
+    """
+    parameter = locals()
+
+    make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
+                          shuffle=True, seed=None)
+
+    samples, labels = make_Thomas_on_region(region=region, n_samples=n_samples, centers=centers,
+                                            cluster_std=cluster_std, shuffle=shuffle, seed=seed)
 
     property_names = []
     for i in range(np.shape(samples)[-1]):

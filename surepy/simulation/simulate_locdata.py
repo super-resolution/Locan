@@ -943,9 +943,6 @@ def simulate_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1
     """
     parameter = locals()
 
-    make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
-                          shuffle=True, seed=None)
-
     samples, labels = make_Thomas_on_region(region=region, n_samples=n_samples, centers=centers,
                                             cluster_std=cluster_std, shuffle=shuffle, seed=seed)
 

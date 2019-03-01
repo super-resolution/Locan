@@ -24,9 +24,9 @@ def test_link_locdata(locdata_simple):
 
 
 def test_track(locdata_simple):
-    locdata_new = track(locdata_simple, search_range=5)
+    locdata_new, track_series = track(locdata_simple, search_range=5)
     #print(locdata_new.data)
     assert (len(locdata_new) == 5)
-    locdata_new = track(locdata_simple, search_range=5, memory=5)
+    locdata_new, track_series = track(locdata_simple, search_range=5, memory=5)
     #print(locdata_new.data)
     assert (len(locdata_new) == 4)

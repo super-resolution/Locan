@@ -72,8 +72,9 @@ def track(locdata, search_range=40, memory=0, **kwargs):
 
     Returns
     -------
-    Locdata
+    Locdata, pandas Series
         A new LocData instance assembling all generated selections (i.e. localization cluster).
+        A series named 'Track' referring to the track number.
     """
     parameter = locals()
 
@@ -86,4 +87,4 @@ def track(locdata, search_range=40, memory=0, **kwargs):
     del locdata.meta.history[:]
     locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 
-    return collection
+    return collection, track_series

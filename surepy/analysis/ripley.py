@@ -5,15 +5,15 @@ Compute Ripley's k function.
 Spatial clustering of localization data is characterized by Ripley's k or related functions. We follow the definition
 of l and h functions in [2]_.
 
-Ripley's k function is computed for 2D and 3D data as described in (2) in order to provide evidence for deviations from
-a spatial homogeneous Poisson process (i.e. complete spatial randomness, CSR).
-Ripley' s k function is estimated by summing over test points being a random subset of all points:
+Ripley's k function is computed for 2D and 3D data for a series of radii as described in (2) in order to provide
+evidence for deviations from a spatial homogeneous Poisson process (i.e. complete spatial randomness, CSR).
+Ripley' s k function is estimated by summing all points or over test points being a random subset of all points:
 
 k (r)=1/(\[Lambda] (n-1)) \!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(i\), \(n\)]\(
 \*SubscriptBox[\(N\), \(pi\)] \((r)\)\)\)
 
-here pi is the ith point of n test points, Subscript[N, pi] is the number of points within the region of radius r
+here p_i is the ith point of n test points, Subscript[N, pi] is the number of points within the region of radius r
 around pi, and \[Lambda] is the density of all points.
 
 Ripley's l function is:
@@ -25,9 +25,6 @@ And Ripley's h function is:
 
 h(r)=l(r)-r
 
-Ripley's h function is computed for a series of radii (rangin from min distance to max dinstance by distance step) and
-from a limited number of test localizations (No test localizations) randomly chosen from the list of localizations in
-the chosen selection.
 
 References
 ----------
@@ -303,8 +300,8 @@ class Ripleys_h_function(_Analysis):
 ##### Interface functions
 
 
-def plot(self, ax=None, show=True):
-    '''
+def plot(self, ax=None, show=True, **kwargs):
+    """
     Provide plot of results as matplotlib axes object.
 
     Parameters
@@ -313,13 +310,16 @@ def plot(self, ax=None, show=True):
         The axes on which to show the image
     show : bool
         Flag indicating if plt.show() is active.
+
+    Other Parameters
+    ----------------
     kwargs : dict
-        Other parameters passed to matplotlib.pyplot.plot().
-    '''
+        Parameters passed to `matplotlib.pyplot.plot()`.
+    """
     if ax is None:
         fig, ax = plt.subplots(nrows=1, ncols=1)
 
-    self.results.plot(x='radius', ax=ax)
+    self.results.plot(x='radius', ax=ax, **kwargs)
 
     if self.results.columns[0] == 'Ripley_k_data':
         title = 'Ripley\'s K function'

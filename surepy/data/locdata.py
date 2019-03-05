@@ -301,6 +301,19 @@ class LocData:
         """
 
         dataframe = pd.concat([i.data for i in locdatas], ignore_index=True, sort=False)
+
+        # concatenate references also if None
+        references = []
+        for locdata in locdatas:
+            try:
+                references.extend(locdata.references)
+            except TypeError:
+                references.append(locdata.references)
+
+        # check if all eleements are None
+        if not any(references):
+            references = None
+
         meta_ = metadata_pb2.Metadata()
 
         meta_.creation_date = int(time.time())
@@ -317,7 +330,7 @@ class LocData:
         else:
             meta_.MergeFrom(meta)
 
-        return cls(dataframe=dataframe, meta=meta_)
+        return cls(references=references, dataframe=dataframe, meta=meta_)
 
 
     @property

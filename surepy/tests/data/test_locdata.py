@@ -154,6 +154,14 @@ def test_LocData_concat(df_simple):
     col = LocData.concat([sel_1, sel_2], meta=COMMENT_METADATA)
     assert (len(col) == 5)
     assert (col.meta.comment == COMMENT_METADATA.comment)
+    assert len(col.references) == 2
+    sel_1.reduce()
+    col = LocData.concat([sel_1, sel_2], meta=COMMENT_METADATA)
+    assert len(col.references) == 2
+    sel_1.reduce()
+    sel_2.reduce()
+    col = LocData.concat([sel_1, sel_2], meta=COMMENT_METADATA)
+    assert col.references is None
 
 
 def test_LocData_reduce(df_simple):

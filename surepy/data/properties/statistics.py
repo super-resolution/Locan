@@ -14,10 +14,10 @@ def statistics(locdata, statistic_keys = ('count', 'min', 'max', 'mean', 'median
 
     Parameters
     ----------
-    locdata : LocData or Pandas DataFrame
+    locdata : LocData, Pandas DataFrame or Pandas Series
         Localization data
 
-    statistic_keys : tuple of strings
+    statistic_keys : str or tuple of strings
         Pandas statistic functions. Default: ('count', 'min', 'max', 'mean', 'median', 'std', 'sem')
 
     Returns
@@ -28,17 +28,25 @@ def statistics(locdata, statistic_keys = ('count', 'min', 'max', 'mean', 'median
 
     if isinstance(locdata, LocData):
         data = locdata.data
-    elif isinstance(locdata, pd.DataFrame):
+    elif isinstance(locdata, (pd.DataFrame, pd.Series)):
         data = locdata
     else:
         raise TypeError('locdata should be of type Locdata or Pandas.DataFrame.')
 
     statistics = data.agg(statistic_keys)
-    if isinstance(statistic_keys, str):
-        generator = (p for p in list(data))
-        dict = {p + '_' + statistic_keys: statistics[p] for p in generator}
+
+    if isinstance(locdata, pd.Series):
+        p = data.name
+        if isinstance(statistic_keys, str):
+            dict = {p + '_' + statistic_keys: statistics}
+        else:
+            dict = {p + '_' + s: statistics[s] for s in statistic_keys}
     else:
-        generator = ((p, s) for p in list(data) for s in statistic_keys)
-        dict = {p + '_' + s: statistics[p][s] for p, s in generator}
+        if isinstance(statistic_keys, str):
+            generator = (p for p in list(data))
+            dict = {p + '_' + statistic_keys: statistics[p] for p in generator}
+        else:
+            generator = ((p, s) for p in list(data) for s in statistic_keys)
+            dict = {p + '_' + s: statistics[p][s] for p, s in generator}
 
     return dict

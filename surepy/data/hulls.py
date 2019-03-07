@@ -7,6 +7,8 @@ This module computes specific hulls and related properties for LocData objects.
 """
 
 import numpy as np
+from scipy.spatial import ConvexHull
+from shapely.geometry import MultiPoint
 
 from surepy.data.region import RoiRegion
 
@@ -85,8 +87,8 @@ class Bounding_box():
 
     @property
     def region(self):
-        reg = RoiRegion(region_type='rectangle', region_specs= (self.hull[0], self.width[0], self.width[1], 0))
-        return reg
+        region_ = RoiRegion(region_type='rectangle', region_specs= (self.hull[0], self.width[0], self.width[1], 0))
+        return region_
 
 
 class Convex_hull_scipy():
@@ -116,7 +118,6 @@ class Convex_hull_scipy():
         hull measure, i.e. area or volume
     subregion_measure : float
         measure of the sub-dimensional region, i.e. circumference or surface
-
     """
 
     def __init__(self, points):
@@ -125,7 +126,6 @@ class Convex_hull_scipy():
             if len(unique_points) < 3:
                 raise TypeError('Convex_hull needs at least 3 different points as input.')
 
-        from scipy.spatial import ConvexHull
         self.dimension = np.shape(points)[1]
         self.hull = ConvexHull(points)
         self.vertex_indices = self.hull.vertices
@@ -137,6 +137,12 @@ class Convex_hull_scipy():
     @property
     def vertices(self):
         return self.hull.points[self.hull.vertices]
+
+    @property
+    def region(self):
+        closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
+        region_ = RoiRegion(region_type='polygon', region_specs= closed_vertices)
+        return region_
 
 
 class Convex_hull_shapely():
@@ -175,9 +181,8 @@ class Convex_hull_shapely():
         if self.dimension >= 3:
             raise TypeError('Convex_hull_shapely only takes 1 or 2-dimensional points as input.')
 
-        from shapely.geometry import MultiPoint
-
         self.hull = MultiPoint(points).convex_hull
+        # todo: set vertex_indices
         # self.vertex_indices = None
         self.points_on_boundary = len(self.hull.exterior.coords)-1  # the first point is repeated in exterior.coords
         self.points_on_boundary_rel = self.points_on_boundary / len(points)
@@ -187,6 +192,12 @@ class Convex_hull_shapely():
     @property
     def vertices(self):
         return np.array(self.hull.exterior.coords)
+
+    @property
+    def region(self):
+        closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
+        region_ = RoiRegion(region_type='polygon', region_specs= closed_vertices)
+        return region_
 
 
 class Oriented_bounding_box_shapely():
@@ -212,7 +223,6 @@ class Oriented_bounding_box_shapely():
         hull measure, i.e. area or volume
     subregion_measure : float
         measure of the sub-dimensional region, i.e. circumference or surface
-
     """
 
     def __init__(self, points):
@@ -231,3 +241,10 @@ class Oriented_bounding_box_shapely():
     @property
     def vertices(self):
         return np.array(self.hull.exterior.coords)
+
+    # todo: compute angle
+    # @property
+    # def region(self):
+    #     angle =
+    #     region_ = RoiRegion(region_type='rectangle', region_specs= (self.hull[0], self.width[0], self.width[1], 0))
+    #     return region_

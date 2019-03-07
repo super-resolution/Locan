@@ -78,6 +78,11 @@ def test_RoiRegion(points):
     assert rr.subregion_measure == 3.618033988749895
 
 
+def test_RoiRegion_RoiPolygon_error():
+    with pytest.raises(ValueError):
+        rr = RoiRegion(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5)))
+
+
 # This test is just for visualization
 # def test_show_regions_as_artist(points):
 #     roiI = Roi(reference=locdata, region_specs=(0, 0), region_type='interval')

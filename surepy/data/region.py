@@ -334,7 +334,7 @@ class _RoiEllipse:
 class _RoiPolygon:
 
     def __init__(self, region_specs):
-        if region_specs[0] != region_specs[-1]:
+        if not np.all(region_specs[0] == region_specs[-1]):
             raise ValueError('First and last element of polygon must be identical.')
         else:
             self.region_specs = region_specs

@@ -36,6 +36,8 @@ class Hull():
         hull measure, i.e. area or volume
     subregion_measure : float
         measure of the sub-dimensional region, i.e. circumference or surface
+    region : RoiRegion
+        Convert the hull to a RoiRegion object.
     """
 
     def __init__(self, points):
@@ -71,7 +73,8 @@ class Bounding_box():
         Hull measure, i.e. area or volume
     subregion_measure : float
         Measure of the sub-dimensional region, i.e. circumference or surface
-
+    region : RoiRegion
+        Convert the hull to a RoiRegion object.
     """
 
     def __init__(self, points):
@@ -118,6 +121,8 @@ class Convex_hull_scipy():
         hull measure, i.e. area or volume
     subregion_measure : float
         measure of the sub-dimensional region, i.e. circumference or surface
+    region : RoiRegion
+        Convert the hull to a RoiRegion object.
     """
 
     def __init__(self, points):
@@ -172,7 +177,8 @@ class Convex_hull_shapely():
         hull measure, i.e. area or volume
     subregion_measure : float
         measure of the sub-dimensional region, i.e. circumference or surface
-
+    region : RoiRegion
+        Convert the hull to a RoiRegion object.
     """
 
     def __init__(self, points):
@@ -223,6 +229,8 @@ class Oriented_bounding_box_shapely():
         hull measure, i.e. area or volume
     subregion_measure : float
         measure of the sub-dimensional region, i.e. circumference or surface
+    region : RoiRegion
+        Convert the hull to a RoiRegion object.
     """
 
     def __init__(self, points):

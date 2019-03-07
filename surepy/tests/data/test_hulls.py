@@ -17,12 +17,13 @@ def locdata_simple():
 def test_Bounding_box(locdata_simple):
     true_hull = np.array([[0, 0], [5, 4]])
     H = Bounding_box(locdata_simple.coordinates)
-    print(locdata_simple.properties['Region_measure_bb'])
-    print(H.region_measure)
+    # print(locdata_simple.properties['Region_measure_bb'])
+    # print(H.region_measure)
     # print(H.width)
     assert(H.region_measure == 20)
     assert(H.subregion_measure == 18)
     np.testing.assert_array_equal(H.hull, true_hull)
+    assert H.region.region_measure == 20
 
 
 def test_Convex_hull_scipy(locdata_simple):

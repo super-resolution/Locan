@@ -54,7 +54,7 @@ class LocData:
         The available coordinate properties.
 
     region : RoiRegion object
-        Object representing the region supporting all localizations.
+        Object representing the region that supports all localizations.
     bounding_box : Hull object
         Object representing the axis-aligned minimal bounding box.
     oriented_bounding_box : Hull object

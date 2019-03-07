@@ -8,6 +8,9 @@ This module computes specific hulls and related properties for LocData objects.
 
 import numpy as np
 
+from surepy.data.region import RoiRegion
+
+
 class Hull():
     """
     Abstract class for the hull of a selection
@@ -40,6 +43,7 @@ class Hull():
         self.width = None
         self.region_measure = None
         self.subregion_measure = None
+        self.region = None
 
 
 class Bounding_box():
@@ -78,6 +82,11 @@ class Bounding_box():
     @property
     def vertices(self):
         return self.hull.T
+
+    @property
+    def region(self):
+        reg = RoiRegion(region_type='rectangle', region_specs= (self.hull[0], self.width[0], self.width[1], 0))
+        return reg
 
 
 class Convex_hull_scipy():

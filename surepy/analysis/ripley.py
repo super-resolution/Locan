@@ -112,7 +112,7 @@ class Ripleys_k_function(_Analysis):
         Localization data with 2D or 3D coordinates on which to estimate Ripley's K function.
     radii: array of float
         Radii at which to compute Ripley's k function.
-    region_measure : float or 'auto'
+    region_measure : float or 'bb'
         Region measure (area or volume) for point region. For 'bb' the region measure of the bounding_box is used.
     other_locdata : LocData object
         Other localization data from which to estimate Ripley's K function (e.g. subset of points).
@@ -171,7 +171,7 @@ class Ripleys_l_function(_Analysis):
         Localization data with 2D or 3D coordinates on which to estimate Ripley's K function.
     radii: array of float
         Radii at which to compute Ripley's k function.
-    region_measure : float or 'auto'
+    region_measure : float or 'bb'
         Region measure (area or volume) for point region. For 'bb' the region measure of the bounding_box is used.
     other_locdata : LocData object
         Other localization data from which to estimate Ripley's K function (e.g. subset of points).
@@ -229,7 +229,7 @@ class Ripleys_h_function(_Analysis):
         Localization data with 2D or 3D coordinates on which to estimate Ripley's K function.
     radii: array of float
         Radii at which to compute Ripley's k function.
-    region_measure : float or 'auto'
+    region_measure : float or 'bb'
         Region measure (area or volume) for point region. For 'bb' the region measure of the bounding_box is used.
     other_locdata : LocData object
         Other localization data from which to estimate Ripley's K function (e.g. subset of points).

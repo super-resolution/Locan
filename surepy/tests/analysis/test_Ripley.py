@@ -55,9 +55,4 @@ def test_Ripleys_h_function(locdata_blobs):
     assert (len(rhf.Ripley_h_maximum)==2)
     #rhf.plot()
 
-def test_Ripleys_region_measure(locdata_blobs):
-    print(locdata_blobs.meta)
-    print(locdata_blobs.region)
-    print(locdata_blobs.bounding_box.region_measure)
-
 

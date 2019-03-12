@@ -6,8 +6,9 @@ from surepy import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
 import surepy.tests.test_data
-# from surepy.analysis import ClusterCheck
-from surepy.analysis.density_based_cluster_check import _density_based_cluster_check, _density_based_cluster_check_parameter_for_single_dataset, DensityBasedClusterCheck
+from surepy.analysis import AccumulationClusterCheck
+from surepy.analysis.accumulation_analysis import _accumulation_cluster_check, \
+    _accumulation_cluster_check_for_single_dataset
 
 @pytest.fixture()
 def locdata_blobs():
@@ -18,39 +19,36 @@ def locdata_blobs_3D():
     return io.load_txt_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/five_blobs_3D.txt')
 
 
-def test__density_based_cluster_check_parameter_for_single_dataset(locdata_blobs):
-    res = _density_based_cluster_check_parameter_for_single_dataset(locdata_blobs, hull='bb')
+def test___accumulation_cluster_check_for_single_dataset(locdata_blobs):
+    res = _accumulation_cluster_check_for_single_dataset(locdata_blobs,
+                                                         region_measure=locdata_blobs.bounding_box.region_measure,
+                                                         hull='bb')
     assert len(res) == 3
-    # print(res)
-    res = _density_based_cluster_check_parameter_for_single_dataset(locdata_blobs, hull='ch')
+    res = _accumulation_cluster_check_for_single_dataset(locdata_blobs,
+                                                         region_measure=locdata_blobs.bounding_box.region_measure,
+                                                         hull='ch')
     assert len(res) == 3
-    # print(res)
 
 
-def test__density_based_cluster_check_(locdata_blobs):
-    results = _density_based_cluster_check(locdata_blobs, bins=3, hull='bb', divide='sequential')
-    assert all(results.columns == ['localization_density', 'eta', 'rho'])
-    print(results)
+def test__accumulation_cluster_check(locdata_blobs):
+    results = _accumulation_cluster_check(locdata_blobs)
+    assert len(results.columns) == 5
+
+    results = _accumulation_cluster_check(locdata_blobs, n_loc=3, hull='bb', divide='sequential')
+    assert len(results.columns) == 5
+
+    results = _accumulation_cluster_check(locdata_blobs, n_loc=3, hull='ch', divide='sequential')
+    assert len(results.columns) == 5
+
+    results = _accumulation_cluster_check(locdata_blobs, region_measure=100, n_loc=3, divide='sequential')
+    assert len(results.columns) == 5
+
+    results = _accumulation_cluster_check(locdata_blobs, n_loc=[20, 30], divide='sequential')
+    assert len(results.columns) == 5
 
 
-def test__density_based_cluster_check(locdata_blobs):
-    results = _density_based_cluster_check(locdata_blobs, bins=3, hull='bb', divide='sequential')
-    assert all(results.columns == ['localization_density', 'eta', 'rho'])
-
-    results = _density_based_cluster_check(locdata_blobs, bins=3, hull='bb')
-    assert all(results.columns == ['localization_density', 'eta', 'rho'])
-    print(results)
-
-    results = _density_based_cluster_check(locdata_blobs, bins=3, hull='ch')
-    assert all(results.columns == ['localization_density', 'eta', 'rho'])
-    print(results)
-
-    results = _density_based_cluster_check(locdata_blobs, bins=3, hull='bb', divide='sequential')
-    assert all(results.columns == ['localization_density', 'eta', 'rho'])
-    print(results)
-
-def test_DensityBasedClusterCheck(locdata_blobs):
-    dbcc = DensityBasedClusterCheck(locdata_blobs, algo_parameter=dict(min_cluster_size=3, allow_single_cluster=False),
-                                    bins=3, hull='bb').compute()
-    print(dbcc.results)
-    dbcc.plot()
+def test_AccumulationClusterCheck(locdata_blobs):
+    acc = AccumulationClusterCheck(locdata_blobs, algo_parameter=dict(min_cluster_size=3, allow_single_cluster=False),
+                                    n_loc=5).compute()
+    assert len(acc.results.columns) == 5
+    acc.plot(show=False)

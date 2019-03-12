@@ -32,4 +32,4 @@ from surepy.analysis.pipeline import Pipeline
 from surepy.analysis.ripley import Ripleys_k_function, Ripleys_l_function, Ripleys_h_function
 from surepy.analysis.uncertainty import Localization_uncertainty_from_intensity
 from surepy.analysis.cbc import Coordinate_based_colocalization
-from surepy.analysis.density_based_cluster_check import DensityBasedClusterCheck
+from surepy.analysis.accumulation_analysis import AccumulationClusterCheck

@@ -13,7 +13,8 @@ import pandas as pd
 
 from surepy import LocData
 import surepy.data.hulls
-from surepy.simulation import simulate_csr
+from surepy.data.region import RoiRegion
+from surepy.simulation import simulate_csr, simulate_csr_on_region
 from surepy.data.metadata_utils import _modify_meta
 
 
@@ -103,8 +104,11 @@ def randomize(locdata, hull_region='bb'):
     ----------
     locdata : LocData object
         Localization data to be randomized
-    hull_region : str
-        One of 'bb', 'ch', 'as', 'obb' referring to the corresponding hull.
+    hull_region : str, RoiRegion Object, or dict
+        Region of interest as specified by a hull or a `RoiRegion` or dictionary with keys `region_specs` and
+        `region_type`.
+        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
+        String identifier can be one of 'bb', 'ch', 'as', 'obb' referring to the corresponding hull.
 
     Returns
     -------
@@ -120,14 +124,9 @@ def randomize(locdata, hull_region='bb'):
             locdata.bounding_box = surepy.data.hulls.Bounding_box(locdata.coordinates)
             ranges = locdata.bounding_box.hull.T
 
-        if len(ranges)==2:
-            new_locdata = simulate_csr(n_samples=len(locdata), x_range=ranges[0], y_range=ranges[1])
-        elif len(ranges)==3:
-            new_locdata = simulate_csr(n_samples=len(locdata), x_range=ranges[0], y_range=ranges[1], z_range=ranges[2])
-        else:
-            raise TypeError()
+        new_locdata = simulate_csr(n_samples=len(locdata), n_features=len(ranges), feature_range=ranges)
 
-    # todo: implement simulate_csr on various polygon regions
+    # todo: implement simulate_csr on various hull regions
     # if hull_region is 'ch':
     #
     #     n = len(locdata)
@@ -143,6 +142,14 @@ def randomize(locdata, hull_region='bb'):
     #     new_coordinates = np.random.random((n, dim)) * width + min_coordinates
     #
     #     new_locdata = simulate_csr(n_samples=len(locdata), x_range=)
+
+    elif isinstance(hull_region, (RoiRegion, dict)):
+        if isinstance(hull_region, dict):
+            region_ = RoiRegion(region_specs=hull_region['region_specs'], region_type=hull_region['region_type'])
+        else:
+            region_ = hull_region
+
+        new_locdata = simulate_csr_on_region(region_, n_samples=len(locdata))
 
     else:
         raise NotImplementedError

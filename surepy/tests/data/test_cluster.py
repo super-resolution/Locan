@@ -1,6 +1,8 @@
 import pytest
 from pathlib import Path
 
+import pandas as pd
+
 from surepy.constants import ROOT_DIR
 from surepy.io.io_locdata import load_txt_file
 from surepy.data.cluster.clustering import clustering_hdbscan, clustering_dbscan
@@ -26,14 +28,21 @@ def locdata_3D():
 def test_clustering_hdbscan(locdata):
     #print(locdata.data.head())
     clust = clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = False)
-    #print(clust.data.head())
+    print(clust.data.head())
     assert (len(clust) == 5)
+    assert clust.data['Subregion_measure_bb'].name == 'Subregion_measure_bb'
+    assert isinstance(clust.data['Localization_count'], pd.Series)
+
+    clust.dataframe = clust.dataframe.assign(Test_column=range(5))
+    assert isinstance(clust.data['Test_column'], pd.Series)
+
 
 def test_clustering_hdbscan_with_noise(locdata):
     #print(locdata.data.head())
-    clust = clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = False, noise=True)
-    #print(clust.data.head())
-    assert (len(clust) == 2)
+    noise, clust = clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = False, noise=True)
+    print(clust.data.head())
+    print(noise.meta)
+    #assert (len(clust) == 2)
 
 def test_clustering_hdbscan_3D(locdata_3D):
     #print(locdata.data.head())

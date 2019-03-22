@@ -117,7 +117,7 @@ class LocData:
         # property for bounding box measures
         if len(self.data.index) > 1:
             try:
-                self.bounding_box = surepy.data.hulls.Bounding_box(self.coordinates)
+                self.bounding_box = surepy.data.hulls.BoundingBox(self.coordinates)
                 if self.bounding_box.region_measure:
                     self.properties['Region_measure_bb'] = self.bounding_box.region_measure
                     self.properties['Localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure

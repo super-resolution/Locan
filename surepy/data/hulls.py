@@ -7,7 +7,7 @@ This module computes specific hulls and related properties for LocData objects.
 """
 
 import numpy as np
-from scipy.spatial import ConvexHull
+import scipy.spatial as spat
 from shapely.geometry import MultiPoint
 
 from surepy.data.region import RoiRegion
@@ -50,7 +50,7 @@ class Hull():
         self.region = None
 
 
-class Bounding_box():
+class BoundingBox():
     """
     Class with bounding box computed using numpy operations.
 
@@ -94,7 +94,7 @@ class Bounding_box():
         return region_
 
 
-class Convex_hull_scipy():
+class ConvexHull():
     """
     Class with convex hull computed using the scipy.spatial.ConvexHull method.
 
@@ -132,7 +132,7 @@ class Convex_hull_scipy():
                 raise TypeError('Convex_hull needs at least 3 different points as input.')
 
         self.dimension = np.shape(points)[1]
-        self.hull = ConvexHull(points)
+        self.hull = spat.ConvexHull(points)
         self.vertex_indices = self.hull.vertices
         self.points_on_boundary = len(self.vertex_indices)
         self.points_on_boundary_rel = self.points_on_boundary / len(points)
@@ -150,7 +150,7 @@ class Convex_hull_scipy():
         return region_
 
 
-class Convex_hull_shapely():
+class ConvexHullShapely():
     """
     Class with convex hull computed using the scipy.spatial.ConvexHull method.
 
@@ -185,7 +185,7 @@ class Convex_hull_shapely():
 
         self.dimension = np.shape(points)[1]
         if self.dimension >= 3:
-            raise TypeError('Convex_hull_shapely only takes 1 or 2-dimensional points as input.')
+            raise TypeError('ConvexHullShapely only takes 1 or 2-dimensional points as input.')
 
         self.hull = MultiPoint(points).convex_hull
         # todo: set vertex_indices
@@ -206,7 +206,7 @@ class Convex_hull_shapely():
         return region_
 
 
-class Oriented_bounding_box_shapely():
+class OrientedBoundingBoxShapely():
     """
     Class with oriented bounding box computed using the shapely minimum_rotated_rectangle method.
 
@@ -237,7 +237,7 @@ class Oriented_bounding_box_shapely():
 
         self.dimension = np.shape(points)[1]
         if self.dimension >= 3:
-            raise TypeError('Convex_hull_shapely only takes 1 or 2-dimensional points as input.')
+            raise TypeError('ConvexHullShapely only takes 1 or 2-dimensional points as input.')
 
         from shapely.geometry import LineString, MultiPoint
 

@@ -9,7 +9,7 @@ different results in parallel.
 from surepy import LocData
 from surepy.io.io_locdata import load_locdata
 from surepy.data.rois import Roi
-from surepy.data.hulls import Convex_hull_scipy
+from surepy.data.hulls import ConvexHull
 from surepy.data.filter import select_by_condition
 from surepy.data.cluster.clustering import clustering_hdbscan
 from surepy.analysis.analysis_base import _init_meta, _update_meta
@@ -107,7 +107,7 @@ def compute_clust(self):
     # import required modules
     from pathlib import Path
     from surepy.data.cluster import clustering_dbscan
-    from surepy.data.hulls import Convex_hull_scipy
+    from surepy.data.hulls import ConvexHull
     from surepy.data.filter import select_by_condition
 
     # compute cluster
@@ -115,7 +115,7 @@ def compute_clust(self):
                                                 noise=True)
 
     # compute convex hull
-    Hs = [Convex_hull_scipy(self.clust.references[i].coordinates) for i in range(len(self.clust))]
+    Hs = [ConvexHull(self.clust.references[i].coordinates) for i in range(len(self.clust))]
     self.clust.dataframe = self.clust.dataframe.assign(Region_measure_ch=[H.region_measure for H in Hs])
 
     # select cluster

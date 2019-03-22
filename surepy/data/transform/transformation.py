@@ -121,7 +121,7 @@ def randomize(locdata, hull_region='bb'):
         try:
             ranges = locdata.bounding_box.hull.T
         except AttributeError:
-            locdata.bounding_box = surepy.data.hulls.Bounding_box(locdata.coordinates)
+            locdata.bounding_box = surepy.data.hulls.BoundingBox(locdata.coordinates)
             ranges = locdata.bounding_box.hull.T
 
         new_locdata = simulate_csr(n_samples=len(locdata), n_features=len(ranges), feature_range=ranges)
@@ -135,7 +135,7 @@ def randomize(locdata, hull_region='bb'):
     #     try:
     #         min_coordinates = locdata.convex_hull.hull[0]
     #     except AttributeError:
-    #         locdata.bounding_box = surepy.data.hulls.Bounding_box(locdata.coordinates)
+    #         locdata.bounding_box = surepy.data.hulls.BoundingBox(locdata.coordinates)
     #         min_coordinates = locdata.bounding_box.hull[0]
     #
     #     width = locdata.bounding_box.width

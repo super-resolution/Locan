@@ -24,7 +24,7 @@ from surepy import LocData
 from surepy.analysis.analysis_base import _Analysis
 from surepy.data.cluster.clustering import clustering_hdbscan
 from surepy.data.filter import random_subset
-from surepy.data.hulls import Convex_hull_scipy
+from surepy.data.hulls import ConvexHull
 
 
 #### The algorithms
@@ -64,7 +64,7 @@ def _accumulation_cluster_check_for_single_dataset(locdata, region_measure, algo
 
     elif hull == 'ch':
         # compute hulls
-        Hs = [Convex_hull_scipy(ref.coordinates) for ref in clust.references]
+        Hs = [ConvexHull(ref.coordinates) for ref in clust.references]
         clust.dataframe = clust.dataframe.assign(Region_measure_ch=[H.region_measure for H in Hs])
 
         localization_density_ch = clust.data['Localization_count'] / clust.data['Region_measure_ch']

@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from surepy import LocData
-from surepy.data.hulls import  Bounding_box, Convex_hull_scipy, Convex_hull_shapely
+from surepy.data.hulls import  BoundingBox, ConvexHull, ConvexHullShapely
 
 
 @pytest.fixture()
@@ -16,7 +16,7 @@ def locdata_simple():
 
 def test_Bounding_box(locdata_simple):
     true_hull = np.array([[0, 0], [5, 4]])
-    H = Bounding_box(locdata_simple.coordinates)
+    H = BoundingBox(locdata_simple.coordinates)
     # print(locdata_simple.properties['Region_measure_bb'])
     # print(H.region_measure)
     # print(H.width)
@@ -28,7 +28,7 @@ def test_Bounding_box(locdata_simple):
 
 def test_Convex_hull_scipy(locdata_simple):
     true_convex_hull_indices = np.array([0, 5, 3, 2, 1])
-    H = Convex_hull_scipy(locdata_simple.coordinates)
+    H = ConvexHull(locdata_simple.coordinates)
     np.testing.assert_array_equal(H.vertex_indices, true_convex_hull_indices)
     assert H.region_measure == 12.5
     assert H.region.region_measure == 12.5
@@ -36,7 +36,7 @@ def test_Convex_hull_scipy(locdata_simple):
 
 def test_Convex_hull_shapely(locdata_simple):
     true_convex_hull_indices = np.array([0, 5, 3, 2, 1])
-    H = Convex_hull_shapely(locdata_simple.coordinates)
+    H = ConvexHullShapely(locdata_simple.coordinates)
     # np.testing.assert_array_equal(H.vertex_indices, true_convex_hull_indices)
     assert H.region_measure == 12.5
     # assert H.region.region_measure == 12.5
@@ -49,4 +49,4 @@ def test_Convex_hull_scipy_small():
     }
     locdata = LocData(dataframe=pd.DataFrame.from_dict(dict))
     with pytest.raises(TypeError):
-        Convex_hull_scipy(locdata.coordinates)
+        ConvexHull(locdata.coordinates)

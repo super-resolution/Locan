@@ -2,8 +2,8 @@
 
 Compute Ripley's k function.
 
-Spatial clustering of localization data is characterized by Ripley's k or related functions. We follow the definition
-of l and h functions in [2]_.
+Spatial clustering of localization data is characterized by Ripley's k or related functions [1]_.
+We follow the definition of l and h functions in [2]_.
 
 Ripley's k function is computed for 2D and 3D data for a series of radii as described in (2) in order to provide
 evidence for deviations from a spatial homogeneous Poisson process (i.e. complete spatial randomness, CSR).

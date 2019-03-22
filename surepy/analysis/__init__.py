@@ -19,6 +19,7 @@ Submodules:
    ripley
    uncertainty
    cbc
+   accumulation_analysis
 
 """
 

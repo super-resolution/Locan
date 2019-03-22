@@ -1,5 +1,5 @@
 """
-Check for the presence of clusters by localization-density variation analysis.
+Localization-density variation analysis to characterize localization cluster.
 
 The existence of clusters is tested by analyzing variations in cluster area and localization density within clusters.
 The analysis routine follows the ideas in [1]_ and [2]_.

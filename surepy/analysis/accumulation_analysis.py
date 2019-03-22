@@ -51,12 +51,16 @@ def _accumulation_cluster_check_for_single_dataset(locdata, region_measure, algo
     # compute cluster regions and densities
     if hull == 'bb':
         # Region_measure_bb has been computed upon instantiation
+        if not 'Region_measure_bb' in clust.data.columns:
+            # return localization_density, eta, rho
+            return np.nan, np.nan, np.nan
 
-        # relative area coverage by the clusters
-        eta = clust.data['Region_measure_bb'].sum() / region_measure
+        else:
+            # relative area coverage by the clusters
+            eta = clust.data['Region_measure_bb'].sum() / region_measure
 
-        # average_localization_density_in_cluster
-        rho = clust.data['Localization_density_bb'].mean()
+            # average_localization_density_in_cluster
+            rho = clust.data['Localization_density_bb'].mean()
 
     elif hull == 'ch':
         # compute hulls

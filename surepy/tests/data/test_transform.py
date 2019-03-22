@@ -28,7 +28,7 @@ def test_randomize(locdata_simple):
 
     region_dict = dict(region_type='polygon', region_specs=((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
     locdata_randomized = randomize(locdata_simple, hull_region=region_dict)
-    assert len(locdata_randomized) == 4
+    assert len(locdata_randomized) == 5
 
 
 # todo: test colocalization of bead data

@@ -29,6 +29,7 @@ from surepy.data.hulls import Convex_hull_scipy
 
 #### The algorithms
 
+
 def _accumulation_cluster_check_for_single_dataset(locdata, region_measure, algorithm=clustering_hdbscan,
                                                               algo_parameter=None, hull='bb'):
     """
@@ -116,7 +117,7 @@ def _accumulation_cluster_check(locdata, region_measure='bb', algorithm=clusteri
     x = results_[idx, 0]  # position 0 being localization_density
     y = results_[idx, 2]  # position 2 being rho
 
-    fit_coefficients = np.polyfit(x, y, deg=1)
+    fit_coefficients = np.polyfit(x[0:n_extrapolate], y[0:n_extrapolate], deg=1)
     rho_zero = fit_coefficients[-1]
 
     if rho_zero <=0.:

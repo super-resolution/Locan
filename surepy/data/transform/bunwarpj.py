@@ -127,7 +127,7 @@ def bunwarp(locdata, matrix_path):
     loc_max = np.max(locdata.coordinates, axis=0)
     trans_array = _unwarp(locdata.coordinates.T, trans_matrix_x, trans_matrix_y, trans_size, loc_max)
 
-    df = pd.DataFrame({'Position_x': trans_array[0], 'Position_y': trans_array[1]})
+    df = pd.DataFrame({'position_x': trans_array[0], 'position_y': trans_array[1]})
     new_locdata = LocData.from_dataframe(df)
 
     # update metadata

@@ -116,10 +116,10 @@ def compute_clust(self):
 
     # compute convex hull
     Hs = [ConvexHull(self.clust.references[i].coordinates) for i in range(len(self.clust))]
-    self.clust.dataframe = self.clust.dataframe.assign(Region_measure_ch=[H.region_measure for H in Hs])
+    self.clust.dataframe = self.clust.dataframe.assign(region_measure_ch=[H.region_measure for H in Hs])
 
     # select cluster
-    self.clust_selection = select_by_condition(self.clust, condition='Region_measure_ch < 10_000')
+    self.clust_selection = select_by_condition(self.clust, condition='region_measure_ch < 10_000')
 
     # free memory
     self.clust_selection.reduce()

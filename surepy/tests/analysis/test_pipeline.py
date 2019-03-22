@@ -15,8 +15,8 @@ from surepy.analysis.pipeline import Pipeline, compute_test, compute_clust
 @pytest.fixture()
 def locdata_simple():
     dict = {
-        'Position_x': [0, 0, 1, 4, 5],
-        'Position_y': [0, 1, 3, 4, 1],
+        'position_x': [0, 0, 1, 4, 5],
+        'position_y': [0, 1, 3, 4, 1],
         }
     return LocData(dataframe=pd.DataFrame.from_dict(dict))
 

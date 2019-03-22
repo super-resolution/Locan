@@ -13,8 +13,8 @@ from surepy.render import render2D
 @pytest.fixture()
 def locdata_simple():
     locdata_dict = {
-        'Position_x': [0, 0, 1, 4, 5],
-        'Position_y': [0, 1, 3, 4, 1]
+        'position_x': [0, 0, 1, 4, 5],
+        'position_y': [0, 1, 3, 4, 1]
     }
     return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
 

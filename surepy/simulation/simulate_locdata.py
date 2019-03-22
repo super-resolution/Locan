@@ -118,13 +118,13 @@ def simulate_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed=None):
     property_names = []
     for i in range(n_features):
         if i == 0:
-            property_names.append('Position_x')
+            property_names.append('position_x')
         elif i == 1:
-            property_names.append('Position_y')
+            property_names.append('position_y')
         elif i == 2:
-            property_names.append('Position_z')
+            property_names.append('position_z')
         else:
-            property_names.append(f'Feature_{i - 3}')
+            property_names.append(f'feature_{i - 3}')
 
     dict_ = {}
     for name, data in zip(property_names, samples.T):
@@ -175,7 +175,7 @@ def simulate_csr_(n_samples=10000, x_range=(0, 10000), y_range=(0, 10000), z_ran
     dict_ = {}
     for i, j in zip(('x', 'y', 'z'), (x_range, y_range, z_range)):
         if j is not None:
-            dict_.update({'Position_' + i: np.random.uniform(*j, n_samples)})
+            dict_.update({'position_' + i: np.random.uniform(*j, n_samples)})
 
     dat = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
 
@@ -245,7 +245,7 @@ def simulate_csr_on_disc(n_samples=100, radius=1.0, seed=None):
 
     samples = make_csr_on_disc(n_samples=n_samples, radius=radius, seed=seed)
 
-    property_names = ['Position_x', 'Position_y']
+    property_names = ['position_x', 'position_y']
 
     dict_ = {}
     for name, data in zip(property_names, samples.T):
@@ -435,18 +435,18 @@ def simulate_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, featu
     property_names = []
     for i in range(n_features):
         if i == 0:
-            property_names.append('Position_x')
+            property_names.append('position_x')
         elif i == 1:
-            property_names.append('Position_y')
+            property_names.append('position_y')
         elif i == 2:
-            property_names.append('Position_z')
+            property_names.append('position_z')
         else:
-            property_names.append(f'Feature_{i - 3}')
+            property_names.append(f'feature_{i - 3}')
 
     dict_ = {}
     for name, data in zip(property_names, samples.T):
         dict_.update({name: data})
-    dict_.update({'Cluster_label': labels})
+    dict_.update({'cluster_label': labels})
 
     locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
 
@@ -627,18 +627,18 @@ def simulate_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, 
     property_names = []
     for i in range(n_features):
         if i == 0:
-            property_names.append('Position_x')
+            property_names.append('position_x')
         elif i == 1:
-            property_names.append('Position_y')
+            property_names.append('position_y')
         elif i == 2:
-            property_names.append('Position_z')
+            property_names.append('position_z')
         else:
-            property_names.append(f'Feature_{i - 3}')
+            property_names.append(f'feature_{i - 3}')
 
     dict_ = {}
     for name, data in zip(property_names, samples.T):
         dict_.update({name: data})
-    dict_.update({'Cluster_label': labels})
+    dict_.update({'cluster_label': labels})
 
     locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
 
@@ -691,13 +691,13 @@ def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0, 
 
     if n_features == 1:
         dataframe = pd.DataFrame(np.stack((points[:, 0], labels), axis=-1),
-                                 columns=['Position_x', 'Cluster_label'])
+                                 columns=['position_x', 'cluster_label'])
     if n_features == 2:
         dataframe = pd.DataFrame(np.stack((points[:, 0], points[:, 1], labels), axis=-1),
-                                 columns=['Position_x', 'Position_y', 'Cluster_label'])
+                                 columns=['position_x', 'position_y', 'cluster_label'])
     if n_features == 3:
         dataframe = pd.DataFrame(np.stack((points[:, 0], points[:, 1], points[:, 2], labels), axis=-1),
-                                 columns=['Position_x', 'Position_y', 'Position_z', 'Cluster_label'])
+                                 columns=['position_x', 'position_y', 'position_z', 'cluster_label'])
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
@@ -791,11 +791,11 @@ def simulate_csr_on_region(region, n_samples=100, seed=None):
     property_names = []
     for i in range(np.shape(samples)[-1]):
         if i == 0:
-            property_names.append('Position_x')
+            property_names.append('position_x')
         elif i == 1:
-            property_names.append('Position_y')
+            property_names.append('position_y')
         elif i == 2:
-            property_names.append('Position_z')
+            property_names.append('position_z')
 
     dict_ = {}
     for name, data in zip(property_names, samples.T):
@@ -949,11 +949,11 @@ def simulate_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1
     property_names = []
     for i in range(np.shape(samples)[-1]):
         if i == 0:
-            property_names.append('Position_x')
+            property_names.append('position_x')
         elif i == 1:
-            property_names.append('Position_y')
+            property_names.append('position_y')
         elif i == 2:
-            property_names.append('Position_z')
+            property_names.append('position_z')
 
     dict_ = {}
     for name, data in zip(property_names, samples.T):
@@ -1047,11 +1047,11 @@ def simulate_tracks(number_walks=1, number_steps=10, ranges=((0, 10000), (0, 100
     ])
 
     locdata_dict = {
-        'Position_' + label: position_values
+        'position_' + label: position_values
         for _, position_values, label in zip(ranges, new_positions.T, ('x', 'y', 'z'))
     }
 
-    locdata_dict.update(Frame=np.tile(range(len(times)), number_walks))
+    locdata_dict.update(frame=np.tile(range(len(times)), number_walks))
 
     locdata = LocData.from_dataframe(dataframe=pd.DataFrame(locdata_dict))
 
@@ -1088,25 +1088,25 @@ def resample(locdata, number_samples=10):
     list = []
     for i in range(len(locdata)):
         new_d = {}
-        new_d.update({'Origin_index': np.full(number_samples, i)})
-        x_values = np.random.normal(loc=locdata.data.iloc[i]['Position_x'],
-                                    scale=locdata.data.iloc[i]['Uncertainty_x'],
+        new_d.update({'origin_index': np.full(number_samples, i)})
+        x_values = np.random.normal(loc=locdata.data.iloc[i]['position_x'],
+                                    scale=locdata.data.iloc[i]['uncertainty_x'],
                                     size=number_samples
                                     )
-        new_d.update({'Position_x': x_values})
+        new_d.update({'position_x': x_values})
 
-        y_values = np.random.normal(loc=locdata.data.iloc[i]['Position_y'],
-                                    scale=locdata.data.iloc[i]['Uncertainty_y'],
+        y_values = np.random.normal(loc=locdata.data.iloc[i]['position_y'],
+                                    scale=locdata.data.iloc[i]['uncertainty_y'],
                                     size=number_samples
                                     )
-        new_d.update({'Position_y': y_values})
+        new_d.update({'position_y': y_values})
 
         try:
-            z_values = np.random.normal(loc=locdata.data.iloc[i]['Position_z'],
-                                        scale=locdata.data.iloc[i]['Uncertainty_z'],
+            z_values = np.random.normal(loc=locdata.data.iloc[i]['position_z'],
+                                        scale=locdata.data.iloc[i]['uncertainty_z'],
                                         size=number_samples
                                         )
-            new_d.update({'Position_z': z_values})
+            new_d.update({'position_z': z_values})
         except KeyError:
             pass
 

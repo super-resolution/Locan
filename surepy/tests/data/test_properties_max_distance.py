@@ -8,12 +8,12 @@ from surepy.data.properties import max_distance
 @pytest.fixture()
 def locdata_simple():
     dict = {
-        'Position_x': [0, 0, 0],
-        'Position_y': [0, 1, 3]
+        'position_x': [0, 0, 0],
+        'position_y': [0, 1, 3]
     }
     return LocData(dataframe=pd.DataFrame.from_dict(dict))
 
 
 def test_max_distance(locdata_simple):
     mdist = max_distance(locdata=locdata_simple)
-    assert (mdist == {'Max_distance': 3})
+    assert (mdist == {'max_distance': 3})

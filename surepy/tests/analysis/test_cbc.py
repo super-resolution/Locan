@@ -32,8 +32,8 @@ def locdata_3d():
 @pytest.fixture()
 def locdata_line():
     dict_ = {
-        'Position_x': [0, 1, 3, 4, 50, 98, 99, 100],
-        'Position_y': np.zeros(8)
+        'position_x': [0, 1, 3, 4, 50, 98, 99, 100],
+        'position_y': np.zeros(8)
     }
     return LocData(dataframe=pd.DataFrame.from_dict(dict_))
 
@@ -70,8 +70,8 @@ def test_Coordinate_based_colocalization(locdata_line):
     cbc = CoordinateBasedColocalization(locdata=locdata_line, other_locdata=other_locdata,
                                         radius=100, n_steps=10).compute()
     # print(cbc.results)
-    assert(cbc.results.columns == f'Colocalization_cbc_{other_locdata.meta.identifier}')
+    assert(cbc.results.columns == f'colocalization_cbc_{other_locdata.meta.identifier}')
 
     cbc = CoordinateBasedColocalization(locdata=locdata_line, other_locdata=None,
                                         radius=100, n_steps=10).compute()
-    assert(cbc.results.columns == 'Colocalization_cbc_self')
+    assert(cbc.results.columns == 'colocalization_cbc_self')

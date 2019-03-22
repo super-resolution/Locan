@@ -138,6 +138,6 @@ class CoordinateBasedColocalization(_Analysis):
             other_points = None
             id = 'self'
 
-        self.results = pd.DataFrame({f'Colocalization_cbc_{id}':
+        self.results = pd.DataFrame({f'colocalization_cbc_{id}':
                                          _coordinate_based_colocalization(points, other_points, **new_parameter)})
         return self

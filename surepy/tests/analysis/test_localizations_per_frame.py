@@ -25,8 +25,8 @@ def test_Localizations_per_frame(locdata):
     print(ana.results.name)
     # ana.plot()
 
-    ana = LocalizationsPerFrame(locdata=locdata, norm='Localization_density_bb').compute()
-    assert(ana.results.name == 'number_localizations / Localization_density_bb')
+    ana = LocalizationsPerFrame(locdata=locdata, norm='localization_density_bb').compute()
+    assert(ana.results.name == 'number_localizations / localization_density_bb')
     ana.fit_distributions(floc=0)
     assert(0 in ana.distribution_statistics.parameter_dict().values())
     # ana.plot()

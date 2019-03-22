@@ -16,9 +16,9 @@ from surepy.data import metadata_pb2
 @pytest.fixture()
 def locdata():
     dict = {
-        'Position_x': [0, 1, 2, 3, 0, 1, 4, 5],
-        'Position_y': [0, 1, 2, 3, 1, 4, 5, 1],
-        'Position_z': [0, 1, 2, 3, 4, 4, 4, 5]
+        'position_x': [0, 1, 2, 3, 0, 1, 4, 5],
+        'position_y': [0, 1, 2, 3, 1, 4, 5, 1],
+        'position_z': [0, 1, 2, 3, 4, 4, 4, 5]
     }
     return LocData(dataframe=pd.DataFrame.from_dict(dict))
 
@@ -149,7 +149,7 @@ def test_roi_locdata_from_file(locdata):
     assert(len(dat_1) == 2)
 
     roi = Roi(reference=locdata, region_type='rectangle', region_specs=((0, 0), 2.5, 1, 10),
-              properties_for_roi=['Position_y', 'Position_z'])
+              properties_for_roi=['position_y', 'position_z'])
     dat_1 = roi.locdata()
     assert(len(dat_1) == 1)
 

@@ -17,27 +17,27 @@ def locdata():
 
 
 def test_DistributionFits(locdata):
-    lprop = LocalizationProperty(locdata=locdata, loc_property='Intensity').compute()
+    lprop = LocalizationProperty(locdata=locdata, loc_property='intensity').compute()
     ds = _DistributionFits(lprop)
     ds.fit(distribution=stats.expon)
     # print(ds.parameters)
     # print(ds.__dict__)
     # #print(ds.parameter_dict())
     #ds.plot()
-    assert(ds.parameters == ['Intensity_loc', 'Intensity_scale'])
+    assert(ds.parameters == ['intensity_loc', 'intensity_scale'])
     ds.fit(distribution=stats.expon, with_constraints=False, floc=1000)
-    assert(ds.parameter_dict()['Intensity_loc']==1000)
+    assert(ds.parameter_dict()['intensity_loc']==1000)
 
 def test_Localization_property(locdata):
-    lprop = LocalizationProperty(locdata=locdata, loc_property='Intensity').compute()
-    assert(lprop.results.columns == pd.Index(['Intensity'], dtype='object'))
+    lprop = LocalizationProperty(locdata=locdata, loc_property='intensity').compute()
+    assert(lprop.results.columns == pd.Index(['intensity'], dtype='object'))
     assert(lprop.distribution_statistics is None)
     #lprop.plot()
     #lprop.hist()
     lprop.fit_distributions()
-    assert(list(lprop.distribution_statistics.parameter_dict().keys()) == ['Intensity_loc', 'Intensity_scale'])
+    assert(list(lprop.distribution_statistics.parameter_dict().keys()) == ['intensity_loc', 'intensity_scale'])
 
-    lprop = LocalizationProperty(locdata=locdata, loc_property='Intensity', index='Frame').compute()
+    lprop = LocalizationProperty(locdata=locdata, loc_property='intensity', index='frame').compute()
     # print(lprop.results)
-    assert(lprop.results.index.name == 'Frame')
-    assert(lprop.results.columns == pd.Index(['Intensity'], dtype='object'))
+    assert(lprop.results.index.name == 'frame')
+    assert(lprop.results.columns == pd.Index(['intensity'], dtype='object'))

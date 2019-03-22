@@ -26,13 +26,13 @@ def _localization_uncertainty_from_intensity(locdata):
 
     results = {}
     for v in ['x', 'y', 'z']:
-        if 'Position_' + v in locdata.data.keys() and 'Intensity' in locdata.data.keys():
-            if 'Psf_sigma_' + v in locdata.data.keys():
+        if 'position_' + v in locdata.data.keys() and 'intensity' in locdata.data.keys():
+            if 'psf_sigma_' + v in locdata.data.keys():
                 results.update(
-                    {'Uncertainty_' + v: locdata.data['Psf_sigma_' + v] / np.sqrt(locdata.data['Intensity'])}
+                    {'uncertainty_' + v: locdata.data['psf_sigma_' + v] / np.sqrt(locdata.data['intensity'])}
                 )
             else:
-                results.update({'Uncertainty_' + v: 1 / np.sqrt(locdata.data['Intensity'])})
+                results.update({'uncertainty_' + v: 1 / np.sqrt(locdata.data['intensity'])})
         else:
             pass
 

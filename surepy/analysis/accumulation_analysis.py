@@ -51,30 +51,30 @@ def _accumulation_cluster_check_for_single_dataset(locdata, region_measure, algo
     # compute cluster regions and densities
     if hull == 'bb':
         # Region_measure_bb has been computed upon instantiation
-        if not 'Region_measure_bb' in clust.data.columns:
+        if not 'region_measure_bb' in clust.data.columns:
             # return localization_density, eta, rho
             return np.nan, np.nan, np.nan
 
         else:
             # relative area coverage by the clusters
-            eta = clust.data['Region_measure_bb'].sum() / region_measure
+            eta = clust.data['region_measure_bb'].sum() / region_measure
 
             # average_localization_density_in_cluster
-            rho = clust.data['Localization_density_bb'].mean()
+            rho = clust.data['localization_density_bb'].mean()
 
     elif hull == 'ch':
         # compute hulls
         Hs = [ConvexHull(ref.coordinates) for ref in clust.references]
-        clust.dataframe = clust.dataframe.assign(Region_measure_ch=[H.region_measure for H in Hs])
+        clust.dataframe = clust.dataframe.assign(region_measure_ch=[H.region_measure for H in Hs])
 
-        localization_density_ch = clust.data['Localization_count'] / clust.data['Region_measure_ch']
-        clust.dataframe = clust.dataframe.assign(Localization_density_ch=localization_density_ch)
+        localization_density_ch = clust.data['localization_count'] / clust.data['region_measure_ch']
+        clust.dataframe = clust.dataframe.assign(localization_density_ch=localization_density_ch)
 
         # relative area coverage by the clusters
-        eta = clust.data['Region_measure_ch'].sum() / region_measure
+        eta = clust.data['region_measure_ch'].sum() / region_measure
 
         # average_localization_density_in_cluster
-        rho = clust.data['Localization_density_ch'].mean()
+        rho = clust.data['localization_density_ch'].mean()
 
     else:
         raise TypeError('Computation for the specified hull is not implemented.')
@@ -90,7 +90,7 @@ def _accumulation_cluster_check(locdata, region_measure='bb', algorithm=clusteri
     """
     # total region
     if isinstance(region_measure, str):
-        region_measure_ = locdata.properties['Region_measure_' + region_measure]
+        region_measure_ = locdata.properties['region_measure_' + region_measure]
     else:
         region_measure_ = region_measure
 

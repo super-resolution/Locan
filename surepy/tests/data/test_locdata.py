@@ -15,8 +15,8 @@ from surepy.data.rois import RoiRegion
 @pytest.fixture()
 def df_simple():
     dict_ = {
-        'Position_x': [0, 0, 1, 4, 5],
-        'Position_y': [0, 1, 3, 4, 1]
+        'position_x': [0, 0, 1, 4, 5],
+        'position_y': [0, 1, 3, 4, 1]
     }
     return pd.DataFrame.from_dict(dict_)
 
@@ -24,8 +24,8 @@ def df_simple():
 @pytest.fixture()
 def df_line():
     dict_ = {
-        'Position_x': [1, 2, 3, 4, 5],
-        'Position_y': [1, 2, 3, 4, 5]
+        'position_x': [1, 2, 3, 4, 5],
+        'position_y': [1, 2, 3, 4, 5]
     }
     return pd.DataFrame.from_dict(dict_)
 
@@ -38,8 +38,8 @@ def df_empty():
 @pytest.fixture()
 def df_other_simple():
     dict_ = {
-        'Position_x': [0, 0, 1, 4, 5],
-        'Position_y': [10, 11, 13, 14, 11]
+        'position_x': [0, 0, 1, 4, 5],
+        'position_y': [10, 11, 13, 14, 11]
         }
     return pd.DataFrame.from_dict(dict_)
 
@@ -52,7 +52,7 @@ COMMENT_METADATA = metadata_pb2.Metadata(comment='some user comment')
 def test_LocData(df_simple):
     dat = LocData(dataframe=df_simple, meta=COMMENT_METADATA)
     assert (len(dat) == 5)
-    assert (dat.coordinate_labels == ['Position_x', 'Position_y'])
+    assert (dat.coordinate_labels == ['position_x', 'position_y'])
     for x, y in zip(dat.coordinates, [[0, 0], [0, 1], [1, 3], [4, 4], [5, 1]]):
         assert np.all(x == np.array(y))
     assert (dat.meta.comment == COMMENT_METADATA.comment)
@@ -67,8 +67,8 @@ def test_LocData_empty(df_empty):
 def test_LocData_from_dataframe(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
     print(dat.properties.keys())
-    assert(list(dat.properties.keys()) == ['Localization_count', 'Position_x', 'Position_y', 'Region_measure_bb',
-                                           'Localization_density_bb', 'Subregion_measure_bb'])
+    assert(list(dat.properties.keys()) == ['localization_count', 'position_x', 'position_y', 'region_measure_bb',
+                                           'localization_density_bb', 'subregion_measure_bb'])
     assert (len(dat) == 5)
     assert (dat.meta.comment == COMMENT_METADATA.comment)
 
@@ -187,10 +187,10 @@ def test_LocData_add_column_to_dataframe(df_simple):
     sel = LocData.from_selection(locdata=dat, indices=[0, 1, 2])
     sel.dataframe = sel.dataframe.assign(new=np.arange(3))
     assert(list(sel.dataframe.columns) == ['new'])
-    assert(list(sel.references.dataframe.columns) == ['Position_x', 'Position_y'])
-    assert all(list(sel.data.columns == ['Position_x', 'Position_y', 'new']))
+    assert(list(sel.references.dataframe.columns) == ['position_x', 'position_y'])
+    assert all(list(sel.data.columns == ['position_x', 'position_y', 'new']))
     sel.reduce()
-    assert all(list(sel.dataframe.columns == ['Position_x', 'Position_y', 'new']))
+    assert all(list(sel.dataframe.columns == ['position_x', 'position_y', 'new']))
 
     # sel_2 = LocData.from_selection(locdata=sel, indices=[0, 2])
     # print(sel_2.data)
@@ -206,8 +206,8 @@ def test_LocData_add_column_to_dataframe(df_simple):
     col = LocData.from_collection([sel_1, sel_2], meta=COMMENT_METADATA)
     col.dataframe = col.dataframe.assign(new=np.arange(2))
     # print(col.data.columns)
-    assert all(list(col.data.columns == ['Localization_count', 'Localization_density_bb', 'Position_x', 'Position_y',
-                                         'Region_measure_bb', 'Subregion_measure_bb', 'new']))
+    assert all(list(col.data.columns == ['localization_count', 'localization_density_bb', 'position_x', 'position_y',
+                                         'region_measure_bb', 'subregion_measure_bb', 'new']))
 
 
 # locdata and metadata

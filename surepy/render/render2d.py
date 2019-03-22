@@ -59,24 +59,24 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=Tru
 
         if range == 'auto':
             try:
-                range = np.array([[locdata.properties[x] for x in ['Position_x_min', 'Position_x_max']],
-                                  [locdata.properties[x] for x in ['Position_y_min', 'Position_y_max']]])
+                range = np.array([[locdata.properties[x] for x in ['position_x_min', 'position_x_max']],
+                                  [locdata.properties[x] for x in ['position_y_min', 'position_y_max']]])
             except KeyError:
-                stats = surepy.data.properties.statistics(locdata.data[['Position_x', 'Position_y']],
+                stats = surepy.data.properties.statistics(locdata.data[['position_x', 'position_y']],
                                                           statistic_keys=('min', 'max'))
-                range = np.array([[stats['Position_x_min'], stats['Position_x_max']],
-                                  [stats['Position_y_min'], stats['Position_y_max']]])
+                range = np.array([[stats['position_x_min'], stats['position_x_max']],
+                                  [stats['position_y_min'], stats['position_y_max']]])
 
         elif range == 'zero':
             try:
                 range = np.array([np.array([0, 0]),
-                                  [locdata.properties[x] for x in ['Position_x_max', 'Position_y_max']]
+                                  [locdata.properties[x] for x in ['position_x_max', 'position_y_max']]
                                   ]).T
             except KeyError:
-                stats = surepy.data.properties.statistics(locdata.data[['Position_x', 'Position_y']],
+                stats = surepy.data.properties.statistics(locdata.data[['position_x', 'position_y']],
                                                           statistic_keys=('max'))
                 range = np.array([np.array([0, 0]),
-                                  [stats['Position_x_max'], stats['Position_y_max']]
+                                  [stats['position_x_max'], stats['position_y_max']]
                                   ]).T
 
     else:
@@ -87,7 +87,7 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=Tru
     bin_number = bin_number.astype(int)
     # bin_centers = np.arange(range[0], range[1], bin_size) + bin_size / 2
 
-    data = locdata.data[['Position_x', 'Position_y']].values.T
+    data = locdata.data[['position_x', 'position_y']].values.T
     img = fast_histogram.histogram2d(*data, range=range, bins=bin_number)
     img = img.T  # to show image in the same format as scatter plot
 
@@ -107,8 +107,8 @@ def render2D(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=Tru
 
     mappable = ax.imshow(img, origin='low', extent=[*range[0], *range[1]], cmap=cmap)
     ax.set(title='Image ({:.0f} nm per bin)'.format(bin_size),
-           xlabel='Position_x',
-           ylabel='Position_y'
+           xlabel='position_x',
+           ylabel='position_y'
            )
 
     # show figure

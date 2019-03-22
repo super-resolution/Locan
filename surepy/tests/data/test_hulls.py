@@ -8,8 +8,8 @@ from surepy.data.hulls import  BoundingBox, ConvexHull, ConvexHullShapely
 @pytest.fixture()
 def locdata_simple():
     dict = {
-        'Position_x': [0, 0, 1, 4, 1, 5],
-        'Position_y': [0, 1, 3, 4, 3, 1]
+        'position_x': [0, 0, 1, 4, 1, 5],
+        'position_y': [0, 1, 3, 4, 3, 1]
     }
     return LocData(dataframe=pd.DataFrame.from_dict(dict))
 
@@ -44,8 +44,8 @@ def test_Convex_hull_shapely(locdata_simple):
 
 def test_Convex_hull_scipy_small():
     dict = {
-        'Position_x': [0, 0, 0],
-        'Position_y': [0, 1, 1]
+        'position_x': [0, 0, 0],
+        'position_y': [0, 1, 1]
     }
     locdata = LocData(dataframe=pd.DataFrame.from_dict(dict))
     with pytest.raises(TypeError):

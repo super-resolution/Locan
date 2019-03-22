@@ -44,9 +44,9 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
         A series named 'Track' referring to the track number.
     """
     df = link_df(locdata.data, search_range=search_range, memory=memory, pos_columns=locdata.coordinate_labels,
-                    t_column='Frame', **kwargs)
+                    t_column='frame', **kwargs)
     return_series = df['particle']
-    return_series.name = 'Track'
+    return_series.name = 'track'
     return return_series
 
 

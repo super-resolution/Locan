@@ -27,7 +27,7 @@ def _localizations_per_frame(data, norm=None):
     else:
         raise TypeError('normalization should be None, a number or a valid property name.')
 
-    series = data.data.groupby('Frame').size() / normalization_factor
+    series = data.data.groupby('frame').size() / normalization_factor
     series.name = series_name
     return series
 
@@ -113,7 +113,7 @@ class LocalizationsPerFrame(_Analysis):
         self.results.rolling(window=window, center=True).mean().plot(ax=ax, **kwargs)
 
         ax.set(title=f'Localizations per Frame\n (window={window})',
-               xlabel = 'Frame',
+               xlabel = 'frame',
                ylabel = self.results.name
                )
 

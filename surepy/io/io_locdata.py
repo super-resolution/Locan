@@ -196,8 +196,8 @@ def load_rapidSTORM_file(path, nrows=None):
     dataframe = pd.read_table(path, sep=" ", skiprows=1, nrows=nrows, names=columns)
 
     # correct data formats
-    integer_Frames = pd.to_numeric(dataframe['Frame'], downcast='integer')
-    dataframe['Frame'] = integer_Frames
+    integer_Frames = pd.to_numeric(dataframe['frame'], downcast='integer')
+    dataframe['frame'] = integer_Frames
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
@@ -207,7 +207,7 @@ def load_rapidSTORM_file(path, nrows=None):
     dat.meta.file_type = metadata_pb2.RAPIDSTORM
     dat.meta.file_path = str(path)
 
-    for property in sorted(list(set(columns).intersection({'Position_x', 'Position_y', 'Position_z'}))):
+    for property in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
         dat.meta.unit.add(property=property, unit='nm')
 
     del dat.meta.history[:]
@@ -365,12 +365,12 @@ def load_thunderstorm_file(path, nrows=None):
     dataframe = pd.read_csv(path, sep=',', skiprows=1, nrows=nrows, names=columns)
 
     # correct data formats
-    if 'Original_index' in columns:
-        integer_Index = pd.to_numeric(dataframe['Original_index'], downcast='integer')
-        dataframe['Original_index'] = integer_Index
-    if 'Frame' in columns:
-        integer_Frames = pd.to_numeric(dataframe['Frame'], downcast='integer')
-        dataframe['Frame'] = integer_Frames
+    if 'original_index' in columns:
+        integer_Index = pd.to_numeric(dataframe['original_index'], downcast='integer')
+        dataframe['original_index'] = integer_Index
+    if 'frame' in columns:
+        integer_Frames = pd.to_numeric(dataframe['frame'], downcast='integer')
+        dataframe['frame'] = integer_Frames
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
@@ -380,7 +380,7 @@ def load_thunderstorm_file(path, nrows=None):
     dat.meta.file_type = metadata_pb2.THUNDERSTORM
     dat.meta.file_path = str(path)
 
-    for property in sorted(list(set(columns).intersection({'Position_x', 'Position_y', 'Position_z'}))):
+    for property in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
         dat.meta.unit.add(property=property, unit='nm')
 
     del dat.meta.history[:]

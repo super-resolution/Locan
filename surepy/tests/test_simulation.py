@@ -21,9 +21,9 @@ def test_make_csr():
 
 def test_simulate_csr():
     dat = simulate_csr(n_samples=5, n_features=2, feature_range=(0, 1.), seed=None)
-    assert all(dat.data.columns == ['Position_x', 'Position_y'])
+    assert all(dat.data.columns == ['position_x', 'position_y'])
     dat = simulate_csr(n_samples=5, n_features=4, feature_range=(0, 1.), seed=None)
-    assert all(dat.data.columns == ['Position_x', 'Position_y', 'Position_z', 'Feature_0'])
+    assert all(dat.data.columns == ['position_x', 'position_y', 'position_z', 'feature_0'])
 
 
 def test_make_csr_on_disc():
@@ -37,7 +37,7 @@ def test_make_csr_on_disc():
 
 def test_simulate_csr_on_disc():
     dat = simulate_csr_on_disc(n_samples=100, radius=1.0, seed=None)
-    assert all(dat.data.columns == ['Position_x', 'Position_y'])
+    assert all(dat.data.columns == ['position_x', 'position_y'])
 
 
 def test_make_spots():
@@ -143,7 +143,7 @@ def test_make_csr_on_region():
 def test_simulate_csr_on_region():
     region_dict = dict(region_type='polygon', region_specs=((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
     dat = simulate_csr_on_region(region_dict, n_samples=100, seed=None)
-    assert all(dat.data.columns == ['Position_x', 'Position_y'])
+    assert all(dat.data.columns == ['position_x', 'position_y'])
 
 
 def test_make_Thomas_on_region():
@@ -181,7 +181,7 @@ def test_make_Thomas_on_region():
 def test_simulate_Thomas_on_region():
     region_dict = dict(region_type='polygon', region_specs=((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
     dat = simulate_Thomas_on_region(region_dict, n_samples=1000, centers=5, cluster_std=0.1, seed=None)
-    assert all(dat.data.columns == ['Position_x', 'Position_y'])
+    assert all(dat.data.columns == ['position_x', 'position_y'])
 
     # dat.data.plot(x='Position_x', y='Position_y', kind='scatter')
     # plt.show()
@@ -205,31 +205,31 @@ def test_simulate_blobs_1D():
     dat = simulate_blobs(n_centers=10, n_samples=100, n_features=1, center_box=(0, 10000), cluster_std=10, seed=None)
     assert (len(dat) == 100)
     assert(len(dat.coordinate_labels)==1)
-    assert ('Position_x' in dat.data.columns)
+    assert ('position_x' in dat.data.columns)
 
 def test_simulate_blobs_2D():
     dat = simulate_blobs(n_centers=10, n_samples=100, n_features=2, center_box=(0, 10000), cluster_std=10, seed=None)
     assert (len(dat) == 100)
     assert(len(dat.coordinate_labels)==2)
-    assert ('Position_y' in dat.data.columns)
+    assert ('position_y' in dat.data.columns)
 
 def test_simulate_blobs_3D():
     dat = simulate_blobs(n_centers=10, n_samples=100, n_features=3, center_box=(0, 10000), cluster_std=10, seed=None)
     assert (len(dat) == 100)
     assert(len(dat.coordinate_labels)==3)
-    assert ('Position_z' in dat.data.columns)
+    assert ('position_z' in dat.data.columns)
 
 
 @pytest.fixture()
 def locdata_simple():
     dict = {
-        'Position_x': [0, 0, 1, 4, 5],
-        'Position_y': [0, 1, 3, 4, 1],
-        'Position_z': [0, 1, 3, 4, 1],
-        'Intensity': [0, 1, 3, 4, 1],
-        'Uncertainty_x': [10, 30, 100, 300, 0],
-        'Uncertainty_y': [10, 30, 100, 300, 10],
-        'Uncertainty_z': [10, 30, 100, 300, 10],
+        'position_x': [0, 0, 1, 4, 5],
+        'position_y': [0, 1, 3, 4, 1],
+        'position_z': [0, 1, 3, 4, 1],
+        'intensity': [0, 1, 3, 4, 1],
+        'uncertainty_x': [10, 30, 100, 300, 0],
+        'uncertainty_y': [10, 30, 100, 300, 10],
+        'uncertainty_z': [10, 30, 100, 300, 10],
         }
     return LocData(dataframe=pd.DataFrame.from_dict(dict))
 
@@ -242,8 +242,8 @@ def test_resample(locdata_simple):
 
 def test_simulate_tracks():
     dat = simulate_tracks(number_walks=2, number_steps=3)
-    #print(dat.data)
-    #print(dat.meta)
+    # print(dat.data)
+    # print(dat.meta)
     assert (len(dat) == 6)
     assert(len(dat.coordinate_labels)==2)
 

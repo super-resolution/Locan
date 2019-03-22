@@ -64,7 +64,7 @@ Comments on LocData:
         #. alpha complex
 
     These hulls are provided from stand-alone methods with attributes such as 'Region_measure' that can can be added
-    as new property to teh corresponding LocData object.
+    as new property to the corresponding LocData object.
 
 6) Additional properties:
     There are other properties for each LocData object that might be provided by independent methods.

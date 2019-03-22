@@ -92,8 +92,8 @@ class LocData:
         self.meta.state = metadata_pb2.RAW
 
         self.meta.element_count = len(self.data.index)
-        if 'Frame' in self.data.columns:
-            self.meta.frame_count = len(self.data['Frame'].unique())
+        if 'frame' in self.data.columns:
+            self.meta.frame_count = len(self.data['frame'].unique())
 
         if meta is None:
             pass
@@ -104,12 +104,12 @@ class LocData:
             self.meta.MergeFrom(meta)
 
         # coordinate labels
-        self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'Position_x',
-                                                                                  'Position_y',
-                                                                                  'Position_z'})))
+        self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'position_x',
+                                                                                  'position_y',
+                                                                                  'position_z'})))
 
         # properties
-        self.properties['Localization_count'] = len(self.data.index)
+        self.properties['localization_count'] = len(self.data.index)
 
         # property for mean spatial coordinates (centroids)
         self.properties.update(dict(self.data[self.coordinate_labels].mean()))
@@ -119,10 +119,10 @@ class LocData:
             try:
                 self.bounding_box = surepy.data.hulls.BoundingBox(self.coordinates)
                 if self.bounding_box.region_measure:
-                    self.properties['Region_measure_bb'] = self.bounding_box.region_measure
-                    self.properties['Localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure
+                    self.properties['region_measure_bb'] = self.bounding_box.region_measure
+                    self.properties['localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure
                 if self.bounding_box.subregion_measure:
-                    self.properties['Subregion_measure_bb'] = self.bounding_box.subregion_measure
+                    self.properties['subregion_measure_bb'] = self.bounding_box.subregion_measure
             except ValueError:
                 warnings.warn('Properties related to bounding box could not be computed.', UserWarning)
                 pass
@@ -144,10 +144,10 @@ class LocData:
         # property for region measures
         if self._region is not None:
             if self._region.region_measure:
-                self.properties['Region_measure'] = self._region.region_measure
-                self.properties['Localization_density'] = self.meta.element_count / self._region.region_measure
+                self.properties['region_measure'] = self._region.region_measure
+                self.properties['localization_density'] = self.meta.element_count / self._region.region_measure
             if self._region.subregion_measure:
-                self.properties['Subregion_measure'] = self._region.subregion_measure
+                self.properties['subregion_measure'] = self._region.subregion_measure
 
 
     @classmethod

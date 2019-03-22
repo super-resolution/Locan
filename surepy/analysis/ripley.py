@@ -148,7 +148,7 @@ class RipleysKFunction(_Analysis):
         # choose the right region_measure
         # todo: add other hull regions
         if self.parameter['region_measure'] is 'bb':
-            region_measure = float(self.locdata.properties['Region_measure_bb'])
+            region_measure = float(self.locdata.properties['region_measure_bb'])
         else:
             region_measure = self.parameter['region_measure']
 
@@ -206,7 +206,7 @@ class RipleysLFunction(_Analysis):
         # choose the right region_measure
         # todo: add other hull regions
         if self.parameter['region_measure'] is 'bb':
-            region_measure = float(self.locdata.properties['Region_measure_bb'])
+            region_measure = float(self.locdata.properties['region_measure_bb'])
         else:
             region_measure = self.parameter['region_measure']
 
@@ -270,7 +270,7 @@ class RipleysHFunction(_Analysis):
         # choose the right region_measure
         # todo: add other hull regions
         if self.parameter['region_measure'] is 'bb':
-            region_measure = float(self.locdata.properties['Region_measure_bb'])
+            region_measure = float(self.locdata.properties['region_measure_bb'])
         else:
             region_measure = self.parameter['region_measure']
 
@@ -331,7 +331,7 @@ def plot(self, ax=None, show=True, **kwargs):
         title = None
 
     ax.set(title = title,
-           xlabel = 'Radius',
+           xlabel = 'radius',
            ylabel = self.results.columns[1]
            )
 

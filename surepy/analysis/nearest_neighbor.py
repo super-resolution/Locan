@@ -126,9 +126,9 @@ class NearestNeighborDistances(_Analysis):
 
         #setting the localization density of locdata
         if self.parameter['other_locdata'] is None:
-            self.localization_density = self.locdata.properties['Localization_density_bb']
+            self.localization_density = self.locdata.properties['localization_density_bb']
         else:
-            self.localization_density = self.parameter['other_locdata'].properties['Localization_density_bb']
+            self.localization_density = self.parameter['other_locdata'].properties['localization_density_bb']
 
     def compute(self):
         points = self.locdata.coordinates

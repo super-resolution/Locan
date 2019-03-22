@@ -27,11 +27,11 @@ from surepy.analysis.analysis_base import _Analysis, _list_parameters
 
 def _localization_precision(locdata, radius=50):
     # group localizations
-    grouped = locdata.data.groupby('Frame')
+    grouped = locdata.data.groupby('frame')
 
     # find nearest neighbors
-    min = locdata.data['Frame'].unique().min()
-    max = locdata.data['Frame'].unique().max()
+    min = locdata.data['frame'].unique().min()
+    max = locdata.data['frame'].unique().max()
 
     results = pd.DataFrame()
 
@@ -54,11 +54,11 @@ def _localization_precision(locdata, radius=50):
                         difference = points.iloc[n] - other_points.iloc[min_index]
 
                         df = difference.to_frame().T
-                        df = df.rename(columns={'Position_x': 'Position_delta_x',
-                                                'Position_y': 'Position_delta_y',
-                                                'Position_z': 'Position_delta_z'})
-                        df = df.assign(Position_distance=min_distance)
-                        df = df.assign(Frame=i)
+                        df = df.rename(columns={'position_x': 'position_delta_x',
+                                                'position_y': 'position_delta_y',
+                                                'position_z': 'position_delta_z'})
+                        df = df.assign(position_distance=min_distance)
+                        df = df.assign(frame=i)
                         results = results.append(df)
         except KeyError:
             pass
@@ -126,7 +126,7 @@ class LocalizationPrecision(_Analysis):
         """
         self.distribution_statistics = _DistributionFits(self)
         if loc_property is None:
-            for prop in ['Position_delta_x', 'Position_delta_y', 'Position_delta_z', 'Position_distance']:
+            for prop in ['position_delta_x', 'position_delta_y', 'position_delta_z', 'position_distance']:
                 if prop in self.results.columns:
                     self.distribution_statistics.fit(loc_property=prop, **kwargs)
         else:
@@ -157,12 +157,12 @@ class LocalizationPrecision(_Analysis):
 
         # prepare plot
         self.results.rolling(window=window, center=True).mean().plot(ax=ax,
-                                                                     x='Frame',
+                                                                     x='frame',
                                                                      y=loc_property,
                                                                      legend=False,
                                                                      ** kwargs)
         ax.set(title=f'Localization Precision\n (window={window})',
-               xlabel='Frame',
+               xlabel='frame',
                ylabel=loc_property
                )
 
@@ -171,7 +171,7 @@ class LocalizationPrecision(_Analysis):
             plt.show()
 
 
-    def hist(self, ax=None, show=True, loc_property='Position_distance', bins='auto', fit=True, **kwargs):
+    def hist(self, ax=None, show=True, loc_property='position_distance', bins='auto', fit=True, **kwargs):
         """
         Provide histogram as matplotlib axes object showing the distributions of results.
 
@@ -279,7 +279,7 @@ class _DistributionFits:
         self.pairwise_distribution = Pairwise_distance_distribution_2d(name='pairwise', a=0.)
         # todo: 3D
 
-    def fit(self, loc_property='Position_distance', **kwargs):
+    def fit(self, loc_property='position_distance', **kwargs):
         '''
         Fit distributions of results using a MLE fit (scipy.stats) and provide fit results.
 
@@ -294,10 +294,10 @@ class _DistributionFits:
             Parameters passed to the `distribution.fit()` method.
         '''
         # prepare parameters
-        if 'Position_delta_' in loc_property:
+        if 'position_delta_' in loc_property:
             self.distribution = stats.norm
             self._dist_parameters = [(loc_property + '_' + param) for param in ['loc', 'scale']]
-        elif loc_property == 'Position_distance':
+        elif loc_property == 'position_distance':
             self.distribution = self.pairwise_distribution
             self._dist_parameters = [(loc_property + '_' + param) for param in ['sigma', 'loc', 'scale']]
         else:
@@ -308,9 +308,9 @@ class _DistributionFits:
                 self.parameters.append(param)
 
         # MLE fit of distribution on data
-        if 'Position_delta_' in loc_property:
+        if 'position_delta_' in loc_property:
             fit_results = self.distribution.fit(self.analysis_class.results[loc_property].values, **kwargs)
-        elif loc_property == 'Position_distance':
+        elif loc_property == 'position_distance':
             fit_results = self.distribution.fit(self.analysis_class.results[loc_property].values,
                                                 floc=0, fscale=1, **kwargs)
         else:
@@ -319,7 +319,7 @@ class _DistributionFits:
         for parameter, result in zip(self._dist_parameters, fit_results):
             setattr(self, parameter, result)
 
-    def plot(self, ax=None, show=True, loc_property='Position_distance', **kwargs):
+    def plot(self, ax=None, show=True, loc_property='position_distance', **kwargs):
         """
         Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
 
@@ -342,7 +342,7 @@ class _DistributionFits:
             fig, ax = plt.subplots(nrows=1, ncols=1)
 
         # plot fit curve
-        if 'Position_delta_' in loc_property:
+        if 'position_delta_' in loc_property:
             _loc = getattr(self, loc_property + '_loc')
             _scale = getattr(self, loc_property + '_scale')
 
@@ -351,8 +351,8 @@ class _DistributionFits:
             ax.plot(x_values, stats.norm.pdf(x_values, loc=_loc, scale=_scale), 'r-', lw=3, alpha=0.6,
                     label='fitted pdf', **kwargs)
 
-        elif loc_property == 'Position_distance':
-            _sigma = self.Position_distance_sigma
+        elif loc_property == 'position_distance':
+            _sigma = self.position_distance_sigma
             x_values = np.linspace(self.pairwise_distribution.ppf(0.01, sigma=_sigma),
                                    self.pairwise_distribution.ppf(0.99, sigma=_sigma), 100)
             ax.plot(x_values, self.pairwise_distribution.pdf(x_values, sigma=_sigma), 'r-', lw=3, alpha=0.6,

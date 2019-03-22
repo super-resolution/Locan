@@ -9,15 +9,15 @@ from surepy.data.transform import transform_affine
 @pytest.fixture()
 def locdata_simple():
     dict_ = {
-        'Position_x': [0, 1, 2, 3, 0, 1, 4, 5],
-        'Position_y': [0, 1, 2, 3, 1, 4, 5, 1],
-        'Position_z': [0, 1, 2, 3, 4, 4, 4, 5]
+        'position_x': [0, 1, 2, 3, 0, 1, 4, 5],
+        'position_y': [0, 1, 2, 3, 1, 4, 5, 1],
+        'position_z': [0, 1, 2, 3, 4, 4, 4, 5]
     }
     return LocData(dataframe=pd.DataFrame.from_dict(dict_))
 
 
 def test_select_by_condition(locdata_simple):
-    dat_s = select_by_condition(locdata_simple, 'Position_x>1')
+    dat_s = select_by_condition(locdata_simple, 'position_x>1')
     assert (len(dat_s) == 4)
     # dat_s.print_meta()
     # print(dat_s.meta)
@@ -27,7 +27,7 @@ def test_LocData_selection_from_collection(locdata_simple):
     # print(locdata_simple.meta)
     sel = []
     for i in range(4):
-        sel.append(select_by_condition(locdata_simple, f'Position_x>{i}'))
+        sel.append(select_by_condition(locdata_simple, f'position_x>{i}'))
     col = LocData.from_collection(sel)
     assert (len(col) == 4)
     assert (len(col.references) == 4)
@@ -35,12 +35,12 @@ def test_LocData_selection_from_collection(locdata_simple):
     # print(col.data)
     # print(col.meta)
 
-    col_sel = select_by_condition(col, 'Localization_count>2')
+    col_sel = select_by_condition(col, 'localization_count>2')
     assert (len(col_sel) == 3)
     # print(col_sel.data)
     assert(col_sel.references is col)
 
-    col_sel_sel = select_by_condition(col_sel, 'Localization_count<4')
+    col_sel_sel = select_by_condition(col_sel, 'localization_count<4')
     assert (len(col_sel_sel) == 1)
     # print(col_sel_sel.data)
     assert(col_sel_sel.references is col_sel)
@@ -57,7 +57,7 @@ def test_random_subset(locdata_simple):
 
 def test_select_by_region(locdata_simple):
     roi_dict = dict(region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
-    dat = select_by_region(locdata=locdata_simple, region=roi_dict, properties_for_roi=['Position_y', 'Position_z'])
+    dat = select_by_region(locdata=locdata_simple, region=roi_dict, properties_for_roi=['position_y', 'position_z'])
     assert(len(dat) == 1)
 
     roi_region = RoiRegion(region_type='rectangle', region_specs=((0, 0), 2, 1, 10))

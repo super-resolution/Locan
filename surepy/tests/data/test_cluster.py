@@ -30,11 +30,11 @@ def test_clustering_hdbscan(locdata):
     clust = clustering_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = False)
     print(clust.data.head())
     assert (len(clust) == 5)
-    assert clust.data['Subregion_measure_bb'].name == 'Subregion_measure_bb'
-    assert isinstance(clust.data['Localization_count'], pd.Series)
+    assert clust.data['subregion_measure_bb'].name == 'subregion_measure_bb'
+    assert isinstance(clust.data['localization_count'], pd.Series)
 
-    clust.dataframe = clust.dataframe.assign(Test_column=range(5))
-    assert isinstance(clust.data['Test_column'], pd.Series)
+    clust.dataframe = clust.dataframe.assign(test_column=range(5))
+    assert isinstance(clust.data['test_column'], pd.Series)
 
 
 def test_clustering_hdbscan_with_noise(locdata):

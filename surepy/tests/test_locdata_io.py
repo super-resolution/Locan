@@ -10,7 +10,7 @@ from surepy.data import metadata_pb2
 
 def test_get_correct_column_names_from_rapidSTORM_header():
     columns = io.load_rapidSTORM_header(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt')
-    assert (columns == ['Position_x', 'Position_y', 'Frame', 'Intensity', 'Chi_square', 'Local_background'])
+    assert (columns == ['position_x', 'position_y', 'frame', 'intensity', 'chi_square', 'local_background'])
 
 def test_loading_rapidSTORM_file():
     dat = io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt', nrows=10)
@@ -20,9 +20,9 @@ def test_loading_rapidSTORM_file():
 
 def test_get_correct_column_names_from_Elyra_header():
     columns = io.load_Elyra_header(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt')
-    assert (columns == ['Original_index', 'Frame', 'Frames_number', 'Frames_missing', 'Position_x', 'Position_y',
-                        'Precision', 'Intensity', 'Local_background', 'Chi_square', 'Psf_half_width', 'Channel',
-                        'Slice_z'])
+    assert (columns == ['original_index', 'frame', 'frames_number', 'frames_missing', 'position_x', 'position_y',
+                        'precision', 'intensity', 'local_background', 'chi_square', 'psf_half_width', 'channel',
+                        'slice_z'])
 
 def test_loading_Elyra_file():
     dat = io.load_Elyra_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/Elyra_dstorm_data.txt', nrows=10)
@@ -31,8 +31,8 @@ def test_loading_Elyra_file():
 
 def test_get_correct_column_names_from_Thunderstorm_header():
     columns = io.load_thunderstorm_header(path=surepy.constants.ROOT_DIR + '/tests/test_data/Thunderstorm_dstorm_data.csv')
-    assert (columns == ['Original_index', 'Frame', 'Position_x', 'Position_y', 'Psf_sigma_x', 'Intensity', 'Local_background',
-     'bkgstd [photon]', 'Chi_square', 'uncertainty [nm]'])
+    assert (columns == ['original_index', 'frame', 'position_x', 'position_y', 'psf_sigma_x', 'intensity', 'local_background',
+     'bkgstd [photon]', 'chi_square', 'uncertainty [nm]'])
 
 def test_loading_Thunderstorm_file():
     dat = io.load_thunderstorm_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/Thunderstorm_dstorm_data.csv',
@@ -46,7 +46,7 @@ def test_loading_txt_file():
     assert (len(dat) == 10)
 
     dat = io.load_txt_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/five_blobs.txt',
-                           columns=['Index', 'Position_x', 'Position_y', 'Cluster_label'], nrows=10)
+                           columns=['index', 'position_x', 'position_y', 'cluster_label'], nrows=10)
     # print(dat.data)
     assert (len(dat) == 10)
 

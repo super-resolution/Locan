@@ -16,10 +16,10 @@ def few_random_points():
 @pytest.fixture(scope='session')
 def locdata_fix():
     dict = {
-        'Position_x': np.array([1,1,2,3,4,5]),
-        'Position_y': np.array([1,5,3,6,2,5]),
-        'Frame': np.array([1, 2, 2, 4, 5, 6]),
-        'Intensity': np.array([100, 150, 110, 80, 105, 95]),
+        'position_x': np.array([1,1,2,3,4,5]),
+        'position_y': np.array([1,5,3,6,2,5]),
+        'frame': np.array([1, 2, 2, 4, 5, 6]),
+        'intensity': np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(dict)
     return LocData.from_dataframe(dataframe=df, meta={'creation_date': 1000000001})

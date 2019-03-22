@@ -5,7 +5,7 @@ from surepy import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
 #import surepy.tests.test_data
-from surepy.analysis import Nearest_neighbor_distances
+from surepy.analysis import NearestNeighborDistances
 from surepy.analysis.nearest_neighbor import NNDistances_csr_2d, _DistributionFits
 
 # fixtures
@@ -41,7 +41,7 @@ def test_NNDistances_csr_2d():
 
 # todo fit is not working
 # def test_DistributionFits(locdata):
-#     nn_1 = Nearest_neighbor_distances(locdata).compute()
+#     nn_1 = NearestNeighborDistances(locdata).compute()
 #     ds = _DistributionFits(nn_1)
 #     print(ds.parameter_dict())
 #     ds.fit()
@@ -50,12 +50,12 @@ def test_NNDistances_csr_2d():
 #     assert(ds.parameters == ['loc', 'scale'])
 
 def test_Nearest_neighbor_distances(locdata_simple, other_locdata_simple):
-    nn_1 = Nearest_neighbor_distances(locdata_simple).compute()
+    nn_1 = NearestNeighborDistances(locdata_simple).compute()
     #nn_1.hist()
     assert(nn_1.localization_density==0.25)
     #print(nn_1.results)
     assert(nn_1.results['nn_index'].iloc[0] == 1)
 
-    nn_2 = Nearest_neighbor_distances(locdata_simple, other_locdata=other_locdata_simple).compute()
+    nn_2 = NearestNeighborDistances(locdata_simple, other_locdata=other_locdata_simple).compute()
     # print(nn_2.results)
     assert(nn_2.results['nn_distance'].iloc[0] == 14.142135623730951)

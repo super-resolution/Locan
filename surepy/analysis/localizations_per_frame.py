@@ -34,7 +34,7 @@ def _localizations_per_frame(data, norm=None):
 
 # The specific analysis classes
 
-class Localizations_per_frame(_Analysis):
+class LocalizationsPerFrame(_Analysis):
     '''
     Compute localizations per frame.
 
@@ -177,12 +177,12 @@ class _DistributionFits:
 
     Parameters
     ----------
-    analyis_class : Localization_precision object
+    analyis_class : LocalizationPrecision object
         The analysis class with result data to fit.
 
     Attributes
     ----------
-    analyis_class : Localization_precision object
+    analyis_class : LocalizationPrecision object
         The analysis class with result data to fit.
     loc_property : LocData property
         The property for which to fit an appropriate distribution

@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from surepy import LocData
-from surepy.analysis import Localization_uncertainty_from_intensity
+from surepy.analysis import LocalizationUncertaintyFromIntensity
 
 
 @pytest.fixture()
@@ -17,7 +17,7 @@ def locdata_simple():
 
 
 def test_uncertainty(locdata_simple):
-    unc = Localization_uncertainty_from_intensity(locdata_simple).compute()
+    unc = LocalizationUncertaintyFromIntensity(locdata_simple).compute()
     # print(unc.results)
     # print(unc.results['Uncertainty_x'][0])
     assert(unc.results['Uncertainty_x'][0] == np.inf)

@@ -34,7 +34,7 @@ analysis. On the long run several analysis routines will be helpful:
     * Quality_report()
         Provide a printable form of selected analysis procedures to check imaging quality.
 
-    * Coordinate_based_colocalization()
+    * CoordinateBasedColocalization()
         Compute localization-based colocalization values for two distinct sets of locdata coordinates.
 
     * Region_overlay()

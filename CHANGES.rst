@@ -117,7 +117,7 @@ New Features
 
 surepy.analysis
 ^^^^^^^^^^^^^^^
-- implemented an analysis class Coordinate_based_colocalization.
+- implemented an analysis class CoordinateBasedColocalization.
 - implemented an analysis class AccumulationClusterCheck.
 
 surepy.data

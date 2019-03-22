@@ -87,7 +87,7 @@ def _coordinate_based_colocalization(points, other_points=None, radius=100, n_st
 
 ##### The specific analysis classes
 
-class Coordinate_based_colocalization(_Analysis):
+class CoordinateBasedColocalization(_Analysis):
     """
     Compute a colocalization index for each localization by coordinate-based colocalization (CBC).
 

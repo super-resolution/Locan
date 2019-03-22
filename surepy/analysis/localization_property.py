@@ -31,7 +31,7 @@ def _localization_property(locdata, loc_property='Intensity', index=None):
 
 ##### The specific analysis classes
 
-class Localization_property(_Analysis):
+class LocalizationProperty(_Analysis):
     """
     Analyze localization property with respect to probability density or variation over a specified index.
 
@@ -179,19 +179,19 @@ class _DistributionFits:
     """
     Handle for distribution fits.
 
-    This class is typically instantiated by Localization_property methods.
+    This class is typically instantiated by LocalizationProperty methods.
     It holds the statistical parameters derived by fitting the result distributions using MLE (scipy.stats).
     Statistical parameters are defined as described in
     :ref:(https://docs.scipy.org/doc/scipy/reference/tutorial/stats/continuous.html)
 
     Parameters
     ----------
-    analyis_class : Localization_precision object
+    analyis_class : LocalizationPrecision object
         The analysis class with result data to fit.
 
     Attributes
     ----------
-    analyis_class : Localization_precision object
+    analyis_class : LocalizationPrecision object
         The analysis class with result data to fit.
     loc_property : LocData property
         The property for which to fit an appropriate distribution

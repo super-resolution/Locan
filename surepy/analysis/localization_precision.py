@@ -70,7 +70,7 @@ def _localization_precision(locdata, radius=50):
 ##### The specific analysis classes
 
 
-class Localization_precision(_Analysis):
+class LocalizationPrecision(_Analysis):
     """
     Compute the localization precision from consecutive nearby localizations.
 
@@ -246,17 +246,17 @@ class _DistributionFits:
     """
     Handle for distribution fits.
 
-    This class is typically instantiated by Localization_precision methods.
+    This class is typically instantiated by LocalizationPrecision methods.
     It holds the statistical parameters derived by fitting the result distributions using MLE (scipy.stats).
 
     Parameters
     ----------
-    analyis_class : Localization_precision object
+    analyis_class : LocalizationPrecision object
         The analysis class with result data to fit.
 
     Attributes
     ----------
-    analyis_class : Localization_precision object
+    analyis_class : LocalizationPrecision object
         The analysis class with result data to fit.
     pairwise_distribution : Pairwise_distance_distribution_2d
         Continuous distribution function used to fit Position_distances

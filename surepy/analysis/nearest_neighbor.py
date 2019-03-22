@@ -88,7 +88,7 @@ def _nearest_neighbor_distances(points, k=1, other_points=None):
 
 # The specific analysis classes
 
-class Nearest_neighbor_distances(_Analysis):
+class NearestNeighborDistances(_Analysis):
     '''
     Compute the k-nearest-neighbor distances within data or between data and other_data.
 
@@ -238,19 +238,19 @@ class _DistributionFits:
     """
     Handle for distribution fits.
 
-    This class is typically instantiated by Localization_property methods.
+    This class is typically instantiated by LocalizationProperty methods.
     It holds the statistical parameters derived by fitting the result distributions using MLE (scipy.stats).
     Statistical parameters are defined as described in
     :ref:(https://docs.scipy.org/doc/scipy/reference/tutorial/stats/continuous.html)
 
     Parameters
     ----------
-    analyis_class : Localization_precision object
+    analyis_class : LocalizationPrecision object
         The analysis class with result data to fit.
 
     Attributes
     ----------
-    analyis_class : Localization_precision object
+    analyis_class : LocalizationPrecision object
         The analysis class with result data to fit.
     loc_property : LocData property
         The property for which to fit an appropriate distribution

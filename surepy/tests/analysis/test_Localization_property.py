@@ -7,7 +7,7 @@ from surepy import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
 import surepy.tests.test_data
-from surepy.analysis import Localization_property
+from surepy.analysis import LocalizationProperty
 from surepy.analysis.localization_property import _DistributionFits
 
 
@@ -17,7 +17,7 @@ def locdata():
 
 
 def test_DistributionFits(locdata):
-    lprop = Localization_property(locdata=locdata, loc_property='Intensity').compute()
+    lprop = LocalizationProperty(locdata=locdata, loc_property='Intensity').compute()
     ds = _DistributionFits(lprop)
     ds.fit(distribution=stats.expon)
     # print(ds.parameters)
@@ -29,7 +29,7 @@ def test_DistributionFits(locdata):
     assert(ds.parameter_dict()['Intensity_loc']==1000)
 
 def test_Localization_property(locdata):
-    lprop = Localization_property(locdata=locdata, loc_property='Intensity').compute()
+    lprop = LocalizationProperty(locdata=locdata, loc_property='Intensity').compute()
     assert(lprop.results.columns == pd.Index(['Intensity'], dtype='object'))
     assert(lprop.distribution_statistics is None)
     #lprop.plot()
@@ -37,7 +37,7 @@ def test_Localization_property(locdata):
     lprop.fit_distributions()
     assert(list(lprop.distribution_statistics.parameter_dict().keys()) == ['Intensity_loc', 'Intensity_scale'])
 
-    lprop = Localization_property(locdata=locdata, loc_property='Intensity', index='Frame').compute()
+    lprop = LocalizationProperty(locdata=locdata, loc_property='Intensity', index='Frame').compute()
     # print(lprop.results)
     assert(lprop.results.index.name == 'Frame')
     assert(lprop.results.columns == pd.Index(['Intensity'], dtype='object'))

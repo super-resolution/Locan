@@ -53,7 +53,7 @@ def _algorithm_2(data=None, n_sample=100, seed=None):
 # The classes for each particular algorith are defined as:
 #
 
-class Analysis_example_algorithm_1(_Analysis):
+class AnalysisExampleAlgorithm_1(_Analysis):
     '''
     Example for an analysis class implementing algorithm_1.
     Compute some data and provide a plot and histogram with secondary data (e.g. from fitting plot or histogram).
@@ -96,7 +96,7 @@ class Analysis_example_algorithm_1(_Analysis):
 
 
 
-class Analysis_example_algorithm_2(_Analysis):
+class AnalysisExampleAlgorithm_2(_Analysis):
     '''
     Example for an analysis class implementing algorithm_2.
     Compute some data and provide a plot and histogram with secondary data (e.g. from fitting plot or histogram).

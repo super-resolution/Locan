@@ -63,9 +63,9 @@ Methods can be classified depending on their input:
 1) Methods that take a selection as input:
 *******************************************************
 
-    * Localizations_per_frame()
+    * LocalizationsPerFrame()
         Compute the number of localizations in each frame.
-    * Localization_precision()
+    * LocalizationPrecision()
 	    Estimating localization precision from spatial differences between successive localizations.
 
 3) Methods that take two selections as input:

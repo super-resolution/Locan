@@ -23,14 +23,14 @@ Submodules:
 
 """
 
-from surepy.analysis.analysis_example import Analysis_example_algorithm_1, Analysis_example_algorithm_2
+from surepy.analysis.analysis_example import AnalysisExampleAlgorithm_1, AnalysisExampleAlgorithm_2
 
-from surepy.analysis.localization_precision import Localization_precision
-from surepy.analysis.localization_property import Localization_property
-from surepy.analysis.localizations_per_frame import Localizations_per_frame
-from surepy.analysis.nearest_neighbor import Nearest_neighbor_distances
+from surepy.analysis.localization_precision import LocalizationPrecision
+from surepy.analysis.localization_property import LocalizationProperty
+from surepy.analysis.localizations_per_frame import LocalizationsPerFrame
+from surepy.analysis.nearest_neighbor import NearestNeighborDistances
 from surepy.analysis.pipeline import Pipeline
-from surepy.analysis.ripley import Ripleys_k_function, Ripleys_l_function, Ripleys_h_function
-from surepy.analysis.uncertainty import Localization_uncertainty_from_intensity
-from surepy.analysis.cbc import Coordinate_based_colocalization
+from surepy.analysis.ripley import RipleysKFunction, RipleysLFunction, RipleysHFunction
+from surepy.analysis.uncertainty import LocalizationUncertaintyFromIntensity
+from surepy.analysis.cbc import CoordinateBasedColocalization
 from surepy.analysis.accumulation_analysis import AccumulationClusterCheck

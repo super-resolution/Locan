@@ -102,7 +102,7 @@ def _ripleys_h_function(points, radii, region_measure=1, other_points=None):
 
 ##### The specific analysis classes
 
-class Ripleys_k_function(_Analysis):
+class RipleysKFunction(_Analysis):
     """
     Compute Ripley's K function for two- or three-dimensional data at the given radii.
 
@@ -161,7 +161,7 @@ class Ripleys_k_function(_Analysis):
         plot(self, ax, show)
 
 
-class Ripleys_l_function(_Analysis):
+class RipleysLFunction(_Analysis):
     """
     Compute Ripley's L function for two- or three-dimensional data at the given radii.
 
@@ -219,7 +219,7 @@ class Ripleys_l_function(_Analysis):
         plot(self, ax, show)
 
 
-class Ripleys_h_function(_Analysis):
+class RipleysHFunction(_Analysis):
     """
     Compute Ripley's H function for two- or three-dimensional data at the given radii.
 

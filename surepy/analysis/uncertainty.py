@@ -41,7 +41,7 @@ def _localization_uncertainty_from_intensity(locdata):
 
 ##### The specific analysis classes
 
-class Localization_uncertainty_from_intensity(_Analysis):
+class LocalizationUncertaintyFromIntensity(_Analysis):
     """
     Compute the localization uncertainty for each localization's spatial coordinate in locdata.
 

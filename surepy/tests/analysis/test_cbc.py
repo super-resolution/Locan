@@ -10,7 +10,7 @@ from surepy.constants import ROOT_DIR
 from surepy.io.io_locdata import load_txt_file
 from surepy.data.transform import transform_affine
 from surepy.analysis.cbc import _coordinate_based_colocalization
-from surepy.analysis import Coordinate_based_colocalization
+from surepy.analysis import CoordinateBasedColocalization
 
 
 # fixtures
@@ -67,11 +67,11 @@ def test_cbc_nan(locdata_line):
 
 def test_Coordinate_based_colocalization(locdata_line):
     other_locdata = transform_affine(locdata_line)
-    cbc = Coordinate_based_colocalization(locdata=locdata_line, other_locdata=other_locdata,
-                                          radius=100, n_steps=10).compute()
+    cbc = CoordinateBasedColocalization(locdata=locdata_line, other_locdata=other_locdata,
+                                        radius=100, n_steps=10).compute()
     # print(cbc.results)
     assert(cbc.results.columns == f'Colocalization_cbc_{other_locdata.meta.identifier}')
 
-    cbc = Coordinate_based_colocalization(locdata=locdata_line, other_locdata=None,
-                                          radius=100, n_steps=10).compute()
+    cbc = CoordinateBasedColocalization(locdata=locdata_line, other_locdata=None,
+                                        radius=100, n_steps=10).compute()
     assert(cbc.results.columns == 'Colocalization_cbc_self')

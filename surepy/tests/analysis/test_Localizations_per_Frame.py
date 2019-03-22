@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from surepy import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
-from surepy.analysis.localizations_per_frame import Localizations_per_frame, _DistributionFits
+from surepy.analysis.localizations_per_frame import LocalizationsPerFrame, _DistributionFits
 import surepy.tests.test_data
 
 
@@ -18,14 +18,14 @@ def locdata():
 
 def test_Localizations_per_frame(locdata):
     # print(locdata.data.head())
-    ana = Localizations_per_frame(locdata=locdata, norm=None, meta={'comment': 'this is an example'}).compute()
+    ana = LocalizationsPerFrame(locdata=locdata, norm=None, meta={'comment': 'this is an example'}).compute()
     # print(ana.results.head())
     assert(isinstance(ana.results, pd.Series))
     assert(ana.meta.comment == 'this is an example')
     print(ana.results.name)
     # ana.plot()
 
-    ana = Localizations_per_frame(locdata=locdata, norm='Localization_density_bb').compute()
+    ana = LocalizationsPerFrame(locdata=locdata, norm='Localization_density_bb').compute()
     assert(ana.results.name == 'number_localizations / Localization_density_bb')
     ana.fit_distributions(floc=0)
     assert(0 in ana.distribution_statistics.parameter_dict().values())
@@ -34,7 +34,7 @@ def test_Localizations_per_frame(locdata):
 
 
 def test_Distribution_fits(locdata):
-    ana = Localizations_per_frame(locdata=locdata).compute()
+    ana = LocalizationsPerFrame(locdata=locdata).compute()
     distribution_statistics = _DistributionFits(ana)
     assert(distribution_statistics.parameter_dict()=={})
     # print(distribution_statistics)

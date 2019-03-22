@@ -6,7 +6,7 @@ from surepy import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
 import surepy.tests.test_data
-from surepy.analysis import Localization_precision
+from surepy.analysis import LocalizationPrecision
 
 
 @pytest.fixture()
@@ -16,7 +16,7 @@ def locdata():
 
 def test_Localization_precision(locdata):
     # print(locdata.data.head())
-    lp = Localization_precision(locdata=locdata, meta={'comment': 'my comment'})
+    lp = LocalizationPrecision(locdata=locdata, meta={'comment': 'my comment'})
     #print(lp.meta)
-    assert (lp.meta.method.name == "Localization_precision")
+    assert (lp.meta.method.name == "LocalizationPrecision")
     assert (lp.meta.comment == 'my comment')

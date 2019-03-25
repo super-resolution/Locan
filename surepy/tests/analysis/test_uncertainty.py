@@ -17,8 +17,8 @@ def locdata_simple():
 
 
 def test_uncertainty(locdata_simple):
-    unc = LocalizationUncertaintyFromIntensity(locdata_simple).compute()
+    unc = LocalizationUncertaintyFromIntensity().compute(locdata_simple)
     # print(unc.results)
     # print(unc.results['Uncertainty_x'][0])
-    assert(unc.results['uncertainty_x'][0] == np.inf)
-    assert(unc.results['uncertainty_x'][1] == 100)
+    assert unc.results['uncertainty_x'][0] == np.inf
+    assert unc.results['uncertainty_x'][1] == 100

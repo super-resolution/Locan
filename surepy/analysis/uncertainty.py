@@ -50,8 +50,8 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
 
     Attributes
     ----------
@@ -59,18 +59,30 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
     results : pandas data frame
         The number of localizations per frame or
         the number of localizations per frame normalized to region_measure(hull).
-    meta : dict
-        meta data
     """
     count = 0
 
-    def __init__(self, locdata=None, meta=None):
-        super().__init__(locdata=locdata, meta=meta)
+    def __init__(self, meta=None):
+        super().__init__(meta=meta)
 
-    def compute(self):
-        data = self.locdata
-        self.results = _localization_uncertainty_from_intensity(locdata=data)
+    def compute(self, locdata):
+        """
+        Run the computation.
+
+        Parameters
+        ----------
+        locdata : LocData object
+            Localization data.
+
+        Returns
+        -------
+        Analysis class
+            Returns the Analysis class object (self).
+        """
+        self.results = _localization_uncertainty_from_intensity(locdata=locdata)
         return self

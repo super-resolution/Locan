@@ -1,9 +1,6 @@
 import pytest
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
-from surepy import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
 from surepy.analysis.localizations_per_frame import LocalizationsPerFrame, _DistributionFits
@@ -36,7 +33,7 @@ def test_Localizations_per_frame(locdata):
 def test_Distribution_fits(locdata):
     ana = LocalizationsPerFrame().compute(locdata=locdata)
     distribution_statistics = _DistributionFits(ana)
-    assert(distribution_statistics.parameter_dict()=={})
+    assert distribution_statistics.parameter_dict() == {}
     # print(distribution_statistics)
     distribution_statistics.fit()
     assert(list(distribution_statistics.parameter_dict().keys()) ==

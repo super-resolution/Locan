@@ -99,10 +99,8 @@ class CoordinateBasedColocalization(_Analysis):
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data for which CBC values are computed.
-    other_locdata : LocData object or None
-        Localization data to be colocalized. If None other_locdata is set to locdata.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
     radius : int or float
         The maximum radius up to which nearest neighbors are determined
     n_steps : int
@@ -121,23 +119,34 @@ class CoordinateBasedColocalization(_Analysis):
     """
     count = 0
 
-    def __init__(self, locdata, other_locdata=None, radius=100, n_steps=10, meta=None):
-        super().__init__(locdata=locdata, other_locdata=other_locdata, radius=radius, n_steps=n_steps, meta=meta)
+    def __init__(self, meta=None, radius=100, n_steps=10):
+        super().__init__(meta=meta, radius=radius, n_steps=n_steps)
         self.results = None
 
-    def compute(self):
-        points = self.locdata.coordinates
+    def compute(self, locdata, other_locdata=None):
+        """
+        Run the computation.
 
-        # turn other_locdata into other_points
-        new_parameter = {key: self.parameter[key] for key in self.parameter if key is not 'other_locdata'}
+        Parameters
+        ----------
+        locdata : LocData object
+            Localization data for which CBC values are computed.
+        other_locdata : LocData object or None
+            Localization data to be colocalized. If None other_locdata is set to locdata.
 
-        if self.parameter['other_locdata'] is not None:
-            other_points = self.parameter['other_locdata'].coordinates
-            id = self.parameter['other_locdata'].meta.identifier
+        Returns
+        -------
+        Analysis class
+           Returns the Analysis class object (self).
+        """
+        points = locdata.coordinates
+        if other_locdata is not None:
+            other_points = other_locdata.coordinates
+            id_ = other_locdata.meta.identifier
         else:
             other_points = None
-            id = 'self'
+            id_ = 'self'
 
-        self.results = pd.DataFrame({f'colocalization_cbc_{id}':
-                                         _coordinate_based_colocalization(points, other_points, **new_parameter)})
+        self.results = pd.DataFrame({f'colocalization_cbc_{id_}':
+                                         _coordinate_based_colocalization(points, other_points, **self.parameter)})
         return self

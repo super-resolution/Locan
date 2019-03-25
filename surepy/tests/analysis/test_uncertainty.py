@@ -7,13 +7,13 @@ from surepy.analysis import LocalizationUncertaintyFromIntensity
 
 @pytest.fixture()
 def locdata_simple():
-    dict = {
+    locdata_dict = {
         'position_x': [0, 0, 1, 4, 5],
         'position_y': [0, 1, 3, 4, 1],
         'intensity': [0, 1, 3, 4, 1],
         'psf_sigma_x': [100, 100, 100, 100, 100],
         }
-    return LocData(dataframe=pd.DataFrame.from_dict(dict))
+    return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
 
 
 def test_uncertainty(locdata_simple):

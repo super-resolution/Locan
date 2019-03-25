@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from surepy import LocData
 from surepy.constants import ROOT_DIR
@@ -31,11 +30,11 @@ def locdata_3d():
 
 @pytest.fixture()
 def locdata_line():
-    dict_ = {
+    locdata_dict = {
         'position_x': [0, 1, 3, 4, 50, 98, 99, 100],
         'position_y': np.zeros(8)
     }
-    return LocData(dataframe=pd.DataFrame.from_dict(dict_))
+    return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
 
 
 def test_cbc(locdata):
@@ -60,18 +59,19 @@ def test_cbc(locdata):
 def test_cbc_nan(locdata_line):
     res = _coordinate_based_colocalization(points=locdata_line.coordinates,
                                            other_points=locdata_line.coordinates+(0.5, 0),
-                                          radius=10, n_steps=10)
+                                           radius=10, n_steps=10)
     assert(len(res) == 8)
     assert(np.isnan(res[4]))
 
 
 def test_Coordinate_based_colocalization(locdata_line):
     other_locdata = transform_affine(locdata_line)
-    cbc = CoordinateBasedColocalization(locdata=locdata_line, other_locdata=other_locdata,
-                                        radius=100, n_steps=10).compute()
+    cbc = CoordinateBasedColocalization(radius=100, n_steps=10).compute(locdata=locdata_line,
+                                                                        other_locdata=other_locdata)
     # print(cbc.results)
     assert(cbc.results.columns == f'colocalization_cbc_{other_locdata.meta.identifier}')
 
-    cbc = CoordinateBasedColocalization(locdata=locdata_line, other_locdata=None,
-                                        radius=100, n_steps=10).compute()
-    assert(cbc.results.columns == 'colocalization_cbc_self')
+    cbc = CoordinateBasedColocalization(radius=100, n_steps=10).compute(locdata=locdata_line,
+                                                                        other_locdata=other_locdata)
+    print(other_locdata.meta)
+    # assert(cbc.results.columns == 'colocalization_cbc_self')

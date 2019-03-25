@@ -20,7 +20,7 @@ def test_select_by_condition(locdata_simple):
     dat_s = select_by_condition(locdata_simple, 'position_x>1')
     assert (len(dat_s) == 4)
     # dat_s.print_meta()
-    # print(dat_s.meta)
+    print(dat_s.meta)
 
 
 def test_LocData_selection_from_collection(locdata_simple):

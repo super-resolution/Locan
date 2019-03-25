@@ -100,8 +100,7 @@ class NearestNeighborDistances(_Analysis):
         Localization data.
     k : int
         Compute the kth nearest neighbor.
-    other_locdata : LocData object
-        Other localization data from which nearest neighbors are taken.
+
 
     Attributes
     ----------
@@ -120,28 +119,39 @@ class NearestNeighborDistances(_Analysis):
     '''
     count = 0
 
-    def __init__(self, locdata=None, meta=None, k=1, other_locdata=None):
-        super().__init__(locdata=locdata, meta=meta, k=k, other_locdata=other_locdata)
+    def __init__(self, meta=None, k=1):
+        super().__init__(meta=meta, k=k)
         self.distribution_statistics = None
 
+    def compute(self, locdata, other_locdata=None):
+        """
+        Run the computation.
+
+        Parameters
+        ----------
+        locdata : LocData object
+           Localization data.
+        other_locdata : LocData object
+            Other localization data from which nearest neighbors are taken.
+
+        Returns
+        -------
+        Analysis class
+           Returns the Analysis class object (self).
+        """
         #setting the localization density of locdata
-        if self.parameter['other_locdata'] is None:
-            self.localization_density = self.locdata.properties['localization_density_bb']
+        if other_locdata is None:
+            self.localization_density = locdata.properties['localization_density_bb']
         else:
-            self.localization_density = self.parameter['other_locdata'].properties['localization_density_bb']
+            self.localization_density = other_locdata.properties['localization_density_bb']
 
-    def compute(self):
-        points = self.locdata.coordinates
-
-        # turn other_locdata into other_points
-        new_parameter = {key: self.parameter[key] for key in self.parameter if key is not 'other_locdata'}
-        if self.parameter['other_locdata'] is not None:
-            other_points = self.parameter['other_locdata'].coordinates
+        points = locdata.coordinates
+        if other_locdata is not None:
+            other_points = other_locdata.coordinates
         else:
             other_points = None
 
-        self.results = _nearest_neighbor_distances(points=points,
-                                                   **new_parameter, other_points=other_points)
+        self.results = _nearest_neighbor_distances(points=points, **self.parameter, other_points=other_points)
         return self
 
 

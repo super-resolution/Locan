@@ -50,12 +50,12 @@ def test_NNDistances_csr_2d():
 #     assert(ds.parameters == ['loc', 'scale'])
 
 def test_Nearest_neighbor_distances(locdata_simple, other_locdata_simple):
-    nn_1 = NearestNeighborDistances(locdata_simple).compute()
+    nn_1 = NearestNeighborDistances().compute(locdata_simple)
     #nn_1.hist()
     assert(nn_1.localization_density==0.25)
     #print(nn_1.results)
     assert(nn_1.results['nn_index'].iloc[0] == 1)
 
-    nn_2 = NearestNeighborDistances(locdata_simple, other_locdata=other_locdata_simple).compute()
+    nn_2 = NearestNeighborDistances().compute(locdata_simple, other_locdata=other_locdata_simple)
     # print(nn_2.results)
     assert(nn_2.results['nn_distance'].iloc[0] == 14.142135623730951)

@@ -98,15 +98,26 @@ class LocalizationPrecision(_Analysis):
     distribution_statistics : Distribution_fits object, None
         Distribution parameters derived from MLE fitting of results.
     """
-    def __init__(self, locdata=None, meta=None, radius=50):
-        super().__init__(locdata=locdata, meta=meta, radius=radius)
+    def __init__(self, meta=None, radius=50):
+        super().__init__(meta=meta, radius=radius)
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self):
-        """ Run the computation. """
-        data = self.locdata
-        self.results = _localization_precision(locdata=data, **self.parameter)
+    def compute(self, locdata):
+        """
+        Run the computation.
+
+        Parameters
+        ----------
+        locdata : LocData object
+            Localization data.
+
+        Returns
+        -------
+        Analysis class
+            Returns the Analysis class object (self).
+        """
+        self.results = _localization_precision(locdata=locdata, **self.parameter)
         return self
 
     def fit_distributions(self, loc_property=None, **kwargs):

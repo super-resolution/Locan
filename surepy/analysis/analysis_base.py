@@ -39,10 +39,9 @@ class _Analysis():
     count = 0
     """ A counter for counting Analysis class instantiations (class attribute)."""
 
-    def __init__(self, locdata, meta, **kwargs):
+    def __init__(self, meta, **kwargs):
         self.__class__.count += 1
 
-        self.locdata = locdata
         self.parameter = kwargs
         self.meta = _init_meta(self)
         self.meta = _update_meta(self, meta)

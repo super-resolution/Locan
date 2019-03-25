@@ -108,15 +108,13 @@ class RipleysKFunction(_Analysis):
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data with 2D or 3D coordinates on which to estimate Ripley's K function.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
     radii: array of float
         Radii at which to compute Ripley's k function.
     region_measure : float or 'bb'
         Region measure (area or volume) for point region. For 'bb' the region measure of the bounding_box is used.
-    other_locdata : LocData object
-        Other localization data from which to estimate Ripley's K function (e.g. subset of points).
-        For None other_points is set to points (default).
+
 
     Attributes
     ----------
@@ -131,24 +129,36 @@ class RipleysKFunction(_Analysis):
     """
     count = 0
 
-    def __init__(self, locdata, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb', other_locdata=None):
-        super().__init__(locdata=locdata, meta=meta,
-                         radii=radii, region_measure=region_measure, other_locdata=other_locdata)
+    def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb'):
+        super().__init__(meta=meta, radii=radii, region_measure=region_measure)
 
-    def compute(self):
-        points = self.locdata.coordinates
+    def compute(self, locdata, other_locdata=None):
+        """
+        Run the computation.
 
-        # turn other_locdata into other_points
-        new_parameter = {key: self.parameter[key] for key in self.parameter if key is not 'other_locdata'}
-        if self.parameter['other_locdata'] is not None:
-            other_points = self.parameter['other_locdata'].coordinates
+        Parameters
+        ----------
+        locdata : LocData object
+            Localization data with 2D or 3D coordinates on which to estimate Ripley's K function.
+        other_locdata : LocData object
+            Other localization data from which to estimate Ripley's K function (e.g. subset of points).
+            For None other_points is set to points (default).
+
+        Returns
+        -------
+        Analysis class
+           Returns the Analysis class object (self).
+        """
+        points = locdata.coordinates
+        if other_locdata is not None:
+            other_points = other_locdata.coordinates
         else:
             other_points = None
 
         # choose the right region_measure
         # todo: add other hull regions
         if self.parameter['region_measure'] is 'bb':
-            region_measure = float(self.locdata.properties['region_measure_bb'])
+            region_measure = float(locdata.properties['region_measure_bb'])
         else:
             region_measure = self.parameter['region_measure']
 
@@ -167,15 +177,12 @@ class RipleysLFunction(_Analysis):
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data with 2D or 3D coordinates on which to estimate Ripley's K function.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
     radii: array of float
         Radii at which to compute Ripley's k function.
     region_measure : float or 'bb'
         Region measure (area or volume) for point region. For 'bb' the region measure of the bounding_box is used.
-    other_locdata : LocData object
-        Other localization data from which to estimate Ripley's K function (e.g. subset of points).
-        For None other_points is set to points (default).
 
     Attributes
     ----------
@@ -190,23 +197,36 @@ class RipleysLFunction(_Analysis):
     """
     count = 0
 
-    def __init__(self, locdata, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb', other_locdata=None):
-        super().__init__(locdata=locdata, radii=radii, region_measure=region_measure, other_locdata=other_locdata, meta=meta)
+    def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb'):
+        super().__init__(meta=meta, radii=radii, region_measure=region_measure)
 
-    def compute(self):
-        points = self.locdata.coordinates
+    def compute(self, locdata, other_locdata=None):
+        """
+        Run the computation.
 
-        # turn other_locdata into other_points
-        new_parameter = {key: self.parameter[key] for key in self.parameter if key is not 'other_locdata'}
-        if self.parameter['other_locdata'] is not None:
-            other_points = self.parameter['other_locdata'].coordinates
+        Parameters
+        ----------
+        locdata : LocData object
+            Localization data with 2D or 3D coordinates on which to estimate Ripley's L function.
+        other_locdata : LocData object
+            Other localization data from which to estimate Ripley's L function (e.g. subset of points).
+            For None other_points is set to points (default).
+
+        Returns
+        -------
+        Analysis class
+           Returns the Analysis class object (self).
+        """
+        points = locdata.coordinates
+        if other_locdata is not None:
+            other_points = other_locdata.coordinates
         else:
             other_points = None
 
         # choose the right region_measure
         # todo: add other hull regions
         if self.parameter['region_measure'] is 'bb':
-            region_measure = float(self.locdata.properties['region_measure_bb'])
+            region_measure = float(locdata.properties['region_measure_bb'])
         else:
             region_measure = self.parameter['region_measure']
 
@@ -225,15 +245,12 @@ class RipleysHFunction(_Analysis):
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data with 2D or 3D coordinates on which to estimate Ripley's K function.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
     radii: array of float
         Radii at which to compute Ripley's k function.
     region_measure : float or 'bb'
         Region measure (area or volume) for point region. For 'bb' the region measure of the bounding_box is used.
-    other_locdata : LocData object
-        Other localization data from which to estimate Ripley's K function (e.g. subset of points).
-        For None other_points is set to points (default).
 
     Attributes
     ----------
@@ -250,27 +267,40 @@ class RipleysHFunction(_Analysis):
     """
     count = 0
 
-    def __init__(self, locdata, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb', other_locdata=None):
-        super().__init__(locdata=locdata, radii=radii, region_measure=region_measure, other_locdata=other_locdata, meta=meta)
+    def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb'):
+        super().__init__(meta=meta, radii=radii, region_measure=region_measure)
         self._Ripley_h_maximum = None
 
-    def compute(self):
+    def compute(self, locdata, other_locdata=None):
+        """
+        Run the computation.
+
+        Parameters
+        ----------
+        locdata : LocData object
+            Localization data with 2D or 3D coordinates on which to estimate Ripley's H function.
+        other_locdata : LocData object
+            Other localization data from which to estimate Ripley's H function (e.g. subset of points).
+            For None other_points is set to points (default).
+
+        Returns
+        -------
+        Analysis class
+           Returns the Analysis class object (self).
+        """
         # reset secondary results
         self._Ripley_h_maximum = None
 
-        points = self.locdata.coordinates
-
-        # turn other_locdata into other_points
-        new_parameter = {key: self.parameter[key] for key in self.parameter if key is not 'other_locdata'}
-        if self.parameter['other_locdata'] is not None:
-            other_points = self.parameter['other_locdata'].coordinates
+        points = locdata.coordinates
+        if other_locdata is not None:
+            other_points = other_locdata.coordinates
         else:
             other_points = None
 
         # choose the right region_measure
         # todo: add other hull regions
         if self.parameter['region_measure'] is 'bb':
-            region_measure = float(self.locdata.properties['region_measure_bb'])
+            region_measure = float(locdata.properties['region_measure_bb'])
         else:
             region_measure = self.parameter['region_measure']
 

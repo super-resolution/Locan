@@ -14,6 +14,20 @@ from surepy.analysis.analysis_base import _Analysis
 #### The algorithms
 
 def _localizations_per_frame(data, norm=None):
+    """
+    Compute localizations per frame.
+
+    Parameters
+    ----------
+    data : Pandas DataFrame
+        DataFrame object that contains a column `Frame` to be grouped.
+    norm : int, float, str, None
+        Normalization factor that can be None, a number, or another property in `data`.
+
+    Returns:
+    --------
+    Pandas Series
+    """
     # normalization
     if norm is None:
         normalization_factor = 1
@@ -42,8 +56,6 @@ class LocalizationsPerFrame(_Analysis):
     ----------
     meta : Metadata protobuf message
         Metadata about the current analysis routine.
-    data : Pandas DataFrame
-        DataFrame object that contains a column `Frame` to be grouped.
     norm : int, float, str, None
         Normalization factor that can be None, a number, or another property in `data`.
 

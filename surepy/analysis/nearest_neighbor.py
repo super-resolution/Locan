@@ -89,15 +89,15 @@ def _nearest_neighbor_distances(points, k=1, other_points=None):
 # The specific analysis classes
 
 class NearestNeighborDistances(_Analysis):
-    '''
+    """
     Compute the k-nearest-neighbor distances within data or between data and other_data.
 
     The algorithm relies on sklearn.neighbors.NearestNeighbors.
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
     k : int
         Compute the kth nearest neighbor.
 
@@ -106,8 +106,6 @@ class NearestNeighborDistances(_Analysis):
     ----------
     count : int
         A counter for counting instantiations.
-    locdata : LocData object
-        Localization data.
     parameter : dict
         A dictionary with all settings for the current computation.
     meta : Metadata protobuf message
@@ -116,7 +114,7 @@ class NearestNeighborDistances(_Analysis):
         Computed results.
     distribution_statistics : Distribution_stats object, None
         Distribution parameters derived from MLE fitting of results.
-    '''
+    """
     count = 0
 
     def __init__(self, meta=None, k=1):

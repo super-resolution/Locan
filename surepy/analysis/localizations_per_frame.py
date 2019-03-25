@@ -40,8 +40,6 @@ class LocalizationsPerFrame(_Analysis):
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data.
     meta : Metadata protobuf message
         Metadata about the current analysis routine.
     data : Pandas DataFrame
@@ -53,8 +51,6 @@ class LocalizationsPerFrame(_Analysis):
     ----------
     count : int
         A counter for counting instantiations.
-    locdata : LocData object
-        Localization data.
     parameter : dict
         A dictionary with all settings for the current computation.
     meta : Metadata protobuf message
@@ -66,13 +62,25 @@ class LocalizationsPerFrame(_Analysis):
     '''
     count = 0
 
-    def __init__(self, locdata=None, meta=None, norm=None):
-        super().__init__(locdata=locdata, meta=meta, norm=norm)
+    def __init__(self, meta=None, norm=None):
+        super().__init__(meta=meta, norm=norm)
         self.distribution_statistics = None
 
-    def compute(self):
-        data = self.locdata
-        self.results = _localizations_per_frame(data=data, **self.parameter)
+    def compute(self, locdata):
+        """
+        Run the computation.
+
+        Parameters
+        ----------
+        locdata : LocData object
+           Localization data.
+
+        Returns
+        -------
+        Analysis class
+           Returns the Analysis class object (self).
+        """
+        self.results = _localizations_per_frame(data=locdata, **self.parameter)
         return self
 
     def fit_distributions(self, **kwargs):

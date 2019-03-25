@@ -18,14 +18,14 @@ def locdata():
 
 def test_Localizations_per_frame(locdata):
     # print(locdata.data.head())
-    ana = LocalizationsPerFrame(locdata=locdata, norm=None, meta={'comment': 'this is an example'}).compute()
+    ana = LocalizationsPerFrame(norm=None, meta={'comment': 'this is an example'}).compute(locdata=locdata)
     # print(ana.results.head())
     assert(isinstance(ana.results, pd.Series))
     assert(ana.meta.comment == 'this is an example')
     print(ana.results.name)
     # ana.plot()
 
-    ana = LocalizationsPerFrame(locdata=locdata, norm='localization_density_bb').compute()
+    ana = LocalizationsPerFrame(norm='localization_density_bb').compute(locdata=locdata)
     assert(ana.results.name == 'number_localizations / localization_density_bb')
     ana.fit_distributions(floc=0)
     assert(0 in ana.distribution_statistics.parameter_dict().values())
@@ -34,7 +34,7 @@ def test_Localizations_per_frame(locdata):
 
 
 def test_Distribution_fits(locdata):
-    ana = LocalizationsPerFrame(locdata=locdata).compute()
+    ana = LocalizationsPerFrame().compute(locdata=locdata)
     distribution_statistics = _DistributionFits(ana)
     assert(distribution_statistics.parameter_dict()=={})
     # print(distribution_statistics)

@@ -48,8 +48,6 @@ class LocalizationProperty(_Analysis):
     ----------
     count : int
         A counter for counting instantiations (class attribute).
-    locdata : LocData object
-        Localization data.
     parameter : dict
         A dictionary with all settings for the current computation.
     meta : Metadata protobuf message

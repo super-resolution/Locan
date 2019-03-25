@@ -13,11 +13,12 @@ from surepy.analysis.localization_property import _DistributionFits
 
 @pytest.fixture()
 def locdata():
-    return io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt', nrows=100)
+    return io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+                                   nrows=100)
 
 
 def test_DistributionFits(locdata):
-    lprop = LocalizationProperty(locdata=locdata, loc_property='intensity').compute()
+    lprop = LocalizationProperty(loc_property='intensity').compute(locdata=locdata)
     ds = _DistributionFits(lprop)
     ds.fit(distribution=stats.expon)
     # print(ds.parameters)
@@ -29,7 +30,7 @@ def test_DistributionFits(locdata):
     assert(ds.parameter_dict()['intensity_loc']==1000)
 
 def test_Localization_property(locdata):
-    lprop = LocalizationProperty(locdata=locdata, loc_property='intensity').compute()
+    lprop = LocalizationProperty(loc_property='intensity').compute(locdata=locdata)
     assert(lprop.results.columns == pd.Index(['intensity'], dtype='object'))
     assert(lprop.distribution_statistics is None)
     #lprop.plot()
@@ -37,7 +38,7 @@ def test_Localization_property(locdata):
     lprop.fit_distributions()
     assert(list(lprop.distribution_statistics.parameter_dict().keys()) == ['intensity_loc', 'intensity_scale'])
 
-    lprop = LocalizationProperty(locdata=locdata, loc_property='intensity', index='frame').compute()
+    lprop = LocalizationProperty(loc_property='intensity', index='frame').compute(locdata=locdata)
     # print(lprop.results)
     assert(lprop.results.index.name == 'frame')
     assert(lprop.results.columns == pd.Index(['intensity'], dtype='object'))

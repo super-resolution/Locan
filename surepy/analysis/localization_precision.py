@@ -87,8 +87,8 @@ class LocalizationPrecision(_Analysis):
     ----------
     count : int
         A counter for counting instantiations (class attribute).
-    locdata : LocData object
-        Localization data.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
     parameter : dict
         A dictionary with all settings for the current computation.
     meta : Metadata protobuf message

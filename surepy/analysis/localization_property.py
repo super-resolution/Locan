@@ -37,8 +37,8 @@ class LocalizationProperty(_Analysis):
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
     loc_property : str
         The property to analyze.
     index : str or None
@@ -59,13 +59,25 @@ class LocalizationProperty(_Analysis):
     distribution_statistics : Distribution_stats object, None
         Distribution parameters derived from MLE fitting of results.
     """
-    def __init__(self, locdata=None, meta=None, loc_property='Intensity', index=None):
-        super().__init__(locdata=locdata, meta=meta, loc_property=loc_property, index=index)
+    def __init__(self, meta=None, loc_property='Intensity', index=None):
+        super().__init__(meta=meta, loc_property=loc_property, index=index)
         self.distribution_statistics = None
 
-    def compute(self):
-        data = self.locdata
-        self.results = _localization_property(locdata=data, **self.parameter)
+    def compute(self, locdata=None):
+        """
+        Run the computation.
+
+        Parameters
+        ----------
+        locdata : LocData object
+            Localization data.
+
+        Returns
+        -------
+        Analysis class
+            Returns the Analysis class object (self).
+        """
+        self.results = _localization_property(locdata=locdata, **self.parameter)
         return self
 
     def fit_distributions(self, distribution=stats.expon, with_constraints=True, **kwargs):

@@ -7,7 +7,7 @@ from surepy.io.io_locdata import load_rapidSTORM_file
 from surepy.data.transform import randomize, transform_affine
 from surepy.data.transform.bunwarpj import _read_matrix, bunwarp
 
-from surepy.render import render2D
+from surepy.render import render_2d
 
 
 @pytest.fixture()
@@ -46,7 +46,7 @@ def test_bunwarp_raw_transformation():
 
     # dat_red = load_rapidSTORM_file(path=surepy.constants.ROOT_DIR +
     #                                     '/tests/test_data/transform/rapidSTORM_beads_red.txt')
-    # render2D(dat_green)
+    # render_2d(dat_green)
 
 
 def test_transform_affine(locdata_simple):

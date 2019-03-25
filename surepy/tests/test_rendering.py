@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import surepy.constants
 import surepy.io.io_locdata as io
 from surepy.simulation import simulate_blobs
-from surepy.render import render2D
+from surepy.render import render_2d
 import surepy.tests.test_data
 
 # fixtures
@@ -19,11 +19,11 @@ def locdata():
 def test_simple_rendering_2D (locdata):
 
     fig, ax = plt.subplots(nrows=1, ncols=1)
-    cax = render2D(locdata, ax=ax, bin_size=100, range=[[500,1000],[500,1000]], show=False)
-    cax = render2D(locdata, ax=ax, bin_size=100, range='auto', rescale=(0, 100), show=False)
-    cax = render2D(locdata, ax=ax, bin_size=100, range='zero', rescale=(0, 100), show=False)
-    cax = render2D(locdata, ax=ax, bin_size=100, range='auto', rescale='equal', show=False)
-    cax = render2D(locdata, ax=ax, bin_size=100, range='auto', rescale=None, show=False)
+    cax = render_2d(locdata, ax=ax, bin_size=100, range=[[500, 1000], [500, 1000]], show=False)
+    cax = render_2d(locdata, ax=ax, bin_size=100, range='auto', rescale=(0, 100), show=False)
+    cax = render_2d(locdata, ax=ax, bin_size=100, range='zero', rescale=(0, 100), show=False)
+    cax = render_2d(locdata, ax=ax, bin_size=100, range='auto', rescale='equal', show=False)
+    cax = render_2d(locdata, ax=ax, bin_size=100, range='auto', rescale=None, show=False)
     plt.colorbar(cax)
     #plt.show()
 

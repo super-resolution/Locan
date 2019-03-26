@@ -71,8 +71,6 @@ class AnalysisExampleAlgorithm_1(_Analysis):
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data.
     meta : Metadata protobuf message
         Metadata about the current analysis routine.
     kwargs :
@@ -82,8 +80,6 @@ class AnalysisExampleAlgorithm_1(_Analysis):
     ----------
     count : int
         A counter for counting instantiations.
-    locdata : LocData object
-        Localization data.
     parameter : dict
         A dictionary with all settings for the current computation.
     meta : Metadata protobuf message
@@ -93,11 +89,24 @@ class AnalysisExampleAlgorithm_1(_Analysis):
     '''
     count = 0
 
-    def __init__(self, locdata=None, meta=None, limits=(0, 10)):
-        super().__init__(locdata=locdata, meta=meta, limits=limits)
+    def __init__(self, meta=None, limits=(0, 10)):
+        super().__init__(meta=meta, limits=limits)
 
-    def compute(self):
-        data = self.locdata  # take certain elements from locdata
+    def compute(self, locdata=None):
+        """
+        Run the computation.
+
+        Parameters
+        ----------
+        locdata : LocData object
+          Localization data that might be clustered.
+
+        Returns
+        -------
+        Analysis class
+          Returns the Analysis class object (self).
+        """
+        data = locdata  # take certain elements from locdata
         self.results = _algorithm_1(data=data, **self.parameter)  # some complicated algorithm
         return self
 
@@ -114,8 +123,6 @@ class AnalysisExampleAlgorithm_2(_Analysis):
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data.
     meta : Metadata protobuf message
         Metadata about the current analysis routine.
     kwargs :
@@ -125,8 +132,6 @@ class AnalysisExampleAlgorithm_2(_Analysis):
     ----------
     count : int
         A counter for counting instantiations.
-    locdata : LocData object
-        Localization data.
     parameter : dict
         A dictionary with all settings for the current computation.
     meta : Metadata protobuf message
@@ -136,11 +141,24 @@ class AnalysisExampleAlgorithm_2(_Analysis):
     '''
     count = 0
 
-    def __init__(self, locdata=None, meta=None, n_sample=100, seed=None):
+    def __init__(self, meta=None, n_sample=100, seed=None):
         super().__init__(locdata=locdata, meta=meta, n_sample=n_sample, seed=seed)
 
-    def compute(self):
-        data = self.locdata  # take certain elements from locdata
+    def compute(self, locdata=None):
+        """
+        Run the computation.
+
+        Parameters
+        ----------
+        locdata : LocData object
+          Localization data that might be clustered.
+
+        Returns
+        -------
+        Analysis class
+          Returns the Analysis class object (self).
+        """
+        data = locdata  # take certain elements from locdata
         self.results = _algorithm_2(data=data, **self.parameter)  # some complicated algorithm
         return self
 

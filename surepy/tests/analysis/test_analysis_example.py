@@ -15,8 +15,8 @@ def locdata():
 
 def test_Analysis_example(locdata):
     #print(locdata.data.head())
-    ae = AnalysisExampleAlgorithm_1(locdata=None, limits=(100, 110), meta={'comment': ' this is an example'})
-    ae.compute()
+    ae = AnalysisExampleAlgorithm_1(limits=(100, 110), meta={'comment': ' this is an example'})
+    ae.compute(locdata=None)
     assert (len(list(ae.results)) == 10)
 
     # print(ae.results)

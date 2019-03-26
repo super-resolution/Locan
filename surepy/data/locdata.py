@@ -10,6 +10,7 @@ import warnings
 from google.protobuf import text_format
 import pandas as pd
 
+from surepy.constants import LOCDATA_ID
 from surepy.data.region import RoiRegion
 import surepy.data.hulls
 from surepy.data import metadata_pb2
@@ -86,7 +87,9 @@ class LocData:
         self._alpha_shape = None
 
         # meta
-        self.meta.identifier = str(self.__class__.count)
+        global LOCDATA_ID
+        LOCDATA_ID += 1
+        self.meta.identifier = str(LOCDATA_ID)
         self.meta.creation_date = int(time.time())
         self.meta.source = metadata_pb2.DESIGN
         self.meta.state = metadata_pb2.RAW

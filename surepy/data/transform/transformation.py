@@ -85,7 +85,8 @@ def transform_affine(locdata, matrix=None, offset=None):
         new_locdata = LocData.from_dataframe(pd.DataFrame(transformed_points, columns=locdata.coordinate_labels))
 
         # update metadata
-        meta_ = _modify_meta(locdata, function_name=sys._getframe().f_code.co_name, parameter=local_parameter,
+        meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
+                             parameter=local_parameter,
                              meta=None)
         new_locdata.meta = meta_
 
@@ -155,8 +156,8 @@ def randomize(locdata, hull_region='bb'):
         raise NotImplementedError
 
     # update metadata
-    meta_ = _modify_meta(locdata, function_name=sys._getframe().f_code.co_name, parameter=local_parameter, meta=None)
+    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
+                         parameter=local_parameter, meta=None)
     new_locdata.meta = meta_
 
     return new_locdata
-

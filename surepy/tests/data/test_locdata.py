@@ -29,11 +29,13 @@ def df_line():
     }
     return pd.DataFrame.from_dict(dict_)
 
+
 @pytest.fixture()
 def df_empty():
     dict_ = {
     }
     return pd.DataFrame.from_dict(dict_)
+
 
 @pytest.fixture()
 def df_other_simple():
@@ -56,13 +58,15 @@ def test_LocData(df_simple):
     for x, y in zip(dat.coordinates, [[0, 0], [0, 1], [1, 3], [4, 4], [5, 1]]):
         assert np.all(x == np.array(y))
     assert (dat.meta.comment == COMMENT_METADATA.comment)
-    # dat.print_meta()
+    assert dat.meta.identifier == '1'
     # dat.print_summary()
+
 
 def test_LocData_empty(df_empty):
     dat = LocData(dataframe=df_empty)
     assert (len(dat) == 0)
     assert (dat.coordinate_labels == [])
+
 
 def test_LocData_from_dataframe(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
@@ -72,11 +76,13 @@ def test_LocData_from_dataframe(df_simple):
     assert (len(dat) == 5)
     assert (dat.meta.comment == COMMENT_METADATA.comment)
 
+
 def test_LocData_from_dataframe_empty(df_empty):
     dat = LocData.from_dataframe(dataframe=df_empty)
     assert (len(dat) == 0)
     assert (dat.coordinate_labels == [])
     print(dat.data)
+
 
 # this test is not running wihtin complete test run. But it works when run by itself.
 # def test_LocData_count(df_simple):
@@ -220,6 +226,7 @@ def test_LocData_handling_metadata(df_simple):
     dat.meta.map['variable key'] = 'new comment'
     # print(dat.meta.map)
     assert (dat.meta.map == {'variable key': 'new comment'})
+
 
 # locdata and regions
 

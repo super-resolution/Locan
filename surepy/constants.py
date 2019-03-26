@@ -106,3 +106,7 @@ THUNDERSTORM_KEYS = {
 #: Following the scikit convention: n_jobs is the number of parallel jobs to run.
 #: If -1, then the number of jobs is set to the number of CPU cores.
 N_JOBS = 1
+
+#: LocData identifier
+#: Identifier for LocData objects that is reset for each surepy session.
+LOCDATA_ID = 0

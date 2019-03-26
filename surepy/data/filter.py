@@ -44,7 +44,8 @@ def select_by_condition(locdata, condition):
     new_locdata = LocData.from_selection(locdata=locdata, indices=new_indices)
 
     # update metadata
-    meta_ = _modify_meta(locdata, function_name=sys._getframe().f_code.co_name, parameter=local_parameter, meta=None)
+    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
+                         parameter=local_parameter, meta=None)
     new_locdata.meta = meta_
 
     return new_locdata
@@ -161,7 +162,8 @@ def exclude_sparse_points(locdata, other_locdata=None, radius=50, min_samples=5)
     new_locdata = LocData.from_selection(locdata, indices_to_keep)
 
     # update metadata
-    meta_ = _modify_meta(locdata, function_name=sys._getframe().f_code.co_name, parameter=local_parameter, meta=None)
+    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
+                         parameter=local_parameter, meta=None)
     new_locdata.meta = meta_
 
     return new_locdata
@@ -189,7 +191,8 @@ def random_subset(locdata, number_points):
     new_locdata = LocData.from_selection(locdata, indices)
 
     # update metadata
-    meta_ = _modify_meta(locdata, function_name=sys._getframe().f_code.co_name, parameter=local_parameter, meta=None)
+    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
+                         parameter=local_parameter, meta=None)
     new_locdata = LocData.from_selection(locdata, indices, meta=meta_)
 
     return new_locdata

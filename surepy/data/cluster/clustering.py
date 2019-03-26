@@ -44,7 +44,7 @@ from surepy.constants import N_JOBS
 #     raise NotImplementedError
 
 
-def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_cluster = False, noise=False, **kwargs):
+def cluster_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_cluster = False, noise=False, **kwargs):
     """
     Cluster localizations in locdata using the hdbscan clustering algorithm.
 
@@ -115,8 +115,7 @@ def clustering_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_c
         return collection
 
 
-
-def clustering_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False, **kwargs):
+def cluster_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False, **kwargs):
     """
     Cluster localizations in locdata using the dbscan clustering algorithm as implemented in sklearn.
 

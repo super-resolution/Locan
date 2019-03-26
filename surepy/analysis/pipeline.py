@@ -11,7 +11,7 @@ from surepy.io.io_locdata import load_locdata
 from surepy.data.rois import Roi
 from surepy.data.hulls import ConvexHull
 from surepy.data.filter import select_by_condition
-from surepy.data.cluster.clustering import clustering_hdbscan
+from surepy.data.cluster.clustering import cluster_hdbscan
 from surepy.analysis.analysis_base import _init_meta, _update_meta
 
 
@@ -106,13 +106,13 @@ def compute_clust(self):
 
     # import required modules
     from pathlib import Path
-    from surepy.data.cluster import clustering_dbscan
+    from surepy.data.cluster import cluster_dbscan
     from surepy.data.hulls import ConvexHull
     from surepy.data.filter import select_by_condition
 
     # compute cluster
-    self.noise, self.clust = clustering_hdbscan(self.locdata, min_cluster_size=5, allow_single_cluster=False,
-                                                noise=True)
+    self.noise, self.clust = cluster_hdbscan(self.locdata, min_cluster_size=5, allow_single_cluster=False,
+                                             noise=True)
 
     # compute convex hull
     Hs = [ConvexHull(self.clust.references[i].coordinates) for i in range(len(self.clust))]

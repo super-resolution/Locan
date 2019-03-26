@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 from surepy import LocData
 from surepy.analysis.analysis_base import _Analysis
-from surepy.data.cluster.clustering import clustering_hdbscan
+from surepy.data.cluster.clustering import cluster_hdbscan
 from surepy.data.filter import random_subset
 from surepy.data.hulls import ConvexHull
 
@@ -30,8 +30,8 @@ from surepy.data.hulls import ConvexHull
 #### The algorithms
 
 
-def _accumulation_cluster_check_for_single_dataset(locdata, region_measure, algorithm=clustering_hdbscan,
-                                                              algo_parameter=None, hull='bb'):
+def _accumulation_cluster_check_for_single_dataset(locdata, region_measure, algorithm=cluster_hdbscan,
+                                                   algo_parameter=None, hull='bb'):
     """
     Compute localization density, relative area coverage by the clusters (eta), average density of localizations
     within apparent clusters (rho) for a single localization dataset.
@@ -82,7 +82,7 @@ def _accumulation_cluster_check_for_single_dataset(locdata, region_measure, algo
     return localization_density, eta, rho
 
 
-def _accumulation_cluster_check(locdata, region_measure='bb', algorithm=clustering_hdbscan,
+def _accumulation_cluster_check(locdata, region_measure='bb', algorithm=cluster_hdbscan,
                                 algo_parameter=None, hull='bb', n_loc=10, divide='random', n_extrapolate=5):
     """
     Compute localization density, relative area coverage by the clusters (eta), average density of localizations
@@ -181,7 +181,7 @@ class AccumulationClusterCheck(_Analysis):
     """
     count = 0
 
-    def __init__(self, meta=None, region_measure='bb', algorithm=clustering_hdbscan, algo_parameter=None,
+    def __init__(self, meta=None, region_measure='bb', algorithm=cluster_hdbscan, algo_parameter=None,
                  hull='bb', n_loc=10, divide='random', n_extrapolate=5):
         super().__init__(meta=meta, region_measure=region_measure,
                          algorithm=algorithm, algo_parameter=algo_parameter, hull=hull, n_loc=n_loc, divide=divide,

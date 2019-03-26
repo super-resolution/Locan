@@ -1,11 +1,12 @@
 import pytest
 import pandas as pd
-import matplotlib.pyplot as plt
+
 from surepy import LocData
-from surepy.simulation import make_csr, simulate_csr, make_csr_on_disc, make_csr_on_region, make_Matern, make_Thomas, \
-    make_Thomas_on_region, simulate_Thomas_on_region, simulate_csr_on_disc, simulate_csr_on_region, \
-    simulate_Matern, simulate_Thomas, simulate_blobs, \
-    resample, simulate_tracks, simulate_csr_
+from surepy.simulation import make_csr, simulate_csr, make_csr_on_disc, make_csr_on_region
+from surepy.simulation import make_Matern, make_Thomas, make_Thomas_on_region
+from surepy.simulation import simulate_csr_on_disc, simulate_csr_on_region
+from surepy.simulation import simulate_Matern, simulate_Thomas, simulate_Thomas_on_region
+from surepy.simulation import resample, simulate_tracks
 
 
 def test_make_csr():
@@ -40,7 +41,7 @@ def test_simulate_csr_on_disc():
     assert all(dat.data.columns == ['position_x', 'position_y'])
 
 
-def test_make_spots():
+def test_make_Matern():
     samples, labels = make_Matern()
     assert len(samples) == 100
     assert max(labels) + 1 == 3
@@ -91,7 +92,7 @@ def test_make_spots():
     # plt.show()
 
 
-def test_simulate_spots():
+def test_simulate_Matern():
     dat = simulate_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
                           shuffle=True, seed=None)
     assert len(dat) == 100
@@ -100,23 +101,23 @@ def test_simulate_spots():
 
 def test_make_Thomas():
     samples, labels = make_Thomas(n_samples=10, n_features=2, centers=None, cluster_std=1.0,
-                                  feature_range=(-10.0, 10.0), shuffle = True, seed = None)
+                                  feature_range=(-10.0, 10.0), shuffle=True, seed=None)
     assert len(samples) == 10
     assert max(labels) + 1 == 3
     samples, labels = make_Thomas(n_samples=10, n_features=2, centers=5, cluster_std=10,
-                                  feature_range=(-10.0, 10.0), shuffle = True, seed = None)
+                                  feature_range=(-10.0, 10.0), shuffle=True, seed=None)
     assert len(samples) == 10
     assert max(labels) + 1 == 5
-    samples, labels = make_Thomas(n_samples=(1,2,3), n_features=2, centers=None, cluster_std=10,
-                                  feature_range=(-10.0, 10.0), shuffle = True, seed = None)
+    samples, labels = make_Thomas(n_samples=(1, 2, 3), n_features=2, centers=None, cluster_std=10,
+                                  feature_range=(-10.0, 10.0), shuffle=True, seed=None)
     assert len(samples) == 6
     assert max(labels) + 1 == 3
-    samples, labels = make_Thomas(n_samples=(1,2,3), n_features=2, centers=((1, 1), (10, 10), (100, 100)),
+    samples, labels = make_Thomas(n_samples=(1, 2, 3), n_features=2, centers=((1, 1), (10, 10), (100, 100)),
                                   cluster_std=(1, 10, 100),
-                                  feature_range=(-10.0, 10.0), shuffle = True, seed = None)
+                                  feature_range=(-10.0, 10.0), shuffle=True, seed=None)
     assert len(samples) == 6
     assert max(labels) + 1 == 3
-    samples, labels = make_Thomas(n_samples=10, shuffle = False)
+    samples, labels = make_Thomas(n_samples=10, shuffle=False)
     assert len(samples) == 10
 
 
@@ -152,24 +153,24 @@ def test_make_Thomas_on_region():
     assert len(samples) == 100
     assert max(labels) + 1 == 3
     samples, labels = make_Thomas_on_region(region=region_dict, n_samples=10, centers=None, cluster_std=1.0,
-                                            shuffle = True, seed = None)
+                                            shuffle=True, seed=None)
     assert len(samples) == 10
     assert max(labels) + 1 == 3
     samples, labels = make_Thomas_on_region(region=region_dict, n_samples=10, centers=5, cluster_std=10,
-                                            shuffle = True, seed = None)
+                                            shuffle=True, seed=None)
     assert len(samples) == 10
     assert max(labels) + 1 == 5
-    samples, labels = make_Thomas_on_region(region=region_dict, n_samples=(1,2,3), centers=None, cluster_std=10,
-                                            shuffle = True, seed = None)
+    samples, labels = make_Thomas_on_region(region=region_dict, n_samples=(1, 2, 3), centers=None, cluster_std=10,
+                                            shuffle=True, seed=None)
     assert len(samples) == 6
     assert max(labels) + 1 == 3
-    samples, labels = make_Thomas_on_region(region=region_dict, n_samples=(1,2,3),
+    samples, labels = make_Thomas_on_region(region=region_dict, n_samples=(1, 2, 3),
                                             centers=((1, 1), (10, 10), (100, 100)),
                                             cluster_std=(1, 10, 100),
-                                            shuffle = True, seed = None)
+                                            shuffle=True, seed=None)
     assert len(samples) == 6
     assert max(labels) + 1 == 3
-    samples, labels = make_Thomas_on_region(region=region_dict, n_samples=10, shuffle = False)
+    samples, labels = make_Thomas_on_region(region=region_dict, n_samples=10, shuffle=False)
     assert len(samples) == 10
 
     # fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -186,43 +187,10 @@ def test_simulate_Thomas_on_region():
     # dat.data.plot(x='Position_x', y='Position_y', kind='scatter')
     # plt.show()
 
-##########################
-def test_simulate_csr_():
-    dat = simulate_csr_(n_samples = 10, x_range=(0,10000), y_range=None, z_range=None, seed=None)
-    assert(len(dat) == 10)
-    assert(len(dat.coordinate_labels)==1)
-
-    dat = simulate_csr_(n_samples = 10, x_range = (0,10000), y_range = (0,10000), z_range=None, seed=None)
-    assert(len(dat) == 10)
-    assert(len(dat.coordinate_labels)==2)
-
-    dat = simulate_csr_(n_samples = 10, x_range = (0,10000), y_range = (0,10000), z_range = (0,10000), seed=None)
-    assert(len(dat) == 10)
-    assert(len(dat.coordinate_labels)==3)
-
-
-def test_simulate_blobs_1D():
-    dat = simulate_blobs(n_centers=10, n_samples=100, n_features=1, center_box=(0, 10000), cluster_std=10, seed=None)
-    assert (len(dat) == 100)
-    assert(len(dat.coordinate_labels)==1)
-    assert ('position_x' in dat.data.columns)
-
-def test_simulate_blobs_2D():
-    dat = simulate_blobs(n_centers=10, n_samples=100, n_features=2, center_box=(0, 10000), cluster_std=10, seed=None)
-    assert (len(dat) == 100)
-    assert(len(dat.coordinate_labels)==2)
-    assert ('position_y' in dat.data.columns)
-
-def test_simulate_blobs_3D():
-    dat = simulate_blobs(n_centers=10, n_samples=100, n_features=3, center_box=(0, 10000), cluster_std=10, seed=None)
-    assert (len(dat) == 100)
-    assert(len(dat.coordinate_labels)==3)
-    assert ('position_z' in dat.data.columns)
-
 
 @pytest.fixture()
 def locdata_simple():
-    dict = {
+    localization_dict = {
         'position_x': [0, 0, 1, 4, 5],
         'position_y': [0, 1, 3, 4, 1],
         'position_z': [0, 1, 3, 4, 1],
@@ -231,19 +199,21 @@ def locdata_simple():
         'uncertainty_y': [10, 30, 100, 300, 10],
         'uncertainty_z': [10, 30, 100, 300, 10],
         }
-    return LocData(dataframe=pd.DataFrame.from_dict(dict))
+    return LocData(dataframe=pd.DataFrame.from_dict(localization_dict))
 
 
 def test_resample(locdata_simple):
     dat = resample(locdata=locdata_simple, number_samples=3)
-    #print(dat.data)
-    assert (len(dat)==15)
+    # print(dat.data)
+    assert len(dat) == 15
+
+    # print(locdata_simple.meta)
+    # print(dat.meta)
 
 
 def test_simulate_tracks():
     dat = simulate_tracks(number_walks=2, number_steps=3)
     # print(dat.data)
     # print(dat.meta)
-    assert (len(dat) == 6)
-    assert(len(dat.coordinate_labels)==2)
-
+    assert len(dat) == 6
+    assert len(dat.coordinate_labels) == 2

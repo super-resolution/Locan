@@ -140,55 +140,6 @@ def simulate_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed=None):
     return locdata
 
 
-# todo: delete
-def simulate_csr_(n_samples=10000, x_range=(0, 10000), y_range=(0, 10000), z_range=None, seed=None):
-    """
-    Provide a dataset of localizations that are spatially-distributed on a rectangular shape or cubic volume by
-    complete spatial randomness.
-
-    Parameters
-    ----------
-    n_samples : int
-        total number of localizations
-
-    x_range : tuple of two ints
-        the range for valid x-coordinates
-
-    y_range : tuple of two ints
-        the range for valid y-coordinates
-
-    z_range : tuple of two ints
-        the range for valid z-coordinates
-
-    seed : int
-        random number generation seed
-
-    Returns
-    -------
-    LocData
-        A new LocData instance with localization data.
-    """
-
-    if seed is not None:
-        np.random.seed(seed)
-
-    dict_ = {}
-    for i, j in zip(('x', 'y', 'z'), (x_range, y_range, z_range)):
-        if j is not None:
-            dict_.update({'position_' + i: np.random.uniform(*j, n_samples)})
-
-    dat = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
-
-    # metadata
-    dat.meta.source = metadata_pb2.SIMULATION
-    del dat.meta.history[:]
-    dat.meta.history.add(name='simulate_csr',
-                         parameter='n_samples={}, x_range={}, y_range={}, z_range={}, seed={}'.format(
-                             n_samples, x_range, y_range, z_range, seed))
-
-    return dat
-
-
 def make_csr_on_disc(n_samples=100, radius=1.0, seed=None):
     """
     Provide points that are spatially-distributed on a disc by complete spatial randomness.
@@ -648,68 +599,6 @@ def simulate_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, 
     locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 
     return locdata
-
-
-def simulate_blobs(n_centers=100, n_samples=10000, n_features=2, center_box=(0, 10000), cluster_std=10, seed=None):
-    """
-    Provide a dataset of localizations with coordinates and labels that are spatially-distributed on a rectangular
-    shape.
-
-    The data consists of  normal distributed point cluster with blob centers being distributed by complete
-    spatial randomness. The simulation uses the make_blobs method from sklearn with corresponding parameters.
-
-    Parameters
-    ----------
-    n_centers : int
-        number of blobs
-
-    n_samples : int
-        total number of localizations
-
-    n_features : int
-        the number of dimensions
-
-    center_box : tuple of two ints
-        the range for valid coordinates
-
-    cluster_std : int
-        standard deviation for Gauss-distributed positions in each blob
-
-    seed : int (default: None)
-        random number generation seed
-
-    Returns
-    -------
-    LocData
-        A new LocData instance with localization data.
-    """
-    if seed is not None:
-        np.random.seed(seed)
-
-    points, labels = make_blobs(n_samples=n_samples, n_features=n_features, centers=n_centers, cluster_std=cluster_std,
-                                center_box=center_box, random_state=seed)
-
-    if n_features == 1:
-        dataframe = pd.DataFrame(np.stack((points[:, 0], labels), axis=-1),
-                                 columns=['position_x', 'cluster_label'])
-    if n_features == 2:
-        dataframe = pd.DataFrame(np.stack((points[:, 0], points[:, 1], labels), axis=-1),
-                                 columns=['position_x', 'position_y', 'cluster_label'])
-    if n_features == 3:
-        dataframe = pd.DataFrame(np.stack((points[:, 0], points[:, 1], points[:, 2], labels), axis=-1),
-                                 columns=['position_x', 'position_y', 'position_z', 'cluster_label'])
-
-    dat = LocData.from_dataframe(dataframe=dataframe)
-
-    # metadata
-    dat.meta.source = metadata_pb2.SIMULATION
-    del dat.meta.history[:]
-    dat.meta.history.add(name='simulate_blobs',
-                         parameter='n_centers={}, n_samples={}, n_features={}, center_box={}, cluster_std={}, '
-                                   'seed={}'.format(
-                             n_centers, n_samples, n_features, center_box, cluster_std, seed))
-
-    return dat
 
 
 # todo add 3D

@@ -103,6 +103,18 @@ class AnalysisExampleAlgorithm_1(_Analysis):
         self.results = _algorithm_1(data=data, **self.parameter)  # some complicated algorithm
         return self
 
+    def plot(self, ax=None, show=True):
+        plot(self, ax, show)
+
+    def plot_2(self, ax=None, show=True, bins='auto', normed=True, log=False, fit=True):
+        plot_2(self, ax, show, bins, normed, log, fit)
+
+    def plot_histogram_fit(self, ax=None, show=True):
+        plot_histogram_fit(self, ax, show)
+
+    def report(self, path=None, show=True):
+        report(self, path, show)
+
 
 
 class AnalysisExampleAlgorithm_2(_Analysis):
@@ -155,6 +167,18 @@ class AnalysisExampleAlgorithm_2(_Analysis):
         self.results = _algorithm_2(data=data, **self.parameter)  # some complicated algorithm
         return self
 
+    def plot(self, ax=None, show=True):
+        plot(self, ax, show)
+
+    def plot_2(self, ax=None, show=True, bins='auto', density=True, log=False, fit=True):
+        plot_2(self, ax, show, bins, density, log, fit)
+
+    def plot_histogram_fit(self, ax=None, show=True):
+        plot_histogram_fit(self, ax, show)
+
+    def report(self, path=None, show=True):
+        report(self, path, show)
+
 #
 #### Interface functions
 #
@@ -183,7 +207,7 @@ def plot(self, ax=None, show=True):
     return None
 
 
-def plot_2(self, ax=None, show=True, bins='auto', normed=True, log=False, fit=True):
+def plot_2(self, ax=None, show=True, bins='auto', density=True, log=False, fit=True):
     '''
     A specialized plot to give a standardized visualization of results - in this case a histogram of results.
     '''
@@ -193,7 +217,7 @@ def plot_2(self, ax=None, show=True, bins='auto', normed=True, log=False, fit=Tr
         plt.subplots_adjust(wspace=0)
 
     # create histogram on first axes
-    hist, bins, _ = ax[0].hist(self.results.values, bins=bins, normed=normed, log=log,
+    hist, bins, _ = ax[0].hist(self.results.values, bins=bins, density=density, log=log,
                                label=list(self.results))
     ax[0].set(title='Normal Data',
               xlabel='property',
@@ -287,7 +311,7 @@ def report(self, path=None, show=True):
 
     # provide the axes elements (i.e. the plots)
     self.plot(ax=ax[0][0], show=False)
-    self.hist(ax=ax[1][0:2], show=False)
+    self.plot_2(ax=ax[1][0:2], show=False)
 
     # adjust figure layout
     plt.tight_layout()

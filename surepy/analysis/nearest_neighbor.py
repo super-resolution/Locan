@@ -1,8 +1,8 @@
 """
 
-This module provides methods for nearest-neighbor analysis.
+Nearest-neighbor distance analysis
 
-Nearest-neigbor distance distributions provide information about deviations from a spatial homogeneous Poisson process
+Nearest-neighbor distance distributions provide information about deviations from a spatial homogeneous Poisson process
 (i.e. complete spatial randomness, CSR).
 Point-event distances are given by the distance between a random point (not being an event) and the nearest event.
 The point-event distance distribution is estimated from a number of random sample points and plotted in comparison to
@@ -234,7 +234,7 @@ class NNDistances_csr_2d(stats.rv_continuous):
 
     References
     ----------
-    .. [1] # todo
+    .. [1] missing reference # todo: add reference
 
     """
 

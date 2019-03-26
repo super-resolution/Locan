@@ -11,7 +11,6 @@ Package Design
    metadata
    properties
    methods
-   directories
 
 Outline:
 ========
@@ -28,5 +27,3 @@ averaged features of the underlying localizations or groups thereof. We suggest 
 
 :ref:`Methods <methods>` will either create or manipulate these data structures or perform some analysis routine
 and provide the results in an appropriate form.
-
-The project is organized by this :ref:`directory structure <directories>`.

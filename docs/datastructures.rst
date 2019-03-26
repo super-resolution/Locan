@@ -25,7 +25,7 @@ Comments on LocData:
 
     There is no fundamental difference between 2D and 3D localization data.
 
-    Multiple sets of localization data like two-color localizations will be represented by independent Dataset objects.
+    Multiple sets of localization data like two-color localizations will be represented by independent LocData objects.
 
     The unit for length throughout the project is given by the input unit for localization coordinates. In most cases
     the unit will be nanometre.
@@ -65,6 +65,7 @@ Comments on LocData:
 
     These hulls are provided from stand-alone methods with attributes such as 'Region_measure' that can can be added
     as new property to the corresponding LocData object.
+
 
 6) Additional properties:
     There are other properties for each LocData object that might be provided by independent methods.

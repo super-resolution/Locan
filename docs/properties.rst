@@ -53,7 +53,7 @@ Additional localization properties are computed by various analysis procedures i
         nearest-neighbor distance
     * 'nn_distance_k'
         k-nearest-neighbor distance (k can be any integer)
-    * 'colocalization'
+    * 'colocalization_cbc'
         coordinate-based colocalization value
 
 
@@ -121,4 +121,3 @@ and 'h' stands for the corresponding hull 'bb', 'ch', 'as', 'obb'):
         elongation estimated from oriented bounding box
     * 'circularity_im'
         excentricity estimated from inertia moments
-

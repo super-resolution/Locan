@@ -44,11 +44,12 @@ API Changes
 
 surepy.analysis
 ^^^^^^^^^^^^^^^
--
+- Refactored all analysis class names to CamelCode.
+- Refactored handling of LocData input in analysis classes to better resemble the scikit-learn API.
 
 surepy.data
 ^^^^^^^^^^^^^^^
--
+- Introduced global variable LOCDATA_ID that serves as standard running ID for LocData objects.
 
 surepy.gui
 ^^^^^^^^^^^^^^^
@@ -68,7 +69,7 @@ surepy.scripts
 
 surepy.simulation
 ^^^^^^^^^^^^^^^^^^^
--
+- Deleted deprecated simulation functions.
 
 Bug Fixes
 ---------
@@ -106,7 +107,7 @@ surepy.simulation
 Other Changes and Additions
 ---------------------------
 
--
+- Refactored all localization property names to follow the convention to start with small letters.
 
 
 0.2 (22.3.2019)

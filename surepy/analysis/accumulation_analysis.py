@@ -144,8 +144,8 @@ class AccumulationClusterCheck(_Analysis):
 
     Parameters
     ----------
-    locdata : LocData object
-        Localization data that might be clustered.
+    meta : Metadata protobuf message
+        Metadata about the current analysis routine.
     region_measure : float or str
         Region measure (area or volume) for the support of locdata. String can be any of standard hull identifiere.
     algorithm : callable
@@ -181,14 +181,27 @@ class AccumulationClusterCheck(_Analysis):
     """
     count = 0
 
-    def __init__(self, locdata, meta=None, region_measure='bb', algorithm=clustering_hdbscan, algo_parameter=None,
+    def __init__(self, meta=None, region_measure='bb', algorithm=clustering_hdbscan, algo_parameter=None,
                  hull='bb', n_loc=10, divide='random', n_extrapolate=5):
-        super().__init__(locdata=locdata, meta=meta, region_measure=region_measure,
+        super().__init__(meta=meta, region_measure=region_measure,
                          algorithm=algorithm, algo_parameter=algo_parameter, hull=hull, n_loc=n_loc, divide=divide,
                          n_extrapolate=n_extrapolate)
 
-    def compute(self):
-        self.results = _accumulation_cluster_check(self.locdata, **self.parameter)
+    def compute(self, locdata):
+        """
+        Run the computation.
+
+        Parameters
+        ----------
+        locdata : LocData object
+          Localization data that might be clustered.
+
+        Returns
+        -------
+        Analysis class
+          Returns the Analysis class object (self).
+        """
+        self.results = _accumulation_cluster_check(locdata, **self.parameter)
         return self
 
     def plot(self, ax=None, show=True, **kwargs):

@@ -167,8 +167,8 @@ class RipleysKFunction(_Analysis):
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_k_data': ripley})
         return self
 
-    def plot(self, ax=None, show=True):
-        plot(self, ax, show)
+    def plot(self, ax=None, show=True, **kwargs):
+        plot(self, ax, show, **kwargs)
 
 
 class RipleysLFunction(_Analysis):
@@ -235,8 +235,8 @@ class RipleysLFunction(_Analysis):
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_l_data': ripley})
         return self
 
-    def plot(self, ax=None, show=True):
-        plot(self, ax, show)
+    def plot(self, ax=None, show=True, **kwargs):
+        plot(self, ax, show, **kwargs)
 
 
 class RipleysHFunction(_Analysis):
@@ -323,8 +323,8 @@ class RipleysHFunction(_Analysis):
     def Ripley_h_maximum(self):
         self._Ripley_h_maximum = None
 
-    def plot(self, ax=None, show=True):
-        plot(self, ax, show)
+    def plot(self, ax=None, show=True, **kwargs):
+        plot(self, ax, show, **kwargs)
 
 
 ##### Interface functions

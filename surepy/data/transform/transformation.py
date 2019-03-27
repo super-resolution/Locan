@@ -127,22 +127,15 @@ def randomize(locdata, hull_region='bb'):
 
         new_locdata = simulate_csr(n_samples=len(locdata), n_features=len(ranges), feature_range=ranges)
 
-    # todo: implement simulate_csr on various hull regions
-    # if hull_region is 'ch':
-    #
-    #     n = len(locdata)
-    #     dim = len(locdata.coordinate_labels)
-    #
-    #     try:
-    #         min_coordinates = locdata.convex_hull.hull[0]
-    #     except AttributeError:
-    #         locdata.bounding_box = surepy.data.hulls.BoundingBox(locdata.coordinates)
-    #         min_coordinates = locdata.bounding_box.hull[0]
-    #
-    #     width = locdata.bounding_box.width
-    #     new_coordinates = np.random.random((n, dim)) * width + min_coordinates
-    #
-    #     new_locdata = simulate_csr(n_samples=len(locdata), x_range=)
+    elif hull_region is 'ch':
+        try:
+            region_ = locdata.convex_hull.region
+        except AttributeError:
+            region_ = surepy.data.hulls.ConvexHull(locdata.coordinates).region
+
+        new_locdata = simulate_csr_on_region(region_, n_samples=len(locdata))
+
+    # todo: implement simulate_csr on as and obb hull regions
 
     elif isinstance(hull_region, (RoiRegion, dict)):
         if isinstance(hull_region, dict):

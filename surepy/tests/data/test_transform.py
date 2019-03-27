@@ -22,9 +22,12 @@ def locdata_simple():
 def test_randomize(locdata_simple):
     locdata_randomized = randomize(locdata_simple, hull_region='bb')
     # locdata_randomized.print_meta()
-    assert (len(locdata_randomized) == len(locdata_simple))
+    assert len(locdata_randomized) == len(locdata_simple)
     # print(locdata_randomized.meta)
     assert locdata_randomized.meta.history[-1].name == 'randomize'
+
+    locdata_randomized = randomize(locdata_simple, hull_region='ch')
+    assert len(locdata_randomized) == len(locdata_simple)
 
     region_dict = dict(region_type='polygon', region_specs=((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
     locdata_randomized = randomize(locdata_simple, hull_region=region_dict)

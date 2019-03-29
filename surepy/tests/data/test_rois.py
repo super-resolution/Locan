@@ -15,22 +15,24 @@ from surepy.data import metadata_pb2
 
 @pytest.fixture()
 def locdata():
-    dict = {
+    locdata_dict = {
         'position_x': [0, 1, 2, 3, 0, 1, 4, 5],
         'position_y': [0, 1, 2, 3, 1, 4, 5, 1],
         'position_z': [0, 1, 2, 3, 4, 4, 4, 5]
     }
-    return LocData(dataframe=pd.DataFrame.from_dict(dict))
+    return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
+
 
 @pytest.fixture()
 def points():
     return np.array([[0, 0], [0.5, 0.5], [100, 100], [1, 1], [1.1, 0.9]])
 
+
 # tests
 
 def test_RoiRegion(points):
     region_dict = dict(
-        interval=dict(region_type='interval', region_specs=(0,1)),
+        interval=dict(region_type='interval', region_specs=(0, 1)),
         rectangle=dict(region_type='rectangle', region_specs=((0, 0), 2, 1, 10)),
         ellipse=dict(region_type='ellipse', region_specs=((1, 1), 2, 1, 10)),
         polygon=dict(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))),
@@ -38,8 +40,8 @@ def test_RoiRegion(points):
     )
 
     rr = RoiRegion(**region_dict['interval'])
-    assert str(rr) == str({'region_type': 'interval', 'region_specs': (0,1)})
-    assert len(rr.contains(points[:,0])) == 1
+    assert str(rr) == str({'region_type': 'interval', 'region_specs': (0, 1)})
+    assert len(rr.contains(points[:, 0])) == 1
     assert np.allclose(rr.polygon, region_dict['interval']['region_specs'])
     assert rr.dimension == 1
     assert rr.centroid == 0.5
@@ -106,6 +108,11 @@ def test_Roi(locdata):
     roi = Roi(reference=locdata, region_specs=((0, 0), 2, 1, 10), region_type='rectangle')
     new_dat = roi.locdata()
     assert len(new_dat) == 2
+
+    locdata_empty = LocData()
+    roi_empty = Roi(reference=locdata_empty, region_specs=((0, 0), 2, 1, 10), region_type='rectangle')
+    empty_dat = roi_empty.locdata()
+    assert len(empty_dat) == 0
 
 
 def test_Roi_io(locdata):

@@ -50,6 +50,10 @@ class _Analysis():
         """ Update the counter upon deletion of class instance. """
         self.__class__.count -= 1
 
+    def __repr__(self):
+        """ Return representation of the Analysis class. """
+        return f'{self.__class__.__name__}(**{self.parameter})'
+
     def compute(self):
         """ Apply analysis routine with the specified parameters on locdata and return results."""
         raise NotImplementedError

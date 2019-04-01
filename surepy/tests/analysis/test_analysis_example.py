@@ -20,3 +20,5 @@ def test_Analysis_example(locdata):
     ae.compute(locdata=None)
     assert (len(list(ae.results)) == 10)
     ae.plot(show=False)
+    ae_2 = eval(repr(ae))
+    assert ae_2.parameter == {'limits': (100, 110)}

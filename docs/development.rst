@@ -4,6 +4,7 @@
 Development
 ===========================
 
+Some things to keep in mind when adding code...
 
 Import Conventions:
 ====================

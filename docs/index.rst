@@ -26,7 +26,6 @@ Welcome to Surepy's documentation!
 
    aim
    design
-   outlook
 
 
 .. toctree::

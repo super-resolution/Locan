@@ -1,6 +1,6 @@
 """
 
-Nearest-neighbor distance analysis
+Nearest-neighbor distance distribution analysis
 
 Nearest-neighbor distance distributions provide information about deviations from a spatial homogeneous Poisson process
 (i.e. complete spatial randomness, CSR).
@@ -8,15 +8,26 @@ Point-event distances are given by the distance between a random point (not bein
 The point-event distance distribution is estimated from a number of random sample points and plotted in comparison to
 the analytical function for equal localization density.
 
-For a homogeneous Poisson process with intensity \[Rho] (expected number of points per unit area) the distance from a
-randomly chosen event to the nearest other event (nearest-neighbor distance) is distributed according to the following
-probability density (pdf) or cumulative density function (cdf):
+For a homogeneous 2D Poisson process with intensity :math:`\\rho` (expected number of points per unit area) the distance
+from a randomly chosen event to the nearest other event (nearest-neighbor distance) is distributed according to the
+following probability density (pdf) or cumulative density function (cdf) [1]_:
 
-* pdf (w)=2 \[Rho]\[Pi]w exp(-\[Rho]\[Pi]w^2)
-* cdf (w)=1-exp (-\[Rho]\[Pi]w^2)
+.. math::
+
+   pdf(w) = 2 \\rho \\pi w \\ exp(- \\rho \\pi w^2)
+
+   cdf(w) = 1 - exp (- \\rho \\pi w^2)
+
+
 
 The same distribution holds for point-event distances if events are distributed as a homogeneous Poisson process with
-intensity \[Rho].
+intensity :math:`\\rho`.
+
+References
+----------
+.. [1] Philip M. Dixon, Nearest Neighbor Methods,
+   Department of Statistics, Iowa State University,
+   20 December 2001
 
 """
 # todo: add fit
@@ -224,18 +235,13 @@ class NearestNeighborDistances(_Analysis):
 
 class NNDistances_csr_2d(stats.rv_continuous):
     """
-    Define continuous distribution class (inheriting from scipy.stats.rv_continuous) for fitting the distribution
-    of nearest-neighbor distances of points distributed in 2D with complete spatial randomness [1]_.
+    Continuous distribution function for nearest-neighbor distances of points distributed in 2D
+    under complete spatial randomness [1]_.
 
     Parameters
     ----------
     shapes : float
         Shape parameter `density`, being the density of points.
-
-    References
-    ----------
-    .. [1] missing reference # todo: add reference
-
     """
 
     def _pdf(self, x, density):

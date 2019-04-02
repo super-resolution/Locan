@@ -14,10 +14,9 @@ following probability density (pdf) or cumulative density function (cdf) [1]_:
 
 .. math::
 
-   pdf(w) = 2 \\rho \\pi w \\ exp(- \\rho \\pi w^2)
+   pdf(w) &= 2 \\rho \\pi w \\ exp(- \\rho \\pi w^2)
 
-   cdf(w) = 1 - exp (- \\rho \\pi w^2)
-
+   cdf(w) &= 1 - exp (- \\rho \\pi w^2)
 
 
 The same distribution holds for point-event distances if events are distributed as a homogeneous Poisson process with

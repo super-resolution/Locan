@@ -2,28 +2,35 @@
 
 Compute Ripley's k function.
 
-Spatial clustering of localization data is characterized by Ripley's k or related functions [1]_.
-We follow the definition of l and h functions in [2]_.
+Spatial clustering of localization data is characterized by Ripley's k or related l and h functions [1]_.
 
-Ripley's k function is computed for 2D and 3D data for a series of radii as described in (2) in order to provide
-evidence for deviations from a spatial homogeneous Poisson process (i.e. complete spatial randomness, CSR).
+
+Ripley's k function is computed for 2D and 3D data for a series of radii as described in [2]_ in order to provide
+evidence for deviations from a spatially homogeneous Poisson process (i.e. complete spatial randomness, CSR).
 Ripley' s k function is estimated by summing all points or over test points being a random subset of all points:
 
-k (r)=1/(\[Lambda] (n-1)) \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(i\), \(n\)]\(
-\*SubscriptBox[\(N\), \(pi\)] \((r)\)\)\)
+.. math::
 
-here p_i is the ith point of n test points, Subscript[N, pi] is the number of points within the region of radius r
-around pi, and \[Lambda] is the density of all points.
+   k(r) = \\frac{1}{\\lambda (n-1)} \\sum_{i=1}^{n} N_{p_{i}}(r)
 
-Ripley's l function is:
 
-* l(r)=Sqrt[(k(r))/\[Pi]] in 2D and
-* l(r)=Power[(3k(r))/(4\[Pi]), (3)^-1]in 3D
+here :math:`p_i` is the i\ :sup:`th` point of n test points, :math:`N_{p_{i}}` is the number of points within the region
+of radius r around :math:`p_{i}`, and :math:`\\lambda` is the density of all points.
+
+We follow the definition of l and h functions in [2]_. Ripley's l function is:
+
+.. math::
+
+   l(r) &= \\sqrt{k(r)) / \pi} \\qquad \\text{in 2D}
+
+   l(r) &= \\sqrt[3]{\\frac{3}{4 \\pi} k(r)} \\qquad \\text{in 3D}
+
 
 And Ripley's h function is:
 
-h(r)=l(r)-r
+.. math::
+
+   h(r) = l(r) - r
 
 
 References

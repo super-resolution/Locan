@@ -238,3 +238,44 @@ def test_locdata_region(df_simple):
     dat.region = roi_dict
     assert isinstance(dat._region, RoiRegion)
     assert dat.region.region_measure==2
+
+
+# standard LocData fixtures
+
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_empty', 0),
+    ('locdata_single_localization', 1),
+    ('locdata_fix', 6),
+    ('locdata_non_standard_index', 6)
+])
+def test_standard_locdata_objects(
+        locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
+        fixture_name, expected):
+    dat = eval(fixture_name)
+    assert len(dat) == expected
+
+
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_empty', pytest.raises(IndexError)),
+    ('locdata_single_localization', pytest.raises(IndexError)),
+])
+def test_locdata_from_selection_exceptions(
+        locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
+        fixture_name, expected):
+    dat = eval(fixture_name)
+    with expected:
+        LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
+
+
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_fix', 3),
+    ('locdata_non_standard_index', 1)
+])
+def test_locdata_from_selection_(
+        locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
+        fixture_name, expected):
+    dat = eval(fixture_name)
+    sel = LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
+    assert (len(sel) == expected)
+    assert (sel.references is dat)
+    assert (sel.meta.comment == COMMENT_METADATA.comment)

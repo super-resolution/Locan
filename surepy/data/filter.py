@@ -159,7 +159,8 @@ def exclude_sparse_points(locdata, other_locdata=None, radius=50, min_samples=5)
         neighbor_points_list = nn.radius_neighbors(locdata.coordinates, radius=radius, return_distance=False)
 
     indices_to_keep = [len(pts) >= min_samples for pts in neighbor_points_list]
-    new_locdata = LocData.from_selection(locdata, indices_to_keep)
+    locdata_indices_to_keep = locdata.data.index[indices_to_keep]
+    new_locdata = LocData.from_selection(locdata, locdata_indices_to_keep)
 
     # update metadata
     meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
@@ -187,7 +188,7 @@ def random_subset(locdata, number_points):
     """
     local_parameter = locals()
 
-    indices = np.random.choice(len(locdata), size=number_points)
+    indices = np.random.choice(locdata.data.index, size=number_points)
     new_locdata = LocData.from_selection(locdata, indices)
 
     # update metadata

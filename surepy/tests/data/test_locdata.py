@@ -108,7 +108,7 @@ def test_LocData_from_selection(df_simple):
     assert (sel.references is dat)
     assert (sel.meta.comment == COMMENT_METADATA.comment)
 
-    sel_sel = LocData.from_selection(locdata=sel, indices=[0, 2], meta={'comment': 'Selection of a selection.'})
+    sel_sel = LocData.from_selection(locdata=sel, indices=[1, 3], meta={'comment': 'Selection of a selection.'})
     assert sel_sel.meta.comment == 'Selection of a selection.'
     assert (len(sel_sel) == 2)
     assert (sel_sel.references is sel)
@@ -146,7 +146,7 @@ def test_LocData_selection_from_collection(df_simple):
     assert(col_sel.references is col)
     # print(col_sel.data)
 
-    col_sel_sel = LocData.from_selection(locdata=col_sel, indices=[1])
+    col_sel_sel = LocData.from_selection(locdata=col_sel, indices=[2])
     assert (len(col_sel_sel) == 1)
     assert(col_sel_sel.references is col_sel)
     # print(col_sel_sel.data)
@@ -256,8 +256,8 @@ def test_standard_locdata_objects(
 
 
 @pytest.mark.parametrize('fixture_name, expected', [
-    ('locdata_empty', pytest.raises(IndexError)),
-    ('locdata_single_localization', pytest.raises(IndexError)),
+    ('locdata_empty', pytest.raises(KeyError)),
+    ('locdata_single_localization', pytest.raises(KeyError)),
 ])
 def test_locdata_from_selection_exceptions(
         locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
@@ -269,7 +269,7 @@ def test_locdata_from_selection_exceptions(
 
 @pytest.mark.parametrize('fixture_name, expected', [
     ('locdata_fix', 3),
-    ('locdata_non_standard_index', 1)
+    ('locdata_non_standard_index', 3)
 ])
 def test_locdata_from_selection_(
         locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,

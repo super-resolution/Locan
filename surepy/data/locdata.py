@@ -31,7 +31,7 @@ class LocData:
     dataframe : Pandas DataFrame or None
         Dataframe with localization data.
     indices : slice object or list(int) or None
-        Indices for dataframe in references that makes up the data.
+        Indices for dataframe in references that makes up the data. `Indices` refers to index label, not position.
     meta : Metadata protobuf message or dictionary
         Metadata about the current dataset and its history.
 
@@ -123,7 +123,8 @@ class LocData:
                 self.bounding_box = surepy.data.hulls.BoundingBox(self.coordinates)
                 if self.bounding_box.region_measure:
                     self.properties['region_measure_bb'] = self.bounding_box.region_measure
-                    self.properties['localization_density_bb'] = self.meta.element_count / self.bounding_box.region_measure
+                    self.properties['localization_density_bb'] = \
+                        self.meta.element_count / self.bounding_box.region_measure
                 if self.bounding_box.subregion_measure:
                     self.properties['subregion_measure_bb'] = self.bounding_box.subregion_measure
             except ValueError:
@@ -341,7 +342,9 @@ class LocData:
         """ Return a pandas dataframe with all elements either copied from the reference or referencing the current
         dataframe. """
         if isinstance(self.references, LocData):
-            df = self.references.data.iloc[self.indices]
+            # we refer to the localization data by its index label, not position
+            # in other words we decided not to use iloc but loc
+            df = self.references.data.loc[self.indices]
             df = pd.merge(df, self.dataframe, left_index=True, right_index=True, how='outer')
             return df
         else:
@@ -364,6 +367,7 @@ class LocData:
         return len(self.data.index)
 
 
+    # todo change return value to self
     def reduce(self, reset_index=False):
         """
         Clean up references.

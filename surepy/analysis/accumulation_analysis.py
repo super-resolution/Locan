@@ -105,8 +105,11 @@ def _accumulation_cluster_check(locdata, region_measure='bb', algorithm=cluster_
     # take random subsets of localizations
     if divide == 'random':
         locdatas = [random_subset(locdata, number_points=n_pts) for n_pts in numbers_loc]
+        for locd in locdatas:
+            locd.reduce(reset_index=True)
     elif divide == 'sequential':
-        locdatas = [LocData.from_selection(locdata, indices=range(n_pts)) for n_pts in numbers_loc]
+        selected_indices = [locdata.data.index[range(n_pts)].values for n_pts in numbers_loc]
+        locdatas = [LocData.from_selection(locdata, indices=idx) for idx in selected_indices]
     else:
         raise TypeError(f'String input {divide} for divide is not valid.')
 

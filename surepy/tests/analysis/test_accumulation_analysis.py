@@ -31,6 +31,7 @@ def test___accumulation_cluster_check_for_single_dataset(locdata_blobs):
 
 
 def test__accumulation_cluster_check(locdata_blobs):
+    locdata_blobs.dataframe = locdata_blobs.data.drop(columns='index')
     results = _accumulation_cluster_check(locdata_blobs)
     assert len(results.columns) == 5
 

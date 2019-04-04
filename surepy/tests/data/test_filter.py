@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 import pandas as pd
 from surepy import LocData
 from surepy.data.rois import RoiRegion
@@ -7,20 +8,34 @@ from surepy.data.transform import transform_affine
 
 
 @pytest.fixture()
-def locdata_simple():
-    dict_ = {
+def locdata_simple_():
+    locdata_dict = {
         'position_x': [0, 1, 2, 3, 0, 1, 4, 5],
         'position_y': [0, 1, 2, 3, 1, 4, 5, 1],
         'position_z': [0, 1, 2, 3, 4, 4, 4, 5]
     }
-    return LocData(dataframe=pd.DataFrame.from_dict(dict_))
+    return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
+
+
+@pytest.fixture()
+def locdata_simple():
+    locdata_dict = {
+        'position_x': [0, 1, 2, 3, 0, 1, 4, 5],
+        'position_y': [0, 1, 2, 3, 1, 4, 5, 1],
+        'position_z': [0, 1, 2, 3, 4, 4, 4, 5]
+    }
+    df = pd.DataFrame(locdata_dict)
+    df.index = [2, 0, 1, 3, 4, 5, 6, 7]
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': 1000000001})
 
 
 def test_select_by_condition(locdata_simple):
     dat_s = select_by_condition(locdata_simple, 'position_x>1')
     assert (len(dat_s) == 4)
+    assert np.all(dat_s.data.index == [1, 3, 6, 7])
     # dat_s.print_meta()
     # print(dat_s.meta)
+    # print(dat_s.data)
 
 
 def test_LocData_selection_from_collection(locdata_simple):
@@ -68,6 +83,7 @@ def test_select_by_region(locdata_simple):
 def test_exclude_sparse_points(locdata_simple):
     new_locdata = exclude_sparse_points(locdata=locdata_simple, radius=3, min_samples=2)
     assert len(new_locdata) == 4
+    # todo: check if the correct points are taken
     locdata_simple_trans = transform_affine(locdata_simple, offset=(0.5, 0, 0))
     new_locdata = exclude_sparse_points(locdata=locdata_simple,
                                         other_locdata=locdata_simple_trans, radius=2, min_samples=2)

@@ -25,7 +25,7 @@ def locdata_3D():
 
 # tests hdbscan
 
-def test_clustering_hdbscan(locdata):
+def test_cluster_hdbscan(locdata):
     #print(locdata.data.head())
     clust = cluster_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = False)
     print(clust.data.head())
@@ -37,14 +37,14 @@ def test_clustering_hdbscan(locdata):
     assert isinstance(clust.data['test_column'], pd.Series)
 
 
-def test_clustering_hdbscan_with_noise(locdata):
+def test_cluster_hdbscan_with_noise(locdata):
     #print(locdata.data.head())
     noise, clust = cluster_hdbscan(locdata, min_cluster_size = 5, allow_single_cluster = False, noise=True)
     print(clust.data.head())
     print(noise.meta)
     #assert (len(clust) == 2)
 
-def test_clustering_hdbscan_3D(locdata_3D):
+def test_cluster_hdbscan_3D(locdata_3D):
     #print(locdata.data.head())
     clust = cluster_hdbscan(locdata_3D, min_cluster_size = 5, allow_single_cluster = False)
     #print(clust.data.head())
@@ -53,20 +53,20 @@ def test_clustering_hdbscan_3D(locdata_3D):
 
 # tests dbscan
 
-def test_clustering_dbscan(locdata):
+def test_cluster_dbscan(locdata):
     #print(locdata.data.head())
     clust = cluster_dbscan(locdata, eps = 100, min_samples=4)
     #print(clust.data.head())
     assert (len(clust) == 5)
 
-def test_clustering_dbscan_with_noise(locdata):
+def test_cluster_dbscan_with_noise(locdata):
     #print(locdata.data.head())
     clust = cluster_dbscan(locdata, eps = 100, min_samples=4, noise=True)
     #print(clust.data.head())
     assert (len(clust) == 2)
     #print(clust[0].data.head())
 
-def test_clustering_dbscan_3D(locdata_3D):
+def test_cluster_dbscan_3D(locdata_3D):
     #print(locdata.data.head())
     clust = cluster_dbscan(locdata_3D, eps = 100, min_samples=5)
     #print(clust.data.head())

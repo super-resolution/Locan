@@ -319,7 +319,8 @@ class Roi:
 
         points = locdata.data[list(pfr)].values
         indices_inside = self._region.contains(points)
-        new_locdata = LocData.from_selection(locdata=locdata, indices=indices_inside)
+        locdata_indices_to_keep = locdata.data.index[indices_inside]
+        new_locdata = LocData.from_selection(locdata=locdata, indices=locdata_indices_to_keep)
         new_locdata.region = self._region
 
         # finish

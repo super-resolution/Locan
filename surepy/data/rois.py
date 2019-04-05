@@ -317,7 +317,7 @@ class Roi:
         else:
             pfr = locdata.coordinate_labels[0:self._region.dimension]
 
-        points = locdata.data[pfr].values
+        points = locdata.data[list(pfr)].values
         indices_inside = self._region.contains(points)
         new_locdata = LocData.from_selection(locdata=locdata, indices=indices_inside)
         new_locdata.region = self._region

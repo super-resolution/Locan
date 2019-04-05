@@ -105,7 +105,13 @@ def test_RoiRegion_RoiPolygon_error():
 
 
 def test_Roi(locdata):
-    roi = Roi(reference=locdata, region_specs=((0, 0), 2, 1, 10), region_type='rectangle')
+    roi = Roi(reference=locdata, region_specs=((0, 0), 2, 1, 0), region_type='rectangle')
+    new_dat = roi.locdata()
+    new_dat = roi.locdata()
+    assert len(new_dat) == 2
+
+    roi = Roi(reference=locdata, region_specs=((0, 0), 2, 3, 0), region_type='rectangle',
+              properties_for_roi=('position_y', 'position_z'))
     new_dat = roi.locdata()
     assert len(new_dat) == 2
 

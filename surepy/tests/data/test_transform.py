@@ -63,3 +63,17 @@ def test_transform_affine(locdata_simple):
     # print(new_locdata.data)
     # print(new_locdata.meta)
     assert new_locdata.meta.history[-1].name == 'transform_affine'
+
+
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_empty', 0),
+    ('locdata_single_localization', 4),
+    ('locdata_fix', 4),
+    ('locdata_non_standard_index', 4)
+])
+def test_standard_locdata_objects(
+        locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
+        fixture_name, expected):
+    locdata = eval(fixture_name)
+    new_locdata = transform_affine(locdata, matrix=((0, 1), (-1, 0)), offset=(10, 10))
+    assert len(new_locdata.data.columns) == expected

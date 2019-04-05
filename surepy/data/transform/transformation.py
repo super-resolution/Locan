@@ -57,9 +57,12 @@ def transform_affine(locdata, matrix=None, offset=None):
     Returns
     -------
     locdata : ndarray or LocData object
-        New localization data with tansformed coordinates.
+        New localization data with transformed coordinates.
     """
     local_parameter = locals()
+
+    if len(locdata) == 0:
+        return locdata
 
     # adjust input
     if isinstance(locdata, LocData):
@@ -82,7 +85,9 @@ def transform_affine(locdata, matrix=None, offset=None):
     # prepare output
     if isinstance(locdata, LocData):
         # new LocData object
-        new_locdata = LocData.from_dataframe(pd.DataFrame(transformed_points, columns=locdata.coordinate_labels))
+        new_dataframe = locdata.data.copy()
+        new_dataframe.update(pd.DataFrame(transformed_points, columns=locdata.coordinate_labels))
+        new_locdata = LocData.from_dataframe(new_dataframe)
 
         # update metadata
         meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,

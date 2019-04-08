@@ -245,7 +245,7 @@ class Roi:
 
         # prepare points for yaml representation - numpy.float has to be converted to float
         def nested_change(iterable, func):
-            if isinstance(iterable, (list, tuple)):
+            if isinstance(iterable, (list, tuple, np.ndarray)):
                 return [nested_change(x, func) for x in iterable]
             return func(iterable)
 

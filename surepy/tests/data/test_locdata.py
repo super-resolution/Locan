@@ -69,7 +69,7 @@ def test_LocData_empty(df_empty):
 
 def test_LocData_from_dataframe(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-    print(dat.properties.keys())
+    # print(dat.properties.keys())
     assert(list(dat.properties.keys()) == ['localization_count', 'position_x', 'position_y', 'region_measure_bb',
                                            'localization_density_bb', 'subregion_measure_bb'])
     assert (len(dat) == 5)
@@ -80,7 +80,7 @@ def test_LocData_from_dataframe_empty(df_empty):
     dat = LocData.from_dataframe(dataframe=df_empty)
     assert (len(dat) == 0)
     assert (dat.coordinate_labels == [])
-    print(dat.data)
+    # print(dat.data)
 
 
 # this test is not running wihtin complete test run. But it works when run by itself.
@@ -275,7 +275,8 @@ def test_locdata_from_selection_(
         locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
         fixture_name, expected):
     dat = eval(fixture_name)
-    sel = LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
+    sel = LocData.from_selection(locdata=dat, indices=[1, 2, 5], meta=COMMENT_METADATA)
     assert (len(sel) == expected)
+    assert list(sel.data.index) == [1, 2, 5]
     assert (sel.references is dat)
     assert (sel.meta.comment == COMMENT_METADATA.comment)

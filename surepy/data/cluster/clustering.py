@@ -88,13 +88,14 @@ def cluster_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_clus
     ).fit_predict(fit_data)
 
     grouped = locdata.data.groupby(labels)
+    locdata_index_labels = [locdata.data.index[idxs] for idxs in grouped.indices.values()]
 
     if noise:
-        selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
+        selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), locdata_index_labels))
         noise = selections[0]
         collection = LocData.from_collection(selections[1:])
     else:
-        selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
+        selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), locdata_index_labels))
         collection = LocData.from_collection(selections)
 
     # set regions
@@ -157,13 +158,14 @@ def cluster_dbscan(locdata, eps=20, min_samples=5, kdims=None, noise=False, **kw
     ).fit_predict(fit_data)
 
     grouped = locdata.data.groupby(labels)
+    locdata_index_labels = [locdata.data.index[idxs] for idxs in grouped.indices.values()]
 
     if noise:
-        selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
+        selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), locdata_index_labels))
         noise = selections[0]
         collection = LocData.from_collection(selections[1:])
     else:
-        selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), grouped.indices.values()))
+        selections = list(map(lambda x: LocData.from_selection(locdata=locdata, indices=x), locdata_index_labels))
         collection = LocData.from_collection(selections)
 
     # set regions

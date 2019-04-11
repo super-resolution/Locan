@@ -20,6 +20,7 @@ Submodules:
    uncertainty
    cbc
    accumulation_analysis
+   blinking
 
 """
 
@@ -34,3 +35,4 @@ from surepy.analysis.ripley import RipleysKFunction, RipleysLFunction, RipleysHF
 from surepy.analysis.uncertainty import LocalizationUncertaintyFromIntensity
 from surepy.analysis.cbc import CoordinateBasedColocalization
 from surepy.analysis.accumulation_analysis import AccumulationClusterCheck
+from surepy.analysis.blinking import BlinkStatistics

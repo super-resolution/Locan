@@ -27,7 +27,7 @@ def locdata_simple():
 def test_Localization_precision(locdata_simple):
     # print(locdata_simple.data)
     lp = LocalizationPrecision().compute(locdata=locdata_simple)
-    print(lp.results)
+    # print(lp.results)
     for prop in ['position_delta_x', 'position_delta_y', 'position_distance']:
         assert(prop in lp.results.columns)
 
@@ -36,7 +36,7 @@ def test_Localization_precision_plot(locdata):
     lp = LocalizationPrecision().compute(locdata=locdata)
     lp.plot(window=10, show=False)
     # print(lp.results)
-    print(lp.meta)
+    # print(lp.meta)
 
 
 def test_Distribution_fits(locdata_simple):
@@ -69,4 +69,3 @@ def test_Localization_precision_histogram(locdata_simple):
     # print(lp.distribution_statistics.parameter_dict())
     assert(lp.distribution_statistics.position_delta_x_loc)
     assert(lp.distribution_statistics.position_delta_x_scale)
-

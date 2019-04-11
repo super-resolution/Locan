@@ -59,6 +59,7 @@ class LocalizationProperty(_Analysis):
     """
     def __init__(self, meta=None, loc_property='Intensity', index=None):
         super().__init__(meta=meta, loc_property=loc_property, index=index)
+        self.results = None
         self.distribution_statistics = None
 
     def compute(self, locdata=None):

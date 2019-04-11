@@ -76,6 +76,7 @@ class LocalizationsPerFrame(_Analysis):
 
     def __init__(self, meta=None, norm=None):
         super().__init__(meta=meta, norm=norm)
+        self.results = None
         self.distribution_statistics = None
 
     def compute(self, locdata):

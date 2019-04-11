@@ -129,6 +129,7 @@ class NearestNeighborDistances(_Analysis):
 
     def __init__(self, meta=None, k=1):
         super().__init__(meta=meta, k=k)
+        self.results = None
         self.distribution_statistics = None
 
     def compute(self, locdata, other_locdata=None):

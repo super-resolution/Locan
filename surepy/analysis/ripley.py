@@ -138,6 +138,7 @@ class RipleysKFunction(_Analysis):
 
     def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb'):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
+        self.results = None
 
     def compute(self, locdata, other_locdata=None):
         """
@@ -206,6 +207,7 @@ class RipleysLFunction(_Analysis):
 
     def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb'):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
+        self.results = None
 
     def compute(self, locdata, other_locdata=None):
         """
@@ -276,6 +278,7 @@ class RipleysHFunction(_Analysis):
 
     def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb'):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
+        self.results = None
         self._Ripley_h_maximum = None
 
     def compute(self, locdata, other_locdata=None):

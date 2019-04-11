@@ -69,6 +69,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
 
     def __init__(self, meta=None):
         super().__init__(meta=meta)
+        self.results = None
 
     def compute(self, locdata):
         """

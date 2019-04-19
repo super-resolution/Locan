@@ -16,6 +16,7 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from scipy.stats import spearmanr
+import matplotlib.pyplot as plt
 
 from surepy.analysis.analysis_base import _Analysis
 
@@ -150,3 +151,37 @@ class CoordinateBasedColocalization(_Analysis):
         self.results = pd.DataFrame({f'colocalization_cbc_{id_}':
                                          _coordinate_based_colocalization(points, other_points, **self.parameter)})
         return self
+
+    def hist(self, ax=None, show=True, bins=(-1, -0.3333, 0.3333, 1), density=True, **kwargs):
+        """
+        Provide histogram as matplotlib axes object showing hist(results).
+
+        Parameters
+        ----------
+        bins : int, list or 'auto'
+            Bin specification as used in matplotlib.hist
+        density : bool
+            Flag for normalization as used in matplotlib.hist. True returns probability density function; None returns
+            counts.
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Other parameters passed to matplotlib.plot().
+        """
+        if ax is None:
+            fig, ax = plt.subplots(nrows=1, ncols=1)
+
+        ax.hist(self.results.iloc[:, 0].values, bins=bins, density=density, label='cbc')
+
+        ax.set(title='CBC histogram',
+               xlabel='colocalization_cbc',
+               ylabel='pdf' if density else 'counts'
+               )
+        ax.legend(loc='best')
+
+        # show figure
+        if show:
+            plt.show()
+
+        return None

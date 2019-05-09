@@ -3,12 +3,23 @@
 Compute localization precision from successive nearby localizations.
 
 Localization precision is estimated from spatial variations of all localizations that appear in successive frames
-within a specified search radius following [1]_.
+within a specified search radius [1]_.
+
+Localization pair distance distributions are fitted according to the probability density functions in [2]_.
+
+The estimated sigmas describe the standard deviation for pair distances. Localization precision is often defined as
+the standard deviation for localization distances from the center position. With that definition, the localization
+precision is equal to sigma / sqrt(2).
 
 References
 ----------
 .. [1] Endesfelder, Ulrike, et al., A simple method to estimate the average localization precision of a single-molecule
    localization microscopy experiment. Histochemistry and Cell Biology 141.6 (2014): 629-638.
+
+.. [2] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
+   A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+   Biophysical Journal 90 (2), 2006, 668-671,
+   doi.org/10.1529/biophysj.105.065599.
 
 """
 
@@ -224,29 +235,210 @@ class LocalizationPrecision(_Analysis):
 
 #### Auxiliary functions and classes
 
-class Pairwise_distance_distribution_2d(stats.rv_continuous):
-    '''
+class PairwiseDistance1d(stats.rv_continuous):
+    """
     A random variable describing the distribution
-    of Position_distances (referred to as pairwise displacement distribution in [1]_)
+    of pair distances for two normal distributed point clouds in 1D (as described in [1]_).
 
     The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
     overriding the _pdf method.
 
     Parameters
     ----------
-    shapes : float
-        Shape parameter `sigma`.
+    x : float
+        distance
+    mu : float
+        Distance between the point cloud center positions.
+    sigma_1 : float
+        Standard deviation for one point cloud.
+    sigma_2 : float
+        Standard deviation for the other point cloud.
 
     References
     ----------
-    .. [1] Endesfelder, U., Malkusch, S., Fricke, F., and Heilemann, M. (2014) A simple method to estimate the average
-       localization precision of a single-molecule localization microscopy experiment.
-       Histochemistry and cell biology 141, 629–638
+    .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
+       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       Biophysical Journal 90 (2), 2006, 668-671,
+       doi.org/10.1529/biophysj.105.065599.
+    """
+    def _pdf(x, mu, sigma_1, sigma_2):
+        sigma = np.sqrt(sigma_1 ** 2 + sigma_2 ** 2)
+        return np.sqrt(2 / np.pi) / sigma * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * np.cosh(
+            x * mu / (sigma ** 2))
 
-    '''
 
+class PairwiseDistance2d(stats.rv_continuous):
+    """
+    A random variable describing the distribution
+    of pair distances for two normal distributed point clouds in 2D (as described in [1]_).
+
+    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
+    overriding the _pdf method.
+
+    Parameters
+    ----------
+    x : float
+        distance
+    mu : float
+        Distance between the point cloud center positions.
+    sigma_1 : float
+        Standard deviation for one point cloud.
+    sigma_2 : float
+        Standard deviation for the other point cloud.
+
+    References
+    ----------
+    .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
+       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       Biophysical Journal 90 (2), 2006, 668-671,
+       doi.org/10.1529/biophysj.105.065599.
+    """
+    def _pdf(self, x, mu, sigma_1, sigma_2):
+        sigma = np.sqrt(sigma_1 ** 2 + sigma_2 ** 2)
+        return x / (sigma ** 2) * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * np.i0(x * mu / (sigma ** 2))
+
+
+class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
+    """
+    A random variable describing the distribution
+    of pair distances for two normal distributed point clouds in 2D (as described in [1]_).
+
+    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
+    overriding the _pdf method.
+
+    Parameters
+    ----------
+    x : float
+        distance
+    mu : float
+        Distance between the point cloud center positions.
+    sigma_1 : float
+        Standard deviation for one point cloud.
+    sigma_2 : float
+        Standard deviation for the other point cloud.
+
+    References
+    ----------
+    .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
+       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       Biophysical Journal 90 (2), 2006, 668-671,
+       doi.org/10.1529/biophysj.105.065599.
+    """
+    def _pdf(self, x, mu, sigma):
+        return x / (sigma ** 2) * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * np.i0(x * mu / (sigma ** 2))
+
+
+class PairwiseDistance3d(stats.rv_continuous):
+    """
+    A random variable describing the distribution
+    of pair distances for two normal distributed point clouds in 3D (as described in [1]_).
+
+    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
+    overriding the _pdf method.
+
+    Parameters
+    ----------
+    x : float
+        distance
+    mu : float
+        Distance between the point cloud center positions.
+    sigma_1 : float
+        Standard deviation for one point cloud.
+    sigma_2 : float
+        Standard deviation for the other point cloud.
+
+    References
+    ----------
+    .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
+       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       Biophysical Journal 90 (2), 2006, 668-671,
+       doi.org/10.1529/biophysj.105.065599.
+    """
+    def _pdf(x, mu, sigma_1, sigma_2):
+        sigma = np.sqrt(sigma_1 ** 2 + sigma_2 ** 2)
+        if mu == 0:
+            return np.sqrt(2 / np.pi) * x / sigma * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * x / (sigma ** 2)
+        else:
+            return np.sqrt(2 / np.pi) * x / sigma / mu * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * np.sinh(
+                x * mu / (sigma ** 2))
+
+
+class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
+    """
+    A random variable describing the distribution
+    of pair distances for two normal distributed point clouds in 1D (as described in [1]_).
+
+    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
+    overriding the _pdf method.
+
+    Parameters
+    ----------
+    x : float
+        distance
+    sigma : float
+        Standard deviation for point clouds
+
+    References
+    ----------
+    .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
+       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       Biophysical Journal 90 (2), 2006, 668-671,
+       doi.org/10.1529/biophysj.105.065599.
+    """
     def _pdf(self, x, sigma):
-        return x / (2 * sigma ** 2) * np.exp(- x ** 2 / (4 * sigma ** 2))
+        return np.sqrt(2 / np.pi) / sigma * np.exp(- x ** 2 / (2 * sigma ** 2))
+
+
+class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
+    """
+    A random variable describing the distribution
+    of pair distances for two normal distributed point clouds in 2D (as described in [1]_).
+
+    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
+    overriding the _pdf method.
+
+    Parameters
+    ----------
+    x : float
+        distance
+    sigma : float
+        Standard deviation for point clouds
+
+    References
+    ----------
+    .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
+       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       Biophysical Journal 90 (2), 2006, 668-671,
+       doi.org/10.1529/biophysj.105.065599.
+    """
+    def _pdf(self, x, sigma):
+        return x / (sigma ** 2) * np.exp(- x ** 2 / (2 * sigma ** 2))
+
+
+class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
+    """
+    A random variable describing the distribution
+    of pair distances for two normal distributed point clouds in 3D (as described in [1]_).
+
+    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
+    overriding the _pdf method.
+
+    Parameters
+    ----------
+    x : float
+        distance
+    sigma : float
+        Standard deviation for point clouds
+
+    References
+    ----------
+    .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
+       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       Biophysical Journal 90 (2), 2006, 668-671,
+       doi.org/10.1529/biophysj.105.065599.
+    """
+    def _pdf(self, x, sigma):
+        return np.sqrt(2 / np.pi) * x / sigma * np.exp(- x ** 2 / (2 * sigma ** 2)) * x / (sigma ** 2)
 
 
 class _DistributionFits:
@@ -283,11 +475,18 @@ class _DistributionFits:
         self.parameters = []
 
         # continuous distributions
-        self.pairwise_distribution = Pairwise_distance_distribution_2d(name='pairwise', a=0.)
-        # todo: 3D
+        delta_columns = [c for c in self.analysis_class.results.columns if 'position_delta' in c]
+        if len(delta_columns) == 1:
+            self.pairwise_distribution = PairwiseDistance1dIdenticalSigmaZeroMu(name='pairwise', a=0.)
+        elif len(delta_columns) == 2:
+            self.pairwise_distribution = PairwiseDistance2dIdenticalSigmaZeroMu(name='pairwise', a=0.)
+        elif len(delta_columns) == 3:
+            self.pairwise_distribution = PairwiseDistance3dIdenticalSigmaZeroMu(name='pairwise', a=0.)
+        # a is the lower bound of the support of the distribution
+        # self.pairwise_distribution = PairwiseDistance2dIdenticalSigma(name='pairwise') also works but is very slow.
 
     def fit(self, loc_property='position_distance', **kwargs):
-        '''
+        """
         Fit distributions of results using a MLE fit (scipy.stats) and provide fit results.
 
         Parameters
@@ -299,7 +498,7 @@ class _DistributionFits:
         ----------------
         kwargs : dict
             Parameters passed to the `distribution.fit()` method.
-        '''
+        """
         # prepare parameters
         if 'position_delta_' in loc_property:
             self.distribution = stats.norm
@@ -359,11 +558,22 @@ class _DistributionFits:
                     label='fitted pdf', **kwargs)
 
         elif loc_property == 'position_distance':
-            _sigma = self.position_distance_sigma
-            x_values = np.linspace(self.pairwise_distribution.ppf(0.01, sigma=_sigma),
-                                   self.pairwise_distribution.ppf(0.99, sigma=_sigma), 100)
-            ax.plot(x_values, self.pairwise_distribution.pdf(x_values, sigma=_sigma), 'r-', lw=3, alpha=0.6,
-                    label='fitted pdf', **kwargs)
+            if isinstance(self.pairwise_distribution, PairwiseDistance2dIdenticalSigma):
+                _sigma = self.position_distance_sigma
+                _mu = self.position_distance_mu
+                x_values = np.linspace(self.pairwise_distribution.ppf(0.01, mu=_mu, sigma=_sigma),
+                                       self.pairwise_distribution.ppf(0.99, mu=_mu, sigma=_sigma), 100)
+                ax.plot(x_values, self.pairwise_distribution.pdf(x_values, mu=_mu, sigma=_sigma), 'r-', lw=3, alpha=0.6,
+                        label='fitted pdf', **kwargs)
+            elif isinstance(self.pairwise_distribution, PairwiseDistance2dIdenticalSigmaZeroMu):
+                _sigma = self.position_distance_sigma
+                x_values = np.linspace(self.pairwise_distribution.ppf(0.01, sigma=_sigma),
+                                       self.pairwise_distribution.ppf(0.99, sigma=_sigma), 100)
+                ax.plot(x_values, self.pairwise_distribution.pdf(x_values, sigma=_sigma), 'r-', lw=3, alpha=0.6,
+                        label='fitted pdf', **kwargs)
+            else:
+                raise NotImplementedError('pairwise_distribution function has not been implemented for plotting '
+                                          'position distances.')
 
         if show:
             plt.show()

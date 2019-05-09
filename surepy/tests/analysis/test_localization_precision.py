@@ -56,6 +56,8 @@ def test_Distribution_fits(locdata_simple):
     assert lp.distribution_statistics.parameter_dict()
     assert lp.distribution_statistics.position_delta_x_loc == 0
 
+# todo add tests for 1d and 3d
+
 
 def test_Localization_precision_histogram(locdata_simple):
     lp = LocalizationPrecision().compute(locdata=locdata_simple)
@@ -67,5 +69,6 @@ def test_Localization_precision_histogram(locdata_simple):
 
     lp.hist(loc_property='position_delta_x',fit=True, show=False)
     # print(lp.distribution_statistics.parameter_dict())
-    assert(lp.distribution_statistics.position_delta_x_loc)
-    assert(lp.distribution_statistics.position_delta_x_scale)
+    assert lp.distribution_statistics.position_delta_x_loc
+    assert lp.distribution_statistics.position_delta_x_scale
+

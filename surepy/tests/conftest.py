@@ -1,8 +1,12 @@
+from pathlib import Path
+
 import pytest
 import numpy as np
 import pandas as pd
 
 from surepy import LocData
+from surepy.constants import ROOT_DIR
+from surepy.io.io_locdata import load_txt_file
 
 
 # fixtures for random points
@@ -57,3 +61,18 @@ def locdata_non_standard_index():
     df = pd.DataFrame(locdata_dict)
     df.index = [2, 1, 5, 10, 100, 200]
     return LocData.from_dataframe(dataframe=df, meta={'creation_date': 1000000001})
+
+
+@pytest.fixture(scope='session')
+def locdata_blobs_2d():
+    path = Path(ROOT_DIR + '/tests/Test_data/five_blobs.txt')
+    dat = load_txt_file(path)
+    dat.meta.creation_date = 1000000001
+    return dat
+
+
+@pytest.fixture(scope='session')
+def locdata_blobs_3d():
+    path = Path(ROOT_DIR + '/tests/Test_data/five_blobs_3D.txt')
+    dat = load_txt_file(path, meta={'creation_date': 1000000001})
+    return dat

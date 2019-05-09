@@ -2,7 +2,8 @@ import pytest
 import numpy as np
 import pandas as pd
 from surepy import LocData
-from surepy.data.hulls import  BoundingBox, ConvexHull, ConvexHullShapely
+from surepy.data.hulls import  BoundingBox, ConvexHull, ConvexHullShapely, update_convex_hulls_in_collection
+from surepy.data.cluster.clustering import cluster_dbscan
 
 
 @pytest.fixture()
@@ -50,3 +51,14 @@ def test_Convex_hull_scipy_small():
     locdata = LocData(dataframe=pd.DataFrame.from_dict(dict))
     with pytest.raises(TypeError):
         ConvexHull(locdata.coordinates)
+
+
+def test_update_convex_hulls_in_collection(locdata_blobs_2d):
+    clust = cluster_dbscan(locdata_blobs_2d, eps=100, min_samples=4)
+    assert (len(clust) == 5)
+
+    new_collection = update_convex_hulls_in_collection(clust, copy=False)
+    assert new_collection is None
+    # print(clust.references[0].properties)
+    assert 'region_measure_ch' in clust.references[0].properties
+    assert 'localization_density_ch' in clust.references[0].properties

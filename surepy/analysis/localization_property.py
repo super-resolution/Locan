@@ -140,7 +140,7 @@ class LocalizationProperty(_Analysis):
 
     def hist(self, ax=None, show=True, bins='auto', log=True, fit=True, **kwargs):
         """
-        Provide histogram as matplotlib axes object showing hist(results).
+        Provide histogram as matplotlib axes object showing hist(results). Nan entries are ignored.
 
         Parameters
         ----------
@@ -164,7 +164,7 @@ class LocalizationProperty(_Analysis):
         if ax is None:
             fig, ax = plt.subplots(nrows=1, ncols=1)
 
-        ax.hist(self.results.values, bins=bins, density=True, log=log, **kwargs)
+        ax.hist(self.results.dropna(axis=0).values, bins=bins, density=True, log=log, **kwargs)
         ax.set(title = self.parameter['loc_property'],
                xlabel = self.parameter['loc_property'],
                ylabel = 'PDF'

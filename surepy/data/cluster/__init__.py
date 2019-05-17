@@ -17,3 +17,7 @@ Submodules:
 
 from surepy.data.cluster.clustering import *
 from surepy.data.cluster.utils import *
+
+__all__ = []
+__all__.extend(clustering.__all__)
+__all__.extend(utils.__all__)

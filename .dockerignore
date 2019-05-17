@@ -1,0 +1,22 @@
+# JetBrains
+.idea
+
+# cache
+.cache
+.pytest_cache
+**/__pycache__
+
+# build
+dist/
+build/
+.eggs
+*.egg-info
+
+# git
+.git
+.gitattributes
+.gitignore
+
+# docker
+Dockerfile
+docker-compose.yml

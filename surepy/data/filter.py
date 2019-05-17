@@ -12,10 +12,14 @@ import numpy as np
 from sklearn.neighbors import NearestNeighbors
 import matplotlib.path as mpath
 
-from surepy import LocData
+from surepy.data.locdata import LocData
 from surepy.constants import N_JOBS
 from surepy.data.metadata_utils import _modify_meta
 from surepy.data.rois import Roi
+
+
+__all__ = ['select_by_condition', 'select_by_region', 'select_by_image_mask', 'exclude_sparse_points',
+           'random_subset']
 
 
 def select_by_condition(locdata, condition):

@@ -22,7 +22,7 @@ from asdf import AsdfFile
 from asdf import open as asdf_open
 from google.protobuf import json_format
 
-from surepy import LocData
+from surepy.data.locdata import LocData
 import surepy.constants
 from surepy.data import metadata_pb2
 

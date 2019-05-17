@@ -20,6 +20,9 @@ from scipy.spatial.distance import pdist
 from shapely.geometry import Polygon as shPolygon
 
 
+__all__ = ['RoiRegion']
+
+
 class RoiRegion:
     """
     Region object to specify regions of interest.

@@ -91,14 +91,18 @@ def test_BlinkStatistics(locdata_with_zero_frame):
     assert repr(bs) == "BlinkStatistics(**{'memory': 0, 'remove_heading_off_periods': True})"
     assert all(bs.results['on_periods'] == [3, 1, 2, 1])
     assert all(bs.results['off_periods'] == [1, 5, 2])
+    assert bs.distribution_statistics == {}
 
     bs.hist(data_identifier='on_periods', ax=None, show=False, bins='auto', log=True, fit=False)
     bs.hist(data_identifier='off_periods', ax=None, show=False, bins='auto', log=True, fit=False)
+    bs.hist(data_identifier='on_periods', ax=None, show=False, bins='auto', log=True, fit=True)
 
 
 def test_DistributionFits(locdata_with_zero_frame):
     bs = BlinkStatistics().compute(locdata_with_zero_frame)
     df = _DistributionFits(bs, distribution=stats.expon, data_identifier='on_periods')
+    assert len(df.analysis_class.results) == 2
+    assert df.data_identifier == 'on_periods'
     assert repr(df) == "_DistributionFits(analysis_class=BlinkStatistics, " \
                        "distribution=expon_gen, data_identifier=on_periods)"
     assert df.parameter_dict() == {}
@@ -110,6 +114,8 @@ def test_DistributionFits(locdata_with_zero_frame):
     assert list(df.parameter_dict().keys()) == ['off_periods_loc', 'off_periods_scale']
     df.plot(show=False)
 
+    print(df.analysis_class.results[df.data_identifier])
+
 
 def test_fit_distributions(locdata_with_zero_frame):
     bs = BlinkStatistics().compute(locdata_with_zero_frame)
@@ -120,4 +126,10 @@ def test_fit_distributions(locdata_with_zero_frame):
            {'off_periods_loc': 1.0, 'off_periods_scale': 1.6666666666666665}
     bs.hist(show=False)
     bs.hist(data_identifier='off_periods', show=False)
+    del(bs)
+
+    bs = BlinkStatistics().compute(locdata_with_zero_frame)
+    bs.fit_distributions(data_identifier='on_periods')
+    assert bs.distribution_statistics['on_periods'].parameter_dict() == \
+           {'on_periods_loc': 1.0, 'on_periods_scale': 0.75}
 

@@ -7,7 +7,10 @@ import sys
 import itertools
 from inspect import signature
 
-from surepy import LocData
+from surepy.data.locdata import LocData
+
+
+__all__ = ['serial_clustering']
 
 
 def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):

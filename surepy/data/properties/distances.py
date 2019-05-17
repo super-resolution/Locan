@@ -9,6 +9,10 @@ This value represents a new property of locdata.
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
+
+__all__ = ['max_distance']
+
+
 # todo: there is a memory problem here with large files
 def max_distance(locdata):
     """

@@ -20,6 +20,10 @@ import warnings
 
 from surepy.analysis.analysis_base import _Analysis
 
+
+__all__ = ['LocalizationUncertaintyFromIntensity']
+
+
 ##### The algorithms
 
 def _localization_uncertainty_from_intensity(locdata):

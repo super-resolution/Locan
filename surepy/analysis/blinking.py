@@ -25,10 +25,13 @@ from surepy.render import render_2d
 from surepy.data.transform import randomize
 from surepy.data.cluster import cluster_hdbscan, cluster_dbscan
 from surepy.data.hulls import ConvexHull
-from surepy.data.track import track
+from surepy.data.tracking import track
+
+
+__all__ = ['BlinkStatistics']
+
 
 ##### The algorithms
-
 
 def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
     """
@@ -145,7 +148,8 @@ class BlinkStatistics(_Analysis):
         self.results = _blink_statistics(locdata=locdata, **self.parameter)
         return self
 
-    def fit_distributions(self, distribution=stats.expon, data_identifier=('on_periods', 'off_periods'), with_constraints=True):
+    def fit_distributions(self, distribution=stats.expon, data_identifier=('on_periods', 'off_periods'),
+                          with_constraints=True, **kwargs):
         """
         Fit probability density functions to the distributions of on- and off-periods in the results
         using MLE (scipy.stats).
@@ -162,17 +166,21 @@ class BlinkStatistics(_Analysis):
             'on_periods' or 'off_periods'. For True all are fitted.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """
         if isinstance(data_identifier, (tuple, list)):
             data_identifier_ = data_identifier
         else:
-            data_identifier_ = (data_identifier)
+            data_identifier_ = (data_identifier,)
 
         for data_id in data_identifier_:
-            print(data_id)
             self.distribution_statistics[data_id] = _DistributionFits(self, data_identifier=data_id,
                                              distribution=distribution)
-            self.distribution_statistics[data_id].fit(with_constraints=with_constraints)
+            self.distribution_statistics[data_id].fit(with_constraints=with_constraints, **kwargs)
 
     def hist(self, data_identifier='on_periods', ax=None, show=True, bins='auto', log=True, fit=True, **kwargs):
         """
@@ -210,7 +218,8 @@ class BlinkStatistics(_Analysis):
 
         # fit distributions:
         if fit:
-            if isinstance(self.distribution_statistics[data_identifier], _DistributionFits):
+            if data_identifier in self.distribution_statistics and \
+                    isinstance(self.distribution_statistics[data_identifier], _DistributionFits):
                 self.distribution_statistics[data_identifier].plot(ax=ax, show=False)
             else:
                 self.fit_distributions(data_identifier=data_identifier)

@@ -11,11 +11,14 @@ import time
 import numpy as np
 import pandas as pd
 
-from surepy import LocData
+from surepy.data.locdata import LocData
 import surepy.data.hulls
 from surepy.data.region import RoiRegion
 from surepy.simulation import simulate_csr, simulate_csr_on_region
 from surepy.data.metadata_utils import _modify_meta
+
+
+__all__ = ['transform_affine', 'randomize']
 
 
 def transform(locdata, *args):

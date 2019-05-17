@@ -27,6 +27,9 @@ from surepy.data.filter import random_subset
 from surepy.data.hulls import ConvexHull
 
 
+__all__ = ['AccumulationClusterCheck']
+
+
 #### The algorithms
 
 

@@ -49,6 +49,9 @@ from sklearn.neighbors import NearestNeighbors
 from surepy.analysis.analysis_base import _Analysis
 
 
+__all__ = ['RipleysKFunction', 'RipleysLFunction', 'RipleysHFunction']
+
+
 #### The algorithms
 
 def _ripleys_k_function(points, radii, region_measure=1, other_points=None):

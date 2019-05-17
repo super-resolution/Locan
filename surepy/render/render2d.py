@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import fast_histogram
 from skimage import exposure
 
-import surepy.data.properties.statistics
+import surepy.data.properties.locdata_statistics
 
 
 def render_2d(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=True, cmap='magma'):

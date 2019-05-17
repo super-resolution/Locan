@@ -6,9 +6,13 @@ These values represent new properties of locdata.
 
 """
 import pandas as pd
-from surepy import LocData
+from surepy.data.locdata import LocData
 
-def statistics(locdata, statistic_keys = ('count', 'min', 'max', 'mean', 'median', 'std', 'sem')):
+
+__all__ = ['statistics']
+
+
+def statistics(locdata, statistic_keys=('count', 'min', 'max', 'mean', 'median', 'std', 'sem')):
     """
     Compute selected statistical parameter for localization data.
 

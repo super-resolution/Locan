@@ -14,5 +14,9 @@ Submodules:
    statistics
 '''
 
-from surepy.data.properties.max_distance import *
-from surepy.data.properties.statistics import *
+from surepy.data.properties.distances import *
+from surepy.data.properties.locdata_statistics import *
+
+__all__ = []
+__all__.extend(distances.__all__)
+__all__.extend(locdata_statistics.__all__)

@@ -44,7 +44,7 @@ import pandas as pd
 from sklearn.datasets.samples_generator import make_blobs
 from shapely.geometry import Polygon
 
-from surepy import LocData
+from surepy.data.locdata import LocData
 from surepy.data import metadata_pb2
 from surepy.data.region import RoiRegion
 

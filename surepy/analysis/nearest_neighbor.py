@@ -41,6 +41,9 @@ from surepy.analysis.analysis_base import _Analysis, _list_parameters
 from surepy.constants import N_JOBS
 
 
+__all__ = ['NearestNeighborDistances']
+
+
 #### The algorithms
 
 def pdf_nnDistances_csr_2D(x, density):

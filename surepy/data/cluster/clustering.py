@@ -14,8 +14,12 @@ from scipy import stats
 from hdbscan import HDBSCAN
 from sklearn.cluster import DBSCAN
 
-from surepy import LocData
+from surepy.data.locdata import LocData
 from surepy.constants import N_JOBS
+
+
+__all__ = ['cluster_hdbscan', 'cluster_dbscan']
+
 
 # A general function for clustering should maybe be implemented.
 #

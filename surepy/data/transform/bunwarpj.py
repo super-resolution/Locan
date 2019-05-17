@@ -27,8 +27,11 @@ import pandas as pd
 from itertools import islice
 from numba import jit
 
-from surepy import LocData
+from surepy.data.locdata import LocData
 from surepy.data.metadata_utils import _modify_meta
+
+
+__all__ = ['bunwarp']
 
 
 @jit(nopython=True)

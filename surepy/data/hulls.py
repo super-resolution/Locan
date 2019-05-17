@@ -14,6 +14,9 @@ from shapely.geometry import MultiPoint
 from surepy.data.region import RoiRegion
 
 
+__all__ = ['BoundingBox', 'ConvexHull', 'ConvexHullShapely', 'OrientedBoundingBoxShapely',
+           'update_convex_hulls_in_collection']
+
 class Hull():
     """
     Abstract class for the hull of a selection

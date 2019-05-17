@@ -18,6 +18,9 @@ from scipy import stats
 from surepy.analysis.analysis_base import _Analysis, _list_parameters
 
 
+__all__ = ['LocalizationProperty']
+
+
 ##### The algorithms
 
 def _localization_property(locdata, loc_property='Intensity', index=None):

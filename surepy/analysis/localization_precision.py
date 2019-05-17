@@ -34,6 +34,9 @@ from surepy.constants import N_JOBS
 from surepy.analysis.analysis_base import _Analysis, _list_parameters
 
 
+__all__ = ['LocalizationPrecision']
+
+
 ##### The algorithms
 
 def _localization_precision(locdata, radius=50):

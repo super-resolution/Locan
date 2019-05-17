@@ -14,7 +14,10 @@ import numpy as np
 import pandas as pd
 from trackpy import link_df
 
-from surepy import LocData
+from surepy.data.locdata import LocData
+
+
+__all__ = ['link_locdata', 'track']
 
 
 def link_locdata(locdata, search_range=40, memory=0, **kwargs):

@@ -21,11 +21,14 @@ from ruamel.yaml import YAML
 from google.protobuf import json_format
 
 from surepy.data import metadata_pb2
-from surepy import LocData
+from surepy.data.locdata import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
 from surepy.render import render_2d
 from surepy.data.region import RoiRegion
+
+
+__all__ = ['Roi', 'select_by_drawing']
 
 
 class _MplSelector:

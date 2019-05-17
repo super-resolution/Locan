@@ -21,6 +21,9 @@ import matplotlib.pyplot as plt
 from surepy.analysis.analysis_base import _Analysis
 
 
+__all__ = ['CoordinateBasedColocalization']
+
+
 ##### The algorithm
 
 def _coordinate_based_colocalization(points, other_points=None, radius=100, n_steps=10):

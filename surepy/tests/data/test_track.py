@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from surepy import LocData
-from surepy.data.track import link_locdata, track
+from surepy.data.tracking import link_locdata, track
 
 
 @pytest.fixture()

@@ -11,6 +11,9 @@ import matplotlib.pyplot as plt
 from surepy.analysis.analysis_base import _Analysis
 
 
+__all__ = ['LocalizationsPerFrame']
+
+
 #### The algorithms
 
 def _localizations_per_frame(data, norm=None):

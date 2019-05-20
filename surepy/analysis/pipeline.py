@@ -6,7 +6,7 @@ analysis, where a preliminary result serves as input to the next analysis step, 
 different results in parallel.
 """
 
-from surepy import LocData
+from surepy.data.locdata import LocData
 from surepy.io.io_locdata import load_locdata
 from surepy.data.rois import Roi
 from surepy.data.hulls import ConvexHull

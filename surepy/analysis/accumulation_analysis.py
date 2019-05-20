@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from surepy import LocData
+from surepy.data.locdata import LocData
 from surepy.analysis.analysis_base import _Analysis
 from surepy.data.cluster.clustering import cluster_hdbscan
 from surepy.data.filter import random_subset

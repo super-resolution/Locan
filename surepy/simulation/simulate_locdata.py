@@ -41,12 +41,20 @@ import time
 
 import numpy as np
 import pandas as pd
-from sklearn.datasets.samples_generator import make_blobs
 from shapely.geometry import Polygon
 
 from surepy.data.locdata import LocData
 from surepy.data import metadata_pb2
 from surepy.data.region import RoiRegion
+
+
+__all__ = ['make_csr', 'simulate_csr',
+           'make_csr_on_disc', 'simulate_csr_on_disc',
+           'make_Matern', 'simulate_Matern',
+           'make_Thomas', 'simulate_Thomas',
+           'make_csr_on_region', 'simulate_csr_on_region',
+           'make_Thomas_on_region', 'simulate_Thomas_on_region',
+           'simulate_tracks', 'resample']
 
 
 def make_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed=None):

@@ -15,3 +15,6 @@ Surepy.render consists of the following modules:
 """
 
 from .render2d import *
+
+__all__ = []
+__all__.extend(render2d.__all__)

@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from scipy import stats
 
 from surepy.analysis.analysis_base import _Analysis, _list_parameters
-from surepy import LocData
+from surepy.data.locdata import LocData
 
 import surepy.io.io_locdata as io
 from surepy.gui.io import file_dialog

@@ -16,6 +16,9 @@ import surepy.data.hulls
 from surepy.data import metadata_pb2
 
 
+__all__ = ['LocData']
+
+
 class LocData:
     """
     This class carries localization data, aggregated properties and meta data.

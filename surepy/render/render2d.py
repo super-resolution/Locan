@@ -12,6 +12,9 @@ from skimage import exposure
 import surepy.data.properties.locdata_statistics
 
 
+__all__ = ['render_2d']
+
+
 def render_2d(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=True, cmap='magma'):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.

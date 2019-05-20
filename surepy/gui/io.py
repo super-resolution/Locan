@@ -4,6 +4,9 @@ Functions for user interaction with paths and file names.
 
 """
 
+__all__ = ['file_dialog']
+
+
 def file_dialog(directory=None, message='Select a file...', filter='Text files (*.txt);; All files (*)'):
     """
     Select file names in a ui dialog.

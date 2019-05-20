@@ -14,3 +14,6 @@ Surepy.simulation consists of the following modules:
 '''
 
 from .simulate_locdata import *
+
+__all__ = []
+__all__.extend(simulate_locdata.__all__)

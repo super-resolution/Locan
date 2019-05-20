@@ -12,3 +12,7 @@ Surepy.io consists of the following modules:
    io_locdata
 
 """
+from .io_locdata import *
+
+__all__ = []
+__all__.extend(io_locdata.__all__)

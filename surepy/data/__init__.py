@@ -20,6 +20,7 @@ Submodules:
    transform
 
 """
+from surepy.data.locdata import *
 from surepy.data.filter import *
 from surepy.data.hulls import *
 from surepy.data.region import *
@@ -29,6 +30,7 @@ from surepy.data.cluster import *
 from surepy.data.transform import *
 
 __all__ = []
+__all__.extend(locdata.__all__)
 __all__.extend(filter.__all__)
 __all__.extend(hulls.__all__)
 __all__.extend(region.__all__)

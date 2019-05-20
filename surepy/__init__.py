@@ -19,10 +19,17 @@ Surepy consists of the following modules:
 """
 
 from surepy.version import __version__
-from surepy.data.locdata import LocData
 from surepy.analysis import *
 from surepy.data import *
+from surepy.gui import *
+from surepy.io import *
+from surepy.render import *
+from surepy.simulation import *
 
-__all__ = ['__version__', 'LocData']
+__all__ = ['__version__']
 __all__.extend(analysis.__all__)
 __all__.extend(data.__all__)
+__all__.extend(gui.__all__)
+__all__.extend(io.__all__)
+__all__.extend(render.__all__)
+__all__.extend(simulation.__all__)

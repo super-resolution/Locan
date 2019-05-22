@@ -1,6 +1,4 @@
-# Use a Jupyter parent image:
-# Copyright (c) Jupyter Development Team.
-# Distributed under the terms of the Modified BSD License.
+# Use an official image for Jupyter that is based on miniconda and ubuntu
 FROM jupyter/minimal-notebook
 
 # Set up the current project
@@ -14,19 +12,16 @@ COPY . /surepy
 
 WORKDIR /surepy
 
-# Install packages specified in requirements.txt
-# RUN pip install --trusted-host pypi.python.org -r requirements.txt
+# Update requirements from environment.yml
+RUN conda env update -n base -f environment.yml
 
-# Install packages specified in conda environment file
-# RUN conda env update --file environment.yml
-
-# install myProject
+# Install the project
 RUN ["python", "setup.py", "install"]
 
 RUN fix-permissions $CONDA_DIR
 RUN fix-permissions /home/$NB_USER
 
-# start in home directory.
+# Start in home directory.
 WORKDIR /home/$NB_USER/work
 
 USER $NB_UID

@@ -16,6 +16,9 @@ Read the [html version](docs/_build/source/index.html) in your browser using CTR
 Tutorials are provided as Jupyter notebooks in a separate 
 [repository](https://github.com/super-resolution/Surepy_tutorials).
 
+You can use the package in a docker container as described in [docker/README.md](docker/README.md).
+
+
 Contributing
 ------------
 

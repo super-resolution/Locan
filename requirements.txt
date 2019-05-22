@@ -1,0 +1,34 @@
+#
+# Minimal dependencies to use surepy
+#
+
+# Python
+numba
+
+# Python tests
+pytest-runner
+pytest
+
+# Scientific python
+numpy
+pandas
+scipy
+scikit-learn
+scikit-image
+matplotlib
+
+# User interface
+pyside2
+
+# Google
+protobuf
+
+# File formats
+ruamel.yaml
+asdf
+
+# Data analysis tools
+hdbscan
+fast-histogram
+shapely
+trackpy

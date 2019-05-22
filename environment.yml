@@ -19,6 +19,7 @@ dependencies:
 
 # Python tests
 - pytest-runner
+- pytest
 
 # Scientific python
 - numpy

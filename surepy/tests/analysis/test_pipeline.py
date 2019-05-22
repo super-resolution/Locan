@@ -65,7 +65,7 @@ def test_Pipeline_clust(locdata_simple):
     class MyPipe(Pipeline):
         compute = compute_clust
 
-    path = Path(ROOT_DIR + '/tests/Test_data/five_blobs.txt')
+    path = Path(ROOT_DIR + '/tests/test_data/five_blobs.txt')
     pipe = MyPipe(dict(file_path=path, file_type=1)).compute()
     assert len(pipe.clust) != 0
     assert isinstance(pipe.locdata, LocData)

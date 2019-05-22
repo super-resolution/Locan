@@ -14,9 +14,9 @@ You can use the provided Dockerfiles to set up a docker image and use this proje
 
 We provide a Dockerfile for the following tasks:
 
-1) Run the project tests in a Python 3 environment on Ubuntu.
-2) Start a shell for interactive work in a Python 3 environment with project installed.
-3) Open Jupyter lab for interactive work.
+1) Run the project in a Python 3 environment on Linux.
+2) Run the project in a Conda environment on Linux.
+3) Provide a Conda environment with Jupyter lab for interactive work.
 
 ## Build a docker image
 
@@ -25,17 +25,13 @@ Make sure the .dockerignore file is present.
 
 Enter the project directory and run the following command to build the docker image from one of the Dockerfiles:
 
-	docker build -t <ImageName> -f docker/project_test/Dockerfile .
-	
-For using jupyter lab build this image:
-
-	docker build -t jupyter_surepy -f docker/jupyter/Dockerfile .
-	
+	docker build -t <ImageName> -f <docker/choose directory/Dockerfile> .
+		
 ## Start a container from the image:
 
 ### Running project tests or starting an interactive environment
 
-Run a container (e.g. to just run the project tests and close afterwards):
+Run a container to just run the project tests and close afterwards:
 
 	docker run <ImageName>
 	

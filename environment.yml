@@ -4,13 +4,11 @@
 # Create new environment: conda env create --file "./environment.yml"
 # Update existing environment: conda env update --file "./environment.yml"
 #
-
-# Name of the environment
 name: surepy
 
 channels:
-- defaults
 - conda-forge
+- defaults
 
 dependencies:
 # Python

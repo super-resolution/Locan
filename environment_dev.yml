@@ -3,9 +3,7 @@
 #
 #
 # Update existing environment: conda env update --file "./environment_dev.yml"
-# 
-
-# Name of the environment
+#
 name: surepy
 
 channels:

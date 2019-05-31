@@ -100,11 +100,11 @@ def _read_matrix(path):
     trans_size = np.array([width, height])
 
     trans_matrix_x = pd.read_csv(path, skiprows=4, header=None, nrows=trans_size[1],
-                                 delim_whitespace=True).as_matrix()
+                                 delim_whitespace=True).values
     trans_matrix_y = pd.read_csv(path, skiprows=(6 + trans_size[1]), header=None,
-                                 delim_whitespace=True).as_matrix()
+                                 delim_whitespace=True).values
 
-    return (trans_size, trans_matrix_x, trans_matrix_y)
+    return trans_size, trans_matrix_x, trans_matrix_y
 
 
 def bunwarp(locdata, matrix_path):

@@ -19,6 +19,7 @@ Surepy consists of the following modules:
 """
 
 from surepy.version import __version__
+from surepy.constants import *
 from surepy.analysis import *
 from surepy.data import *
 from surepy.gui import *
@@ -27,6 +28,7 @@ from surepy.render import *
 from surepy.simulation import *
 
 __all__ = ['__version__']
+__all__.extend(constants.__all__)
 __all__.extend(analysis.__all__)
 __all__.extend(data.__all__)
 __all__.extend(gui.__all__)

@@ -12,14 +12,21 @@ Constants to be used throughout the project.
    ELYRA_KEYS
    THUNDERSTORM_KEYS
    N_JOBS
+   LOCDATA_ID
 
 """
 import os
 from enum import Enum
+from pathlib import Path
+
+
+__all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS', 'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
+           'N_JOBS', 'LOCDATA_ID']
 
 
 #: Root directory for path operations.
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+# ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = Path(__file__).parent
 
 
 #: Keys for the most common LocData properties.
@@ -82,6 +89,9 @@ ELYRA_KEYS = {
     'Channel': 'channel',
     'Z Slice': 'slice_z'
 }
+
+# todo: map 'Number Frames', 'Frames Missing', 'Precision [nm]', 'psf_half_width', 'channel',
+#  'slice_z' to surepy property
 
 #: Mapping column names in Thunderstorm files to LocData property keys
 THUNDERSTORM_KEYS = {

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 import numpy as np
 import pandas as pd
@@ -122,7 +124,7 @@ def test_Roi(locdata):
 
 
 def test_Roi_io(locdata):
-    path = ROOT_DIR + '/tests/test_data/roi.yaml'
+    path = ROOT_DIR / 'tests/test_data/roi.yaml'
 
     roi = Roi(region_specs=((0, 0), 2, 1, 10), region_type='rectangle')
     roi.to_yaml(path=path)
@@ -134,16 +136,16 @@ def test_Roi_io(locdata):
     roi_new = Roi.from_yaml(path=path)
     assert roi_new.reference is None
 
-    roi = Roi(reference=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1),
+    roi = Roi(reference=dict(file_path=ROOT_DIR / 'tests/test_data/five_blobs.txt', file_type=1),
               region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
-    assert isinstance(roi.reference, metadata_pb2.Metadata)
+    assert isinstance(roi.reference, (metadata_pb2.Metadata, Path))
     roi.to_yaml(path=path)
 
     roi_new = Roi.from_yaml(path=path)
     assert roi_new
 
     #test region specs with numpy floats
-    roi = Roi(reference=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1),
+    roi = Roi(reference=dict(file_path=ROOT_DIR / 'tests/test_data/five_blobs.txt', file_type=1),
               region_type='rectangle',
               region_specs=(np.array([0, 0], dtype=np.float), np.float(2), np.float(1), np.float(10))
               )
@@ -154,7 +156,7 @@ def test_Roi_io(locdata):
     assert roi_new
 
     locdata_2 = LocData.from_selection(locdata,
-                                       meta=dict(file_path=ROOT_DIR + '/tests/test_data/five_blobs.txt', file_type=1))
+                                       meta=dict(file_path=str(ROOT_DIR / 'tests/test_data/five_blobs.txt'), file_type=1))
     roi = Roi(reference=locdata_2,
               region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
     assert isinstance(roi.reference.meta, metadata_pb2.Metadata)
@@ -166,7 +168,7 @@ def test_Roi_io(locdata):
 
 
 def test_roi_locdata_from_file(locdata):
-    dat = load_txt_file(path=ROOT_DIR + '/tests/test_data/five_blobs.txt')
+    dat = load_txt_file(path=ROOT_DIR / 'tests/test_data/five_blobs.txt')
 
     roi = Roi(reference=locdata, region_type='rectangle', region_specs=((0, 0), 2.5, 1, 10))
     dat_1 = roi.locdata()
@@ -191,7 +193,7 @@ def test_as_artist():
 
 
 def test_select_by_drawing():
-    dat = load_txt_file(path=ROOT_DIR + '/tests/test_data/five_blobs.txt')
+    dat = load_txt_file(path=ROOT_DIR / 'tests/test_data/five_blobs.txt')
     # select_by_drawing(dat, type='rectangle')
     # select_by_drawing(dat, type='ellipse')
     # todo: fix bug in polygon selector

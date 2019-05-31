@@ -9,12 +9,12 @@ from surepy.analysis import RipleysKFunction, RipleysLFunction, RipleysHFunction
 
 @pytest.fixture()
 def locdata_blobs():
-    return io.load_txt_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/five_blobs.txt')
+    return io.load_txt_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt')
 
 
 @pytest.fixture()
 def locdata_blobs_3d():
-    return io.load_txt_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/five_blobs_3D.txt')
+    return io.load_txt_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/five_blobs_3D.txt')
 
 
 def test_Ripleys_k_function(locdata_blobs):

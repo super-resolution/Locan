@@ -12,11 +12,11 @@ from surepy.analysis.accumulation_analysis import _accumulation_cluster_check, \
 
 @pytest.fixture()
 def locdata_blobs():
-    return io.load_txt_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/five_blobs.txt')
+    return io.load_txt_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt')
 
 @pytest.fixture()
 def locdata_blobs_3D():
-    return io.load_txt_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/five_blobs_3D.txt')
+    return io.load_txt_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/five_blobs_3D.txt')
 
 
 def test___accumulation_cluster_check_for_single_dataset(locdata_blobs):

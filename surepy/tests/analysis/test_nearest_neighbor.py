@@ -38,7 +38,7 @@ def other_locdata_simple():
 
 def test_NNDistances_csr_2d():
     dist = NNDistances_csr_2d()
-    print(dist.shapes)
+    # print(dist.shapes)
 
 # todo fit is not working
 # def test_DistributionFits(locdata):

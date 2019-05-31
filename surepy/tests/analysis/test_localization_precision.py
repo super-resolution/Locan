@@ -10,7 +10,7 @@ from surepy.analysis.localization_precision import LocalizationPrecision, _Distr
 
 @pytest.fixture()
 def locdata():
-    return io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+    return io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
                                    nrows=1000)
 
 

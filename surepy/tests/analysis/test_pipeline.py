@@ -41,7 +41,7 @@ def test_Pipeline_class_method(locdata_simple):
     # print(f'results: {pipe.test}')
     # print(f'meta: {pipe.meta}')
 
-    path = ROOT_DIR + '/tests/test_data/pipe.txt'
+    path = ROOT_DIR / 'tests/test_data/pipe.txt'
     pipe.save_protocol(path)
 
 
@@ -52,11 +52,11 @@ def test_Pipeline_from_path_and_roi(locdata_simple):
     pipe = MyPipe(locdata_simple)
     assert isinstance(pipe.locdata, LocData)
 
-    path = ROOT_DIR + '/tests/test_data/five_blobs.txt'
+    path = ROOT_DIR / 'tests/test_data/five_blobs.txt'
     pipe = MyPipe(dict(file_path=path, file_type=1))
     assert isinstance(pipe.locdata, LocData)
 
-    path = ROOT_DIR + '/tests/test_data/roi.yaml'
+    path = ROOT_DIR / 'tests/test_data/roi.yaml'
     pipe = MyPipe(dict(file_path=path, file_type='roi'))
     assert isinstance(pipe.locdata, LocData)
 
@@ -65,7 +65,7 @@ def test_Pipeline_clust(locdata_simple):
     class MyPipe(Pipeline):
         compute = compute_clust
 
-    path = Path(ROOT_DIR + '/tests/test_data/five_blobs.txt')
+    path = Path(ROOT_DIR / 'tests/test_data/five_blobs.txt')
     pipe = MyPipe(dict(file_path=path, file_type=1)).compute()
     assert len(pipe.clust) != 0
     assert isinstance(pipe.locdata, LocData)

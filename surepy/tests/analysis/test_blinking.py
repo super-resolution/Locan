@@ -114,7 +114,7 @@ def test_DistributionFits(locdata_with_zero_frame):
     assert list(df.parameter_dict().keys()) == ['off_periods_loc', 'off_periods_scale']
     df.plot(show=False)
 
-    print(df.analysis_class.results[df.data_identifier])
+    # print(df.analysis_class.results[df.data_identifier])
 
 
 def test_fit_distributions(locdata_with_zero_frame):
@@ -132,4 +132,3 @@ def test_fit_distributions(locdata_with_zero_frame):
     bs.fit_distributions(data_identifier='on_periods')
     assert bs.distribution_statistics['on_periods'].parameter_dict() == \
            {'on_periods_loc': 1.0, 'on_periods_scale': 0.75}
-

@@ -9,7 +9,7 @@ import surepy.tests.test_data
 
 @pytest.fixture()
 def locdata():
-    return io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+    return io.load_rapidSTORM_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
                                    nrows=100)
 
 
@@ -19,7 +19,7 @@ def test_Localizations_per_frame(locdata):
     # print(ana.results.head())
     assert(isinstance(ana.results, pd.Series))
     assert(ana.meta.comment == 'this is an example')
-    print(ana.results.name)
+    # print(ana.results.name)
     # ana.plot()
 
     ana = LocalizationsPerFrame(norm='localization_density_bb').compute(locdata=locdata)

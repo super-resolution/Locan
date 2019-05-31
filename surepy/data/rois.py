@@ -179,7 +179,7 @@ class Roi:
     def __init__(self, region_type, region_specs, reference=None, properties_for_roi=()):
         if isinstance(reference, dict):
             self.reference = metadata_pb2.Metadata()
-            self.reference.file_path = reference['file_path']
+            self.reference.file_path = str(reference['file_path'])
             ft_ = reference['file_type']
 
             if isinstance(reference['file_type'], int):

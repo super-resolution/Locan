@@ -36,12 +36,12 @@ def test_randomize(locdata_simple):
 
 # todo: test colocalization of bead data
 def test_bunwarp_raw_transformation():
-    matrix_path = surepy.constants.ROOT_DIR + '/tests/test_data/transform/BunwarpJ_transformation_raw_green.txt'
-    dat_green = load_rapidSTORM_file(path=surepy.constants.ROOT_DIR +
-                                          '/tests/test_data/transform/rapidSTORM_beads_green.txt')
+    matrix_path = surepy.constants.ROOT_DIR / 'tests/test_data/transform/BunwarpJ_transformation_raw_green.txt'
+    dat_green = load_rapidSTORM_file(path=surepy.constants.ROOT_DIR /
+                                          'tests/test_data/transform/rapidSTORM_beads_green.txt')
 
     image_height_width, x_transformation_array, y_transformation_array = _read_matrix(path=matrix_path)
-    assert(all(image_height_width == [130, 130]))
+    assert all(image_height_width == [130, 130])
 
     dat_green_transformed = bunwarp(locdata=dat_green, matrix_path=matrix_path)
     # print(dat_green_transformed.meta)
@@ -55,11 +55,11 @@ def test_bunwarp_raw_transformation():
 def test_transform_affine(locdata_simple):
     # with points as input
     new_points = transform_affine(locdata_simple.coordinates, matrix=((0, 1), (-1, 0)), offset=(10, 10))
-    assert(np.all(new_points == [[10, 10], [11, 10], [13, 9], [14, 6], [11, 5]]))
+    assert np.all(new_points == [[10, 10], [11, 10], [13, 9], [14, 6], [11, 5]])
 
     # with locdata as input
     new_locdata = transform_affine(locdata_simple, matrix=((0, 1), (-1, 0)), offset=(10, 10))
-    assert(np.all(new_locdata.coordinates == [[10, 10], [11, 10], [13, 9], [14, 6], [11, 5]]))
+    assert np.all(new_locdata.coordinates == [[10, 10], [11, 10], [13, 9], [14, 6], [11, 5]])
     # print(new_locdata.data)
     # print(new_locdata.meta)
     assert new_locdata.meta.history[-1].name == 'transform_affine'

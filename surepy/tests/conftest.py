@@ -65,7 +65,7 @@ def locdata_non_standard_index():
 
 @pytest.fixture(scope='session')
 def locdata_blobs_2d():
-    path = Path(ROOT_DIR + '/tests/Test_data/five_blobs.txt')
+    path = Path(ROOT_DIR / 'tests/Test_data/five_blobs.txt')
     dat = load_txt_file(path)
     dat.meta.creation_date = 1000000001
     return dat
@@ -73,6 +73,6 @@ def locdata_blobs_2d():
 
 @pytest.fixture(scope='session')
 def locdata_blobs_3d():
-    path = Path(ROOT_DIR + '/tests/Test_data/five_blobs_3D.txt')
+    path = Path(ROOT_DIR / 'tests/Test_data/five_blobs_3D.txt')
     dat = load_txt_file(path, meta={'creation_date': 1000000001})
     return dat

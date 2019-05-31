@@ -113,7 +113,7 @@ def load_txt_file(path, sep=',', columns=None, nrows=None):
     """
     # define columns
     if columns is None:
-        dataframe = pd.read_table(path, sep=sep, skiprows=0, nrows=nrows)
+        dataframe = pd.read_csv(path, sep=sep, skiprows=0, nrows=nrows)
 
         for c in dataframe.columns:
             if c not in surepy.constants.PROPERTY_KEYS:
@@ -123,7 +123,7 @@ def load_txt_file(path, sep=',', columns=None, nrows=None):
             if c not in surepy.constants.PROPERTY_KEYS:
                 warnings.warn('{} is not a Surepy property standard.'.format(c), UserWarning)
 
-        dataframe = pd.read_table(path, sep=sep, skiprows=1, nrows=nrows, names=columns)
+        dataframe = pd.read_csv(path, sep=sep, skiprows=1, nrows=nrows, names=columns)
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
@@ -198,7 +198,7 @@ def load_rapidSTORM_file(path, nrows=None):
         A new instance of LocData with all localizations.
     """
     columns = load_rapidSTORM_header(path)
-    dataframe = pd.read_table(path, sep=" ", skiprows=1, nrows=nrows, names=columns)
+    dataframe = pd.read_csv(path, sep=" ", skiprows=1, nrows=nrows, names=columns)
 
     # correct data formats
     integer_Frames = pd.to_numeric(dataframe['frame'], downcast='integer')
@@ -279,7 +279,7 @@ def load_Elyra_file(path, nrows=None):
         string = string.split('\x00')[0]
 
         stream = io.StringIO(string)
-        dataframe = pd.read_table(stream, sep="\t", skiprows=1, nrows=nrows, names=columns)
+        dataframe = pd.read_csv(stream, sep="\t", skiprows=1, nrows=nrows, names=columns)
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 

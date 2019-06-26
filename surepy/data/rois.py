@@ -46,8 +46,8 @@ class _MplSelector:
     Attributes
     ----------
     rois : List of dict
-        A list of rois where each element is a dict with keys `region_specs` and 'region_type'. `region_specs` contain a tuple
-        with specifications for the chosen region type (see ``Roi``).
+        A list of rois where each element is a dict with keys `region_specs` and 'region_type'.
+        `region_specs` contain a tuple with specifications for the chosen region type (see ``Roi``).
         The region_type is a string identifyer that can be either rectangle, ellipse, or polygon.
     """
 
@@ -354,7 +354,13 @@ def select_by_drawing(locdata, type='rectangle', **kwargs):
     -------
     list
         A list of Roi objects
+
+    See Also
+    --------
+    surepy.scripts.draw_roi : script for drawing rois
+    matplotlib.widgets : selector functions
     """
+
     fig, ax = plt.subplots(nrows=1, ncols=1)
     render_2d(locdata, ax=ax, show=False, **kwargs)
     selector = _MplSelector(ax, type=type)

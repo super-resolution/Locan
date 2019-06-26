@@ -85,5 +85,5 @@ setup(
     setup_requires=SETUP_REQUIRES,
     tests_require=TESTS_REQUIRE,
     install_requires=INSTALL_REQUIRES,
-    # entry_points = ENTRY_POINTS,
+    entry_points = ENTRY_POINTS,
 )

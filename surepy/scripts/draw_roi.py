@@ -15,6 +15,10 @@ Try for instance::
 
     draw_roi -d "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi"
 
+See Also
+--------
+surepy.data.rois.select_by_drawing : function to draw roi
+
 """
 
 import argparse

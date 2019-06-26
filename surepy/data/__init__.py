@@ -28,6 +28,7 @@ from surepy.data.rois import *
 from surepy.data.tracking import *
 from surepy.data.cluster import *
 from surepy.data.transform import *
+from surepy.data.properties import *
 
 __all__ = []
 __all__.extend(locdata.__all__)
@@ -38,3 +39,4 @@ __all__.extend(rois.__all__)
 __all__.extend(tracking.__all__)
 __all__.extend(cluster.__all__)
 __all__.extend(transform.__all__)
+__all__.extend(properties.__all__)

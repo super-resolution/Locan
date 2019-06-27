@@ -64,11 +64,26 @@ def test_Localization_precision_histogram(locdata_simple):
     # lp.hist(fit=True)
 
     with pytest.raises(AttributeError):
-        lp.hist(loc_property='position_delta_x',fit=False, show=False)
-        assert (lp.distribution_statistics.position_delta_x_loc)
+        lp.hist(loc_property='position_delta_x', fit=False, show=False)
+        assert lp.distribution_statistics.position_delta_x_loc
 
-    lp.hist(loc_property='position_delta_x',fit=True, show=False)
+    lp.hist(loc_property='position_delta_x', fit=True, show=False)
     # print(lp.distribution_statistics.parameter_dict())
     assert lp.distribution_statistics.position_delta_x_loc
     assert lp.distribution_statistics.position_delta_x_scale
 
+
+# standard LocData fixtures
+
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_empty', 0),
+    ('locdata_single_localization', 1),
+    ('locdata_fix', 6),
+    ('locdata_non_standard_index', 6)
+])
+def test_standard_locdata_objects(
+        locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
+        fixture_name, expected):
+    dat = eval(fixture_name)
+    with pytest.warns(UserWarning):
+        LocalizationPrecision(radius=1).compute(locdata=dat)

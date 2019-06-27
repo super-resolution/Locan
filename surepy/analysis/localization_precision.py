@@ -23,6 +23,8 @@ References
 
 """
 
+import warnings
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -78,7 +80,7 @@ def _localization_precision(locdata, radius=50):
             pass
 
     results.reset_index(inplace=True, drop=True)
-    return (results)
+    return results
 
 
 ##### The specific analysis classes
@@ -127,7 +129,14 @@ class LocalizationPrecision(_Analysis):
         Analysis class
             Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            warnings.warn('Locdata is empty.', UserWarning)
+            return self
+
         self.results = _localization_precision(locdata=locdata, **self.parameter)
+        if self.results.empty:
+            warnings.warn('No succesive localizations were found.', UserWarning)
+
         return self
 
     def fit_distributions(self, loc_property=None, **kwargs):

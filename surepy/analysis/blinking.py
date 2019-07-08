@@ -2,8 +2,11 @@
 Compute on- and off-periods from localization frames.
 
 Assuming that the provided localizations are acquired from the same label, we analyze the times of recording as
-provided by the `frame`property.
+provided by the `frame` property.
 
+Note
+----
+The data is currently fitted to an exponential function. This is not correct and will be changed soon.
 
 """
 import warnings
@@ -15,17 +18,6 @@ from scipy import stats
 
 from surepy.analysis.analysis_base import _Analysis, _list_parameters
 from surepy.data.locdata import LocData
-
-import surepy.io.io_locdata as io
-from surepy.gui.io import file_dialog
-from surepy.data.rois import Roi
-from surepy.data.filter import select_by_condition, random_subset, select_by_region
-from surepy.analysis import LocalizationPrecision, LocalizationsPerFrame, LocalizationProperty, NearestNeighborDistances, RipleysHFunction
-from surepy.render import render_2d
-from surepy.data.transform import randomize
-from surepy.data.cluster import cluster_hdbscan, cluster_dbscan
-from surepy.data.hulls import ConvexHull
-from surepy.data.tracking import track
 
 
 __all__ = ['BlinkStatistics']
@@ -232,6 +224,7 @@ class BlinkStatistics(_Analysis):
         return None
 
 
+# todo: incorporate fitting of geometrical distribution instead of exponential.
 class _DistributionFits:
     """
     Handle for distribution fits.

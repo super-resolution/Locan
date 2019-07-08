@@ -37,8 +37,8 @@ def transform(locdata, *args):
     locdata : LocData object
         New localization data with tansformed coordinates.
 
-    Notes
-    -----
+    Note
+    ----
     Not yet implemented.
     """
     raise NotImplementedError

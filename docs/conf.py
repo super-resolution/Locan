@@ -75,7 +75,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Surepy'
-copyright = '2018, Surepy Developers'
+copyright = '2018-2019, Surepy Developers'
 author = 'Surepy Developers'
 
 # The version info for the project you're documenting, acts as replacement for

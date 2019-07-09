@@ -2,8 +2,7 @@
 Changelog for revisions
 =======================
 
-
-0.3 (unreleased)
+0.4 (unreleased)
 ================
 
 
@@ -44,12 +43,11 @@ API Changes
 
 surepy.analysis
 ^^^^^^^^^^^^^^^
-- Refactored all analysis class names to CamelCode.
-- Refactored handling of LocData input in analysis classes to better resemble the scikit-learn API.
+-
 
 surepy.data
 ^^^^^^^^^^^^^^^
-- Introduced global variable LOCDATA_ID that serves as standard running ID for LocData objects.
+-
 
 surepy.gui
 ^^^^^^^^^^^^^^^
@@ -69,7 +67,7 @@ surepy.scripts
 
 surepy.simulation
 ^^^^^^^^^^^^^^^^^^^
-- Deleted deprecated simulation functions.
+-
 
 Bug Fixes
 ---------
@@ -106,8 +104,45 @@ surepy.simulation
 
 Other Changes and Additions
 ---------------------------
+-
+
+
+0.3 (09.07.2019)
+================
+
+New Features
+------------
+
+surepy.analysis
+^^^^^^^^^^^^^^^
+- Added analysis class BlinkStatistics to compute on/off times in localization cluster.
+
+surepy.data
+^^^^^^^^^^^^^^^
+- Introduced global variable LOCDATA_ID that serves as standard running ID for LocData objects.
+- Added function update_convex_hulls_in_collection
+
+
+API Changes
+-----------
+
+surepy.analysis
+^^^^^^^^^^^^^^^
+- Refactored all analysis class names to CamelCode.
+- Refactored handling of LocData input in analysis classes to better resemble the scikit-learn API.
+
+surepy.simulation
+^^^^^^^^^^^^^^^^^^^
+- Deleted deprecated simulation functions.
+
+
+Other Changes and Additions
+---------------------------
 
 - Refactored all localization property names to follow the convention to start with small letters.
+- Changed import organization by adding __add__ to enable import surepy as sp.
+- Added dockerfiles for using and testing surepy.
+- various other small changes and fixes as documented in the version control log.
 
 
 0.2 (22.3.2019)

@@ -239,7 +239,7 @@ class NearestNeighborDistances(_Analysis):
 class NNDistances_csr_2d(stats.rv_continuous):
     """
     Continuous distribution function for nearest-neighbor distances of points distributed in 2D
-    under complete spatial randomness [1]_.
+    under complete spatial randomness.
 
     Parameters
     ----------

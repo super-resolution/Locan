@@ -126,8 +126,8 @@ class RoiRegion:
         """
         Matplotlib patch object for this region (e.g. `matplotlib.patches.Ellipse`).
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         origin : array_like
             The (x, y) pixel position of the origin of the displayed image.
             Default is (0, 0).

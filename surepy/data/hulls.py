@@ -267,15 +267,15 @@ def update_convex_hulls_in_collection(locdata, copy=False):
     """
     Compute the convex hull for each element in locdata.references and update locdata.dataframe.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     locdata : LocData
         A LocData object that carries a collection of locdata in references.
     copy : bool
         If copy is False locdata is modified in place. If copy is True a copy of locdata with all modifications is returned and locdata is kept unchanged.
 
-    Returns:
-    --------
+    Returns
+    -------
     Locdata or None
         Returns a copy of locdata with convex hull modifications if copy is True and None otherwise.
     """

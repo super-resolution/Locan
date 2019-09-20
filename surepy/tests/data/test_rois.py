@@ -194,7 +194,7 @@ def test_as_artist():
 
 def test_select_by_drawing():
     dat = load_txt_file(path=ROOT_DIR / 'tests/test_data/five_blobs.txt')
-    # select_by_drawing(dat, type='rectangle')
-    # select_by_drawing(dat, type='ellipse')
+    # select_by_drawing(dat, region_type='rectangle')
+    # select_by_drawing(dat, region_type='ellipse')
     # todo: fix bug in polygon selector
-    # select_by_drawing(dat, type='polygon')
+    # select_by_drawing(dat, region_type='polygon')

@@ -334,7 +334,7 @@ class Roi:
         return new_locdata
 
 
-def select_by_drawing(locdata, type='rectangle', **kwargs):
+def select_by_drawing(locdata, region_type='rectangle', **kwargs):
     """
     Select region of interest from rendered image by drawing rois.
 
@@ -342,8 +342,8 @@ def select_by_drawing(locdata, type='rectangle', **kwargs):
     ----------
     locdata : LocData object
         The localization data from which to select localization data.
-    type : str
-        rectangle (default), ellipse, or polygon specifying the selection widget to use.
+    region_type : str
+        rectangle, ellipse, or polygon specifying the selection widget to use.
 
     Other Parameters
     ----------------
@@ -363,7 +363,7 @@ def select_by_drawing(locdata, type='rectangle', **kwargs):
 
     fig, ax = plt.subplots(nrows=1, ncols=1)
     render_2d(locdata, ax=ax, show=False, **kwargs)
-    selector = _MplSelector(ax, type=type)
+    selector = _MplSelector(ax, type=region_type)
     plt.show()
     roi_list = [Roi(reference=locdata, region_specs=roi['region_specs'],
                     region_type=roi['region_type']) for roi in selector.rois]

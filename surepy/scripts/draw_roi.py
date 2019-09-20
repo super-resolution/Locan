@@ -29,7 +29,7 @@ import surepy.io.io_locdata as io
 from surepy.data.rois import select_by_drawing
 
 
-def draw_roi(directory=None, type=1, roi_file_indicator='_roi'):
+def draw_roi(directory=None, type=1, roi_file_indicator='_roi', region_type='rectangle'):
     """
     Define regions of interest by drawing a boundary.
 
@@ -42,6 +42,8 @@ def draw_roi(directory=None, type=1, roi_file_indicator='_roi'):
         Integer or string should be according to surepy.constants.File_type.
     roi_file_indicator : str
         Indicator to add to the localization file name and use as roi file name (with further extension .yaml).
+    region_type : str
+        rectangle, ellipse, or polygon specifying the selection widget to use.
     """
 
     # choose file interactively
@@ -52,7 +54,7 @@ def draw_roi(directory=None, type=1, roi_file_indicator='_roi'):
     dat = io.load_locdata(path=file, file_type=type)
 
     # set roi
-    rois = select_by_drawing(locdata=dat, bin_size=50, rescale='equal')
+    rois = select_by_drawing(locdata=dat, bin_size=50, rescale='equal', region_type=region_type)
     print(rois)
 
     # save roi
@@ -73,10 +75,13 @@ def main(args=None):
     parser.add_argument('-i', '--indicator', dest='roi_file_indicator', type=str, default='_roi',
                         help='Indicator to add to the localization file name and use as roi file name '
                              '(with further extension .yaml).')
+    parser.add_argument('-r', '--region', dest='region', type=str,
+                        help='String indicating the region type.')
 
     returned_args = parser.parse_args(args)
 
-    draw_roi(returned_args.directory, returned_args.type, returned_args.roi_file_indicator)
+    draw_roi(returned_args.directory, returned_args.type, returned_args.roi_file_indicator,
+             returned_args.region)
 
 
 if __name__ == '__main__':

@@ -59,7 +59,7 @@ surepy.io
 
 surepy.render
 ^^^^^^^^^^^^^^^
--
+- Default colormaps are set to selected ones from colorcet or matplotlib.
 
 surepy.scripts
 ^^^^^^^^^^^^^^^

@@ -29,6 +29,12 @@ Use setuptools (which is configured for running pytest) to run the tests::
     python setup.py test
 
 
+Install from pypi
+------------------------------
+
+Do not use `pip install surepy` as there is an independent package called surepy on pypi.
+
+
 Using Conda to set up a dedicated environment:
 ------------------------------------------------------------------------------------------
 
@@ -37,6 +43,14 @@ Using Conda to set up a dedicated environment:
 
 	conda env create --file "./environment.yml"
 
-3) Install additional packages using the environment files for tutorials or development::
+3) Activate the new directory::
+
+    conda activate surepy
+
+4) Install surepy from sources::
+
+    python setup.py install
+
+3) If needed install additional packages using the environment files for tutorials or development::
 
     conda env update --file "./environment_dev.yml"

@@ -120,3 +120,23 @@ N_JOBS = 1
 #: LocData identifier
 #: Identifier for LocData objects that is reset for each surepy session.
 LOCDATA_ID = 0
+
+
+# Optional import of colormaps from colorcet
+try:
+    from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
+    _has_colorcet = True
+except ImportError:
+    _has_colorcet = False
+
+#: Default colormaps for plotting
+#: Default colormaps for continuous, diverging and categorical scales are set to colorcet colormaps if imported or
+#: matplotlib if not. We chose fire, coolwarm and glasbey_dark (colorcet) or viridis, coolwarm adn tab20 (matplotlib).
+if _has_colorcet:
+    COLORMAP_CONTINUOUS = m_fire
+    COLORMAP_DIVERGING = m_coolwarm
+    COLORMAP_CATEGORICAL = m_glasbey_dark
+else:
+    COLORMAP_CONTINUOUS = 'viridis'
+    COLORMAP_DIVERGING = 'coolwarm'
+    COLORMAP_CATEGORICAL = 'tab20'

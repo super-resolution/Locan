@@ -10,12 +10,13 @@ import fast_histogram
 from skimage import exposure
 
 import surepy.data.properties.locdata_statistics
+from surepy.constants import COLORMAP_CONTINUOUS
 
 
 __all__ = ['render_2d']
 
 
-def render_2d(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=True, cmap='magma'):
+def render_2d(locdata, ax=None, show=True, bin_size=10, range='auto', rescale=True, cmap=COLORMAP_CONTINUOUS):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
 

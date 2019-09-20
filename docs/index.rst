@@ -26,6 +26,7 @@ Welcome to Surepy's documentation!
 
    aim
    design
+   colormaps
 
 
 .. toctree::

@@ -190,7 +190,7 @@ class LocalizationPrecision(_Analysis):
                                                                      x='frame',
                                                                      y=loc_property,
                                                                      legend=False,
-                                                                     ** kwargs)
+                                                                     **kwargs)
         ax.set(title=f'Localization Precision\n (window={window})',
                xlabel='frame',
                ylabel=loc_property

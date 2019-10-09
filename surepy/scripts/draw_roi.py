@@ -9,11 +9,11 @@ The roi is then saved as _roi.yaml file.
 
 To run the script::
 
-    draw_roi -d <directory> -t <file type> -i <roi file indicator>
+    draw_roi -d <directory> -t <file type> -i <roi file indicator> -r <region type>
 
 Try for instance::
 
-    draw_roi -d "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi"
+    draw_roi -d "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi" -r "ellipse"
 
 See Also
 --------
@@ -75,13 +75,13 @@ def main(args=None):
     parser.add_argument('-i', '--indicator', dest='roi_file_indicator', type=str, default='_roi',
                         help='Indicator to add to the localization file name and use as roi file name '
                              '(with further extension .yaml).')
-    parser.add_argument('-r', '--region', dest='region', type=str,
+    parser.add_argument('-r', '--region', dest='region_type', type=str, default='rectangle',
                         help='String indicating the region type.')
 
     returned_args = parser.parse_args(args)
 
     draw_roi(returned_args.directory, returned_args.type, returned_args.roi_file_indicator,
-             returned_args.region)
+             returned_args.region_type)
 
 
 if __name__ == '__main__':

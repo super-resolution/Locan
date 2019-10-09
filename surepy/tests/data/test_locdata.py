@@ -10,6 +10,7 @@ from surepy.data.rois import RoiRegion
 # todo check for empty dataframe
 # todo check for single localization
 
+
 # fixtures
 
 @pytest.fixture()
@@ -184,7 +185,7 @@ def test_LocData_reduce(df_simple):
 def test_LocData_add_column_to_dataframe(df_simple):
     # from dataframe
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-    dat.dataframe = dat.dataframe.assign(new= np.arange(5))
+    dat.dataframe = dat.dataframe.assign(new=np.arange(5))
     assert(dat.data.equals(dat.dataframe))
 
     # from selection
@@ -211,8 +212,8 @@ def test_LocData_add_column_to_dataframe(df_simple):
     col = LocData.from_collection([sel_1, sel_2], meta=COMMENT_METADATA)
     col.dataframe = col.dataframe.assign(new=np.arange(2))
     # print(col.data.columns)
-    assert all(list(col.data.columns == ['localization_count', 'localization_density_bb', 'position_x', 'position_y',
-                                         'region_measure_bb', 'subregion_measure_bb', 'new']))
+    assert all(list(col.data.columns == ['localization_count', 'position_x', 'position_y', 'region_measure_bb',
+                                         'localization_density_bb', 'subregion_measure_bb', 'new']))
 
 
 # locdata and metadata
@@ -237,7 +238,7 @@ def test_locdata_region(df_simple):
     assert isinstance(dat._region, RoiRegion)
     dat.region = roi_dict
     assert isinstance(dat._region, RoiRegion)
-    assert dat.region.region_measure==2
+    assert dat.region.region_measure == 2
 
 
 # standard LocData fixtures

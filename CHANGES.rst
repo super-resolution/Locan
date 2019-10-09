@@ -63,7 +63,7 @@ surepy.render
 
 surepy.scripts
 ^^^^^^^^^^^^^^^
--
+- Add selection option for ellipse roi
 
 surepy.simulation
 ^^^^^^^^^^^^^^^^^^^

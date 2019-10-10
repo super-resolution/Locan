@@ -1,5 +1,5 @@
 =======================
-Changelog for revisions
+Changelog
 =======================
 
 0.4 (unreleased)

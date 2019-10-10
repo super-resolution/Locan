@@ -1,8 +1,10 @@
-# Docker
+Docker
+======
 
 You can use the provided Dockerfiles to set up a docker image and use this project within a container.
 
-## Prepare for using Docker
+Prepare for using Docker:
+-------------------------
 
 1) Install docker
 2) Switch to Linux containers
@@ -10,7 +12,8 @@ You can use the provided Dockerfiles to set up a docker image and use this proje
 
     Docker --> Settings --> Shared Drives
 
-## Dockerfile
+Dockerfile
+----------
 
 We provide a Dockerfile for the following tasks:
 
@@ -18,7 +21,8 @@ We provide a Dockerfile for the following tasks:
 2) Run the project in a Conda environment on Linux.
 3) Provide a Conda environment with Jupyter lab for interactive work.
 
-## Build a docker image
+Build a docker image
+--------------------
 
 Download the source code in a project directory.
 Make sure the .dockerignore file is present.
@@ -27,7 +31,8 @@ Enter the project directory and run the following command to build the docker im
 
 	docker build -t <ImageName> -f <docker/choose directory/Dockerfile> .
 		
-## Start a container from the image:
+Start a container from the image
+--------------------------------
 
 ### Running project tests or starting an interactive environment
 
@@ -42,6 +47,7 @@ Open a shell (e.g. bash) for interactive work within a container:
 Open the shell with a host directory mounted as volume:
 
 	docker run -it -v <host directory>:<container directory> <ImageName> bash
+
 	
 ### Jupyter notebooks
 

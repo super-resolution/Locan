@@ -17,6 +17,7 @@ Welcome to Surepy's documentation!
 
    installation
    tutorials
+   docker_readme_link
 
 
 .. toctree::

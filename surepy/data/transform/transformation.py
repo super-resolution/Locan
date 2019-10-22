@@ -89,7 +89,8 @@ def transform_affine(locdata, matrix=None, offset=None):
     if isinstance(locdata, LocData):
         # new LocData object
         new_dataframe = locdata.data.copy()
-        new_dataframe.update(pd.DataFrame(transformed_points, columns=locdata.coordinate_labels))
+        new_dataframe.update(pd.DataFrame(transformed_points, columns=locdata.coordinate_labels,
+                                          index=locdata.data.index))
         new_locdata = LocData.from_dataframe(new_dataframe)
 
         # update metadata

@@ -8,6 +8,7 @@ import time
 import warnings
 
 from google.protobuf import text_format
+import numpy as np
 import pandas as pd
 
 from surepy.constants import LOCDATA_ID
@@ -341,7 +342,6 @@ class LocData:
 
         return cls(references=references, dataframe=dataframe, meta=meta_)
 
-
     @property
     def data(self):
         """ Return a pandas dataframe with all elements either copied from the reference or referencing the current
@@ -355,12 +355,16 @@ class LocData:
         else:
             return self.dataframe
 
-
     @property
     def coordinates(self):
         """ Return a numpy ndarray with all coordinate values. """
         return self.data[self.coordinate_labels].values
 
+    @property
+    def centroid(self):
+        """ Return a numpy ndarray with coordinate values of the centroid
+        (being the property values for all coordinate labels)."""
+        return np.array([self.properties[coordinate_label] for coordinate_label in self.coordinate_labels])
 
     def __del__(self):
         """ Updating the counter upon deletion of class instance. """

@@ -56,6 +56,7 @@ def test_LocData(df_simple):
     dat = LocData(dataframe=df_simple, meta=COMMENT_METADATA)
     assert (len(dat) == 5)
     assert (dat.coordinate_labels == ['position_x', 'position_y'])
+    assert np.array_equal(dat.centroid, [2., 1.8])
     for x, y in zip(dat.coordinates, [[0, 0], [0, 1], [1, 3], [4, 4], [5, 1]]):
         assert np.all(x == np.array(y))
     assert (dat.meta.comment == COMMENT_METADATA.comment)

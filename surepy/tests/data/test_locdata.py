@@ -54,34 +54,36 @@ COMMENT_METADATA = metadata_pb2.Metadata(comment='some user comment')
 
 def test_LocData(df_simple):
     dat = LocData(dataframe=df_simple, meta=COMMENT_METADATA)
-    assert (len(dat) == 5)
-    assert (dat.coordinate_labels == ['position_x', 'position_y'])
+    assert len(dat) == 5
+    assert dat.coordinate_labels == ['position_x', 'position_y']
+    assert dat.dimensions == 2
     assert np.array_equal(dat.centroid, [2., 1.8])
     for x, y in zip(dat.coordinates, [[0, 0], [0, 1], [1, 3], [4, 4], [5, 1]]):
         assert np.all(x == np.array(y))
-    assert (dat.meta.comment == COMMENT_METADATA.comment)
+    assert dat.meta.comment == COMMENT_METADATA.comment
     # assert dat.meta.identifier == '1'  # this test runs ok for this testing this function alone.
 
 
 def test_LocData_empty(df_empty):
     dat = LocData(dataframe=df_empty)
-    assert (len(dat) == 0)
-    assert (dat.coordinate_labels == [])
+    assert len(dat) == 0
+    assert dat.coordinate_labels == []
+    assert dat.dimensions == 0
 
 
 def test_LocData_from_dataframe(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
     # print(dat.properties.keys())
-    assert(list(dat.properties.keys()) == ['localization_count', 'position_x', 'position_y', 'region_measure_bb',
-                                           'localization_density_bb', 'subregion_measure_bb'])
-    assert (len(dat) == 5)
-    assert (dat.meta.comment == COMMENT_METADATA.comment)
+    assert list(dat.properties.keys()) == ['localization_count', 'position_x', 'position_y', 'region_measure_bb',
+                                           'localization_density_bb', 'subregion_measure_bb']
+    assert len(dat) == 5
+    assert dat.meta.comment == COMMENT_METADATA.comment
 
 
 def test_LocData_from_dataframe_empty(df_empty):
     dat = LocData.from_dataframe(dataframe=df_empty)
-    assert (len(dat) == 0)
-    assert (dat.coordinate_labels == [])
+    assert len(dat) == 0
+    assert dat.coordinate_labels == []
     # print(dat.data)
 
 

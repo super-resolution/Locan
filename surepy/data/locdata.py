@@ -57,6 +57,8 @@ class LocData:
         List of properties generated from data.
     coordinate_labels : list of str
         The available coordinate properties.
+    dimensions : int
+        Number of coordinates available for each localization (i.e. size of `coordinate_labels`).
 
     region : RoiRegion object
         Object representing the region that supports all localizations.
@@ -114,6 +116,8 @@ class LocData:
         self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'position_x',
                                                                                   'position_y',
                                                                                   'position_z'})))
+
+        self.dimensions = len(self.coordinate_labels)
 
         # properties
         self.properties['localization_count'] = len(self.data.index)

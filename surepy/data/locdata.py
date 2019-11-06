@@ -57,7 +57,7 @@ class LocData:
         List of properties generated from data.
     coordinate_labels : list of str
         The available coordinate properties.
-    dimensions : int
+    dimension : int
         Number of coordinates available for each localization (i.e. size of `coordinate_labels`).
 
     region : RoiRegion object
@@ -117,7 +117,7 @@ class LocData:
                                                                                   'position_y',
                                                                                   'position_z'})))
 
-        self.dimensions = len(self.coordinate_labels)
+        self.dimension = len(self.coordinate_labels)
 
         # properties
         self.properties['localization_count'] = len(self.data.index)

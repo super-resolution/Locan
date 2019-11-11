@@ -22,6 +22,13 @@ import os
 from enum import Enum
 from pathlib import Path
 
+# Optional import of colormaps from colorcet
+try:
+    from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
+    _has_colorcet = True
+except ImportError:
+    _has_colorcet = False
+
 
 __all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS', 'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
            'N_JOBS', 'LOCDATA_ID', 'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING', 'COLORMAP_CATEGORICAL']
@@ -124,14 +131,6 @@ N_JOBS = 1
 #: LocData identifier
 #: Identifier for LocData objects that is reset for each surepy session.
 LOCDATA_ID = 0
-
-
-# Optional import of colormaps from colorcet
-try:
-    from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
-    _has_colorcet = True
-except ImportError:
-    _has_colorcet = False
 
 #: Default colormaps for plotting
 #: Default colormaps for continuous, diverging and categorical scales are set to colorcet colormaps if imported or

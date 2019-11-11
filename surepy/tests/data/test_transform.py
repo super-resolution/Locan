@@ -5,6 +5,7 @@ from surepy import LocData
 import surepy.constants
 from surepy.io.io_locdata import load_rapidSTORM_file
 from surepy.data.transform import randomize, transform_affine
+from surepy.data.transform.transformation import _homogeneous_matrix
 from surepy.data.transform.bunwarpj import _read_matrix, bunwarp
 
 from surepy.render import render_2d
@@ -38,7 +39,7 @@ def test_randomize(locdata_simple):
 def test_bunwarp_raw_transformation():
     matrix_path = surepy.constants.ROOT_DIR / 'tests/test_data/transform/BunwarpJ_transformation_raw_green.txt'
     dat_green = load_rapidSTORM_file(path=surepy.constants.ROOT_DIR /
-                                          'tests/test_data/transform/rapidSTORM_beads_green.txt')
+                                     'tests/test_data/transform/rapidSTORM_beads_green.txt')
 
     image_height_width, x_transformation_array, y_transformation_array = _read_matrix(path=matrix_path)
     assert all(image_height_width == [130, 130])
@@ -77,3 +78,21 @@ def test_standard_locdata_objects(
     locdata = eval(fixture_name)
     new_locdata = transform_affine(locdata, matrix=((0, 1), (-1, 0)), offset=(10, 10))
     assert len(new_locdata.data.columns) == expected
+
+
+def test_homogeneous_matrix():
+    matrix_out = _homogeneous_matrix()
+    result = np.identity(4)
+    assert np.array_equal(matrix_out, result)
+
+    matrix = ((1, 2, 3), (4, 5, 6), (7, 8, 9))
+    offset = (10, 20, 30)
+    matrix_out = _homogeneous_matrix(matrix, offset)
+    result = np.array(((1, 2, 3, 10), (4, 5, 6, 20), (7, 8, 9, 30), (0, 0, 0, 1)))
+    assert np.array_equal(matrix_out, result)
+
+    matrix = ((1, 2), (3, 4))
+    offset = (10, 20)
+    matrix_out = _homogeneous_matrix(matrix, offset)
+    result = np.array(((1, 2, 10), (3, 4, 20), (0, 0, 1)))
+    assert np.array_equal(matrix_out, result)

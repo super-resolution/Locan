@@ -11,6 +11,12 @@ import time
 import numpy as np
 import pandas as pd
 
+try:
+    import open3d as o3d
+    _has_open3d = True
+except ImportError:
+    _has_open3d = False
+
 from surepy.data.locdata import LocData
 import surepy.data.hulls
 from surepy.data.region import RoiRegion
@@ -35,7 +41,7 @@ def transform(locdata, *args):
     Returns
     -------
     locdata : LocData object
-        New localization data with tansformed coordinates.
+        New localization data with transformed coordinates.
 
     Note
     ----
@@ -163,3 +169,35 @@ def randomize(locdata, hull_region='bb'):
     new_locdata.meta = meta_
 
     return new_locdata
+
+
+def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)):
+    """
+    Combine transformation matrix and translation vector for dimension d into homogeneous (d+1, d+1) transformation
+    matrix to be used with homogeneous coordinates.
+
+    Parameters
+    ----------
+    matrix : array-like of int or float with shape (d, d)
+        Transformation matrix.
+    offset : array-like of int or float with shape (d,)
+        Translation vector.
+
+    Returns
+    -------
+    ndarray with shape (d+1, d+1)
+        Homogeneous transformation matrix to be used with homogeneous coordinate vector.
+    """
+    dimension = np.shape(matrix)[0]
+
+    if dimension != np.shape(matrix)[1]:
+        raise ValueError('The matrix has to be of shape (d, d).')
+
+    if dimension != np.shape(offset)[0]:
+        raise ValueError('The matrix and offset must have the same dimension.')
+
+    matrix_ = np.identity(dimension+1)
+    matrix_[0:dimension, 0:dimension] = matrix
+    matrix_[:dimension, dimension] = offset
+
+    return matrix_

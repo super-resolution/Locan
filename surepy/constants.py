@@ -13,6 +13,9 @@ Constants to be used throughout the project.
    THUNDERSTORM_KEYS
    N_JOBS
    LOCDATA_ID
+   COLORMAP_CONTINUOUS
+   COLORMAP_DIVERGING
+   COLORMAP_CATEGORICAL
 
 """
 import os
@@ -21,7 +24,7 @@ from pathlib import Path
 
 
 __all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS', 'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
-           'N_JOBS', 'LOCDATA_ID']
+           'N_JOBS', 'LOCDATA_ID', 'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING', 'COLORMAP_CATEGORICAL']
 
 
 #: Root directory for path operations.
@@ -38,6 +41,7 @@ PROPERTY_KEYS = ['index', 'original_index', 'position_x', 'position_y', 'positio
 
 #: Keys for the most common hulls.
 HULL_KEYS = {'bounding_box', 'convex_hull', 'oriented_bounding_box', 'alpha_shape'}
+
 
 # File types
 class File_type(Enum):

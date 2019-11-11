@@ -12,7 +12,11 @@ import sys
 
 import numpy as np
 import pandas as pd
-from trackpy import link_df
+try:
+    from trackpy import link_df
+    _has_trackpy = True
+except ImportError:
+    _has_trackpy = False
 
 from surepy.data.locdata import LocData
 
@@ -46,6 +50,9 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     pandas Series
         A series named 'Track' referring to the track number.
     """
+    if not _has_trackpy:
+        raise ImportError("trackpy is required.")
+
     df = link_df(locdata.data, search_range=search_range, memory=memory, pos_columns=locdata.coordinate_labels,
                     t_column='frame', **kwargs)
     return_series = df['particle']

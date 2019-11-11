@@ -44,7 +44,7 @@ HULL_KEYS = {'bounding_box', 'convex_hull', 'oriented_bounding_box', 'alpha_shap
 
 
 # File types
-class File_type(Enum):
+class FileType(Enum):
     """
     File types for localization files.
 

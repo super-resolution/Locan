@@ -1,5 +1,5 @@
 # from surepy.constants import (ROOT_DIR, PROPERTY_KEYS, HULL_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
-#                               N_JOBS, File_type, LOCDATA_ID)
+#                               N_JOBS, FileType, LOCDATA_ID)
 
 from surepy.constants import *
 
@@ -7,7 +7,7 @@ from surepy.constants import *
 #                               N_JOBS):
 #     assert sc
 #
-# ft = File_type
+# ft = FileType
 # assert ft
 #
 # assert N_JOBS == 1

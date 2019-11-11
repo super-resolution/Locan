@@ -84,7 +84,7 @@ def test__map_file_type_to_load_function():
     assert callable(file_type)
     file_type = io._map_file_type_to_load_function(file_type='RAPIDSTORM')
     assert callable(file_type)
-    file_type = io._map_file_type_to_load_function(file_type=surepy.constants.File_type.RAPIDSTORM)
+    file_type = io._map_file_type_to_load_function(file_type=surepy.constants.FileType.RAPIDSTORM)
     assert callable(file_type)
     file_type = io._map_file_type_to_load_function(file_type=metadata_pb2.RAPIDSTORM)
     assert callable(file_type)

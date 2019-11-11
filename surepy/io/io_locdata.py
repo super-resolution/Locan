@@ -400,8 +400,8 @@ def _map_file_type_to_load_function(file_type):
 
     Parameters
     ----------
-    file_type : int, str, surepy.constants.File_type, metadata_pb2
-        Identifier for the file type. Integer or string should be according to surepy.constants.File_type.
+    file_type : int, str, surepy.constants.FileType, metadata_pb2
+        Identifier for the file type. Integer or string should be according to surepy.constants.FileType.
 
     Returns
     -------
@@ -427,8 +427,8 @@ def _map_file_type_to_load_function(file_type):
         if isinstance(file_type, int):
             function_name = LoadFunction(file_type).name
         elif isinstance(file_type, str):
-            function_name = LoadFunction(surepy.constants.File_type[file_type.upper()].value).name
-        elif isinstance(file_type, surepy.constants.File_type):
+            function_name = LoadFunction(surepy.constants.FileType[file_type.upper()].value).name
+        elif isinstance(file_type, surepy.constants.FileType):
             function_name = LoadFunction(file_type.value).name
         elif isinstance(file_type, metadata_pb2):
             function_name = LoadFunction(file_type).name
@@ -449,9 +449,9 @@ def load_locdata(path, file_type=1, nrows=None):
     ----------
     path : string or Path object
         File path for a localization data file to load.
-    file_type : int, str, surepy.constants.File_type, metadata_pb2
+    file_type : int, str, surepy.constants.FileType, metadata_pb2
         Indicator for the file type.
-        Integer or string should be according to surepy.constants.File_type.
+        Integer or string should be according to surepy.constants.FileType.
     nrows : int, default: None
         The number of localizations to load from file. None means that all available rows are loaded.
 

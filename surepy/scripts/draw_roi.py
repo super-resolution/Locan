@@ -37,9 +37,9 @@ def draw_roi(directory=None, type=1, roi_file_indicator='_roi', region_type='rec
     ----------
     directory : string or Path object
         Directory to start the GUI in for loading data.
-    type : int, str, surepy.constants.File_type, metadata_pb2
+    type : int, str, surepy.constants.FileType, metadata_pb2
         Indicator for the file type.
-        Integer or string should be according to surepy.constants.File_type.
+        Integer or string should be according to surepy.constants.FileType.
     roi_file_indicator : str
         Indicator to add to the localization file name and use as roi file name (with further extension .yaml).
     region_type : str

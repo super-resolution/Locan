@@ -139,7 +139,7 @@ class Roi:
         a reference to a saved SMLM file, or None for indicating no specific reference.
         When referencing a saved SMLM file, reference must be a dict or surepy.data.metadata_pb2 with keys `file_path`
         and `file_type` for a path pointing to a localization file and an integer or string indicating the file type.
-        Integer or string should be according to surepy.constants.File_type.
+        Integer or string should be according to surepy.constants.FileType.
     region_type : str
         A string indicating the roi shape.
         In 1D it can be `interval`.
@@ -186,8 +186,8 @@ class Roi:
             if isinstance(reference['file_type'], int):
                 self.reference.file_type = ft_
             elif isinstance(reference['file_type'], str):
-                self.reference.file_type = surepy.constants.File_type[ft_.upper()].value
-            elif isinstance(reference['file_type'], surepy.constants.File_type):
+                self.reference.file_type = surepy.constants.FileType[ft_.upper()].value
+            elif isinstance(reference['file_type'], surepy.constants.FileType):
                 self.reference.file_type = ft_
             elif isinstance(reference['file_type'], metadata_pb2):
                 self.reference.file_type = ft_.file_type

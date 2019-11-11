@@ -9,7 +9,7 @@ from surepy import LocData
 from surepy.constants import ROOT_DIR
 from surepy.io.io_locdata import load_txt_file
 from surepy.data.region import RoiRegion
-from surepy.data.rois import Roi, select_by_drawing
+from surepy.data.rois import Roi, select_by_drawing, rasterize
 from surepy.data import metadata_pb2
 
 
@@ -84,7 +84,7 @@ def test_RoiRegion(points):
 
 def test_RoiRegion_RoiPolygon_error():
     with pytest.raises(ValueError):
-        rr = RoiRegion(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5)))
+        RoiRegion(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5)))
 
 
 # This test is just for visualization
@@ -108,7 +108,6 @@ def test_RoiRegion_RoiPolygon_error():
 
 def test_Roi(locdata):
     roi = Roi(reference=locdata, region_specs=((0, 0), 2, 1, 0), region_type='rectangle')
-    new_dat = roi.locdata()
     new_dat = roi.locdata()
     assert len(new_dat) == 2
 
@@ -144,7 +143,7 @@ def test_Roi_io(locdata):
     roi_new = Roi.from_yaml(path=path)
     assert roi_new
 
-    #test region specs with numpy floats
+    # test region specs with numpy floats
     roi = Roi(reference=dict(file_path=ROOT_DIR / 'tests/test_data/five_blobs.txt', file_type=1),
               region_type='rectangle',
               region_specs=(np.array([0, 0], dtype=np.float), np.float(2), np.float(1), np.float(10))
@@ -156,7 +155,8 @@ def test_Roi_io(locdata):
     assert roi_new
 
     locdata_2 = LocData.from_selection(locdata,
-                                       meta=dict(file_path=str(ROOT_DIR / 'tests/test_data/five_blobs.txt'), file_type=1))
+                                       meta=dict(file_path=str(ROOT_DIR / 'tests/test_data/five_blobs.txt'),
+                                                 file_type=1))
     roi = Roi(reference=locdata_2,
               region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
     assert isinstance(roi.reference.meta, metadata_pb2.Metadata)
@@ -167,17 +167,17 @@ def test_Roi_io(locdata):
     assert isinstance(roi_new.reference, metadata_pb2.Metadata)
 
 
-def test_roi_locdata_from_file(locdata):
-    dat = load_txt_file(path=ROOT_DIR / 'tests/test_data/five_blobs.txt')
+def test_roi_locdata_from_file():
+    locdata = load_txt_file(path=ROOT_DIR / 'tests/test_data/five_blobs_3D.txt')
 
-    roi = Roi(reference=locdata, region_type='rectangle', region_specs=((0, 0), 2.5, 1, 10))
-    dat_1 = roi.locdata()
-    assert(len(dat_1) == 2)
+    roi = Roi(reference=locdata, region_type='rectangle', region_specs=((100, 500), 200, 200, 10))
+    dat = roi.locdata()
+    assert(len(dat) == 10)
 
-    roi = Roi(reference=locdata, region_type='rectangle', region_specs=((0, 0), 2.5, 1, 10),
-              properties_for_roi=['position_y', 'position_z'])
-    dat_1 = roi.locdata()
-    assert(len(dat_1) == 1)
+    roi = Roi(reference=locdata, region_type='rectangle', region_specs=((100, 100), 200, 200, 10),
+              properties_for_roi=['position_x', 'position_z'])
+    dat = roi.locdata()
+    assert(len(dat) == 10)
 
 
 def test_as_artist():
@@ -198,3 +198,33 @@ def test_select_by_drawing():
     # select_by_drawing(dat, region_type='ellipse')
     # todo: fix bug in polygon selector
     # select_by_drawing(dat, region_type='polygon')
+
+
+# standard LocData fixtures
+def test_rasterize(locdata_fix, locdata_single_localization, locdata_non_standard_index):
+    res = rasterize(locdata=locdata_fix, support=None, n_regions=(5, 2))
+    assert res[0]._region.region_type == 'rectangle'
+    assert repr(res[0]._region.region_specs) == 'RegionSpecs(corner=(1.0, 1.0), width=0.8, height=2.5, angle=0)'
+    assert len(res) == 10
+
+    res = rasterize(locdata=locdata_fix, support=((0, 10), (10, 20)), n_regions=(5, 2))
+    assert res[0]._region.region_type == 'rectangle'
+    assert repr(res[0]._region.region_specs) == 'RegionSpecs(corner=(0.0, 10.0), width=2.0, height=5.0, angle=0)'
+    assert len(res) == 10
+
+    res = rasterize(locdata=locdata_single_localization, support=((0, 10), (10, 20)), n_regions=(5, 2))
+    assert res[0]._region.region_type == 'rectangle'
+    assert repr(res[0]._region.region_specs) == 'RegionSpecs(corner=(0.0, 10.0), width=2.0, height=5.0, angle=0)'
+    assert len(res) == 10
+
+    res = rasterize(locdata=locdata_non_standard_index, support=((0, 10), (10, 20)), n_regions=(5, 2))
+    assert res[0]._region.region_type == 'rectangle'
+    assert repr(res[0]._region.region_specs) == 'RegionSpecs(corner=(0.0, 10.0), width=2.0, height=5.0, angle=0)'
+    assert len(res) == 10
+
+
+def test_rasterize_(locdata_empty):
+    with pytest.raises(AttributeError):
+        rasterize(locdata=locdata_empty, support=None, n_regions=(5, 2))
+    with pytest.raises(ValueError):
+        rasterize(locdata=locdata_empty, support=((0, 10), (10, 20)), n_regions=(5, 2))

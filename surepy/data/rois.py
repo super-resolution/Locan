@@ -10,9 +10,10 @@ dataset. It is therefore related to region specifications and a unique LocData o
 The Roi object provides methods for saving all specifications to a yaml file, for loading them, and for returning
 LocData with localizations selected to be within the roi region.
 """
-
 from pathlib import Path
 import warnings
+from itertools import product
+from collections import namedtuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -28,7 +29,7 @@ from surepy.render import render_2d
 from surepy.data.region import RoiRegion
 
 
-__all__ = ['Roi', 'select_by_drawing']
+__all__ = ['Roi', 'select_by_drawing', 'rasterize']
 
 
 class _MplSelector:
@@ -330,7 +331,7 @@ class Roi:
         if reduce:
             new_locdata.reduce()
 
-        # meta
+        # todo: add metadata
         return new_locdata
 
 
@@ -368,3 +369,51 @@ def select_by_drawing(locdata, region_type='rectangle', **kwargs):
     roi_list = [Roi(reference=locdata, region_specs=roi['region_specs'],
                     region_type=roi['region_type']) for roi in selector.rois]
     return roi_list
+
+
+def rasterize(locdata, support=None, n_regions=(2, 2, 2)):
+    """
+    Provide regions of interest by dividing the locdata support in equally sized rectangles.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        The localization data from which to select localization data.
+    support : tuple of tuples or None
+        Coordinate intervals that are divided in `n_regions` subintervals.
+    n_regions : tuple with size 2 or 3.
+        Number of regions in each dimension. E.g. `n_regions` = (2, 2) returns 4 rectangular Roi objects.
+
+    Returns
+    -------
+    tuple(surepy.data.rois.Roi)
+        A sequence of Roi objects
+    """
+    # specify support
+    if support is None:
+        support_ = locdata.bounding_box.vertices
+        widths = locdata.bounding_box.width / n_regions
+    else:
+        support_ = support
+        widths = np.diff(support_).flatten() / n_regions
+
+    # specify interval corners
+    corners = [np.linspace(*support_d, n_regions_d, endpoint=False)
+               for support_d, n_regions_d in zip(support_, n_regions)]
+    corners = product(*corners)
+
+    # specify regions
+    if locdata.dimension == 2:
+        region_type = 'rectangle'
+        RegionSpecs = namedtuple('RegionSpecs', 'corner width height angle')
+        region_specs_list = [RegionSpecs(corner, *widths, 0) for corner in corners]
+
+    elif locdata.dimension == 3:
+        raise NotImplementedError('Computation for 3D has not been implemented, yet.')
+
+    else:
+        raise ValueError('The locdata object has wrong dimension.')
+
+    new_rois = tuple([Roi(reference=locdata, region_specs=region_specs,
+                          region_type=region_type) for region_specs in region_specs_list])
+    return new_rois

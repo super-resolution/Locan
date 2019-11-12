@@ -64,16 +64,16 @@ def test_loading_txt_file():
     assert (len(dat) == 10)
 
 
-def test_save_asdf(locdata_fix):
-    io.save_asdf(locdata_fix, path=surepy.constants.ROOT_DIR / 'tests/test_data/locdata.asdf')
+def test_save_asdf(locdata_2d):
+    io.save_asdf(locdata_2d, path=surepy.constants.ROOT_DIR / 'tests/test_data/locdata.asdf')
 
 
-def test_load_asdf_file(locdata_fix):
+def test_load_asdf_file(locdata_2d):
     locdata = io.load_asdf_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/locdata.asdf')
     # print(locdata.data)
-    assert_frame_equal(locdata.data, locdata_fix.data)
-    assert(locdata.meta.identifier == locdata_fix.meta.identifier)
-    assert(locdata.properties == locdata_fix.properties)
+    assert_frame_equal(locdata.data, locdata_2d.data)
+    assert(locdata.meta.identifier == locdata_2d.meta.identifier)
+    assert(locdata.properties == locdata_2d.properties)
 
     dat = io.load_asdf_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/locdata.asdf', nrows=5)
     assert (len(dat) == 5)

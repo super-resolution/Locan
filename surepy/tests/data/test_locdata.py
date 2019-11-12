@@ -249,11 +249,11 @@ def test_locdata_region(df_simple):
 @pytest.mark.parametrize('fixture_name, expected', [
     ('locdata_empty', 0),
     ('locdata_single_localization', 1),
-    ('locdata_fix', 6),
+    ('locdata_2d', 6),
     ('locdata_non_standard_index', 6)
 ])
 def test_standard_locdata_objects(
-        locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
+        locdata_empty, locdata_single_localization, locdata_2d, locdata_non_standard_index,
         fixture_name, expected):
     dat = eval(fixture_name)
     assert len(dat) == expected
@@ -264,7 +264,7 @@ def test_standard_locdata_objects(
     ('locdata_single_localization', pytest.raises(KeyError)),
 ])
 def test_locdata_from_selection_exceptions(
-        locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
+        locdata_empty, locdata_single_localization, locdata_2d, locdata_non_standard_index,
         fixture_name, expected):
     dat = eval(fixture_name)
     with expected:
@@ -272,11 +272,11 @@ def test_locdata_from_selection_exceptions(
 
 
 @pytest.mark.parametrize('fixture_name, expected', [
-    ('locdata_fix', 3),
+    ('locdata_2d', 3),
     ('locdata_non_standard_index', 3)
 ])
 def test_locdata_from_selection_(
-        locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
+        locdata_empty, locdata_single_localization, locdata_2d, locdata_non_standard_index,
         fixture_name, expected):
     dat = eval(fixture_name)
     sel = LocData.from_selection(locdata=dat, indices=[1, 2, 5], meta=COMMENT_METADATA)

@@ -78,11 +78,11 @@ def test_Localization_precision_histogram(locdata_simple):
 @pytest.mark.parametrize('fixture_name, expected', [
     ('locdata_empty', 0),
     ('locdata_single_localization', 1),
-    ('locdata_fix', 6),
+    ('locdata_2d', 6),
     ('locdata_non_standard_index', 6)
 ])
 def test_standard_locdata_objects(
-        locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
+        locdata_empty, locdata_single_localization, locdata_2d, locdata_non_standard_index,
         fixture_name, expected):
     dat = eval(fixture_name)
     with pytest.warns(UserWarning):

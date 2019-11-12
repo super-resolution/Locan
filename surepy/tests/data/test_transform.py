@@ -8,31 +8,49 @@ from surepy.data.transform import randomize, transform_affine
 from surepy.data.transform.transformation import _homogeneous_matrix
 from surepy.data.transform.bunwarpj import _read_matrix, bunwarp
 
-from surepy.render import render_2d
 
-
-@pytest.fixture()
-def locdata_simple():
-    locdata_dict = {
-        'position_x': [0, 0, 1, 4, 5],
-        'position_y': [0, 1, 3, 4, 1]
-    }
-    return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
-
-
-def test_randomize(locdata_simple):
-    locdata_randomized = randomize(locdata_simple, hull_region='bb')
+def test_randomize_2d(locdata_2d):
+    locdata_randomized = randomize(locdata_2d, hull_region='bb')
     # locdata_randomized.print_meta()
-    assert len(locdata_randomized) == len(locdata_simple)
+    assert len(locdata_randomized) == 6
     # print(locdata_randomized.meta)
     assert locdata_randomized.meta.history[-1].name == 'randomize'
 
-    locdata_randomized = randomize(locdata_simple, hull_region='ch')
-    assert len(locdata_randomized) == len(locdata_simple)
+    locdata_randomized = randomize(locdata_2d, hull_region='ch')
+    assert len(locdata_randomized) == 6
 
     region_dict = dict(region_type='polygon', region_specs=((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
-    locdata_randomized = randomize(locdata_simple, hull_region=region_dict)
-    assert len(locdata_randomized) == 5
+    locdata_randomized = randomize(locdata_2d, hull_region=region_dict)
+    assert len(locdata_randomized) == 6
+
+
+def test_randomize_3d(locdata_3d):
+    locdata_randomized = randomize(locdata_3d, hull_region='bb')
+    assert len(locdata_randomized) == 6
+    assert locdata_randomized.meta.history[-1].name == 'randomize'
+
+    # todo: implement make_csr in 3d
+    # locdata_randomized = randomize(locdata_3d, hull_region='ch')
+    # assert len(locdata_randomized) == 6
+
+    # region_dict = dict(region_type='polygon', region_specs=((0, 0, 0), (0, 5, 0), (4, 3, 2), (2, 0.5, 2), (0, 0, 0)))
+    # locdata_randomized = randomize(locdata_3d, hull_region=region_dict)
+    # assert len(locdata_randomized) == 6
+
+
+@pytest.mark.parametrize('fixture_name, expected', [
+    # ('locdata_empty', 0),
+    # ('locdata_single_localization', 1),
+    ('locdata_2d', 6),
+    ('locdata_3d', 6),
+    ('locdata_non_standard_index', 6)
+])
+def test_randomize_locdata_objects(
+        locdata_empty, locdata_single_localization, locdata_2d, locdata_3d, locdata_non_standard_index,
+        fixture_name, expected):
+    locdata = eval(fixture_name)
+    locdata_randomized = randomize(locdata, hull_region='bb')
+    assert len(locdata_randomized) == expected
 
 
 # todo: test colocalization of bead data
@@ -42,7 +60,7 @@ def test_bunwarp_raw_transformation():
                                      'tests/test_data/transform/rapidSTORM_beads_green.txt')
 
     image_height_width, x_transformation_array, y_transformation_array = _read_matrix(path=matrix_path)
-    assert all(image_height_width == [130, 130])
+    assert np.array_equal(image_height_width, [130, 130])
 
     dat_green_transformed = bunwarp(locdata=dat_green, matrix_path=matrix_path)
     # print(dat_green_transformed.meta)
@@ -51,33 +69,6 @@ def test_bunwarp_raw_transformation():
     # dat_red = load_rapidSTORM_file(path=surepy.constants.ROOT_DIR +
     #                                     '/tests/test_data/transform/rapidSTORM_beads_red.txt')
     # render_2d(dat_green)
-
-
-def test_transform_affine(locdata_simple):
-    # with points as input
-    new_points = transform_affine(locdata_simple.coordinates, matrix=((0, 1), (-1, 0)), offset=(10, 10))
-    assert np.all(new_points == [[10, 10], [11, 10], [13, 9], [14, 6], [11, 5]])
-
-    # with locdata as input
-    new_locdata = transform_affine(locdata_simple, matrix=((0, 1), (-1, 0)), offset=(10, 10))
-    assert np.all(new_locdata.coordinates == [[10, 10], [11, 10], [13, 9], [14, 6], [11, 5]])
-    # print(new_locdata.data)
-    # print(new_locdata.meta)
-    assert new_locdata.meta.history[-1].name == 'transform_affine'
-
-
-@pytest.mark.parametrize('fixture_name, expected', [
-    ('locdata_empty', 0),
-    ('locdata_single_localization', 4),
-    ('locdata_fix', 4),
-    ('locdata_non_standard_index', 4)
-])
-def test_standard_locdata_objects(
-        locdata_empty, locdata_single_localization, locdata_fix, locdata_non_standard_index,
-        fixture_name, expected):
-    locdata = eval(fixture_name)
-    new_locdata = transform_affine(locdata, matrix=((0, 1), (-1, 0)), offset=(10, 10))
-    assert len(new_locdata.data.columns) == expected
 
 
 def test_homogeneous_matrix():
@@ -96,3 +87,95 @@ def test_homogeneous_matrix():
     matrix_out = _homogeneous_matrix(matrix, offset)
     result = np.array(((1, 2, 10), (3, 4, 20), (0, 0, 1)))
     assert np.array_equal(matrix_out, result)
+
+
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_empty', 0),
+    ('locdata_single_localization', 4),
+    ('locdata_2d', 4),
+    ('locdata_3d', 5),
+    ('locdata_non_standard_index', 4)
+])
+def test_standard_locdata_objects(
+        locdata_empty, locdata_single_localization, locdata_2d, locdata_3d, locdata_non_standard_index,
+        fixture_name, expected):
+    locdata = eval(fixture_name)
+    new_locdata = transform_affine(locdata)
+    assert len(new_locdata.data.columns) == expected
+
+    new_locdata = transform_affine(locdata, method='open3d')
+    assert len(new_locdata.data.columns) == expected
+
+
+def test_transformation_affine_2d(locdata_2d):
+    new_locdata = transform_affine(locdata_2d)
+    assert np.array_equal(new_locdata.coordinates, locdata_2d.coordinates)
+    assert len(new_locdata.data.columns) == 4
+    assert new_locdata.meta.history[-1].name == 'transform_affine'
+    assert "'matrix': None, 'offset': None, 'pre_translation': None, 'method': 'numpy'" \
+           in new_locdata.meta.history[-1].parameter
+
+    matrix = ((-1, 0), (0, -1))
+    offset = (10, 10)
+    pre_translation = (100, 100)
+
+    new_locdata = transform_affine(locdata_2d, matrix, offset)
+    points_target = ((9, 9), (9, 5), (8, 7), (7, 4), (6, 8), (5, 5))
+    assert np.array_equal(new_locdata.coordinates, points_target)
+    assert len(new_locdata.data.columns) == 4
+
+    new_locdata = transform_affine(locdata_2d, offset=offset, pre_translation=pre_translation)
+    points_target = ((11, 11), (11, 15), (12, 13), (13, 16), (14, 12), (15, 15))
+    assert np.array_equal(new_locdata.coordinates, points_target)
+    assert len(new_locdata.data.columns) == 4
+
+    new_locdata = transform_affine(locdata_2d, method='open3d')
+    assert np.array_equal(new_locdata.coordinates, locdata_2d.coordinates)
+    assert len(new_locdata.data.columns) == 4
+
+    new_locdata = transform_affine(locdata_2d, matrix, offset,  method='open3d')
+    points_target = ((9, 9), (9, 5), (8, 7), (7, 4), (6, 8), (5, 5))
+    assert np.array_equal(new_locdata.coordinates, points_target)
+    assert len(new_locdata.data.columns) == 4
+
+    new_locdata = transform_affine(locdata_2d,  offset=offset, pre_translation=pre_translation,  method='open3d')
+    points_target = ((11, 11), (11, 15), (12, 13), (13, 16), (14, 12), (15, 15))
+    assert np.array_equal(new_locdata.coordinates, points_target)
+    assert len(new_locdata.data.columns) == 4
+
+
+def test_transformation_affine_3d(locdata_3d):
+    new_locdata = transform_affine(locdata_3d)
+    assert np.array_equal(new_locdata.coordinates, locdata_3d.coordinates)
+    assert len(new_locdata.data.columns) == 5
+    assert new_locdata.meta.history[-1].name == 'transform_affine'
+    assert "'matrix': None, 'offset': None, 'pre_translation': None, 'method': 'numpy'" \
+           in new_locdata.meta.history[-1].parameter
+
+    matrix = ((-1, 0, 0), (0, -1, 0), (0, 0, -1))
+    offset = (10, 10, 10)
+    pre_translation = (100, 100, 100)
+
+    new_locdata = transform_affine(locdata_3d, matrix, offset)
+    points_target = ((9, 9, 9), (9, 5, 8), (8, 7, 5), (7, 4, 6), (6, 8, 7), (5, 5, 8))
+    assert np.array_equal(new_locdata.coordinates, points_target)
+    assert len(new_locdata.data.columns) == 5
+
+    new_locdata = transform_affine(locdata_3d, offset=offset, pre_translation=pre_translation)
+    points_target = ((11, 11, 11), (11, 15, 12), (12, 13, 15), (13, 16, 14), (14, 12, 13), (15, 15, 12))
+    assert np.array_equal(new_locdata.coordinates, points_target)
+    assert len(new_locdata.data.columns) == 5
+
+    new_locdata = transform_affine(locdata_3d, method='open3d')
+    assert np.array_equal(new_locdata.coordinates, locdata_3d.coordinates)
+    assert len(new_locdata.data.columns) == 5
+
+    new_locdata = transform_affine(locdata_3d, matrix, offset,  method='open3d')
+    points_target = ((9, 9, 9), (9, 5, 8), (8, 7, 5), (7, 4, 6), (6, 8, 7), (5, 5, 8))
+    assert np.array_equal(new_locdata.coordinates, points_target)
+    assert len(new_locdata.data.columns) == 5
+
+    new_locdata = transform_affine(locdata_3d,  offset=offset, pre_translation=pre_translation,  method='open3d')
+    points_target = ((11, 11, 11), (11, 15, 12), (12, 13, 15), (13, 16, 14), (14, 12, 13), (15, 15, 12))
+    assert np.array_equal(new_locdata.coordinates, points_target)
+    assert len(new_locdata.data.columns) == 5

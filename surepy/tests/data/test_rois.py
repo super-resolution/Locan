@@ -201,13 +201,13 @@ def test_select_by_drawing():
 
 
 # standard LocData fixtures
-def test_rasterize(locdata_fix, locdata_single_localization, locdata_non_standard_index):
-    res = rasterize(locdata=locdata_fix, support=None, n_regions=(5, 2))
+def test_rasterize(locdata_2d, locdata_single_localization, locdata_non_standard_index):
+    res = rasterize(locdata=locdata_2d, support=None, n_regions=(5, 2))
     assert res[0]._region.region_type == 'rectangle'
     assert repr(res[0]._region.region_specs) == 'RegionSpecs(corner=(1.0, 1.0), width=0.8, height=2.5, angle=0)'
     assert len(res) == 10
 
-    res = rasterize(locdata=locdata_fix, support=((0, 10), (10, 20)), n_regions=(5, 2))
+    res = rasterize(locdata=locdata_2d, support=((0, 10), (10, 20)), n_regions=(5, 2))
     assert res[0]._region.region_type == 'rectangle'
     assert repr(res[0]._region.region_specs) == 'RegionSpecs(corner=(0.0, 10.0), width=2.0, height=5.0, angle=0)'
     assert len(res) == 10

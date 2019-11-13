@@ -9,16 +9,20 @@ This module computes specific hulls and related properties for LocData objects.
 import numpy as np
 import pandas as pd
 import scipy.spatial as spat
-from shapely.geometry import MultiPoint
+try:
+    from shapely.geometry import LineString, MultiPoint
+    _has_shapely = True
+except ImportError:
+    _has_shapely = False
 
 from surepy.data.region import RoiRegion
 
 
-__all__ = ['BoundingBox', 'ConvexHull', 'ConvexHullShapely', 'OrientedBoundingBoxShapely',
+__all__ = ['BoundingBox', 'ConvexHull', '_ConvexHullShapely', 'OrientedBoundingBox',
            'update_convex_hulls_in_collection']
 
 
-class Hull():
+class Hull:
     """
     Abstract class for the hull of a selection
 
@@ -55,7 +59,7 @@ class Hull():
         self.region = None
 
 
-class BoundingBox():
+class BoundingBox:
     """
     Class with bounding box computed using numpy operations.
 
@@ -95,11 +99,11 @@ class BoundingBox():
 
     @property
     def region(self):
-        region_ = RoiRegion(region_type='rectangle', region_specs= (self.hull[0], self.width[0], self.width[1], 0))
+        region_ = RoiRegion(region_type='rectangle', region_specs=(self.hull[0], self.width[0], self.width[1], 0))
         return region_
 
 
-class ConvexHull():
+class _ConvexHullScipy:
     """
     Class with convex hull computed using the scipy.spatial.ConvexHull method.
 
@@ -120,7 +124,7 @@ class ConvexHull():
         indices identifying a polygon of all points that make up the hull
     points_on_boundary : int
         absolute number of points that are part of the convex hull.
-    points_on_boundary_rel : int
+    points_on_boundary_rel : float
         The number of points on the hull relative to all input points
     region_measure : float
         hull measure, i.e. area or volume
@@ -131,7 +135,7 @@ class ConvexHull():
     """
 
     def __init__(self, points):
-        if len(points)<6:
+        if len(points) < 6:
             unique_points = np.array(list(set(tuple(point) for point in points)))
             if len(unique_points) < 3:
                 raise TypeError('Convex_hull needs at least 3 different points as input.')
@@ -150,12 +154,15 @@ class ConvexHull():
 
     @property
     def region(self):
-        closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
-        region_ = RoiRegion(region_type='polygon', region_specs= closed_vertices)
-        return region_
+        if self.dimension > 2:
+            raise NotImplementedError('Region for 3D data has not yet been implemented.')
+        else:
+            closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
+            region_ = RoiRegion(region_type='polygon', region_specs=closed_vertices)
+            return region_
 
 
-class ConvexHullShapely():
+class _ConvexHullShapely:
     """
     Class with convex hull computed using the scipy.spatial.ConvexHull method.
 
@@ -185,6 +192,8 @@ class ConvexHullShapely():
     region : RoiRegion
         Convert the hull to a RoiRegion object.
     """
+    if not _has_shapely:
+        raise ImportError("shapely is required.")
 
     def __init__(self, points):
 
@@ -202,16 +211,69 @@ class ConvexHullShapely():
 
     @property
     def vertices(self):
-        return np.array(self.hull.exterior.coords)
+        return np.array(self.hull.exterior.coords)[:-1]
 
     @property
     def region(self):
-        closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
-        region_ = RoiRegion(region_type='polygon', region_specs= closed_vertices)
-        return region_
+        if self.dimension > 2:
+            raise NotImplementedError('Region for 3D data has not yet been implemented.')
+        else:
+            closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
+            region_ = RoiRegion(region_type='polygon', region_specs=closed_vertices)
+            return region_
 
 
-class OrientedBoundingBoxShapely():
+class ConvexHull:
+    """
+    Class with convex hull of localization data.
+
+    Parameters
+    ----------
+    points : ndarray of double, shape (npoints, ndim)
+        Coordinates of input points.
+    method : string
+        Specific class to compute the convex hull and attributes. One of 'scipy', 'shapely'.
+
+    Attributes
+    ----------
+    method : string
+        Specific class to compute the convex hull and attributes. One of 'scipy', 'shapely'.
+    hull : hull object
+        Polygon object from the .convex_hull method
+    dimension : int
+        Spatial dimension of hull
+    vertices : array of coordinate tuples
+        Coordinates of points that make up the hull.
+    vertex_indices : indices for points
+        indices identifying a polygon of all points that make up the hull
+    points_on_boundary : int
+        The absolute number of points on the hull
+    points_on_boundary_rel : int
+        The number of points on the hull relative to all input points
+    region_measure : float
+        hull measure, i.e. area or volume
+    subregion_measure : float
+        measure of the sub-dimensional region, i.e. circumference or surface
+    region : RoiRegion
+        Convert the hull to a RoiRegion object.
+    """
+
+    def __init__(self, points, method='scipy'):
+        self.method = method
+        if method == 'scipy':
+            self._special_class = _ConvexHullScipy(points)
+        elif method == 'shapely':
+            self._special_class = _ConvexHullShapely(points)
+        else:
+            raise ValueError(f'The provided method {method} is not available.')
+
+    def __getattr__(self, attr):
+        if attr in self.__dict__:
+            return getattr(self, attr)
+        return getattr(self._special_class, attr)
+
+
+class OrientedBoundingBox:
     """
     Class with oriented bounding box computed using the shapely minimum_rotated_rectangle method.
 
@@ -237,14 +299,14 @@ class OrientedBoundingBoxShapely():
     region : RoiRegion
         Convert the hull to a RoiRegion object.
     """
+    if not _has_shapely:
+        raise ImportError("shapely is required.")
 
     def __init__(self, points):
 
         self.dimension = np.shape(points)[1]
         if self.dimension >= 3:
             raise TypeError('ConvexHullShapely only takes 1 or 2-dimensional points as input.')
-
-        from shapely.geometry import LineString, MultiPoint
 
         self.hull = MultiPoint(points).minimum_rotated_rectangle
         self.width = np.array([LineString(self.vertices[0:2]).length, LineString(self.vertices[1:3]).length])
@@ -272,7 +334,8 @@ def update_convex_hulls_in_collection(locdata, copy=False):
     locdata : LocData
         A LocData object that carries a collection of locdata in references.
     copy : bool
-        If copy is False locdata is modified in place. If copy is True a copy of locdata with all modifications is returned and locdata is kept unchanged.
+        If copy is False locdata is modified in place. If copy is True a copy of locdata with all modifications is
+        returned and locdata is kept unchanged.
 
     Returns
     -------
@@ -289,8 +352,8 @@ def update_convex_hulls_in_collection(locdata, copy=False):
         try:
             reference.convex_hull = ConvexHull(reference.coordinates)
             reference.properties['region_measure_ch'] = reference.convex_hull.region_measure
-            reference.properties['localization_density_ch'] = reference.properties[
-                                                                  'localization_count'] / reference.convex_hull.region_measure
+            reference.properties['localization_density_ch'] = reference.properties['localization_count'] \
+                                                              / reference.convex_hull.region_measure
         except TypeError:
             reference.convex_hull = None
 

@@ -35,12 +35,18 @@ class Hull:
     ----------
     hull : hull object
         hull object from the corresponding algorithm
+    vertices : array of coordinate tuples
+        Coordinates of points that make up the hull.
     vertex_indices : indices for points
         indices identifying a polygon of all points that make up the hull
     dimension : int
         spatial dimension of hull
     width : array-like of float
         length in x, y[, and z]-dimension of aligned hulls or max length of oriented hulls
+    points_on_boundary : int
+        absolute number of points that are part of the convex hull
+    points_on_boundary_rel : float
+        The number of points on the hull relative to all input points
     region_measure : float
         hull measure, i.e. area or volume
     subregion_measure : float
@@ -50,10 +56,14 @@ class Hull:
     """
 
     def __init__(self, points):
+        self.points = points
         self.hull = None
+        self.vertices = None
         self.vertex_indices = None
         self.dimension = None
         self.width = None
+        self.points_on_boundary = None
+        self.points_on_boundary_rel = None
         self.region_measure = None
         self.subregion_measure = None
         self.region = None
@@ -87,11 +97,18 @@ class BoundingBox:
     """
 
     def __init__(self, points):
-        self.dimension = np.shape(points)[1]
-        self.hull = np.array([np.min(points, axis=0), np.max(points, axis=0)])
-        self.width = np.diff(self.hull, axis=0).flatten()
-        self.region_measure = np.prod(self.width)
-        self.subregion_measure = np.sum(self.width)*2
+        if len(points) < 2:
+            self.dimension = np.shape(points)[1]
+            self.hull = np.array([])
+            self.width = 0
+            self.region_measure = 0
+            self.subregion_measure = 0
+        else:
+            self.dimension = np.shape(points)[1]
+            self.hull = np.array([np.min(points, axis=0), np.max(points, axis=0)])
+            self.width = np.diff(self.hull, axis=0).flatten()
+            self.region_measure = np.prod(self.width)
+            self.subregion_measure = np.sum(self.width)*2
 
     @property
     def vertices(self):
@@ -99,7 +116,10 @@ class BoundingBox:
 
     @property
     def region(self):
-        region_ = RoiRegion(region_type='rectangle', region_specs=(self.hull[0], self.width[0], self.width[1], 0))
+        if self.dimension == 2:
+            region_ = RoiRegion(region_type='rectangle', region_specs=(self.hull[0], self.width[0], self.width[1], 0))
+        else:
+            raise NotImplementedError
         return region_
 
 
@@ -196,6 +216,10 @@ class _ConvexHullShapely:
         raise ImportError("shapely is required.")
 
     def __init__(self, points):
+        if len(points) < 6:
+            unique_points = np.array(list(set(tuple(point) for point in points)))
+            if len(unique_points) < 3:
+                raise TypeError('Convex_hull needs at least 3 different points as input.')
 
         self.dimension = np.shape(points)[1]
         if self.dimension >= 3:
@@ -303,7 +327,6 @@ class OrientedBoundingBox:
         raise ImportError("shapely is required.")
 
     def __init__(self, points):
-
         self.dimension = np.shape(points)[1]
         if self.dimension >= 3:
             raise TypeError('ConvexHullShapely only takes 1 or 2-dimensional points as input.')

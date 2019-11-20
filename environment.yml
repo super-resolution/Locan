@@ -9,6 +9,7 @@ name: surepy
 channels:
 - conda-forge
 - defaults
+- open3d-admin
 
 dependencies:
 # Python
@@ -35,10 +36,15 @@ dependencies:
 
 # File formats
 - ruamel.yaml
-- asdf
+- pip:
+  - asdf
 
 # Data analysis tools
 - hdbscan
 - fast-histogram
+
+# Extra requirements
+- colorcet
 - shapely
 - trackpy
+- open3d

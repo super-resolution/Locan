@@ -20,6 +20,7 @@ Submodules:
    transform
    cluster
    tracking
+   drift
 
 """
 from surepy.data.cluster import *
@@ -32,6 +33,7 @@ from surepy.data.region import *
 from surepy.data.register import *
 from surepy.data.rois import *
 from surepy.data.tracking import *
+from surepy.data.drift import *
 
 
 __all__ = []
@@ -45,3 +47,4 @@ __all__.extend(region.__all__)
 __all__.extend(register.__all__)
 __all__.extend(rois.__all__)
 __all__.extend(tracking.__all__)
+__all__.extend(drift.__all__)

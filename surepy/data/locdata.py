@@ -210,7 +210,7 @@ class LocData:
         indices : slice object or list(int) or None
             Index labels for elements in locdata that make up the new data.
             Note that contrary to usual python slices, both the start and the stop are included
-            (see pandas documentation).
+            (see pandas documentation). `Indices` refer to index value not position in list.
         meta : Metadata protobuf message
             Metadata about the current dataset and its history.
 

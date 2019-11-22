@@ -22,7 +22,7 @@ __all__ = ['register_icp']
 
 
 def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_translation=None,
-                         max_correspondence_distance=1_000, max_iteration=10_000, verbose=True):
+                         max_correspondence_distance=1_000, max_iteration=10_000, with_scaling=True, verbose=True):
     """
     Register `points` by an "Iterative Closest Point" algorithm using open3d.
 
@@ -42,6 +42,8 @@ def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_tra
         Threshold distance for the icp algorithm. Parameter is passed to open3d algorithm.
     max_iteration : int
         Maximum number of iterations. Parameter is passed to open3d algorithm.
+    with_scaling : bool
+        Allow scaling transformation. Parameter is passed to open3d algorithm.
     verbose : bool
         Flag indicating if transformation results are printed out.
 
@@ -98,7 +100,7 @@ def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_tra
         source=point_cloud, target=other_point_cloud,
         max_correspondence_distance=max_correspondence_distance,
         init=matrix_homogeneous,
-        estimation_method=o3d.registration.TransformationEstimationPointToPoint(with_scaling=True),
+        estimation_method=o3d.registration.TransformationEstimationPointToPoint(with_scaling=with_scaling),
         criteria=o3d.registration.ICPConvergenceCriteria(max_iteration=max_iteration)
     )
 

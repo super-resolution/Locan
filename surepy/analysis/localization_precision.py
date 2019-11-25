@@ -162,7 +162,7 @@ class LocalizationPrecision(_Analysis):
         else:
             self.distribution_statistics.fit(loc_property=loc_property, **kwargs)
 
-    def plot(self, ax=None, show=True, loc_property=None, window=1, **kwargs):
+    def plot(self, ax=None, loc_property=None, window=1, **kwargs):
         """
         Provide plot as matplotlib axes object showing the running average of results over window size.
 
@@ -170,8 +170,6 @@ class LocalizationPrecision(_Analysis):
         ----------
         ax : matplotlib axes
             The axes on which to show the image
-        show : bool
-            Flag indicating if plt.show() is active.
         loc_property : LocData property
             The property for which to plot localization precision; if None all plots are shown.
         window: int
@@ -181,9 +179,14 @@ class LocalizationPrecision(_Analysis):
         ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.plot().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
         """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         # prepare plot
         self.results.rolling(window=window, center=True).mean().plot(ax=ax,
@@ -196,12 +199,10 @@ class LocalizationPrecision(_Analysis):
                ylabel=loc_property
                )
 
-        # show figure
-        if show:
-            plt.show()
+        return ax
 
 
-    def hist(self, ax=None, show=True, loc_property='position_distance', bins='auto', fit=True, **kwargs):
+    def hist(self, ax=None, loc_property='position_distance', bins='auto', fit=True, **kwargs):
         """
         Provide histogram as matplotlib axes object showing the distributions of results.
 
@@ -209,8 +210,6 @@ class LocalizationPrecision(_Analysis):
         ----------
         ax : matplotlib axes
             The axes on which to show the image
-        show : bool
-            Flag indicating if plt.show() is active.
         loc_property : LocData property
             The property for which to plot localization precision.
         bins : float
@@ -222,9 +221,14 @@ class LocalizationPrecision(_Analysis):
         ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.hist().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
         """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         # prepare plot
         ax.hist(self.results[loc_property].values, bins=bins, density=True, log=False, **kwargs)
@@ -235,14 +239,12 @@ class LocalizationPrecision(_Analysis):
 
         if fit:
             if isinstance(self.distribution_statistics, _DistributionFits):
-                self.distribution_statistics.plot(ax=ax, show=False, loc_property=loc_property)
+                self.distribution_statistics.plot(ax=ax, loc_property=loc_property)
             else:
                 self.fit_distributions()
-                self.distribution_statistics.plot(ax=ax, show=False, loc_property=loc_property)
+                self.distribution_statistics.plot(ax=ax, loc_property=loc_property)
 
-        # show figure
-        if show:
-            plt.show()
+        return ax
 
 
 #### Auxiliary functions and classes
@@ -537,7 +539,7 @@ class _DistributionFits:
         for parameter, result in zip(self._dist_parameters, fit_results):
             setattr(self, parameter, result)
 
-    def plot(self, ax=None, show=True, loc_property='position_distance', **kwargs):
+    def plot(self, ax=None, loc_property='position_distance', **kwargs):
         """
         Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
 
@@ -545,8 +547,6 @@ class _DistributionFits:
         ----------
         ax : matplotlib axes
             The axes on which to show the image.
-        show : bool
-            Flag indicating if plt.show() is active.
         loc_property : LocData property
             The property for which to plot the distribution fit.
 
@@ -554,10 +554,14 @@ class _DistributionFits:
         ----------------
         kwargs : dict
             parameters passed to matplotlib.pyplot.plot().
-        """
 
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
+        """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         # plot fit curve
         if 'position_delta_' in loc_property:
@@ -587,8 +591,7 @@ class _DistributionFits:
                 raise NotImplementedError('pairwise_distribution function has not been implemented for plotting '
                                           'position distances.')
 
-        if show:
-            plt.show()
+        return ax
 
     def parameter_dict(self):
         """ Dictionary of fitted parameters. """

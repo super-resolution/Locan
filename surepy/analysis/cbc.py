@@ -155,7 +155,7 @@ class CoordinateBasedColocalization(_Analysis):
                                          _coordinate_based_colocalization(points, other_points, **self.parameter)})
         return self
 
-    def hist(self, ax=None, show=True, bins=(-1, -0.3333, 0.3333, 1), density=True, **kwargs):
+    def hist(self, ax=None, bins=(-1, -0.3333, 0.3333, 1), density=True, **kwargs):
         """
         Provide histogram as matplotlib axes object showing hist(results).
 
@@ -171,9 +171,14 @@ class CoordinateBasedColocalization(_Analysis):
         ----------------
         kwargs : dict
             Other parameters passed to matplotlib.plot().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
         """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         ax.hist(self.results.iloc[:, 0].values, bins=bins, density=density, label='cbc')
 
@@ -183,8 +188,4 @@ class CoordinateBasedColocalization(_Analysis):
                )
         ax.legend(loc='best')
 
-        # show figure
-        if show:
-            plt.show()
-
-        return None
+        return ax

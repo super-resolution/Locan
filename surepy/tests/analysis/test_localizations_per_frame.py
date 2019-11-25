@@ -38,4 +38,4 @@ def test_Distribution_fits(locdata):
     distribution_statistics.fit()
     assert(list(distribution_statistics.parameter_dict().keys()) ==
            ['number_localizations_center', 'number_localizations_sigma'])
-    distribution_statistics.plot(show=False)
+    distribution_statistics.plot()

@@ -186,7 +186,7 @@ class NearestNeighborDistances(_Analysis):
         self.distribution_statistics.fit(with_constraints=with_constraints)
 
 
-    def hist(self, ax=None, show=True, bins='auto', density=True, fit=False, **kwargs):
+    def hist(self, ax=None, bins='auto', density=True, fit=False, **kwargs):
         """
         Provide histogram as matplotlib axes object showing hist(results).
 
@@ -204,9 +204,14 @@ class NearestNeighborDistances(_Analysis):
         ----------------
         kwargs : dict
             Other parameters passed to matplotlib.plot().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
         """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         values, bin_values, patches = ax.hist(self.results['nn_distance'], bins=bins, density=density, label = 'data')
         x_data = (bin_values[:-1] + bin_values[1:]) / 2
@@ -216,10 +221,10 @@ class NearestNeighborDistances(_Analysis):
         # fit distributions:
         if fit:
             if isinstance(self.distribution_statistics, _DistributionFits):
-                self.distribution_statistics.plot(ax=ax, show=False)
+                self.distribution_statistics.plot(ax=ax)
             else:
                 self.fit_distributions()
-                self.distribution_statistics.plot(ax=ax, show=False)
+                self.distribution_statistics.plot(ax=ax)
 
         ax.set(title = 'k-Nearest Neigbor Distances\n'+' (k = ' + str(self.parameter['k'])+')',
                xlabel = 'distance (nm)',
@@ -227,11 +232,7 @@ class NearestNeighborDistances(_Analysis):
                )
         ax.legend(loc = 'best')
 
-        # show figure
-        if show:
-            plt.show()
-
-        return None
+        return ax
 
 
 #### Auxiliary functions and classes
@@ -318,7 +319,7 @@ class _DistributionFits:
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
 
-    def plot(self, ax=None, show=True, **kwargs):
+    def plot(self, ax=None, **kwargs):
         """
         Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
 
@@ -326,24 +327,26 @@ class _DistributionFits:
         ----------
         ax : matplotlib axes
             The axes on which to show the image.
-        show : bool
-            Flag indicating if plt.show() is active.
 
         Other Parameters
         ----------------
         kwargs : dict
             parameters passed to matplotlib.pyplot.plot().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
         """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         # plot fit curve
         x_values = np.linspace(self.distribution.ppf(0.001, **self.parameter_dict()),
                                self.distribution.ppf(0.999, **self.parameter_dict()), 100)
         ax.plot(x_values, self.distribution.pdf(x_values, **self.parameter_dict()), 'r-', lw=3, alpha=0.6,
                 label=str(self.distribution) + ' pdf', **kwargs)
-        if show:
-            plt.show()
+        return ax
 
     def parameter_dict(self):
         """ Dictionary of fitted parameters. """

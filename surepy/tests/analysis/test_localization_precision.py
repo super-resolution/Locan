@@ -34,7 +34,7 @@ def test_Localization_precision(locdata_simple):
 
 def test_Localization_precision_plot(locdata):
     lp = LocalizationPrecision().compute(locdata=locdata)
-    lp.plot(window=10, show=False)
+    lp.plot(window=10)
     # print(lp.results)
     # print(lp.meta)
 
@@ -45,7 +45,7 @@ def test_Distribution_fits(locdata_simple):
     distribution_statistics = _DistributionFits(lp)
     distribution_statistics.fit()
     assert('position_distance_sigma' in distribution_statistics.parameters)
-    distribution_statistics.plot(show=False)
+    distribution_statistics.plot()
 
     lp.fit_distributions(loc_property=None)
     assert lp.distribution_statistics.position_delta_x_loc
@@ -64,10 +64,10 @@ def test_Localization_precision_histogram(locdata_simple):
     # lp.hist(fit=True)
 
     with pytest.raises(AttributeError):
-        lp.hist(loc_property='position_delta_x', fit=False, show=False)
+        lp.hist(loc_property='position_delta_x', fit=False)
         assert lp.distribution_statistics.position_delta_x_loc
 
-    lp.hist(loc_property='position_delta_x', fit=True, show=False)
+    lp.hist(loc_property='position_delta_x', fit=True)
     # print(lp.distribution_statistics.parameter_dict())
     assert lp.distribution_statistics.position_delta_x_loc
     assert lp.distribution_statistics.position_delta_x_scale

@@ -55,4 +55,4 @@ def test_AccumulationClusterCheck(locdata_blobs):
                                    n_loc=5, n_extrapolate=2).compute(locdata_blobs)
     assert len(acc.results.columns) == 5
 
-    acc.plot(show=False)
+    acc.plot()

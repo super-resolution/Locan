@@ -16,11 +16,10 @@ from surepy.constants import COLORMAP_CONTINUOUS
 __all__ = ['render_2d']
 
 
-def render_2d(locdata, ax=None, bin_size=10, range='auto', rescale=True, cmap=COLORMAP_CONTINUOUS):
+def render_2d(locdata, ax=None, bin_size=10, range='auto', rescale=True,
+              cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
-
-    Prepare matplotlib axes with image.
 
     Parameters
     ----------
@@ -28,8 +27,6 @@ def render_2d(locdata, ax=None, bin_size=10, range='auto', rescale=True, cmap=CO
         Localization data.
     ax : matplotlib axes
         The axes on which to show the image
-    show : bool
-        Flag indicating if plt.show() and the creation of a colorbar is active.
     bin_size : int or float
         x and y size of bins
     range : [[min,max],[min,max]] or 'auto' (default) or 'zero'
@@ -43,12 +40,15 @@ def render_2d(locdata, ax=None, bin_size=10, range='auto', rescale=True, cmap=CO
         For None no rescaling occurs.
     cmap : str or Colormap instance
         The colormap used to map normalized data values to RGBA colors.
-        We recommend to use one of 'viridis', 'plasma', 'magma', 'inferno', 'hot', 'hsv'.
+    cbar : bool
+        If true draw a colorbar. The colobar axes is accessible using the cax property.
+    colorbar_kws : dict
+        Keyword arguments for `matplotlib.pyplot.colorbar`.
 
     Returns
     -------
-    matplotlib.image.AxesImage (rtype from imshow)
-        mappable to create colorbar
+    matplotlib Axes
+        Axes object with the image.
     """
 
     # Provide matplotlib axes if not provided
@@ -56,7 +56,7 @@ def render_2d(locdata, ax=None, bin_size=10, range='auto', rescale=True, cmap=CO
         raise ValueError('Locdata does not contain any data points.')
 
     if ax is None:
-        fig, ax = plt.subplots(nrows=1, ncols=1)
+        ax = plt.gca()
 
     # determine ranges
     if isinstance(range, str):
@@ -115,9 +115,10 @@ def render_2d(locdata, ax=None, bin_size=10, range='auto', rescale=True, cmap=CO
            ylabel='position_y'
            )
 
-    # show figure
-    if show:
-        plt.colorbar(mappable)
-        plt.show()
+    if cbar:
+        if colorbar_kws is None:
+            plt.colorbar(mappable, ax=ax)
+        else:
+            plt.colorbar(mappable, **colorbar_kws)
 
-    return mappable
+    return ax

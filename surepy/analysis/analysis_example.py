@@ -103,17 +103,17 @@ class AnalysisExampleAlgorithm_1(_Analysis):
         self.results = _algorithm_1(data=data, **self.parameter)  # some complicated algorithm
         return self
 
-    def plot(self, ax=None, show=True):
-        plot(self, ax, show)
+    def plot(self, ax=None):
+        plot(self, ax)
 
-    def plot_2(self, ax=None, show=True, bins='auto', normed=True, log=False, fit=True):
-        plot_2(self, ax, show, bins, normed, log, fit)
+    def plot_2(self, ax=None, bins='auto', normed=True, log=False, fit=True):
+        plot_2(self, ax, bins, normed, log, fit)
 
-    def plot_histogram_fit(self, ax=None, show=True):
-        plot_histogram_fit(self, ax, show)
+    def plot_histogram_fit(self, ax=None):
+        plot_histogram_fit(self, ax)
 
-    def report(self, path=None, show=True):
-        report(self, path, show)
+    def report(self, path=None):
+        report(self, path)
 
 
 
@@ -167,17 +167,17 @@ class AnalysisExampleAlgorithm_2(_Analysis):
         self.results = _algorithm_2(data=data, **self.parameter)  # some complicated algorithm
         return self
 
-    def plot(self, ax=None, show=True):
-        plot(self, ax, show)
+    def plot(self, ax=None):
+        plot(self, ax)
 
-    def plot_2(self, ax=None, show=True, bins='auto', density=True, log=False, fit=True):
-        plot_2(self, ax, show, bins, density, log, fit)
+    def plot_2(self, ax=None, bins='auto', density=True, log=False, fit=True):
+        plot_2(self, ax, bins, density, log, fit)
 
-    def plot_histogram_fit(self, ax=None, show=True):
-        plot_histogram_fit(self, ax, show)
+    def plot_histogram_fit(self, ax=None):
+        plot_histogram_fit(self, ax)
 
-    def report(self, path=None, show=True):
-        report(self, path, show)
+    def report(self, path=None):
+        report(self, path)
 
 #
 #### Interface functions
@@ -187,12 +187,12 @@ class AnalysisExampleAlgorithm_2(_Analysis):
 #
 
 
-def plot(self, ax=None, show=True):
+def plot(self, ax=None):
     '''
     A specialized plot to give a standardized visualization of results.
     '''
     if ax is None:
-        fig, ax = plt.subplots(nrows=1, ncols=1)
+        ax = plt.gca()
 
     ax.plot(self.results)
     ax.set(title='Normal Data',
@@ -200,14 +200,10 @@ def plot(self, ax=None, show=True):
            ylabel='PDF'
            )
 
-    # show figure
-    if show:  # this part is needed if anyone wants to modify the figure
-        plt.show()
-
-    return None
+    return ax
 
 
-def plot_2(self, ax=None, show=True, bins='auto', density=True, log=False, fit=True):
+def plot_2(self, ax=None, bins='auto', density=True, log=False, fit=True):
     '''
     A specialized plot to give a standardized visualization of results - in this case a histogram of results.
     '''
@@ -237,17 +233,12 @@ def plot_2(self, ax=None, show=True, bins='auto', density=True, log=False, fit=T
 
     # fit distributions
     if fit:
-        plot_histogram_fit(self, ax=ax, show=False)
+        plot_histogram_fit(self, ax=ax)
 
-    # show figure
-    if show:  # this part is needed if anyone wants to modify the figure
-        plt.tight_layout()
-        plt.show()
-
-    return None
+    return ax
 
 
-def plot_histogram_fit(self, ax=None, show=True):
+def plot_histogram_fit(self, ax=None):
     '''
     A specialized plot to give a standardized visualization of results - in this case a histogram of results.
     '''
@@ -277,12 +268,7 @@ def plot_histogram_fit(self, ax=None, show=True):
 
     ax[1].set_axis_off()
 
-    # show figure
-    if show:
-        plt.tight_layout()
-        plt.show()
-
-    return None
+    return ax
 
 
 def fit_histogram(self, data, id):
@@ -300,7 +286,7 @@ def fit_histogram(self, data, id):
 # there will be other specific visualization methods for other analysis routines.
 
 
-def report(self, path=None, show=True):
+def report(self, path=None):
     '''
     Provide a report that is either displayed or saved as pdf.
     The report is a figure summarizing all visual representations. It is arranged specifically for a particular
@@ -310,8 +296,8 @@ def report(self, path=None, show=True):
     ax = fig.subplots(nrows=3, ncols=2)
 
     # provide the axes elements (i.e. the plots)
-    self.plot(ax=ax[0][0], show=False)
-    self.plot_2(ax=ax[1][0:2], show=False)
+    self.plot(ax=ax[0][0])
+    self.plot_2(ax=ax[1][0:2])
 
     # adjust figure layout
     plt.tight_layout()
@@ -323,9 +309,4 @@ def report(self, path=None, show=True):
                     transparent=False, bbox_inches=None, pad_inches=0.1,
                     frameon=None)
 
-    # show figure
-    if show:
-        plt.show()
-
-    return None
-
+    return ax

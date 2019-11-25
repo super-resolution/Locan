@@ -174,7 +174,7 @@ class BlinkStatistics(_Analysis):
                                              distribution=distribution)
             self.distribution_statistics[data_id].fit(with_constraints=with_constraints, **kwargs)
 
-    def hist(self, data_identifier='on_periods', ax=None, show=True, bins='auto', log=True, fit=True, **kwargs):
+    def hist(self, data_identifier='on_periods', ax=None, bins='auto', log=True, fit=True, **kwargs):
         """
         Provide histogram as matplotlib axes object showing hist(results).
 
@@ -184,8 +184,6 @@ class BlinkStatistics(_Analysis):
             'on_periods' or 'off_periods'.
         ax : matplotlib axes
             The axes on which to show the image
-        show : bool
-            Flag indicating if plt.show() is active.
         bins : float
             Bin specifications (passed to matplotlib.hist).
         log : Bool
@@ -198,9 +196,14 @@ class BlinkStatistics(_Analysis):
         ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.hist().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
         """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         ax.hist(self.results[data_identifier], bins=bins, density=True, log=log, **kwargs)
         ax.set(title = f'Distribution of {data_identifier}',
@@ -212,16 +215,12 @@ class BlinkStatistics(_Analysis):
         if fit:
             if data_identifier in self.distribution_statistics and \
                     isinstance(self.distribution_statistics[data_identifier], _DistributionFits):
-                self.distribution_statistics[data_identifier].plot(ax=ax, show=False)
+                self.distribution_statistics[data_identifier].plot(ax=ax)
             else:
                 self.fit_distributions(data_identifier=data_identifier)
-                self.distribution_statistics[data_identifier].plot(ax=ax, show=False)
+                self.distribution_statistics[data_identifier].plot(ax=ax)
 
-        # show figure
-        if show:
-            plt.show()
-
-        return None
+        return ax
 
 
 # todo: incorporate fitting of geometrical distribution instead of exponential.
@@ -307,7 +306,7 @@ class _DistributionFits:
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
 
-    def plot(self, ax=None, show=True, **kwargs):
+    def plot(self, ax=None, **kwargs):
         """
         Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
 
@@ -315,16 +314,19 @@ class _DistributionFits:
         ----------
         ax : matplotlib axes
             The axes on which to show the image.
-        show : bool
-            Flag indicating if plt.show() is active.
 
         Other Parameters
         ----------------
         kwargs : dict
             parameters passed to matplotlib.pyplot.plot().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
         """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         # plot fit curve
         parameter = self.parameter_dict().values()
@@ -332,8 +334,8 @@ class _DistributionFits:
                                self.distribution.ppf(1 - 1e-4, *parameter), 100)
         ax.plot(x_values, self.distribution.pdf(x_values, *parameter), 'r-', lw=3, alpha=0.6,
                 label=str(self.distribution) + ' pdf', **kwargs)
-        if show:
-            plt.show()
+
+        return ax
 
     def parameter_dict(self):
         """ Dictionary of fitted parameters. """

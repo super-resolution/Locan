@@ -19,6 +19,6 @@ def test_Analysis_example(locdata):
     assert ae.meta.comment == 'this is an example'
     ae.compute(locdata=None)
     assert (len(list(ae.results)) == 10)
-    ae.plot(show=False)
+    ae.plot()
     ae_2 = eval(repr(ae))
     assert ae_2.parameter == {'limits': (100, 110)}

@@ -210,7 +210,7 @@ class AccumulationClusterCheck(_Analysis):
         self.results = _accumulation_cluster_check(locdata, **self.parameter)
         return self
 
-    def plot(self, ax=None, show=True, **kwargs):
+    def plot(self, ax=None, **kwargs):
         """
         Provide plot of results as matplotlib axes object.
 
@@ -218,8 +218,6 @@ class AccumulationClusterCheck(_Analysis):
         ----------
         ax : matplotlib axes
             The axes on which to show the image
-        show : bool
-            Flag indicating if plt.show() is active.
         kwargs : dict
             Other parameters passed to `matplotlib.pyplot.plot()`.
 
@@ -227,9 +225,14 @@ class AccumulationClusterCheck(_Analysis):
         ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.plot().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
         """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         self.results.plot(x='eta', y='rho/rho_0', ax=ax, **kwargs)
 
@@ -238,8 +241,4 @@ class AccumulationClusterCheck(_Analysis):
                ylabel = 'Normalized localization density within cluster'
                )
 
-        # show figure
-        if show:
-            plt.show()
-
-        return None
+        return ax

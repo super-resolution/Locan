@@ -106,7 +106,7 @@ class LocalizationProperty(_Analysis):
         self.distribution_statistics.fit(distribution, with_constraints=with_constraints, **kwargs)
 
 
-    def plot(self, ax=None, show=True, window=1, **kwargs):
+    def plot(self, ax=None, window=1, **kwargs):
         """
         Provide plot as matplotlib axes object showing the running average of results over window size.
 
@@ -114,8 +114,6 @@ class LocalizationProperty(_Analysis):
         ----------
         ax : matplotlib axes
             The axes on which to show the image
-        show : bool
-            Flag indicating if plt.show() is active.
         window: int
             Window for running average that is applied before plotting.
 
@@ -123,9 +121,14 @@ class LocalizationProperty(_Analysis):
         ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.plot().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
         """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         self.results.rolling(window=window, center=True).mean().plot(ax=ax, legend=False, **kwargs)
         # todo: check rolling on arbitrary index
@@ -134,14 +137,10 @@ class LocalizationProperty(_Analysis):
                ylabel = self.parameter['loc_property']
                )
 
-        # show figure
-        if show:
-            plt.show()
-
-        return None
+        return ax
 
 
-    def hist(self, ax=None, show=True, bins='auto', log=True, fit=True, **kwargs):
+    def hist(self, ax=None, bins='auto', log=True, fit=True, **kwargs):
         """
         Provide histogram as matplotlib axes object showing hist(results). Nan entries are ignored.
 
@@ -149,8 +148,6 @@ class LocalizationProperty(_Analysis):
         ----------
         ax : matplotlib axes
             The axes on which to show the image
-        show : bool
-            Flag indicating if plt.show() is active.
         bins : float
             Bin specifications (passed to matplotlib.hist).
         log : Bool
@@ -163,9 +160,14 @@ class LocalizationProperty(_Analysis):
         ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.hist().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
         """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         ax.hist(self.results.dropna(axis=0).values, bins=bins, density=True, log=log, **kwargs)
         ax.set(title = self.parameter['loc_property'],
@@ -176,16 +178,12 @@ class LocalizationProperty(_Analysis):
         # fit distributions:
         if fit:
             if isinstance(self.distribution_statistics, _DistributionFits):
-                self.distribution_statistics.plot(ax=ax, show=False)
+                self.distribution_statistics.plot(ax=ax)
             else:
                 self.fit_distributions()
-                self.distribution_statistics.plot(ax=ax, show=False)
+                self.distribution_statistics.plot(ax=ax)
 
-        # show figure
-        if show:
-            plt.show()
-
-        return None
+        return ax
 
 # todo add Dependence_stats to fit a plot to a linear function, log function, or exponential decay.
 
@@ -255,7 +253,7 @@ class _DistributionFits:
                 setattr(self, parameter, result)
 
 
-    def plot(self, ax=None, show=True, **kwargs):
+    def plot(self, ax=None, **kwargs):
         """
         Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
 
@@ -263,16 +261,19 @@ class _DistributionFits:
         ----------
         ax : matplotlib axes
             The axes on which to show the image.
-        show : bool
-            Flag indicating if plt.show() is active.
 
         Other Parameters
         ----------------
         kwargs : dict
             parameters passed to matplotlib.pyplot.plot().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
         """
         if ax is None:
-            fig, ax = plt.subplots(nrows=1, ncols=1)
+            ax = plt.gca()
 
         # plot fit curve
         parameter = self.parameter_dict().values()
@@ -280,11 +281,9 @@ class _DistributionFits:
                                self.distribution.ppf(0.999, *parameter), 100)
         ax.plot(x_values, self.distribution.pdf(x_values, *parameter), 'r-', lw=3, alpha=0.6,
                 label=str(self.distribution) + ' pdf', **kwargs)
-        if show:
-            plt.show()
+
+        return ax
 
     def parameter_dict(self):
         """ Dictionary of fitted parameters. """
         return {k: self.__dict__[k] for k in self.parameters}
-
-

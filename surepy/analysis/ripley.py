@@ -178,8 +178,8 @@ class RipleysKFunction(_Analysis):
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_k_data': ripley})
         return self
 
-    def plot(self, ax=None, show=True, **kwargs):
-        plot(self, ax, show, **kwargs)
+    def plot(self, ax=None, **kwargs):
+        plot(self, ax, **kwargs)
 
 
 class RipleysLFunction(_Analysis):
@@ -247,8 +247,8 @@ class RipleysLFunction(_Analysis):
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_l_data': ripley})
         return self
 
-    def plot(self, ax=None, show=True, **kwargs):
-        plot(self, ax, show, **kwargs)
+    def plot(self, ax=None, **kwargs):
+        plot(self, ax, **kwargs)
 
 
 class RipleysHFunction(_Analysis):
@@ -336,14 +336,14 @@ class RipleysHFunction(_Analysis):
     def Ripley_h_maximum(self):
         self._Ripley_h_maximum = None
 
-    def plot(self, ax=None, show=True, **kwargs):
-        plot(self, ax, show, **kwargs)
+    def plot(self, ax=None, **kwargs):
+        plot(self, ax, **kwargs)
 
 
 ##### Interface functions
 
 
-def plot(self, ax=None, show=True, **kwargs):
+def plot(self, ax=None, **kwargs):
     """
     Provide plot of results as matplotlib axes object.
 
@@ -351,16 +351,19 @@ def plot(self, ax=None, show=True, **kwargs):
     ----------
     ax : matplotlib axes
         The axes on which to show the image
-    show : bool
-        Flag indicating if plt.show() is active.
 
     Other Parameters
     ----------------
     kwargs : dict
         Parameters passed to `matplotlib.pyplot.plot()`.
+
+    Returns
+    -------
+    matplotlib Axes
+        Axes object with the plot.
     """
     if ax is None:
-        fig, ax = plt.subplots(nrows=1, ncols=1)
+        ax = plt.gca()
 
     self.results.plot(x='radius', ax=ax, **kwargs)
 
@@ -378,8 +381,4 @@ def plot(self, ax=None, show=True, **kwargs):
            ylabel = self.results.columns[1]
            )
 
-    # show figure
-    if show:
-        plt.show()
-
-    return None
+    return ax

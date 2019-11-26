@@ -1,12 +1,14 @@
 import pytest
 import numpy as np
-import pandas as pd
+import matplotlib.pyplot as plt
+
 from surepy import LocData
 import surepy.constants
+from surepy import render_2d
 from surepy.io.io_locdata import load_rapidSTORM_file
 from surepy.data.transform import randomize, transform_affine
 from surepy.data.transform.transformation import _homogeneous_matrix
-from surepy.data.transform.bunwarpj import _read_matrix, bunwarp
+from surepy.data.transform.bunwarpj import _read_matrix, _unwarp, bunwarp
 
 
 def test_randomize_2d(locdata_2d):
@@ -53,22 +55,29 @@ def test_randomize_locdata_objects(
     assert len(locdata_randomized) == expected
 
 
-# todo: test colocalization of bead data
 def test_bunwarp_raw_transformation():
     matrix_path = surepy.constants.ROOT_DIR / 'tests/test_data/transform/BunwarpJ_transformation_raw_green.txt'
     dat_green = load_rapidSTORM_file(path=surepy.constants.ROOT_DIR /
                                      'tests/test_data/transform/rapidSTORM_beads_green.txt')
 
-    image_height_width, x_transformation_array, y_transformation_array = _read_matrix(path=matrix_path)
-    assert np.array_equal(image_height_width, [130, 130])
+    matrix_size, matrix_x, matrix_y = _read_matrix(path=matrix_path)
+    assert np.array_equal(matrix_size, [130, 130])
 
-    dat_green_transformed = bunwarp(locdata=dat_green, matrix_path=matrix_path)
-    # print(dat_green_transformed.meta)
+    new_points = _unwarp(dat_green.coordinates, matrix_x, matrix_y, pixel_size=(10, 10), matrix_size=matrix_size)
+    assert len(new_points) == len(dat_green)
+
+    dat_green_transformed = bunwarp(locdata=dat_green, matrix_path=matrix_path, pixel_size=(10, 10))
+    assert len(dat_green_transformed) == len(dat_green)
     assert dat_green_transformed.meta.history[-1].name == 'bunwarp'
 
-    # dat_red = load_rapidSTORM_file(path=surepy.constants.ROOT_DIR +
-    #                                     '/tests/test_data/transform/rapidSTORM_beads_red.txt')
-    # render_2d(dat_green)
+    # for visual inspection
+    # dat_red = load_rapidSTORM_file(path=surepy.constants.ROOT_DIR /
+    #                                     'tests/test_data/transform/rapidSTORM_beads_red.txt')
+    # fig, ax = plt.subplots(1, 1, figsize=(16, 8))
+    # render_2d(dat_red, ax=ax, bin_size=500, rescale=True, cmap='Reds')
+    # render_2d(dat_green, ax=ax, bin_size=500, rescale=True, cmap='Greens', alpha=0.5)
+    # render_2d(dat_green_transformed, ax=ax, bin_size=500, rescale=True, cmap='Blues', alpha=0.5)
+    # plt.show()
 
 
 def test_homogeneous_matrix():

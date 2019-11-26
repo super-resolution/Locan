@@ -17,7 +17,7 @@ __all__ = ['render_2d']
 
 
 def render_2d(locdata, ax=None, bin_size=10, range='auto', rescale=True,
-              cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None):
+              cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
 
@@ -45,6 +45,11 @@ def render_2d(locdata, ax=None, bin_size=10, range='auto', rescale=True,
     colorbar_kws : dict
         Keyword arguments for `matplotlib.pyplot.colorbar`.
 
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to matplotlib.axes.Axes.imshow().
+
     Returns
     -------
     matplotlib Axes
@@ -63,36 +68,38 @@ def render_2d(locdata, ax=None, bin_size=10, range='auto', rescale=True,
 
         if range == 'auto':
             try:
-                range = np.array([[locdata.properties[x] for x in ['position_x_min', 'position_x_max']],
+                range_ = np.array([[locdata.properties[x] for x in ['position_x_min', 'position_x_max']],
                                   [locdata.properties[x] for x in ['position_y_min', 'position_y_max']]])
             except KeyError:
                 stats = surepy.data.properties.statistics(locdata.data[['position_x', 'position_y']],
                                                           statistic_keys=('min', 'max'))
-                range = np.array([[stats['position_x_min'], stats['position_x_max']],
+                range_ = np.array([[stats['position_x_min'], stats['position_x_max']],
                                   [stats['position_y_min'], stats['position_y_max']]])
 
         elif range == 'zero':
             try:
-                range = np.array([np.array([0, 0]),
+                range_ = np.array([np.array([0, 0]),
                                   [locdata.properties[x] for x in ['position_x_max', 'position_y_max']]
                                   ]).T
             except KeyError:
                 stats = surepy.data.properties.statistics(locdata.data[['position_x', 'position_y']],
                                                           statistic_keys=('max'))
-                range = np.array([np.array([0, 0]),
+                range_ = np.array([np.array([0, 0]),
                                   [stats['position_x_max'], stats['position_y_max']]
                                   ]).T
+        else:
+            raise ValueError(f'The string {range} is not defined.')
 
     else:
-        range = np.array(range)
+        range_ = np.array(range)
 
     # histogram data
-    bin_number = np.ceil((range[:, 1] - range[:, 0]) / bin_size)
+    bin_number = np.ceil((range_[:, 1] - range_[:, 0]) / bin_size)
     bin_number = bin_number.astype(int)
     # bin_centers = np.arange(range[0], range[1], bin_size) + bin_size / 2
 
     data = locdata.data[['position_x', 'position_y']].values.T
-    img = fast_histogram.histogram2d(*data, range=range, bins=bin_number)
+    img = fast_histogram.histogram2d(*data, range=range_, bins=bin_number)
     img = img.T  # to show image in the same format as scatter plot
 
     # contrast adjustment by equalization or rescaling
@@ -102,14 +109,17 @@ def render_2d(locdata, ax=None, bin_size=10, range='auto', rescale=True,
         img = exposure.rescale_intensity(img)  # scaling to min/max of img intensities
     elif isinstance(rescale, tuple):
         minmax = (img.min(), img.max())
+        print('minmax:', minmax)
         rescale_abs = tuple(np.multiply(np.divide(rescale, 100), (minmax[1] - minmax[0])) + minmax[0])
+        print('rescale_abs:', rescale_abs)
         img = exposure.rescale_intensity(img, in_range=rescale_abs)
+        print(img)
     elif rescale == 'equal':
         img = exposure.equalize_hist(img)
     else:
         raise TypeError('Set rescale to tuple, None or "equal".')
 
-    mappable = ax.imshow(img, origin='low', extent=[*range[0], *range[1]], cmap=cmap)
+    mappable = ax.imshow(img, origin='low', extent=[*range_[0], *range_[1]], cmap=cmap, **kwargs)
     ax.set(title='Image ({:.0f} nm per bin)'.format(bin_size),
            xlabel='position_x',
            ylabel='position_y'

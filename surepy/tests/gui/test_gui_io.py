@@ -1,8 +1,8 @@
-'''
+"""
 
 This module contains tests that need gui interactions and should therefore not be run automatically.
 
-'''
+"""
 import pytest
 from surepy.constants import ROOT_DIR
 from surepy.gui.io import file_dialog

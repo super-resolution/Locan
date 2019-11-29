@@ -84,13 +84,9 @@ def select_by_region(locdata, region, properties_for_roi=(), reduce=True):
         roi = Roi(reference=locdata, region_specs=region.region_specs, region_type=region.region_type,
                   properties_for_roi=properties_for_roi)
 
-    new_locdata = roi.locdata()
+    new_locdata = roi.locdata(reduce=reduce)
 
-    # finish
-    if reduce:
-        new_locdata.reduce()
-
-    # meta is updated by select_by_condition function. No further updates needed.
+    # meta is updated by roi.locdata() function. No further updates needed.
     return new_locdata
 
 

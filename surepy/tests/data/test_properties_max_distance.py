@@ -1,19 +1,10 @@
-import pytest
-import numpy as np
-import pandas as pd
-from surepy import LocData
 from surepy.data.properties import max_distance
 
 
-@pytest.fixture()
-def locdata_simple():
-    dict = {
-        'position_x': [0, 0, 0],
-        'position_y': [0, 1, 3]
-    }
-    return LocData(dataframe=pd.DataFrame.from_dict(dict))
+def test_max_distance_2d(locdata_2d):
+    mdist = max_distance(locdata=locdata_2d)
+    assert (mdist == {'max_distance': 5.656854249492381})
 
-
-def test_max_distance(locdata_simple):
-    mdist = max_distance(locdata=locdata_simple)
-    assert (mdist == {'max_distance': 3})
+def test_max_distance_3d(locdata_3d):
+    mdist = max_distance(locdata=locdata_3d)
+    assert (mdist == {'max_distance': 6.164414002968976})

@@ -181,23 +181,24 @@ def test_roi_locdata_from_file():
 
 
 def test_as_artist():
-    roiR = Roi(reference=locdata, region_specs=((0, 0), 0.5, 0.5, 10), region_type='rectangle')
-    roiE = Roi(reference=locdata, region_specs=((0.5, 0.5), 0.2, 0.3, 10), region_type='ellipse')
-    roiP = Roi(reference=locdata, region_specs=((0, 0.8), (0.1, 0.9), (0.6, 0.9), (0.7, 0.7), (0, 0.8)),
-               region_type='polygon')
+    roi_rectangle = Roi(reference=locdata, region_specs=((0, 0), 0.5, 0.5, 10), region_type='rectangle')
+    roi_ellipse = Roi(reference=locdata, region_specs=((0.5, 0.5), 0.2, 0.3, 10), region_type='ellipse')
+    roi_polygon = Roi(reference=locdata, region_specs=((0, 0.8), (0.1, 0.9), (0.6, 0.9), (0.7, 0.7), (0, 0.8)),
+                      region_type='polygon')
     fig, ax = plt.subplots()
-    ax.add_patch(roiR._region.as_artist())
-    ax.add_patch(roiE._region.as_artist())
-    ax.add_patch(roiP._region.as_artist())
+    ax.add_patch(roi_rectangle._region.as_artist())
+    ax.add_patch(roi_ellipse._region.as_artist())
+    ax.add_patch(roi_polygon._region.as_artist())
     # plt.show()
 
 
+@pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
 def test_select_by_drawing():
     dat = load_txt_file(path=ROOT_DIR / 'tests/test_data/five_blobs.txt')
-    # select_by_drawing(dat, region_type='rectangle')
-    # select_by_drawing(dat, region_type='ellipse')
+    select_by_drawing(dat, region_type='rectangle')
+    select_by_drawing(dat, region_type='ellipse')
     # todo: fix bug in polygon selector
-    # select_by_drawing(dat, region_type='polygon')
+    select_by_drawing(dat, region_type='polygon')
 
 
 # standard LocData fixtures
@@ -224,7 +225,7 @@ def test_rasterize(locdata_2d, locdata_single_localization, locdata_non_standard
 
 
 def test_rasterize_(locdata_empty):
-    with pytest.raises(AttributeError):
+    with pytest.raises(ValueError):
         rasterize(locdata=locdata_empty, support=None, n_regions=(5, 2))
     with pytest.raises(ValueError):
         rasterize(locdata=locdata_empty, support=((0, 10), (10, 20)), n_regions=(5, 2))

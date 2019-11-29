@@ -389,10 +389,16 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2)):
     tuple(surepy.data.rois.Roi)
         A sequence of Roi objects
     """
+    if len(locdata) == 0:
+        raise ValueError('Not implemented for empty LocData objects.')
+
     # specify support
     if support is None:
         support_ = locdata.bounding_box.vertices
-        widths = locdata.bounding_box.width / n_regions
+        if len(locdata.bounding_box.width) is 0:
+            widths = np.zeros(len(n_regions))
+        else:
+            widths = locdata.bounding_box.width / n_regions
     else:
         support_ = support
         widths = np.diff(support_).flatten() / n_regions
@@ -403,16 +409,16 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2)):
     corners = product(*corners)
 
     # specify regions
-    if locdata.dimension == 2:
+    if len(n_regions) == 2:
         region_type = 'rectangle'
         RegionSpecs = namedtuple('RegionSpecs', 'corner width height angle')
         region_specs_list = [RegionSpecs(corner, *widths, 0) for corner in corners]
 
-    elif locdata.dimension == 3:
+    elif len(n_regions) == 3:
         raise NotImplementedError('Computation for 3D has not been implemented, yet.')
 
     else:
-        raise ValueError('The locdata object has wrong dimension.')
+        raise ValueError('The shape of n_regions is incompatible.')
 
     new_rois = tuple([Roi(reference=locdata, region_specs=region_specs,
                           region_type=region_type) for region_specs in region_specs_list])

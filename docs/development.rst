@@ -35,3 +35,5 @@ To remember:
 * Provide commit messages with subject in imperative style (see `Chris Beams, How to Write a Git Commit Message`_).
 
 .. _Chris Beams, How to Write a Git Commit Message: https://chris.beams.io/posts/git-commit/
+
+* Use notation `n_something` for `number_of_something`.

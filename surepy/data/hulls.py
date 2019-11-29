@@ -5,9 +5,9 @@ Hull objects of localization data.
 This module computes specific hulls and related properties for LocData objects.
 
 """
+import warnings
 
 import numpy as np
-import pandas as pd
 import scipy.spatial as spat
 try:
     from shapely.geometry import LineString, MultiPoint
@@ -18,8 +18,7 @@ except ImportError:
 from surepy.data.region import RoiRegion
 
 
-__all__ = ['BoundingBox', 'ConvexHull', '_ConvexHullShapely', 'OrientedBoundingBox',
-           'update_convex_hulls_in_collection']
+__all__ = ['BoundingBox', 'ConvexHull', 'OrientedBoundingBox']
 
 
 class Hull:
@@ -100,10 +99,10 @@ class BoundingBox:
         if len(points) < 2:
             self.dimension = np.shape(points)[1]
             self.hull = np.array([])
-            self.width = 0
+            self.width = np.zeros(self.dimension)
             self.region_measure = 0
             self.subregion_measure = 0
-        else:
+        else:  # a qhull error is raised if too few points.
             self.dimension = np.shape(points)[1]
             self.hull = np.array([np.min(points, axis=0), np.max(points, axis=0)])
             self.width = np.diff(self.hull, axis=0).flatten()
@@ -155,18 +154,24 @@ class _ConvexHullScipy:
     """
 
     def __init__(self, points):
-        if len(points) < 6:
-            unique_points = np.array(list(set(tuple(point) for point in points)))
-            if len(unique_points) < 3:
-                raise TypeError('Convex_hull needs at least 3 different points as input.')
+        try:
+            self.hull = spat.ConvexHull(points)
+            self.dimension = np.shape(points)[1]
+            self.vertex_indices = self.hull.vertices
+            self.points_on_boundary = len(self.vertex_indices)
+            self.points_on_boundary_rel = self.points_on_boundary / len(points)
+            self.region_measure = self.hull.volume
+            self.subregion_measure = self.hull.area
+        except:
+            warnings.warn('A convex hull cannot be computed for the given localizations.', UserWarning)
+            self.hull = None
+            self.dimension = np.shape(points)[1]
+            self.vertex_indices = None
+            self.points_on_boundary = 0
+            self.points_on_boundary_rel = 0
+            self.region_measure = np.nan
+            self.subregion_measure = np.nan
 
-        self.dimension = np.shape(points)[1]
-        self.hull = spat.ConvexHull(points)
-        self.vertex_indices = self.hull.vertices
-        self.points_on_boundary = len(self.vertex_indices)
-        self.points_on_boundary_rel = self.points_on_boundary / len(points)
-        self.region_measure = self.hull.volume
-        self.subregion_measure = self.hull.area
 
     @property
     def vertices(self):
@@ -216,22 +221,27 @@ class _ConvexHullShapely:
         raise ImportError("shapely is required.")
 
     def __init__(self, points):
-        if len(points) < 6:
-            unique_points = np.array(list(set(tuple(point) for point in points)))
-            if len(unique_points) < 3:
-                raise TypeError('Convex_hull needs at least 3 different points as input.')
-
         self.dimension = np.shape(points)[1]
         if self.dimension >= 3:
             raise TypeError('ConvexHullShapely only takes 1 or 2-dimensional points as input.')
 
-        self.hull = MultiPoint(points).convex_hull
-        # todo: set vertex_indices
-        # self.vertex_indices = None
-        self.points_on_boundary = len(self.hull.exterior.coords)-1  # the first point is repeated in exterior.coords
-        self.points_on_boundary_rel = self.points_on_boundary / len(points)
-        self.region_measure = self.hull.area
-        self.subregion_measure = self.hull.length
+        try:
+            self.hull = MultiPoint(points).convex_hull
+            # todo: set vertex_indices
+            # self.vertex_indices = None
+            self.points_on_boundary = len(
+                self.hull.exterior.coords) - 1  # the first point is repeated in exterior.coords
+            self.points_on_boundary_rel = self.points_on_boundary / len(points)
+            self.region_measure = self.hull.area
+            self.subregion_measure = self.hull.length
+        except:
+            warnings.warn('A convex hull cannot be computed for the given localizations.', UserWarning)
+            self.hull = None
+            self.vertex_indices = None
+            self.points_on_boundary = 0
+            self.points_on_boundary_rel = 0
+            self.region_measure = np.nan
+            self.subregion_measure = np.nan
 
     @property
     def vertices(self):
@@ -346,40 +356,3 @@ class OrientedBoundingBox:
     #     angle =
     #     region_ = RoiRegion(region_type='rectangle', region_specs= (self.hull[0], self.width[0], self.width[1], 0))
     #     return region_
-
-
-def update_convex_hulls_in_collection(locdata, copy=False):
-    """
-    Compute the convex hull for each element in locdata.references and update locdata.dataframe.
-
-    Parameters
-    ----------
-    locdata : LocData
-        A LocData object that carries a collection of locdata in references.
-    copy : bool
-        If copy is False locdata is modified in place. If copy is True a copy of locdata with all modifications is
-        returned and locdata is kept unchanged.
-
-    Returns
-    -------
-    Locdata or None
-        Returns a copy of locdata with convex hull modifications if copy is True and None otherwise.
-    """
-    if copy:
-        # todo: add deep copy of locdata
-        raise NotImplementedError
-    else:
-        locdata_ = locdata
-
-    for reference in locdata_.references:
-        try:
-            reference.convex_hull = ConvexHull(reference.coordinates)
-            reference.properties['region_measure_ch'] = reference.convex_hull.region_measure
-            reference.properties['localization_density_ch'] = reference.properties['localization_count'] \
-                                                              / reference.convex_hull.region_measure
-        except TypeError:
-            reference.convex_hull = None
-
-    locdata_.dataframe = pd.DataFrame([reference.properties for reference in locdata_.references])
-
-    return locdata_ if copy is True else None

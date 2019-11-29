@@ -4,14 +4,10 @@ import pandas as pd
 
 from surepy.data import metadata_pb2
 from surepy.data.locdata import LocData
-from surepy.data.rois import RoiRegion
-
-# todo check for selections that return zero data points
-# todo check for empty dataframe
-# todo check for single localization
+from surepy.data.region import RoiRegion
 
 
-# fixtures
+# fixtures for DataFrames (fixtures for LocData are defined in conftest.py)
 
 @pytest.fixture()
 def df_simple():
@@ -58,10 +54,20 @@ def test_LocData(df_simple):
     assert dat.coordinate_labels == ['position_x', 'position_y']
     assert dat.dimension == 2
     assert np.array_equal(dat.centroid, [2., 1.8])
+    assert dat.centroid[0] == dat.properties['position_x']
     for x, y in zip(dat.coordinates, [[0, 0], [0, 1], [1, 3], [4, 4], [5, 1]]):
         assert np.all(x == np.array(y))
     assert dat.meta.comment == COMMENT_METADATA.comment
     # assert dat.meta.identifier == '1'  # this test runs ok for this testing this function alone.
+    assert dat.bounding_box.region_measure == 20
+    assert 'region_measure_bb' in dat.properties
+    assert 'localization_density_bb' in dat.properties
+    assert dat.convex_hull.region_measure == 12.5
+    assert 'region_measure_ch' in dat.properties
+    assert 'localization_density_ch' in dat.properties
+    assert dat.region is None
+    dat.region = dat.bounding_box.region
+    assert dat.region.region_type == dat.bounding_box.region.region_type
 
 
 def test_LocData_empty(df_empty):
@@ -69,11 +75,13 @@ def test_LocData_empty(df_empty):
     assert len(dat) == 0
     assert dat.coordinate_labels == []
     assert dat.dimension == 0
+    # hulls are tested with locdata fixtures further down.
 
 
 def test_LocData_from_dataframe(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
     # print(dat.properties.keys())
+    assert dat.bounding_box is not None
     assert list(dat.properties.keys()) == ['localization_count', 'position_x', 'position_y', 'region_measure_bb',
                                            'localization_density_bb', 'subregion_measure_bb']
     assert len(dat) == 5
@@ -87,15 +95,15 @@ def test_LocData_from_dataframe_empty(df_empty):
     # print(dat.data)
 
 
-# this test is not running wihtin complete test run. But it works when run by itself.
+# this test is not running within complete test run. But it works when run by itself.
 # def test_LocData_count(df_simple):
 #     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-#     assert (LocData.count == 1)
+#     assert LocData.count == 1
 #     dat_2 = LocData.from_dataframe(dataframe=df_simple)
 #     assert(dat.properties == dat_2.properties)
-#     assert (LocData.count == 2)
-#     del(dat)
-#     assert (LocData.count == 1)
+#     assert LocData.count == 2
+#     del dat
+#     assert LocData.count == 1
 
 
 def test_LocData_from_dataframe_with_meta_dict(df_simple):
@@ -111,6 +119,7 @@ def test_LocData_from_selection(df_simple):
     assert (len(sel) == 3)
     assert (sel.references is dat)
     assert (sel.meta.comment == COMMENT_METADATA.comment)
+    assert dat.bounding_box.region_measure != sel.bounding_box.region_measure
 
     sel_sel = LocData.from_selection(locdata=sel, indices=[1, 3], meta={'comment': 'Selection of a selection.'})
     assert sel_sel.meta.comment == 'Selection of a selection.'
@@ -129,6 +138,14 @@ def test_LocData_from_collection(df_simple):
     assert (len(col.references) == 2)
     assert (len(col) == 2)
     assert (col.meta.comment == COMMENT_METADATA.comment)
+    assert set(col.data.columns) == {'localization_count', 'localization_density_bb', 'position_x', 'position_y',
+                                     'region_measure_bb', 'subregion_measure_bb'}
+
+    with pytest.warns(UserWarning):
+        col.update_convex_hulls_in_references()
+    assert set(col.data.columns) == {'localization_count', 'localization_density_bb', 'position_x', 'position_y',
+                                     'region_measure_bb', 'subregion_measure_bb',
+                                     'region_measure_ch', 'localization_density_ch'}
     # print(col.properties)
 
 
@@ -167,7 +184,6 @@ def test_LocData_concat(df_simple):
     sel_1.reduce()
     col = LocData.concat([sel_1, sel_2], meta=COMMENT_METADATA)
     assert len(col.references) == 2
-    sel_1.reduce()
     sel_2.reduce()
     col = LocData.concat([sel_1, sel_2], meta=COMMENT_METADATA)
     assert col.references is None
@@ -177,8 +193,7 @@ def test_LocData_reduce(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
     sel_1 = LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
     sel_2 = LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
-    flag = sel_1.reduce()
-    assert (flag == 1)
+    sel_1.reduce()
     assert (len(sel_1) == 3)
     assert (len(sel_1.data) == len(sel_2.data))
 
@@ -257,6 +272,19 @@ def test_standard_locdata_objects(
         fixture_name, expected):
     dat = eval(fixture_name)
     assert len(dat) == expected
+
+
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_empty', pytest.warns(UserWarning)),
+    ('locdata_single_localization', pytest.warns(UserWarning)),
+])
+def test_locdata_hulls(
+        locdata_empty, locdata_single_localization,
+        fixture_name, expected):
+    dat = eval(fixture_name)
+    assert dat.bounding_box.region_measure == 0
+    with pytest.warns(UserWarning):
+        assert np.isnan(dat.convex_hull.region_measure)
 
 
 @pytest.mark.parametrize('fixture_name, expected', [

@@ -1,13 +1,12 @@
 import pytest
 import numpy as np
-from surepy.data.hulls import BoundingBox, ConvexHull, _ConvexHullScipy, _ConvexHullShapely, \
-    update_convex_hulls_in_collection
-from surepy.data.cluster.clustering import cluster_dbscan
+from surepy.data.hulls import BoundingBox, ConvexHull, _ConvexHullScipy, _ConvexHullShapely
 
 
-def test_BoundingBox(locdata_2d):
+def test_BoundingBox_2d(locdata_2d):
     true_hull = np.array([[1, 1], [5, 6]])
     hull = BoundingBox(locdata_2d.coordinates)
+    assert hull.width.shape == (2,)
     assert(locdata_2d.properties['region_measure_bb'] == hull.region_measure == 20)
     assert(hull.subregion_measure == 18)
     np.testing.assert_array_equal(hull.hull, true_hull)
@@ -17,7 +16,8 @@ def test_BoundingBox(locdata_2d):
 def test_BoundingBox_3d(locdata_3d):
     true_hull = np.array([[1, 1, 1], [5, 6, 5]])
     hull = BoundingBox(locdata_3d.coordinates)
-    assert(locdata_3d.properties['region_measure_bb'] == hull.region_measure == 80)
+    assert hull.width.shape == (3,)
+    assert(hull.region_measure == 80)
     assert(hull.subregion_measure == 26)
     np.testing.assert_array_equal(hull.hull, true_hull)
     with pytest.raises(NotImplementedError):
@@ -34,17 +34,6 @@ def test_BoundingBox(locdata_empty, locdata_single_localization, locdata_non_sta
     locdata = eval(fixture_name)
     hull = BoundingBox(locdata.coordinates)
     assert hull.region_measure == expected
-
-
-def test_update_convex_hulls_in_collection(locdata_blobs_2d):
-    clust = cluster_dbscan(locdata_blobs_2d, eps=100, min_samples=4)
-    assert (len(clust) == 5)
-
-    new_collection = update_convex_hulls_in_collection(clust, copy=False)
-    assert new_collection is None
-    # print(clust.references[0].properties)
-    assert 'region_measure_ch' in clust.references[0].properties
-    assert 'localization_density_ch' in clust.references[0].properties
 
 
 def test_ConvexHullScipy(locdata_2d):
@@ -104,9 +93,11 @@ def test_ConvexHull_3d(locdata_3d):
     ('locdata_single_localization', 0)
 ])
 def test_ConvexHull(locdata_empty, locdata_single_localization,
-                     fixture_name, expected):
+                    fixture_name, expected):
     locdata = eval(fixture_name)
-    with pytest.raises(TypeError):
-        ConvexHull(locdata.coordinates, method='scipy')
-    with pytest.raises(TypeError):
-        ConvexHull(locdata.coordinates, method='shapely')
+    with pytest.warns(UserWarning):
+        hull = ConvexHull(locdata.coordinates, method='scipy')
+    assert np.isnan(hull.region_measure)
+    with pytest.warns(UserWarning):
+        hull = ConvexHull(locdata.coordinates, method='shapely')
+    assert np.isnan(hull.region_measure)

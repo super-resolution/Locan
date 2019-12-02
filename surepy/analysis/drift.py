@@ -79,7 +79,7 @@ def _estimate_drift_open3d(locdata, chunk_size=1000, target='first'):
             matrices.append(matrix)
             offsets.append(offset)
     results = namedtuple('results', 'collection matrices offsets')
-    return results(collection=collection, matrices=matrices, offsets=offsets)
+    return results(collection=collection, matrices=np.array(matrices), offsets=np.array(offsets))
 
 
 ##### The specific analysis classes
@@ -139,3 +139,50 @@ class Drift(_Analysis):
         results = namedtuple('results', 'matrices offsets')
         self.results = results(matrices=drift_results.matrices, offsets=drift_results.offsets)
         return self
+
+    def plot(self, ax=None, results_field='matrices', element=(0, 0), window=1, **kwargs):
+        """
+        Provide plot as matplotlib axes object showing the running average of results over window size.
+
+        Parameters
+        ----------
+        ax : matplotlib axes
+            The axes on which to show the image
+        element : string
+            The element of results to be plotted; if None all plots are shown.
+            One of 'matrices[:, 0, 0]' or 'offsets[:, 0]
+        window: int
+            Window for running average that is applied before plotting.
+            Not implemented yet.
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Other parameters passed to matplotlib.pyplot.plot().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
+        """
+        from operator import itemgetter
+        if ax is None:
+            ax = plt.gca()
+
+        n_transformations = len(self.collection)-1
+        # prepare plot
+        x = [reference.data.frame.mean() for reference in self.collection.references[1:]]
+        if element is None:
+            ys = getattr(self.results, results_field).reshape(n_transformations, -1).T
+            for y in ys:
+                ax.plot(x, y, **kwargs)
+        else:
+            y = getattr(self.results, results_field).reshape(n_transformations, -1).T[element]
+            ax.plot(x, y, **kwargs)
+
+        ax.set(title=f'Drift\n (window={window})',
+               xlabel='frame',
+               ylabel=''.join([results_field, '[', str(element) , ']'])
+               )
+
+        return ax

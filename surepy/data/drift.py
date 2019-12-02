@@ -21,8 +21,6 @@ Methods employed for drift estimation comprise single molecule localization anal
    Opt Express. 2011 Aug 1;19(16):15009-19.
 
 """
-from itertools import accumulate
-
 import numpy as np
 import pandas as pd
 
@@ -33,7 +31,7 @@ except ImportError:
     _has_open3d = False
 
 from surepy.data.locdata import LocData
-from surepy.data.register import _register_icp_open3d
+from surepy.analysis.drift import Drift
 from surepy.data.transform.transformation import transform_affine
 
 
@@ -64,49 +62,18 @@ def drift_correction(locdata, chunk_size=1000, target='first'):
 
     local_parameter = locals()
 
-    # split in chunks
-    chunk_sizes = [chunk_size] * (len(locdata) // chunk_size) + [(len(locdata) % chunk_size)]
-    cum_chunk_sizes = list(accumulate(chunk_sizes))
-    cum_chunk_sizes.insert(0, 0)
-    index_lists = [locdata.data.index[slice(lower, upper)]
-                   for lower, upper in zip(cum_chunk_sizes[:-1], cum_chunk_sizes[1:])]
-    locdatas = [LocData.from_selection(locdata=locdata, indices=index_list) for index_list in index_lists]
-    # return locdatas
+    drift = Drift(chunk_size=chunk_size, target=target).compute(locdata)
 
-    # register and transform locdata
-    matrices = []
-    offsets = []
     transformed_locdatas = []
     if target is 'first':
-        for locdata in locdatas[1:]:
-            matrix, offset = _register_icp_open3d(locdata.coordinates, locdatas[0].coordinates,
-                                                  matrix=None, offset=None, pre_translation=None,
-                                                  max_correspondence_distance=100, max_iteration=10_000,
-                                                  verbose=False)
-            matrices.append(matrix)
-            offsets.append(offset)
-
-        transformed_locdatas = [transform_affine(locdata, matrix, offset)
-                                for locdata, matrix, offset in zip(locdatas[1:], matrices, offsets)]
-
+        transformed_locdatas = [transform_affine(locdata, matrix, offset) for locdata, matrix, offset
+                                in zip(drift.collection.references[1:], drift.results.matrices, drift.results.offsets)]
     elif target is 'previous':
-        for n in range(len(locdatas)-1):
-            matrix, offset = _register_icp_open3d(locdatas[n+1].coordinates, locdatas[n].coordinates,
-                                                  matrix=None, offset=None, pre_translation=None,
-                                                  max_correspondence_distance=100, max_iteration=10_000,
-                                                  with_scaling=False, verbose=False)
-            matrices.append(matrix)
-            offsets.append(offset)
-
-        for n, locdata in enumerate(locdatas[1:]):
+        for n, locdata in enumerate(drift.collection.references[1:]):
             transformed_locdata = locdata
-            for matrix, offset in zip(reversed(matrices[:n]), reversed(offsets[:n])):
+            for matrix, offset in zip(reversed(drift.results.matrices[:n]), reversed(drift.results.offsets[:n])):
                 transformed_locdata = transform_affine(transformed_locdata, matrix, offset)
             transformed_locdatas.append(transformed_locdata)
-    # return matrices, offsets
 
-    new_locdata = LocData.concat([locdatas[0]] + transformed_locdatas)
-    return new_locdata, matrices, offsets
-
-# todo: class Drift carrying the drift estimate. Show drift as function of frame and fit continuous function.
-#  Plus function to apply drift correction.
+    new_locdata = LocData.concat([drift.collection.references[0]] + transformed_locdatas)
+    return new_locdata

@@ -21,6 +21,7 @@ Submodules:
    cbc
    accumulation_analysis
    blinking
+   drift
 
 """
 
@@ -35,6 +36,7 @@ from surepy.analysis.uncertainty import *
 from surepy.analysis.cbc import *
 from surepy.analysis.accumulation_analysis import *
 from surepy.analysis.blinking import *
+from surepy.analysis.drift import *
 
 __all__ = []
 __all__.extend(localization_precision.__all__)
@@ -47,3 +49,4 @@ __all__.extend(uncertainty.__all__)
 __all__.extend(cbc.__all__)
 __all__.extend(accumulation_analysis.__all__)
 __all__.extend(blinking.__all__)
+__all__.extend(drift.__all__)

@@ -275,15 +275,15 @@ def test_standard_locdata_objects(
 
 
 @pytest.mark.parametrize('fixture_name, expected', [
-    ('locdata_empty', pytest.warns(UserWarning)),
-    ('locdata_single_localization', pytest.warns(UserWarning)),
+    ('locdata_empty', pytest.raises(AttributeError)),
+    ('locdata_single_localization', pytest.raises(AttributeError)),
 ])
 def test_locdata_hulls(
         locdata_empty, locdata_single_localization,
         fixture_name, expected):
     dat = eval(fixture_name)
     assert dat.bounding_box.region_measure == 0
-    with pytest.warns(UserWarning):
+    with expected:
         assert np.isnan(dat.convex_hull.region_measure)
 
 
@@ -312,3 +312,20 @@ def test_locdata_from_selection_(
     assert list(sel.data.index) == [1, 2, 5]
     assert (sel.references is dat)
     assert (sel.meta.comment == COMMENT_METADATA.comment)
+
+
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_empty', (1, (0,))),
+    ('locdata_single_localization', (1, (1,))),
+    ('locdata_2d', (4, (2, 2, 2, 0))),
+    ('locdata_non_standard_index', (4, (2, 2, 2, 0)))
+])
+def test_locdata_from_chunks(
+        locdata_empty, locdata_single_localization, locdata_2d, locdata_non_standard_index,
+        fixture_name, expected):
+    dat = eval(fixture_name)
+    chunk_collection = LocData.from_chunks(locdata=dat, chunk_size=2, meta=COMMENT_METADATA)
+    assert isinstance(chunk_collection.references, list)
+    assert len(chunk_collection) == expected[0]
+    assert all(chunk_collection.data.localization_count == expected[1])
+    assert chunk_collection.meta.comment == COMMENT_METADATA.comment

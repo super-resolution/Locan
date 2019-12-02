@@ -5,6 +5,7 @@ A class to carry localization data.
 """
 import time
 import warnings
+from itertools import accumulate
 
 from google.protobuf import text_format
 import numpy as np
@@ -378,6 +379,52 @@ class LocData:
         meta_.state = metadata_pb2.MODIFIED
         meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdatas]
         meta_.history.add(name='concat')
+
+        if meta is None:
+            pass
+        elif isinstance(meta, dict):
+            for key, value in meta.items():
+                setattr(meta_, key, value)
+        else:
+            meta_.MergeFrom(meta)
+
+        return cls(references=references, dataframe=dataframe, meta=meta_)
+
+    @classmethod
+    def from_chunks(cls, locdata, chunk_size, meta=None):
+        """
+        Divide locdata in chunks of successive elements.
+
+        Parameters
+        ----------
+        locdatas : list of LocData objects
+            Locdata objects to concatenate.
+        chunk_size : int
+            Number of localizations per chunk
+        meta : Metadata protobuf message
+            Metadata about the current dataset and its history.
+
+        Returns
+        -------
+        LocData object
+            A new LocData instance with references and dataframe elements representing the individual chunks.
+        """
+        chunk_sizes = [chunk_size] * (len(locdata) // chunk_size) + [(len(locdata) % chunk_size)]
+        cum_chunk_sizes = list(accumulate(chunk_sizes))
+        cum_chunk_sizes.insert(0, 0)
+        index_lists = [locdata.data.index[slice(lower, upper)]
+                       for lower, upper in zip(cum_chunk_sizes[:-1], cum_chunk_sizes[1:])]
+        references = [LocData.from_selection(locdata=locdata, indices=index_list) for index_list in index_lists]
+
+        dataframe = pd.DataFrame([ref.properties for ref in references])
+
+        meta_ = metadata_pb2.Metadata()
+
+        meta_.creation_date = int(time.time())
+        meta_.source = metadata_pb2.DESIGN
+        meta_.state = metadata_pb2.RAW
+        meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
+        meta_.history.add(name='LocData.chunks')
 
         if meta is None:
             pass

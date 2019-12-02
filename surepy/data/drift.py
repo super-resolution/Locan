@@ -21,9 +21,6 @@ Methods employed for drift estimation comprise single molecule localization anal
    Opt Express. 2011 Aug 1;19(16):15009-19.
 
 """
-import numpy as np
-import pandas as pd
-
 try:
     import open3d as o3d
     _has_open3d = True
@@ -38,7 +35,7 @@ from surepy.data.transform.transformation import transform_affine
 __all__ = ['drift_correction']
 
 
-def drift_correction(locdata, chunk_size=1000, target='first'):
+def drift_correction(locdata, chunk_size=1000, target='first', analysis_class=None):
     """
     Transform coordinates to correct for slow drift by registering points in successive time-chunks of localization
     data using an "Iterative Closest Point" algorithm.
@@ -51,6 +48,8 @@ def drift_correction(locdata, chunk_size=1000, target='first'):
         Number of consecutive localizations to form a single chunk of data.
     target : string
         The chunk on which all other chunks are aligned. One of 'first', 'previous'.
+    analysis_class : Drift object
+        Precomputed Drift (Analysis) class
 
     Returns
     -------
@@ -62,7 +61,10 @@ def drift_correction(locdata, chunk_size=1000, target='first'):
 
     local_parameter = locals()
 
-    drift = Drift(chunk_size=chunk_size, target=target).compute(locdata)
+    if analysis_class is None:
+        drift = Drift(chunk_size=chunk_size, target=target).compute(locdata)
+    else:
+        drift = analysis_class
 
     transformed_locdatas = []
     if target is 'first':
@@ -76,4 +78,6 @@ def drift_correction(locdata, chunk_size=1000, target='first'):
             transformed_locdatas.append(transformed_locdata)
 
     new_locdata = LocData.concat([drift.collection.references[0]] + transformed_locdatas)
+
+    # todo: add meta data
     return new_locdata

@@ -95,9 +95,7 @@ def test_ConvexHull_3d(locdata_3d):
 def test_ConvexHull(locdata_empty, locdata_single_localization,
                     fixture_name, expected):
     locdata = eval(fixture_name)
-    with pytest.warns(UserWarning):
+    with pytest.raises(TypeError):
         hull = ConvexHull(locdata.coordinates, method='scipy')
-    assert np.isnan(hull.region_measure)
-    with pytest.warns(UserWarning):
+    with pytest.raises(TypeError):
         hull = ConvexHull(locdata.coordinates, method='shapely')
-    assert np.isnan(hull.region_measure)

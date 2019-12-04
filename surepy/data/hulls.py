@@ -18,8 +18,7 @@ except ImportError:
 from surepy.data.region import RoiRegion
 
 
-__all__ = ['BoundingBox', 'ConvexHull', '_ConvexHullShapely', 'OrientedBoundingBox',
-           'update_convex_hulls_in_collection']
+__all__ = ['BoundingBox', 'ConvexHull', '_ConvexHullShapely', 'OrientedBoundingBox']
 
 
 class Hull:
@@ -346,40 +345,3 @@ class OrientedBoundingBox:
     #     angle =
     #     region_ = RoiRegion(region_type='rectangle', region_specs= (self.hull[0], self.width[0], self.width[1], 0))
     #     return region_
-
-
-def update_convex_hulls_in_collection(locdata, copy=False):
-    """
-    Compute the convex hull for each element in locdata.references and update locdata.dataframe.
-
-    Parameters
-    ----------
-    locdata : LocData
-        A LocData object that carries a collection of locdata in references.
-    copy : bool
-        If copy is False locdata is modified in place. If copy is True a copy of locdata with all modifications is
-        returned and locdata is kept unchanged.
-
-    Returns
-    -------
-    Locdata or None
-        Returns a copy of locdata with convex hull modifications if copy is True and None otherwise.
-    """
-    if copy:
-        # todo: add deep copy of locdata
-        raise NotImplementedError
-    else:
-        locdata_ = locdata
-
-    for reference in locdata_.references:
-        try:
-            reference.convex_hull = ConvexHull(reference.coordinates)
-            reference.properties['region_measure_ch'] = reference.convex_hull.region_measure
-            reference.properties['localization_density_ch'] = reference.properties['localization_count'] \
-                                                              / reference.convex_hull.region_measure
-        except TypeError:
-            reference.convex_hull = None
-
-    locdata_.dataframe = pd.DataFrame([reference.properties for reference in locdata_.references])
-
-    return locdata_ if copy is True else None

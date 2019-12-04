@@ -229,3 +229,11 @@ def test_rasterize_(locdata_empty):
         rasterize(locdata=locdata_empty, support=None, n_regions=(5, 2))
     with pytest.raises(ValueError):
         rasterize(locdata=locdata_empty, support=((0, 10), (10, 20)), n_regions=(5, 2))
+
+
+def test_rasterize_3d(locdata_3d):
+    res = rasterize(locdata=locdata_3d, support=None, n_regions=(5, 2), properties_for_roi=['position_x', 'position_z'])
+    assert res[0]._region.region_type == 'rectangle'
+    assert res[0].properties_for_roi == ['position_x', 'position_z']
+    assert repr(res[0]._region.region_specs) == 'RegionSpecs(corner=(1.0, 1.0), width=0.8, height=2.0, angle=0)'
+    assert len(res) == 10

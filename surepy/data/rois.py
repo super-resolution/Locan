@@ -371,7 +371,8 @@ def select_by_drawing(locdata, region_type='rectangle', **kwargs):
     return roi_list
 
 
-def rasterize(locdata, support=None, n_regions=(2, 2, 2)):
+# todo generalize to take all properties_for_roi
+def rasterize(locdata, support=None, n_regions=(2, 2, 2), properties_for_roi=()):
     """
     Provide regions of interest by dividing the locdata support in equally sized rectangles.
 
@@ -381,8 +382,12 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2)):
         The localization data from which to select localization data.
     support : tuple of tuples or None
         Coordinate intervals that are divided in `n_regions` subintervals.
+        For None intervals are taken from the bounding box.
     n_regions : tuple with size 2 or 3.
         Number of regions in each dimension. E.g. `n_regions` = (2, 2) returns 4 rectangular Roi objects.
+    properties_for_roi : tuple of string
+        Localization properties in LocData object on which the region selection will be applied.
+        (Only implemented for coordinates labels)
 
     Returns
     -------
@@ -392,13 +397,21 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2)):
     if len(locdata) == 0:
         raise ValueError('Not implemented for empty LocData objects.')
 
+    if not set(properties_for_roi).issubset(locdata.coordinate_labels):
+        raise ValueError('properties_for_roi must be tuple with coordinate labels.')
+
+    if properties_for_roi:
+        coordinate_labels_indices = [locdata.coordinate_labels.index(pfr) for pfr in properties_for_roi]
+    else:
+        coordinate_labels_indices = range(len(n_regions))
+
     # specify support
     if support is None:
-        support_ = locdata.bounding_box.vertices
+        support_ = locdata.bounding_box.vertices[coordinate_labels_indices]
         if len(locdata.bounding_box.width) is 0:
             widths = np.zeros(len(n_regions))
         else:
-            widths = locdata.bounding_box.width / n_regions
+            widths = locdata.bounding_box.width[coordinate_labels_indices] / n_regions
     else:
         support_ = support
         widths = np.diff(support_).flatten() / n_regions
@@ -421,5 +434,6 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2)):
         raise ValueError('The shape of n_regions is incompatible.')
 
     new_rois = tuple([Roi(reference=locdata, region_specs=region_specs,
-                          region_type=region_type) for region_specs in region_specs_list])
+                          region_type=region_type, properties_for_roi=properties_for_roi)
+                      for region_specs in region_specs_list])
     return new_rois

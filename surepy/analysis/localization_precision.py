@@ -170,7 +170,7 @@ class LocalizationPrecision(_Analysis):
         ----------
         ax : matplotlib axes
             The axes on which to show the image
-        loc_property : LocData property
+        loc_property : str or list(str)
             The property for which to plot localization precision; if None all plots are shown.
         window: int
             Window for running average that is applied before plotting.
@@ -210,7 +210,7 @@ class LocalizationPrecision(_Analysis):
         ----------
         ax : matplotlib axes
             The axes on which to show the image
-        loc_property : LocData property
+        loc_property : str
             The property for which to plot localization precision.
         bins : float
             Bin specifications (passed to matplotlib.hist).
@@ -505,7 +505,7 @@ class _DistributionFits:
 
         Parameters
         ----------
-        loc_property : LocData property
+        loc_property : str
             The property for which to fit an appropriate distribution
 
         Other Parameters
@@ -547,7 +547,7 @@ class _DistributionFits:
         ----------
         ax : matplotlib axes
             The axes on which to show the image.
-        loc_property : LocData property
+        loc_property : str
             The property for which to plot the distribution fit.
 
         Other Parameters

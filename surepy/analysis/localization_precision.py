@@ -154,7 +154,12 @@ class LocalizationPrecision(_Analysis):
         kwargs : dict
             Parameters passed to the `distribution.fit()` method.
         """
+        if self.results is None:
+            warnings.warn(UserWarning('None object cannot be fitted.'))
+            return
+
         self.distribution_statistics = _DistributionFits(self)
+
         if loc_property is None:
             for prop in ['position_delta_x', 'position_delta_y', 'position_delta_z', 'position_distance']:
                 if prop in self.results.columns:
@@ -489,15 +494,18 @@ class _DistributionFits:
         self.parameters = []
 
         # continuous distributions
-        delta_columns = [c for c in self.analysis_class.results.columns if 'position_delta' in c]
-        if len(delta_columns) == 1:
-            self.pairwise_distribution = PairwiseDistance1dIdenticalSigmaZeroMu(name='pairwise', a=0.)
-        elif len(delta_columns) == 2:
-            self.pairwise_distribution = PairwiseDistance2dIdenticalSigmaZeroMu(name='pairwise', a=0.)
-        elif len(delta_columns) == 3:
-            self.pairwise_distribution = PairwiseDistance3dIdenticalSigmaZeroMu(name='pairwise', a=0.)
-        # a is the lower bound of the support of the distribution
-        # self.pairwise_distribution = PairwiseDistance2dIdenticalSigma(name='pairwise') also works but is very slow.
+        if self.analysis_class.results is None:
+            self.pairwise_distribution = None
+        else:
+            delta_columns = [c for c in self.analysis_class.results.columns if 'position_delta' in c]
+            if len(delta_columns) == 1:
+                self.pairwise_distribution = PairwiseDistance1dIdenticalSigmaZeroMu(name='pairwise', a=0.)
+            elif len(delta_columns) == 2:
+                self.pairwise_distribution = PairwiseDistance2dIdenticalSigmaZeroMu(name='pairwise', a=0.)
+            elif len(delta_columns) == 3:
+                self.pairwise_distribution = PairwiseDistance3dIdenticalSigmaZeroMu(name='pairwise', a=0.)
+            # a is the lower bound of the support of the distribution
+            # self.pairwise_distribution = PairwiseDistance2dIdenticalSigma(name='pairwise') also works but is very slow.
 
     def fit(self, loc_property='position_distance', **kwargs):
         """
@@ -513,6 +521,10 @@ class _DistributionFits:
         kwargs : dict
             Parameters passed to the `distribution.fit()` method.
         """
+        if self.analysis_class.results is None:
+            warnings.warn(UserWarning('None object cannot be fitted.'))
+            return
+
         # prepare parameters
         if 'position_delta_' in loc_property:
             self.distribution = stats.norm

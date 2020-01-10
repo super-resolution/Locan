@@ -915,7 +915,7 @@ def simulate_tracks(number_walks=1, number_steps=10, ranges=((0, 10000), (0, 100
     number_steps : int
         Number of time steps (i.e. frames)
     ranges : tuple of tuples of two ints
-        the ranges for valid x[, y, z]-coordinates
+        the range for valid x[, y, z]-coordinates
     diffusion_constant : int or float
         Diffusion constant with unit length per seconds^2
     time_step : float

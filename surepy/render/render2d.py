@@ -15,51 +15,268 @@ import surepy.data.properties.locdata_statistics
 from surepy.constants import COLORMAP_CONTINUOUS
 
 
-__all__ = ['render_2d']
+__all__ = ['adjust_contrast', 'histogram', 'render_2d', 'render_2d_mpl']
 
 
-def _coordinate_ranges(locdata, ranges='auto'):
+# todo: add DataFrame input
+def _coordinate_ranges(locdata, range=None):
     """
-    Provide coordinate ranges for locdata that can be fed into a binning algorithm.
+    Provide coordinate range for locdata that can be fed into a binning algorithm.
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : pandas DataFrame or LocData object
         Localization data.
-    ranges : tuple with shape (dimension, 2) or 'auto' or 'zero'
-        ((min_x, max_x), (min_y, max_y), ...) ranges for each coordinate;
-        for 'auto' (min, max) ranges are determined from data;
-        for 'zero' (0, max) ranges with max determined from data.
+    range : tuple with shape (dimension, 2) or None or 'zero'
+        ((min_x, max_x), (min_y, max_y), ...) range for each coordinate;
+        for None (min, max) range are determined from data;
+        for 'zero' (0, max) range with max determined from data.
 
     Returns
     -------
     numpy array of float with shape (dimension, 2)
         A range (min, max) for each available coordinate.
     """
-    if isinstance(ranges, str):
-        if ranges == 'auto':
-            ranges_ = locdata.bounding_box.hull.T
-
-        elif ranges == 'zero':
+    if range is None:
+        ranges_ = locdata.bounding_box.hull.T
+    elif isinstance(range, str):
+        if range == 'zero':
             ranges_ = locdata.bounding_box.hull
             ranges_[0] = np.zeros(len(ranges_))
             ranges_ = ranges_.T
         else:
-            raise ValueError(f'The parameter ranges={ranges} is not defined.')
+            raise ValueError(f'The parameter range={range} is not defined.')
     else:
-        if np.ndim(ranges)!=locdata.dimension:
-            raise TypeError(f'The tuple ranges must have the same dimension as locdata.')
+        if np.ndim(range)!=locdata.dimension:
+            raise TypeError(f'The tuple {range} must have the same dimension as locdata which is {locdata.dimension}.')
         else:
-            ranges_ = np.asarray(ranges)
+            ranges_ = np.asarray(range)
 
     return ranges_
 
 
+def _bin_number(range, bin_size):
+    """
+    Compute the number of bins from bin_size and range.
+
+    Parameters
+    ----------
+    range : tuple of shape (2,)
+        min and max value fo bin edges.
+    bin_size : float
+        bin size
+
+    Returns
+    -------
+    int or numpy array of int
+    """
+    range_ = np.asarray(range)
+    bin_size_ = np.asarray(bin_size)
+
+    if np.ndim(range_) == 1 and np.ndim(bin_size_) == 0:
+        bin_number = np.ceil((range_[1] - range_[0]) / bin_size_)
+    elif np.ndim(range_) > 1 and np.ndim(bin_size_) == 0:
+        bin_number = np.ceil((range_[:, 1] - range_[:, 0]) / bin_size_)
+    elif np.ndim(range_) > 1 and np.ndim(bin_size_) > 0:
+        bin_number = np.ceil((range_[:, 1] - range_[:, 0]) / bin_size_)
+    elif np.ndim(range_) == 1 and np.ndim(bin_size_) > 0:
+        bin_number = np.ceil((range_[1] - range_[0]) / bin_size_)
+    else:
+        raise TypeError('Incompatible dimensions.')
+
+    bin_number = bin_number.astype(int)
+    return bin_number
 
 
+def adjust_contrast(img, rescale=True, **kwargs):
+    """
+    Adjust contrast of img by equalization or rescaling all values.
 
-def render_2d(locdata, ax=None, bin_size=10, ranges='auto', rescale=True,
-              cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
+    Parameters
+    ----------
+    img : array-like
+        Values to be adjusted
+    rescale : True, tuple, False or None, 'equal', or 'unity.
+        Rescale intensity values to be within percentile of max and min intensities
+        (tuple with upper and lower bounds provided in percent).
+        For True intensity values are rescaled to the min and max possible values of the given representation.
+        For 'equal' intensity values are rescaled by histogram equalization.
+        For 'unity' intensity values are rescaled to (0, 1).
+        For None or False no rescaling occurs.
+
+    Other Parameters
+    ----------------
+    kwargs : dict
+        For 'rescale' = True kwargs are passed to exposure.rescale_intensity().
+        For 'rescale' = 'equal' kwargs are passed to exposure.equalize_hist().
+
+    Returns
+    -------
+    numpy array
+    """
+    if rescale is None or rescale is False:
+        pass
+    elif rescale is True:
+        img = exposure.rescale_intensity(img, **kwargs)  # scaling to min/max of img intensities
+    elif rescale == 'equal':
+        img = exposure.equalize_hist(img, **kwargs)
+    elif rescale == 'unity':
+        img = exposure.rescale_intensity(img *1., **kwargs)
+    elif isinstance(rescale, tuple):
+        p_low, p_high = np.percentile(img, rescale)
+        img = exposure.rescale_intensity(img, in_range=(p_low, p_high))
+    else:
+        raise TypeError('Set rescale to tuple, None or "equal".')
+
+    return img
+
+
+    # elif isinstance(rescale, tuple):
+    #     minmax = (img.min(), img.max())
+    #     print('minmax:', minmax)
+    #     rescale_abs = tuple(np.multiply(np.divide(rescale, 100), (minmax[1] - minmax[0])) + minmax[0])
+    #     print('rescale_abs:', rescale_abs)
+    #     img = exposure.rescale_intensity(img, in_range=rescale_abs)
+    #     print(img)
+
+
+def _fast_histo_mean(x, y, values, bins, range):
+    """
+    Provide histogram with averaged values for all counts in each bin.
+
+    Parameters
+    ----------
+    x : array-like
+        first coordinate values
+    y : array-like
+        second coordinate values
+    values : int or float
+        property to be averaged
+    bins : sequence or int or None
+        The bin specification as defined in fast_histogram_histogram2d:
+            A sequence of arrays describing the monotonically increasing bin edges along each dimension.
+            The number of bins for each dimension (nx, ny, … =bins)
+    range : tuple with shape (dimension, 2) or None
+        range as requested by fast_histogram_histogram2d
+
+    Returns
+    -------
+    ndarray
+    """
+    hist_1 = fast_histogram.histogram2d(x, y, range=range, bins=bins)
+    hist_w = fast_histogram.histogram2d(x, y, range=range, bins=bins, weights=values)
+
+    with np.errstate(divide='ignore', invalid='ignore'):
+        hist_mean = np.true_divide(hist_w, hist_1)
+        hist_mean[hist_mean == np.inf] = 0
+        hist_mean = np.nan_to_num(hist_mean)
+
+    return hist_mean
+
+
+def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None, rescale=None):
+    """
+    Make histogram of loc_properties by binning all localizations or averaging other_property within each bin.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        Localization data.
+    loc_properties : list or None
+        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
+    other_property : str or None
+        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
+        shown.
+    bins : sequence or int or None
+        The bin specification as defined in numpy.histogramdd:
+            A sequence of arrays describing the monotonically increasing bin edges along each dimension.
+            The number of bins for each dimension (nx, ny, … =bins)
+            The number of bins for all dimensions (nx=ny=…=bins).
+    bin_size : float or None
+        The bin size in units of locdata coordinate units. Either bins or bin_size must be specified but not both.
+    range : tuple with shape (dimension, 2) or None or 'zero'
+        ((min_x, max_x), (min_y, max_y), ...) range for each coordinate;
+        for None (min, max) range are determined from data;
+        for 'zero' (0, max) range with max determined from data.
+    rescale : True, tuple, False or None, 'equal', or 'unity.
+        Rescale intensity values to be within percentile of max and min intensities
+        (tuple with upper and lower bounds provided in percent).
+        For True intensity values are rescaled to the min and max possible values of the given representation.
+        For 'equal' intensity values are rescaled by histogram equalization.
+        For 'unity' intensity values are rescaled to (0, 1).
+        For None or False no rescaling occurs.
+
+    Returns
+    -------
+    tuple
+        (img, range, bins, label)
+    """
+    # todo: adjust for loc_property input
+    range_ = _coordinate_ranges(locdata, range=range)
+
+    if bins is not None and bin_size is not None:
+        raise ValueError('Only one of bins and bin_size can be different from None.')
+    elif bins is not None and bin_size is None:
+        bins_ = bins
+    elif bins is None and bin_size is not None:
+        bins_ = _bin_number(range_, bin_size)
+    else:
+        raise ValueError('One of bins or bin_size must be different from None.')
+
+    if loc_properties is None:
+        data = locdata.coordinates.T
+        labels = list(locdata.coordinate_labels)
+    elif isinstance(loc_properties, str) and loc_properties in locdata.coordinate_labels:
+        data = locdata.data[loc_properties].values.T
+        range_ = range_[locdata.coordinate_labels.index(loc_properties)]
+        bins_ = bins_[locdata.coordinate_labels.index(loc_properties)]
+        labels = list(loc_properties)
+    elif isinstance(loc_properties, (list, tuple)):
+        for prop in loc_properties:
+            if prop not in locdata.coordinate_labels:
+                raise ValueError(f'{prop} is not a valid property in locdata.')
+        data = locdata.data[list(loc_properties)].values.T
+        labels = list(loc_properties)
+    else:
+        raise ValueError(f'{loc_properties} is not a valid property in locdata.')
+
+    if other_property is None:
+        # histogram data by counting points
+        if np.ndim(data) == 1:
+            img = fast_histogram.histogram1d(data, range=range_, bins=bins_)
+        elif data.shape[0] == 2:
+            img = fast_histogram.histogram2d(*data, range=range_, bins=bins_)
+            img = img.T  # to show image in the same format as scatter plot
+        elif data.shape[0] == 3:
+            raise NotImplementedError
+        else:
+            raise TypeError('No more than 3 elements in loc_properties are allowed.')
+        labels.append('counts')
+
+    elif other_property in locdata.data.columns:
+        # histogram data by averaging values
+        if np.ndim(data) == 1:
+            raise NotImplementedError
+        elif data.shape[0] == 2:
+            values = locdata.data[other_property].values
+            img = _fast_histo_mean(*data, values, range=range_, bins=bins_)
+            img = img.T  # to show image in the same format as scatter plot
+        elif data.shape[0] == 3:
+            raise NotImplementedError
+        else:
+            raise TypeError('No more than 3 elements in loc_properties are allowed.')
+        labels.append(other_property)
+    else:
+        raise TypeError(f'No valid property name {other_property}.')
+
+    if rescale:
+        img = adjust_contrast(img, rescale)
+
+    return img, range_, bins_, labels
+
+
+def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None, rescale=None,
+              ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
 
@@ -67,19 +284,31 @@ def render_2d(locdata, ax=None, bin_size=10, ranges='auto', rescale=True,
     ----------
     locdata : LocData object
         Localization data.
-    ax : matplotlib axes
-        The axes on which to show the image
-    bin_size : int or float
-        x and y size of bins
-    ranges : [[min,max],[min,max]] or 'auto' (default) or 'zero'
-        defining the binned region by [min, max] ranges from input;
-        for 'auto' by [min, max] ranges from data; for 'zero' by [0, max] ranges from data.
-    rescale : True (default), tuple, None, or 'equal'
-        rescale intensity values to be within percentile of max and min intensities
+    loc_properties : list or None
+        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
+    other_property : str or None
+        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
+        shown.
+    bins : sequence or int or None
+        The bin specification as defined in numpy.histogramdd:
+            A sequence of arrays describing the monotonically increasing bin edges along each dimension.
+            The number of bins for each dimension (nx, ny, … =bins)
+            The number of bins for all dimensions (nx=ny=…=bins).
+    bin_size : float or None
+        The bin size in units of locdata coordinate units. Either bins or bin_size must be specified but not both.
+    range : tuple with shape (dimension, 2) or None or 'zero'
+        ((min_x, max_x), (min_y, max_y), ...) range for each coordinate;
+        for None (min, max) range are determined from data;
+        for 'zero' (0, max) range with max determined from data.
+    rescale : True, tuple, False or None, 'equal', or 'unity.
+        Rescale intensity values to be within percentile of max and min intensities
         (tuple with upper and lower bounds provided in percent).
         For True intensity values are rescaled to the min and max possible values of the given representation.
         For 'equal' intensity values are rescaled by histogram equalization.
-        For None no rescaling occurs.
+        For 'unity' intensity values are rescaled to (0, 1).
+        For None or False no rescaling occurs.
+    ax : matplotlib axes
+        The axes on which to show the image
     cmap : str or Colormap instance
         The colormap used to map normalized data values to RGBA colors.
     cbar : bool
@@ -105,36 +334,9 @@ def render_2d(locdata, ax=None, bin_size=10, ranges='auto', rescale=True,
     if ax is None:
         ax = plt.gca()
 
-    # determine ranges
-    ranges_ = _coordinate_ranges(locdata, ranges=ranges)
+    img, range_, bins_, label = histogram(locdata, loc_properties, other_property, bins, bin_size, range, rescale)
 
-    # histogram data
-    bin_number = np.ceil((ranges_[:, 1] - ranges_[:, 0]) / bin_size)
-    bin_number = bin_number.astype(int)
-    # bin_centers = np.arange(range[0], range[1], bin_size) + bin_size / 2
-
-    data = locdata.data[['position_x', 'position_y']].values.T
-    img = fast_histogram.histogram2d(*data, range=ranges_, bins=bin_number)
-    img = img.T  # to show image in the same format as scatter plot
-
-    # contrast adjustment by equalization or rescaling
-    if rescale is None or rescale is False:
-        pass
-    elif rescale is True:
-        img = exposure.rescale_intensity(img)  # scaling to min/max of img intensities
-    elif isinstance(rescale, tuple):
-        minmax = (img.min(), img.max())
-        print('minmax:', minmax)
-        rescale_abs = tuple(np.multiply(np.divide(rescale, 100), (minmax[1] - minmax[0])) + minmax[0])
-        print('rescale_abs:', rescale_abs)
-        img = exposure.rescale_intensity(img, in_range=rescale_abs)
-        print(img)
-    elif rescale == 'equal':
-        img = exposure.equalize_hist(img)
-    else:
-        raise TypeError('Set rescale to tuple, None or "equal".')
-
-    mappable = ax.imshow(img, origin='low', extent=[*ranges_[0], *ranges_[1]], cmap=cmap, **kwargs)
+    mappable = ax.imshow(img, origin='low', extent=[*range_[0], *range_[1]], cmap=cmap, **kwargs)
     ax.set(title='Image ({:.0f} nm per bin)'.format(bin_size),
            xlabel='position_x',
            ylabel='position_y'
@@ -149,166 +351,58 @@ def render_2d(locdata, ax=None, bin_size=10, ranges='auto', rescale=True,
     return ax
 
 
-###############################################
+def render_2d(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None, rescale=None,
+              ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
+    return render_2d_mpl(locdata, loc_properties, other_property, bins, bin_size, range, rescale,
+                  ax, cmap, cbar, colorbar_kws, **kwargs)
 
 
-
-
-
-def _set_bins(range, bin_size):
-    ''' Compute bin_number from bin_size. '''
-    bin_number = np.ceil((range[:, 1] - range[:, 0]) / bin_size)
-    bin_number = bin_number.astype(int)
-    return bin_number
-
-def _adjust_contrast(img, rescale):
-    ''' Adjust contrast by equalization or rescaling. '''
-    if rescale is None:
-        pass
-    elif isinstance(rescale, str):
-        if rescale == 'equal':
-            img = exposure.equalize_hist(img)
-    else:
-        p_low, p_high = np.percentile(img, rescale)
-        img = exposure.rescale_intensity(img, in_range=(p_low, p_high))
-
-    return img
-
-def _fast_histo_mean(x, y, values, range, bins):
-    hist_1 = fast_histogram.histogram2d(x, y, range=range, bins=bins)
-    hist_w = fast_histogram.histogram2d(x, y, range=range, bins=bins, weights=values)
-
-    with np.errstate(divide='ignore', invalid='ignore'):
-        hist_mean = np.true_divide(hist_w, hist_1)
-        hist_mean[hist_mean == np.inf] = 0
-        hist_mean = np.nan_to_num(hist_mean)
-
-    return hist_mean
-
-def _compute_histogram_2D(locdata, property, range, bins):
-    ''' Make 2D histogram by simple binning or averaging property within bins.'''
-    if property is None:
-        # histogram data by couting points
-        data = locdata.data[['Position_x', 'Position_y']].values.T
-        img = fast_histogram.histogram2d(*data, range=range, bins=bins)
-        img = img.T  # to show image in the same format as scatter plot
-        label = 'Counts'
-    elif property in locdata.data.columns:
-        # histogram data by averaging values
-        x = locdata.data['Position_x'].values
-        y = locdata.data['Position_y'].values
-        values = locdata.data[property].values
-        img = _fast_histo_mean(x, y, values, range=range, bins=bins)
-        img = img.T  # to show image in the same format as scatter plot
-        label = property
-    else:
-        raise TypeError('No valid property name.')
-    return img, label
-
-
-def render2D(locdata, ax=None, property=None, bin_size=10, range='auto', rescale=(2, 98), colorbar=True, show=True,
-             cmap='magma', **kwargs):
-    """
-    Render localization data into a 2D image by binning x,y-coordinates into regular bins.
-
-    Prepare matplotlib axes with image.
-
-    Parameters
-    ----------
-    locdata : LocData object
-        Localization data.
-    property : str
-        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
-        shown.
-    bin_size : int or float
-        x and y size of bins
-    range : [[min,max],[min,max]] or 'auto' or 'zero'
-        defining the binned region by [min, max] ranges from input;
-        for 'auto' by [min, max] ranges from data; for 'zero' by [0, max] ranges from data.
-    rescale : tuple or 'equal'
-        rescale intensity values to be within percentile (tuple with upper and lower bounds)
-        or equalize histogram ('equal').
-    **kwargs :
-        imshow and Artist properties.
-
-    Returns
-    -------
-    matplotlib.image.AxesImage (rtype from imshow)
-
-    Note:
-    -----
-    We recommend the following colormaps: 'viridis', 'plasma', 'magma', 'inferno', 'hot', 'hsv'.
-    """
-    range_ = _get_range(locdata, range=range)
-    bin_number = _set_bins(range_, bin_size)
-    img, label = _compute_histogram_2D(locdata, property=property, range=range_, bins=bin_number)
-    img = _adjust_contrast(img, rescale)
-
-    if ax is None:
-        fig, ax = plt.subplots(nrows=1, ncols=1)
-
-    imgax = ax.imshow(img, origin='low', extent=[*range_[0], *range_[1]], cmap=cmap, **kwargs)
-    ax.set(title='{} ({:.0f} nm per bin)'.format(property, bin_size),
-           xlabel='Position_x',
-           ylabel='Position_y'
-           )
-
-    if colorbar is True:
-        plt.colorbar(imgax, label=label)
-
-    if show is True:
-        plt.show()
-
-    return imgax
-
-
-def render2D_scatter_density(locdata, ax=None, property=None, range='auto', rescale=(2, 98), show=True):
-    """
-    Render localization data into a 2D image by binning x,y-coordinates into regular bins.
-
-    Prepare matplotlib axes with image.
-
-    Parameters
-    ----------
-    locdata : LocData object
-        Localization data.
-    property : string
-        localization property to be binned. If property is None counts are represented.
-    range : [[min,max],[min,max]] or 'auto' or 'zero'
-        defining the binned region by [min, max] ranges from input;
-        for 'auto' by [min, max] ranges from data; for 'zero' by [0, max] ranges from data.
-    rescale : tuple or 'equal'
-        rescale intensity values to be within percentile (tuple with upper and lower bounds)
-        or equalize histogram ('equal').
-
-    Returns
-    -------
-    matplotlib.image.AxesImage (rtype from imshow)
-        mappable to create colorbar
-
-    """
-    if ax is None:
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1, projection='scatter_density')
-
-    range_ = _get_range(locdata, range=range)
-    data = locdata.data[['Position_x', 'Position_y']].values.T
-    # here color serves as weight since it is averaged over all points before binning.
-    if property is not None:
-        c = locdata.data[property].values.T
-    a = mpl_scatter_density.ScatterDensityArtist(ax, *data, origin='low', cmap='magma')
-    mappable = ax.add_artist(a)
-    ax.set_xlim(*range_[0])
-    ax.set_ylim(*range_[1])
-
-    ax.set(title='Image',
-           xlabel='Position_x',
-           ylabel='Position_y'
-           )
-
-    if show is True:
-        plt.show()
-
-    return mappable
-
+# def render_2d_scatter_density(locdata, ax=None, property=None, range='auto', rescale=(2, 98), show=True):
+#     """
+#     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
+#
+#     Prepare matplotlib axes with image.
+#
+#     Parameters
+#     ----------
+#     locdata : LocData object
+#         Localization data.
+#     property : string
+#         localization property to be binned. If property is None counts are represented.
+#     range : [[min,max],[min,max]] or 'auto' or 'zero'
+#         defining the binned region by [min, max] range from input;
+#         for 'auto' by [min, max] range from data; for 'zero' by [0, max] range from data.
+#     rescale : tuple or 'equal'
+#         rescale intensity values to be within percentile (tuple with upper and lower bounds)
+#         or equalize histogram ('equal').
+#
+#     Returns
+#     -------
+#     matplotlib.image.AxesImage (rtype from imshow)
+#         mappable to create colorbar
+#
+#     """
+#     if ax is None:
+#         fig = plt.figure()
+#         ax = fig.add_subplot(1, 1, 1, projection='scatter_density')
+#
+#     range_ = _get_range(locdata, range=range)
+#     data = locdata.data[['Position_x', 'Position_y']].values.T
+#     # here color serves as weight since it is averaged over all points before binning.
+#     if property is not None:
+#         c = locdata.data[property].values.T
+#     a = mpl_scatter_density.ScatterDensityArtist(ax, *data, origin='low', cmap='magma')
+#     mappable = ax.add_artist(a)
+#     ax.set_xlim(*range_[0])
+#     ax.set_ylim(*range_[1])
+#
+#     ax.set(title='Image',
+#            xlabel='Position_x',
+#            ylabel='Position_y'
+#            )
+#
+#     if show is True:
+#         plt.show()
+#
+#     return mappable
 

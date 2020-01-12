@@ -24,12 +24,24 @@ import os
 from enum import Enum
 from pathlib import Path
 
-# Optional import of colormaps from colorcet
+# Optional imports
 try:
     from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
     _has_colorcet = True
 except ImportError:
     _has_colorcet = False
+
+try:
+    import mpl_scatter_density
+    _has_mpl_scatter_density = True
+except ImportError:
+    _has_mpl_scatter_density = False
+
+try:
+    import napari
+    _has_napari = True
+except ImportError:
+    _has_napari = False
 
 
 __all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS', 'FileType', 'RenderEngine', 'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
@@ -79,6 +91,10 @@ class RenderEngine(Enum):
     MPL_SCATTER_DENSITY: mpl-scatter-density
     NAPARI: napari
     """
+    if not _has_mpl_scatter_density:
+        _ignore_ = 'MPL_SCATTER_DENSITY'
+    if not _has_napari:
+        _ignore_ = 'NAPARI'
     MPL = 0
     MPL_SCATTER_DENSITY = 1
     NAPARI = 2

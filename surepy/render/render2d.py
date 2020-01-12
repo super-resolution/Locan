@@ -9,11 +9,12 @@ import matplotlib.pyplot as plt
 import fast_histogram
 from skimage import exposure
 
-# todo: change to optional import
-import mpl_scatter_density
+try:
+    import mpl_scatter_density
+    _has_mpl_scatter_density = True
+except ImportError:
+    _has_mpl_scatter_density = False
 
-
-import surepy.data.properties.locdata_statistics
 from surepy.constants import COLORMAP_CONTINUOUS, RenderEngine
 
 
@@ -396,6 +397,9 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     matplotlib Axes
         Axes object with the image.
     """
+    if not _has_mpl_scatter_density:
+        raise ImportError('mpl-scatter-density is required.')
+
     # todo: plot empty image if ranges are provided.
     if not len(locdata):
         raise ValueError('Locdata does not contain any data points.')

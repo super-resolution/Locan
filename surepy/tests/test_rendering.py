@@ -102,7 +102,9 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
     # render_2d_scatter_density(locdata_blobs_2d, ax=ax[0], colorbar_kws=dict(ax=ax[0]))
     # render_2d_scatter_density(locdata_blobs_2d, range='zero', ax=ax[1])
 
-    plt.show()
+    # render_2d_scatter_density(locdata_blobs_2d, other_property='position_x')
+
+    # plt.show()
 
 
 def test_render_2d(locdata_blobs_2d):

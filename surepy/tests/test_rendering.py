@@ -2,7 +2,8 @@ import pytest
 import numpy as np
 import matplotlib.pyplot as plt
 
-from surepy.render.render2d import _coordinate_ranges, _bin_number, render_2d_mpl
+from surepy.constants import RenderEngine
+from surepy.render.render2d import _coordinate_ranges, _bin_number, render_2d_mpl, render_2d_scatter_density
 from surepy.render import adjust_contrast, histogram, render_2d
 
 
@@ -70,7 +71,7 @@ def test_histogram(locdata_blobs_2d):
     assert hist.shape == (102, 101)
 
 
-def test_simple_render_2d_mpl(locdata_blobs_2d):
+def test_render_2d_mpl(locdata_blobs_2d):
     # render_2d_mpl(locdata_blobs_2d)
     # render_2d_mpl(locdata_blobs_2d, bin_size=100, range=[[500, 1000], [500, 1000]], cbar=False)
 
@@ -88,6 +89,23 @@ def test_simple_render_2d_mpl(locdata_blobs_2d):
 
     # plt.show()
 
-def test_simple_render_2d(locdata_blobs_2d):
-    render_2d(locdata_blobs_2d)
+def test_render_2d_scatter_density(locdata_blobs_2d):
+    render_2d_scatter_density(locdata_blobs_2d)
+    # render_2d_scatter_density(locdata_blobs_2d, range=[[500, 1000], [500, 1000]], cbar=False)
+
+    # render_2d_scatter_density(locdata_blobs_2d, range=None, vmin=0, vmax=1)
+
+    # fig, ax = plt.subplots(nrows=1, ncols=2)
+    # render_2d_scatter_density(locdata_blobs_2d, ax=ax[0])
+    # render_2d_scatter_density(locdata_blobs_2d, range='zero', ax=ax[1])
+    #
+    # render_2d_scatter_density(locdata_blobs_2d, ax=ax[0], colorbar_kws=dict(ax=ax[0]))
+    # render_2d_scatter_density(locdata_blobs_2d, range='zero', ax=ax[1])
+
     plt.show()
+
+
+def test_render_2d(locdata_blobs_2d):
+    render_2d(locdata_blobs_2d)
+    render_2d(locdata_blobs_2d, render_engine=RenderEngine.MPL_SCATTER_DENSITY)
+    # plt.show()

@@ -8,7 +8,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import fast_histogram
 from skimage import exposure
-# import mpl_scatter_density
+
+# todo: change to optional import
+import mpl_scatter_density
 
 
 import surepy.data.properties.locdata_statistics
@@ -326,11 +328,11 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, 
     matplotlib Axes
         Axes object with the image.
     """
-
-    # Provide matplotlib axes if not provided
+    # todo: plot empty image if ranges are provided.
     if not len(locdata):
         raise ValueError('Locdata does not contain any data points.')
 
+    # Provide matplotlib axes if not provided
     if ax is None:
         ax = plt.gca()
 
@@ -351,57 +353,118 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, 
     return ax
 
 
+def render_2d_scatter_density(locdata, loc_properties=None, other_property=None, range=None,
+                              ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
+    """
+    Render localization data into a 2D image by binning x,y-coordinates into regular bins.
+
+    Prepare matplotlib axes with image.
+
+    Notes:
+    ------
+    To rescale intensity values use norm keyword.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        Localization data.
+    loc_properties : list or None
+        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
+    other_property : str or None
+        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
+        shown.
+    range : tuple with shape (dimension, 2) or None or 'zero'
+        ((min_x, max_x), (min_y, max_y), ...) range for each coordinate;
+        for None (min, max) range are determined from data;
+        for 'zero' (0, max) range with max determined from data.
+    ax : matplotlib axes
+        The axes on which to show the image
+    cmap : str or Colormap instance
+        The colormap used to map normalized data values to RGBA colors.
+    cbar : bool
+        If true draw a colorbar. The colobar axes is accessible using the cax property.
+    colorbar_kws : dict
+        Keyword arguments for `matplotlib.pyplot.colorbar`.
+
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to mpl_scatter_density.ScatterDensityArtist().
+
+    Returns
+    -------
+    matplotlib Axes
+        Axes object with the image.
+    """
+    # todo: plot empty image if ranges are provided.
+    if not len(locdata):
+        raise ValueError('Locdata does not contain any data points.')
+
+    # Provide matplotlib axes if not provided
+    if ax is None:
+        ax = plt.gca()
+        fig = ax.get_figure()
+        ax = fig.add_subplot(1, 1, 1, projection='scatter_density')
+
+    # todo: adjust for loc_property input
+    range_ = _coordinate_ranges(locdata, range=range)
+
+    if loc_properties is None:
+        data = locdata.coordinates.T
+        labels = list(locdata.coordinate_labels)
+    elif isinstance(loc_properties, str) and loc_properties in locdata.coordinate_labels:
+        data = locdata.data[loc_properties].values.T
+        range_ = range_[locdata.coordinate_labels.index(loc_properties)]
+        labels = list(loc_properties)
+    elif isinstance(loc_properties, (list, tuple)):
+        for prop in loc_properties:
+            if prop not in locdata.coordinate_labels:
+                raise ValueError(f'{prop} is not a valid property in locdata.')
+        data = locdata.data[list(loc_properties)].values.T
+        labels = list(loc_properties)
+    else:
+        raise ValueError(f'{loc_properties} is not a valid property in locdata.')
+
+    if other_property is None:
+        # histogram data by counting points
+        if data.shape[0] == 2:
+            values = None
+        else:
+            raise TypeError('Only 2D data is supported.')
+        labels.append('counts')
+    elif other_property in locdata.data.columns:
+        # histogram data by averaging values
+        if data.shape[0] == 2:
+            # here color serves as weight since it is averaged over all points before binning.
+            values = locdata.data[other_property].values.T
+        else:
+            raise TypeError('Only 2D data is supported.')
+        labels.append(other_property)
+    else:
+        raise TypeError(f'No valid property name {other_property}.')
+
+    a = mpl_scatter_density.ScatterDensityArtist(ax, *data, c=values, origin='low', extent=[*range_[0], *range_[1]],
+                                                 cmap=cmap, **kwargs)
+    mappable = ax.add_artist(a)
+    ax.set_xlim(*range_[0])
+    ax.set_ylim(*range_[1])
+
+    ax.set(title=labels[-1],
+           xlabel=labels[0],
+           ylabel=labels[1]
+           )
+
+    if cbar:
+        if colorbar_kws is None:
+            plt.colorbar(mappable, ax=ax, label=labels[-1])
+        else:
+            plt.colorbar(mappable, **colorbar_kws)
+
+    return ax
+
+
 def render_2d(locdata, render_engine=RenderEngine.MPL, **kwargs):
     if render_engine == RenderEngine.MPL:
         return render_2d_mpl(locdata, **kwargs)
-
-
-# def render_2d_scatter_density(locdata, ax=None, property=None, range='auto', rescale=(2, 98), show=True):
-#     """
-#     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
-#
-#     Prepare matplotlib axes with image.
-#
-#     Parameters
-#     ----------
-#     locdata : LocData object
-#         Localization data.
-#     property : string
-#         localization property to be binned. If property is None counts are represented.
-#     range : [[min,max],[min,max]] or 'auto' or 'zero'
-#         defining the binned region by [min, max] range from input;
-#         for 'auto' by [min, max] range from data; for 'zero' by [0, max] range from data.
-#     rescale : tuple or 'equal'
-#         rescale intensity values to be within percentile (tuple with upper and lower bounds)
-#         or equalize histogram ('equal').
-#
-#     Returns
-#     -------
-#     matplotlib.image.AxesImage (rtype from imshow)
-#         mappable to create colorbar
-#
-#     """
-#     if ax is None:
-#         fig = plt.figure()
-#         ax = fig.add_subplot(1, 1, 1, projection='scatter_density')
-#
-#     range_ = _get_range(locdata, range=range)
-#     data = locdata.data[['Position_x', 'Position_y']].values.T
-#     # here color serves as weight since it is averaged over all points before binning.
-#     if property is not None:
-#         c = locdata.data[property].values.T
-#     a = mpl_scatter_density.ScatterDensityArtist(ax, *data, origin='low', cmap='magma')
-#     mappable = ax.add_artist(a)
-#     ax.set_xlim(*range_[0])
-#     ax.set_ylim(*range_[1])
-#
-#     ax.set(title='Image',
-#            xlabel='Position_x',
-#            ylabel='Position_y'
-#            )
-#
-#     if show is True:
-#         plt.show()
-#
-#     return mappable
-
+    elif render_engine == RenderEngine.MPL_SCATTER_DENSITY:
+        return render_2d_scatter_density(locdata, **kwargs)

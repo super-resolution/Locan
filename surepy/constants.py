@@ -76,10 +76,11 @@ class RenderEngine(Enum):
 
     Each engine represents a library to be used as backend for rendering and plotting.
     MPL: matplotlib
+    MPL_SCATTER_DENSITY: mpl-scatter-density
     NAPARI: napari
     """
     MPL = 0
-    MPL_INTERACTIVE = 1
+    MPL_SCATTER_DENSITY = 1
     NAPARI = 2
 
 

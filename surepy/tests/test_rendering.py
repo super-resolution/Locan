@@ -2,8 +2,8 @@ import pytest
 import numpy as np
 import matplotlib.pyplot as plt
 
-from surepy.render.render2d import _coordinate_ranges, _bin_number
-from surepy.render import adjust_contrast, histogram, render_2d, render_2d_mpl
+from surepy.render.render2d import _coordinate_ranges, _bin_number, render_2d_mpl
+from surepy.render import adjust_contrast, histogram, render_2d
 
 
 def test__ranges(locdata_blobs_2d):
@@ -87,3 +87,7 @@ def test_simple_render_2d_mpl(locdata_blobs_2d):
     # render_2d_mpl(locdata_blobs_2d, range='zero', ax=ax[1])
 
     # plt.show()
+
+def test_simple_render_2d(locdata_blobs_2d):
+    render_2d(locdata_blobs_2d)
+    plt.show()

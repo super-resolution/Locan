@@ -8,6 +8,8 @@ Constants to be used throughout the project.
    ROOT_DIR
    PROPERTY_KEYS
    HULL_KEYS
+   FileType
+   RenderEngine
    RAPIDSTORM_KEYS
    ELYRA_KEYS
    THUNDERSTORM_KEYS
@@ -30,7 +32,7 @@ except ImportError:
     _has_colorcet = False
 
 
-__all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS', 'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
+__all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS', 'FileType', 'RenderEngine', 'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
            'N_JOBS', 'LOCDATA_ID', 'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING', 'COLORMAP_CATEGORICAL']
 
 
@@ -65,6 +67,20 @@ class FileType(Enum):
     ELYRA = 3
     THUNDERSTORM = 4
     ASDF = 5
+
+
+# Render engines
+class RenderEngine(Enum):
+    """
+    Engine to be use for rendering and displaying localization data as 2d or 3d images.
+
+    Each engine represents a library to be used as backend for rendering and plotting.
+    MPL: matplotlib
+    NAPARI: napari
+    """
+    MPL = 0
+    MPL_INTERACTIVE = 1
+    NAPARI = 2
 
 
 #: Mapping column names in RapidSTORM files to LocData property keys

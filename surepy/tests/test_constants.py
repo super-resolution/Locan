@@ -3,15 +3,17 @@
 
 from surepy.constants import *
 
-# for sc in (ROOT_DIR, PROPERTY_KEYS, HULL_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
-#                               N_JOBS):
-#     assert sc
-#
-# ft = FileType
-# assert ft
-#
-# assert N_JOBS == 1
+for sc in (ROOT_DIR, PROPERTY_KEYS, HULL_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
+                              N_JOBS):
+    assert sc
 
+ft = FileType
+assert ft
+
+ren_eng = RenderEngine
+assert ren_eng
+
+assert N_JOBS == 1
 
 def test_rapidstorm_keys_are_mapped_on_valid_property_keys():
     for item in RAPIDSTORM_KEYS.values():

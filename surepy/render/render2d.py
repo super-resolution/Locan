@@ -12,10 +12,10 @@ from skimage import exposure
 
 
 import surepy.data.properties.locdata_statistics
-from surepy.constants import COLORMAP_CONTINUOUS
+from surepy.constants import COLORMAP_CONTINUOUS, RenderEngine
 
 
-__all__ = ['adjust_contrast', 'histogram', 'render_2d', 'render_2d_mpl']
+__all__ = ['adjust_contrast', 'histogram', 'render_2d']
 
 
 # todo: add DataFrame input
@@ -351,10 +351,9 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, 
     return ax
 
 
-def render_2d(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None, rescale=None,
-              ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
-    return render_2d_mpl(locdata, loc_properties, other_property, bins, bin_size, range, rescale,
-                  ax, cmap, cbar, colorbar_kws, **kwargs)
+def render_2d(locdata, render_engine=RenderEngine.MPL, **kwargs):
+    if render_engine == RenderEngine.MPL:
+        return render_2d_mpl(locdata, **kwargs)
 
 
 # def render_2d_scatter_density(locdata, ax=None, property=None, range='auto', rescale=(2, 98), show=True):

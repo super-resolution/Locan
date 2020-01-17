@@ -3,6 +3,8 @@
 This module provides functions for rendering locdata objects.
 
 """
+import warnings
+from math import isclose
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,7 +32,7 @@ def _coordinate_ranges(locdata, range=None):
     ----------
     locdata : pandas DataFrame or LocData object
         Localization data.
-    range : tuple with shape (dimension, 2) or None or 'zero'
+    range : tuple with shape (dimension, 2) or None or str 'zero'
         ((min_x, max_x), (min_y, max_y), ...) range for each coordinate;
         for None (min, max) range are determined from data;
         for 'zero' (0, max) range with max determined from data.
@@ -58,37 +60,143 @@ def _coordinate_ranges(locdata, range=None):
     return ranges_
 
 
-def _bin_number(range, bin_size):
+def _bin_edges(n_bins, range):
     """
-    Compute the number of bins from bin_size and range.
+    Compute ndarray with bin edges from bins and range.
 
     Parameters
     ----------
-    range : tuple of shape (2,)
-        min and max value fo bin edges.
-    bin_size : float
-        bin size
+    n_bins : int or tuple, list, ndarray with with length equal to that of range.
+        Number of bins to be used in all or each dimension for which a range is provided.
+    range : tuple, list, ndarray of float with shape (n_dimension, 2)
+        Minimum and maximum edge of binned range for each dimension.
 
     Returns
     -------
-    int or numpy array of int
+    bin_edges : ndarray
+        Array(s) of bin edges
     """
-    range_ = np.asarray(range)
-    bin_size_ = np.asarray(bin_size)
 
-    if np.ndim(range_) == 1 and np.ndim(bin_size_) == 0:
-        bin_number = np.ceil((range_[1] - range_[0]) / bin_size_)
-    elif np.ndim(range_) > 1 and np.ndim(bin_size_) == 0:
-        bin_number = np.ceil((range_[:, 1] - range_[:, 0]) / bin_size_)
-    elif np.ndim(range_) > 1 and np.ndim(bin_size_) > 0:
-        bin_number = np.ceil((range_[:, 1] - range_[:, 0]) / bin_size_)
-    elif np.ndim(range_) == 1 and np.ndim(bin_size_) > 0:
-        bin_number = np.ceil((range_[1] - range_[0]) / bin_size_)
+    def bin_edges_for_single_range(n_bins, range):
+        """Compute bins for one range"""
+        return np.linspace(*range, n_bins + 1, endpoint=True, dtype=float)
+
+    if np.ndim(range) == 1:
+        if np.ndim(n_bins) == 0:
+            bin_edges = bin_edges_for_single_range(n_bins, range)
+        elif np.ndim(n_bins) == 1:
+            bin_edges = [bin_edges_for_single_range(n_bins=n, range=range) for n in n_bins]
+        else:
+            raise TypeError('n_bins and range must have the same dimension.')
+
+    elif np.ndim(range) == 2:
+        if np.ndim(n_bins) == 0:
+            bin_edges = [bin_edges_for_single_range(n_bins, range=single_range) for single_range in range]
+        elif len(n_bins) == len(range):
+            bin_edges = [_bin_edges(n_bins=b, range=r) for b, r in zip(n_bins, range)]
+        else:
+            raise TypeError('n_bins and range must have the same length.')
+
     else:
-        raise TypeError('Incompatible dimensions.')
+        raise TypeError('range has two many dimensions.')
 
-    bin_number = bin_number.astype(int)
-    return bin_number
+    return np.array(bin_edges)
+
+
+def _bin_edges_from_size(bin_size, range, extend_range=True):
+    """
+    Compute ndarray with bin edges from bin size and range.
+
+    Parameters
+    ----------
+    bin_size : float or tuple, list, ndarray with with length equal to that of range.
+        Number of bins to be used in all or each dimension for which a range is provided.
+    range : tuple, list, ndarray of float with shape (n_dimension, 2)
+        Minimum and maximum edge of binned range for each dimension.
+    extend_range : bool or None
+        If for equally-sized bins the final bin_edge is different from the maximum range,
+        the last bin_edge will be smaller than the maximum range but all bins are equally-sized (None);
+        the last bin_edge will be equal to the maximum range but bins are not equally-sized (False);
+        the last bin_edge will be larger than the maximum range but all bins are equally-sized (True).
+
+    Returns
+    -------
+    bin_edges : ndarray
+        Array(s) of bin edges
+    """
+
+    def bin_edges_for_single_range(bin_size, range):
+        """Compute bins for one range"""
+        bin_edges = np.arange(*range, bin_size, dtype=float)
+        last_edge = bin_edges[-1] + bin_size
+
+        if isclose(last_edge, range[-1]):
+            bin_edges = np.append(bin_edges, last_edge)
+        else:
+            if extend_range is None:
+                pass
+            elif extend_range is True:
+                bin_edges = np.append(bin_edges, last_edge)
+            elif extend_range is False:
+                bin_edges = np.append(bin_edges, range[-1])
+            else:
+                raise ValueError('`extend_range` must be None, True or False.')
+        return bin_edges
+
+    if np.ndim(range) == 1:
+        if np.ndim(bin_size) == 0:
+            bin_edges = bin_edges_for_single_range(bin_size, range)
+        elif np.ndim(bin_size) == 1:
+            bin_edges = [bin_edges_for_single_range(bin_size=n, range=range) for n in bin_size]
+        else:
+            raise TypeError('n_bins and range must have the same dimension.')
+
+    elif np.ndim(range) == 2:
+        if np.ndim(bin_size) == 0:
+            bin_edges = [bin_edges_for_single_range(bin_size, range=single_range) for single_range in range]
+        elif len(bin_size) == len(range):
+            bin_edges = [_bin_edges_from_size(bin_size=b, range=r) for b, r in zip(bin_size, range)]
+        else:
+            raise TypeError('n_bins and range must have the same length.')
+
+    else:
+        raise TypeError('range has two many dimensions.')
+
+    return np.array(bin_edges)
+
+
+def _bin_edges_to_number(bin_edges):
+    """
+    Check if bins are equally sized and return the number of bins.
+
+    Parameters
+    ----------
+    bin_edges : tuple, list, ndarray of float with shape (n_dimension, n_bin_edges)
+        Array of bin edges for each dimension
+
+    Returns
+    -------
+    n_bins : int or ndarray of int
+        Number of bins
+    """
+    def bin_edges_to_number_single_dimension(bin_edges):
+        differences = np.diff(bin_edges)
+        all_equal = np.all(np.isclose(differences, differences[0]))
+        if all_equal:
+            n_bins = len(bin_edges)-1
+        else:
+            warnings.warn('Bins are not equally sized.')
+            n_bins = None
+        return n_bins
+
+    if np.ndim(bin_edges) == 1 and np.asarray(bin_edges).dtype != object:
+        n_bins = bin_edges_to_number_single_dimension(bin_edges)
+    elif np.ndim(bin_edges) == 2 or np.asarray(bin_edges).dtype == object:
+        n_bins = np.array([bin_edges_to_number_single_dimension(edges) for edges in bin_edges])
+    else:
+        raise TypeError('The shape of bin_edges must be (n_dimension, n_bin_edges).')
+
+    return n_bins
 
 
 def adjust_contrast(img, rescale=True, **kwargs):
@@ -195,7 +303,8 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
             A sequence of arrays describing the monotonically increasing bin edges along each dimension.
             The number of bins for each dimension (nx, ny, … =bins)
             The number of bins for all dimensions (nx=ny=…=bins).
-    bin_size : float or None
+    bin_size : float or tuple, list, ndarray with with length equal to that of range (or the number of loc_properties).
+        Number of bins to be used in all or each dimension for which a range is provided.
         The bin size in units of locdata coordinate units. Either bins or bin_size must be specified but not both.
     range : tuple with shape (dimension, 2) or None or 'zero'
         ((min_x, max_x), (min_y, max_y), ...) range for each coordinate;
@@ -212,7 +321,7 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
     Returns
     -------
     tuple
-        (img, range, bins, label)
+        (img, range, bin_edges, label)
     """
     # todo: adjust for loc_property input
     range_ = _coordinate_ranges(locdata, range=range)
@@ -220,11 +329,13 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
     if bins is not None and bin_size is not None:
         raise ValueError('Only one of bins and bin_size can be different from None.')
     elif bins is not None and bin_size is None:
-        bins_ = bins
+        bins_ = _bin_edges(bins, range_)
     elif bins is None and bin_size is not None:
-        bins_ = _bin_number(range_, bin_size)
+        bins_ = _bin_edges_from_size(bin_size, range_)  # the last bin extends the range to have equally-sized bins.
     else:
         raise ValueError('One of bins or bin_size must be different from None.')
+
+    bins_ = _bin_edges_to_number(bins_)  # at this point only equally sized bins can be forwarded to fast_histogram.
 
     if loc_properties is None:
         data = locdata.coordinates.T

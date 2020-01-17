@@ -3,7 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from surepy.constants import RenderEngine
-from surepy.render.render2d import _coordinate_ranges, _bin_number, render_2d_mpl, render_2d_scatter_density
+from surepy.render.render2d import _coordinate_ranges, _bin_edges, _bin_edges_from_size, _bin_edges_to_number, \
+    render_2d_mpl, render_2d_scatter_density
 from surepy.render import adjust_contrast, histogram, render_2d
 
 
@@ -19,11 +20,88 @@ def test__ranges(locdata_blobs_2d):
         _coordinate_ranges(locdata_blobs_2d, range=(10, 100))
 
 
-def test__bin_number():
-    assert _bin_number(range=(10, 100), bin_size=10) == 9
-    assert np.array_equal(_bin_number(range=(10, 100), bin_size=(10, 5)), (9, 18))
-    assert np.array_equal(_bin_number(range=((10, 100), (0, 100)), bin_size=10), (9, 10))
-    assert np.array_equal(_bin_number(range=((10, 100), (0, 100)), bin_size=(10, 5)), (9, 20))
+def test__bin_edges():
+    bin_edges = _bin_edges(10, (10, 20))
+    assert bin_edges.shape == (11,)
+
+    bin_edges = _bin_edges(10, [10, 20])
+    assert bin_edges.shape == (11,)
+
+    bin_edges = _bin_edges((5, 10), (10, 20))
+    assert bin_edges.shape == (2,)
+    assert bin_edges[0].shape == (6,)
+    assert bin_edges[1].shape == (11,)
+
+    bin_edges = _bin_edges(5, ((10, 20), (20, 30)))
+    assert bin_edges.shape == (2, 6)
+
+    bin_edges = _bin_edges((5, 10), ((10, 20), (20, 30)))
+    assert bin_edges.shape == (2,)
+    assert bin_edges[0].shape == (6,)
+    assert bin_edges[1].shape == (11,)
+
+    bin_edges = _bin_edges((3, (5, 10)), ((1, 5), ((10, 20), (20, 30))))
+    assert bin_edges.shape == (2,)
+    assert bin_edges[0].shape == (4,)
+    assert bin_edges[1].shape == (2,)
+    assert bin_edges[1][0].shape == (6,)
+    assert bin_edges[1][1].shape == (11,)
+
+
+def test__bin_edges_from_size():
+    bin_edges = _bin_edges_from_size(1, (10, 20))
+    assert bin_edges.shape == (11,)
+
+    bin_edges = _bin_edges_from_size(5, (0, 17))
+    assert bin_edges.shape == (5,)
+    assert bin_edges[-1] > 17
+
+    bin_edges = _bin_edges_from_size(5, (0, 17), extend_range=False)
+    assert bin_edges.shape == (5,)
+    assert bin_edges[-1] == 17
+
+    bin_edges = _bin_edges_from_size(5, (0, 17), extend_range=None)
+    assert bin_edges.shape == (4,)
+    assert bin_edges[-1] < 17
+
+    bin_edges = _bin_edges_from_size(1, [10, 20])
+    assert bin_edges.shape == (11,)
+
+    bin_edges = _bin_edges_from_size((2, 1), (10, 20))
+    assert bin_edges.shape == (2,)
+    assert bin_edges[0].shape == (6,)
+    assert bin_edges[1].shape == (11,)
+
+    bin_edges = _bin_edges_from_size(2, ((10, 20), (20, 30)))
+    assert bin_edges.shape == (2, 6)
+
+    bin_edges = _bin_edges_from_size((2, 1), ((10, 20), (20, 30)))
+    assert bin_edges.shape == (2,)
+    assert bin_edges[0].shape == (6,)
+    assert bin_edges[1].shape == (11,)
+
+    bin_edges = _bin_edges_from_size((2, (2, 1)), ((1, 5), ((10, 20), (20, 30))))
+    assert bin_edges.shape == (2,)
+    assert bin_edges[0].shape == (3,)
+    assert bin_edges[1].shape == (2,)
+    assert bin_edges[1][0].shape == (6,)
+    assert bin_edges[1][1].shape == (11,)
+
+
+def test__bin_edges_to_number():
+    n_bins = _bin_edges_to_number([1, 3, 5])
+    assert n_bins == 2
+
+    with pytest.warns(UserWarning):
+        n_bins = _bin_edges_to_number([1, 2, 4])
+    assert n_bins is None
+
+    with pytest.warns(UserWarning):
+        n_bins = _bin_edges_to_number(((1, 3, 5), (1, 2, 4)))
+    assert np.array_equal(n_bins, (2, None))
+
+    n_bins = _bin_edges_to_number([[1, 3, 5], [1, 2, 3, 4]])
+    assert np.array_equal(n_bins, (2, 3))
 
 
 def test_adjust_contrast():
@@ -88,6 +166,7 @@ def test_render_2d_mpl(locdata_blobs_2d):
     # render_2d_mpl(locdata_blobs_2d, range='zero', ax=ax[1])
 
     # plt.show()
+
 
 def test_render_2d_scatter_density(locdata_blobs_2d):
     render_2d_scatter_density(locdata_blobs_2d)

@@ -3,8 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from surepy.constants import RenderEngine
+from surepy.constants import _has_mpl_scatter_density, _has_napari
+if _has_napari: import napari
 from surepy.render.render2d import _coordinate_ranges, _bin_edges, _bin_edges_from_size, _bin_edges_to_number, \
-    render_2d_mpl, render_2d_scatter_density
+    render_2d_mpl, render_2d_scatter_density, render_2d_napari
 from surepy.render import adjust_contrast, histogram, render_2d
 
 
@@ -168,6 +170,7 @@ def test_render_2d_mpl(locdata_blobs_2d):
     # plt.show()
 
 
+@pytest.mark.skipif(not _has_mpl_scatter_density, reason="requires mpl_scatter_density")
 def test_render_2d_scatter_density(locdata_blobs_2d):
     render_2d_scatter_density(locdata_blobs_2d)
     # render_2d_scatter_density(locdata_blobs_2d, range=[[500, 1000], [500, 1000]], cbar=False)
@@ -190,3 +193,18 @@ def test_render_2d(locdata_blobs_2d):
     render_2d(locdata_blobs_2d)
     render_2d(locdata_blobs_2d, render_engine=RenderEngine.MPL_SCATTER_DENSITY)
     # plt.show()
+
+
+@pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
+@pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
+def test_render_2d_napari(locdata_blobs_2d):
+    with napari.gui_qt():
+        render_2d_napari(locdata_blobs_2d, bin_size=100, cmap='viridis', gamma=0.1)
+
+    with napari.gui_qt():
+        viewer = render_2d_napari(locdata_blobs_2d, bin_size=50, cmap='magenta', gamma=0.1)
+        render_2d_napari(locdata_blobs_2d, viewer=viewer, bin_size=100, cmap='cyan', gamma=0.1, scale=(2, 2),
+                         blending='additive')
+
+    with napari.gui_qt():
+        render_2d(locdata_blobs_2d, render_engine=RenderEngine.NAPARI)

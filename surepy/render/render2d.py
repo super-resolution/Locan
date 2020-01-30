@@ -11,13 +11,10 @@ import matplotlib.pyplot as plt
 import fast_histogram
 from skimage import exposure
 
-try:
-    import mpl_scatter_density
-    _has_mpl_scatter_density = True
-except ImportError:
-    _has_mpl_scatter_density = False
-
-from surepy.constants import COLORMAP_CONTINUOUS, RenderEngine
+from surepy.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine
+from surepy.constants import _has_mpl_scatter_density, _has_napari
+if _has_mpl_scatter_density: import mpl_scatter_density
+if _has_napari: import napari
 
 
 __all__ = ['adjust_contrast', 'histogram', 'render_2d']
@@ -329,13 +326,11 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
     if bins is not None and bin_size is not None:
         raise ValueError('Only one of bins and bin_size can be different from None.')
     elif bins is not None and bin_size is None:
-        bins_ = _bin_edges(bins, range_)
+        bin_edges = _bin_edges(bins, range_)
     elif bins is None and bin_size is not None:
-        bins_ = _bin_edges_from_size(bin_size, range_)  # the last bin extends the range to have equally-sized bins.
+        bin_edges = _bin_edges_from_size(bin_size, range_)  # the last bin extends the range to have equally-sized bins.
     else:
         raise ValueError('One of bins or bin_size must be different from None.')
-
-    bins_ = _bin_edges_to_number(bins_)  # at this point only equally sized bins can be forwarded to fast_histogram.
 
     if loc_properties is None:
         data = locdata.coordinates.T
@@ -343,7 +338,7 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
     elif isinstance(loc_properties, str) and loc_properties in locdata.coordinate_labels:
         data = locdata.data[loc_properties].values.T
         range_ = range_[locdata.coordinate_labels.index(loc_properties)]
-        bins_ = bins_[locdata.coordinate_labels.index(loc_properties)]
+        bin_edges = bin_edges[locdata.coordinate_labels.index(loc_properties)]
         labels = list(loc_properties)
     elif isinstance(loc_properties, (list, tuple)):
         for prop in loc_properties:
@@ -354,12 +349,15 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
     else:
         raise ValueError(f'{loc_properties} is not a valid property in locdata.')
 
+    n_bins = _bin_edges_to_number(
+        bin_edges)  # at this point only equally sized bins can be forwarded to fast_histogram.
+
     if other_property is None:
         # histogram data by counting points
         if np.ndim(data) == 1:
-            img = fast_histogram.histogram1d(data, range=range_, bins=bins_)
+            img = fast_histogram.histogram1d(data, range=range_, bins=n_bins)
         elif data.shape[0] == 2:
-            img = fast_histogram.histogram2d(*data, range=range_, bins=bins_)
+            img = fast_histogram.histogram2d(*data, range=range_, bins=n_bins)
             img = img.T  # to show image in the same format as scatter plot
         elif data.shape[0] == 3:
             raise NotImplementedError
@@ -373,7 +371,7 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
             raise NotImplementedError
         elif data.shape[0] == 2:
             values = locdata.data[other_property].values
-            img = _fast_histo_mean(*data, values, range=range_, bins=bins_)
+            img = _fast_histo_mean(*data, values, range=range_, bins=n_bins)
             img = img.T  # to show image in the same format as scatter plot
         elif data.shape[0] == 3:
             raise NotImplementedError
@@ -386,7 +384,7 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
     if rescale:
         img = adjust_contrast(img, rescale)
 
-    return img, range_, bins_, labels
+    return img, range_, bin_edges, labels
 
 
 def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None, rescale=None,
@@ -448,7 +446,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, 
     if ax is None:
         ax = plt.gca()
 
-    img, range_, bins_, label = histogram(locdata, loc_properties, other_property, bins, bin_size, range, rescale)
+    img, range_, bin_edges, label = histogram(locdata, loc_properties, other_property, bins, bin_size, range, rescale)
 
     mappable = ax.imshow(img, origin='low', extent=[*range_[0], *range_[1]], cmap=cmap, **kwargs)
     ax.set(title='Image ({:.0f} nm per bin)'.format(bin_size),
@@ -578,8 +576,79 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     return ax
 
 
+def render_2d_napari(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None,
+                     rescale=None, viewer=None, cmap='viridis', **kwargs):
+    """
+    Render localization data into a 2D image by binning x,y-coordinates into regular bins.
+    Render the data using napari.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        Localization data.
+    loc_properties : list or None
+        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
+    other_property : str or None
+        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
+        shown.
+    bins : sequence or int or None
+        The bin specification as defined in numpy.histogramdd:
+            A sequence of arrays describing the monotonically increasing bin edges along each dimension.
+            The number of bins for each dimension (nx, ny, … =bins)
+            The number of bins for all dimensions (nx=ny=…=bins).
+    bin_size : float or None
+        The bin size in units of locdata coordinate units. Either bins or bin_size must be specified but not both.
+    range : tuple with shape (dimension, 2) or None or 'zero'
+        ((min_x, max_x), (min_y, max_y), ...) range for each coordinate;
+        for None (min, max) range are determined from data;
+        for 'zero' (0, max) range with max determined from data.
+    rescale : True, tuple, False or None, 'equal', or 'unity.
+        Rescale intensity values to be within percentile of max and min intensities
+        (tuple with upper and lower bounds provided in percent).
+        For True intensity values are rescaled to the min and max possible values of the given representation.
+        For 'equal' intensity values are rescaled by histogram equalization.
+        For 'unity' intensity values are rescaled to (0, 1).
+        For None or False no rescaling occurs.
+    viewer : napari viewer
+        The viewer object on which to add the image
+    cmap : str or Colormap instance
+        The colormap used to map normalized data values to RGBA colors.
+
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to napari.Viewer().add_image().
+
+    Returns
+    -------
+    napari Viewer object
+        Viewer with the image.
+    """
+    if not _has_napari:
+        raise ImportError('Function requires napari.')
+
+    # todo: plot empty image if ranges are provided.
+    if not len(locdata):
+        raise ValueError('Locdata does not contain any data points.')
+
+    # Provide napari viewer if not provided
+    if viewer is None:
+        viewer = napari.Viewer(axis_labels=loc_properties)
+
+    img, range, bins_edges, label = histogram(locdata, loc_properties, other_property, bins, bin_size, range,
+                                                 rescale)
+    viewer.add_image(img, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
+    return viewer
+
+
 def render_2d(locdata, render_engine=RenderEngine.MPL, **kwargs):
+    """
+    Wrapper function to render localization data into a 2D image.
+    For complete signatures see render_2d_mpl or corresponding functions.
+    """
     if render_engine == RenderEngine.MPL:
         return render_2d_mpl(locdata, **kwargs)
     elif render_engine == RenderEngine.MPL_SCATTER_DENSITY:
         return render_2d_scatter_density(locdata, **kwargs)
+    elif render_engine == RenderEngine.NAPARI:
+        return render_2d_napari(locdata, **kwargs)

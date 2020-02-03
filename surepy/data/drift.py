@@ -21,15 +21,11 @@ Methods employed for drift estimation comprise single molecule localization anal
    Opt Express. 2011 Aug 1;19(16):15009-19.
 
 """
-try:
-    import open3d as o3d
-    _has_open3d = True
-except ImportError:
-    _has_open3d = False
-
 from surepy.data.locdata import LocData
 from surepy.analysis.drift import Drift
 from surepy.data.transform.transformation import transform_affine
+from surepy.constants import _has_open3d
+if _has_open3d: import open3d as o3d
 
 
 __all__ = ['drift_correction']

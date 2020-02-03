@@ -8,8 +8,6 @@ Constants to be used throughout the project.
    ROOT_DIR
    PROPERTY_KEYS
    HULL_KEYS
-   FileType
-   RenderEngine
    RAPIDSTORM_KEYS
    ELYRA_KEYS
    THUNDERSTORM_KEYS
@@ -20,9 +18,14 @@ Constants to be used throughout the project.
    COLORMAP_CATEGORICAL
 
 """
-import os
 from enum import Enum
 from pathlib import Path
+
+
+__all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS', 'FileType', 'RenderEngine', 'RAPIDSTORM_KEYS', 'ELYRA_KEYS',
+           'THUNDERSTORM_KEYS', 'N_JOBS', 'LOCDATA_ID', 'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING',
+           'COLORMAP_CATEGORICAL']
+
 
 # Optional imports
 try:
@@ -43,13 +46,27 @@ try:
 except ImportError:
     _has_napari = False
 
+try:
+    import open3d as o3d
 
-__all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS', 'FileType', 'RenderEngine', 'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
-           'N_JOBS', 'LOCDATA_ID', 'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING', 'COLORMAP_CATEGORICAL']
+    _has_open3d = True
+except ImportError:
+    _has_open3d = False
+
+try:
+    from shapely.geometry import Point
+    _has_shapely = True
+except ImportError:
+    _has_shapely = False
+
+try:
+    from trackpy import link_df
+    _has_trackpy = True
+except ImportError:
+    _has_trackpy = False
 
 
 #: Root directory for path operations.
-# ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = Path(__file__).parent
 
 
@@ -87,9 +104,15 @@ class RenderEngine(Enum):
     Engine to be use for rendering and displaying localization data as 2d or 3d images.
 
     Each engine represents a library to be used as backend for rendering and plotting.
-    MPL: matplotlib
-    MPL_SCATTER_DENSITY: mpl-scatter-density
-    NAPARI: napari
+
+    Attributes
+    ----------
+    MPL :
+        matplotlib
+    MPL_SCATTER_DENSITY :
+        mpl-scatter-density
+    NAPARI :
+        napari
     """
     if not _has_mpl_scatter_density:
         _ignore_ = 'MPL_SCATTER_DENSITY'

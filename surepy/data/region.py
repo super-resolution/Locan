@@ -17,12 +17,8 @@ import matplotlib.pyplot as plt
 import matplotlib.path as mPath
 import matplotlib.patches as mPatches
 from scipy.spatial.distance import pdist
-
-try:
-    from shapely.geometry import Polygon as shPolygon
-    _has_shapely = True
-except ImportError:
-    _has_shapely = False
+from surepy.constants import _has_shapely
+if _has_shapely: from shapely.geometry import Polygon as shPolygon
 
 
 __all__ = ['RoiRegion']

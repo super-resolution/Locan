@@ -12,13 +12,10 @@ import sys
 
 import numpy as np
 import pandas as pd
-try:
-    from trackpy import link_df
-    _has_trackpy = True
-except ImportError:
-    _has_trackpy = False
 
 from surepy.data.locdata import LocData
+from surepy.constants import _has_trackpy
+if _has_trackpy: from trackpy import link_df
 
 
 __all__ = ['link_locdata', 'track']

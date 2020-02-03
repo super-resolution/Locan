@@ -8,14 +8,10 @@ in registry.
 """
 import numpy as np
 
-try:
-    import open3d as o3d
-    _has_open3d = True
-except ImportError:
-    _has_open3d = False
-
 from surepy.data.locdata import LocData
 from surepy.data.transform.transformation import _homogeneous_matrix
+from surepy.constants import _has_open3d
+if _has_open3d: import open3d as o3d
 
 
 __all__ = ['register_icp']

@@ -9,13 +9,10 @@ This module computes specific hulls and related properties for LocData objects.
 import numpy as np
 import pandas as pd
 import scipy.spatial as spat
-try:
-    from shapely.geometry import LineString, MultiPoint
-    _has_shapely = True
-except ImportError:
-    _has_shapely = False
 
 from surepy.data.region import RoiRegion
+from surepy.constants import _has_shapely
+if _has_shapely: from shapely.geometry import LineString, MultiPoint
 
 
 __all__ = ['BoundingBox', 'ConvexHull', '_ConvexHullShapely', 'OrientedBoundingBox']

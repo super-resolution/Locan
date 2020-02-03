@@ -10,17 +10,13 @@ import sys
 import numpy as np
 import pandas as pd
 
-try:
-    import open3d as o3d
-    _has_open3d = True
-except ImportError:
-    _has_open3d = False
-
 from surepy.data.locdata import LocData
 import surepy.data.hulls
 from surepy.data.region import RoiRegion
 from surepy.simulation import simulate_csr, simulate_csr_on_region
 from surepy.data.metadata_utils import _modify_meta
+from surepy.constants import _has_open3d
+if _has_open3d: import open3d as o3d
 
 
 __all__ = ['transform_affine', 'randomize']

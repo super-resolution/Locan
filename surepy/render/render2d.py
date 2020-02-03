@@ -388,7 +388,7 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
 
 
 def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None, rescale=None,
-              ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
+                  ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
 
@@ -470,8 +470,8 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
 
     Prepare matplotlib axes with image.
 
-    Notes:
-    ------
+    Note
+    ----
     To rescale intensity values use norm keyword.
 
     Parameters
@@ -636,7 +636,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None, bins=Non
         viewer = napari.Viewer(axis_labels=loc_properties)
 
     img, range, bins_edges, label = histogram(locdata, loc_properties, other_property, bins, bin_size, range,
-                                                 rescale)
+                                              rescale)
     viewer.add_image(img, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
     return viewer
 

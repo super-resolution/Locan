@@ -2,10 +2,6 @@
 Drift analysis for localization coordinates.
 
 This module provides functions for estimating spatial drift in localization data.
-
-Note
-----
-
 """
 import warnings
 from itertools import accumulate
@@ -15,12 +11,9 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
-try:
-    import open3d as o3d
-    _has_open3d = True
-except ImportError:
-    _has_open3d = False
 
+from surepy.constants import _has_open3d
+if _has_open3d: import open3d as o3d
 from surepy.analysis.analysis_base import _Analysis, _list_parameters
 from surepy.data.locdata import LocData
 from surepy.data.register import _register_icp_open3d
@@ -165,7 +158,6 @@ class Drift(_Analysis):
         matplotlib Axes
             Axes object with the plot.
         """
-        from operator import itemgetter
         if ax is None:
             ax = plt.gca()
 
@@ -182,7 +174,7 @@ class Drift(_Analysis):
 
         ax.set(title=f'Drift\n (window={window})',
                xlabel='frame',
-               ylabel=''.join([results_field, '[', str(element) , ']'])
+               ylabel=''.join([results_field, '[', str(element), ']'])
                )
 
         return ax

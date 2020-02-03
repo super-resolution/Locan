@@ -107,21 +107,32 @@ def test__bin_edges_to_number():
 
 
 def test_adjust_contrast():
+    img = np.array((1, 2, 3, 9), dtype=np.float64)
+    new_img = adjust_contrast(img, rescale=(50, 100))
+    assert np.array_equal(new_img, np.array((0, 0, 0, 1)))
+
     img = np.array((1, 2, 3, 9), dtype=np.uint8)
     new_img = adjust_contrast(img, rescale=None)
     assert np.array_equal(img, new_img)
+
     new_img = adjust_contrast(img, rescale=False)
     assert np.array_equal(img, new_img)
+
     new_img = adjust_contrast(img, rescale='equal')
     assert max(new_img) == 1
+
     new_img = adjust_contrast(img, rescale=True)
     assert np.array_equal(new_img, np.array((0, 31, 63, 255)))
+
     new_img = adjust_contrast(img, rescale=(0, 50))
-    assert np.array_equal(new_img, np.array((0, 170, 255, 255)))
+    assert np.array_equal(new_img, np.array((0, 63, 127, 255)))
+
     new_img = adjust_contrast(img, out_range=(0, 10))
     assert np.array_equal(new_img, np.array((0, 1, 2, 10)))
+
     new_img = adjust_contrast(img * 1., rescale=True)
     assert np.array_equal(new_img, np.array((0, 0.125, 0.25, 1.)))
+
     new_img = adjust_contrast(img, rescale='unity')
     assert np.array_equal(new_img, np.array((0, 0.125, 0.25, 1.)))
 
@@ -129,6 +140,7 @@ def test_adjust_contrast():
 def test_histogram(locdata_blobs_2d):
     hist, ranges, bins, labels = histogram(locdata_blobs_2d)
     assert 'counts' in labels
+    assert hist.dtype == 'float64'
 
     hist, ranges, bins, labels = histogram(locdata_blobs_2d, bins=10, bin_size=None)
     assert 'counts' in labels
@@ -155,10 +167,12 @@ def test_render_2d_mpl(locdata_blobs_2d):
     # render_2d_mpl(locdata_blobs_2d)
     # render_2d_mpl(locdata_blobs_2d, bin_size=100, range=[[500, 1000], [500, 1000]], cbar=False)
 
-    render_2d_mpl(locdata_blobs_2d, bin_size=100, range=None, rescale=(0, 100))
-    # render_2d_mpl(locdata_blobs_2d, bin_size=100, range='zero', rescale=(0, 100))
+    render_2d_mpl(locdata_blobs_2d, bin_size=100, range=None, rescale=None)
+    # render_2d_mpl(locdata_blobs_2d, bin_size=100, range=None, rescale=True)
+    # render_2d_mpl(locdata_blobs_2d, bin_size=100, range=None, rescale='unity')
     # render_2d_mpl(locdata_blobs_2d, bin_size=100, range=None, rescale='equal')
-    # render_2d_mpl(locdata_blobs_2d, bin_size=100, range=None, rescale=None)
+    #render_2d_mpl(locdata_blobs_2d, bin_size=100, range=None, rescale=(0, 50))
+    # render_2d_mpl(locdata_blobs_2d, bin_size=100, range='zero')
     #
     # fig, ax = plt.subplots(nrows=1, ncols=2)
     # render_2d_mpl(locdata_blobs_2d, ax=ax[0])

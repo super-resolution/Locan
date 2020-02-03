@@ -231,21 +231,12 @@ def adjust_contrast(img, rescale=True, **kwargs):
     elif rescale == 'unity':
         img = exposure.rescale_intensity(img *1., **kwargs)
     elif isinstance(rescale, tuple):
-        p_low, p_high = np.percentile(img, rescale)
+        p_low, p_high = np.ptp(img) * np.asarray(rescale) / 100 + img.min()
         img = exposure.rescale_intensity(img, in_range=(p_low, p_high))
     else:
         raise TypeError('Set rescale to tuple, None or "equal".')
 
     return img
-
-
-    # elif isinstance(rescale, tuple):
-    #     minmax = (img.min(), img.max())
-    #     print('minmax:', minmax)
-    #     rescale_abs = tuple(np.multiply(np.divide(rescale, 100), (minmax[1] - minmax[0])) + minmax[0])
-    #     print('rescale_abs:', rescale_abs)
-    #     img = exposure.rescale_intensity(img, in_range=rescale_abs)
-    #     print(img)
 
 
 def _fast_histo_mean(x, y, values, bins, range):
@@ -282,7 +273,8 @@ def _fast_histo_mean(x, y, values, bins, range):
     return hist_mean
 
 
-def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None, rescale=None):
+def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None, rescale=None,
+              **kwargs):
     """
     Make histogram of loc_properties by binning all localizations or averaging other_property within each bin.
 
@@ -314,6 +306,12 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
         For 'equal' intensity values are rescaled by histogram equalization.
         For 'unity' intensity values are rescaled to (0, 1).
         For None or False no rescaling occurs.
+
+    Other Parameters
+    ----------------
+    kwargs : dict
+        For 'rescale' = True kwargs are passed to exposure.rescale_intensity().
+        For 'rescale' = 'equal' kwargs are passed to exposure.equalize_hist().
 
     Returns
     -------
@@ -382,7 +380,7 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
         raise TypeError(f'No valid property name {other_property}.')
 
     if rescale:
-        img = adjust_contrast(img, rescale)
+        img = adjust_contrast(img, rescale, **kwargs)
 
     return img, range_, bin_edges, labels
 

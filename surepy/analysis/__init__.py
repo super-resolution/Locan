@@ -13,6 +13,7 @@ Submodules:
 
    localization_precision
    localization_property
+   localization_property_2d
    localizations_per_frame
    nearest_neighbor
    pipeline
@@ -28,6 +29,7 @@ Submodules:
 # from surepy.analysis.analysis_example import AnalysisExampleAlgorithm_1, AnalysisExampleAlgorithm_2
 from surepy.analysis.localization_precision import *
 from surepy.analysis.localization_property import *
+from surepy.analysis.localization_property_2d import *
 from surepy.analysis.localizations_per_frame import *
 from surepy.analysis.nearest_neighbor import *
 from surepy.analysis.pipeline import *
@@ -41,6 +43,7 @@ from surepy.analysis.drift import *
 __all__ = []
 __all__.extend(localization_precision.__all__)
 __all__.extend(localization_property.__all__)
+__all__.extend(localization_property_2d.__all__)
 __all__.extend(localizations_per_frame.__all__)
 __all__.extend(nearest_neighbor.__all__)
 __all__.extend(pipeline.__all__)

@@ -448,7 +448,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, 
 
     img, range_, bin_edges, label = histogram(locdata, loc_properties, other_property, bins, bin_size, range, rescale)
 
-    mappable = ax.imshow(img, origin='low', extent=[*range_[0], *range_[1]], cmap=cmap, **kwargs)
+    mappable = ax.imshow(img, origin='lower', extent=[*range_[0], *range_[1]], cmap=cmap, **kwargs)
     ax.set(title='Image ({:.0f} nm per bin)'.format(bin_size),
            xlabel='position_x',
            ylabel='position_y'

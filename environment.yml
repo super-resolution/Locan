@@ -27,6 +27,7 @@ dependencies:
 - scikit-learn
 - scikit-image
 - matplotlib
+- lmfit
 
 # User interface
 - pyside2

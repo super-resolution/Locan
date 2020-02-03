@@ -9,7 +9,7 @@ from surepy.analysis import metadata_analysis_pb2
 from scipy import stats
 
 
-class _Analysis():
+class _Analysis:
     """
     Base class for standard analysis procedures.
 
@@ -58,13 +58,12 @@ class _Analysis():
         """ Apply analysis routine with the specified parameters on locdata and return results."""
         raise NotImplementedError
 
-    def report(self, ax):
+    def report(self):
         """ Show a report about analysis results."""
         raise NotImplementedError
 
 
-
-##### Dealing with metadata
+# Dealing with metadata
 
 def _init_meta(self):
     meta_ = metadata_analysis_pb2.AMetadata()
@@ -89,7 +88,7 @@ def _update_meta(self, meta=None):
     return meta_
 
 
-##### Dealing with scipy.stats
+# Dealing with scipy.stats
 
 def _list_parameters(distribution):
     """

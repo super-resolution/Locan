@@ -32,7 +32,7 @@ def test_Localization_property(locdata):
     lprop = LocalizationProperty(loc_property='intensity').compute(locdata=locdata)
     assert(lprop.results.columns == pd.Index(['intensity'], dtype='object'))
     assert(lprop.distribution_statistics is None)
-    # lprop.plot()
+    #  lprop.plot()
     # lprop.hist()
     lprop.fit_distributions()
     assert(list(lprop.distribution_statistics.parameter_dict().keys()) == ['intensity_loc', 'intensity_scale'])

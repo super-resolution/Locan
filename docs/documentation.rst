@@ -12,7 +12,7 @@ Sphinx_.
 We follow standard recommendations for `python documentation`_ and the `numpy conventions`_.
 
 .. _python documentation: https://www.python.org/dev/peps/pep-0008/
-.. _numpy conventions: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+.. _numpy conventions: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 Update documentation
 --------------------

@@ -35,6 +35,12 @@ except ImportError:
     _has_colorcet = False
 
 try:
+    import cupy as cp
+    _has_cupy = True
+except ImportError:
+    _has_cupy = False
+
+try:
     import mpl_scatter_density
     _has_mpl_scatter_density = True
 except ImportError:

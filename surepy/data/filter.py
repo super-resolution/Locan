@@ -170,7 +170,7 @@ def exclude_sparse_points(locdata, other_locdata=None, radius=50, min_samples=5)
     return new_locdata
 
 
-def random_subset(locdata, number_points):
+def random_subset(locdata, n_points):
     """
     Take a random subset of localizations.
 
@@ -178,7 +178,7 @@ def random_subset(locdata, number_points):
     ----------
     locdata : LocData
         Specifying the localization data from which to select localization data.
-    number_points : int
+    n_points : int
         Number of localizations to randomly choose from locdata.
 
     Returns
@@ -188,7 +188,7 @@ def random_subset(locdata, number_points):
     """
     local_parameter = locals()
 
-    indices = np.random.choice(locdata.data.index, size=number_points)
+    indices = np.random.choice(locdata.data.index, size=n_points)
     new_locdata = LocData.from_selection(locdata, indices)
 
     # update metadata

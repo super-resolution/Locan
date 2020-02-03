@@ -205,7 +205,7 @@ def locdata_simple():
 
 
 def test_resample(locdata_simple):
-    dat = resample(locdata=locdata_simple, number_samples=3)
+    dat = resample(locdata=locdata_simple, n_samples=3)
     # print(dat.data)
     assert len(dat) == 15
 
@@ -214,7 +214,7 @@ def test_resample(locdata_simple):
 
 
 def test_simulate_tracks():
-    dat = simulate_tracks(number_walks=2, number_steps=3)
+    dat = simulate_tracks(n_walks=2, n_steps=3)
     # print(dat.data)
     # print(dat.meta)
     assert len(dat) == 6

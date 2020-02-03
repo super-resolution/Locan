@@ -866,15 +866,15 @@ def simulate_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1
     return locdata
 
 
-def _random_walk(number_walks=1, number_steps=10, dimensions=2, diffusion_constant=1, time_step=10):
+def _random_walk(n_walks=1, n_steps=10, dimensions=2, diffusion_constant=1, time_step=10):
     """
     Random walk simulation
 
     Parameters
     ----------
-    number_walks: int
+    n_walks: int
         Number of walks
-    number_steps : int
+    n_steps : int
         Number of time steps (i.e. frames)
     dimensions : int
         spatial dimensions to simulate
@@ -886,13 +886,13 @@ def _random_walk(number_walks=1, number_steps=10, dimensions=2, diffusion_consta
     Returns
     -------
     tuple of arrays
-        (times, positions), where shape(times) is 1 and shape of positions is (number_walks, number_steps, dimensions)
+        (times, positions), where shape(times) is 1 and shape of positions is (n_walks, n_steps, dimensions)
     """
     # equally spaced time steps
-    times = np.arange(number_steps) * time_step
+    times = np.arange(n_steps) * time_step
 
     # random step sizes according to the diffusion constant
-    random_numbers = np.random.randint(0, 2, size=(number_walks, number_steps, dimensions))
+    random_numbers = np.random.randint(0, 2, size=(n_walks, n_steps, dimensions))
     step_size = np.sqrt(2 * dimensions * diffusion_constant * time_step)
     steps = np.where(random_numbers == 0, -step_size, +step_size)
 
@@ -902,7 +902,7 @@ def _random_walk(number_walks=1, number_steps=10, dimensions=2, diffusion_consta
     return times, positions
 
 
-def simulate_tracks(number_walks=1, number_steps=10, ranges=((0, 10000), (0, 10000)), diffusion_constant=1,
+def simulate_tracks(n_walks=1, n_steps=10, ranges=((0, 10000), (0, 10000)), diffusion_constant=1,
                     time_step=10, seed=None):
     """
     Provide a dataset of localizations representing random walks with starting points being spatially-distributed
@@ -910,9 +910,9 @@ def simulate_tracks(number_walks=1, number_steps=10, ranges=((0, 10000), (0, 100
 
     Parameters
     ----------
-    number_walks: int
+    n_walks: int
         Number of walks
-    number_steps : int
+    n_steps : int
         Number of time steps (i.e. frames)
     ranges : tuple of tuples of two ints
         the range for valid x[, y, z]-coordinates
@@ -933,9 +933,9 @@ def simulate_tracks(number_walks=1, number_steps=10, ranges=((0, 10000), (0, 100
     if seed is not None:
         np.random.seed(seed)
 
-    start_positions = np.array([np.random.uniform(*_range, size=number_walks) for _range in ranges]).T
+    start_positions = np.array([np.random.uniform(*_range, size=n_walks) for _range in ranges]).T
 
-    times, positions = _random_walk(number_walks=number_walks, number_steps=number_steps, dimensions=len(ranges),
+    times, positions = _random_walk(n_walks=n_walks, n_steps=n_steps, dimensions=len(ranges),
                                     diffusion_constant=diffusion_constant, time_step=time_step)
 
     new_positions = np.concatenate([
@@ -948,7 +948,7 @@ def simulate_tracks(number_walks=1, number_steps=10, ranges=((0, 10000), (0, 100
         for _, position_values, label in zip(ranges, new_positions.T, ('x', 'y', 'z'))
     }
 
-    locdata_dict.update(frame=np.tile(range(len(times)), number_walks))
+    locdata_dict.update(frame=np.tile(range(len(times)), n_walks))
 
     locdata = LocData.from_dataframe(dataframe=pd.DataFrame(locdata_dict))
 
@@ -960,9 +960,9 @@ def simulate_tracks(number_walks=1, number_steps=10, ranges=((0, 10000), (0, 100
     return locdata
 
 
-def resample(locdata, number_samples=10):
+def resample(locdata, n_samples=10):
     """
-    Resample locdata according to localization uncertainty. Per localization *number_samples* new localizations
+    Resample locdata according to localization uncertainty. Per localization *n_samples* new localizations
     are simulated normally distributed around the localization coordinates with a standard deviation set to the
     uncertainty in each dimension.
     The resulting LocData object carries new localizations with the following properties: 'Position_x',
@@ -972,7 +972,7 @@ def resample(locdata, number_samples=10):
     ----------
     locdata : LocData object
         Localization data to be resampled
-    number_samples : int
+    n_samples : int
         The number of localizations generated for each original localization.
 
     Returns
@@ -985,23 +985,23 @@ def resample(locdata, number_samples=10):
     list = []
     for i in range(len(locdata)):
         new_d = {}
-        new_d.update({'origin_index': np.full(number_samples, i)})
+        new_d.update({'origin_index': np.full(n_samples, i)})
         x_values = np.random.normal(loc=locdata.data.iloc[i]['position_x'],
                                     scale=locdata.data.iloc[i]['uncertainty_x'],
-                                    size=number_samples
+                                    size=n_samples
                                     )
         new_d.update({'position_x': x_values})
 
         y_values = np.random.normal(loc=locdata.data.iloc[i]['position_y'],
                                     scale=locdata.data.iloc[i]['uncertainty_y'],
-                                    size=number_samples
+                                    size=n_samples
                                     )
         new_d.update({'position_y': y_values})
 
         try:
             z_values = np.random.normal(loc=locdata.data.iloc[i]['position_z'],
                                         scale=locdata.data.iloc[i]['uncertainty_z'],
-                                        size=number_samples
+                                        size=n_samples
                                         )
             new_d.update({'position_z': z_values})
         except KeyError:
@@ -1033,7 +1033,7 @@ def resample(locdata, number_samples=10):
     meta_.state = metadata_pb2.MODIFIED
     meta_.ancestor_identifiers.append(locdata.meta.identifier)
     meta_.history.add(name='resample',
-                      parameter='locdata={}, number_samples={}'.format(locdata, number_samples))
+                      parameter='locdata={}, n_samples={}'.format(locdata, n_samples))
 
     # instantiate
     new_locdata = LocData.from_dataframe(dataframe=dataframe, meta=meta_)

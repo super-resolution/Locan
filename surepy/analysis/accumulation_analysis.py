@@ -107,7 +107,7 @@ def _accumulation_cluster_check(locdata, region_measure='bb', algorithm=cluster_
 
     # take random subsets of localizations
     if divide == 'random':
-        locdatas = [random_subset(locdata, number_points=n_pts) for n_pts in numbers_loc]
+        locdatas = [random_subset(locdata, n_points=n_pts) for n_pts in numbers_loc]
         for locd in locdatas:
             locd.reduce(reset_index=True)
     elif divide == 'sequential':

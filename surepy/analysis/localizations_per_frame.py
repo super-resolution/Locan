@@ -34,13 +34,13 @@ def _localizations_per_frame(data, norm=None):
     # normalization
     if norm is None:
         normalization_factor = 1
-        series_name = 'number_localizations'
+        series_name = 'n_localizations'
     elif isinstance(norm, str):
         normalization_factor = data.properties[norm]
-        series_name = f'number_localizations / ' + norm
+        series_name = f'n_localizations / ' + norm
     elif isinstance(norm, (int, float)):
         normalization_factor = norm
-        series_name = f'number_localizations / {norm}'
+        series_name = f'n_localizations / {norm}'
     else:
         raise TypeError('normalization should be None, a number or a valid property name.')
 

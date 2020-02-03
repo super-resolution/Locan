@@ -63,7 +63,7 @@ def test_LocData_selection_from_collection(locdata_simple):
 
 
 def test_random_subset(locdata_simple):
-    dat_s = random_subset(locdata_simple, number_points=3)
+    dat_s = random_subset(locdata_simple, n_points=3)
     assert (len(dat_s) == 3)
     # dat_s.print_meta()
     # print(dat_s.data)

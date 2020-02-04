@@ -59,7 +59,8 @@ PYTHON_REQUIRES = '>=3.5'
 SETUP_REQUIRES = ['pytest-runner']
 INSTALL_REQUIRES = ['fast-histogram','ruamel.yaml','protobuf','numba',
                     'scikit-learn', 'scikit-image', 'matplotlib', 'scipy', 'pandas', 'numpy', 'lmfit']
-EXTRAS_REQUIRE = {'Colormaps': ["colorcet"], 'Track': ["trackpy"], 'Register': ["open3d"], 'Geometry': ["shapely"]}
+EXTRAS_REQUIRE = {'Colormaps': ["colorcet"], 'Track': ["trackpy"], 'Register': ["open3d"], 'Geometry': ["shapely"],
+                  'Render': ["napari", "mpl_scatter_density"]}
 TESTS_REQUIRE = ['pytest']
 
 # entry points to register scripts

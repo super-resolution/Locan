@@ -37,3 +37,5 @@ colorcet
 shapely
 trackpy
 open3d
+mpl_scatter_density
+napari

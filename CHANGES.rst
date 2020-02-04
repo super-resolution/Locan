@@ -8,6 +8,7 @@ Changelog
 
 New Features
 ------------
+- New function test() to run pytest on whole test suite.
 
 surepy.analysis
 ^^^^^^^^^^^^^^^
@@ -15,7 +16,11 @@ surepy.analysis
 
 surepy.data
 ^^^^^^^^^^^^^^^
--
+- New rasterize function to divide localization support into rectangular rois.
+- New functions to perform affine transformation using open3d.
+- New functions to perform registration using open3d.
+- New function for drift correction using icp (from open3d).
+- Increase performance of maximum distance computation of localization data.
 
 surepy.gui
 ^^^^^^^^^^^^^^^
@@ -43,11 +48,12 @@ API Changes
 
 surepy.analysis
 ^^^^^^^^^^^^^^^
--
+- New analysis class for drift estimation.
+- New analysis class for analysing 2d distribution of localization property.
 
 surepy.data
 ^^^^^^^^^^^^^^^
--
+- deprecate update_convex_hull_in_collection().
 
 surepy.gui
 ^^^^^^^^^^^^^^^
@@ -60,14 +66,16 @@ surepy.io
 surepy.render
 ^^^^^^^^^^^^^^^
 - Default colormaps are set to selected ones from colorcet or matplotlib.
+- Add histogram function for rendering localization data.
+- Add render functions to work with mpl, mpl-scatter-density, napari
 
 surepy.scripts
 ^^^^^^^^^^^^^^^
-- Add selection option for ellipse roi
+- Add selection option for ellipse roi.
 
 surepy.simulation
 ^^^^^^^^^^^^^^^^^^^
--
+- Add functions for drift simulation.
 
 Bug Fixes
 ---------
@@ -104,8 +112,8 @@ surepy.simulation
 
 Other Changes and Additions
 ---------------------------
+- Add centroid and dimension property to LocData
 -
-
 
 0.3 (09.07.2019)
 ================

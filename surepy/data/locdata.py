@@ -474,12 +474,12 @@ class LocData:
         LocData
             The modified object
         """
-        if isinstance(self.references, LocData):
+        if isinstance(self.references, (LocData, list)):
             self.dataframe = self.data
             self.indices = None
             self.references = None
         else:
-            raise ValueError('reference has undefined value.')
+            raise ValueError('references has undefined value.')
 
         if reset_index is True:
             self.dataframe.reset_index(drop=True, inplace=True)

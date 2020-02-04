@@ -194,9 +194,13 @@ def test_LocData_reduce(df_simple):
     sel_1 = LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
     sel_2 = LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
     sel_1.reduce()
+    assert sel_1.references is None
     assert (len(sel_1) == 3)
     assert (len(sel_1.data) == len(sel_2.data))
-
+    col = LocData.from_collection([sel_1, sel_2], meta=COMMENT_METADATA)
+    col.reduce()
+    assert (len(col) == 2)
+    assert col.references is None
 
 # locdata with added columns
 

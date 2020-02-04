@@ -38,8 +38,6 @@ dependencies:
 
 # File formats
 - ruamel.yaml
-- pip:
-  - asdf
 
 # Data analysis tools
 - hdbscan
@@ -50,6 +48,8 @@ dependencies:
 - shapely
 - trackpy
 - open3d
+
 - pip:
-  - mpl_scatter_density
-  - napari
+  - asdf  # File format
+  - mpl_scatter_density  # Extra requirements
+  - napari  # Extra requirements

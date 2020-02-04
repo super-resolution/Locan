@@ -5,11 +5,13 @@ from pandas.testing import assert_frame_equal
 import matplotlib.pyplot as plt
 
 from surepy import LocData
+from surepy.constants import _has_open3d
 from surepy.io.io_locdata import load_rapidSTORM_file
 from surepy.constants import ROOT_DIR
 from surepy.analysis.drift import Drift
 
 
+@pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
 def test_Drift():
     locdata = load_rapidSTORM_file(path=ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt')
 

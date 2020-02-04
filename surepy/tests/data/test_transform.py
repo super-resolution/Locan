@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from surepy import LocData
 import surepy.constants
+from surepy.constants import _has_open3d
 from surepy import render_2d
 from surepy.io.io_locdata import load_rapidSTORM_file
 from surepy.data.transform import randomize, transform_affine
@@ -112,6 +113,19 @@ def test_standard_locdata_objects(
     new_locdata = transform_affine(locdata)
     assert len(new_locdata.data.columns) == expected
 
+
+@pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_empty', 0),
+    ('locdata_single_localization', 4),
+    ('locdata_2d', 4),
+    ('locdata_3d', 5),
+    ('locdata_non_standard_index', 4)
+])
+def test_standard_locdata_objects_open3d(
+        locdata_empty, locdata_single_localization, locdata_2d, locdata_3d, locdata_non_standard_index,
+        fixture_name, expected):
+    locdata = eval(fixture_name)
     new_locdata = transform_affine(locdata, method='open3d')
     assert len(new_locdata.data.columns) == expected
 
@@ -138,9 +152,16 @@ def test_transformation_affine_2d(locdata_2d):
     assert np.array_equal(new_locdata.coordinates, points_target)
     assert len(new_locdata.data.columns) == 4
 
+
+@pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
+def test_transformation_affine_2d_open3d(locdata_2d):
     new_locdata = transform_affine(locdata_2d, method='open3d')
     assert np.array_equal(new_locdata.coordinates, locdata_2d.coordinates)
     assert len(new_locdata.data.columns) == 4
+
+    matrix = ((-1, 0), (0, -1))
+    offset = (10, 10)
+    pre_translation = (100, 100)
 
     new_locdata = transform_affine(locdata_2d, matrix, offset,  method='open3d')
     points_target = ((9, 9), (9, 5), (8, 7), (7, 4), (6, 8), (5, 5))
@@ -175,9 +196,16 @@ def test_transformation_affine_3d(locdata_3d):
     assert np.array_equal(new_locdata.coordinates, points_target)
     assert len(new_locdata.data.columns) == 5
 
+
+@pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
+def test_transformation_affine_3d_open3d(locdata_3d):
     new_locdata = transform_affine(locdata_3d, method='open3d')
     assert np.array_equal(new_locdata.coordinates, locdata_3d.coordinates)
     assert len(new_locdata.data.columns) == 5
+
+    matrix = ((-1, 0, 0), (0, -1, 0), (0, 0, -1))
+    offset = (10, 10, 10)
+    pre_translation = (100, 100, 100)
 
     new_locdata = transform_affine(locdata_3d, matrix, offset,  method='open3d')
     points_target = ((9, 9, 9), (9, 5, 8), (8, 7, 5), (7, 4, 6), (6, 8, 7), (5, 5, 8))

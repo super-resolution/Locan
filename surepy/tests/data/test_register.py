@@ -1,9 +1,12 @@
+import pytest
 import numpy as np
 
+from surepy.constants import _has_open3d
 from surepy.data.transform import transform_affine
 from surepy.data.register import register_icp
 
 
+@pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
 def test_register_icp_2d(locdata_blobs_2d):
     locdata_2d_transformed = transform_affine(locdata_blobs_2d, offset=(100, 100))
     offset_target = np.array([100., 100.])
@@ -19,6 +22,7 @@ def test_register_icp_2d(locdata_blobs_2d):
     assert np.allclose(matrix, matrix_target)
 
 
+@pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
 def test_register_icp_3d(locdata_blobs_3d):
     locdata_3d_transformed = transform_affine(locdata_blobs_3d, offset=(100, 100, 100))
     offset_target = np.array([100., 100., 100.])

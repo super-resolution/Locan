@@ -515,7 +515,7 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     if ax is None:
         ax = plt.gca()
         fig = ax.get_figure()
-        ax = fig.add_subplot(1, 1, 1, projection='scatter_density')
+        ax = fig.add_subplot(1, 1, 1, projection='scatter_density', label='scatter_density')
 
     # todo: adjust for loc_property input
     range_ = _coordinate_ranges(locdata, range=range)

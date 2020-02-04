@@ -295,16 +295,18 @@ def test_standard_locdata_objects(
 
 
 @pytest.mark.parametrize('fixture_name, expected', [
-    ('locdata_empty', pytest.raises(AttributeError)),
-    ('locdata_single_localization', pytest.raises(AttributeError)),
+    ('locdata_empty', 0),
+    ('locdata_single_localization', 0),
 ])
 def test_locdata_hulls(
         locdata_empty, locdata_single_localization,
         fixture_name, expected):
     dat = eval(fixture_name)
     assert dat.bounding_box.region_measure == 0
-    with expected:
-        assert np.isnan(dat.convex_hull.region_measure)
+    with pytest.warns(UserWarning):
+        assert dat.convex_hull is None
+    with pytest.raises(AttributeError):
+        assert dat.region_measure_ch
 
 
 @pytest.mark.parametrize('fixture_name, expected', [

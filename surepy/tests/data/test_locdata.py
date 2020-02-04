@@ -58,13 +58,16 @@ def test_LocData(df_simple):
     for x, y in zip(dat.coordinates, [[0, 0], [0, 1], [1, 3], [4, 4], [5, 1]]):
         assert np.all(x == np.array(y))
     assert dat.meta.comment == COMMENT_METADATA.comment
-    # assert dat.meta.identifier == '1'  # this test runs ok for this testing this function alone.
+    # assert dat.meta.identifier == '1'  # the test runs ok when testing this function alone.
     assert dat.bounding_box.region_measure == 20
     assert 'region_measure_bb' in dat.properties
     assert 'localization_density_bb' in dat.properties
     assert dat.convex_hull.region_measure == 12.5
     assert 'region_measure_ch' in dat.properties
     assert 'localization_density_ch' in dat.properties
+    assert round(dat.oriented_bounding_box.region_measure) == 16
+    assert 'region_measure_obb' in dat.properties
+    assert 'localization_density_obb' in dat.properties
     assert dat.region is None
     dat.region = dat.bounding_box.region
     assert dat.region.region_type == dat.bounding_box.region.region_type
@@ -201,6 +204,19 @@ def test_LocData_reduce(df_simple):
     col.reduce()
     assert (len(col) == 2)
     assert col.references is None
+
+
+def test_LocData_reset(df_simple):
+    dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
+    assert dat.properties['position_x'] == 2
+    assert dat.properties['region_measure_bb'] == 20
+
+    dat.dataframe['position_x'] = [0, 1, 4, 0, 0]
+    dat.dataframe['position_y'] = [1, 3, 4, 0, 0]
+    dat.reset()
+    assert dat.properties['position_x'] == 1
+    assert dat.properties['region_measure_bb'] == 16
+
 
 # locdata with added columns
 

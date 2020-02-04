@@ -92,6 +92,8 @@ class LocData:
         self._convex_hull = None
         self._alpha_shape = None
 
+        self._update_properties()
+
         # meta
         global LOCDATA_ID
         LOCDATA_ID += 1
@@ -112,6 +114,7 @@ class LocData:
         else:
             self.meta.MergeFrom(meta)
 
+    def _update_properties(self):
         # coordinate labels
         self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'position_x',
                                                                                   'position_y',
@@ -144,7 +147,7 @@ class LocData:
                 if self._bounding_box.region_measure:
                     self.properties['region_measure_bb'] = self._bounding_box.region_measure
                     self.properties['localization_density_bb'] = \
-                        self.meta.element_count / self._bounding_box.region_measure
+                        self.properties['localization_count'] / self._bounding_box.region_measure
                 if self._bounding_box.subregion_measure:
                     self.properties['subregion_measure_bb'] = self._bounding_box.subregion_measure
             except ValueError:
@@ -162,6 +165,18 @@ class LocData:
             except TypeError:
                 warnings.warn('Properties related to convex hull could not be computed.', UserWarning)
         return self._convex_hull
+
+    @property
+    def oriented_bounding_box(self):
+        if self._oriented_bounding_box is None:
+            try:
+                self._oriented_bounding_box = surepy.data.hulls.OrientedBoundingBox(self.coordinates)
+                self.properties['region_measure_obb'] = self._oriented_bounding_box.region_measure
+                self.properties['localization_density_obb'] = self.properties['localization_count'] \
+                                                                  / self._oriented_bounding_box.region_measure
+            except TypeError:
+                warnings.warn('Properties related to oriented bounding box could not be computed.', UserWarning)
+        return self._oriented_bounding_box
 
     @property
     def region(self):
@@ -450,12 +465,18 @@ class LocData:
         LocData
             The modified object
         """
+        if reset_index is True:
+            self.dataframe.reset_index(drop=True, inplace=True)
+
+        self.properties = {}
+        self._region = None
         self._bounding_box = None
         self._oriented_bounding_box = None
         self._convex_hull = None
         self._alpha_shape = None
-        if reset_index is True:
-            self.dataframe.reset_index(drop=True, inplace=True)
+
+        self._update_properties()
+
         return self
 
     def reduce(self, reset_index=False):

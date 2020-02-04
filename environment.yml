@@ -14,6 +14,7 @@ channels:
 dependencies:
 # Python
 - python>=3.5
+- pip
 - numba
 
 # Python tests
@@ -49,5 +50,6 @@ dependencies:
 - shapely
 - trackpy
 - open3d
-- mpl_scatter_density
-- napari
+- pip:
+  - mpl_scatter_density
+  - napari

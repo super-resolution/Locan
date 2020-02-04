@@ -60,7 +60,7 @@ SETUP_REQUIRES = ['pytest-runner']
 INSTALL_REQUIRES = ['fast-histogram','ruamel.yaml', 'asdf', 'hdbscan', 'protobuf','numba',
                     'scikit-learn', 'scikit-image', 'matplotlib', 'scipy', 'pandas', 'numpy', 'lmfit']
 EXTRAS_REQUIRE = {'Colormaps': ["colorcet"], 'Track': ["trackpy"], 'Register': ["open3d"], 'Geometry': ["shapely"],
-                  'Render': ["napari", "mpl_scatter_density"]}
+                  'Render': ["napari", "mpl_scatter_density"], 'pyside2': ["pyside2"]}
 TESTS_REQUIRE = ['pytest']
 
 # entry points to register scripts

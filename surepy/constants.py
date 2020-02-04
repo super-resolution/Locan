@@ -54,10 +54,21 @@ except ImportError:
 
 try:
     import open3d as o3d
-
     _has_open3d = True
 except ImportError:
     _has_open3d = False
+
+try:
+    from PySide2.QtGui import QApplication
+    _has_pyside2 = True
+except ImportError:
+    _has_pyside2 = False
+
+try:
+    from PyQt5.QtWidgets import QApplication
+    _has_pyqt5 = True
+except ImportError:
+    _has_pyqt5 = False
 
 try:
     from shapely.geometry import Point

@@ -30,9 +30,6 @@ dependencies:
 - matplotlib
 - lmfit
 
-# User interface
-- pyside2
-
 # Google
 - protobuf
 
@@ -44,6 +41,7 @@ dependencies:
 - fast-histogram
 
 # Extra requirements
+- pyside2
 - colorcet
 - shapely
 - trackpy

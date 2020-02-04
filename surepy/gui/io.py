@@ -3,6 +3,12 @@
 Functions for user interaction with paths and file names.
 
 """
+from surepy.constants import _has_pyside2, _has_pyqt5
+if _has_pyqt5:
+    from PyQt5.QtWidgets import QApplication, QFileDialog
+elif _has_pyside2:
+    from PySide2.QtGui import QApplication, QFileDialog
+
 
 __all__ = ['file_dialog']
 
@@ -27,18 +33,13 @@ def file_dialog(directory=None, message='Select a file...', filter='Text files (
     list of str
         list with file names or empty list
     """
-    try:
-        from PyQt5.QtWidgets import QApplication, QFileDialog
-    except ImportError:
-        try:
-            from PyQt4.QtGui import QApplication, QFileDialog
-        except ImportError:
-            from PySide.QtGui import QApplication, QFileDialog
+    if not (_has_pyside2 or _has_pyqt5):
+        raise ImportError('Function requires either PySide2 or PyQt5.')
 
     if directory is None:
         directory_ = './'
     else:
-        directory_=directory
+        directory_ = str(directory)
 
     app = QApplication([directory])
     fname = QFileDialog.getOpenFileNames(None, message, directory=directory_, filter=filter)

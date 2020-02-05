@@ -17,8 +17,7 @@ import matplotlib.pyplot as plt
 import matplotlib.path as mPath
 import matplotlib.patches as mPatches
 from scipy.spatial.distance import pdist
-from surepy.constants import _has_shapely
-if _has_shapely: from shapely.geometry import Polygon as shPolygon
+from shapely.geometry import Polygon as shPolygon
 
 
 __all__ = ['RoiRegion']
@@ -338,9 +337,6 @@ class _RoiEllipse:
 class _RoiPolygon:
 
     def __init__(self, region_specs):
-        if not _has_shapely:
-            raise ImportError("shapely is required.")
-
         if not np.all(region_specs[0] == region_specs[-1]):
             raise ValueError('First and last element of polygon must be identical.')
         else:

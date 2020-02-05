@@ -11,8 +11,7 @@ import pandas as pd
 import scipy.spatial as spat
 
 from surepy.data.region import RoiRegion
-from surepy.constants import _has_shapely
-if _has_shapely: from shapely.geometry import LineString, MultiPoint
+from shapely.geometry import LineString, MultiPoint
 
 
 __all__ = ['BoundingBox', 'ConvexHull', '_ConvexHullShapely', 'OrientedBoundingBox']
@@ -208,9 +207,6 @@ class _ConvexHullShapely:
     region : RoiRegion
         Convert the hull to a RoiRegion object.
     """
-    if not _has_shapely:
-        raise ImportError("shapely is required.")
-
     def __init__(self, points):
         if len(points) < 6:
             unique_points = np.array(list(set(tuple(point) for point in points)))
@@ -319,9 +315,6 @@ class OrientedBoundingBox:
     region : RoiRegion
         Convert the hull to a RoiRegion object.
     """
-    if not _has_shapely:
-        raise ImportError("shapely is required.")
-
     def __init__(self, points):
         self.dimension = np.shape(points)[1]
         if self.dimension >= 3:

@@ -71,12 +71,6 @@ except ImportError:
     _has_pyqt5 = False
 
 try:
-    from shapely.geometry import Point
-    _has_shapely = True
-except ImportError:
-    _has_shapely = False
-
-try:
     from trackpy import link_df
     _has_trackpy = True
 except ImportError:

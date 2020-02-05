@@ -408,7 +408,7 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2), properties_for_roi=())
     # specify support
     if support is None:
         support_ = locdata.bounding_box.vertices[coordinate_labels_indices]
-        if len(locdata.bounding_box.width) is 0:
+        if len(locdata.bounding_box.width) == 0:
             widths = np.zeros(len(n_regions))
         else:
             widths = locdata.bounding_box.width[coordinate_labels_indices] / n_regions

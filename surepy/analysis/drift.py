@@ -53,7 +53,7 @@ def _estimate_drift_open3d(locdata, chunk_size=1000, target='first'):
     # register locdatas
     matrices = []
     offsets = []
-    if target is 'first':
+    if target == 'first':
         for locdata in collection.references[1:]:
             matrix, offset = _register_icp_open3d(locdata.coordinates, collection.references[0].coordinates,
                                                   matrix=None, offset=None, pre_translation=None,
@@ -62,7 +62,7 @@ def _estimate_drift_open3d(locdata, chunk_size=1000, target='first'):
             matrices.append(matrix)
             offsets.append(offset)
 
-    elif target is 'previous':
+    elif target == 'previous':
         for n in range(len(collection.references)-1):
             matrix, offset = _register_icp_open3d(collection.references[n+1].coordinates,
                                                   collection.references[n].coordinates,

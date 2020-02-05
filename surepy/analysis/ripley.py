@@ -168,7 +168,7 @@ class RipleysKFunction(_Analysis):
 
         # choose the right region_measure
         # todo: add other hull regions
-        if self.parameter['region_measure'] is 'bb':
+        if self.parameter['region_measure'] == 'bb':
             region_measure = float(locdata.properties['region_measure_bb'])
         else:
             region_measure = self.parameter['region_measure']
@@ -237,7 +237,7 @@ class RipleysLFunction(_Analysis):
 
         # choose the right region_measure
         # todo: add other hull regions
-        if self.parameter['region_measure'] is 'bb':
+        if self.parameter['region_measure'] == 'bb':
             region_measure = float(locdata.properties['region_measure_bb'])
         else:
             region_measure = self.parameter['region_measure']
@@ -312,7 +312,7 @@ class RipleysHFunction(_Analysis):
 
         # choose the right region_measure
         # todo: add other hull regions
-        if self.parameter['region_measure'] is 'bb':
+        if self.parameter['region_measure'] == 'bb':
             region_measure = float(locdata.properties['region_measure_bb'])
         else:
             region_measure = self.parameter['region_measure']

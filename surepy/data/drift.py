@@ -63,10 +63,10 @@ def drift_correction(locdata, chunk_size=1000, target='first', analysis_class=No
         drift = analysis_class
 
     transformed_locdatas = []
-    if target is 'first':
+    if target == 'first':
         transformed_locdatas = [transform_affine(locdata, matrix, offset) for locdata, matrix, offset
                                 in zip(drift.collection.references[1:], drift.results.matrices, drift.results.offsets)]
-    elif target is 'previous':
+    elif target == 'previous':
         for n, locdata in enumerate(drift.collection.references[1:]):
             transformed_locdata = locdata
             for matrix, offset in zip(reversed(drift.results.matrices[:n]), reversed(drift.results.offsets[:n])):

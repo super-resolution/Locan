@@ -244,7 +244,7 @@ def randomize(locdata, hull_region='bb'):
     """
     local_parameter = locals()
 
-    if hull_region is 'bb':
+    if hull_region == 'bb':
         try:
             ranges = locdata.bounding_box.hull.T
         except AttributeError:
@@ -253,7 +253,7 @@ def randomize(locdata, hull_region='bb'):
 
         new_locdata = simulate_csr(n_samples=len(locdata), n_features=len(ranges), feature_range=ranges)
 
-    elif hull_region is 'ch':
+    elif hull_region == 'ch':
         try:
             region_ = locdata.convex_hull.region
         except AttributeError:

@@ -1,6 +1,10 @@
 Welcome to Surepy
 =================
 
+[![GitHub](https://img.shields.io/github/license/super-resolution/surepy)](https://github.com/super-resolution/Surepy/blob/master/LICENSE.md)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/super-resolution/surepy)](https://github.com/super-resolution/Surepy)
+[![GitHub last commit](https://img.shields.io/github/last-commit/super-resolution/surepy)](https://github.com/super-resolution/Surepy/commits/master)
+
 Surepy is a python-based library with code for analyzing fluoresence super-resolution
 microscopy data.
 

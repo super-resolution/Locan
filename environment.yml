@@ -7,9 +7,10 @@
 name: surepy
 
 channels:
+- open3d-admin
 - conda-forge
 - defaults
-- open3d-admin
+
 
 dependencies:
 # Python
@@ -45,7 +46,7 @@ dependencies:
 - colorcet
 - shapely
 - trackpy
-- open3d
+- open3d  # =0.8.*
 
 - pip:
   - asdf  # File format

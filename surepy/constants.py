@@ -59,7 +59,7 @@ except ImportError:
     _has_open3d = False
 
 try:
-    from PySide2.QtGui import QApplication
+    import PySide2.QtCore
     _has_pyside2 = True
 except ImportError:
     _has_pyside2 = False
@@ -75,6 +75,29 @@ try:
     _has_trackpy = True
 except ImportError:
     _has_trackpy = False
+
+
+# Packages to interact with QT
+class QtBindings(Enum):
+    """
+    Python bindings used to interact with Qt.
+    """
+    if not _has_pyside2:
+        _ignore_ = 'PYSIDE2'
+    if not _has_pyqt5:
+        _ignore_ = 'PYQT5'
+    NONE = 0
+    PYSIDE2 = 1
+    PYQT5 = 2
+
+
+#: Set python bindings for QT interaction.
+if _has_pyside2:
+    QT_BINDINGS = QtBindings.PYSIDE2
+elif _has_pyqt5:
+    QT_BINDINGS = QtBindings.PYQT5
+else:
+    QT_BINDINGS = QtBindings.NONE
 
 
 #: Root directory for path operations.

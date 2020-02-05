@@ -3,12 +3,12 @@
 Functions for user interaction with paths and file names.
 
 """
-from surepy.constants import _has_pyside2, _has_pyqt5
-if _has_pyqt5:
-    from PyQt5.QtWidgets import QApplication, QFileDialog
-elif _has_pyside2:
-    from PySide2.QtGui import QApplication, QFileDialog
+from surepy.constants import QT_BINDINGS, QtBindings
 
+if QT_BINDINGS == QtBindings.PYSIDE2:
+    from PySide2.QtWidgets import QApplication, QFileDialog
+elif QT_BINDINGS == QtBindings.PYQT5:
+    from PyQt5.QtWidgets import QApplication, QFileDialog
 
 __all__ = ['file_dialog']
 
@@ -33,7 +33,7 @@ def file_dialog(directory=None, message='Select a file...', filter='Text files (
     list of str
         list with file names or empty list
     """
-    if not (_has_pyside2 or _has_pyqt5):
+    if QT_BINDINGS == QtBindings.NONE:
         raise ImportError('Function requires either PySide2 or PyQt5.')
 
     if directory is None:
@@ -41,7 +41,11 @@ def file_dialog(directory=None, message='Select a file...', filter='Text files (
     else:
         directory_ = str(directory)
 
-    app = QApplication([directory])
+    if QT_BINDINGS == QtBindings.PYSIDE2:
+        app = QApplication([directory_])  # todo: this is not working - please fix!
+    elif QT_BINDINGS == QtBindings.PYQT5:
+        app = QApplication([directory_])
+
     fname = QFileDialog.getOpenFileNames(None, message, directory=directory_, filter=filter)
 
     if isinstance(fname, tuple):

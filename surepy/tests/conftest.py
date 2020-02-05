@@ -1,4 +1,5 @@
 from pathlib import Path
+import warnings
 
 import pytest
 import numpy as np
@@ -7,6 +8,16 @@ import pandas as pd
 from surepy import LocData
 from surepy.constants import ROOT_DIR
 from surepy.io.io_locdata import load_txt_file
+from surepy.constants import _has_pyqt5, _has_pyside2, _has_open3d, _has_napari, _has_mpl_scatter_density, \
+    _has_colorcet, _has_cupy, _has_trackpy
+
+
+for package_string, package_flag in zip(
+        ['pyqt5', 'pyside2', 'open3d', 'napari', 'mpl-scatter-density', 'colorcet', 'cupy', 'trackpy'],
+        [_has_pyqt5, _has_pyside2, _has_open3d, _has_napari, _has_mpl_scatter_density, _has_colorcet,
+         _has_cupy, _has_trackpy]):
+    if not package_flag:
+        warnings.warn(f'Extra dependency {package_string} is not available.', UserWarning)
 
 
 # fixtures for random points

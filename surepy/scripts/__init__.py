@@ -13,3 +13,5 @@ Surepy.scripts consists of the following modules:
    draw_roi
 
 """
+from .command_1 import command_1
+from .draw_roi import draw_roi

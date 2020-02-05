@@ -34,6 +34,6 @@ pyside2
 colorcet
 shapely
 trackpy
-# open3d==0.8.0.0
+open3d==0.8.0.0
 mpl_scatter_density
 napari

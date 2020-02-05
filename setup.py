@@ -66,7 +66,8 @@ TESTS_REQUIRE = ['pytest']
 # entry points to register scripts
 ENTRY_POINTS = '''
     [console_scripts]
-    draw_roi=surepy.scripts.draw_roi:main
+    surepy = surepy.__main__:main
+    draw_roi = surepy.scripts.draw_roi:main
     '''
 
 

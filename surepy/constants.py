@@ -6,6 +6,8 @@ Constants to be used throughout the project.
    :toctree: ./
 
    ROOT_DIR
+   QT_BINDINGS
+   RENDER_ENGINE
    PROPERTY_KEYS
    HULL_KEYS
    RAPIDSTORM_KEYS

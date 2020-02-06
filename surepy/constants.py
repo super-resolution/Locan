@@ -22,9 +22,12 @@ from enum import Enum
 from pathlib import Path
 
 
-__all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS', 'FileType', 'RenderEngine', 'RAPIDSTORM_KEYS', 'ELYRA_KEYS',
-           'THUNDERSTORM_KEYS', 'N_JOBS', 'LOCDATA_ID', 'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING',
-           'COLORMAP_CATEGORICAL']
+__all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS',
+           'QtBindings', 'QT_BINDINGS', 'FileType', 'RenderEngine', 'RENDER_ENGINE',
+           'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
+           'N_JOBS', 'LOCDATA_ID',
+           'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING', 'COLORMAP_CATEGORICAL'
+           ]
 
 
 # Optional imports
@@ -138,23 +141,21 @@ class RenderEngine(Enum):
     Engine to be use for rendering and displaying localization data as 2d or 3d images.
 
     Each engine represents a library to be used as backend for rendering and plotting.
-
-    Attributes
-    ----------
-    MPL :
-        matplotlib
-    MPL_SCATTER_DENSITY :
-        mpl-scatter-density
-    NAPARI :
-        napari
     """
     if not _has_mpl_scatter_density:
         _ignore_ = 'MPL_SCATTER_DENSITY'
     if not _has_napari:
         _ignore_ = 'NAPARI'
     MPL = 0
+    """matplotlib"""
     MPL_SCATTER_DENSITY = 1
+    """mpl-scatter-density"""
     NAPARI = 2
+    """napari"""
+
+
+#: Render engine.
+RENDER_ENGINE = RenderEngine.MPL
 
 
 #: Mapping column names in RapidSTORM files to LocData property keys
@@ -219,7 +220,7 @@ THUNDERSTORM_KEYS = {
 N_JOBS = 1
 
 #: LocData identifier
-#: Identifier for LocData objects that is reset for each surepy session.
+#: Identifier for LocData objects that is reset for each surepy session and incremented with each LocData instantiation.
 LOCDATA_ID = 0
 
 #: Default colormaps for plotting

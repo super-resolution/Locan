@@ -11,13 +11,14 @@ import matplotlib.pyplot as plt
 import fast_histogram
 from skimage import exposure
 
-from surepy.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine
+from surepy.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
 from surepy.constants import _has_mpl_scatter_density, _has_napari
 if _has_mpl_scatter_density: import mpl_scatter_density
 if _has_napari: import napari
 
 
-__all__ = ['adjust_contrast', 'histogram', 'render_2d']
+__all__ = ['adjust_contrast', 'histogram',
+           'render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari']
 
 
 # todo: add DataFrame input
@@ -639,7 +640,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None, bins=Non
     return viewer
 
 
-def render_2d(locdata, render_engine=RenderEngine.MPL, **kwargs):
+def render_2d(locdata, render_engine=RENDER_ENGINE, **kwargs):
     """
     Wrapper function to render localization data into a 2D image.
     For complete signatures see render_2d_mpl or corresponding functions.

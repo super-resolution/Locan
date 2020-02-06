@@ -28,6 +28,7 @@ Welcome to Surepy's documentation!
    aim
    design
    colormaps
+   command_line_interface
 
 
 .. toctree::

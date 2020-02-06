@@ -64,10 +64,7 @@ def draw_roi(directory=None, type=1, roi_file_indicator='_roi', region_type='rec
         roi.to_yaml(path=roi_path)
 
 
-def main(args=None):
-
-    parser = argparse.ArgumentParser(description='Set roi by drawing a boundary.')
-
+def _add_arguments(parser):
     parser.add_argument('-d', '--directory', dest='directory', type=str,
                         help='Directory to start the GUI in for loading data.')
     parser.add_argument('-t', '--type', dest='type', type=int, default=1,
@@ -78,6 +75,11 @@ def main(args=None):
     parser.add_argument('-r', '--region', dest='region_type', type=str, default='rectangle',
                         help='String indicating the region type.')
 
+
+def main(args=None):
+
+    parser = argparse.ArgumentParser(description='Set roi by drawing a boundary.')
+    _add_arguments(parser)
     returned_args = parser.parse_args(args)
 
     draw_roi(returned_args.directory, returned_args.type, returned_args.roi_file_indicator,

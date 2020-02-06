@@ -22,6 +22,7 @@ Constants to be used throughout the project.
 """
 from enum import Enum
 from pathlib import Path
+import os
 
 
 __all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS',
@@ -30,6 +31,27 @@ __all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS',
            'N_JOBS', 'LOCDATA_ID',
            'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING', 'COLORMAP_CATEGORICAL'
            ]
+
+
+# Packages to interact with QT
+class QtBindings(Enum):
+    """
+    Python bindings used to interact with Qt.
+    """
+    NONE = 0
+    PYSIDE2 = 1
+    PYQT5 = 2
+
+
+#: Set python bindings for QT interaction.
+QT_BINDINGS = QtBindings.PYSIDE2
+
+# In order to import napari using the correct Qt bindings the environment variable QT_API has to be set.
+# See use of qtpy in napari which default to pyqt5 if both bindings are installed.
+if QT_BINDINGS == QtBindings.PYSIDE2:
+    os.environ['QT_API'] = 'pyside2'
+elif QT_BINDINGS == QtBindings.PYQT5:
+    os.environ['QT_API'] = 'pyqt5'
 
 
 # Optional imports
@@ -63,16 +85,22 @@ try:
 except ImportError:
     _has_open3d = False
 
-try:
-    import PySide2.QtCore
-    _has_pyside2 = True
-except ImportError:
+if QT_BINDINGS==QtBindings.PYSIDE2:
+    try:
+        from PySide2.QtWidgets import QApplication
+        _has_pyside2 = True
+    except ImportError:
+        _has_pyside2 = False
+else:
     _has_pyside2 = False
 
-try:
-    from PyQt5.QtWidgets import QApplication
-    _has_pyqt5 = True
-except ImportError:
+if QT_BINDINGS==QtBindings.PYQT5:
+    try:
+        from PyQt5.QtWidgets import QApplication
+        _has_pyqt5 = True
+    except ImportError:
+        _has_pyqt5 = False
+else:
     _has_pyqt5 = False
 
 try:
@@ -80,29 +108,6 @@ try:
     _has_trackpy = True
 except ImportError:
     _has_trackpy = False
-
-
-# Packages to interact with QT
-class QtBindings(Enum):
-    """
-    Python bindings used to interact with Qt.
-    """
-    if not _has_pyside2:
-        _ignore_ = 'PYSIDE2'
-    if not _has_pyqt5:
-        _ignore_ = 'PYQT5'
-    NONE = 0
-    PYSIDE2 = 1
-    PYQT5 = 2
-
-
-#: Set python bindings for QT interaction.
-if _has_pyside2:
-    QT_BINDINGS = QtBindings.PYSIDE2
-elif _has_pyqt5:
-    QT_BINDINGS = QtBindings.PYQT5
-else:
-    QT_BINDINGS = QtBindings.NONE
 
 
 #: Root directory for path operations.

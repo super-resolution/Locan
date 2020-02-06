@@ -218,10 +218,10 @@ def test_render_2d_napari(locdata_blobs_2d):
     with napari.gui_qt():
         render_2d_napari(locdata_blobs_2d, bin_size=100, cmap='viridis', gamma=0.1)
 
-    with napari.gui_qt():
-        viewer = render_2d_napari(locdata_blobs_2d, bin_size=50, cmap='magenta', gamma=0.1)
-        render_2d_napari(locdata_blobs_2d, viewer=viewer, bin_size=100, cmap='cyan', gamma=0.1, scale=(2, 2),
-                         blending='additive')
-
-    with napari.gui_qt():
-        render_2d(locdata_blobs_2d, render_engine=RenderEngine.NAPARI)
+    # with napari.gui_qt():
+    #     viewer = render_2d_napari(locdata_blobs_2d, bin_size=50, cmap='magenta', gamma=0.1)
+    #     render_2d_napari(locdata_blobs_2d, viewer=viewer, bin_size=100, cmap='cyan', gamma=0.1, scale=(2, 2),
+    #                      blending='additive')
+    #
+    # with napari.gui_qt():
+    #     render_2d(locdata_blobs_2d, render_engine=RenderEngine.NAPARI)

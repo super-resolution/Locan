@@ -1,5 +1,5 @@
 """
-surepy command line interface
+command line interface
 """
 import sys
 import argparse

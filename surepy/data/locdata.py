@@ -41,9 +41,6 @@ class LocData:
 
     Attributes
     ----------
-    count : int
-        A counter for counting LocData instantiations (class attribute).
-
     references : LocData, list(LocData) or None
         A locData reference or an array with references to locData objects referring to the selected localizations
         in dataframe.
@@ -59,21 +56,9 @@ class LocData:
         The available coordinate properties.
     dimension : int
         Number of coordinates available for each localization (i.e. size of `coordinate_labels`).
-
-    region : RoiRegion object
-        Object representing the region that supports all localizations.
-    bounding_box : Hull object
-        Object representing the axis-aligned minimal bounding box.
-    oriented_bounding_box : Hull object
-        Object representing the oriented minimal bounding box.
-    convex_hull : Hull object
-        Object representing the convex hull of all localizations.
-    alpha_shape : Hull object
-        Object representing the alpha-shape of all localizations.
-
     """
     count = 0
-    """ A counter for counting LocData instantiations (class attribute). """
+    """int: A counter for counting LocData instantiations (class attribute)."""
 
     def __init__(self, references=None, dataframe=pd.DataFrame(), indices=None,
                  meta=None):
@@ -91,6 +76,12 @@ class LocData:
         self._oriented_bounding_box = None
         self._convex_hull = None
         self._alpha_shape = None
+
+        self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'position_x',
+                                                                                  'position_y',
+                                                                                  'position_z'})))
+
+        self.dimension = len(self.coordinate_labels)
 
         self._update_properties()
 
@@ -115,32 +106,22 @@ class LocData:
             self.meta.MergeFrom(meta)
 
     def _update_properties(self):
-        # coordinate labels
-        self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'position_x',
-                                                                                  'position_y',
-                                                                                  'position_z'})))
-
-        self.dimension = len(self.coordinate_labels)
-
-        # properties
         self.properties['localization_count'] = len(self.data.index)
 
         # property for mean spatial coordinates (centroids)
         self.properties.update(dict(self.data[self.coordinate_labels].mean()))
 
-        # compute bounding box
-        self.bounding_box
-
     def __del__(self):
-        """ Updating the counter upon deletion of class instance. """
+        """Updating the counter upon deletion of class instance."""
         self.__class__.count -= 1
 
     def __len__(self):
-        """ Return the length of data, i.e. the number of elements (localizations or collection elements)."""
+        """Return the length of data, i.e. the number of elements (localizations or collection elements)."""
         return len(self.data.index)
 
     @property
     def bounding_box(self):
+        """Hull object: Return an object representing the axis-aligned minimal bounding box."""
         if self._bounding_box is None:
             try:
                 self._bounding_box = surepy.data.hulls.BoundingBox(self.coordinates)
@@ -156,6 +137,7 @@ class LocData:
 
     @property
     def convex_hull(self):
+        """Hull object: Return an object representing the convex hull of all localizations."""
         if self._convex_hull is None:
             try:
                 self._convex_hull = surepy.data.hulls.ConvexHull(self.coordinates)
@@ -168,6 +150,7 @@ class LocData:
 
     @property
     def oriented_bounding_box(self):
+        """Hull object: Return an object representing the oriented minimal bounding box."""
         if self._oriented_bounding_box is None:
             try:
                 self._oriented_bounding_box = surepy.data.hulls.OrientedBoundingBox(self.coordinates)
@@ -179,7 +162,13 @@ class LocData:
         return self._oriented_bounding_box
 
     @property
+    def alpha_shape(self):
+        """Hull object: Return an object representing the alpha-shape of all localizations."""
+        raise NotImplementedError
+
+    @property
     def region(self):
+        """RoiRegion object: Return the region that supports all localizations."""
         return self._region
 
     @region.setter
@@ -202,7 +191,7 @@ class LocData:
 
     @property
     def data(self):
-        """ Return a pandas dataframe with all elements either copied from the reference or referencing the current
+        """pandas DataFrame: Return all elements either copied from the reference or referencing the current
         dataframe. """
         if isinstance(self.references, LocData):
             # we refer to the localization data by its index label, not position
@@ -215,12 +204,12 @@ class LocData:
 
     @property
     def coordinates(self):
-        """ Return a numpy ndarray with all coordinate values. """
+        """ndarray: Return all coordinate values. """
         return self.data[self.coordinate_labels].values
 
     @property
     def centroid(self):
-        """ Return a numpy ndarray with coordinate values of the centroid
+        """ndarray: Return coordinate values of the centroid
         (being the property values for all coordinate labels)."""
         return np.array([self.properties[coordinate_label] for coordinate_label in self.coordinate_labels])
 
@@ -262,7 +251,7 @@ class LocData:
     @classmethod
     def from_selection(cls, locdata, indices=slice(0, None), meta=None):
         """
-        Create `LocData` from selected elements in another `LocData`.
+        Create new LocData object from selected elements in another `LocData`.
 
         Parameters
         ----------
@@ -455,6 +444,12 @@ class LocData:
         """
         Reset hulls and properties. This is needed after the dataframe attribute has been modified in place.
 
+        Note
+        ----
+        Should be used with care because metadata is not updated accordingly.
+        The region property is not changed.
+        Better to just re-instantiate with LocData.from_dataframe().
+
         Parameters
         ----------
         reset_index : Bool
@@ -469,7 +464,6 @@ class LocData:
             self.dataframe.reset_index(drop=True, inplace=True)
 
         self.properties = {}
-        self._region = None
         self._bounding_box = None
         self._oriented_bounding_box = None
         self._convex_hull = None
@@ -510,6 +504,11 @@ class LocData:
     def update_convex_hulls_in_references(self):
         """
         Compute the convex hull for each element in locdata.references and update locdata.dataframe.
+
+        Returns
+        -------
+        LocData
+            The modified object
         """
         if isinstance(self.references, list):
             for reference in self.references:

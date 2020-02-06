@@ -27,8 +27,6 @@ class _Analysis:
 
     Attributes
     ----------
-    count : int
-        A counter for counting instantiations (class attribute).
     locdata : LocData object
         Localization data.
     parameter : dict
@@ -37,7 +35,7 @@ class _Analysis:
         Metadata about the current analysis routine.
     """
     count = 0
-    """ A counter for counting Analysis class instantiations (class attribute)."""
+    """int: A counter for counting Analysis class instantiations (class attribute)."""
 
     def __init__(self, meta, **kwargs):
         self.__class__.count += 1

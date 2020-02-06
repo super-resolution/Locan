@@ -111,6 +111,8 @@ class LocData:
         # property for mean spatial coordinates (centroids)
         self.properties.update(dict(self.data[self.coordinate_labels].mean()))
 
+        self.bounding_box
+
     def __del__(self):
         """Updating the counter upon deletion of class instance."""
         self.__class__.count -= 1

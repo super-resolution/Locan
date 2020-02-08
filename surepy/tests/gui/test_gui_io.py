@@ -14,5 +14,6 @@ pytestmark = pytest.mark.skip('GUI tests are skipped because they would need use
 def test_file_dialog():
     print(QT_BINDINGS)
     result = file_dialog(directory=ROOT_DIR, message='Select single file')
+    # result = file_dialog(directory=ROOT_DIR, message='Select single file 2')
     # print(result)
     assert (len(result) == 1)

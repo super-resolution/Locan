@@ -5,6 +5,7 @@ import sys
 import argparse
 
 from surepy.scripts.draw_roi import _add_arguments as _add_arguments_draw_roi
+from surepy.scripts.check import _add_arguments as _add_arguments_check
 
 
 def main(args=None):
@@ -26,6 +27,11 @@ def main(args=None):
                                        description='Set roi by drawing a boundary.')
     _add_arguments_draw_roi(parser_roi)
 
+    # parser for the command check
+    parser_check = subparsers.add_parser(name='check',
+                                       description='Show localizations in original recording.')
+    _add_arguments_check(parser_check)
+
     # Parse
     returned_args = parser.parse_args(args)
 
@@ -38,6 +44,12 @@ def main(args=None):
             from .scripts.draw_roi import draw_roi
             draw_roi(returned_args.directory, returned_args.type, returned_args.roi_file_indicator,
                      returned_args.region_type)
+
+        elif returned_args.command == "check":
+            from .scripts.check import check_napari
+            check_napari(pixel_size=returned_args.pixel_size, file_images=returned_args.file_images,
+                         file_locdata=returned_args.file_locdata, file_type=returned_args.file_type,
+                         transpose=True, kwargs_image={}, kwargs_points={})
 
     else:
         print("This is the command line entry point for surepy.")

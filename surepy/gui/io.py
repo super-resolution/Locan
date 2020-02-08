@@ -42,7 +42,10 @@ def file_dialog(directory=None, message='Select a file...', filter='Text files (
         directory_ = str(directory)
 
     if QT_BINDINGS == QtBindings.PYSIDE2:
-        app = QApplication([directory_])  # todo: this is not working - please fix!
+        # app = QApplication([])  # todo: this is not working - please fix!
+        app = QApplication.instance()  # this is needed if the function is called twice in a row.
+        if app is None:
+            app = QApplication([])  # todo: [directory_] is not working - please fix!
     elif QT_BINDINGS == QtBindings.PYQT5:
         app = QApplication([directory_])
 

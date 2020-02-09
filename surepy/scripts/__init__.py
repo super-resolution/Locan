@@ -16,6 +16,8 @@ Surepy.scripts consists of the following modules:
    :toctree: ./
 
    draw_roi
+   check
 """
 from .command_1 import command_1
 from .draw_roi import draw_roi
+from .check import check_napari

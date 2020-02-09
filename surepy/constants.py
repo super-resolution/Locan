@@ -6,6 +6,7 @@ Constants to be used throughout the project.
    :toctree: ./
 
    ROOT_DIR
+   DATASETS_DIR
    QT_BINDINGS
    RENDER_ENGINE
    PROPERTY_KEYS
@@ -25,7 +26,7 @@ from pathlib import Path
 import os
 
 
-__all__ = ['ROOT_DIR', 'PROPERTY_KEYS', 'HULL_KEYS',
+__all__ = ['ROOT_DIR', 'DATASETS_DIR', 'PROPERTY_KEYS', 'HULL_KEYS',
            'QtBindings', 'QT_BINDINGS', 'FileType', 'RenderEngine', 'RENDER_ENGINE',
            'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
            'N_JOBS', 'LOCDATA_ID',
@@ -112,6 +113,10 @@ except ImportError:
 
 #: Root directory for path operations.
 ROOT_DIR = Path(__file__).parent
+
+
+#: Standard directory for example datasets.
+DATASETS_DIR = ROOT_DIR.parent.parent / 'Surepy_datasets'
 
 
 #: Keys for the most common LocData properties.

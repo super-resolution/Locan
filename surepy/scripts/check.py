@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Script to show original SMLM images overlaid with localization data.
+Show original SMLM images overlaid with localization data.
 Data is rendered in napari.
 
 To run the script::
@@ -25,9 +25,9 @@ import surepy as sp
 def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, transpose=True,
                                  kwargs_image={}, kwargs_points={}):
     """
-    Display original recording and overlay localization spots.
+    Display original recording and overlay localization spots in napari.
 
-    Paramters
+    Parameters
     ---------
     images : np.array
         Stack of raw data as recorded by camera.
@@ -82,9 +82,9 @@ def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, trans
 def check_napari(pixel_size, file_images=None, file_locdata=None, file_type=sp.FileType.RAPIDSTORM,
                  viewer=None, transpose=True, kwargs_image={}, kwargs_points={}):
     """
-    Load and display original recording and load and overlay localization spots.
+    Load and display original recording and load and overlay localization spots in napari.
 
-    Paramters
+    Parameters
     ---------
     pixel_size : float or tuple of float with shape (2,)
         Pixel size for images (in locdata units).

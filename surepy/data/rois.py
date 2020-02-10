@@ -20,16 +20,17 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector, PolygonSelector, EllipseSelector
 from ruamel.yaml import YAML
 from google.protobuf import json_format
+import napari
 
 from surepy.data import metadata_pb2
 from surepy.data.locdata import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
-from surepy.render import render_2d_mpl
+from surepy.render import render_2d_mpl, render_2d_napari
 from surepy.data.region import RoiRegion
 
 
-__all__ = ['Roi', 'select_by_drawing', 'rasterize']
+__all__ = ['Roi', 'select_by_drawing_mpl', 'select_by_drawing_napari', 'rasterize']
 
 
 class _MplSelector:
@@ -64,9 +65,12 @@ class _MplSelector:
             self.selector = EllipseSelector(self.ax, self.selector_callback)
             self.type = type
 
+
         elif type == 'polygon':
-            self.selector = PolygonSelector(self.ax, self.p_selector_callback)
-            self.type = type
+            raise NotImplementedError ('The polygon selection is not working correctly. Use napari.')
+        # The PolygonSelector is not working correctly.
+        #     self.selector = PolygonSelector(self.ax, self.p_selector_callback)
+        #     self.type = type
 
         else:
             raise TypeError('Type {} is not defined.'.format(type))
@@ -335,7 +339,7 @@ class Roi:
         return new_locdata
 
 
-def select_by_drawing(locdata, region_type='rectangle', **kwargs):
+def select_by_drawing_mpl(locdata, region_type='rectangle', **kwargs):
     """
     Select region of interest from rendered image by drawing rois.
 
@@ -344,7 +348,7 @@ def select_by_drawing(locdata, region_type='rectangle', **kwargs):
     locdata : LocData object
         The localization data from which to select localization data.
     region_type : str
-        rectangle, ellipse, or polygon specifying the selection widget to use.
+        rectangle, or ellipse specifying the selection widget to use.
 
     Other Parameters
     ----------------
@@ -368,6 +372,84 @@ def select_by_drawing(locdata, region_type='rectangle', **kwargs):
     plt.show()
     roi_list = [Roi(reference=locdata, region_specs=roi['region_specs'],
                     region_type=roi['region_type']) for roi in selector.rois]
+    return roi_list
+
+
+def _napari_shape_to_RoiRegion(vertices, type):
+    """
+    Convert napari shape to surepy RoiRegion
+
+    Parameters
+    ----------
+    vertices : ndarray of float
+        Sequence of point coordinates as returned by napari
+    type : str
+        Type is a string specifying the selector widget that can be either rectangle, ellipse, or polygon.
+
+    Returns
+    -------
+    RoiRegion
+    """
+    if type in ['rectangle', 'ellipse', 'polygon']:
+        region_type = type
+    else:
+        raise TypeError(f' Type {type} is not defined in surepy.')
+
+    if type == 'rectangle':
+        corner_x, corner_y = vertices[0]
+        width, height = vertices[1][0] - vertices[0][0], vertices[2][1] - vertices[1][1]
+        angle = 0
+        region_specs = ((corner_x, corner_y), width, height, angle)
+
+    elif type == 'ellipse':
+        width, height = vertices[1][0] - vertices[0][0], vertices[2][1] - vertices[1][1]
+        center_x, center_y = vertices[0][0] + width/2, vertices[0][1] + height/2
+        angle = 0
+        region_specs = ((center_x, center_y), width, height, angle)
+
+    elif type == 'polygon':
+        region_specs = np.concatenate([vertices, [vertices[0]]], axis=0)
+
+    return RoiRegion(region_specs=region_specs, region_type=region_type)
+
+
+def select_by_drawing_napari(locdata, **kwargs):
+    """
+    Select region of interest from rendered image by drawing rois in napari.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        The localization data from which to select localization data.
+
+    Other Parameters
+    ----------------
+    kwargs :
+        kwargs as specified for `render_2d_napari()`.
+
+    Returns
+    -------
+    list
+        A list of Roi objects
+
+    See Also
+    --------
+    surepy.scripts.rois : script for drawing rois
+    """
+    # select roi
+
+    with napari.gui_qt():
+        viewer = render_2d_napari(locdata, **kwargs)
+
+    vertices = viewer.layers['Shapes'].data
+    types = viewer.layers['Shapes'].shape_type
+
+    regions = []
+    for verts, typ in zip(vertices, types):
+        regions.append(_napari_shape_to_RoiRegion(verts, typ))
+
+    roi_list = [Roi(reference=locdata, region_specs=region.region_specs,
+                    region_type=region.region_type) for region in regions]
     return roi_list
 
 

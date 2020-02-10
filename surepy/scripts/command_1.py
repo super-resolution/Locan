@@ -15,7 +15,7 @@ Try for instance::
 
 See Also
 --------
-surepy.data.rois.select_by_drawing : function to draw roi
+surepy.data.rois.select_by_drawing_mpl : function to draw roi
 
 """
 from pathlib import Path

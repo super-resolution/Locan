@@ -17,7 +17,7 @@ Try for instance::
 
 See Also
 --------
-surepy.data.rois.select_by_drawing : function to draw roi
+surepy.data.rois.select_by_drawing_mpl : function to draw roi
 
 """
 
@@ -26,7 +26,7 @@ from pathlib import Path
 
 from surepy.gui.io import file_dialog
 import surepy.io.io_locdata as io
-from surepy.data.rois import select_by_drawing
+from surepy.data.rois import select_by_drawing_mpl
 
 
 def draw_roi(directory=None, type=1, roi_file_indicator='_roi', region_type='rectangle'):
@@ -54,7 +54,7 @@ def draw_roi(directory=None, type=1, roi_file_indicator='_roi', region_type='rec
     dat = io.load_locdata(path=file, file_type=type)
 
     # set roi
-    rois = select_by_drawing(locdata=dat, bin_size=50, rescale='equal', region_type=region_type)
+    rois = select_by_drawing_mpl(locdata=dat, bin_size=50, rescale='equal', region_type=region_type)
     print(rois)
 
     # save roi

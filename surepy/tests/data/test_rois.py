@@ -9,7 +9,7 @@ from surepy import LocData
 from surepy.constants import ROOT_DIR
 from surepy.io.io_locdata import load_txt_file
 from surepy.data.region import RoiRegion
-from surepy.data.rois import Roi, select_by_drawing, rasterize
+from surepy.data.rois import Roi, select_by_drawing_mpl, select_by_drawing_napari, rasterize
 from surepy.data import metadata_pb2
 
 
@@ -193,12 +193,17 @@ def test_as_artist():
 
 
 @pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
-def test_select_by_drawing():
+def test_select_by_drawing_mpl():
     dat = load_txt_file(path=ROOT_DIR / 'tests/test_data/five_blobs.txt')
-    select_by_drawing(dat, region_type='rectangle')
-    select_by_drawing(dat, region_type='ellipse')
-    # todo: fix bug in polygon selector
-    select_by_drawing(dat, region_type='polygon')
+    select_by_drawing_mpl(dat, region_type='rectangle')
+    select_by_drawing_mpl(dat, region_type='ellipse')
+
+
+@pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
+def test_select_by_drawing_napari():
+    dat = load_txt_file(path=ROOT_DIR / 'tests/test_data/five_blobs.txt')
+    roi_list = select_by_drawing_napari(dat)
+    print(roi_list)
 
 
 # standard LocData fixtures

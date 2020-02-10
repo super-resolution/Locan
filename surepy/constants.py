@@ -34,25 +34,24 @@ __all__ = ['ROOT_DIR', 'DATASETS_DIR', 'PROPERTY_KEYS', 'HULL_KEYS',
            ]
 
 
-# Packages to interact with QT
+# Possible python bindings to interact with QT
 class QtBindings(Enum):
     """
     Python bindings used to interact with Qt.
     """
-    NONE = 0
-    PYSIDE2 = 1
-    PYQT5 = 2
+    NONE = 'none'
+    PYSIDE2 = 'pyside2'
+    PYQT5 = 'pyqt5'
 
 
-#: Set python bindings for QT interaction.
-QT_BINDINGS = QtBindings.PYSIDE2
-
-# In order to import napari using the correct Qt bindings the environment variable QT_API has to be set.
-# See use of qtpy in napari which default to pyqt5 if both bindings are installed.
-if QT_BINDINGS == QtBindings.PYSIDE2:
-    os.environ['QT_API'] = 'pyside2'
-elif QT_BINDINGS == QtBindings.PYQT5:
-    os.environ['QT_API'] = 'pyqt5'
+#: Python bindings for QT interaction.
+try:
+    QT_BINDINGS = QtBindings(os.environ['QT_API'])
+except KeyError:
+    QT_BINDINGS = QtBindings.PYSIDE2  # This is the default for surepy if no QT_API has been set before.
+    # In order to import napari using the correct Qt bindings the environment variable QT_API has to be set.
+    # See use of qtpy in napari which default to pyqt5 if both bindings are installed.
+    os.environ['QT_API'] = QtBindings.PYSIDE2.value
 
 
 # Optional imports

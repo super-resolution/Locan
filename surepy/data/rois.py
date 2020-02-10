@@ -25,7 +25,7 @@ from surepy.data import metadata_pb2
 from surepy.data.locdata import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
-from surepy.render import render_2d
+from surepy.render import render_2d_mpl
 from surepy.data.region import RoiRegion
 
 
@@ -363,7 +363,7 @@ def select_by_drawing(locdata, region_type='rectangle', **kwargs):
     """
 
     fig, ax = plt.subplots(nrows=1, ncols=1)
-    render_2d(locdata, ax=ax, show=False, **kwargs)
+    render_2d_mpl(locdata, ax=ax, **kwargs)
     selector = _MplSelector(ax, type=region_type)
     plt.show()
     roi_list = [Roi(reference=locdata, region_specs=roi['region_specs'],

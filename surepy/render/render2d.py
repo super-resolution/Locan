@@ -50,7 +50,7 @@ def _coordinate_ranges(locdata, range=None):
         else:
             raise ValueError(f'The parameter range={range} is not defined.')
     else:
-        if np.ndim(range)!=locdata.dimension:
+        if np.ndim(range) != locdata.dimension:
             raise TypeError(f'The tuple {range} must have the same dimension as locdata which is {locdata.dimension}.')
         else:
             ranges_ = np.asarray(range)
@@ -75,21 +75,21 @@ def _bin_edges(n_bins, range):
         Array(s) of bin edges
     """
 
-    def bin_edges_for_single_range(n_bins, range):
+    def bin_edges_for_single_range(n_bins_, range_):
         """Compute bins for one range"""
-        return np.linspace(*range, n_bins + 1, endpoint=True, dtype=float)
+        return np.linspace(*range_, n_bins_ + 1, endpoint=True, dtype=float)
 
     if np.ndim(range) == 1:
         if np.ndim(n_bins) == 0:
             bin_edges = bin_edges_for_single_range(n_bins, range)
         elif np.ndim(n_bins) == 1:
-            bin_edges = [bin_edges_for_single_range(n_bins=n, range=range) for n in n_bins]
+            bin_edges = [bin_edges_for_single_range(n_bins_=n, range_=range) for n in n_bins]
         else:
             raise TypeError('n_bins and range must have the same dimension.')
 
     elif np.ndim(range) == 2:
         if np.ndim(n_bins) == 0:
-            bin_edges = [bin_edges_for_single_range(n_bins, range=single_range) for single_range in range]
+            bin_edges = [bin_edges_for_single_range(n_bins, range_=single_range) for single_range in range]
         elif len(n_bins) == len(range):
             bin_edges = [_bin_edges(n_bins=b, range=r) for b, r in zip(n_bins, range)]
         else:
@@ -448,7 +448,10 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, 
     img, range_, bin_edges, label = histogram(locdata, loc_properties, other_property, bins, bin_size, range, rescale)
 
     mappable = ax.imshow(img, origin='lower', extent=[*range_[0], *range_[1]], cmap=cmap, **kwargs)
-    ax.set(title='Image ({:.0f} nm per bin)'.format(bin_size),
+    if bin_size is not None:
+        ax.set(title='Image ({:.0f} nm per bin)'.format(bin_size))
+
+    ax.set(
            xlabel='position_x',
            ylabel='position_y'
            )

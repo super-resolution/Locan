@@ -20,7 +20,7 @@ def file_dialog(directory=None, message='Select a file...', filter='Text files (
     Parameters
     ----------
     directory : str or None
-        directory path (Default: None)
+        directory path to start dialog in. If None the current directory is used.
 
     message : str
         Hint what to do
@@ -42,7 +42,6 @@ def file_dialog(directory=None, message='Select a file...', filter='Text files (
         directory_ = str(directory)
 
     if QT_BINDINGS == QtBindings.PYSIDE2:
-        # app = QApplication([])  # todo: this is not working - please fix!
         app = QApplication.instance()  # this is needed if the function is called twice in a row.
         if app is None:
             app = QApplication([])  # todo: [directory_] is not working - please fix!

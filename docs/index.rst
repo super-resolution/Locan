@@ -27,9 +27,9 @@ Welcome to Surepy's documentation!
 
    aim
    design
-   colormaps
    command_line_interface
-
+   colormaps
+   user_interface
 
 .. toctree::
    :maxdepth: 1

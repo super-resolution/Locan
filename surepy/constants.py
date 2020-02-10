@@ -24,6 +24,7 @@ Constants to be used throughout the project.
 from enum import Enum
 from pathlib import Path
 import os
+import warnings
 
 
 __all__ = ['ROOT_DIR', 'DATASETS_DIR', 'PROPERTY_KEYS', 'HULL_KEYS',
@@ -44,14 +45,47 @@ class QtBindings(Enum):
     PYQT5 = 'pyqt5'
 
 
-#: Python bindings for QT interaction.
-try:
-    QT_BINDINGS = QtBindings(os.environ['QT_API'])
-except KeyError:
-    QT_BINDINGS = QtBindings.PYSIDE2  # This is the default for surepy if no QT_API has been set before.
-    # In order to import napari using the correct Qt bindings the environment variable QT_API has to be set.
-    # See use of qtpy in napari which default to pyqt5 if both bindings are installed.
-    os.environ['QT_API'] = QtBindings.PYSIDE2.value
+# Force python binding - only for testing purposes:
+# os.environ['QT_API'] = QtBindings.PYQT5.value
+
+# Determine Python bindings for QT interaction.
+if 'QT_API' in os.environ:  # this is the case that QT_API has been set.
+    try:
+        QT_BINDINGS = QtBindings(os.environ['QT_API'])
+    except KeyError:
+        warnings.warn(f'The requested QT_API {os.environ["QT_API"]} cannot be imported. Will continue without QT.')
+        QT_BINDINGS = QtBindings.NONE
+
+    if QT_BINDINGS == QtBindings.PYSIDE2:
+        try:
+            from PySide2.QtWidgets import QApplication
+        except ImportError:
+            warnings.warn(f'The requested QT_API {QT_BINDINGS.value} cannot be imported. Will continue without QT.')
+            QT_BINDINGS = QtBindings.NONE
+
+    elif QT_BINDINGS == QtBindings.PYQT5:
+        try:
+            from PyQt5.QtWidgets import QApplication
+        except ImportError:
+            warnings.warn(f'The requested QT_API {QT_BINDINGS.value} cannot be imported. Will continue without QT.')
+            QT_BINDINGS = QtBindings.NONE
+
+else:  # this is the case that QT_API has not been set.
+    try:  # per default try pyside2 before PyQt5
+        from PySide2.QtWidgets import QApplication
+        QT_BINDINGS = QtBindings.PYSIDE2
+    except ImportError:
+        try:
+            from PyQt5.QtWidgets import QApplication
+            QT_BINDINGS = QtBindings.PYQT5
+        except ImportError:
+            QT_BINDINGS = QtBindings.NONE  # this is the case that no qt bindings are available.
+
+# In order to force napari and other QT-using libraries to import with the correct Qt bindings
+# the environment variable QT_API has to be set.
+# See use of qtpy in napari which default to pyqt5 if both bindings are installed.
+if QT_BINDINGS != QtBindings.NONE:
+    os.environ['QT_API'] = QT_BINDINGS.value
 
 
 # Optional imports
@@ -84,24 +118,6 @@ try:
     _has_open3d = True
 except ImportError:
     _has_open3d = False
-
-if QT_BINDINGS==QtBindings.PYSIDE2:
-    try:
-        from PySide2.QtWidgets import QApplication
-        _has_pyside2 = True
-    except ImportError:
-        _has_pyside2 = False
-else:
-    _has_pyside2 = False
-
-if QT_BINDINGS==QtBindings.PYQT5:
-    try:
-        from PyQt5.QtWidgets import QApplication
-        _has_pyqt5 = True
-    except ImportError:
-        _has_pyqt5 = False
-else:
-    _has_pyqt5 = False
 
 try:
     from trackpy import link_df

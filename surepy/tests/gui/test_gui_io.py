@@ -4,9 +4,8 @@ This module contains tests that need gui interactions and should therefore not b
 
 """
 import pytest
-from surepy.constants import ROOT_DIR
+from surepy.constants import ROOT_DIR, QT_BINDINGS
 from surepy.gui.io import file_dialog
-from surepy.constants import QT_BINDINGS
 
 pytestmark = pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
 
@@ -14,6 +13,6 @@ pytestmark = pytest.mark.skip('GUI tests are skipped because they would need use
 def test_file_dialog():
     print(QT_BINDINGS)
     result = file_dialog(directory=ROOT_DIR, message='Select single file')
-    # result = file_dialog(directory=ROOT_DIR, message='Select single file 2')
-    # print(result)
+    # result = file_dialog()
+    print(result)
     assert (len(result) == 1)

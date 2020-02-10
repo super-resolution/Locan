@@ -37,12 +37,23 @@ To remember:
   These optional packages are treated as extra_dependencies.
   Import of optional packages is tried in the *constants* module and a `_has_package` variable is defined.
   In each module that makes use of an optional import a conditional import is carried out
-  ``if _has_package: import package`` .
+
+  .. code:: python
+
+     if _has_package: import package
 
   In addition any user-accessible function that makes use of the optional package raises an import error
   if the optional package is not available.
 
+  Test functions that require optional dependencies should be marked with:
+
+  .. code:: python
+
+   @pytest.mark.skipif(not _has_package,reason="requires optional package")
+
+
 * Use notation `n_something` for `number_of_something`.
+
 
 * Provide commit messages with subject in imperative style (see `Chris Beams, How to Write a Git Commit Message`_).
 

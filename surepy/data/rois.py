@@ -429,8 +429,7 @@ def select_by_drawing_napari(locdata, **kwargs):
 
     Returns
     -------
-    list
-        A list of Roi objects
+    list of Roi objects
 
     See Also
     --------

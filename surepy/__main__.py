@@ -6,6 +6,7 @@ import argparse
 
 from surepy.scripts.draw_roi import _add_arguments as _add_arguments_draw_roi
 from surepy.scripts.check import _add_arguments as _add_arguments_check
+from surepy.scripts.rois import _add_arguments as _add_arguments_rois
 
 
 def main(args=None):
@@ -22,10 +23,15 @@ def main(args=None):
     parser_command_1.add_argument('y', type=float)
     # parser_command_1.set_defaults(func=command_1)
 
-    # parser for the command roi
-    parser_roi = subparsers.add_parser(name='roi',
-                                       description='Set roi by drawing a boundary.')
-    _add_arguments_draw_roi(parser_roi)
+    # parser for the command draw_roi
+    parser_draw_roi = subparsers.add_parser(name='draw_roi',
+                                       description='Set roi by drawing a boundary in mpl.')
+    _add_arguments_draw_roi(parser_draw_roi)
+
+    # parser for the command rois
+    parser_rois = subparsers.add_parser(name='rois',
+                                       description='Define rois by adding shapes in napari.')
+    _add_arguments_rois(parser_rois)
 
     # parser for the command check
     parser_check = subparsers.add_parser(name='check',
@@ -40,10 +46,14 @@ def main(args=None):
             from .scripts.command_1 import command_1
             command_1()
 
-        elif returned_args.command == "roi":
+        elif returned_args.command == "draw_roi":
             from .scripts.draw_roi import draw_roi
             draw_roi(returned_args.directory, returned_args.type, returned_args.roi_file_indicator,
                      returned_args.region_type)
+
+        elif returned_args.command == "rois":
+            from .scripts.rois import draw_roi_napari
+            draw_roi_napari(returned_args.directory, returned_args.type, returned_args.roi_file_indicator)
 
         elif returned_args.command == "check":
             from .scripts.check import check_napari

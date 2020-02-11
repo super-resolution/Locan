@@ -15,26 +15,10 @@ from surepy.constants import LOCDATA_ID
 from surepy.data.region import RoiRegion
 import surepy.data.hulls
 from surepy.data import metadata_pb2
+from surepy.utilities import _time_string
 
 
 __all__ = ['LocData']
-
-
-def _time_string(time_value):
-    """
-    Convert 'time_value' (typically timestamp from Unix epoch) to the local time
-    and return as "%Y-%m-%d %H:%M:%S %z" formatted string.
-
-    Parameters
-    ----------
-    time_value : float
-        return value from time.time()
-
-    Returns
-    -------
-    str
-    """
-    return time.strftime("%Y-%m-%d %H:%M:%S %z", time.localtime(time_value))
 
 
 class LocData:

@@ -3,11 +3,14 @@
 //
 // protoc --python_out=. metadata_analysis.proto
 // protoc -I=./surepy --python_out=./surepy  ./surepy/analysis/metadata_analysis.proto
+// Surepy> protoc --proto_path=./surepy --python_out=./surepy ./surepy/analysis/metadata_analysis.proto
 syntax = "proto2";
 
 package surepy;
 
-//import "surepy/data/metadata.proto";
+//add surepy to protobuf search path
+// this is not working - please help!
+// import "data/metadata.proto";
 
 
 message Analysis_routine {
@@ -21,11 +24,11 @@ message Analysis_routine {
 message AMetadata {
   optional string identifier = 1;
   optional string comment = 2;
-  // Timestamp in seconds since Unix epoch
-  optional int64 creation_date = 3;
-  // Timestamp in seconds since Unix epoch
-  optional int64 modification_date = 4;
+  // Localtime in "%Y-%m-%d %H:%M:%S %z"
+  optional string creation_date = 3;
+  // Localtime in "%Y-%m-%d %H:%M:%S %z"
+  optional string modification_date = 4;
   optional Analysis_routine method = 5;
-//  optional Metadata locdata_meta = 6;
+  // optional Metadata locdata_meta = 6;
   map<string, string> map = 7;
 }

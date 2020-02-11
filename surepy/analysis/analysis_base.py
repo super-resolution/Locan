@@ -3,10 +3,12 @@ Base class that serves as template for a specialized analysis class.
 
 It also provides helper functions to be used in specialized analysis classes.
 """
-
 import time
-from surepy.analysis import metadata_analysis_pb2
+
 from scipy import stats
+
+from surepy.analysis import metadata_analysis_pb2
+from surepy.utilities import _time_string
 
 
 class _Analysis:
@@ -66,7 +68,7 @@ class _Analysis:
 def _init_meta(self):
     meta_ = metadata_analysis_pb2.AMetadata()
     meta_.identifier = str(self.__class__.count)
-    meta_.creation_date = int(time.time())
+    meta_.creation_date = _time_string(time.time())
     meta_.method.name = str(self.__class__.__name__)
     meta_.method.parameter = str(self.parameter)
     return meta_

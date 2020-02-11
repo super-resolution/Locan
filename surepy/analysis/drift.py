@@ -2,6 +2,10 @@
 Drift analysis for localization coordinates.
 
 This module provides functions for estimating spatial drift in localization data.
+
+Note
+----
+The analysis procedure is in an exploratory state and has not been fully developed and tested.
 """
 import warnings
 from itertools import accumulate

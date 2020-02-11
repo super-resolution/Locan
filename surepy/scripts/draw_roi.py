@@ -9,11 +9,11 @@ The roi is then saved as _roi.yaml file.
 
 To run the script::
 
-    draw_roi -d <directory> -t <file type> -i <roi file indicator> -r <region type>
+    draw_roi_mpl -d <directory> -t <file type> -i <roi file indicator> -r <region type>
 
 Try for instance::
 
-    draw_roi -d "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi" -r "ellipse"
+    draw_roi_mpl -d "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi" -r "ellipse"
 
 See Also
 --------
@@ -29,7 +29,7 @@ import surepy.io.io_locdata as io
 from surepy.data.rois import select_by_drawing_mpl
 
 
-def draw_roi(directory=None, type=1, roi_file_indicator='_roi', region_type='rectangle'):
+def draw_roi_mpl(directory=None, type=1, roi_file_indicator='_roi', region_type='rectangle'):
     """
     Define regions of interest by drawing a boundary.
 
@@ -82,8 +82,8 @@ def main(args=None):
     _add_arguments(parser)
     returned_args = parser.parse_args(args)
 
-    draw_roi(returned_args.directory, returned_args.type, returned_args.roi_file_indicator,
-             returned_args.region_type)
+    draw_roi_mpl(returned_args.directory, returned_args.type, returned_args.roi_file_indicator,
+                 returned_args.region_type)
 
 
 if __name__ == '__main__':

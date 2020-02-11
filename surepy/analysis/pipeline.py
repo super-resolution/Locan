@@ -4,6 +4,10 @@ Building an analysis pipeline.
 Pipeline refers to sequential analysis steps applied to a single LocData object. Pipeline thus include true piped
 analysis, where a preliminary result serves as input to the next analysis step, but also workflows that provide
 different results in parallel.
+
+Note
+----
+The implementation of an analysis pipeline is in an exploratory state.
 """
 
 from surepy.data.locdata import LocData

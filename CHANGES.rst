@@ -239,7 +239,7 @@ surepy.render
 
 surepy.scripts
 ^^^^^^^^^^^^^^^
-- draw_roi
+- draw_roi_mpl
 
 surepy.simulation
 ^^^^^^^^^^^^^^^^^^

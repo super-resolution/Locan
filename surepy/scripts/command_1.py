@@ -7,11 +7,11 @@ Script to do something.
 
 To run the script::
 
-    draw_roi -d <directory> -t <file type> -i <roi file indicator> -r <region type>
+    draw_roi_mpl -d <directory> -t <file type> -i <roi file indicator> -r <region type>
 
 Try for instance::
 
-    draw_roi -d "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi" -r "ellipse"
+    draw_roi_mpl -d "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi" -r "ellipse"
 
 See Also
 --------

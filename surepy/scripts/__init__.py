@@ -15,9 +15,12 @@ Surepy.scripts consists of the following modules:
 .. autosummary::
    :toctree: ./
 
-   draw_roi
    check
+   rois
+   draw_roi
+
 """
 from .command_1 import command_1
-from .draw_roi import draw_roi
 from .check import check_napari
+from .rois import draw_roi_napari
+from .draw_roi import draw_roi_mpl

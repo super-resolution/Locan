@@ -362,7 +362,7 @@ def select_by_drawing_mpl(locdata, region_type='rectangle', **kwargs):
 
     See Also
     --------
-    surepy.scripts.draw_roi : script for drawing rois
+    surepy.scripts.draw_roi_mpl : script for drawing rois
     matplotlib.widgets : selector functions
     """
 

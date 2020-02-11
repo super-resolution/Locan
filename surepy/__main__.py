@@ -23,8 +23,8 @@ def main(args=None):
     parser_command_1.add_argument('y', type=float)
     # parser_command_1.set_defaults(func=command_1)
 
-    # parser for the command draw_roi
-    parser_draw_roi = subparsers.add_parser(name='draw_roi',
+    # parser for the command draw_roi_mpl
+    parser_draw_roi = subparsers.add_parser(name='draw_roi_mpl',
                                        description='Set roi by drawing a boundary in mpl.')
     _add_arguments_draw_roi(parser_draw_roi)
 
@@ -46,10 +46,10 @@ def main(args=None):
             from .scripts.command_1 import command_1
             command_1()
 
-        elif returned_args.command == "draw_roi":
-            from .scripts.draw_roi import draw_roi
-            draw_roi(returned_args.directory, returned_args.type, returned_args.roi_file_indicator,
-                     returned_args.region_type)
+        elif returned_args.command == "draw_roi_mpl":
+            from .scripts.draw_roi import draw_roi_mpl
+            draw_roi_mpl(returned_args.directory, returned_args.type, returned_args.roi_file_indicator,
+                         returned_args.region_type)
 
         elif returned_args.command == "rois":
             from .scripts.rois import draw_roi_napari

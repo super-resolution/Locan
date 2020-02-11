@@ -8,7 +8,7 @@ Surepy is mostly designed to work without a general user interface (gui).
 However, a few methods make use of a gui or interact with third party libraries that provide a gui.
 
 Various libraries make use of `qt` as a gui backend if it is installed together with appropriate python bindings.
-Different python bindings exist to interact with `qt` including `pyqt5` and `pyside2`.
+Different python bindings exist to interact with `qt` including `pyside2` and `pyqt5`.
 
 Surepy by itself defaults to using `pyside2`.
 

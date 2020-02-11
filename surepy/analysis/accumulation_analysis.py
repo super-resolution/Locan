@@ -4,6 +4,10 @@ Localization-density variation analysis to characterize localization cluster.
 The existence of clusters is tested by analyzing variations in cluster area and localization density within clusters.
 The analysis routine follows the ideas in [1]_ and [2]_.
 
+Note
+----
+The analysis procedure is in an exploratory state and has not been fully developed and tested.
+
 References
 ----------
 .. [1] Baumgart F., Arnold AM., Leskovar K., Staszek K., Fölser M., Weghuber J., Stockinger H., Schütz GJ.,

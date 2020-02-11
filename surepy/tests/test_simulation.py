@@ -244,7 +244,7 @@ def test_simulate_drift(locdata_2d):
     assert len(new_locdata) == len(locdata_2d)
     new_locdata = add_drift(locdata_2d, diffusion_constant=(1, 10), velocity=(10, 10), seed=1)
     assert len(new_locdata) == len(locdata_2d)
-    print(new_locdata.meta)
+    # print(new_locdata.meta)
 
 
 @pytest.mark.skip('Test needs visual inspection.')

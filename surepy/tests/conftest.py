@@ -36,7 +36,7 @@ def few_random_points():
 @pytest.fixture(scope='session')
 def locdata_empty():
     df = pd.DataFrame()
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': 1000000001})
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
 
 
 @pytest.fixture(scope='session')
@@ -48,7 +48,7 @@ def locdata_single_localization():
         'intensity': np.array([1]),
     }
     df = pd.DataFrame(locdata_dict)
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': 1000000001})
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
 
 
 @pytest.fixture(scope='session')
@@ -60,7 +60,7 @@ def locdata_2d():
         'intensity': np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(locdata_dict)
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': 1000000001})
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
 
 
 @pytest.fixture(scope='session')
@@ -73,7 +73,7 @@ def locdata_3d():
         'intensity': np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(locdata_dict)
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': 1000000001})
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
 
 
 @pytest.fixture(scope='session')
@@ -86,14 +86,14 @@ def locdata_non_standard_index():
     }
     df = pd.DataFrame(locdata_dict)
     df.index = [2, 1, 5, 10, 100, 200]
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': 1000000001})
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
 
 
 @pytest.fixture(scope='session')
 def locdata_blobs_2d():
     path = Path(ROOT_DIR / 'tests/Test_data/five_blobs.txt')
     dat = load_txt_file(path)
-    dat.meta.creation_date = 1000000001
+    dat.meta.creation_date = "1111-11-11 11:11:11 +0100"
     return dat
 
 
@@ -101,5 +101,5 @@ def locdata_blobs_2d():
 def locdata_blobs_3d():
     path = Path(ROOT_DIR / 'tests/Test_data/five_blobs_3D.txt')
     dat = load_txt_file(path)
-    dat.meta.creation_date = 1000000001
+    dat.meta.creation_date = "1111-11-11 11:11:11 +0100"
     return dat

@@ -14,6 +14,7 @@ There are functions for reading the following file structures (with an indicator
 import time
 import io
 import warnings
+from enum import Enum
 
 import numpy as np
 import pandas as pd
@@ -127,7 +128,6 @@ def load_txt_file(path, sep=',', columns=None, nrows=None):
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
-    dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
     dat.meta.file_type = metadata_pb2.CUSTOM
@@ -206,7 +206,6 @@ def load_rapidSTORM_file(path, nrows=None):
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
-    dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
     dat.meta.file_type = metadata_pb2.RAPIDSTORM
@@ -283,7 +282,6 @@ def load_Elyra_file(path, nrows=None):
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
-    dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
     dat.meta.file_type = metadata_pb2.ELYRA
@@ -379,7 +377,6 @@ def load_thunderstorm_file(path, nrows=None):
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
-    dat.meta.creation_date = int(time.time())
     dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
     dat.meta.file_type = metadata_pb2.THUNDERSTORM
@@ -415,7 +412,6 @@ def _map_file_type_to_load_function(file_type):
         load_asdf_file=load_asdf_file,
     )
 
-    from enum import Enum
     class LoadFunction(Enum):
         load_txt_file = 1
         load_rapidSTORM_file = 2
@@ -460,6 +456,4 @@ def load_locdata(path, file_type=1, nrows=None):
     LocData
         A new instance of LocData with all localizations.
     """
-    # todo fix protobuf constants for ASDF == 5
-
     return _map_file_type_to_load_function(file_type)(path=path, nrows=nrows)

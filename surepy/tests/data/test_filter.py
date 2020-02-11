@@ -26,7 +26,7 @@ def locdata_simple():
     }
     df = pd.DataFrame(locdata_dict)
     df.index = [2, 0, 1, 3, 4, 5, 6, 7]
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': 1000000001})
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
 
 
 def test_select_by_condition(locdata_simple):

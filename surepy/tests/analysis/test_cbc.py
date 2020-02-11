@@ -73,5 +73,5 @@ def test_Coordinate_based_colocalization(locdata_line):
 
     cbc = CoordinateBasedColocalization(radius=100, n_steps=10).compute(locdata=locdata_line,
                                                                         other_locdata=other_locdata)
-    print(other_locdata.meta)
+    # print(other_locdata.meta)
     # assert(cbc.results.columns == 'colocalization_cbc_self')

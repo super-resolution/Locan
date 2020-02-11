@@ -147,7 +147,7 @@ def test_histogram(locdata_blobs_2d):
     assert hist.dtype == 'float64'
 
     hist, ranges, bins, labels = histogram(locdata_blobs_2d, bins=10, bin_size=None)
-    print(locdata_blobs_2d.data['position_x'].min())
+    # print(locdata_blobs_2d.data['position_x'].min())
     assert 'counts' in labels
     # assert locdata_blobs_2d.data['position_x'].min() == ranges[0][0]
     # assert np.max(hist) == 7

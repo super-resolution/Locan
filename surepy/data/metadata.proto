@@ -27,6 +27,7 @@ enum File_type {
     RAPIDSTORM = 2;
     ELYRA = 3;
     THUNDERSTORM = 4;
+    ASDF = 5;
 }
 
 message Operation {
@@ -43,12 +44,13 @@ message Unit {
 message Metadata {
   optional string identifier = 1;
   optional string comment = 2;
-  // Timestamp in seconds since Unix epoch
-  optional int64 creation_date = 3;
-  // Timestamp in seconds since Unix epoch
-  optional int64 modification_date = 4;
-  // Timestamp in seconds since Unix epoch
-  optional int64 production_date = 5;
+  // Localtime in "%Y-%m-%d %H:%M:%S %z"
+  optional string creation_date = 3;
+  // Localtime in "%Y-%m-%d %H:%M:%S %z"
+  optional string modification_date = 4;
+  // Localtime in "%Y-%m-%d %H:%M:%S %z"
+  optional string production_date = 5;
+  // Localtime in "%Y-%m-%d %H:%M:%S %z"
 
   optional Source source = 6;
   optional State state = 7;

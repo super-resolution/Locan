@@ -43,7 +43,7 @@ import numpy as np
 import pandas as pd
 from shapely.geometry import Polygon
 
-from surepy.data.locdata import LocData
+from surepy.data.locdata import LocData, _time_string
 from surepy.data import metadata_pb2
 from surepy.data.region import RoiRegion
 
@@ -1029,7 +1029,7 @@ def resample(locdata, n_samples=10):
     except ValueError:
         pass
 
-    meta_.modification_date = int(time.time())
+    meta_.modification_date = _time_string(time.time())
     meta_.state = metadata_pb2.MODIFIED
     meta_.ancestor_identifiers.append(locdata.meta.identifier)
     meta_.history.add(name='resample',

@@ -32,6 +32,6 @@ def test_thunderstorm_keys_are_mapped_on_valid_property_keys():
 
 def test_root_directory():
     assert ROOT_DIR.is_dir()
-    print(ROOT_DIR.joinpath('tests/'))
-    print(type(ROOT_DIR))
+    # print(ROOT_DIR.joinpath('tests/'))
+    # print(type(ROOT_DIR))
     assert ROOT_DIR.joinpath('tests/').is_dir()

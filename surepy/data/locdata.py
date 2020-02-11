@@ -20,6 +20,23 @@ from surepy.data import metadata_pb2
 __all__ = ['LocData']
 
 
+def _time_string(time_value):
+    """
+    Convert 'time_value' (typically timestamp from Unix epoch) to the local time
+    and return as "%Y-%m-%d %H:%M:%S %z" formatted string.
+
+    Parameters
+    ----------
+    time_value : float
+        return value from time.time()
+
+    Returns
+    -------
+    str
+    """
+    return time.strftime("%Y-%m-%d %H:%M:%S %z", time.localtime(time_value))
+
+
 class LocData:
     """
     This class carries localization data, aggregated properties and meta data.
@@ -63,6 +80,7 @@ class LocData:
     def __init__(self, references=None, dataframe=pd.DataFrame(), indices=None,
                  meta=None):
         self.__class__.count += 1
+        self._time = time.time()
 
         self.references = references
         self.dataframe = dataframe
@@ -89,7 +107,8 @@ class LocData:
         global LOCDATA_ID
         LOCDATA_ID += 1
         self.meta.identifier = str(LOCDATA_ID)
-        self.meta.creation_date = int(time.time())
+
+        self.meta.creation_date = _time_string(self._time)
         self.meta.source = metadata_pb2.DESIGN
         self.meta.state = metadata_pb2.RAW
 
@@ -235,7 +254,6 @@ class LocData:
         dataframe = dataframe
         meta_ = metadata_pb2.Metadata()
 
-        meta_.creation_date = int(time.time())
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.RAW
         meta_.history.add(name='LocData.from_dataframe')
@@ -291,7 +309,7 @@ class LocData:
         except ValueError:
             pass
 
-        meta_.modification_date = int(time.time())
+        meta_.modification_date = _time_string(time.time())
         meta_.state = metadata_pb2.MODIFIED
         meta_.ancestor_identifiers.append(locdata.meta.identifier)
         meta_.history.add(name='LocData.from_selection')
@@ -330,7 +348,6 @@ class LocData:
 
         meta_ = metadata_pb2.Metadata()
 
-        meta_.creation_date = int(time.time())
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.RAW
         meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
@@ -380,7 +397,7 @@ class LocData:
 
         meta_ = metadata_pb2.Metadata()
 
-        meta_.creation_date = int(time.time())
+        meta_.creation_date = _time_string(time.time())
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.MODIFIED
         meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdatas]
@@ -426,7 +443,7 @@ class LocData:
 
         meta_ = metadata_pb2.Metadata()
 
-        meta_.creation_date = int(time.time())
+        meta_.creation_date = _time_string(time.time())
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.RAW
         meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
@@ -529,6 +546,8 @@ class LocData:
         Print a summary containing the most common metadata keys.
         """
         meta_ = metadata_pb2.Metadata()
+        meta_.file_path = self.meta.file_path
+        meta_.file_type = self.meta.file_type
         meta_.identifier = self.meta.identifier
         meta_.comment = self.meta.comment
         meta_.creation_date = self.meta.creation_date

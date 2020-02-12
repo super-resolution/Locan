@@ -27,6 +27,7 @@ from surepy.data.locdata import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
 from surepy.render import render_2d_mpl, render_2d_napari
+from surepy.render.utilities import _indices_to_bin_centers
 from surepy.data.region import RoiRegion
 
 
@@ -375,7 +376,7 @@ def select_by_drawing_mpl(locdata, region_type='rectangle', **kwargs):
     return roi_list
 
 
-def _napari_shape_to_RoiRegion(vertices, type):
+def _napari_shape_to_RoiRegion(vertices, bin_edges, region_type):
     """
     Convert napari shape to surepy RoiRegion
 
@@ -383,37 +384,55 @@ def _napari_shape_to_RoiRegion(vertices, type):
     ----------
     vertices : ndarray of float
         Sequence of point coordinates as returned by napari
-    type : str
-        Type is a string specifying the selector widget that can be either rectangle, ellipse, or polygon.
+    bin_edges : tuple, list, ndarray of float with shape (n_dimension, n_bin_edges)
+        Array of bin edges for each dimension. At this point there are only equally-sized bins allowed.
+    region_type : str
+        String specifying the selector widget that can be either rectangle, ellipse, or polygon.
 
     Returns
     -------
     RoiRegion
     """
-    if type in ['rectangle', 'ellipse', 'polygon']:
-        region_type = type
-    else:
-        raise TypeError(f' Type {type} is not defined in surepy.')
+    # at this point there are only equally-sized bins used.
+    bin_sizes = [bedges[1] - bedges[0] for bedges in bin_edges]
 
-    if type == 'rectangle':
-        corner_x, corner_y = vertices[0]
-        width, height = vertices[1][0] - vertices[0][0], vertices[2][1] - vertices[1][1]
+    # flip since napari returns vertices with first component representing the horizontal axis
+    vertices = np.flip(vertices, axis=1)
+
+    vertices = np.array([bedges[0] + vert * bin_size
+                         for vert, bedges, bin_size in zip(vertices.T, bin_edges, bin_sizes)]
+                        ).T
+
+    if region_type == 'rectangle':
+        if len(set(vertices[:, 0].astype(int))) != 2:
+            raise NotImplementedError('Rotated rectangles are not implemented.')
+        mins = vertices.min(axis=0)
+        maxs = vertices.max(axis=0)
+        corner_x, corner_y = mins
+        width, height = maxs - mins
         angle = 0
         region_specs = ((corner_x, corner_y), width, height, angle)
 
-    elif type == 'ellipse':
-        width, height = vertices[1][0] - vertices[0][0], vertices[2][1] - vertices[1][1]
-        center_x, center_y = vertices[0][0] + width/2, vertices[0][1] + height/2
+    elif region_type == 'ellipse':
+        if len(set(vertices[:, 0].astype(int))) != 2:
+            raise NotImplementedError('Rotated ellipses are not implemented.')
+        mins = vertices.min(axis=0)
+        maxs = vertices.max(axis=0)
+        width, height = maxs - mins
+        center_x, center_y = mins[0] + width/2, mins[1] + height/2
         angle = 0
         region_specs = ((center_x, center_y), width, height, angle)
 
-    elif type == 'polygon':
+    elif region_type == 'polygon':
         region_specs = np.concatenate([vertices, [vertices[0]]], axis=0)
+
+    else:
+        raise TypeError(f' Type {region_type} is not defined in surepy.')
 
     return RoiRegion(region_specs=region_specs, region_type=region_type)
 
 
-def select_by_drawing_napari(locdata, **kwargs):
+def select_by_drawing_napari(locdata, bin_size=10, **kwargs):
     """
     Select region of interest from rendered image by drawing rois in napari.
 
@@ -421,6 +440,8 @@ def select_by_drawing_napari(locdata, **kwargs):
     ----------
     locdata : LocData object
         The localization data from which to select localization data.
+    bin_size : float or None
+        The bin size in units of locdata coordinate units.
 
     Other Parameters
     ----------------
@@ -438,14 +459,14 @@ def select_by_drawing_napari(locdata, **kwargs):
     # select roi
 
     with napari.gui_qt():
-        viewer = render_2d_napari(locdata, **kwargs)
+        viewer, bins_edges, label = render_2d_napari(locdata, bin_size=bin_size, **kwargs)
 
     vertices = viewer.layers['Shapes'].data
     types = viewer.layers['Shapes'].shape_type
 
     regions = []
     for verts, typ in zip(vertices, types):
-        regions.append(_napari_shape_to_RoiRegion(verts, typ))
+        regions.append(_napari_shape_to_RoiRegion(verts, bins_edges, typ))
 
     roi_list = [Roi(reference=locdata, region_specs=region.region_specs,
                     region_type=region.region_type) for region in regions]

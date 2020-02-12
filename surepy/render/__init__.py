@@ -11,10 +11,13 @@ Surepy.render consists of the following modules:
    :toctree: ./
 
    render2d
+   utilities
 
 """
 
 from .render2d import *
+from .utilities import *
 
 __all__ = []
 __all__.extend(render2d.__all__)
+__all__.extend(utilities.__all__)

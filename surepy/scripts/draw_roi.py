@@ -49,6 +49,8 @@ def draw_roi_mpl(file_path=None, file_type=1, roi_file_indicator='_roi', region_
     # choose file interactively
     if file_path is None:
         file_path = Path(file_dialog(message='choose file', filter='*.txt; *.csv')[0])
+    else:
+        file_path = Path(file_path)
 
     print(file_path)
 

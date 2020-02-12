@@ -18,7 +18,7 @@ Surepy.scripts consists of the following modules:
    check
    rois
    draw_roi
-   napari
+   render_napari
 
 """
 from .check import check_

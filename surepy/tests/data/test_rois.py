@@ -9,7 +9,8 @@ from surepy import LocData
 from surepy.constants import ROOT_DIR
 from surepy.io.io_locdata import load_txt_file
 from surepy.data.region import RoiRegion
-from surepy.data.rois import Roi, select_by_drawing_mpl, select_by_drawing_napari, rasterize
+from surepy.data.rois import Roi, select_by_drawing_mpl, select_by_drawing_napari, rasterize, \
+    _napari_shape_to_RoiRegion
 from surepy.data import metadata_pb2
 
 
@@ -242,3 +243,24 @@ def test_rasterize_3d(locdata_3d):
     assert res[0].properties_for_roi == ['position_x', 'position_z']
     assert repr(res[0]._region.region_specs) == 'RegionSpecs(corner=(1.0, 1.0), width=0.8, height=2.0, angle=0)'
     assert len(res) == 10
+
+
+def test__napari_shape_to_RoiRegion():
+
+    # rectangle
+    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
+    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]])
+    region = _napari_shape_to_RoiRegion(vertices, bin_edges, 'rectangle')
+    assert np.array_equal(region.region_specs, np.array(((0.0, 2.0), 25.0, 3.0999999999999996, 0)))
+
+    # ellipse
+    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
+    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]])
+    region = _napari_shape_to_RoiRegion(vertices, bin_edges, 'ellipse')
+    assert np.array_equal(region.region_specs, np.array(((12.5, 3.55), 25.0, 3.0999999999999996, 0)))
+
+    # polygon
+    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
+    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]])
+    region = _napari_shape_to_RoiRegion(vertices, bin_edges, 'polygon')
+    assert np.array_equal(region.region_specs, np.array([[0, 2], [25, 2], [25, 5.1], [0, 5.1], [0, 2]]))

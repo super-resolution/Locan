@@ -318,7 +318,7 @@ class OrientedBoundingBox:
     def __init__(self, points):
         self.dimension = np.shape(points)[1]
         if self.dimension >= 3:
-            raise TypeError('ConvexHullShapely only takes 1 or 2-dimensional points as input.')
+            raise TypeError('OrientedBoundingBox only takes 1 or 2-dimensional points as input.')
 
         self.hull = MultiPoint(points).minimum_rotated_rectangle
         self.width = np.array([LineString(self.vertices[0:2]).length, LineString(self.vertices[1:3]).length])

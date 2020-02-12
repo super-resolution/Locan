@@ -60,7 +60,7 @@ def napari_(file_path=None, file_type=FileType.CUSTOM, **kwrds):
 def _add_arguments(parser):
     parser.add_argument('-f', '--file', dest='file', type=str, default=None,
                         help='File path to localization data.')
-    parser.add_argument('-t', '--type', dest='type', type=int, default=1,
+    parser.add_argument('-t', '--type', dest='type', type=int, default=2,
                         help='Integer or string indicating the file type.')
     parser.add_argument('--bin_size', dest='bin_size', type=float, default=10,
                         help='Keyword passed to render function.')

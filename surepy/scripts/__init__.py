@@ -21,8 +21,7 @@ Surepy.scripts consists of the following modules:
    napari
 
 """
-from .command_1 import command_1
 from .check import check_
 from .rois import draw_roi_napari
 from .draw_roi import draw_roi_mpl
-from .napari import napari
+from .render_napari import napari_

@@ -32,15 +32,15 @@ import surepy.io.io_locdata as io
 from surepy.data.rois import select_by_drawing_napari
 
 
-def draw_roi_napari(directory=None, type=FileType.CUSTOM, roi_file_indicator='_roi'):
+def draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indicator='_roi'):
     """
     Define regions of interest by drawing a boundary.
 
     Parameters
     ----------
-    directory : string or Path object
-        Directory to start the GUI in for loading data.
-    type : int, str, surepy.constants.FileType, metadata_pb2
+    file_path : string or Path object
+        File path to localization data.
+    file_type : int, str, surepy.constants.FileType, metadata_pb2
         Indicator for the file type.
         Integer or string should be according to surepy.constants.FileType.
     roi_file_indicator : str
@@ -48,11 +48,13 @@ def draw_roi_napari(directory=None, type=FileType.CUSTOM, roi_file_indicator='_r
     """
 
     # choose file interactively
-    file = Path(file_dialog(directory=str(directory), message='choose file', filter='*.txt; *.csv')[0])
-    print(file)
+    if file_path is None:
+        file_path = Path(file_dialog(message='choose file', filter='*.txt; *.csv')[0])
+
+    print(file_path)
 
     # load data
-    dat = io.load_locdata(path=file, file_type=type)
+    dat = io.load_locdata(path=file_path, file_type=file_type)
 
     # set roi
     rois = select_by_drawing_napari(locdata=dat, bin_size=50, rescale='equal')
@@ -60,14 +62,14 @@ def draw_roi_napari(directory=None, type=FileType.CUSTOM, roi_file_indicator='_r
 
     # save roi
     for i, roi in enumerate(rois):
-        roi_file = file.stem + roi_file_indicator + f'_{i}.yaml'
-        roi_path = file.with_name(roi_file)
+        roi_file = file_path.stem + roi_file_indicator + f'_{i}.yaml'
+        roi_path = file_path.with_name(roi_file)
         roi.to_yaml(path=roi_path)
 
 
 def _add_arguments(parser):
-    parser.add_argument('-d', '--directory', dest='directory', type=str,
-                        help='Directory to start the GUI in for loading data.')
+    parser.add_argument('-f', '--file', dest='file', type=str, default=None,
+                        help='File path to localization data.')
     parser.add_argument('-t', '--type', dest='type', type=int, default=1,
                         help='Integer or string indicating the file type.')
     parser.add_argument('-i', '--indicator', dest='roi_file_indicator', type=str, default='_roi',
@@ -81,7 +83,7 @@ def main(args=None):
     _add_arguments(parser)
     returned_args = parser.parse_args(args)
 
-    draw_roi_napari(returned_args.directory, returned_args.type, returned_args.roi_file_indicator)
+    draw_roi_napari(returned_args.file, returned_args.type, returned_args.roi_file_indicator)
 
 
 if __name__ == '__main__':

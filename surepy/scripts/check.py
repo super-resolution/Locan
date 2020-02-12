@@ -79,8 +79,8 @@ def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, trans
     return viewer
 
 
-def check_napari(pixel_size, file_images=None, file_locdata=None, file_type=sp.FileType.RAPIDSTORM,
-                 viewer=None, transpose=True, kwargs_image={}, kwargs_points={}):
+def check_(pixel_size, file_images=None, file_locdata=None, file_type=sp.FileType.RAPIDSTORM,
+           viewer=None, transpose=True, kwargs_image={}, kwargs_points={}):
     """
     Load and display original recording and load and overlay localization spots in napari.
 
@@ -150,9 +150,9 @@ def main(args=None):
     _add_arguments(parser)
     returned_args = parser.parse_args(args)
 
-    check_napari(pixel_size=returned_args.pixel_size, file_images=returned_args.file_images,
-                 file_locdata=returned_args.file_locdata, file_type=returned_args.file_type,
-                 transpose=True, kwargs_image={}, kwargs_points={})
+    check_(pixel_size=returned_args.pixel_size, file_images=returned_args.file_images,
+           file_locdata=returned_args.file_locdata, file_type=returned_args.file_type,
+           transpose=True, kwargs_image={}, kwargs_points={})
 
 
 if __name__ == '__main__':

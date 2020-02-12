@@ -7,6 +7,7 @@ import argparse
 from surepy.scripts.draw_roi import _add_arguments as _add_arguments_draw_roi
 from surepy.scripts.check import _add_arguments as _add_arguments_check
 from surepy.scripts.rois import _add_arguments as _add_arguments_rois
+from surepy.scripts.napari import _add_arguments as _add_arguments_napari
 
 
 def main(args=None):
@@ -38,6 +39,11 @@ def main(args=None):
                                        description='Show localizations in original recording.')
     _add_arguments_check(parser_check)
 
+    # parser for the command napari
+    parser_napari = subparsers.add_parser(name='napari',
+                                       description='Render localization data in napari.')
+    _add_arguments_napari(parser_napari)
+
     # Parse
     returned_args = parser.parse_args(args)
 
@@ -56,10 +62,14 @@ def main(args=None):
             draw_roi_napari(returned_args.directory, returned_args.type, returned_args.roi_file_indicator)
 
         elif returned_args.command == "check":
-            from .scripts.check import check_napari
-            check_napari(pixel_size=returned_args.pixel_size, file_images=returned_args.file_images,
-                         file_locdata=returned_args.file_locdata, file_type=returned_args.file_type,
-                         transpose=True, kwargs_image={}, kwargs_points={})
+            from .scripts.check import check_
+            check_(pixel_size=returned_args.pixel_size, file_images=returned_args.file_images,
+                   file_locdata=returned_args.file_locdata, file_type=returned_args.file_type,
+                   transpose=True, kwargs_image={}, kwargs_points={})
+
+        elif returned_args.command == "napari":
+            from .scripts.napari import napari_
+            napari_(returned_args.file, returned_args.type, bin_size=returned_args.bin_size)
 
     else:
         print("This is the command line entry point for surepy.")

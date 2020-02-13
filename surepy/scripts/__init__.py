@@ -10,7 +10,8 @@ Scripts are installed in bin/ as simple wrappers for these modules.
 They can be run directly from a terminal through ``surepy command options``
 as long as the correct environment is activated.
 
-Surepy.scripts consists of the following modules:
+Submodules:
+-----------
 
 .. autosummary::
    :toctree: ./

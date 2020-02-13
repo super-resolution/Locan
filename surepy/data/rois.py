@@ -10,6 +10,7 @@ dataset. It is therefore related to region specifications and a unique LocData o
 The Roi object provides methods for saving all specifications to a yaml file, for loading them, and for returning
 LocData with localizations selected to be within the roi region.
 """
+import sys
 from pathlib import Path
 import warnings
 from itertools import product
@@ -24,6 +25,7 @@ import napari
 
 from surepy.data import metadata_pb2
 from surepy.data.locdata import LocData
+from surepy.data.metadata_utils import _modify_meta
 import surepy.constants
 import surepy.io.io_locdata as io
 from surepy.render import render_2d_mpl, render_2d_napari
@@ -314,6 +316,8 @@ class Roi:
         LocData
             A new instance of LocData with all localizations within region of interest.
         """
+        local_parameter = locals()
+
         if isinstance(self.reference, LocData):
             locdata = self.reference
         elif isinstance(self.reference, metadata_pb2.Metadata):
@@ -336,7 +340,12 @@ class Roi:
         if reduce:
             new_locdata.reduce()
 
-        # todo: add metadata
+        # update metadata
+        meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
+                             parameter=local_parameter,
+                             meta=None)
+        new_locdata.meta = meta_
+
         return new_locdata
 
 

@@ -1,9 +1,7 @@
 """
 Simulate drift and apply it to localization data.
 
-Drift can be linear or random walk.
-
-We provide a method to transform locdata coordinates according to the simulated drift.
+Drift can be linear in time or resemble a random walk.
 """
 import sys
 
@@ -19,8 +17,9 @@ __all__ = ['add_drift']
 
 def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None):
     """
-    Compute position deltas as function of frame number.
+    Transform locdata coordinates according to a simulated drift.
 
+    Position deltas are computed as function of frame number.
     Within a single time unit delta_t the probability for a diffusion step of length delta_x is:
 
     p(delta_x, delta_t) = Norm(-velocity*delta_t, sigma**2) where the standard deviation sigma**2 = 2 * D * delta_t

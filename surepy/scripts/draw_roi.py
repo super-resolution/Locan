@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Define regions of interest by drawing a boundary.
+Define regions of interest with matplotlib and save as roi files.
 
 With this script you can choose a file name, open the localization file and draw a rectangular region of interest.
 Within the matplotlib image draw a rectange, type '+' to add the roi to the list, then type 'q' to quit.

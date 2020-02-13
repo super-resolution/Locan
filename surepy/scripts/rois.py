@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Define regions of interest in napari and save as roi files
+Define regions of interest with napari and save as roi files.
 
 With this script you can choose a file name, open the localization file in napari.
 Draw regions of interest as additional shapes in napari.

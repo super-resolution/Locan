@@ -20,7 +20,8 @@ Depending on the situation it is set to one of the values specified in the enum 
 To force surepy to use specific QT bindings set the `QT_API` environment variable to 'pyside2' or 'pyqt5'.
 
 
-Surepy.io consists of the following modules:
+Submodules:
+-----------
 
 .. autosummary::
    :toctree: ./

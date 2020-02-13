@@ -8,6 +8,12 @@ The functions take LocData as input and compute new LocData objects.
 Software based drift correction has been described in several publications [1]_, [2]_, [3]_.
 Methods employed for drift estimation comprise single molecule localization analysis or image correlation analysis.
 
+Note
+----
+The procedure is in an exploratory state and has not been fully developed and tested.
+
+References
+----------
 .. [1] C. Geisler,
    Drift estimation for single marker switching based imaging schemes,
    Optics Express. 2012, 20(7):7274-89.

@@ -2,13 +2,13 @@
 Changelog
 =======================
 
-0.4 (unreleased)
+0.5 (unreleased)
 ================
 
 
 New Features
 ------------
-- New function test() to run pytest on whole test suite.
+-
 
 surepy.analysis
 ^^^^^^^^^^^^^^^
@@ -16,15 +16,11 @@ surepy.analysis
 
 surepy.data
 ^^^^^^^^^^^^^^^
-- New rasterize function to divide localization support into rectangular rois.
-- New functions to perform affine transformation using open3d.
-- New functions to perform registration using open3d.
-- New function for drift correction using icp (from open3d).
-- Increase performance of maximum distance computation of localization data.
+-
 
 surepy.datasets
 ^^^^^^^^^^^^^^^
-- Added functions to load example datasets. The datasets will be provided in a separate directory (repository).
+-
 
 surepy.gui
 ^^^^^^^^^^^^^^^
@@ -40,14 +36,111 @@ surepy.render
 
 surepy.scripts
 ^^^^^^^^^^^^^^^
-- Introduced command-line interface with compound commands.
-- New script to render localization data in napari
-- New script to define and save rois using napari
-- New script to render localizations onto raw data images
+-
 
 surepy.simulation
 ^^^^^^^^^^^^^^^^^
 -
+
+
+API Changes
+-----------
+
+surepy.analysis
+^^^^^^^^^^^^^^^
+-
+
+surepy.data
+^^^^^^^^^^^^^^^
+-
+
+surepy.datasets
+^^^^^^^^^^^^^^^
+-
+
+surepy.gui
+^^^^^^^^^^^^^^^
+-
+
+surepy.io
+^^^^^^^^^^^^^^^
+-
+
+surepy.render
+^^^^^^^^^^^^^^^
+-
+
+surepy.scripts
+^^^^^^^^^^^^^^^
+-
+
+surepy.simulation
+^^^^^^^^^^^^^^^^^^^
+-
+
+Bug Fixes
+---------
+
+
+surepy.analysis
+^^^^^^^^^^^^^^^
+-
+
+surepy.data
+^^^^^^^^^^^^^^^
+-
+
+surepy.gui
+^^^^^^^^^^^^^^^
+-
+
+surepy.io
+^^^^^^^^^^^^^^^
+-
+
+surepy.render
+^^^^^^^^^^^^^^^
+-
+
+surepy.scripts
+^^^^^^^^^^^^^^^
+-
+
+surepy.simulation
+^^^^^^^^^^^^^^^^^
+-
+
+
+Other Changes and Additions
+---------------------------
+-
+
+
+0.4 (13.02.2020)
+================
+
+New Features
+------------
+- New function test() to run pytest on whole test suite.
+
+surepy.data
+^^^^^^^^^^^^^^^
+- New rasterize function to divide localization support into rectangular rois.
+- New functions to perform affine transformation using open3d.
+- New functions to perform registration using open3d.
+- New function for drift correction using icp (from open3d).
+- Increase performance of maximum distance computation of localization data.
+
+surepy.datasets
+^^^^^^^^^^^^^^^
+- Added functions to load example datasets. The datasets will be provided in a separate directory (repository).
+
+surepy.scripts
+^^^^^^^^^^^^^^^
+- Introduced command-line interface with compound commands.
+- New script to render localization data in napari
+- New script to define and save rois using napari
+- New script to render localizations onto raw data images
 
 
 API Changes
@@ -63,18 +156,6 @@ surepy.data
 - Deprecate `update_convex_hull_in_collection()`. Use `LocData.update_convex_hulls_in_references()`.
 - Metadata on time is changed from timestamp to formatted time expression.
 
-surepy.datasets
-^^^^^^^^^^^^^^^
--
-
-surepy.gui
-^^^^^^^^^^^^^^^
--
-
-surepy.io
-^^^^^^^^^^^^^^^
--
-
 surepy.render
 ^^^^^^^^^^^^^^^
 - Default colormaps are set to selected ones from colorcet or matplotlib.
@@ -89,37 +170,13 @@ surepy.simulation
 ^^^^^^^^^^^^^^^^^^^
 - Add functions for drift simulation.
 
+
 Bug Fixes
 ---------
-
-
-surepy.analysis
-^^^^^^^^^^^^^^^
--
 
 surepy.data
 ^^^^^^^^^^^^^^^
 - Fixed update of bounding_box, convex_hull and oriented bounding box.
-
-surepy.gui
-^^^^^^^^^^^^^^^
--
-
-surepy.io
-^^^^^^^^^^^^^^^
--
-
-surepy.render
-^^^^^^^^^^^^^^^
--
-
-surepy.scripts
-^^^^^^^^^^^^^^^
--
-
-surepy.simulation
-^^^^^^^^^^^^^^^^^
--
 
 
 Other Changes and Additions

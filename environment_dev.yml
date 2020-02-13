@@ -7,8 +7,8 @@
 name: surepy
 
 channels:
-- defaults
 - conda-forge
+- defaults
 
 dependencies:
 # Development related

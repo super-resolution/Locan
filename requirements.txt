@@ -16,6 +16,7 @@ scipy
 scikit-learn
 scikit-image
 matplotlib
+shapely
 lmfit
 
 # Google
@@ -23,6 +24,7 @@ protobuf
 
 # File formats
 ruamel.yaml
+tifffile
 asdf
 
 # Data analysis tools
@@ -32,7 +34,6 @@ fast-histogram
 # Extra requirements
 pyside2
 colorcet
-shapely
 trackpy
 open3d==0.8.0.0
 mpl_scatter_density

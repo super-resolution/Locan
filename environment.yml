@@ -29,6 +29,7 @@ dependencies:
 - scikit-learn
 - scikit-image
 - matplotlib
+- shapely
 - lmfit
 
 # Google
@@ -36,6 +37,7 @@ dependencies:
 
 # File formats
 - ruamel.yaml
+- tifffile
 
 # Data analysis tools
 - hdbscan
@@ -44,7 +46,6 @@ dependencies:
 # Extra requirements
 - pyside2
 - colorcet
-- shapely
 - trackpy
 - open3d=0.8.*
 

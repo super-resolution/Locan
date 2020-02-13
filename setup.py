@@ -57,10 +57,10 @@ URL = ""
 # dependencies
 PYTHON_REQUIRES = '>=3.5'
 SETUP_REQUIRES = ['pytest-runner']
-INSTALL_REQUIRES = ['asdf', 'ruamel.yaml', 'fast-histogram', 'hdbscan', 'lmfit', 'protobuf', 'shapely',
+INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast-histogram', 'hdbscan', 'lmfit', 'protobuf', 'shapely',
                     'scikit-learn', 'scikit-image', 'matplotlib', 'scipy', 'pandas', 'numpy', 'numba']
 EXTRAS_REQUIRE = {'Colormaps': ["colorcet"], 'Track': ["trackpy"], 'Register': ["open3d"],
-                  'Render': ["napari", "mpl_scatter_density"], 'pyside2': ["pyside2"]}
+                  'Render': ["napari", "mpl_scatter_density"], 'QT': ["pyside2"]}
 TESTS_REQUIRE = ['pytest']
 
 # entry points to register scripts

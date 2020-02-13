@@ -2,17 +2,12 @@
 Changelog
 =======================
 
-0.4 (unreleased)
+0.4 (13.02.2020)
 ================
-
 
 New Features
 ------------
 - New function test() to run pytest on whole test suite.
-
-surepy.analysis
-^^^^^^^^^^^^^^^
--
 
 surepy.data
 ^^^^^^^^^^^^^^^
@@ -26,28 +21,12 @@ surepy.datasets
 ^^^^^^^^^^^^^^^
 - Added functions to load example datasets. The datasets will be provided in a separate directory (repository).
 
-surepy.gui
-^^^^^^^^^^^^^^^
--
-
-surepy.io
-^^^^^^^^^^^^^^^
--
-
-surepy.render
-^^^^^^^^^^^^^^^
--
-
 surepy.scripts
 ^^^^^^^^^^^^^^^
 - Introduced command-line interface with compound commands.
 - New script to render localization data in napari
 - New script to define and save rois using napari
 - New script to render localizations onto raw data images
-
-surepy.simulation
-^^^^^^^^^^^^^^^^^
--
 
 
 API Changes
@@ -63,18 +42,6 @@ surepy.data
 - Deprecate `update_convex_hull_in_collection()`. Use `LocData.update_convex_hulls_in_references()`.
 - Metadata on time is changed from timestamp to formatted time expression.
 
-surepy.datasets
-^^^^^^^^^^^^^^^
--
-
-surepy.gui
-^^^^^^^^^^^^^^^
--
-
-surepy.io
-^^^^^^^^^^^^^^^
--
-
 surepy.render
 ^^^^^^^^^^^^^^^
 - Default colormaps are set to selected ones from colorcet or matplotlib.
@@ -89,37 +56,13 @@ surepy.simulation
 ^^^^^^^^^^^^^^^^^^^
 - Add functions for drift simulation.
 
+
 Bug Fixes
 ---------
-
-
-surepy.analysis
-^^^^^^^^^^^^^^^
--
 
 surepy.data
 ^^^^^^^^^^^^^^^
 - Fixed update of bounding_box, convex_hull and oriented bounding box.
-
-surepy.gui
-^^^^^^^^^^^^^^^
--
-
-surepy.io
-^^^^^^^^^^^^^^^
--
-
-surepy.render
-^^^^^^^^^^^^^^^
--
-
-surepy.scripts
-^^^^^^^^^^^^^^^
--
-
-surepy.simulation
-^^^^^^^^^^^^^^^^^
--
 
 
 Other Changes and Additions
@@ -127,6 +70,7 @@ Other Changes and Additions
 - Added centroid and dimension property to LocData.
 - Implemented use of QT_API to set the QT bindings and work in combination with napari.
 - Make shapely a required dependency.
+
 
 0.3 (09.07.2019)
 ================

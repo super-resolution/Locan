@@ -25,6 +25,7 @@ from enum import Enum
 from pathlib import Path
 import os
 import warnings
+import importlib.util
 
 
 __all__ = ['ROOT_DIR', 'DATASETS_DIR', 'PROPERTY_KEYS', 'HULL_KEYS',
@@ -48,6 +49,7 @@ class QtBindings(Enum):
 # Force python binding - only for testing purposes:
 # os.environ['QT_API'] = QtBindings.PYQT5.value
 
+
 # Determine Python bindings for QT interaction.
 if 'QT_API' in os.environ:  # this is the case that QT_API has been set.
     try:
@@ -57,28 +59,22 @@ if 'QT_API' in os.environ:  # this is the case that QT_API has been set.
         QT_BINDINGS = QtBindings.NONE
 
     if QT_BINDINGS == QtBindings.PYSIDE2:
-        try:
-            from PySide2.QtWidgets import QApplication
-        except ImportError:
+        if importlib.util.find_spec("PySide2") is None:
             warnings.warn(f'The requested QT_API {QT_BINDINGS.value} cannot be imported. Will continue without QT.')
             QT_BINDINGS = QtBindings.NONE
 
     elif QT_BINDINGS == QtBindings.PYQT5:
-        try:
-            from PyQt5.QtWidgets import QApplication
-        except ImportError:
+        if importlib.util.find_spec("PyQt5") is None:
             warnings.warn(f'The requested QT_API {QT_BINDINGS.value} cannot be imported. Will continue without QT.')
             QT_BINDINGS = QtBindings.NONE
 
 else:  # this is the case that QT_API has not been set.
-    try:  # per default try pyside2 before PyQt5
-        from PySide2.QtWidgets import QApplication
+    if importlib.util.find_spec("PyQt5") is not None:
         QT_BINDINGS = QtBindings.PYSIDE2
-    except ImportError:
-        try:
-            from PyQt5.QtWidgets import QApplication
+    else:
+        if importlib.util.find_spec("PyQt5") is not None:
             QT_BINDINGS = QtBindings.PYQT5
-        except ImportError:
+        else:
             QT_BINDINGS = QtBindings.NONE  # this is the case that no qt bindings are available.
 
 # In order to force napari and other QT-using libraries to import with the correct Qt bindings
@@ -89,42 +85,17 @@ if QT_BINDINGS != QtBindings.NONE:
 
 
 # Optional imports
+_has_cupy = importlib.util.find_spec("cupy") is not None
+_has_mpl_scatter_density = importlib.util.find_spec("mpl_scatter_density") is not None
+_has_napari = importlib.util.find_spec("napari") is not None
+_has_open3d = importlib.util.find_spec("open3d") is not None
+_has_trackpy = importlib.util.find_spec("trackpy") is not None
+
 try:
     from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
     _has_colorcet = True
 except ImportError:
     _has_colorcet = False
-
-try:
-    import cupy as cp
-    _has_cupy = True
-except ImportError:
-    _has_cupy = False
-
-try:
-    import mpl_scatter_density
-    _has_mpl_scatter_density = True
-except ImportError:
-    _has_mpl_scatter_density = False
-
-try:
-    import napari
-    _has_napari = True
-except ImportError:
-    _has_napari = False
-
-try:
-    import open3d as o3d
-    _has_open3d = True
-except ImportError:
-    _has_open3d = False
-
-try:
-    from trackpy import link_df
-    _has_trackpy = True
-except ImportError:
-    _has_trackpy = False
-
 
 #: Root directory for path operations.
 ROOT_DIR = Path(__file__).parent

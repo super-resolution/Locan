@@ -54,7 +54,7 @@ def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
     return amplitude * np.exp(-((x_-center_x)**2/(2.*sigma_x**2) + (y_-center_y)**2/(2.*sigma_y**2)))
 
 
-def _fit_image(image, bin_edges):
+def _fit_image_copy(image, bin_edges):
     """
     Fit 2D Gauss function to image data.
 
@@ -74,7 +74,7 @@ def _fit_image(image, bin_edges):
     def model_function(points, amplitude=1, center_x=0, center_y=0, sigma_x=1, sigma_y=1):
         return np.ravel(_gauss_2d(*points.T, amplitude, center_x, center_y, sigma_x, sigma_y))
 
-    model = Model(model_function, missing='drop')
+    model = Model(model_function, nan_policy='omit')
     # print(model.param_names, model.independent_vars)
 
     # simple definition of range (which is not strictly the same as outter `bin_edges`).
@@ -87,6 +87,8 @@ def _fit_image(image, bin_edges):
     data[:, 1] = yy.flatten()
     data[:, 2] = image.flatten()
 
+    data[:, 2][data[:, 2] == 0] = np.nan
+
     # instantiate lmfit Parameters
     params = Parameters()
     params.add('amplitude', value=np.amax(image))
@@ -98,18 +100,75 @@ def _fit_image(image, bin_edges):
     params.add('sigma_y', value=sigmas[1])
 
     # fit
-    results = model.fit(data[:, 2], points=data[:, 0:2], params=params)
+    model_result = model.fit(data[:, 2], points=data[:, 0:2], params=params)
 
-    return results
+    mask = np.isfinite(data[:, 2])
+    best_fit_with_nan = np.copy(data[:, 2])
+    best_fit_with_nan[mask] = model_result.best_fit
+
+    return model_result, best_fit_with_nan
+
+
+def _fit_image(data, range):
+    """
+    Fit 2D Gauss function to image data.
+
+    Parameters
+    ----------
+    data : ndarray of shape (3, n_image_values)
+        arrays with corresponding values for x, y, z
+    range : ndarray
+        range as returned from histogram().
+
+    Returns
+    -------
+    lmfit.model.ModelResult object
+        The fit results.
+    """
+    # prepare 1D lmfit model from 2D model function
+    def model_function(points, amplitude=1, center_x=0, center_y=0, sigma_x=1, sigma_y=1):
+        return np.ravel(_gauss_2d(*points.T, amplitude, center_x, center_y, sigma_x, sigma_y))
+
+    model = Model(model_function, nan_policy='omit')
+    # print(model.param_names, model.independent_vars)
+
+    # instantiate lmfit Parameters
+    params = Parameters()
+    params.add('amplitude', value=np.amax(data[2]))
+    centers = np.add(range[:, 0], np.diff(range).flatten() / 2)
+    params.add('center_x', value=centers[0])
+    params.add('center_y', value=centers[1])
+    sigmas = np.diff(range).ravel() / 4
+    params.add('sigma_x', value=sigmas[0])
+    params.add('sigma_y', value=sigmas[1])
+
+    # fit
+    model_result = model.fit(data[2], points=data[0:2].T, params=params)
+
+    return model_result
 
 
 def _localization_property2d(locdata, loc_properties=None, other_property=None,
                              bins=None, bin_size=10, range=None, rescale=None):
+    # bin localization data
     img, range, bin_edges, label = histogram(locdata, loc_properties, other_property, bins, bin_size, range, rescale)
-    fit_results = _fit_image(img, bin_edges)
 
-    Results = namedtuple('results', 'img range bin_edges label fit_results')
-    results = Results(img, range, bin_edges, label, fit_results)
+    # prepare one-dimensional data
+    xx, yy = np.meshgrid(bin_edges[0][1:], bin_edges[1][1:])
+
+    # eliminate image zeros
+    positions = np.nonzero(img)
+
+    data_0 = xx[positions].flatten()
+    data_1 = yy[positions].flatten()
+    data_2 = img[positions].flatten()
+
+    data = np.stack((data_0, data_1, data_2))
+
+    model_result = _fit_image(data, range)
+
+    Results = namedtuple('results', 'img range bin_edges label model_result')
+    results = Results(img, range, bin_edges, label, model_result)
     return results
 
 
@@ -188,12 +247,12 @@ class LocalizationProperty2d(_Analysis):
 
     def report(self):
         print('Fit results for:\n')
-        print(self.results.fit_results.fit_report(min_correl=0.25))
+        print(self.results.model_result.fit_report(min_correl=0.25))
         # print(self.results.fit_results.best_values)
 
         # judge fit parameter
-        max_fit_value = self.results.fit_results.best_fit.max()
-        min_fit_value = self.results.fit_results.best_fit.min()
+        max_fit_value = self.results.model_result.best_fit.max()
+        min_fit_value = self.results.model_result.best_fit.min()
         ratio = (max_fit_value - min_fit_value) / max_fit_value
         print(f'Maximum fit value in image: {max_fit_value:.3f}')
         print(f'Minimum fit value in image: {min_fit_value:.3f}')
@@ -221,11 +280,14 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        x, y = self.results.bin_edges[0][1:], self.results.bin_edges[1][1:]
+        ax.imshow(self.results.img, cmap='viridis', origin='lower', extent=np.ravel(self.results.range))
 
-        ax.imshow(self.results.img, cmap='viridis', origin='lower', extent=(x.min(), x.max(), y.min(), y.max()))
-        contourset = ax.contour(x, y, self.results.fit_results.best_fit.reshape(len(y), len(x)),
-                                8, colors='w', **kwargs)
+        x, y = self.results.bin_edges[0][1:], self.results.bin_edges[1][1:]
+        xx, yy = np.meshgrid(x, y)
+        zz = np.stack((xx, yy), axis=-1).reshape((np.product(xx.shape), 2))
+        z = self.results.model_result.eval(points=zz)
+
+        contourset = ax.contour(x, y, z.reshape((len(y), len(x))), 8, colors='w', **kwargs)
         plt.clabel(contourset, fontsize=9, inline=1)
         ax.set(title=self.parameter['other_property'],
                xlabel=self.results.label[0],

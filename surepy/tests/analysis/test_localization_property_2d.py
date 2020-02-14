@@ -15,7 +15,8 @@ def locdata():
 
 def test_Localization_property_2d(locdata):
     lprop = LocalizationProperty2d(meta=None, other_property='local_background', bin_size=1000).compute(locdata)
-    assert 'fit_results' in lprop.results._fields
+    assert 'model_result' in lprop.results._fields
+    assert lprop.results.model_result.params
     # lprop.report()
     lprop.plot()
     # plt.show()

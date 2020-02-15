@@ -19,4 +19,7 @@ def test_Localization_property_2d(locdata):
     assert lprop.results.model_result.params
     # lprop.report()
     lprop.plot()
+    lprop.plot_residuals()
+    lprop.plot_deviation_from_mean()
+    lprop.plot_deviation_from_median()
     # plt.show()

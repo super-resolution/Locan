@@ -295,3 +295,110 @@ class LocalizationProperty2d(_Analysis):
                )
 
         return ax
+
+    def plot_residuals(self, ax=None, **kwargs):
+        """
+        Provide histogram as matplotlib axes object showing plot(results).
+
+        Parameters
+        ----------
+        ax : matplotlib axes
+            The axes on which to show the image
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Other parameters passed to matplotlib.pyplot.contour().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
+        """
+        if ax is None:
+            ax = plt.gca()
+
+        x, y = self.results.bin_edges[0][1:], self.results.bin_edges[1][1:]
+        xx, yy = np.meshgrid(x, y)
+        zz = np.stack((xx, yy), axis=-1).reshape((np.product(xx.shape), 2))
+        z = self.results.model_result.eval(points=zz)
+
+        residuals = np.where(self.results.img == 0, np.nan, z.reshape((len(y), len(x))) - self.results.img)
+        ax.imshow(residuals, cmap='coolwarm', origin='lower', extent=np.ravel(self.results.range))
+
+        # contourset = ax.contour(x, y, z.reshape((len(y), len(x))), 8, colors='w', **kwargs)
+        # plt.clabel(contourset, fontsize=9, inline=1)
+        ax.set(title=self.parameter['other_property'],
+               xlabel=self.results.label[0],
+               ylabel=self.results.label[1]
+               )
+
+        return ax
+
+    def plot_deviation_from_mean(self, ax=None, **kwargs):
+        """
+        Provide histogram as matplotlib axes object showing plot(results).
+
+        Parameters
+        ----------
+        ax : matplotlib axes
+            The axes on which to show the image
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Other parameters passed to matplotlib.pyplot.contour().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
+        """
+        if ax is None:
+            ax = plt.gca()
+
+        positions = np.nonzero(self.results.img)
+        mean_value = self.results.img[positions].mean()
+        deviations = np.where(self.results.img == 0, np.nan, self.results.img - mean_value)
+        ax.imshow(deviations, cmap='coolwarm', origin='lower', extent=np.ravel(self.results.range))
+
+        ax.set(title=f"{self.parameter['other_property']} - deviation from mean",
+               xlabel=self.results.label[0],
+               ylabel=self.results.label[1]
+               )
+
+        return ax
+
+    def plot_deviation_from_median(self, ax=None, **kwargs):
+        """
+        Provide histogram as matplotlib axes object showing plot(results).
+
+        Parameters
+        ----------
+        ax : matplotlib axes
+            The axes on which to show the image
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Other parameters passed to matplotlib.pyplot.contour().
+
+        Returns
+        -------
+        matplotlib Axes
+            Axes object with the plot.
+        """
+        if ax is None:
+            ax = plt.gca()
+
+        positions = np.nonzero(self.results.img)
+        median_value = np.median(self.results.img[positions])
+        deviations = np.where(self.results.img == 0, np.nan, self.results.img - median_value)
+        ax.imshow(deviations, cmap='coolwarm', origin='lower', extent=np.ravel(self.results.range))
+
+        ax.set(title=f"{self.parameter['other_property']} - deviation from median",
+               xlabel=self.results.label[0],
+               ylabel=self.results.label[1]
+               )
+
+        return ax

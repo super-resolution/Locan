@@ -115,6 +115,26 @@ Other Changes and Additions
 ---------------------------
 -
 
+=======================
+Changelog
+=======================
+
+0.4.1 (16.2.2020)
+================
+
+
+Bug Fixes
+---------
+
+surepy.analysis
+^^^^^^^^^^^^^^^
+- Fix LocalizationProperty2d fit procedure
+
+Other Changes and Additions
+---------------------------
+- Increase import performance
+
+
 
 0.4 (13.02.2020)
 ================

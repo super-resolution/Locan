@@ -14,6 +14,7 @@ from lmfit import Model, Parameters
 from surepy.render.render2d import render_2d_mpl
 from surepy.analysis.analysis_base import _Analysis, _list_parameters
 from surepy.render.render2d import histogram
+from surepy.constants import COLORMAP_DIVERGING
 
 
 __all__ = ['LocalizationProperty2d']
@@ -324,7 +325,9 @@ class LocalizationProperty2d(_Analysis):
         z = self.results.model_result.eval(points=zz)
 
         residuals = np.where(self.results.img == 0, np.nan, z.reshape((len(y), len(x))) - self.results.img)
-        ax.imshow(residuals, cmap='coolwarm', origin='lower', extent=np.ravel(self.results.range))
+        max_absolute_value = max([abs(np.nanmin(residuals)), abs(np.nanmax(residuals))])
+        ax.imshow(residuals, cmap=COLORMAP_DIVERGING, origin='lower', extent=np.ravel(self.results.range),
+                  vmin=(-max_absolute_value), vmax=max_absolute_value)
 
         # contourset = ax.contour(x, y, z.reshape((len(y), len(x))), 8, colors='w', **kwargs)
         # plt.clabel(contourset, fontsize=9, inline=1)
@@ -360,7 +363,9 @@ class LocalizationProperty2d(_Analysis):
         positions = np.nonzero(self.results.img)
         mean_value = self.results.img[positions].mean()
         deviations = np.where(self.results.img == 0, np.nan, self.results.img - mean_value)
-        ax.imshow(deviations, cmap='coolwarm', origin='lower', extent=np.ravel(self.results.range))
+        max_absolute_value = max([abs(np.nanmin(deviations)), abs(np.nanmax(deviations))])
+        ax.imshow(deviations, cmap=COLORMAP_DIVERGING, origin='lower', extent=np.ravel(self.results.range),
+                  vmin=(-max_absolute_value), vmax=max_absolute_value)
 
         ax.set(title=f"{self.parameter['other_property']} - deviation from mean",
                xlabel=self.results.label[0],
@@ -394,7 +399,9 @@ class LocalizationProperty2d(_Analysis):
         positions = np.nonzero(self.results.img)
         median_value = np.median(self.results.img[positions])
         deviations = np.where(self.results.img == 0, np.nan, self.results.img - median_value)
-        ax.imshow(deviations, cmap='coolwarm', origin='lower', extent=np.ravel(self.results.range))
+        max_absolute_value = max([abs(np.nanmin(deviations)), abs(np.nanmax(deviations))])
+        ax.imshow(deviations, cmap=COLORMAP_DIVERGING, origin='lower', extent=np.ravel(self.results.range),
+                  vmin=(-max_absolute_value), vmax=max_absolute_value)
 
         ax.set(title=f"{self.parameter['other_property']} - deviation from median",
                xlabel=self.results.label[0],

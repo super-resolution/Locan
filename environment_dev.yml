@@ -14,5 +14,4 @@ dependencies:
 # Development related
 - sphinx
 - sphinx_rtd_theme
-- nbval
 - ipython

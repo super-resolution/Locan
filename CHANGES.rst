@@ -84,7 +84,7 @@ Bug Fixes
 
 surepy.analysis
 ^^^^^^^^^^^^^^^
--
+- Adapt colormap and rescaling in LocalizationProperty2D plot functions.
 
 surepy.data
 ^^^^^^^^^^^^^^^

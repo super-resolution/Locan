@@ -18,6 +18,7 @@ import matplotlib.path as mPath
 import matplotlib.patches as mPatches
 from scipy.spatial.distance import pdist
 from shapely.geometry import Polygon as shPolygon
+from shapely.geometry import LineString as shLineString
 
 
 __all__ = ['RoiRegion']
@@ -62,6 +63,8 @@ class RoiRegion:
     polygon : ndarray of tuples
         Array of points for a closed polygon approximating the region of interest in clockwise orientation. The first
         and last point must be identical.
+    shapely_polygon : shapely.Polygon object
+        Polygon object as defined by the shapely package.
     dimension : int
         Spatial dimension of region
     centroid : tuple of float
@@ -144,6 +147,17 @@ class RoiRegion:
         """
         return self._region.as_artist(origin=origin, **kwargs)
 
+    def to_shapely(self):
+        """
+        Convert region to a polygon and return as shapely object.
+
+        Returns
+        -------
+        shapely.Polygon object
+
+        """
+        return self._region.to_shapely()
+
 
 class _RoiInterval:
 
@@ -188,6 +202,9 @@ class _RoiInterval:
         return None
 
     def as_artist(self, origin=(0, 0), **kwargs):
+        raise NotImplementedError
+
+    def to_shapely(self):
         raise NotImplementedError
 
 
@@ -259,6 +276,9 @@ class _RoiRectangle:
         corner, width, height, angle = self.region_specs
         xy = corner[0] - origin[0], corner[1] - origin[1]
         return Rectangle(xy=xy, width=width, height=height, angle=angle, **kwargs)
+
+    def to_shapely(self):
+        return shPolygon(self.polygon[:-1])
 
 
 class _RoiEllipse:
@@ -333,6 +353,9 @@ class _RoiEllipse:
         xy = center[0] - origin[0], center[1] - origin[1]
         return Ellipse(xy=xy, width=width, height=height, angle=angle, **kwargs)
 
+    def to_shapely(self):
+        return shPolygon(self.polygon[:-1])
+
 
 class _RoiPolygon:
 
@@ -384,3 +407,6 @@ class _RoiPolygon:
         #xy = self.region_specs[:,0] - origin[0], self.region_specs[:,1] - origin[1]
         xy = self.region_specs
         return Polygon(xy=xy, closed=True, **kwargs)
+
+    def to_shapely(self):
+        return shPolygon(self.polygon[:-1])

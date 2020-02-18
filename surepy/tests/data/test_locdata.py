@@ -4,7 +4,7 @@ import pandas as pd
 
 from surepy.data import metadata_pb2
 from surepy.data.locdata import LocData
-from surepy.data.region import RoiRegion
+from surepy.data.regions.region import RoiRegion
 
 
 # fixtures for DataFrames (fixtures for LocData are defined in conftest.py)

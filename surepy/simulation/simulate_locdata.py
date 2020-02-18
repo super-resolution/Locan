@@ -45,7 +45,7 @@ from shapely.geometry import Polygon
 
 from surepy.data.locdata import LocData, _time_string
 from surepy.data import metadata_pb2
-from surepy.data.region import RoiRegion
+from surepy.data.regions.region import RoiRegion
 
 
 __all__ = ['make_csr', 'simulate_csr',

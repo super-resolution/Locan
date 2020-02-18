@@ -7,10 +7,9 @@ This module computes specific hulls and related properties for LocData objects.
 """
 
 import numpy as np
-import pandas as pd
 import scipy.spatial as spat
 
-from surepy.data.region import RoiRegion
+from surepy.data.regions.region import RoiRegion
 from shapely.geometry import LineString, MultiPoint
 
 

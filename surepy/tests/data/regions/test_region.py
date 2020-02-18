@@ -1,16 +1,10 @@
-from pathlib import Path
-
 import pytest
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from shapely.geometry import LineString, Polygon
+from shapely.geometry import Polygon
 
 from surepy import LocData
-from surepy.constants import ROOT_DIR
-from surepy.io.io_locdata import load_txt_file
-from surepy.data.region import RoiRegion
-from surepy.data import metadata_pb2
+from surepy.data.regions.region import RoiRegion
 
 
 # fixtures

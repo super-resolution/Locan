@@ -17,8 +17,9 @@ import matplotlib.pyplot as plt
 import matplotlib.path as mPath
 import matplotlib.patches as mPatches
 from scipy.spatial.distance import pdist
-from shapely.geometry import Polygon as shPolygon
-from shapely.geometry import LineString as shLineString
+from shapely.geometry import Point, MultiPoint, LineString, Polygon
+from shapely.ops import cascaded_union
+from shapely.prepared import prep
 
 
 __all__ = ['RoiRegion']
@@ -278,7 +279,7 @@ class _RoiRectangle:
         return Rectangle(xy=xy, width=width, height=height, angle=angle, **kwargs)
 
     def to_shapely(self):
-        return shPolygon(self.polygon[:-1])
+        return Polygon(self.polygon[:-1])
 
 
 class _RoiEllipse:
@@ -354,7 +355,7 @@ class _RoiEllipse:
         return Ellipse(xy=xy, width=width, height=height, angle=angle, **kwargs)
 
     def to_shapely(self):
-        return shPolygon(self.polygon[:-1])
+        return Polygon(self.polygon[:-1])
 
 
 class _RoiPolygon:
@@ -384,7 +385,7 @@ class _RoiPolygon:
 
     @property
     def centroid(self):
-        polygon = shPolygon(self.region_specs)
+        polygon = Polygon(self.region_specs)
         return polygon.centroid.coords
 
     @property
@@ -394,12 +395,12 @@ class _RoiPolygon:
 
     @property
     def region_measure(self):
-        polygon = shPolygon(self.region_specs)
+        polygon = Polygon(self.region_specs)
         return polygon.area
 
     @property
     def subregion_measure(self):
-        polygon = shPolygon(self.region_specs)
+        polygon = Polygon(self.region_specs)
         return polygon.length
 
     def as_artist(self, origin=(0, 0), **kwargs):
@@ -409,4 +410,4 @@ class _RoiPolygon:
         return Polygon(xy=xy, closed=True, **kwargs)
 
     def to_shapely(self):
-        return shPolygon(self.polygon[:-1])
+        return Polygon(self.polygon[:-1])

@@ -11,8 +11,8 @@ from google.protobuf import text_format
 import numpy as np
 import pandas as pd
 
-from surepy.constants import LOCDATA_ID
-from surepy.data.region import RoiRegion
+from surepy.constants import LOCDATA_ID  # is required to use LOCDATA_ID as global variable
+from surepy.data.regions.region import RoiRegion
 import surepy.data.hulls
 from surepy.data import metadata_pb2
 from surepy.utilities import _time_string

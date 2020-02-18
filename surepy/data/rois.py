@@ -29,8 +29,7 @@ from surepy.data.metadata_utils import _modify_meta
 import surepy.constants
 import surepy.io.io_locdata as io
 from surepy.render import render_2d_mpl, render_2d_napari
-from surepy.render.utilities import _indices_to_bin_centers
-from surepy.data.region import RoiRegion
+from surepy.data.regions.region import RoiRegion
 
 
 __all__ = ['Roi', 'select_by_drawing_mpl', 'select_by_drawing_napari', 'rasterize']

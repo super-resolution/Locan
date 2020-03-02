@@ -4,6 +4,11 @@
 Development
 ===========================
 
+We welcome any contributions for improving or further developing this package.
+
+However, please excuse that we are limited in time for development and support.
+
+
 Some things to keep in mind when adding code...
 
 Import Conventions:

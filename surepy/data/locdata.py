@@ -12,7 +12,8 @@ import numpy as np
 import pandas as pd
 
 from surepy.constants import LOCDATA_ID  # is required to use LOCDATA_ID as global variable
-from surepy.data.regions.region import RoiRegion
+from surepy import PROPERTY_KEYS
+from surepy.data.region import RoiRegion
 import surepy.data.hulls
 from surepy.data import metadata_pb2
 from surepy.utilities import _time_string
@@ -241,6 +242,52 @@ class LocData:
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.RAW
         meta_.history.add(name='LocData.from_dataframe')
+
+        if meta is None:
+            pass
+        elif isinstance(meta, dict):
+            for key, value in meta.items():
+                setattr(meta_, key, value)
+        else:
+            meta_.MergeFrom(meta)
+
+        return cls(dataframe=dataframe, meta=meta_)
+
+    @classmethod
+    def from_coordinates(cls, coordinates=(), coordinate_labels=None, meta=None):
+        """
+        Create new LocData object from a sequence of localization coordinates.
+
+        Parameters
+        ----------
+        coordinates : sequence of tuples with shape (n_loclizations, dimension)
+            Sequence of tuples with localization coordinates
+        coordinate_labels : sequence of str
+            The available coordinate properties.
+        meta : Metadata protobuf message
+            Metadata about the current dataset and its history.
+
+        Returns
+        -------
+        LocData object
+            A new LocData instance with dataframe representing the concatenated data.
+        """
+        dimension = len(coordinates[0])
+
+        if coordinate_labels is None:
+            coordinate_labels = ['position_x', 'position_y', 'position_z'][0:dimension]
+        else:
+            if all(cl in PROPERTY_KEYS for cl in coordinate_labels):
+                coordinate_labels = coordinate_labels
+            else:
+                raise ValueError('The given coordinate_labels are not standard property keys.')
+
+        dataframe = pd.DataFrame.from_records(data=coordinates, columns=coordinate_labels)
+
+        meta_ = metadata_pb2.Metadata()
+        meta_.source = metadata_pb2.DESIGN
+        meta_.state = metadata_pb2.RAW
+        meta_.history.add(name='LocData.from_coordinates')
 
         if meta is None:
             pass

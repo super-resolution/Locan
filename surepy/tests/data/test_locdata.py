@@ -4,7 +4,7 @@ import pandas as pd
 
 from surepy.data import metadata_pb2
 from surepy.data.locdata import LocData
-from surepy.data.regions.region import RoiRegion
+from surepy.data.region import RoiRegion
 
 
 # fixtures for DataFrames (fixtures for LocData are defined in conftest.py)
@@ -114,6 +114,15 @@ def test_LocData_from_dataframe_with_meta_dict(df_simple):
     assert (len(dat) == 5)
     assert (dat.references is None)
     assert (dat.meta.comment == COMMENT_METADATA.comment)
+
+
+def test_LocData_from_coordinates():
+    coordinates =[(200, 500), (200, 600), (900, 650), (1000, 600)]
+    dat = LocData.from_coordinates(coordinates=coordinates, meta=COMMENT_METADATA)
+    assert np.array_equal(dat.coordinates, np.asarray(coordinates))
+    assert all(item in ['position_x', 'position_y'] for item in dat.coordinate_labels)
+    assert len(dat) == 4
+    assert dat.meta.comment == COMMENT_METADATA.comment
 
 
 def test_LocData_from_selection(df_simple):

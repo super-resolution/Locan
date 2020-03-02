@@ -10,7 +10,6 @@ Constants to be used throughout the project.
    QT_BINDINGS
    RENDER_ENGINE
    PROPERTY_KEYS
-   HULL_KEYS
    RAPIDSTORM_KEYS
    ELYRA_KEYS
    THUNDERSTORM_KEYS
@@ -28,7 +27,7 @@ import warnings
 import importlib.util
 
 
-__all__ = ['ROOT_DIR', 'DATASETS_DIR', 'PROPERTY_KEYS', 'HULL_KEYS',
+__all__ = ['ROOT_DIR', 'DATASETS_DIR', 'PROPERTY_KEYS', 'HullType',
            'QtBindings', 'QT_BINDINGS', 'FileType', 'RenderEngine', 'RENDER_ENGINE',
            'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
            'N_JOBS', 'LOCDATA_ID',
@@ -112,8 +111,14 @@ PROPERTY_KEYS = ['index', 'original_index', 'position_x', 'position_y', 'positio
                  'channel', 'index', 'cluster_label', 'two_kernel_improvement']
 
 
-#: Keys for the most common hulls.
-HULL_KEYS = {'bounding_box', 'convex_hull', 'oriented_bounding_box', 'alpha_shape'}
+class HullType(Enum):
+    """
+    Hull definitions that are supported for LocData objects.
+    """
+    BOUNDING_BOX = 'bounding_box'
+    CONVEX_HULL = 'convex_hull'
+    ORIENTED_BOUNDING_BOX = 'oriented_bounding_box'
+    ALPHA_SHAPE = 'alpha_shape'
 
 
 # File types

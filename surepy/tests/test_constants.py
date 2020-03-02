@@ -1,11 +1,15 @@
-# from surepy.constants import (ROOT_DIR, PROPERTY_KEYS, HULL_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
+# from surepy.constants import (ROOT_DIR, PROPERTY_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
 #                               N_JOBS, FileType, LOCDATA_ID)
 
 from surepy.constants import *
 
-for sc in (ROOT_DIR, PROPERTY_KEYS, HULL_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
+for sc in (ROOT_DIR, PROPERTY_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
                               N_JOBS):
     assert sc
+
+hulls = HullType
+assert hulls
+assert hulls.CONVEX_HULL.value == 'convex_hull'
 
 ft = FileType
 assert ft

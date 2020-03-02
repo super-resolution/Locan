@@ -12,7 +12,7 @@ import pandas as pd
 
 from surepy.data.locdata import LocData
 import surepy.data.hulls
-from surepy.data.regions.region import RoiRegion
+from surepy.data.region import RoiRegion
 from surepy.simulation import simulate_csr, simulate_csr_on_region
 from surepy.data.metadata_utils import _modify_meta
 from surepy.constants import _has_open3d

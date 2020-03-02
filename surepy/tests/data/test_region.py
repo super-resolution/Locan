@@ -4,7 +4,7 @@ import pandas as pd
 from shapely.geometry import Polygon
 
 from surepy import LocData
-from surepy.data.regions.region import RoiRegion
+from surepy.data.region import RoiRegion
 
 
 # fixtures

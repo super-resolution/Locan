@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt  # needed for visual inspection
 
-from surepy import LocData, select_by_condition
+from surepy import LocData, select_by_condition, HullType
 from surepy.data.region import RoiRegion
 from surepy.data.region_utils import surrounding_region, localizations_in_cluster_regions
 from surepy import cluster_dbscan
@@ -46,8 +46,10 @@ def test_localizations_in_cluster_regions(locdata_blobs_2d):
 
     # collection with references being a list of other LocData objects, e.g. individual clusters
     result = localizations_in_cluster_regions(locdata, collection)
-    print(result.data)
     assert np.array_equal(result.data.localization_count.values, [0, 0, 1, 0, 0])
+
+    result = localizations_in_cluster_regions(locdata, collection, hull_type=HullType.BOUNDING_BOX)
+    assert np.array_equal(result.data.localization_count.values, [0, 0, 1, 0, 1])
 
     # selection of collection with references being another LocData object
     selected_collection = select_by_condition(collection, condition='subregion_measure_bb > 200')

@@ -19,7 +19,7 @@ from surepy.render.utilities import _coordinate_ranges, _bin_edges, _bin_edges_t
 
 
 __all__ = ['adjust_contrast', 'histogram',
-           'render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari']
+           'render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari', 'scatter_2d_mpl']
 
 
 def adjust_contrast(img, rescale=True, **kwargs):
@@ -479,3 +479,51 @@ def render_2d(locdata, render_engine=RENDER_ENGINE, **kwargs):
         return render_2d_scatter_density(locdata, **kwargs)
     elif render_engine == RenderEngine.NAPARI:
         return render_2d_napari(locdata, **kwargs)
+
+
+def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs={}, **kwargs):
+    """
+    Scatter plot of locdata elements with text marker for each element.
+
+    Parameters
+    ----------
+    locdata : LocData object
+       Localization data.
+    ax : matplotlib axes
+       The axes on which to show the plot
+    index : bool
+       Flag indicating if element indices are shown.
+    text_kwargs : dict
+       Keyword arguments for `matplotlib.axes.Axes.text()`.
+
+    Other Parameters
+    ----------------
+    kwargs : dict
+       Other parameters passed to matplotlib.axes.Axes.scatter().
+
+    Returns
+    -------
+    matplotlib Axes
+       Axes object with the image.
+    """
+    if not len(locdata):
+        raise ValueError('Locdata does not contain any data points.')
+
+    # Provide matplotlib axes if not provided
+    if ax is None:
+        ax = plt.gca()
+
+    coordinates = locdata.coordinates
+    sc = ax.scatter(*coordinates.T, **dict({'marker': '+', 'color': 'white'}, **kwargs))
+
+    # plot element number
+    if index:
+        for centroid, marker in zip(coordinates, locdata.data.index.values):
+            ax.text(*centroid, marker, **dict({'color': 'white', 'size': 20}, **text_kwargs))
+
+    ax.set(
+           xlabel='position_x',
+           ylabel='position_y'
+           )
+
+    return ax

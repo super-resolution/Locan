@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt  # this import is needed for interactive tests
 from surepy.constants import RenderEngine  # this import is needed for interactive tests
 from surepy.constants import _has_mpl_scatter_density, _has_napari
 if _has_napari: import napari
-from surepy.render.render2d import render_2d_mpl, render_2d_scatter_density, render_2d_napari
+from surepy.render.render2d import render_2d_mpl, render_2d_scatter_density, render_2d_napari, scatter_2d_mpl
 from surepy.render import adjust_contrast, histogram, render_2d
+from surepy import cluster_dbscan
 
 
 def test_adjust_contrast():
@@ -134,3 +135,16 @@ def test_render_2d_napari(locdata_blobs_2d):
     #
     # with napari.gui_qt():
     #     render_2d(locdata_blobs_2d, render_engine=RenderEngine.NAPARI)
+
+
+def test_scatter_2d_mpl(locdata_2d):
+    scatter_2d_mpl(locdata_2d, text_kwargs=dict(color='r'), color='r')
+    # plt.show()
+
+
+@pytest.mark.skip('Visual check repeating previuosly checked functionality.')
+def test_scatter_2d_mpl_2(locdata_blobs_2d):
+    _, collection = cluster_dbscan(locdata_blobs_2d, eps=20, min_samples=3, noise=True)
+    render_2d_mpl(locdata_blobs_2d)
+    scatter_2d_mpl(collection)
+    plt.show()

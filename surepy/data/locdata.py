@@ -16,7 +16,7 @@ from surepy import PROPERTY_KEYS
 from surepy.data.region import RoiRegion
 import surepy.data.hulls
 from surepy.data import metadata_pb2
-from surepy.utils._format import _time_string
+from surepy.utils.format import _time_string
 
 
 __all__ = ['LocData']

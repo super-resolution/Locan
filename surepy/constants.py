@@ -118,7 +118,9 @@ DATASETS_DIR = ROOT_DIR.parent.parent / 'Surepy_datasets'
 PROPERTY_KEYS = ['index', 'original_index', 'position_x', 'position_y', 'position_z', 'frame', 'intensity',
                  'local_background', 'chi_square',
                  'psf_sigma_x', 'psf_sigma_y', 'psf_sigma_z', 'uncertainty_x', 'uncertainty_y', 'uncertainty_z',
-                 'channel', 'index', 'cluster_label', 'two_kernel_improvement']
+                 'channel', 'index', 'cluster_label', 'two_kernel_improvement',
+                 'frames_number', 'frames_missing', 'precision', 'psf_width', 'slice_z'
+                 ]
 
 
 class HullType(Enum):
@@ -201,12 +203,11 @@ ELYRA_KEYS = {
     'Background variance': 'local_background',
     'Chi square': 'chi_square',
     'PSF half width [nm]': 'psf_half_width',
+    'PSF width [nm]': 'psf_width',
     'Channel': 'channel',
     'Z Slice': 'slice_z'
 }
 
-# todo: map 'Number Frames', 'Frames Missing', 'Precision [nm]', 'psf_half_width', 'channel',
-#  'slice_z' to surepy property
 
 #: Mapping column names in Thunderstorm files to LocData property keys
 THUNDERSTORM_KEYS = {
@@ -224,7 +225,6 @@ THUNDERSTORM_KEYS = {
     'sigma2 [nm]': 'psf_sigma_y',
     'sigma [nm]': 'psf_sigma_x'
 }
-# todo: uncertainty_xy and sigma [nm] are mapped to uncertainty_x and psf_sigma_x. Possible conflict?
 # todo: map "bkgstd [photon]", "uncertainty [nm]" to something usefull
 
 #: The number of cores that are used in parallel for some algorithms.

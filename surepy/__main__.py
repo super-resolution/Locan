@@ -8,6 +8,7 @@ from surepy.scripts.draw_roi import _add_arguments as _add_arguments_draw_roi
 from surepy.scripts.check import _add_arguments as _add_arguments_check
 from surepy.scripts.rois import _add_arguments as _add_arguments_rois
 from surepy.scripts.render_napari import _add_arguments as _add_arguments_napari
+from surepy.scripts.show_versions import _add_arguments as _add_arguments_show_versions
 
 
 def main(args=None):
@@ -38,6 +39,11 @@ def main(args=None):
                                        description='Render localization data in napari.')
     _add_arguments_napari(parser_napari)
 
+    # parser for the command show_versions
+    parser_show_versions = subparsers.add_parser(name='show_versions',
+                                       description='Show system information and dependency versions.')
+    _add_arguments_show_versions(parser_show_versions)
+
     # Parse
     returned_args = parser.parse_args(args)
 
@@ -61,6 +67,11 @@ def main(args=None):
         elif returned_args.command == "napari":
             from .scripts.render_napari import napari_
             napari_(returned_args.file, returned_args.type, bin_size=returned_args.bin_size)
+
+        elif returned_args.command == "show_versions":
+            from .scripts.show_versions import show_versions
+            show_versions(verbose=returned_args.verbose, extra_dependencies=returned_args.extra,
+                          other_dependencies=returned_args.other)
 
     else:
         print("This is the command line entry point for surepy.")

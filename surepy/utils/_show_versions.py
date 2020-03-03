@@ -19,13 +19,13 @@ from surepy.constants import INSTALL_REQUIRES, EXTRAS_REQUIRE
 __all__ = ['show_versions']
 
 
-def _get_sys_info(verbous=True):
+def _get_sys_info(verbose=True):
     """
     Return system and python information.
 
     Parameters
     ----------
-    verbous : bool
+    verbose : bool
         If True information on node and executable path are added.
 
     Return
@@ -50,7 +50,7 @@ def _get_sys_info(verbous=True):
         "LOCALE": {"language-code": language_code, "encoding": encoding},
     }
 
-    if verbous:
+    if verbose:
         sys_info.update({
             "node": uname_result.node,
             "executable": sys.executable,
@@ -102,13 +102,24 @@ def _get_dependency_info(extra_dependencies=True, other_dependencies=None):
     return deps_info
 
 
-def show_versions():
+def show_versions(verbose=True, extra_dependencies=True, other_dependencies=None):
     """
     Print useful debugging information
+
+    Parameters
+    ----------
+    verbose : bool
+        If True information on node and executable path are added.
+
+    extra_dependencies : bool
+        Include extra dependencies as specified in setup.py if True.
+
+    other_dependencies : list or None
+        Include other module names.
     """
 
-    sys_info = _get_sys_info()
-    deps_info = _get_dependency_info()
+    sys_info = _get_sys_info(verbose)
+    deps_info = _get_dependency_info(extra_dependencies, other_dependencies)
 
     print('\nSystem:')
     for k, stat in sys_info.items():

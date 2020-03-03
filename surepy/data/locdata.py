@@ -179,7 +179,7 @@ class LocData:
 
     @region.setter
     def region(self, region):
-        # todo add check if all localizations are within region. If not put out a warning.
+        # todo add sc_check if all localizations are within region. If not put out a warning.
         if isinstance(region, RoiRegion) or region is None:
             self._region = region
         elif isinstance(region, dict):
@@ -422,7 +422,7 @@ class LocData:
             except TypeError:
                 references.append(locdata.references)
 
-        # check if all eleements are None
+        # sc_check if all eleements are None
         if not any(references):
             references = None
 

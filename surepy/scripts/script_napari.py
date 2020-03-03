@@ -15,7 +15,7 @@ Try for instance::
 
 See Also
 --------
-surepy.render.render2d.render_2d_napari() : function to render 2D data in napari
+surepy.render.render2d.render_2d_napari
 """
 import argparse
 from pathlib import Path
@@ -28,7 +28,7 @@ import surepy.io.io_locdata as io
 from surepy.render.render2d import render_2d_napari
 
 
-def napari_(file_path=None, file_type=FileType.CUSTOM, **kwrds):
+def sc_napari(file_path=None, file_type=FileType.CUSTOM, **kwrds):
     """
     Render localization data in napari.
 
@@ -74,7 +74,7 @@ def main(args=None):
     _add_arguments(parser)
     returned_args = parser.parse_args(args)
 
-    napari_(returned_args.file, returned_args.type, bin_size=returned_args.bin_size)
+    sc_napari(returned_args.file, returned_args.type, bin_size=returned_args.bin_size)
 
 
 if __name__ == '__main__':

@@ -53,7 +53,7 @@ class Pipeline():
     meta : Metadata protobuf message
         Metadata about the current analysis routine.
     """
-    # todo check on input of meta
+    # todo sc_check on input of meta
 
     count = 0
 

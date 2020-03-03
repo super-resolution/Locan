@@ -4,10 +4,10 @@ This module contains tests that need gui interactions and should therefore not b
 
 """
 import pytest
-from surepy.scripts.rois import draw_roi_napari
+from surepy.scripts.script_rois import sc_draw_roi_napari
 
 pytestmark = pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
 
 
 def test_draw_roi_napari():
-    draw_roi_napari(type=2)
+    sc_draw_roi_napari(type=2)

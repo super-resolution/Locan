@@ -4,10 +4,10 @@ This module contains tests that need gui interactions and should therefore not b
 
 """
 import pytest
-from surepy.scripts.render_napari import napari_
+from surepy.scripts.script_napari import sc_napari
 
 pytestmark = pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
 
 
 def test_napari():
-    napari_(file_type=2)
+    sc_napari(file_type=2)

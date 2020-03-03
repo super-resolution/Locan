@@ -16,13 +16,10 @@ Submodules:
 .. autosummary::
    :toctree: ./
 
-   check
-   rois
-   draw_roi
-   render_napari
+   script_check
+   script_rois
+   script_draw_roi
+   script_napari
+   script_show_versions
 
 """
-from .check import check_
-from .rois import draw_roi_napari
-from .draw_roi import draw_roi_mpl
-from .render_napari import napari_

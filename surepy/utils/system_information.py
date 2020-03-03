@@ -1,5 +1,5 @@
 """
-Utility methods to print system information for debugging
+Utility methods to print system and dependency information.
 
 adapted from :func:`pandas.show_versions`
 and from :func:`scikit-learn.show_versions`
@@ -16,10 +16,10 @@ import locale
 from surepy.constants import INSTALL_REQUIRES, EXTRAS_REQUIRE
 
 
-__all__ = ['show_versions']
+__all__ = ['system_info', 'dependency_info', 'show_versions']
 
 
-def _get_sys_info(verbose=True):
+def system_info(verbose=True):
     """
     Return system and python information.
 
@@ -59,7 +59,7 @@ def _get_sys_info(verbose=True):
     return sys_info
 
 
-def _get_dependency_info(extra_dependencies=True, other_dependencies=None):
+def dependency_info(extra_dependencies=True, other_dependencies=None):
     """
     Overview of the installed version of main dependencies.
 
@@ -104,7 +104,7 @@ def _get_dependency_info(extra_dependencies=True, other_dependencies=None):
 
 def show_versions(verbose=True, extra_dependencies=True, other_dependencies=None):
     """
-    Print useful debugging information
+    Print useful debugging information on system and dependency versions.
 
     Parameters
     ----------
@@ -118,8 +118,8 @@ def show_versions(verbose=True, extra_dependencies=True, other_dependencies=None
         Include other module names.
     """
 
-    sys_info = _get_sys_info(verbose)
-    deps_info = _get_dependency_info(extra_dependencies, other_dependencies)
+    sys_info = system_info(verbose)
+    deps_info = dependency_info(extra_dependencies, other_dependencies)
 
     print('\nSystem:')
     for k, stat in sys_info.items():

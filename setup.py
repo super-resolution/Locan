@@ -68,7 +68,7 @@ TESTS_REQUIRE = ['pytest']
 ENTRY_POINTS = '''
     [console_scripts]
     surepy = surepy.__main__:main
-    draw_roi_mpl = surepy.scripts.draw_roi_mpl:main
+    sc_draw_roi_mpl = surepy.scripts.sc_draw_roi_mpl:main
     '''
 
 

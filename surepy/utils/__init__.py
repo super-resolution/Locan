@@ -8,11 +8,11 @@ Submodules:
 .. autosummary::
    :toctree: ./
 
-   _show_versions
+   system_information
 
 """
-from ._show_versions import *
+from .system_information import *
 
 
 __all__ = []
-__all__.extend(_show_versions.__all__)
+__all__.extend(system_information.__all__)

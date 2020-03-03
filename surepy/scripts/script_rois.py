@@ -1,35 +1,38 @@
 #!/usr/bin/env python
 
 """
-Define regions of interest with matplotlib and save as roi files.
+Define regions of interest with napari and save as roi files.
 
-With this script you can choose a file name, open the localization file and draw a rectangular region of interest.
-Within the matplotlib image draw a rectange, type '+' to add the roi to the list, then type 'q' to quit.
-The roi is then saved as _roi.yaml file.
+With this script you can choose a file name, open the localization file in napari.
+Draw regions of interest as additional shapes in napari.
+Upon closing napari each shape is taken as single roi and saved as _roi.yaml file.
 
 To run the script::
 
-    draw_roi_mpl -d <directory> -t <file type> -i <roi file indicator> -r <region type>
+    rois -d <directory> -t <file type> -i <roi file indicator>
 
 Try for instance::
 
-    draw_roi_mpl -d "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi" -r "ellipse"
+    rois -d "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi"
 
 See Also
 --------
-surepy.data.rois.select_by_drawing_mpl : function to draw roi
-
+surepy.data.rois.select_by_drawing_napari
 """
-
 import argparse
 from pathlib import Path
 
+import numpy as np
+import tifffile as tif
+import napari
+
+from surepy.constants import FileType
 from surepy.gui.io import file_dialog
 import surepy.io.io_locdata as io
-from surepy.data.rois import select_by_drawing_mpl
+from surepy.data.rois import select_by_drawing_napari
 
 
-def draw_roi_mpl(file_path=None, file_type=1, roi_file_indicator='_roi', region_type='rectangle'):
+def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indicator='_roi'):
     """
     Define regions of interest by drawing a boundary.
 
@@ -42,8 +45,6 @@ def draw_roi_mpl(file_path=None, file_type=1, roi_file_indicator='_roi', region_
         Integer or string should be according to surepy.constants.FileType.
     roi_file_indicator : str
         Indicator to add to the localization file name and use as roi file name (with further extension .yaml).
-    region_type : str
-        rectangle, ellipse, or polygon specifying the selection widget to use.
     """
 
     # choose file interactively
@@ -58,7 +59,7 @@ def draw_roi_mpl(file_path=None, file_type=1, roi_file_indicator='_roi', region_
     dat = io.load_locdata(path=file_path, file_type=file_type)
 
     # set roi
-    rois = select_by_drawing_mpl(locdata=dat, bin_size=50, rescale='equal', region_type=region_type)
+    rois = select_by_drawing_napari(locdata=dat, bin_size=50, rescale='equal')
     print(rois)
 
     # save roi
@@ -76,8 +77,6 @@ def _add_arguments(parser):
     parser.add_argument('-i', '--indicator', dest='roi_file_indicator', type=str, default='_roi',
                         help='Indicator to add to the localization file name and use as roi file name '
                              '(with further extension .yaml).')
-    parser.add_argument('-r', '--region', dest='region_type', type=str, default='rectangle',
-                        help='String indicating the region type.')
 
 
 def main(args=None):
@@ -86,8 +85,7 @@ def main(args=None):
     _add_arguments(parser)
     returned_args = parser.parse_args(args)
 
-    draw_roi_mpl(returned_args.file, returned_args.type, returned_args.roi_file_indicator,
-                 returned_args.region_type)
+    sc_draw_roi_napari(returned_args.file, returned_args.type, returned_args.roi_file_indicator)
 
 
 if __name__ == '__main__':

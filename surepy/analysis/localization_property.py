@@ -131,7 +131,7 @@ class LocalizationProperty(_Analysis):
             ax = plt.gca()
 
         self.results.rolling(window=window, center=True).mean().plot(ax=ax, legend=False, **kwargs)
-        # todo: check rolling on arbitrary index
+        # todo: sc_check rolling on arbitrary index
         ax.set(title=f"{self.parameter['loc_property']}({self.parameter['index']})\n (window={window})",
                xlabel = self.parameter['index'],
                ylabel = self.parameter['loc_property']

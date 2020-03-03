@@ -1,20 +1,24 @@
 #!/usr/bin/env python
 
 """
-Show system information and dependency versions
+Show system information and dependency versions.
 
 
 To run the script::
+
+    show_versions -v -e -o <module name> [<module name>...]
+
+Try for instance::
 
     show_versions
 
 See Also
 --------
-surepy.utils._show_versions.show_versions() : corresponding function
+surepy.utils.system_information.show_versions
 """
 import argparse
 
-from surepy.utils._show_versions import show_versions
+from surepy.utils.system_information import show_versions as sc_show_versions
 
 
 def _add_arguments(parser):
@@ -31,7 +35,7 @@ def main(args=None):
     parser = argparse.ArgumentParser(description='Show system information and dependency versions.')
     _add_arguments(parser)
     returned_args = parser.parse_args(args)
-    show_versions(verbose=returned_args.verbose, extra_dependencies=returned_args.extra,
+    sc_show_versions(verbose=returned_args.verbose, extra_dependencies=returned_args.extra,
                   other_dependencies=returned_args.other)
 
 

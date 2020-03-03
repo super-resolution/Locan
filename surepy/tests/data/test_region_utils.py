@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt  # needed for visual inspection
 
-from surepy import LocData, select_by_condition, HullType
-from surepy.data.region import RoiRegion
-from surepy.data.region_utils import surrounding_region, localizations_in_cluster_regions
+from surepy import LocData, select_by_condition, HullType, RoiRegion
+from surepy import surrounding_region, localizations_in_cluster_regions, distance_to_region, \
+    distance_to_region_boundary, localizations_in_region
 from surepy import cluster_dbscan
 from surepy import render_2d_mpl, scatter_2d_mpl  # needed for visual inspection
 
@@ -59,3 +59,42 @@ def test_localizations_in_cluster_regions(locdata_blobs_2d):
     # collection being a list of other LocData objects
     result = localizations_in_cluster_regions(locdata, collection.references)
     assert np.array_equal(result.data.localization_count.values, [0, 0, 1, 0, 0])
+
+
+def test_distance_to_region(locdata_2d):
+    region = RoiRegion(region_type='rectangle', region_specs=((1, 1), 3, 3, 0))
+    # visualize
+    # ax = scatter_2d_mpl(locdata_2d, index=True, marker='o', color='g')
+    # ax.add_patch(region.as_artist(fill=False))
+    # plt.show()
+    distances = distance_to_region(locdata_2d, region)
+    assert np.array_equal(distances[:-1], np.array([0, 1, 0, 2, 0]))
+
+
+def test_distance_to_region_boundary(locdata_2d):
+    region = RoiRegion(region_type='rectangle', region_specs=((1, 1), 3, 3, 0))
+    # visualize
+    # ax = scatter_2d_mpl(locdata_2d, index=True, marker='o', color='g')
+    # ax.add_patch(region.as_artist(fill=False))
+    # plt.show()
+    distances = distance_to_region_boundary(locdata_2d, region)
+    assert np.array_equal(distances[:-1], np.array([0, 1, 1, 2, 0]))
+
+
+def test_localizations_in_region(locdata_2d):
+    region = RoiRegion(region_type='rectangle', region_specs=((1, 1), 3.5, 4.5, 0))
+    # visualize
+    # ax = scatter_2d_mpl(locdata_2d, index=True, marker='o', color='g')
+    # ax.add_patch(region.as_artist(fill=False))
+    # plt.show()
+
+    new_locdata = localizations_in_region(locdata_2d, region)
+    # print(new_locdata.data)
+    assert new_locdata.meta.history[-1].name == "localizations_in_region"
+    assert len(new_locdata) == 3
+
+    new_locdata = localizations_in_region(locdata_2d, region.to_shapely())
+    assert len(new_locdata) == 2
+
+    new_locdata = localizations_in_region(locdata_2d, region, loc_properties=['position_x', 'frame'])
+    assert len(new_locdata) == 4

@@ -514,12 +514,12 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs={}, **kwargs):
         ax = plt.gca()
 
     coordinates = locdata.coordinates
-    sc = ax.scatter(*coordinates.T, **dict({'marker': '+', 'color': 'white'}, **kwargs))
+    sc = ax.scatter(*coordinates.T, **dict({'marker': '+', 'color': 'grey'}, **kwargs))
 
     # plot element number
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
-            ax.text(*centroid, marker, **dict({'color': 'white', 'size': 20}, **text_kwargs))
+            ax.text(*centroid, marker, **dict({'color': 'grey', 'size': 20}, **text_kwargs))
 
     ax.set(
            xlabel='position_x',

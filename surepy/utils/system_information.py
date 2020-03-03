@@ -14,6 +14,7 @@ import os
 import locale
 
 from surepy.constants import INSTALL_REQUIRES, EXTRAS_REQUIRE
+from surepy.version import __version__ as surepy_version
 
 
 __all__ = ['system_info', 'dependency_info', 'show_versions']
@@ -102,7 +103,8 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
     return deps_info
 
 
-def show_versions(verbose=True, extra_dependencies=True, other_dependencies=None):
+def show_versions(surepy=True, system=True, dependencies=True,
+                  verbose=True, extra_dependencies=True, other_dependencies=None):
     """
     Print useful debugging information on system and dependency versions.
 
@@ -118,13 +120,21 @@ def show_versions(verbose=True, extra_dependencies=True, other_dependencies=None
         Include other module names.
     """
 
+    surepy_info = {'version': surepy_version}
     sys_info = system_info(verbose)
     deps_info = dependency_info(extra_dependencies, other_dependencies)
 
-    print('\nSystem:')
-    for k, stat in sys_info.items():
-        print("{k:>10}: {stat}".format(k=k, stat=stat))
+    if surepy:
+        print('\nSurepy:')
+        for key, value in surepy_info.items():
+            print(f"{key:>10}: {value}")
 
-    print('\nPython dependencies:')
-    for k, stat in deps_info.items():
-        print("{k:>10}: {stat}".format(k=k, stat=stat))
+    if system:
+        print('\nSystem:')
+        for k, stat in sys_info.items():
+            print("{k:>10}: {stat}".format(k=k, stat=stat))
+
+    if dependencies:
+        print('\nPython dependencies:')
+        for k, stat in deps_info.items():
+            print("{k:>10}: {stat}".format(k=k, stat=stat))

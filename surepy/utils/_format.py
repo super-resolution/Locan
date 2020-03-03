@@ -1,12 +1,12 @@
 """
 
-Various utility functions for the whole project.
+Provide standard formats.
 
 """
 import time
 
 
-__all__ = [ ]
+__all__ = []
 
 
 def _time_string(time_value):

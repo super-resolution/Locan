@@ -8,7 +8,7 @@ import time
 from scipy import stats
 
 from surepy.analysis import metadata_analysis_pb2
-from surepy.utilities import _time_string
+from surepy.utils._format import _time_string
 
 
 class _Analysis:

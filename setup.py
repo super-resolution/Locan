@@ -55,6 +55,7 @@ KEYWORDS = "fluorescence super-resolution single-molecule localization microscop
 URL = ""
 
 # dependencies
+# if changed please update corresponding variables in surepy.constants
 PYTHON_REQUIRES = '>=3.5'
 SETUP_REQUIRES = ['pytest-runner']
 INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast-histogram', 'hdbscan', 'lmfit', 'protobuf', 'shapely',

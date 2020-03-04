@@ -110,3 +110,15 @@ def test_load_locdata():
                           file_type=3,
                           nrows=10)
     assert (len(dat) == 10)
+
+
+def test_pickling_locdata(locdata_2d):
+    import pickle
+    from surepy.data import metadata_pb2
+    path = surepy.constants.ROOT_DIR / 'tests/test_data/pickled_locdata.pickle'
+    with open(path, 'wb') as file:
+        pickle.dump(locdata_2d, file, pickle.HIGHEST_PROTOCOL)
+    with open(path, 'rb') as file:
+        locdata = pickle.load(file)
+    assert len(locdata_2d) == len(locdata)
+    assert isinstance(locdata.meta, metadata_pb2.Metadata)

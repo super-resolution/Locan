@@ -7,7 +7,7 @@ import time
 import warnings
 from itertools import accumulate
 
-from google.protobuf import text_format
+from google.protobuf import text_format, json_format
 import numpy as np
 import pandas as pd
 
@@ -124,6 +124,23 @@ class LocData:
     def __len__(self):
         """Return the length of data, i.e. the number of elements (localizations or collection elements)."""
         return len(self.data.index)
+
+    def __getstate__(self):
+        """Modify pickling behavior."""
+        # Copy the object's state from self.__dict__ to avoid modifying the original state.
+        state = self.__dict__.copy()
+        # Serialize the unpicklable protobuf entries.
+        json_string = json_format.MessageToJson(self.meta, including_default_value_fields=False)
+        state['meta'] = json_string
+        return state
+
+    def __setstate__(self, state):
+        """Modify pickling behavior."""
+        # Restore instance attributes.
+        self.__dict__.update(state)
+        # Restore protobuf class for meta attribute
+        self.meta = metadata_pb2.Metadata()
+        self.meta = json_format.Parse(state['meta'], self.meta)
 
     @property
     def bounding_box(self):

@@ -2,7 +2,7 @@
 
 File input/output for localization data.
 
-There are functions for reading the following file structures (with an indicator string in paranthesis):
+There are functions for reading the following file structures (with an indicator string in parenthesis):
 
 * custom text file (CUSTOM)
 * rapidSTORM file format (RAPIDSTORM) [1]_
@@ -52,6 +52,11 @@ def save_asdf(locdata, path):
 
     In the Advanced Scientific Data Format (ASDF) file format we store metadata, properties and column names as human-
     readable yaml header. The data is stored as binary numpy array.
+
+    Note
+    ----
+    Only selected LocData attributes are saved.
+    Currently these are: 'data', 'columns', 'properties', 'meta'.
 
     Parameters
     ----------

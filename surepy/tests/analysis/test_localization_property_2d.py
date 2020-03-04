@@ -1,5 +1,5 @@
 import pytest
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # needed for visual inspection
 
 import surepy.constants
 import surepy.io.io_locdata as io

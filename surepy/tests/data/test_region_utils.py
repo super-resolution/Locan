@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt  # needed for visual inspection
+from shapely.geometry import MultiPolygon
 
 from surepy import LocData, select_by_condition, HullType, RoiRegion
 from surepy import surrounding_region, localizations_in_cluster_regions, distance_to_region, \
@@ -93,8 +94,23 @@ def test_localizations_in_region(locdata_2d):
     assert new_locdata.meta.history[-1].name == "localizations_in_region"
     assert len(new_locdata) == 3
 
+    new_locdata = localizations_in_region(locdata_2d, region, loc_properties=['position_x', 'frame'])
+    assert len(new_locdata) == 4
+
+    # test with shapely Polygon
     new_locdata = localizations_in_region(locdata_2d, region.to_shapely())
     assert len(new_locdata) == 2
 
-    new_locdata = localizations_in_region(locdata_2d, region, loc_properties=['position_x', 'frame'])
-    assert len(new_locdata) == 4
+def test_localizations_in_region_2(locdata_2d):
+    # test with shapely MultiPolygon
+    region = RoiRegion(region_type='rectangle', region_specs=((1, 1), 2.5, 2.5, 0))
+    region_2 = RoiRegion(region_type='rectangle', region_specs=((4, 4), 1.5, 1.5, 0))
+    # visualize
+    # ax = scatter_2d_mpl(locdata_2d, index=True, marker='o', color='g')
+    # ax.add_patch(region.as_artist(fill=False))
+    # ax.add_patch(region_2.as_artist(fill=False))
+    # plt.show()
+
+    multipol = MultiPolygon([region.to_shapely(), region_2.to_shapely()])
+    new_locdata = localizations_in_region(locdata_2d, multipol)
+    assert len(new_locdata) == 2

@@ -6,7 +6,7 @@ Utility functions for working with regions.
 import sys
 
 import numpy as np
-from shapely.geometry import Point, MultiPoint, Polygon
+from shapely.geometry import Point, MultiPoint, Polygon, MultiPolygon
 from shapely.ops import cascaded_union
 from shapely.prepared import prep
 
@@ -99,7 +99,7 @@ def localizations_in_region(locdata, region, loc_properties=None, reduce=True):
     """
     local_parameter = locals()
 
-    if isinstance(region, Polygon):
+    if isinstance(region, (Polygon, MultiPolygon)):
         dimension = 2
     else:
         dimension = region.dimension
@@ -111,13 +111,16 @@ def localizations_in_region(locdata, region, loc_properties=None, reduce=True):
 
     points = locdata.data[list(loc_properties_)].values
 
-    if isinstance(region, Polygon):
+    if isinstance(region, (Polygon, MultiPolygon)):
         points = MultiPoint(points)
         prepared_polygon = prep(region)
         mask = list(map(prepared_polygon.contains, points))
         locdata_indices_to_keep = locdata.data.index[mask]
         new_locdata = LocData.from_selection(locdata=locdata, indices=locdata_indices_to_keep)
-        new_locdata.region = RoiRegion(region_type='polygon', region_specs=region.exterior.coords)
+        if isinstance(region, Polygon):
+            new_locdata.region = RoiRegion.from_shapely(region_type='shapelyPolygon', shapely_obj=region)
+        elif isinstance(region, MultiPolygon):
+            new_locdata.region = RoiRegion.from_shapely(region_type='shapelyMultiPolygon', shapely_obj=region)
 
     else:
         indices_inside = region.contains(points)

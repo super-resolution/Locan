@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import matplotlib.path as mPath
 import matplotlib.patches as mPatches
 from scipy.spatial.distance import pdist
-from shapely.geometry import Point, MultiPoint, LineString, Polygon
+from shapely.geometry import Point, MultiPoint, LineString, Polygon, MultiPolygon
 from shapely.ops import cascaded_union
 from shapely.prepared import prep
 
@@ -39,6 +39,7 @@ class RoiRegion:
         A string indicating the roi shape.
         In 1D it can be `interval`.
         In 2D it can be either `rectangle`, `ellipse`, or closed `polygon`.
+        In 2D it can also be `shapelyPolygon` or `shapelyMultiPolygon`.
         In 3D it can be either `cuboid` or `ellipsoid` or `polyhedron` (not implemented yet).
     region_specs : tuple
         1D rois are defined by the following tuple:
@@ -47,6 +48,8 @@ class RoiRegion:
         * rectangle: ((corner_x, corner_y), width, height, angle)
         * ellipse: ((center_x, center_y), width, height, angle)
         * polygon: ((point1_x, point1_y), (point2_x, point2_y), ..., (point1_x, point1_y))
+        * shapelyPolygon: ((point_tuples), ((hole_tuples), ...))
+        * shapelyMultiPolygon: (shapelyPolygon_specs_1, shapelyPolygon_specs_2, ...)
         3D rois are defined by the following tuples:
         * cuboid: ((corner_x, corner_y, corner_z), length, width, height, angle_1, angle_2, angle_3)
         * ellipsoid: ((center_x, center_y, center_z), length, width, height, angle_1, angle_2, angle_3)
@@ -64,8 +67,6 @@ class RoiRegion:
     polygon : ndarray of tuples
         Array of points for a closed polygon approximating the region of interest in clockwise orientation. The first
         and last point must be identical.
-    shapely_polygon : shapely.Polygon object
-        Polygon object as defined by the shapely package.
     dimension : int
         Spatial dimension of region
     centroid : tuple of float
@@ -94,21 +95,44 @@ class RoiRegion:
         elif region_type == 'polygon':
             self._region = _RoiPolygon(region_specs)
 
-        else:
-            raise NotImplementedError(f'Region_type {region_specs} has not been implemented yet.')
+        elif region_type == 'shapelyPolygon':
+            self._region = _ShapelyPolygon(region_specs)
 
-        self.polygon = self._region.polygon
-        self.dimension = self._region.dimension
-        self.centroid = self._region.centroid
-        self.max_distance = self._region.max_distance
-        self.region_measure = self._region.region_measure
-        self.subregion_measure = self._region.subregion_measure
+        elif region_type == 'shapelyMultiPolygon':
+            self._region = _ShapelyMultiPolygon(region_specs)
+
+        else:
+            raise NotImplementedError(f'Region_type {region_type} has not been implemented yet.')
+
+        # self.polygon = self._region.polygon
+        # self.dimension = self._region.dimension
+        # self.centroid = self._region.centroid
+        # self.max_distance = self._region.max_distance
+        # self.region_measure = self._region.region_measure
+        # self.subregion_measure = self._region.subregion_measure
+
+    def __getattr__(self, attr):
+        """All non-adapted calls are passed to the _region object"""
+        return getattr(self._region, attr)
 
     def __repr__(self):
         """
         Readable, printable and savable representation of RoiRegion.
         """
         return str(dict(region_type=self.region_type, region_specs=self.region_specs))
+
+    @classmethod
+    def from_shapely(cls, region_type, shapely_obj):
+        if region_type == 'shapelyPolygon':
+            region_specs = _ShapelyPolygon.from_shapely(shapely_obj).region_specs
+
+        elif region_type == 'shapelyMultiPolygon':
+            region_specs = _ShapelyMultiPolygon.from_shapely(shapely_obj).region_specs
+
+        else:
+            raise NotImplementedError(f'Region_type {region_type} has not been implemented yet.')
+
+        return cls(region_type=region_type, region_specs=region_specs)
 
     def contains(self, points):
         """
@@ -169,7 +193,7 @@ class _RoiInterval:
             self.region_specs = region_specs
 
     def __repr__(self):
-        return dict(region_type='interval', region_specs=self.region_specs)
+        return str(dict(region_type='interval', region_specs=self.region_specs))
 
     def contains(self, points):
         inside_indices = np.where((points >= self.region_specs[0]) & (points <= self.region_specs[1]))
@@ -218,7 +242,7 @@ class _RoiRectangle:
             self.region_specs = region_specs
 
     def __repr__(self):
-        return dict(region_type='rectangle', region_specs=self.region_specs)
+        return str(dict(region_type='rectangle', region_specs=self.region_specs))
 
     def contains(self, points):
         corner, width, height, angle = self.region_specs
@@ -291,7 +315,7 @@ class _RoiEllipse:
             self.region_specs = region_specs
 
     def __repr__(self):
-        return dict(region_type='ellipse', region_specs=self.region_specs)
+        return str(dict(region_type='ellipse', region_specs=self.region_specs))
 
     def contains(self, points):
         center, width, height, angle = self.region_specs
@@ -367,7 +391,7 @@ class _RoiPolygon:
             self.region_specs = region_specs
 
     def __repr__(self):
-        return dict(region_type='polygon', region_specs=self.region_specs)
+        return str(dict(region_type='polygon', region_specs=self.region_specs))
 
     def contains(self, points):
         polygon_path = mPath.Path(self.region_specs, closed=True)
@@ -404,10 +428,145 @@ class _RoiPolygon:
         return polygon.length
 
     def as_artist(self, origin=(0, 0), **kwargs):
-        from matplotlib.patches import Polygon
-        #xy = self.region_specs[:,0] - origin[0], self.region_specs[:,1] - origin[1]
-        xy = self.region_specs
-        return Polygon(xy=xy, closed=True, **kwargs)
+        from matplotlib.patches import Polygon as mplPolygon
+        xy = self.polygon[:, 0] - origin[0], self.polygon[:, 1] - origin[1]
+        xy = np.array(xy).T
+        return mplPolygon(xy=xy, closed=True, **kwargs)
 
     def to_shapely(self):
         return Polygon(self.polygon[:-1])
+
+
+class _ShapelyPolygon:
+    """This is an adapter class for shapely Polygon"""
+
+    def __init__(self, region_specs):
+        self.region_specs = region_specs
+        self._region = Polygon(*self.region_specs)
+
+    def __repr__(self):
+        return str(dict(region_type='shapelyPolygon', region_specs=self.region_specs))
+
+    def __getattr__(self, attr):
+        """All non-adapted calls are passed to the object"""
+        return getattr(self._region, attr)
+
+    @classmethod
+    def from_shapely(cls, polygon):
+        region_specs = [np.array(polygon.exterior.coords).tolist(),
+                        [np.array(interiors.coords).tolist() for interiors in polygon.interiors]
+                        ]
+        return cls(region_specs=region_specs)
+
+    def contains(self, points):
+        points = MultiPoint(points)
+        prepared_polygon = prep(self._region)
+        mask = list(map(prepared_polygon.contains, points))
+        inside_indices = np.where(mask)[0]
+        return inside_indices
+
+    @property
+    def polygon(self):
+        return np.array(self.region_specs)
+
+    @property
+    def dimension(self):
+        return 2
+
+    @property
+    def centroid(self):
+        return self._region.centroid.coords
+
+    @property
+    def max_distance(self):
+        distances = pdist(self._region.exterior.coords)
+        return np.nanmax(distances)
+
+    @property
+    def region_measure(self):
+        return self._region.area
+
+    @property
+    def subregion_measure(self):
+        return self._region.length
+
+    def as_artist(self, origin=(0, 0), **kwargs):
+        # todo include holes
+        warnings.warn("Holes are not shown.")
+        from matplotlib.patches import Polygon as mplPolygon
+        xy = self._region.exterior.coords
+        xy = self.polygon[0][:, 0] - origin[0], self.polygon[0][:, 1] - origin[1]
+        xy = np.array(xy).T
+        return mplPolygon(xy=xy, closed=True, **kwargs)
+
+    def to_shapely(self):
+        return self._region
+
+
+class _ShapelyMultiPolygon:
+    """This is an adapter class for shapely Polygon"""
+
+    def __init__(self, region_specs):
+        self.region_specs = region_specs
+        self._region = MultiPolygon(self.region_specs)
+
+    def __repr__(self):
+        return str(dict(region_type='shapelyMultiPolygon', region_specs=self.region_specs))
+
+    def __getattr__(self, attr):
+        """All non-adapted calls are passed to the object"""
+        return getattr(self._region, attr)
+
+    @classmethod
+    def from_shapely(cls, multipolygon):
+        region_specs = [[np.array(pol.exterior.coords).tolist(),
+                [np.array(interiors.coords).tolist() for interiors in pol.interiors]
+                ] for pol in multipolygon]
+        return cls(region_specs=region_specs)
+
+    def contains(self, points):
+        points = MultiPoint(points)
+        prepared_polygon = prep(self._region)
+        mask = list(map(prepared_polygon.contains, points))
+        inside_indices = np.where(mask)[0]
+        return inside_indices
+
+    @property
+    def polygon(self):
+        return np.array(self.region_specs)
+
+    @property
+    def dimension(self):
+        return 2
+
+    @property
+    def centroid(self):
+        return self._region.centroid.coords
+
+    @property
+    def max_distance(self):
+        points = []
+        [points.extend(list(pol.exterior.coords)) for pol in self._region]
+        distances = pdist(np.asarray(points))
+        return np.nanmax(distances)
+
+    @property
+    def region_measure(self):
+        return self._region.area
+
+    @property
+    def subregion_measure(self):
+        return self._region.length
+
+    def as_artist(self, origin=(0, 0), **kwargs):
+        # todo include holes
+        warnings.warn("Holes are not shown.")
+        from matplotlib.patches import Polygon as mplPolygon
+        patches = []
+        for pol in self._region:
+            xy = np.array(pol.exterior.coords) - origin
+            patches.append(mplPolygon(xy=xy, closed=True, **kwargs))
+        return patches
+
+    def to_shapely(self):
+        return self._region

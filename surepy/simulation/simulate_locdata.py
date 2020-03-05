@@ -637,8 +637,7 @@ def make_csr_on_region(region, n_samples=100, seed=None):
     else:
         region_ = region
 
-    # todo: add function .bounds to RoiRegion
-    shapely_polygon = Polygon(region_.polygon)
+    shapely_polygon = region_.to_shapely()
     min_x, min_y, max_x, max_y = shapely_polygon.bounds
     bounding_box = ((min_x, max_x), (min_y, max_y))
 
@@ -663,7 +662,7 @@ def make_csr_on_region(region, n_samples=100, seed=None):
 
 def simulate_csr_on_region(region, n_samples=100, seed=None):
     """
-    Provide a dataset of localizations with coordinates that are spatially-distributed inside teh specified region by
+    Provide a dataset of localizations with coordinates that are spatially-distributed inside the specified region by
     complete spatial randomness..
 
     Parameters
@@ -729,10 +728,8 @@ def make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
         If n_samples is an int and centers is None, 3 centers are generated.
         If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
     cluster_std : float or sequence of floats
-        The standard deviation for the spots. If sequence, the number of elements must be equal to the number of centers.
-    feature_range : pair of floats (min, max) or sequence of pair of floats
-        The bounding box for each cluster center when centers are
-        generated at random. If sequence the number of elements must be equal to n_features.
+        The standard deviation for the spots.
+        If sequence, the number of elements must be equal to the number of centers.
     shuffle : boolean
         Shuffle the samples.
     seed : int
@@ -824,10 +821,8 @@ def simulate_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1
         If n_samples is an int and centers is None, 3 centers are generated.
         If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
     cluster_std : float or sequence of floats
-        The standard deviation for the spots. If sequence, the number of elements must be equal to the number of centers.
-    feature_range : pair of floats (min, max) or sequence of pair of floats
-        The bounding box for each cluster center when centers are
-        generated at random. If sequence the number of elements must be equal to n_features.
+        The standard deviation for the spots.
+        If sequence, the number of elements must be equal to the number of centers.
     shuffle : boolean
         Shuffle the samples.
     seed : int
@@ -982,7 +977,7 @@ def resample(locdata, n_samples=10):
     """
 
     # generate dataframe
-    list = []
+    list_ = []
     for i in range(len(locdata)):
         new_d = {}
         new_d.update({'origin_index': np.full(n_samples, i)})
@@ -1007,9 +1002,9 @@ def resample(locdata, n_samples=10):
         except KeyError:
             pass
 
-        list.append(pd.DataFrame(new_d))
+        list_.append(pd.DataFrame(new_d))
 
-    dataframe = pd.concat(list, ignore_index=True)
+    dataframe = pd.concat(list_, ignore_index=True)
 
     # metadata
     meta_ = metadata_pb2.Metadata()

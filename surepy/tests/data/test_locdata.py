@@ -132,6 +132,8 @@ def test_LocData_from_selection(df_simple):
     assert (sel.references is dat)
     assert (sel.meta.comment == COMMENT_METADATA.comment)
     assert dat.bounding_box.region_measure != sel.bounding_box.region_measure
+    with pytest.raises(AttributeError):
+        sel.data = df_simple
 
     sel_sel = LocData.from_selection(locdata=sel, indices=[1, 3], meta={'comment': 'Selection of a selection.'})
     assert sel_sel.meta.comment == 'Selection of a selection.'
@@ -219,12 +221,45 @@ def test_LocData_reset(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
     assert dat.properties['position_x'] == 2
     assert dat.properties['region_measure_bb'] == 20
+    assert (dat.meta.comment == COMMENT_METADATA.comment)
 
     dat.dataframe['position_x'] = [0, 1, 4, 0, 0]
     dat.dataframe['position_y'] = [1, 3, 4, 0, 0]
     dat.reset()
     assert dat.properties['position_x'] == 1
     assert dat.properties['region_measure_bb'] == 16
+    assert (dat.meta.comment == COMMENT_METADATA.comment)
+
+
+def test_LocData_update(df_simple):
+    dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
+    assert dat.properties['position_x'] == 2
+    assert dat.meta.element_count == 5
+    new_dataframe = pd.DataFrame.from_dict(
+        {'position_x': [10, 0, 1, 4],
+         'position_y': [10, 1, 3, 4]}
+    )
+    dat.update(new_dataframe)
+    pd.testing.assert_frame_equal(dat.data, new_dataframe)
+    assert dat.properties['position_x'] == 3.75
+    assert dat.meta.element_count == 4
+    assert dat.meta.history[-1].name == "LocData.update"
+
+    sel = LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
+    with pytest.warns(UserWarning):
+        sel.update(new_dataframe, reset_index=True)
+    pd.testing.assert_frame_equal(sel.data, new_dataframe)
+    assert sel.properties['position_x'] == 3.75
+    assert sel.meta.element_count == 4
+    assert sel.meta.history[-1].name == "LocData.update"
+
+    sel = LocData.from_selection(locdata=dat, indices=[1, 2, 3, 4], meta=COMMENT_METADATA)
+    with pytest.warns(UserWarning):
+        sel.update(new_dataframe, reset_index=True)
+    pd.testing.assert_frame_equal(sel.data, new_dataframe)
+    assert sel.properties['position_x'] == 3.75
+    assert sel.meta.element_count == 4
+    assert sel.meta.history[-1].name == "LocData.update"
 
 
 # locdata with added columns

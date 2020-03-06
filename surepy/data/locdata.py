@@ -16,6 +16,7 @@ from surepy import PROPERTY_KEYS
 from surepy.data.region import RoiRegion
 import surepy.data.hulls
 from surepy.data import metadata_pb2
+from surepy.data.metadata_utils import _modify_meta
 from surepy.utils.format import _time_string
 
 
@@ -515,7 +516,7 @@ class LocData:
         ----
         Should be used with care because metadata is not updated accordingly.
         The region property is not changed.
-        Better to just re-instantiate with LocData.from_dataframe().
+        Better to just re-instantiate with `LocData.from_dataframe()` or use `locdata.update()`.
 
         Parameters
         ----------
@@ -537,6 +538,59 @@ class LocData:
         self._alpha_shape = None
 
         self._update_properties()
+
+        return self
+
+    def update(self, dataframe, reset_index=False, meta=None):
+        """
+        Update the dataframe attribute in place.
+
+        Use this function rather than setting locdata.dataframe directly in order to automatically update
+        hulls, properties, and metadata.
+
+        Parameters
+        ----------
+        dataframe : Pandas DataFrame or None
+            Dataframe with localization data.
+        reset_index : Bool
+            Flag indicating if the index is reset to integer values. If True the previous index values are discarded.
+        meta : Metadata protobuf message
+            Metadata about the current dataset and its history.
+
+        Returns
+        -------
+        self (LocData)
+            The modified object
+        """
+        local_parameter = locals()
+        del local_parameter['dataframe']  # dataframe is obvious and possibly large and should not be repeated in meta.
+
+        if self.references is not None:
+            self.reduce(reset_index=reset_index)
+            warnings.warn("LocData.reduce() was applied since self.references was not None.")
+
+        self._time = time.time()
+        self.dataframe = dataframe
+
+        # update hulls and properties
+        self.reset(reset_index=reset_index)
+
+        # update meta
+        self.meta.modification_date = _time_string(self._time)
+        self.meta.state = metadata_pb2.MODIFIED
+        self.meta.history.add(name='LocData.update', parameter=str(local_parameter))
+
+        self.meta.element_count = len(self.data.index)
+        if 'frame' in self.data.columns:
+            self.meta.frame_count = len(self.data['frame'].unique())
+
+        if meta is None:
+            pass
+        elif isinstance(meta, dict):
+            for key, value in meta.items():
+                setattr(self.meta, key, value)
+        else:
+            self.meta.MergeFrom(meta)
 
         return self
 

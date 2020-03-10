@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
-from surepy.data.hulls import BoundingBox, ConvexHull, _ConvexHullScipy, _ConvexHullShapely
+from surepy import BoundingBox, ConvexHull
+from surepy.data.hulls.hull import _ConvexHullScipy, _ConvexHullShapely
 
 
 def test_BoundingBox_2d(locdata_2d):

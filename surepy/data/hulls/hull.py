@@ -2,23 +2,25 @@
 
 Hull objects of localization data.
 
-This module computes specific hulls and related properties for LocData objects.
+This module computes specific hulls for the bounding box, convex hull and oriented bounding box
+and related properties for LocData objects.
 
 """
-
 import numpy as np
 import scipy.spatial as spat
-
-from surepy.data.region import RoiRegion
 from shapely.geometry import LineString, MultiPoint
 
+from surepy.data.region import RoiRegion
 
-__all__ = ['BoundingBox', 'ConvexHull', '_ConvexHullShapely', 'OrientedBoundingBox']
+
+__all__ = ['BoundingBox', 'ConvexHull', 'OrientedBoundingBox']
 
 
 class Hull:
     """
-    Abstract class for the hull of a selection
+    Abstract class for the hull of a selection.
+
+    This class is not inherited at this point. It just serves as template for the design of specific hull objects.
 
     Parameters
     ----------

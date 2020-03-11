@@ -136,6 +136,7 @@ def test__AlphaShape_1():
     assert alpha_shape.n_points_on_boundary_rel == 0.625
     assert np.array_equal(alpha_shape.vertex_indices, [0, 1, 2, 4, 5])
     assert alpha_shape.vertices.shape == (5, 2)
+    assert alpha_shape.vertex_indices_connected_components == [[1, 5, 0, 4, 2]]
 
 
 def test_AlphaShape_2():
@@ -164,6 +165,7 @@ def test_AlphaShape_2():
     assert alpha_shape.n_points_on_boundary_rel == 0.6666666666666666
     assert np.array_equal(alpha_shape.vertex_indices, [0, 1, 2, 4, 5, 8, 9, 10, 12, 13])
     assert alpha_shape.vertices.shape == (10, 2)
+    assert alpha_shape.vertex_indices_connected_components == [[1, 5, 4, 0, 2], [9, 10, 8, 12, 13]]
 
 
 def test_AlphaShape_3():
@@ -197,6 +199,8 @@ def test_AlphaShape_3():
     assert np.array_equal(alpha_shape.vertex_indices, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20,
                                                        21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32])
     assert alpha_shape.vertices.shape == (28, 2)
+    assert alpha_shape.vertex_indices_connected_components == [[5, 12, 1, 9, 0, 8, 2, 10, 15, 3, 11, 14, 6, 7, 4, 13],
+                                                              [32, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]]
 
 
 @pytest.mark.skip('Requires visual inspection.')

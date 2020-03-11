@@ -299,6 +299,12 @@ class AlphaComplex:
         G.add_edges_from(ac_simplices, type=type)
         return G
 
+    def optimal_alpha(self):
+        raise NotImplementedError
+
+    def alpha_iterator(self):
+        raise NotImplementedError
+
 
 class AlphaShape:
     """
@@ -380,10 +386,11 @@ class AlphaShape:
             self.n_points_alpha_shape_rel = self.n_points_alpha_shape / len(self.points)
 
             # Create shapely polygons and define hull
-            graph = self.alpha_complex.to_graph(alpha=alpha, type='regular')
+            self._graph = self.alpha_complex.to_graph(alpha=alpha, type='regular')
             polygons = []
-            for cc in nx.connected_components(graph):
-                subgraph = graph.subgraph(cc)
+            for cc in nx.connected_components(self._graph):
+                subgraph = self._graph.subgraph(cc)
+                # order points to create polygon
                 indices = [e for item in nx.chain_decomposition(subgraph) for element in item for e in element]
                 nodes = []
                 last_item = None
@@ -421,7 +428,6 @@ class AlphaShape:
         else:
             raise NotImplementedError
 
-
     @property
     def alpha_shape(self):
         return self.alpha_complex.get_alpha_complex_all(self.alpha)
@@ -434,3 +440,15 @@ class AlphaShape:
     def vertex_indices(self):
         array = self.alpha_complex.get_alpha_complex_regular(self.alpha)
         return np.unique(np.ravel(array), axis=0)
+
+    @property
+    def vertex_indices_connected_components(self):
+        """Vertex indices for the connected components."""
+        if self.dimension == 2:
+            indices_list = []
+            for cc in nx.connected_components(self._graph):
+                subgraph = self._graph.subgraph(cc)
+                indices_list.append(list(subgraph.nodes))
+            return indices_list
+        else:
+            raise NotImplementedError

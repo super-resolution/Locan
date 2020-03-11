@@ -194,86 +194,36 @@ class AlphaComplex:
         alpha_complex = set(alpha_complex)
         return alpha_complex
 
-    def get_alpha_complex_exterior(self, alpha):
+    def get_alpha_complex(self, alpha, type='all'):
         """
-        Simplicial subcomplex (edges) of the Delaunay triangulation
-        that defines the exterior edges that are not part of the alpha complex for the given `alpha`.
+        Simplicial subcomplex (edges) of the Delaunay triangulation for the specific alpha complex
+        for the given `alpha`.
 
         Parameters
         ----------
         alpha : float
             Alpha parameter specifying a unique alpha complex.
+        type : str
+            Type of alpha complex edges to be included in the graph.
+            One of 'all', 'regular', 'singular', 'interior', 'exterior'.
 
         Returns
         -------
         list of list of int
         """
-        return [list(ac[0]) for ac in self.alpha_complex if ac[1] > alpha]
+        if type == 'exterior':
+            return [list(ac[0]) for ac in self.alpha_complex if ac[1] > alpha]
+        elif type == 'all':
+            return [list(ac[0]) for ac in self.alpha_complex if ac[1] <= alpha]
+        elif type == 'singular':
+            return [list(ac[0]) for ac in self.alpha_complex if ac[1] <= alpha < ac[2]]
+        elif type == 'regular':
+            return [list(ac[0]) for ac in self.alpha_complex if ac[2] <= alpha < ac[3]]
+        elif type == 'interior':
+            return [list(ac[0]) for ac in self.alpha_complex if ac[3] <= alpha]
+        else:
+            raise AttributeError(f'Parameter type: {type} is not valid.')
         # a list of lists and not of tuples should be returned since the return value will be used for indexing arrays.
-
-    def get_alpha_complex_all(self, alpha):
-        """
-        Simplicial subcomplex (edges) of the Delaunay triangulation
-        that defines the alpha complex for the given `alpha`.
-
-        Parameters
-        ----------
-        alpha : float
-            Alpha parameter specifying a unique alpha complex.
-
-        Returns
-        -------
-        list of list of int
-        """
-        return [list(ac[0]) for ac in self.alpha_complex if ac[1] <= alpha]
-
-    def get_alpha_complex_singular(self, alpha):
-        """
-        Simplicial subcomplex (edges) of the Delaunay triangulation
-        that defines the singular edges of teh alpha complex for the given `alpha`.
-
-        Parameters
-        ----------
-        alpha : float
-            Alpha parameter specifying a unique alpha complex.
-
-        Returns
-        -------
-        list of list of int
-        """
-        return [list(ac[0]) for ac in self.alpha_complex if ac[1] <= alpha < ac[2]]
-
-    def get_alpha_complex_regular(self, alpha):
-        """
-        Simplicial subcomplex (edges) of the Delaunay triangulation
-        that defines the regular edges of the alpha complex for the given `alpha`.
-
-        Parameters
-        ----------
-        alpha : float
-            Alpha parameter specifying a unique alpha complex.
-
-        Returns
-        -------
-        list of list of int
-        """
-        return [list(ac[0]) for ac in self.alpha_complex if ac[2] <= alpha < ac[3]]
-
-    def get_alpha_complex_interior(self, alpha):
-        """
-        Simplicial subcomplex (edges) of the Delaunay triangulation
-        that defines the interior edges of the alpha complex for the given `alpha`.
-
-        Parameters
-        ----------
-        alpha : float
-            Alpha parameter specifying a unique alpha complex.
-
-        Returns
-        -------
-        list of list of int
-        """
-        return [list(ac[0]) for ac in self.alpha_complex if ac[3] <= alpha]
 
     def to_graph(self, alpha, type='all'):
         """
@@ -294,10 +244,13 @@ class AlphaComplex:
         G = nx.Graph()
         # positions = {i: tuple(point) for i, point in enumerate(self.points)}  # positions for all nodes
         # G.add_nodes_from(positions)
-        function = 'get_alpha_complex_' + type
-        ac_simplices = getattr(self, function)(alpha)
+        ac_simplices = self.get_alpha_complex(alpha, type)
         G.add_edges_from(ac_simplices, type=type)
         return G
+
+    def alpha_shape(self, alpha):
+        return AlphaShape(points=self.points, alpha=alpha,
+                          alpha_complex=self, delaunay=self.delaunay_triangulation)
 
     def optimal_alpha(self):
         raise NotImplementedError
@@ -320,7 +273,9 @@ class AlphaShape:
         Coordinates of input points.
     alpha : float
         Alpha parameter specifying a unique alpha complex.
-    delaunay : Delaunay object
+    alpha_complex : AlphaComplex or None
+        The unfiltered alpha complex with computed interval values.
+    delaunay : Delaunay object or None
         Object with attribute `simplices` specifying a list of indices in the array of points that define the
         simplexes in the Delaunay triangulation.
         Also an attribute `neighbor` is required that specifies indices of neighboring simplices.
@@ -330,34 +285,36 @@ class AlphaShape:
     ----------
     alpha_complex : AlphaComplex
         The unfiltered alpha complex with computed interval values.
-    hull : hull object
-        hull object (the alpha shape) representing the boundary points of the alpha complex.
-        In 2d: a shapely MultiPolygon object is returned representing a list of unconnected components.
     alpha_shape : ndarray
         The list of k-simplices (edges) from the alpha complex that make up the alpha shape.
         Or: Simplicial subcomplex of the Delaunay triangulation with regular simplices from the alpha complex.
+    hull : hull object
+        hull object (the alpha shape) representing the boundary points of the alpha complex.
+        In 2d: a shapely MultiPolygon object is returned representing a list of unconnected components.
     dimension : int
         Spatial dimension of the hull as determined from the dimension of `points`
     vertices : array of (2,) tuples
-        Coordinates of points that make up the hull.
-    vertex_indices : indices for points
-        Indices identifying a polygon of all points that make up the hull (boundary).
-    vertices_interior : array of (2,) tuples
-        Coordinates of points that make up the interior of the hull.
-    vertex_interior_indices : list of int
-        Indices identifying a polygon of all points that make up the interior of the hull.
+        Coordinates of points that make up the hull (regular alpha_shape simplices).
+    vertex_indices : list of int
+        Indices identifying a polygon of all points that make up the hull (regular alpha_shape simplices).
     vertices_alpha_shape : array of (2,) tuples
-        Coordinates of points that make up the interior and boundary of the hull.
+        Coordinates of points that make up the interior and boundary of the hull
+        (regular, singular and interior alpha_shape simplices).
     vertex_alpha_shape_indices : list of int
-        Indices identifying a polygon of all points that make up the interior and boundary of the hull.
+        Indices to all points that make up the interior and boundary of the hull.
+        (regular, singular and interior alpha_shape simplices).
+    vertices_connected_components_indices : list of list
+        Indices to the points for each connected component of the alpha shape.
     n_points_on_boundary : float
-        The number of points on the hull (alpha_shape boundary).
+        The number of points on the hull (regular and singular alpha_shape simplices).
     n_points_on_boundary_rel : float
-        The number of points on the hull relative to all alpha_shape points.
+        The number of points on the hull (regular and singular alpha_shape simplices) relative to all alpha_shape points.
     n_points_alpha_shape : int
-        Absolute number of points that are part of the alpha_shape.
+        Absolute number of points that are part of the alpha_shape
+        (regular, singular and interior alpha_shape simplices).
     n_points_alpha_shape_rel : int
-        Absolute number of points that are part of the alpha_shape relative to all input points.
+        Absolute number of points that are part of the alpha_shape relative to all input points
+        (regular, singular and interior alpha_shape simplices).
     region_measure : float
         Hull measure, i.e. area or volume.
     subregion_measure : float
@@ -366,71 +323,70 @@ class AlphaShape:
         Convert the hull to a RoiRegion object.
     """
 
-    def __init__(self, points, alpha, delaunay=None):
+    def __init__(self, points, alpha, alpha_complex=None, delaunay=None):
         self.points = np.asarray(points)
         self.dimension = np.shape(self.points)[1]
-        self.alpha = alpha
-        self.alpha_complex = None
 
-        if self.dimension is 2:
-
-            if self.alpha_complex is None:
-                self.alpha_complex = AlphaComplex(points, delaunay)
-
-            # set various n_points
-            self.n_points_alpha_shape = self.alpha_complex.to_graph(alpha=alpha, type='all').\
-                number_of_nodes()
-            self.n_points_on_boundary = self.alpha_complex.to_graph(alpha=alpha, type='regular').\
-                number_of_nodes()
-            self.n_points_on_boundary_rel = self.n_points_on_boundary / self.n_points_alpha_shape
-            self.n_points_alpha_shape_rel = self.n_points_alpha_shape / len(self.points)
-
-            # Create shapely polygons and define hull
-            self._graph = self.alpha_complex.to_graph(alpha=alpha, type='regular')
-            polygons = []
-            for cc in nx.connected_components(self._graph):
-                subgraph = self._graph.subgraph(cc)
-                # order points to create polygon
-                indices = [e for item in nx.chain_decomposition(subgraph) for element in item for e in element]
-                nodes = []
-                last_item = None
-                for item in indices:
-                    if item != last_item:
-                        nodes.append(item)
-                    last_item = item
-                polygon = Polygon(points[nodes])
-                polygons.append(polygon)
-
-            # find polygon_hole pairs
-            mask = []
-            for n, m in permutations(range(len(polygons)), 2):
-                mask.append(polygons[n].contains(polygons[m]))
-            polygon_hole_pairs = np.array(list(permutations(range(len(polygons)), 2)))[mask]
-
-            # check if multi-level cascades exist (polygon inside polygon inside polygon)
-            elements = np.ravel(polygon_hole_pairs)
-            if len(elements) != len(set(elements)):
-                raise NotImplementedError(
-                    "There are multiple polygons within each other. Dealing with this has not been implemented.")
-
-            # create polygons with holes
-            for item in polygon_hole_pairs:
-                polygons[item[0]] = Polygon(shell=polygons[item[0]].exterior.coords,
-                                            holes=[polygons[item[1]].exterior.coords])
-                polygons[item[1]] = None
-
-            self.hull = MultiPolygon(polygons)
-
-            # set hull properties
-            self.region_measure = self.hull.area
-            self.subregion_measure = self.hull.length
-
-        else:
+        if self.dimension != 2:
             raise NotImplementedError
+
+        self.alpha = alpha
+
+        if alpha_complex is None:
+            self.alpha_complex = AlphaComplex(points, delaunay)
+        else:
+            self.alpha_complex = alpha_complex
+
+        self._graph = self.alpha_complex.to_graph(alpha=self.alpha, type='regular')
+
+        self.n_points_alpha_shape = self.alpha_complex.to_graph(alpha=self.alpha, type='all').number_of_nodes()
+        self.n_points_on_boundary = self.alpha_complex.to_graph(alpha=self.alpha, type='regular').number_of_nodes()
+        self.n_points_on_boundary_rel = self.n_points_on_boundary / self.n_points_alpha_shape
+        self.n_points_alpha_shape_rel = self.n_points_alpha_shape / len(self.points)
+
+        self.hull = self._compute_hull()
+        self.region_measure = self.hull.area
+        self.subregion_measure = self.hull.length
+
+    def _compute_hull(self):
+        """Create shapely polygons and define hull."""
+        polygons = []
+        for cc in nx.connected_components(self._graph):
+            subgraph = self._graph.subgraph(cc)
+            # order points to create polygon
+            indices = [e for item in nx.chain_decomposition(subgraph) for element in item for e in element]
+            nodes = []
+            last_item = None
+            for item in indices:
+                if item != last_item:
+                    nodes.append(item)
+                last_item = item
+            polygon = Polygon(self.points[nodes].tolist())
+            polygons.append(polygon)
+
+        # find polygon_hole pairs
+        mask = []
+        for n, m in permutations(range(len(polygons)), 2):
+            mask.append(polygons[n].contains(polygons[m]))
+        polygon_hole_pairs = np.array(list(permutations(range(len(polygons)), 2)))[mask]
+
+        # check if multi-level cascades exist (polygon inside polygon inside polygon)
+        elements = np.ravel(polygon_hole_pairs)
+        if len(elements) != len(set(elements)):
+            raise NotImplementedError(
+                "There are multiple polygons within each other. Dealing with this has not been implemented.")
+
+        # create polygons with holes
+        for item in polygon_hole_pairs:
+            polygons[item[0]] = Polygon(shell=polygons[item[0]].exterior.coords,
+                                        holes=[polygons[item[1]].exterior.coords])
+            polygons[item[1]] = None
+
+        return MultiPolygon(polygons)
 
     @property
     def alpha_shape(self):
-        return self.alpha_complex.get_alpha_complex_all(self.alpha)
+        return self.alpha_complex.get_alpha_complex(self.alpha, type='all')
 
     @property
     def vertices(self):
@@ -438,17 +394,32 @@ class AlphaShape:
 
     @property
     def vertex_indices(self):
-        array = self.alpha_complex.get_alpha_complex_regular(self.alpha)
-        return np.unique(np.ravel(array), axis=0)
+        array = self.alpha_complex.get_alpha_complex(self.alpha, type='regular')
+        return np.unique(array).tolist()
 
     @property
-    def vertex_indices_connected_components(self):
-        """Vertex indices for the connected components."""
-        if self.dimension == 2:
-            indices_list = []
-            for cc in nx.connected_components(self._graph):
-                subgraph = self._graph.subgraph(cc)
-                indices_list.append(list(subgraph.nodes))
-            return indices_list
+    def vertices_alpha_shape(self):
+        return self.points[self.vertex_alpha_shape_indices]
+
+    @property
+    def vertex_alpha_shape_indices(self):
+        array_r = self.alpha_complex.get_alpha_complex(self.alpha, type='regular')
+        array_s = self.alpha_complex.get_alpha_complex(self.alpha, type='singular')
+        array_i = self.alpha_complex.get_alpha_complex(self.alpha, type='interior')
+        return np.unique(array_r + array_s + array_i).tolist()
+
+    @property
+    def vertices_connected_components_indices(self):
+        indices_list = []
+        for cc in nx.connected_components(self._graph):
+            subgraph = self._graph.subgraph(cc)
+            indices_list.append(list(subgraph.nodes))
+        return indices_list
+
+    @property
+    def region(self):
+        if self.dimension > 2:
+            raise NotImplementedError('Region for 3D data has not yet been implemented.')
         else:
-            raise NotImplementedError
+            region_ = RoiRegion.from_shapely(region_type='shapelyMultiPolygon', shapely_obj=self.hull)
+            return region_

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt  # needed for visualization
 from scipy.spatial import Delaunay
 import networkx as nx
 
-from surepy import AlphaShape, AlphaComplex
+from surepy import AlphaShape, AlphaComplex, RoiRegion
 from surepy.data.hulls.alpha_shape import _circumcircle, _half_distance
 
 
@@ -36,17 +36,34 @@ def test__AlphaComplex_1():
     assert alpha_complex.dimension == 2
 
     alpha = 2.2
-    ac_simplices_all = alpha_complex.get_alpha_complex_all(alpha)
-    ac_simplices_exterior = alpha_complex.get_alpha_complex_exterior(alpha)
-    ac_simplices_interior = alpha_complex.get_alpha_complex_interior(alpha)
-    ac_simplices_regular = alpha_complex.get_alpha_complex_regular(alpha)
-    ac_simplices_singular = alpha_complex.get_alpha_complex_singular(alpha)
+    ac_simplices_all = alpha_complex.get_alpha_complex(alpha, type='all')
+    ac_simplices_exterior = alpha_complex.get_alpha_complex(alpha, type='exterior')
+    ac_simplices_interior = alpha_complex.get_alpha_complex(alpha, type='interior')
+    ac_simplices_regular = alpha_complex.get_alpha_complex(alpha, type='regular')
+    ac_simplices_singular = alpha_complex.get_alpha_complex(alpha, type='singular')
 
     lengths = [len(sim) for sim in [
         ac_simplices_all, ac_simplices_exterior, ac_simplices_interior, ac_simplices_regular, ac_simplices_singular]]
     assert lengths == [13, 6, 5, 5, 3]
 
     H = alpha_complex.to_graph(alpha, type='regular')
+    assert isinstance(H, nx.Graph)
+    # visualization
+    nx.draw_networkx(H, points, with_labels=True)
+    # plt.show()
+
+    alpha = 1
+    ac_simplices_all = alpha_complex.get_alpha_complex(alpha, type='all')
+    ac_simplices_exterior = alpha_complex.get_alpha_complex(alpha, type='exterior')
+    ac_simplices_interior = alpha_complex.get_alpha_complex(alpha, type='interior')
+    ac_simplices_regular = alpha_complex.get_alpha_complex(alpha, type='regular')
+    ac_simplices_singular = alpha_complex.get_alpha_complex(alpha, type='singular')
+
+    lengths = [len(sim) for sim in [
+        ac_simplices_all, ac_simplices_exterior, ac_simplices_interior, ac_simplices_regular, ac_simplices_singular]]
+    assert lengths == [3, 16, 0, 0, 3]
+
+    H = alpha_complex.to_graph(alpha, type='all')
     assert isinstance(H, nx.Graph)
     # visualization
     nx.draw_networkx(H, points, with_labels=True)
@@ -63,11 +80,11 @@ def test__AlphaComplex_2():
     assert alpha_complex.dimension == 2
 
     alpha = 2.2
-    ac_simplices_all = alpha_complex.get_alpha_complex_all(alpha)
-    ac_simplices_exterior = alpha_complex.get_alpha_complex_exterior(alpha)
-    ac_simplices_interior = alpha_complex.get_alpha_complex_interior(alpha)
-    ac_simplices_regular = alpha_complex.get_alpha_complex_regular(alpha)
-    ac_simplices_singular = alpha_complex.get_alpha_complex_singular(alpha)
+    ac_simplices_all = alpha_complex.get_alpha_complex(alpha, type='all')
+    ac_simplices_exterior = alpha_complex.get_alpha_complex(alpha, type='exterior')
+    ac_simplices_interior = alpha_complex.get_alpha_complex(alpha, type='interior')
+    ac_simplices_regular = alpha_complex.get_alpha_complex(alpha, type='regular')
+    ac_simplices_singular = alpha_complex.get_alpha_complex(alpha, type='singular')
 
     lengths = [len(sim) for sim in [
         ac_simplices_all, ac_simplices_exterior, ac_simplices_interior, ac_simplices_regular, ac_simplices_singular]]
@@ -79,11 +96,12 @@ def test__AlphaComplex_2():
     nx.draw_networkx(H, points, with_labels=True)
     # plt.show()
 
+    assert isinstance(alpha_complex.alpha_shape(alpha=2.2), AlphaShape)
+
 
 def test__AlphaComplex_3():
     points = np.array([[10, 10], [10, 20], [20, 20], [20, 10], [10, 15], [15, 20], [20, 15], [15, 10],
                        [10, 12], [10, 18], [20, 18], [20, 12], [17, 20], [12, 10], [17, 10], [12, 20],
-
                        [11, 11], [11, 19], [19, 19], [19, 11], [11, 15], [15, 19], [19, 15], [15, 11],
                        [13, 11], [12, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [15, 11], [18, 12],
                        [15, 15]
@@ -94,11 +112,11 @@ def test__AlphaComplex_3():
     assert alpha_complex.dimension == 2
 
     alpha = 2.2
-    ac_simplices_all = alpha_complex.get_alpha_complex_all(alpha)
-    ac_simplices_exterior = alpha_complex.get_alpha_complex_exterior(alpha)
-    ac_simplices_interior = alpha_complex.get_alpha_complex_interior(alpha)
-    ac_simplices_regular = alpha_complex.get_alpha_complex_regular(alpha)
-    ac_simplices_singular = alpha_complex.get_alpha_complex_singular(alpha)
+    ac_simplices_all = alpha_complex.get_alpha_complex(alpha, type='all')
+    ac_simplices_exterior = alpha_complex.get_alpha_complex(alpha, type='exterior')
+    ac_simplices_interior = alpha_complex.get_alpha_complex(alpha, type='interior')
+    ac_simplices_regular = alpha_complex.get_alpha_complex(alpha, type='regular')
+    ac_simplices_singular = alpha_complex.get_alpha_complex(alpha, type='singular')
 
     lengths = [len(sim) for sim in [
         ac_simplices_all, ac_simplices_exterior, ac_simplices_interior, ac_simplices_regular, ac_simplices_singular]]
@@ -136,7 +154,35 @@ def test__AlphaShape_1():
     assert alpha_shape.n_points_on_boundary_rel == 0.625
     assert np.array_equal(alpha_shape.vertex_indices, [0, 1, 2, 4, 5])
     assert alpha_shape.vertices.shape == (5, 2)
-    assert alpha_shape.vertex_indices_connected_components == [[1, 5, 0, 4, 2]]
+    assert alpha_shape.vertices_alpha_shape.shape == (8, 2)
+    assert len(alpha_shape.vertex_alpha_shape_indices) == 8
+    assert alpha_shape.vertices_connected_components_indices == [[1, 5, 0, 4, 2]]
+    assert isinstance(alpha_shape.region, RoiRegion)
+
+    alpha = 1
+    alpha_shape = AlphaShape(points, alpha)
+    H = alpha_shape.alpha_complex.to_graph(alpha, type='regular')
+    assert isinstance(H, nx.Graph)
+    # visualization
+    nx.draw_networkx(H, points, with_labels=True)
+    # plt.show()
+
+    assert len(alpha_shape.alpha_shape) == 3
+    assert isinstance(alpha_shape.alpha_shape, list)
+    assert alpha_shape.dimension == 2
+    assert alpha_shape.hull.is_empty
+    assert alpha_shape.region_measure == 0
+    assert alpha_shape.subregion_measure == 0
+    assert alpha_shape.n_points_alpha_shape == 4
+    assert alpha_shape.n_points_alpha_shape_rel == 0.4444444444444444
+    assert alpha_shape.n_points_on_boundary == 0
+    assert alpha_shape.n_points_on_boundary_rel == 0
+    assert np.array_equal(alpha_shape.vertex_indices, [])
+    assert alpha_shape.vertices.shape == (0, 2)
+    assert alpha_shape.vertices_alpha_shape.shape == (4, 2)
+    assert len(alpha_shape.vertex_alpha_shape_indices) == 4
+    assert alpha_shape.vertices_connected_components_indices == []
+    assert isinstance(alpha_shape.region, RoiRegion)
 
 
 def test_AlphaShape_2():
@@ -165,7 +211,10 @@ def test_AlphaShape_2():
     assert alpha_shape.n_points_on_boundary_rel == 0.6666666666666666
     assert np.array_equal(alpha_shape.vertex_indices, [0, 1, 2, 4, 5, 8, 9, 10, 12, 13])
     assert alpha_shape.vertices.shape == (10, 2)
-    assert alpha_shape.vertex_indices_connected_components == [[1, 5, 4, 0, 2], [9, 10, 8, 12, 13]]
+    assert alpha_shape.vertices_alpha_shape.shape == (15, 2)
+    assert len(alpha_shape.vertex_alpha_shape_indices) == 15
+    assert alpha_shape.vertices_connected_components_indices == [[1, 5, 4, 0, 2], [9, 10, 8, 12, 13]]
+    assert isinstance(alpha_shape.region, RoiRegion)
 
 
 def test_AlphaShape_3():
@@ -199,8 +248,11 @@ def test_AlphaShape_3():
     assert np.array_equal(alpha_shape.vertex_indices, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20,
                                                        21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32])
     assert alpha_shape.vertices.shape == (28, 2)
-    assert alpha_shape.vertex_indices_connected_components == [[5, 12, 1, 9, 0, 8, 2, 10, 15, 3, 11, 14, 6, 7, 4, 13],
-                                                              [32, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]]
+    assert alpha_shape.vertices_alpha_shape.shape == (33, 2)
+    assert len(alpha_shape.vertex_alpha_shape_indices) == 33
+    assert alpha_shape.vertices_connected_components_indices == [[5, 12, 1, 9, 0, 8, 2, 10, 15, 3, 11, 14, 6, 7, 4, 13],
+                                                                 [32, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]]
+    assert isinstance(alpha_shape.region, RoiRegion)
 
 
 @pytest.mark.skip('Requires visual inspection.')
@@ -209,11 +261,11 @@ def test__AlphaComplex_visual(locdata_2d):
     alpha_complex = AlphaComplex(points)
 
     alpha = 1.6
-    ac_simplices_all = alpha_complex.get_alpha_complex_all(alpha)
-    ac_simplices_exterior = alpha_complex.get_alpha_complex_exterior(alpha)
-    ac_simplices_interior = alpha_complex.get_alpha_complex_interior(alpha)
-    ac_simplices_regular = alpha_complex.get_alpha_complex_regular(alpha)
-    ac_simplices_singular = alpha_complex.get_alpha_complex_singular(alpha)
+    ac_simplices_all = alpha_complex.get_alpha_complex(alpha, type='all')
+    ac_simplices_exterior = alpha_complex.get_alpha_complex(alpha, type='exterior')
+    ac_simplices_interior = alpha_complex.get_alpha_complex(alpha, type='interior')
+    ac_simplices_regular = alpha_complex.get_alpha_complex(alpha, type='regular')
+    ac_simplices_singular = alpha_complex.get_alpha_complex(alpha, type='singular')
 
     lengths = [len(sim) for sim in [
         ac_simplices_all, ac_simplices_exterior, ac_simplices_interior, ac_simplices_regular, ac_simplices_singular]]

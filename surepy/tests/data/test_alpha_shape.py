@@ -34,6 +34,10 @@ def test__AlphaComplex_1():
     alpha_complex = AlphaComplex(points)
     assert len(alpha_complex.alpha_complex) == 19
     assert alpha_complex.dimension == 2
+    assert alpha_complex.get_alpha_complex(alpha=alpha_complex.optimal_alpha(), type='exterior') == []
+    assert alpha_complex.optimal_alpha() in alpha_complex.alphas()
+    assert np.max(alpha_complex.alphas()) == np.inf
+    assert isinstance(alpha_complex.alpha_shape(alpha=2.2), AlphaShape)
 
     alpha = 2.2
     ac_simplices_all = alpha_complex.get_alpha_complex(alpha, type='all')
@@ -78,6 +82,10 @@ def test__AlphaComplex_2():
     alpha_complex = AlphaComplex(points)
     assert len(alpha_complex.alpha_complex) == 38
     assert alpha_complex.dimension == 2
+    assert alpha_complex.get_alpha_complex(alpha=alpha_complex.optimal_alpha(), type='exterior') == []
+    assert alpha_complex.optimal_alpha() in alpha_complex.alphas()
+    assert np.max(alpha_complex.alphas()) == np.inf
+    assert isinstance(alpha_complex.alpha_shape(alpha=2.2), AlphaShape)
 
     alpha = 2.2
     ac_simplices_all = alpha_complex.get_alpha_complex(alpha, type='all')
@@ -110,6 +118,10 @@ def test__AlphaComplex_3():
     alpha_complex = AlphaComplex(points)
     assert len(alpha_complex.alpha_complex) == 80
     assert alpha_complex.dimension == 2
+    assert alpha_complex.get_alpha_complex(alpha=alpha_complex.optimal_alpha(), type='exterior') == []
+    assert alpha_complex.optimal_alpha() in alpha_complex.alphas()
+    assert np.max(alpha_complex.alphas()) == np.inf
+    assert isinstance(alpha_complex.alpha_shape(alpha=2.2), AlphaShape)
 
     alpha = 2.2
     ac_simplices_all = alpha_complex.get_alpha_complex(alpha, type='all')

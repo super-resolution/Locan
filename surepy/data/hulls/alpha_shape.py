@@ -249,14 +249,42 @@ class AlphaComplex:
         return G
 
     def alpha_shape(self, alpha):
+        """
+        Return the unique alpha shape for `alpha`.
+
+        Parameters
+        ----------
+        alpha : float
+            Alpha parameter specifying a unique alpha complex.
+
+        Returns
+        -------
+        float
+        """
         return AlphaShape(points=self.points, alpha=alpha,
                           alpha_complex=self, delaunay=self.delaunay_triangulation)
 
     def optimal_alpha(self):
-        raise NotImplementedError
+        """
+        Find the minimum alpha value for which all points belong to the alpha shape,
+        in other words, no edges of the Delaunay triangulation are exterior.
 
-    def alpha_iterator(self):
-        raise NotImplementedError
+        Returns
+        -------
+        float
+        """
+        return np.max([ac[1] for ac in self.alpha_complex])
+
+    def alphas(self):
+        """
+        Return alpha values at which the corresponding alpha shape changes.
+
+        Returns
+        -------
+        ndarray
+        """
+        return np.unique([ac[1:] for ac in self.alpha_complex])
+
 
 
 class AlphaShape:
@@ -289,7 +317,7 @@ class AlphaShape:
         The list of k-simplices (edges) from the alpha complex that make up the alpha shape.
         Or: Simplicial subcomplex of the Delaunay triangulation with regular simplices from the alpha complex.
     hull : hull object
-        hull object (the alpha shape) representing the boundary points of the alpha complex.
+        hull object (the alpha shape) representing the boundary points of the alpha complex (regular simplices).
         In 2d: a shapely MultiPolygon object is returned representing a list of unconnected components.
     dimension : int
         Spatial dimension of the hull as determined from the dimension of `points`

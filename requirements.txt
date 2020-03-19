@@ -16,6 +16,7 @@ scipy
 scikit-learn
 scikit-image
 matplotlib
+networkx
 shapely
 lmfit
 

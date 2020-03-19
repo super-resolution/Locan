@@ -9,11 +9,11 @@ Upon closing napari each shape is taken as single roi and saved as _roi.yaml fil
 
 To run the script::
 
-    rois -d <directory> -t <file type> -i <roi file indicator>
+    rois -f <file> -t <file type> -i <roi file indicator>
 
 Try for instance::
 
-    rois -d "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi"
+    rois -f "surepy/tests/test_data/five_blobs.txt" -t 1 -i "_roi"
 
 See Also
 --------

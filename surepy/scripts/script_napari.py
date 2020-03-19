@@ -7,11 +7,11 @@ With this script you can choose a file name and render the localization file in 
 
 To run the script::
 
-    napari -d <directory> -t <file type> -k <string with kwrds for render function>
+    napari -f <file> -t <file type> -k <string with kwrds for render function>
 
 Try for instance::
 
-    napari -d "surepy/tests/test_data/five_blobs.txt" -t 1 -k "bin_size=50"
+    napari -f "surepy/tests/test_data/five_blobs.txt" -t 1 -k "bin_size=50"
 
 See Also
 --------

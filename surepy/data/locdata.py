@@ -116,7 +116,7 @@ class LocData:
         # property for mean spatial coordinates (centroids)
         self.properties.update(dict(self.data[self.coordinate_labels].mean()))
 
-        self.bounding_box
+        self.bounding_box  # update self._bounding_box
 
     def __del__(self):
         """Updating the counter upon deletion of class instance."""
@@ -188,7 +188,52 @@ class LocData:
     @property
     def alpha_shape(self):
         """Hull object: Return an object representing the alpha-shape of all localizations."""
-        raise NotImplementedError
+        return self._alpha_shape
+
+    def update_alpha_shape(self, alpha):
+        """Compute the alpha shape for specific `alpha` and update `self.alpha_shape`.
+
+        Parameters
+        ----------
+        alpha : float
+            Alpha parameter specifying a unique alpha complex.
+
+        Returns
+        -------
+        LocData
+            The modified object
+        """
+        try:
+            if self._alpha_shape is None:
+                self._alpha_shape = surepy.data.hulls.AlphaShape(points=self.coordinates, alpha=alpha)
+            else:
+                self._alpha_shape.alpha = alpha
+
+            self.properties['region_measure_as'] = self._alpha_shape.region_measure
+            try:
+                self.properties['localization_density_as'] = self._alpha_shape.n_points_alpha_shape \
+                                                             / self._alpha_shape.region_measure
+            except ZeroDivisionError:
+                self.properties['localization_density_as'] = float('nan')
+
+        except TypeError:
+            warnings.warn('Properties related to alpha shape could not be computed.', UserWarning)
+        return self
+
+    def update_alpha_shape_in_references(self, alpha):
+        """
+        Compute the alpha shape for each element in `locdata.references` and update `locdata.dataframe`.
+
+        Returns
+        -------
+        LocData
+            The modified object
+        """
+        if isinstance(self.references, list):
+            for reference in self.references:
+                reference.update_alpha_shape(alpha=alpha)  # request property to update reference._convex_hull
+            self.dataframe = pd.DataFrame([reference.properties for reference in self.references])
+        return self
 
     @property
     def region(self):

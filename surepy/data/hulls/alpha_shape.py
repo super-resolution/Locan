@@ -25,6 +25,8 @@ References
 ----------
 .. [1] H. Edelsbrunner and E. P. Mücke, Three-dimensional alpha shapes. ACM Trans. Graph. 13(1):43-72, 1994.
 """
+import warnings
+
 import numpy as np
 from scipy.spatial import Delaunay
 import networkx as nx
@@ -117,6 +119,12 @@ class AlphaComplex:
         self.points = np.asarray(points)
 
         if np.size(self.points) == 0:
+            self.dimension = None
+            self.delaunay_triangulation = None
+            self.lines = self.triangles = []
+
+        elif np.size(self.points) <= 4 and delaunay is None:
+            warnings.warn("Not enough points to construct initial simplex (need 4)")
             self.dimension = None
             self.delaunay_triangulation = None
             self.lines = self.triangles = []
@@ -348,6 +356,8 @@ class AlphaShape:
     Here the alpha complex is the simplicial subcomplex of the Denlaunay triangulation for a given alpha value.
     The alhpa shape is the union of all simplexes of the alpha complex, specified by the boundary points of the
     alpha complex.
+
+    In order to update an existing AlphaShape object to a different `alpha` reset AlphaShape.alpha.
 
     Parameters
     ----------

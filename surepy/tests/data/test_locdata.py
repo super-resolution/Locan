@@ -3,8 +3,9 @@ import numpy as np
 import pandas as pd
 
 from surepy.data import metadata_pb2
-from surepy.data.locdata import LocData
-from surepy.data.region import RoiRegion
+from surepy import LocData
+from surepy import RoiRegion
+from surepy import AlphaShape
 
 
 # fixtures for DataFrames (fixtures for LocData are defined in conftest.py)
@@ -71,6 +72,9 @@ def test_LocData(df_simple):
     assert dat.region is None
     dat.region = dat.bounding_box.region
     assert dat.region.region_type == dat.bounding_box.region.region_type
+    assert isinstance(dat.update_alpha_shape(alpha=1).alpha_shape, AlphaShape)
+    assert 'region_measure_as' in dat.properties
+    assert 'localization_density_as' in dat.properties
 
 
 def test_LocData_empty(df_empty):
@@ -98,15 +102,16 @@ def test_LocData_from_dataframe_empty(df_empty):
     # print(dat.data)
 
 
+@pytest.mark.skip('Requires individual test run to yield correct results.')
 # this test is not running within complete test run. But it works when run by itself.
-# def test_LocData_count(df_simple):
-#     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-#     assert LocData.count == 1
-#     dat_2 = LocData.from_dataframe(dataframe=df_simple)
-#     assert(dat.properties == dat_2.properties)
-#     assert LocData.count == 2
-#     del dat
-#     assert LocData.count == 1
+def test_LocData_count(df_simple):
+    dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
+    assert LocData.count == 1
+    dat_2 = LocData.from_dataframe(dataframe=df_simple)
+    assert(dat.properties == dat_2.properties)
+    assert LocData.count == 2
+    del dat
+    assert LocData.count == 1
 
 
 def test_LocData_from_dataframe_with_meta_dict(df_simple):
@@ -351,6 +356,11 @@ def test_locdata_hulls(
         assert dat.convex_hull is None
     with pytest.raises(AttributeError):
         assert dat.region_measure_ch
+    if len(dat) == 0:
+        assert isinstance(dat.update_alpha_shape(alpha=1).alpha_shape, AlphaShape)
+    else:
+        with pytest.warns(UserWarning):
+            assert isinstance(dat.update_alpha_shape(alpha=1).alpha_shape, AlphaShape)
 
 
 @pytest.mark.parametrize('fixture_name, expected', [

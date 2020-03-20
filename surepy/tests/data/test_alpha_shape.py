@@ -1,3 +1,5 @@
+import math
+
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt  # needed for visualization
@@ -199,6 +201,38 @@ def test_AlphaComplex_3_visual():
     plt.show()
 
 
+def test_AlphaComplex_0():
+    points = np.array([])
+    assert np.size(points) == 0
+    alpha_complex = AlphaComplex(points)
+    assert len(alpha_complex.triangles) == 0
+    assert len(alpha_complex.lines) == 0
+    assert alpha_complex.dimension is None
+    assert alpha_complex.get_alpha_complex_lines(alpha=alpha_complex.optimal_alpha(), type='exterior') == []
+    assert alpha_complex.optimal_alpha() is None
+    assert alpha_complex.alphas().size == 0
+    # assert isinstance(alpha_complex.alpha_shape(alpha=2.2), AlphaShape)
+
+    alpha = 2.2
+    ac_simplices_all = alpha_complex.get_alpha_complex_lines(alpha, type='all')
+    ac_simplices_exterior = alpha_complex.get_alpha_complex_lines(alpha, type='exterior')
+    ac_simplices_interior = alpha_complex.get_alpha_complex_lines(alpha, type='interior')
+    ac_simplices_regular = alpha_complex.get_alpha_complex_lines(alpha, type='regular')
+    ac_simplices_singular = alpha_complex.get_alpha_complex_lines(alpha, type='singular')
+
+    lengths = [len(sim) for sim in [
+        ac_simplices_all, ac_simplices_exterior, ac_simplices_interior, ac_simplices_regular, ac_simplices_singular]]
+    assert lengths == [0, 0, 0, 0, 0]
+
+    triangles_all = alpha_complex.get_alpha_complex_triangles(alpha, type='all')
+    assert len(triangles_all) == 0
+
+    H = alpha_complex.graph_from_lines(alpha, type='regular')
+    assert isinstance(H, nx.Graph)
+    H = alpha_complex.graph_from_triangles(alpha, type='regular')
+    assert isinstance(H, nx.Graph)
+
+
 def test_AlphaComplex_1():
     points = np.array([[10, 10], [10, 14], [11, 11], [12, 11], [13, 10], [13, 13], [15, 14], [17, 16],
                        [10, 24]])
@@ -368,13 +402,39 @@ def test_AlphaComplex_3():
     assert isinstance(H, nx.Graph)
 
 
+def test_AlphaShape_0():
+    points = np.array([])
+
+    alpha = 2.2
+    alpha_shape = AlphaShape(alpha, points=points)
+    assert len(alpha_shape.alpha_shape) == 0
+    assert isinstance(alpha_shape.alpha_shape, list)
+    assert alpha_shape.dimension is None
+    assert alpha_shape.hull.is_empty
+    assert alpha_shape.region_measure == 0
+    assert alpha_shape.subregion_measure == 0
+    assert alpha_shape.n_points_alpha_shape == 0
+    assert math.isnan(alpha_shape.n_points_alpha_shape_rel)
+    assert alpha_shape.n_points_on_boundary == 0
+    assert math.isnan(alpha_shape.n_points_on_boundary_rel)
+    assert alpha_shape.vertex_indices == []
+    assert np.size(alpha_shape.vertices) == 0
+    assert np.size(alpha_shape.vertices_alpha_shape) == 0
+    assert np.size(alpha_shape.vertex_alpha_shape_indices) == 0
+
+    cc = alpha_shape.connected_components
+    assert len(cc) == 0
+    assert alpha_shape.vertices_connected_components_indices == []
+    assert alpha_shape.region is None
+
+
 def test_AlphaShape_1():
     points = np.array([[10, 10], [10, 14], [11, 11], [12, 11], [13, 10], [13, 13], [15, 14], [17, 16],
                        [10, 24]])
     assert len(points) == 9
 
     alpha = 2.2
-    alpha_shape = AlphaShape(points, alpha)
+    alpha_shape = AlphaShape(alpha, points=points)
     assert len(alpha_shape.alpha_shape) == 13
     assert isinstance(alpha_shape.alpha_shape, list)
     assert alpha_shape.dimension == 2
@@ -396,7 +456,7 @@ def test_AlphaShape_1():
     assert isinstance(alpha_shape.region, RoiRegion)
 
     alpha = 1
-    alpha_shape = AlphaShape(points, alpha)
+    alpha_shape = AlphaShape(alpha, points=points)
     assert len(alpha_shape.alpha_shape) == 3
     assert isinstance(alpha_shape.alpha_shape, list)
     assert alpha_shape.dimension == 2
@@ -424,7 +484,7 @@ def test_AlphaShape_2():
     assert len(points) == 16
 
     alpha = 2.2
-    alpha_shape = AlphaShape(points, alpha)
+    alpha_shape = AlphaShape(alpha, points=points)
     H = alpha_shape.alpha_complex.graph_from_lines(alpha, type='regular')
     assert isinstance(H, nx.Graph)
     # visualization
@@ -463,7 +523,7 @@ def test_AlphaShape_3():
     assert len(points) == 34
 
     alpha = 2.2
-    alpha_shape = AlphaShape(points, alpha)
+    alpha_shape = AlphaShape(alpha, points=points)
     H = alpha_shape.alpha_complex.graph_from_lines(alpha, type='regular')
     assert isinstance(H, nx.Graph)
     assert len(alpha_shape.alpha_shape) == 77

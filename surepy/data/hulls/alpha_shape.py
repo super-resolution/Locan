@@ -115,16 +115,23 @@ class AlphaComplex:
 
     def __init__(self, points, delaunay=None):
         self.points = np.asarray(points)
-        self.dimension = np.shape(self.points)[1]
-        self.delaunay_triangulation = Delaunay(self.points) if delaunay is None else delaunay
 
-        if self.dimension is 2:
-            self.lines, self.triangles = self._compute_2d()
-        elif self.dimension is 3:
-            self.lines = self.triangles = None
-            raise NotImplementedError
+        if np.size(self.points) == 0:
+            self.dimension = None
+            self.delaunay_triangulation = None
+            self.lines = self.triangles = []
+
         else:
-            raise ValueError(f'There is no algorithm available for points with dimension {self.dimension}.')
+            self.dimension = np.shape(self.points)[1]
+            self.delaunay_triangulation = Delaunay(self.points) if delaunay is None else delaunay
+
+            if self.dimension == 2:
+                self.lines, self.triangles = self._compute_2d()
+            elif self.dimension == 3:
+                self.lines = self.triangles = []
+                raise NotImplementedError
+            else:
+                raise ValueError(f'There is no algorithm available for points with dimension {self.dimension}.')
 
     def _compute_2d(self):
         """ Compute the alpha complex for 2d data."""
@@ -182,6 +189,9 @@ class AlphaComplex:
         list of list of int
             The indices to specific points in `self.points`.
         """
+        if np.size(self.lines) == 0:
+            return []
+
         if type == 'exterior':
             return [list(ac[0]) for ac in self.lines if ac[1] > alpha]
         elif type == 'all':
@@ -214,6 +224,9 @@ class AlphaComplex:
         list of list of int
             The indices to specific d-simplices in `self.delaunay_triangulation.simplices`.
         """
+        if np.size(self.triangles) == 0:
+            return []
+
         if type == 'exterior':
             return [ac[0] for ac in self.triangles if ac[1] > alpha]
         elif type == 'all':
@@ -245,6 +258,10 @@ class AlphaComplex:
         networkx.Graph
         """
         G = nx.Graph()
+
+        if np.size(self.lines) == 0:
+            return G
+
         # positions = {i: tuple(point) for i, point in enumerate(self.points)}  # positions for all nodes
         # G.add_nodes_from(positions)
         ac_simplices = self.get_alpha_complex_lines(alpha, type)
@@ -268,6 +285,10 @@ class AlphaComplex:
         networkx.Graph
         """
         G = nx.MultiGraph()
+
+        if np.size(self.triangles) == 0:
+            return G
+
         # positions = {i: tuple(point) for i, point in enumerate(self.points)}  # positions for all nodes
         # G.add_nodes_from(positions)
         triangles = self.get_alpha_complex_triangles(alpha=alpha, type=type)
@@ -301,7 +322,10 @@ class AlphaComplex:
         -------
         float
         """
-        return np.max([ac[1] for ac in self.lines])
+        if np.size(self.lines) == 0:
+            return None
+        else:
+            return np.max([ac[1] for ac in self.lines])
 
     def alphas(self):
         """
@@ -311,7 +335,10 @@ class AlphaComplex:
         -------
         ndarray
         """
-        return np.unique([ac[1:] for ac in self.lines])
+        if np.size(self.lines) == 0:
+            return np.array([])
+        else:
+            return np.unique([ac[1:] for ac in self.lines])
 
 
 class AlphaShape:
@@ -324,10 +351,10 @@ class AlphaShape:
 
     Parameters
     ----------
-    points : array-like with shape (npoints, ndim)
-        Coordinates of input points.
     alpha : float
         Alpha parameter specifying a unique alpha complex.
+    points : array-like with shape (npoints, ndim) or None
+        Coordinates of input points. Either `points` or `alpha_complex` have to be specified but not both.
     alpha_complex : AlphaComplex or None
         The unfiltered alpha complex with computed interval values.
     delaunay : Delaunay object or None
@@ -381,28 +408,45 @@ class AlphaShape:
         Convert the hull to a RoiRegion object.
     """
 
-    def __init__(self, points, alpha, alpha_complex=None, delaunay=None):
-        self.points = np.asarray(points)
-        self.alpha = alpha
-        self.dimension = np.shape(self.points)[1]
+    def __init__(self, alpha, points=None, alpha_complex=None, delaunay=None):
+        if alpha_complex is None:
+            self.alpha_complex = AlphaComplex(points, delaunay)
+        else:
+            self.alpha_complex = alpha_complex
+
+        self.points = self.alpha_complex.points
+        self.dimension = self.alpha_complex.dimension
+        self._alpha = None
         self._hull = None
         self._connected_components = None
         self._vertices_connected_components_indices = None
 
-        if self.dimension != 2:
-            raise NotImplementedError
+        self.alpha = alpha
 
-        if alpha_complex is None:
-            self.alpha_complex = AlphaComplex(self.points, delaunay)
-        else:
-            self.alpha_complex = alpha_complex
+    @property
+    def alpha(self):
+        return self._alpha
 
-        self.n_points_alpha_shape = self.alpha_complex.graph_from_lines(alpha=self.alpha, type='all').\
+    @alpha.setter
+    def alpha(self, alpha):
+        self._alpha = alpha
+        self._hull = None
+        self._connected_components = None
+        self._vertices_connected_components_indices = None
+
+        self.n_points_alpha_shape = self.alpha_complex.graph_from_lines(alpha=self.alpha, type='all'). \
             number_of_nodes()
-        self.n_points_on_boundary = self.alpha_complex.graph_from_lines(alpha=self.alpha, type='regular').\
+        self.n_points_on_boundary = self.alpha_complex.graph_from_lines(alpha=self.alpha, type='regular'). \
             number_of_nodes()
-        self.n_points_on_boundary_rel = self.n_points_on_boundary / self.n_points_alpha_shape
-        self.n_points_alpha_shape_rel = self.n_points_alpha_shape / len(self.points)
+        try:
+            self.n_points_on_boundary_rel = self.n_points_on_boundary / self.n_points_alpha_shape
+        except ZeroDivisionError:
+            self.n_points_on_boundary_rel = float('nan')
+
+        try:
+            self.n_points_alpha_shape_rel = self.n_points_alpha_shape / len(self.points)
+        except ZeroDivisionError:
+            self.n_points_alpha_shape_rel = float('nan')
 
         self.region_measure = self.hull.area
         self.subregion_measure = self.hull.length
@@ -411,7 +455,10 @@ class AlphaShape:
     def hull(self):
         if self._hull is None:
             triangles = self.alpha_complex.get_alpha_complex_triangles(alpha=self.alpha)
-            vertices = self.alpha_complex.delaunay_triangulation.simplices[triangles]
+            if triangles == []:
+                vertices = []
+            else:
+                vertices = self.alpha_complex.delaunay_triangulation.simplices[triangles]
             self._hull = unary_union([Polygon(pts) for pts in self.points[vertices]])
         return self._hull
 
@@ -436,14 +483,12 @@ class AlphaShape:
                     region = None
                 else:
                     raise TypeError('The connected component should be either Polygon or MultiPolygon.')
-
                 self._connected_components.append(region)
         return self._connected_components
 
     @property
     def vertices_connected_components_indices(self):
-        if self._vertices_connected_components_indices is None:
-            self.connected_components
+        _ = self.connected_components
         return self._vertices_connected_components_indices
 
     @property
@@ -472,7 +517,7 @@ class AlphaShape:
 
     @property
     def region(self):
-        if self.dimension > 2:
+        if self.dimension == 3:
             raise NotImplementedError('Region for 3D data has not yet been implemented.')
         else:
             if isinstance(self.hull, MultiPolygon):

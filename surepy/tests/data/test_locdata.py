@@ -132,6 +132,16 @@ def test_LocData_from_coordinates():
 
 def test_LocData_from_selection(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple)
+
+    sel = LocData.from_selection(locdata=dat, indices=slice(1, 3))
+    assert all(sel.data.index == [1, 2, 3])
+
+    sel = LocData.from_selection(locdata=dat)
+    assert len(sel) == len(df_simple)
+
+    sel = LocData.from_selection(locdata=dat, indices=slice(4, 10))
+    assert all(sel.data.index == [4])
+
     sel = LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
     assert (len(sel) == 3)
     assert (sel.references is dat)
@@ -364,15 +374,15 @@ def test_locdata_hulls(
 
 
 @pytest.mark.parametrize('fixture_name, expected', [
-    ('locdata_empty', pytest.raises(KeyError)),
-    ('locdata_single_localization', pytest.raises(KeyError)),
+    ('locdata_empty', 0),
+    ('locdata_single_localization', 0),
 ])
 def test_locdata_from_selection_exceptions(
         locdata_empty, locdata_single_localization, locdata_2d, locdata_non_standard_index,
         fixture_name, expected):
     dat = eval(fixture_name)
-    with expected:
-        LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
+    new_dat = LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
+    assert len(new_dat) == expected
 
 
 @pytest.mark.parametrize('fixture_name, expected', [
@@ -385,7 +395,8 @@ def test_locdata_from_selection_(
     dat = eval(fixture_name)
     sel = LocData.from_selection(locdata=dat, indices=[1, 2, 5], meta=COMMENT_METADATA)
     assert (len(sel) == expected)
-    assert list(sel.data.index) == [1, 2, 5]
+    assert set(sel.data.index) == set([1, 2, 5])
+    # in coming versions: assert list(sel.data.index) == [2, 1, 5]
     assert (sel.references is dat)
     assert (sel.meta.comment == COMMENT_METADATA.comment)
 

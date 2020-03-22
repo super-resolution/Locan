@@ -265,7 +265,13 @@ class LocData:
         if isinstance(self.references, LocData):
             # we refer to the localization data by its index label, not position
             # in other words we decided not to use iloc but loc
-            df = self.references.data.loc[self.indices]
+            # df = self.references.data.loc[self.indices]  ... but this does not work in pandas.
+            # also see:
+            # https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#deprecate-loc-reindex-listlike
+            try:
+                df = self.references.data.loc[self.indices]
+            except KeyError:
+                df = self.references.data.loc[self.references.data.index.intersection(self.indices)]
             df = pd.merge(df, self.dataframe, left_index=True, right_index=True, how='outer')
             return df
         else:

@@ -456,7 +456,8 @@ def test_AlphaShape_1():
     assert isinstance(alpha_shape.region, RoiRegion)
 
     alpha = 1
-    alpha_shape = AlphaShape(alpha, points=points)
+    # alpha_shape = AlphaShape(alpha, points=points)
+    alpha_shape.alpha = 1
     assert len(alpha_shape.alpha_shape) == 3
     assert isinstance(alpha_shape.alpha_shape, list)
     assert alpha_shape.dimension == 2

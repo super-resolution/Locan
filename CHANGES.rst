@@ -2,7 +2,11 @@
 Changelog
 =======================
 
-0.5 (unreleased)
+=======================
+Changelog
+=======================
+
+0.6 (unreleased)
 ================
 
 
@@ -84,7 +88,7 @@ Bug Fixes
 
 surepy.analysis
 ^^^^^^^^^^^^^^^
-- Adapt colormap and rescaling in LocalizationProperty2D plot functions.
+-
 
 surepy.data
 ^^^^^^^^^^^^^^^
@@ -115,9 +119,59 @@ Other Changes and Additions
 ---------------------------
 -
 
-=======================
-Changelog
-=======================
+
+0.5 (22.3.2020)
+================
+
+
+New Features
+------------
+
+surepy.utils
+^^^^^^^^^^^^^^^
+- Module surepy.utils.system_information with methods to get debugging information is added.
+
+surepy.analysis
+^^^^^^^^^^^^^^^
+- LocalizationPropertyCorrelation analysis class is added.
+
+surepy.data
+^^^^^^^^^^^^^^^
+- LocData.from_coordinates() is added.
+- LocData.update() method is added to change dataframe with correspodning updates of hull, properties and metadata.
+- Methods to compute alpha shape hulls are added.
+- Pickling capability for LocData is added.
+
+surepy.render
+^^^^^^^^^^^^^^^
+- scatter_2d_mpl() is added. to show locdata as scatter plot
+
+surepy.scripts
+^^^^^^^^^^^^^^^
+- show_versions()
+
+
+API Changes
+-----------
+
+surepy.analysis
+^^^^^^^^^^^^^^^
+- LocalizationProperty2D was modified and fixed.
+
+surepy.data
+^^^^^^^^^^^^^^^
+- surepy.data.region_utils module is added with utility functions to analyze locdata regions.
+- RoiRegions are added that support shapely Polygon and MultiPolygon objects.
+
+
+Bug Fixes
+---------
+
+
+surepy.analysis
+^^^^^^^^^^^^^^^
+- Adapt colormap and rescaling in LocalizationProperty2D plot functions.
+
 
 0.4.1 (16.2.2020)
 =================

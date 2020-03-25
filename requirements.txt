@@ -36,6 +36,6 @@ fast-histogram
 pyside2
 colorcet
 trackpy
-open3d==0.8.0.0
+open3d
 mpl_scatter_density
 napari

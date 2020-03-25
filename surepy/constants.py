@@ -42,7 +42,8 @@ INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast_histogram', 'hdbsca
                     'shapely', 'networkx', 'sklearn', 'skimage', 'matplotlib', 'scipy', 'pandas', 'numpy', 'numba']
 
 EXTRAS_REQUIRE = {'Colormaps': ["colorcet"], 'Track': ["trackpy"], 'Register': ["open3d"],
-                  'Render': ["napari", "mpl_scatter_density"], 'QT': ["PySide2"]}
+                  'Render': ["napari", "mpl_scatter_density"], 'QT': ["PySide2"],
+                  'Dev': ["sphinx", "sphinx_rtd_theme", "ipython"]}
 
 
 # Possible python bindings to interact with QT

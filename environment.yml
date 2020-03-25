@@ -47,9 +47,9 @@ dependencies:
 - pyside2
 - colorcet
 - trackpy
-- open3d=0.8.*
+- open3d
+- napari
 
 - pip:
   - asdf  # File format
   - mpl_scatter_density  # Extra requirements
-  - napari  # Extra requirements

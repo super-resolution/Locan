@@ -61,7 +61,8 @@ SETUP_REQUIRES = ['pytest-runner']
 INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast-histogram', 'hdbscan', 'lmfit', 'protobuf', 'shapely',
                     'networkx', 'scikit-learn', 'scikit-image', 'matplotlib', 'scipy', 'pandas', 'numpy', 'numba']
 EXTRAS_REQUIRE = {'Colormaps': ["colorcet"], 'Track': ["trackpy"], 'Register': ["open3d"],
-                  'Render': ["napari", "mpl_scatter_density"], 'QT': ["pyside2"]}
+                  'Render': ["napari", "mpl_scatter_density"], 'QT': ["pyside2"],
+                  'Dev': ["sphinx", "sphinx_rtd_theme", "ipython"]}
 TESTS_REQUIRE = ['pytest']
 
 # entry points to register scripts

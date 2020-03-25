@@ -117,6 +117,11 @@ Other Changes and Additions
 -
 
 
+0.5.1 (25.3.2020)
+================
+- Update environment and requirement files
+
+
 0.5 (22.3.2020)
 ================
 

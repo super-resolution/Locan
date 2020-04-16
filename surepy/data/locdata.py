@@ -10,6 +10,7 @@ from itertools import accumulate
 from google.protobuf import text_format, json_format
 import numpy as np
 import pandas as pd
+from scipy.spatial.qhull import QhullError
 
 from surepy.constants import LOCDATA_ID  # is required to use LOCDATA_ID as global variable
 from surepy import PROPERTY_KEYS
@@ -168,7 +169,7 @@ class LocData:
                 self.properties['region_measure_ch'] = self._convex_hull.region_measure
                 self.properties['localization_density_ch'] = self.properties['localization_count'] \
                                                                   / self._convex_hull.region_measure
-            except TypeError:
+            except (TypeError, QhullError):
                 warnings.warn('Properties related to convex hull could not be computed.', UserWarning)
         return self._convex_hull
 

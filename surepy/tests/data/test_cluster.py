@@ -14,14 +14,14 @@ from surepy.data.cluster.utils import serial_clustering
 
 @pytest.fixture()
 def locdata():
-    path = Path(ROOT_DIR / 'tests/Test_data/five_blobs.txt')
+    path = Path(ROOT_DIR / 'tests/test_data/five_blobs.txt')
     dat = load_txt_file(path)
     return dat
 
 
 @pytest.fixture()
 def locdata_3d():
-    path = Path(ROOT_DIR / 'tests/Test_data/five_blobs_3D.txt')
+    path = Path(ROOT_DIR / 'tests/test_data/five_blobs_3D.txt')
     dat = load_txt_file(path)
     return dat
 

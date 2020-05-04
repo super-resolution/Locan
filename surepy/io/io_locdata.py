@@ -298,6 +298,11 @@ def load_Elyra_file(path, nrows=None):
         stream = io.StringIO(string)
         dataframe = pd.read_csv(stream, sep="\t", skiprows=1, nrows=nrows, names=columns)
 
+    # correct data formats
+    if 'original_index' in columns:
+        integer_index = pd.to_numeric(dataframe['original_index'], downcast='integer')
+        dataframe['original_index'] = integer_index
+
     dat = LocData.from_dataframe(dataframe=dataframe)
 
     dat.meta.source = metadata_pb2.EXPERIMENT

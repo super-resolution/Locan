@@ -18,8 +18,8 @@ Dockerfile
 We provide a Dockerfile for the following tasks:
 
 1) Run the project in a Python 3 environment on Linux.
-2) Run the project in a Conda environment on Linux.
-3) Provide a Conda environment with Jupyter lab for interactive work.
+2) Run the project in a Miniconda environment on Linux.
+3) Provide a Miniconda environment with Jupyter lab for interactive work.
 
 Build a docker image
 --------------------

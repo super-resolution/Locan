@@ -39,7 +39,8 @@ __all__ = ['ROOT_DIR', 'DATASETS_DIR', 'PROPERTY_KEYS', 'HullType',
 # Should reflect the dependencies specified in setup.py.
 # Some package names (as recommended for pip install) are different from the names for import.
 INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast_histogram', 'hdbscan', 'lmfit', 'google.protobuf',
-                    'shapely', 'networkx', 'sklearn', 'skimage', 'matplotlib', 'scipy', 'pandas', 'numpy', 'numba']
+                    'shapely', 'networkx', 'sklearn', 'skimage', 'matplotlib', 'scipy', 'pandas', 'numpy', 'numba',
+                    'cython']
 
 EXTRAS_REQUIRE = {'Colormaps': ["colorcet"], 'Track': ["trackpy"], 'Register': ["open3d"],
                   'Render': ["napari", "mpl_scatter_density"], 'QT': ["PySide2"],

@@ -21,7 +21,9 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector, PolygonSelector, EllipseSelector
 from ruamel.yaml import YAML
 from google.protobuf import json_format
-import napari
+
+from surepy.constants import _has_napari
+if _has_napari: import napari
 
 from surepy.data import metadata_pb2
 from surepy.data.locdata import LocData

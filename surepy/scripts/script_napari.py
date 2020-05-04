@@ -20,7 +20,8 @@ surepy.render.render2d.render_2d_napari
 import argparse
 from pathlib import Path
 
-import napari
+from surepy.constants import _has_napari
+if _has_napari: import napari
 
 from surepy.constants import FileType
 from surepy.gui.io import file_dialog

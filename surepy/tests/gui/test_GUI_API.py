@@ -1,5 +1,8 @@
 import os
-import napari
+
+from surepy.constants import _has_napari
+if _has_napari: import napari
+
 from surepy.constants import QtBindings, QT_BINDINGS
 
 

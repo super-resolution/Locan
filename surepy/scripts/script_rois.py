@@ -22,10 +22,6 @@ surepy.data.rois.select_by_drawing_napari
 import argparse
 from pathlib import Path
 
-import numpy as np
-import tifffile as tif
-import napari
-
 from surepy.constants import FileType
 from surepy.gui.io import file_dialog
 import surepy.io.io_locdata as io

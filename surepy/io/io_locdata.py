@@ -108,7 +108,7 @@ def save_thunderstorm_csv(locdata, path):
     dataframe.to_csv(path, float_format='%.10g', index=False)
 
 
-def load_txt_file(path, sep=',', columns=None, nrows=None):
+def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
     """
     Load localization data from a txt file.
 
@@ -125,6 +125,11 @@ def load_txt_file(path, sep=',', columns=None, nrows=None):
     nrows : int, default: None
         The number of localizations to load from file. None means that all available rows are loaded (Default: None).
 
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to `pandas.read_csv()`.
+
     Returns
     -------
     LocData
@@ -132,7 +137,7 @@ def load_txt_file(path, sep=',', columns=None, nrows=None):
     """
     # define columns
     if columns is None:
-        dataframe = pd.read_csv(path, sep=sep, skiprows=0, nrows=nrows)
+        dataframe = pd.read_csv(path, sep=sep, skiprows=0, nrows=nrows, **kwargs)
 
         for c in dataframe.columns:
             if c not in surepy.constants.PROPERTY_KEYS:
@@ -199,7 +204,7 @@ def load_rapidSTORM_header(path):
     return column_keys
 
 
-def load_rapidSTORM_file(path, nrows=None):
+def load_rapidSTORM_file(path, nrows=None, **kwargs):
     """
     Load data from a rapidSTORM single-molecule localization file.
 
@@ -210,13 +215,18 @@ def load_rapidSTORM_file(path, nrows=None):
     nrows : int, default: None
         The number of localizations to load from file. None means that all available rows are loaded.
 
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to `pandas.read_csv()`.
+
     Returns
     -------
     LocData
         A new instance of LocData with all localizations.
     """
     columns = load_rapidSTORM_header(path)
-    dataframe = pd.read_csv(path, sep=" ", skiprows=1, nrows=nrows, names=columns)
+    dataframe = pd.read_csv(path, sep=" ", skiprows=1, nrows=nrows, names=columns, **kwargs)
 
     # correct data formats
     integer_Frames = pd.to_numeric(dataframe['frame'], downcast='integer')
@@ -272,7 +282,7 @@ def load_Elyra_header(path):
     return column_keys
 
 
-def load_Elyra_file(path, nrows=None):
+def load_Elyra_file(path, nrows=None, **kwargs):
     """
     Load data from a rapidSTORM single-molecule localization file.
 
@@ -282,6 +292,11 @@ def load_Elyra_file(path, nrows=None):
         File path for a rapidSTORM file to load.
     nrows : int, default: None
         The number of localizations to load from file. None means that all available rows are loaded.
+
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to `pandas.read_csv()`.
 
     Returns
     -------
@@ -296,7 +311,8 @@ def load_Elyra_file(path, nrows=None):
         string = string.split('\x00')[0]
 
         stream = io.StringIO(string)
-        dataframe = pd.read_csv(stream, sep="\t", skiprows=1, nrows=nrows, names=columns)
+        dataframe = pd.read_csv(stream, sep="\t", skiprows=1, nrows=nrows, names=columns,
+                                **dict({'encoding': 'latin-1'}, **kwargs))
 
     # correct data formats
     if 'original_index' in columns:
@@ -371,7 +387,7 @@ def load_thunderstorm_header(path):
     return column_keys
 
 
-def load_thunderstorm_file(path, nrows=None):
+def load_thunderstorm_file(path, nrows=None, **kwargs):
     """
     Load data from a Thunderstorm single-molecule localization file.
 
@@ -382,13 +398,18 @@ def load_thunderstorm_file(path, nrows=None):
     nrows : int, default: None
         The number of localizations to load from file. None means that all available rows are loaded.
 
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to `pandas.read_csv()`.
+
     Returns
     -------
     LocData
         A new instance of LocData with all localizations.
     """
     columns = load_thunderstorm_header(path)
-    dataframe = pd.read_csv(path, sep=',', skiprows=1, nrows=nrows, names=columns)
+    dataframe = pd.read_csv(path, sep=',', skiprows=1, nrows=nrows, names=columns, **kwargs)
 
     # correct data formats
     if 'original_index' in columns:
@@ -458,7 +479,7 @@ def _map_file_type_to_load_function(file_type):
         raise ValueError(f'There is no load function for type {file_type}.')
 
 
-def load_locdata(path, file_type=1, nrows=None):
+def load_locdata(path, file_type=1, nrows=None, **kwargs):
     """
     Load data from localization file as specified by type.
 
@@ -479,4 +500,4 @@ def load_locdata(path, file_type=1, nrows=None):
     LocData
         A new instance of LocData with all localizations.
     """
-    return _map_file_type_to_load_function(file_type)(path=path, nrows=nrows)
+    return _map_file_type_to_load_function(file_type)(path=path, nrows=nrows, **kwargs)

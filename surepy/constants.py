@@ -80,13 +80,12 @@ if 'QT_API' in os.environ:  # this is the case that QT_API has been set.
             QT_BINDINGS = QtBindings.NONE
 
 else:  # this is the case that QT_API has not been set.
-    if importlib.util.find_spec("PyQt5") is not None:
+    if importlib.util.find_spec("PySide2") is not None:
         QT_BINDINGS = QtBindings.PYSIDE2
+    elif importlib.util.find_spec("PyQt5") is not None:
+        QT_BINDINGS = QtBindings.PYQT5
     else:
-        if importlib.util.find_spec("PyQt5") is not None:
-            QT_BINDINGS = QtBindings.PYQT5
-        else:
-            QT_BINDINGS = QtBindings.NONE  # this is the case that no qt bindings are available.
+        QT_BINDINGS = QtBindings.NONE  # this is the case that no qt bindings are available.
 
 # In order to force napari and other QT-using libraries to import with the correct Qt bindings
 # the environment variable QT_API has to be set.

@@ -113,10 +113,7 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
     # plt.show()
 
 
-@pytest.mark.parametrize("test_input, expected", [
-    ("RenderEngine.MPL", 0),
-    ("RenderEngine.MPL_SCATTER_DENSITY", 0)
-])
+@pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
 def test_render_2d(locdata_blobs_2d, test_input, expected):
     render_2d(locdata_blobs_2d, render_engine=test_input)
     # plt.show()

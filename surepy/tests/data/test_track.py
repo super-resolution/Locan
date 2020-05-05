@@ -3,7 +3,11 @@ import numpy as np
 import pandas as pd
 
 from surepy import LocData
-from surepy.data.tracking import link_locdata, track
+from surepy.constants import _has_trackpy
+if _has_trackpy:
+    from surepy.data.tracking import link_locdata, track
+
+pytestmark = pytest.mark.skipif(not _has_trackpy, reason="requires trackpy")
 
 
 @pytest.fixture()

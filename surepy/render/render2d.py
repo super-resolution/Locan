@@ -475,9 +475,9 @@ def render_2d(locdata, render_engine=RENDER_ENGINE, **kwargs):
     """
     if render_engine == RenderEngine.MPL:
         return render_2d_mpl(locdata, **kwargs)
-    elif render_engine == RenderEngine.MPL_SCATTER_DENSITY:
+    elif _has_mpl_scatter_density and render_engine == RenderEngine.MPL_SCATTER_DENSITY:
         return render_2d_scatter_density(locdata, **kwargs)
-    elif render_engine == RenderEngine.NAPARI:
+    elif _has_napari and render_engine == RenderEngine.NAPARI:
         return render_2d_napari(locdata, **kwargs)
 
 

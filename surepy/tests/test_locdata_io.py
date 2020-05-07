@@ -27,8 +27,9 @@ def test_get_correct_column_names_from_Elyra_header():
 
 
 def test_loading_Elyra_file():
-    dat = io.load_Elyra_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt', nrows=10)
-    assert (len(dat) == 10)
+    dat = io.load_Elyra_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt')
+    # loading is not limited by nrows=10 to ensure correct treatment of file appendix and NUL character.
+    assert (len(dat) == 999)
 
 
 def test_get_correct_column_names_from_Thunderstorm_header():

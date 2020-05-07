@@ -302,17 +302,21 @@ def load_Elyra_file(path, nrows=None, **kwargs):
     -------
     LocData
         A new instance of LocData with all localizations.
+
+    Notes
+    -----
+    Data is loaded with encoding = 'latin-1' and only data before the first NUL character is returned.
+    Additional information appended at the end of the file is thus ignored.
     """
     columns = load_Elyra_header(path)
 
-    with open(path) as f:
+    with open(path, encoding='latin-1') as f:
         string = f.read()
         # remove metadata following nul byte
         string = string.split('\x00')[0]
 
         stream = io.StringIO(string)
-        dataframe = pd.read_csv(stream, sep="\t", skiprows=1, nrows=nrows, names=columns,
-                                **dict({'encoding': 'latin-1'}, **kwargs))
+        dataframe = pd.read_csv(stream, sep="\t", skiprows=1, nrows=nrows, names=columns, **kwargs)
 
     # correct data formats
     if 'original_index' in columns:

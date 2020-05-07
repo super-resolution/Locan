@@ -149,7 +149,7 @@ def test_AlphaComplex_3_visual():
     points = np.array([[10, 10], [10, 20], [20, 20], [20, 10], [10, 15], [15, 20], [20, 15], [15, 10],
                        [10, 12], [10, 18], [20, 18], [20, 12], [17, 20], [12, 10], [17, 10], [12, 20],
                        [11, 11], [11, 19], [19, 19], [19, 11], [11, 15], [15, 19], [19, 15], [15, 11],
-                       [13, 11], [12, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [15, 11], [18, 12],
+                       [13, 11], [11.5, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [15, 11], [18, 12],
                        [15, 15]
                        ])
 
@@ -358,7 +358,7 @@ def test_AlphaComplex_3():
     points = np.array([[10, 10], [10, 20], [20, 20], [20, 10], [10, 15], [15, 20], [20, 15], [15, 10],
                        [10, 12], [10, 18], [20, 18], [20, 12], [17, 20], [12, 10], [17, 10], [12, 20],
                        [11, 11], [11, 19], [19, 19], [19, 11], [11, 15], [15, 19], [19, 15], [15, 11],
-                       [13, 11], [12, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [15, 11], [18, 12],
+                       [13, 11], [11.5, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [15, 11], [18, 12],
                        [15, 15]
                        ])
     assert len(points) == 34
@@ -379,7 +379,7 @@ def test_AlphaComplex_3():
 
     lengths = [len(sim) for sim in [
         ac_simplices_all, ac_simplices_exterior, ac_simplices_interior, ac_simplices_regular, ac_simplices_singular]]
-    assert lengths == [77, 3, 40, 28, 9]
+    assert lengths == [75, 5, 40, 28, 7]
 
     triangles_all = alpha_complex.delaunay_triangulation.simplices[
         alpha_complex.get_alpha_complex_triangles(alpha, type='all')]
@@ -394,7 +394,7 @@ def test_AlphaComplex_3():
 
     lengths = [len(sim) for sim in [
         triangles_all, triangles_exterior, triangles_interior, triangles_regular, triangles_singular]]
-    assert lengths == [42, 6, 8, 28, 6]
+    assert lengths == [39, 9, 8, 28, 3]
 
     H = alpha_complex.graph_from_lines(alpha=2.2, type='regular')
     assert isinstance(H, nx.Graph)
@@ -518,7 +518,7 @@ def test_AlphaShape_3():
                        [10, 12], [10, 18], [20, 18], [20, 12], [17, 20], [12, 10], [17, 10], [12, 20],
 
                        [11, 11], [11, 19], [19, 19], [19, 11], [11, 15], [15, 19], [19, 15], [15, 11],
-                       [13, 11], [12, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [15, 11], [18, 12],
+                       [13, 11], [11.5, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [15, 11], [18, 12],
                        [15, 15]
                        ])
     assert len(points) == 34
@@ -527,12 +527,12 @@ def test_AlphaShape_3():
     alpha_shape = AlphaShape(alpha, points=points)
     H = alpha_shape.alpha_complex.graph_from_lines(alpha, type='regular')
     assert isinstance(H, nx.Graph)
-    assert len(alpha_shape.alpha_shape) == 77
+    assert len(alpha_shape.alpha_shape) == 75
     assert isinstance(alpha_shape.alpha_shape, list)
     assert alpha_shape.dimension == 2
     assert alpha_shape.hull
-    assert alpha_shape.region_measure == 79.0
-    assert alpha_shape.subregion_measure == 66.97056274847714
+    assert alpha_shape.region_measure == 65.0
+    assert alpha_shape.subregion_measure == 73.81471965135825
     assert alpha_shape.n_points_alpha_shape == 33
     assert alpha_shape.n_points_alpha_shape_rel == 0.9705882352941176
     assert alpha_shape.n_points_on_boundary == 28
@@ -546,6 +546,6 @@ def test_AlphaShape_3():
     assert len(cc) == 1
     assert isinstance(cc[0], RoiRegion)
     assert alpha_shape.vertices_connected_components_indices == \
-           [[26, 20, 33, 25, 9, 4, 8, 24, 13, 7, 23, 32, 22, 29, 10, 6, 11, 15, 27, 5, 21, 17, 1, 16, 0, 18, 2, 12,
+           [[26, 20, 33, 9, 4, 8, 25, 24, 13, 7, 23, 32, 22, 29, 10, 6, 11, 15, 27, 5, 21, 17, 1, 16, 0, 18, 2, 12,
             28, 19, 3, 14, 30]]
     assert isinstance(alpha_shape.region, RoiRegion)

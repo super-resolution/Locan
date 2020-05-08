@@ -149,7 +149,7 @@ def test_AlphaComplex_3_visual():
     points = np.array([[10, 10], [10, 20], [20, 20], [20, 10], [10, 15], [15, 20], [20, 15], [15, 10],
                        [10, 12], [10, 18], [20, 18], [20, 12], [17, 20], [12, 10], [17, 10], [12, 20],
                        [11, 11], [11, 19], [19, 19], [19, 11], [11, 15], [15, 19], [19, 15], [15, 11],
-                       [13, 11], [11.5, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [15, 11], [18, 12],
+                       [13, 11], [11.5, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [18, 12],
                        [15, 15]
                        ])
 
@@ -358,10 +358,10 @@ def test_AlphaComplex_3():
     points = np.array([[10, 10], [10, 20], [20, 20], [20, 10], [10, 15], [15, 20], [20, 15], [15, 10],
                        [10, 12], [10, 18], [20, 18], [20, 12], [17, 20], [12, 10], [17, 10], [12, 20],
                        [11, 11], [11, 19], [19, 19], [19, 11], [11, 15], [15, 19], [19, 15], [15, 11],
-                       [13, 11], [11.5, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [15, 11], [18, 12],
+                       [13, 11], [11.5, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [18, 12],
                        [15, 15]
                        ])
-    assert len(points) == 34
+    assert len(points) == 33
     alpha_complex = AlphaComplex(points)
     assert len(alpha_complex.lines) == 80
     assert alpha_complex.dimension == 2
@@ -518,10 +518,10 @@ def test_AlphaShape_3():
                        [10, 12], [10, 18], [20, 18], [20, 12], [17, 20], [12, 10], [17, 10], [12, 20],
 
                        [11, 11], [11, 19], [19, 19], [19, 11], [11, 15], [15, 19], [19, 15], [15, 11],
-                       [13, 11], [11.5, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [15, 11], [18, 12],
+                       [13, 11], [11.5, 12], [12, 18], [13, 19], [17, 19], [18, 18], [17, 11], [18, 12],
                        [15, 15]
                        ])
-    assert len(points) == 34
+    assert len(points) == 33
 
     alpha = 2.2
     alpha_shape = AlphaShape(alpha, points=points)
@@ -534,18 +534,18 @@ def test_AlphaShape_3():
     assert alpha_shape.region_measure == 65.0
     assert alpha_shape.subregion_measure == 73.81471965135825
     assert alpha_shape.n_points_alpha_shape == 33
-    assert alpha_shape.n_points_alpha_shape_rel == 0.9705882352941176
+    assert alpha_shape.n_points_alpha_shape_rel == 1.
     assert alpha_shape.n_points_on_boundary == 28
     assert alpha_shape.n_points_on_boundary_rel == 0.8484848484848485
     assert np.array_equal(alpha_shape.vertex_indices, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20,
-                                                       21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32])
+                                                       21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31])
     assert alpha_shape.vertices.shape == (28, 2)
     assert alpha_shape.vertices_alpha_shape.shape == (33, 2)
     assert len(alpha_shape.vertex_alpha_shape_indices) == 33
     cc = alpha_shape.connected_components
     assert len(cc) == 1
     assert isinstance(cc[0], RoiRegion)
-    assert alpha_shape.vertices_connected_components_indices == \
-           [[26, 20, 33, 9, 4, 8, 25, 24, 13, 7, 23, 32, 22, 29, 10, 6, 11, 15, 27, 5, 21, 17, 1, 16, 0, 18, 2, 12,
-            28, 19, 3, 14, 30]]
+    assert sorted(alpha_shape.vertices_connected_components_indices[0]) == sorted(
+           [26, 20, 32, 9, 4, 8, 25, 24, 13, 7, 23, 31, 22, 29, 10, 6, 11, 15, 27, 5, 21, 17, 1, 16, 0, 18, 2, 12,
+            28, 19, 3, 14, 30])
     assert isinstance(alpha_shape.region, RoiRegion)

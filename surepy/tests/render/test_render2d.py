@@ -115,7 +115,11 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
 
 @pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
 def test_render_2d(locdata_blobs_2d, test_input, expected):
-    render_2d(locdata_blobs_2d, render_engine=test_input)
+    if _has_napari and test_input == RenderEngine.NAPARI:
+        with napari.gui_qt():
+            render_2d(locdata_blobs_2d, render_engine=test_input)
+    else:
+        render_2d(locdata_blobs_2d, render_engine=test_input)
     # plt.show()
 
 

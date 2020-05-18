@@ -113,6 +113,7 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
     # plt.show()
 
 
+@pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
 @pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
 def test_render_2d(locdata_blobs_2d, test_input, expected):
     if _has_napari and test_input == RenderEngine.NAPARI:

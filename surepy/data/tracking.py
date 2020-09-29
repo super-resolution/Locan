@@ -62,6 +62,9 @@ def track(locdata, search_range=40, memory=0, **kwargs):
     Cluster (in time) localizations in LocData that are nearby in successive frames. Clustered localizations are
     identified by the trackpy linking method.
 
+    The new locdata object carries properties with the same name as the original `locata`.
+    They are computed as sum for `intensity`, as the first value for `frame`, and as mean for all other properties.
+
     Parameters
     ----------
     locdata : LocData
@@ -88,6 +91,21 @@ def track(locdata, search_range=40, memory=0, **kwargs):
     track_series = link_locdata(locdata, search_range, memory, **kwargs)
     grouped = track_series.groupby(track_series)
     selections = [LocData.from_selection(locdata=locdata, indices=group.index.values) for _, group in grouped]
+
+    for selection in selections:
+        for column in locdata.data.columns:
+            if 'position' not in column and 'intensity' != column and 'frame' != column:
+                column_mean = getattr(selection.data, column).mean()
+                selection.properties.update({column: column_mean})
+            if column == 'intensity':
+                intensity_mean = selection.data.intensity.mean()
+                selection.properties.update({'intensity_mean': intensity_mean})
+                intensity_sum = selection.data.intensity.sum()
+                selection.properties.update({'intensity': intensity_sum})
+            if column == 'frame':
+                frame = selection.data.frame.iloc[0]
+                selection.properties.update({'frame': frame})
+
     collection = LocData.from_collection(selections)
 
     # metadata

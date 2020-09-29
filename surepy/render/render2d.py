@@ -383,7 +383,7 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     else:
         raise TypeError(f'No valid property name {other_property}.')
 
-    a = mpl_scatter_density.ScatterDensityArtist(ax, *data, c=values, origin='low', extent=[*range_[0], *range_[1]],
+    a = mpl_scatter_density.ScatterDensityArtist(ax, *data, c=values, origin='lower', extent=[*range_[0], *range_[1]],
                                                  cmap=cmap, **kwargs)
     mappable = ax.add_artist(a)
     ax.set_xlim(*range_[0])

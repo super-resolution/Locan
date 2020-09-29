@@ -32,7 +32,7 @@ def test_adjust_contrast():
     assert np.array_equal(new_img, np.array((0, 63, 127, 255)))
 
     new_img = adjust_contrast(img, out_range=(0, 10))
-    assert np.array_equal(new_img, np.array((0, 1, 2, 10)))
+    assert np.array_equal(new_img, np.array((0, 1.25, 2.5, 10)))
 
     new_img = adjust_contrast(img * 1., rescale=True)
     assert np.array_equal(new_img, np.array((0, 0.125, 0.25, 1.)))

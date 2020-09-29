@@ -186,6 +186,6 @@ def test__napari_shape_to_RoiRegion():
 
     # polygon
     vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
-    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]])
+    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
     region = _napari_shape_to_RoiRegion(vertices, bin_edges, 'polygon')
     assert np.array_equal(region.region_specs, np.array([[0, 2], [25, 2], [25, 5.1], [0, 5.1], [0, 2]]))

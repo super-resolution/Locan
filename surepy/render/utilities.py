@@ -87,7 +87,7 @@ def _bin_edges(n_bins, range):
     else:
         raise TypeError('range has two many dimensions.')
 
-    return np.array(bin_edges)
+    return np.array(bin_edges, dtype=object)
 
 
 def _bin_edges_from_size(bin_size, range, extend_range=True):
@@ -149,7 +149,7 @@ def _bin_edges_from_size(bin_size, range, extend_range=True):
     else:
         raise TypeError('range has two many dimensions.')
 
-    return np.array(bin_edges)
+    return np.array(bin_edges, dtype=object)
 
 
 def _bin_edges_to_number(bin_edges):
@@ -167,6 +167,7 @@ def _bin_edges_to_number(bin_edges):
         Number of bins
     """
     def bin_edges_to_number_single_dimension(bin_edges):
+        bin_edges = np.asarray(bin_edges, dtype=np.float64)
         differences = np.diff(bin_edges)
         all_equal = np.all(np.isclose(differences, differences[0]))
         if all_equal:
@@ -200,7 +201,7 @@ def _bin_edges_to_centers(bin_edges):
     ndarray of shape (dimension, n_bins)
         bin centers
     """
-    bin_centers = np.array([np.diff(bedges) / 2 + bedges[0:-1] for bedges in bin_edges])
+    bin_centers = np.array([np.diff(bedges) / 2 + bedges[0:-1] for bedges in bin_edges], dtype=object)
     return bin_centers
 
 

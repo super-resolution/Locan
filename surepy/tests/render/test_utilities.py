@@ -102,16 +102,16 @@ def test__bin_edges_to_number():
 
 
 def test__bin_edges_to_centers():
-    bin_edges = np.array([[0, 1, 2, 4, 8, 9], [0, 1, 4, 8]])
+    bin_edges = np.array([[0, 1, 2, 4, 8, 9], [0, 1, 4, 8]], dtype=object)
     bin_centers = _bin_edges_to_centers(bin_edges)
-    expected = np.array([np.array([0.5, 1.5, 3., 6, 8.5]),np.array([0.5, 2.5, 6])])
+    expected = np.array([np.array([0.5, 1.5, 3., 6, 8.5]),np.array([0.5, 2.5, 6])], dtype=object)
     for bc, ex in zip(bin_centers, expected):
         assert np.array_equal(bc, ex)
 
 
 def test__indices_to_bin_centers():
     indices = np.array([[0, 1], [2, 2], [4, 3]])
-    bin_edges = np.array([[0, 1, 2, 4, 8, 9], [1, 2, 4, 8, 9]])
+    bin_edges = np.array([[0, 1, 2, 4, 8, 9], [1, 2, 4, 8, 9]], dtype=object)
     bin_centers = _indices_to_bin_centers(bin_edges, indices)
     expected = np.array([[0.5, 3], [3, 6], [8.5, 8.5]])
     assert np.array_equal(bin_centers, expected)

@@ -101,8 +101,7 @@ class Pipeline():
 
 
 def compute_test(self):
-    ''' A pipeline definition for testing.'''
-    print('compute_test() is running ok!')
+    """ A pipeline definition for testing."""
     self.test = True
 
     return self

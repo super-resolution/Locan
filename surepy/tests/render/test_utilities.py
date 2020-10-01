@@ -25,22 +25,24 @@ def test__bin_edges():
     assert bin_edges.shape == (11,)
 
     bin_edges = _bin_edges((5, 10), (10, 20))
-    assert bin_edges.shape == (2,)
+    assert len(bin_edges) == 2
     assert bin_edges[0].shape == (6,)
     assert bin_edges[1].shape == (11,)
 
     bin_edges = _bin_edges(5, ((10, 20), (20, 30)))
-    assert bin_edges.shape == (2, 6)
+    assert len(bin_edges) == 2
+    assert bin_edges[0].shape == (6,)
+    assert bin_edges[1].shape == (6,)
 
     bin_edges = _bin_edges((5, 10), ((10, 20), (20, 30)))
-    assert bin_edges.shape == (2,)
+    assert len(bin_edges) == 2
     assert bin_edges[0].shape == (6,)
     assert bin_edges[1].shape == (11,)
 
     bin_edges = _bin_edges((3, (5, 10)), ((1, 5), ((10, 20), (20, 30))))
-    assert bin_edges.shape == (2,)
-    assert bin_edges[0].shape == (4,)
-    assert bin_edges[1].shape == (2,)
+    assert len(bin_edges) == 2
+    assert len(bin_edges[0]) == 4
+    assert len(bin_edges[1]) == 2
     assert bin_edges[1][0].shape == (6,)
     assert bin_edges[1][1].shape == (11,)
 
@@ -65,22 +67,24 @@ def test__bin_edges_from_size():
     assert bin_edges.shape == (11,)
 
     bin_edges = _bin_edges_from_size((2, 1), (10, 20))
-    assert bin_edges.shape == (2,)
+    assert len(bin_edges) == 2
     assert bin_edges[0].shape == (6,)
     assert bin_edges[1].shape == (11,)
 
     bin_edges = _bin_edges_from_size(2, ((10, 20), (20, 30)))
-    assert bin_edges.shape == (2, 6)
+    assert len(bin_edges) == 2
+    assert bin_edges[0].shape == (6,)
+    assert bin_edges[1].shape == (6,)
 
     bin_edges = _bin_edges_from_size((2, 1), ((10, 20), (20, 30)))
-    assert bin_edges.shape == (2,)
+    assert len(bin_edges) == 2
     assert bin_edges[0].shape == (6,)
     assert bin_edges[1].shape == (11,)
 
     bin_edges = _bin_edges_from_size((2, (2, 1)), ((1, 5), ((10, 20), (20, 30))))
-    assert bin_edges.shape == (2,)
-    assert bin_edges[0].shape == (3,)
-    assert bin_edges[1].shape == (2,)
+    assert len(bin_edges) == 2
+    assert len(bin_edges[0]) == 3
+    assert len(bin_edges[1]) == 2
     assert bin_edges[1][0].shape == (6,)
     assert bin_edges[1][1].shape == (11,)
 

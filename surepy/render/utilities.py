@@ -53,14 +53,14 @@ def _bin_edges(n_bins, range):
 
     Parameters
     ----------
-    n_bins : int or tuple, list, ndarray with with length equal to that of range.
+    n_bins : int or tuple, list, ndarray with length equal to that of range.
         Number of bins to be used in all or each dimension for which a range is provided.
     range : tuple, list, ndarray of float with shape (n_dimension, 2)
         Minimum and maximum edge of binned range for each dimension.
 
     Returns
     -------
-    bin_edges : ndarray
+    list of ndarray
         Array(s) of bin edges
     """
 
@@ -87,7 +87,7 @@ def _bin_edges(n_bins, range):
     else:
         raise TypeError('range has two many dimensions.')
 
-    return np.array(bin_edges, dtype=object)
+    return bin_edges
 
 
 def _bin_edges_from_size(bin_size, range, extend_range=True):
@@ -108,7 +108,7 @@ def _bin_edges_from_size(bin_size, range, extend_range=True):
 
     Returns
     -------
-    bin_edges : ndarray
+    list of ndarray
         Array(s) of bin edges
     """
 
@@ -149,7 +149,7 @@ def _bin_edges_from_size(bin_size, range, extend_range=True):
     else:
         raise TypeError('range has two many dimensions.')
 
-    return np.array(bin_edges, dtype=object)
+    return bin_edges
 
 
 def _bin_edges_to_number(bin_edges):
@@ -198,10 +198,10 @@ def _bin_edges_to_centers(bin_edges):
 
     Returns
     -------
-    ndarray of shape (dimension, n_bins)
+    list of ndarray of shape (dimension, n_bins)
         bin centers
     """
-    bin_centers = np.array([np.diff(bedges) / 2 + bedges[0:-1] for bedges in bin_edges], dtype=object)
+    bin_centers = [np.diff(bedges) / 2 + bedges[0:-1] for bedges in bin_edges]
     return bin_centers
 
 
@@ -221,6 +221,7 @@ def _indices_to_bin_centers(bin_edges, indices):
     ndarray of shape (n_indices, n_dimension)
         selected bin centers
     """
+    # todo: fix input for tuple and list
     bin_centers = _bin_edges_to_centers(bin_edges)
     selected_bin_centers = np.array([bc[ver] for bc, ver in zip(bin_centers, indices.T)]).T
     return selected_bin_centers

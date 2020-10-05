@@ -174,15 +174,15 @@ def test__napari_shape_to_RoiRegion():
 
     # rectangle
     vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
-    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]])
+    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
     region = _napari_shape_to_RoiRegion(vertices, bin_edges, 'rectangle')
-    assert np.array_equal(region.region_specs, np.array(((0.0, 2.0), 25.0, 3.0999999999999996, 0)))
+    assert np.array_equal(region.region_specs, np.array(((0.0, 2.0), 25.0, 3.0999999999999996, 0), dtype=object))
 
     # ellipse
     vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
-    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]])
+    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
     region = _napari_shape_to_RoiRegion(vertices, bin_edges, 'ellipse')
-    assert np.array_equal(region.region_specs, np.array(((12.5, 3.55), 25.0, 3.0999999999999996, 0)))
+    assert np.array_equal(region.region_specs, np.array(((12.5, 3.55), 25.0, 3.0999999999999996, 0), dtype=object))
 
     # polygon
     vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])

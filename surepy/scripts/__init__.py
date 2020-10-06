@@ -21,5 +21,6 @@ Submodules:
    script_draw_roi
    script_napari
    script_show_versions
+   script_test
 
 """

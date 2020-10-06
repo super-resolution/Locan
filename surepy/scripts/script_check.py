@@ -6,11 +6,11 @@ Data is rendered in napari.
 
 To run the script::
 
-    sc_check <pixel size> -f <images file> -l <localization file> -t <file type>
+    check <pixel size> -f <images file> -l <localization file> -t <file type>
 
 Try for instance::
 
-    sc_check 130 -f "surepy/tests/test_data/images.tif" -l "surepy/tests/test_data/rapidStorm.txt" -t 2
+    check 130 -f "surepy/tests/test_data/images.tif" -l "surepy/tests/test_data/rapidStorm.txt" -t 2
 """
 import argparse
 from pathlib import Path

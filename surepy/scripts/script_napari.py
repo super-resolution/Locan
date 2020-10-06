@@ -46,7 +46,9 @@ def sc_napari(file_path=None, file_type=FileType.CUSTOM, **kwrds):
 
     # choose file interactively
     if file_path is None:
-        file_path = Path(file_dialog(message='choose file', filter='*.txt; *.csv')[0])
+        file_path = Path(file_dialog(message='choose file', filter=
+                    'Text files (*.txt);; CSV files (*.csv);; All files (*);; All files ()'
+                    )[0])
     else:
         file_path = Path(file_path)
 

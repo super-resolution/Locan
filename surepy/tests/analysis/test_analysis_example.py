@@ -3,7 +3,6 @@ import pytest
 import surepy.constants
 import surepy.io.io_locdata as io
 from surepy.analysis.analysis_example import AnalysisExampleAlgorithm_1
-import surepy.tests.test_data
 
 
 @pytest.fixture()

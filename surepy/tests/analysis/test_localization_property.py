@@ -4,7 +4,6 @@ from scipy import stats
 
 import surepy.constants
 import surepy.io.io_locdata as io
-import surepy.tests.test_data
 from surepy.analysis import LocalizationProperty
 from surepy.analysis.localization_property import _DistributionFits
 

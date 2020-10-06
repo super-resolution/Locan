@@ -2,7 +2,6 @@ import pytest
 from pandas.testing import assert_frame_equal
 import surepy.constants
 import surepy.io.io_locdata as io
-import surepy.tests.test_data
 from surepy.data import metadata_pb2
 
 

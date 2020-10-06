@@ -4,7 +4,6 @@ import pandas as pd
 from surepy import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
-import surepy.tests.test_data
 from surepy.analysis.localization_precision import LocalizationPrecision, _DistributionFits
 
 

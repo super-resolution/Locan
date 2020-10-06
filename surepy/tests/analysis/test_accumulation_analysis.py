@@ -5,7 +5,6 @@ import pandas as pd
 from surepy import LocData
 import surepy.constants
 import surepy.io.io_locdata as io
-import surepy.tests.test_data
 from surepy.analysis import AccumulationClusterCheck
 from surepy.analysis.accumulation_analysis import _accumulation_cluster_check, \
     _accumulation_cluster_check_for_single_dataset

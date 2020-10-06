@@ -4,7 +4,6 @@ import pandas as pd
 import surepy.constants
 import surepy.io.io_locdata as io
 from surepy.analysis.localizations_per_frame import LocalizationsPerFrame, _DistributionFits
-import surepy.tests.test_data
 
 
 @pytest.fixture()

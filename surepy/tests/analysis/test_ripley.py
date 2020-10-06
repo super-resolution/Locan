@@ -3,7 +3,6 @@ import numpy as np
 
 import surepy.constants
 import surepy.io.io_locdata as io
-import surepy.tests.test_data
 from surepy.analysis import RipleysKFunction, RipleysLFunction, RipleysHFunction
 
 

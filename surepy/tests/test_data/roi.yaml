@@ -1,5 +1,5 @@
-reference: "{\n  \"fileType\": \"CUSTOM\",\n  \"filePath\": \"c:\\\\users\\\\soeren\\\
-  \\mydata\\\\programming\\\\python\\\\projects\\\\surepy\\\\surepy\\\\tests\\\\test_data\\\
+reference: "{\n  \"fileType\": \"CUSTOM\",\n  \"filePath\": \"C:\\\\Users\\\\Soeren\\\
+  \\MyData\\\\Programming\\\\Python\\\\Projects\\\\Surepy\\\\surepy\\\\tests\\\\test_data\\\
   \\five_blobs.txt\"\n}"
 region_type: rectangle
 region_specs:

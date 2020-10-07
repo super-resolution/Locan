@@ -20,6 +20,8 @@ The following import conventions are used throughout Surepy source code and docu
 * import pandas as pd
 * import matplotlib as mpl
 * import matplotlib.pyplot as plt
+* import open3d as o3d
+* import networkx as nx
 
 
 Unit tests:

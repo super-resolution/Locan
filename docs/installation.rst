@@ -10,7 +10,7 @@ Dependencies
 * python 3
 * standard scipy and other open source libraries
 
-A list with all requirements is given in `environment.yml`.
+A list with all requirements is given in `environment.yml` and `requirements.txt`.
 
 
 Install from source directory
@@ -27,6 +27,10 @@ Run tests
 Use setuptools (which is configured for running pytest) to run the tests::
 
     python setup.py test
+
+Or run a surepy script from any directory::
+
+    surepy test
 
 
 Using Conda to set up a dedicated environment:

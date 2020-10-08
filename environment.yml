@@ -50,6 +50,4 @@ dependencies:
 - trackpy
 - open3d
 - napari
-
-- pip:
-  - mpl_scatter_density  # Extra requirements
+- mpl-scatter-density

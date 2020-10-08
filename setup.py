@@ -34,12 +34,6 @@ with open(os.path.join('surepy', 'version.py'), 'rt') as version_file:
 # include packages
 PACKAGES = find_packages()
 
-# include files other than python code
-PACKAGE_DATA = {
-        # Include *.txt files in the test/test_data directory:
-        'Surepy/tests/test_data': ['*.txt']
-        }
-
 #
 SCRIPTS = []
 
@@ -79,7 +73,7 @@ setup(
     version=VERSION,
     packages=PACKAGES,
     scripts=SCRIPTS,
-    package_data=PACKAGE_DATA,
+    include_package_data=True,
     author=AUTHOR,
     author_email=AUTHOR_EMAIL,
     description=DESCRIPTION,

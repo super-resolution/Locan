@@ -1,0 +1,2 @@
+include LICENSE.md
+graft surepy/tests/test_data

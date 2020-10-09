@@ -17,8 +17,10 @@ build
 .gitattributes
 .gitignore
 
+# jupyter
+.ipynb_checkpoints
+
 # docker
-docker
 .dockerignore
 Dockerfile
 docker-compose.yml

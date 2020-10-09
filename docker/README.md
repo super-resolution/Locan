@@ -1,25 +1,28 @@
 Docker
 ======
 
-You can use the provided Dockerfiles to set up a docker image and use this project within a container.
+You can use the provided Dockerfiles to set up a docker image and run the project within a container.
 
-Prepare for using Docker:
--------------------------
 
-1) Install docker
+Prepare for using Docker
+------------------------
+
+1) Install docker (Docker Desktop)
 2) Switch to Linux containers
 3) Make shared drives on your host system accessible to mount local directories:
 
     Docker --> Settings --> Shared Drives
 
-Dockerfile
-----------
 
-We provide a Dockerfile for the following tasks:
+Dockerfiles
+-----------
 
-1) Run the project in a Python 3 environment on Linux.
-2) Run the project in a Miniconda environment on Linux.
-3) Provide a Miniconda environment with Jupyter lab for interactive work.
+We provide dockerfiles for testing and deployment.
+
+1) Run tests in a Python 3 environment based on miniconda or a virtual environment (venv) on Debian Linux.
+2) Run the project in a miniconda-based Python 3 environment (Debian Linux).
+3) Run the project in a miniconda-based Python 3 environment with Jupyter lab for interactive work (Debian Linux).
+
 
 Build a docker image
 --------------------
@@ -31,39 +34,42 @@ Enter the project directory and run the following command to build the docker im
 
 	docker build -t <ImageName> -f <docker/choose directory/Dockerfile> .
 		
+		
 Start a container from the image
 --------------------------------
 
-### Running project tests or starting an interactive environment
+### Run project tests:
 
 Run a container to just run the project tests and close afterwards:
 
-	docker run <ImageName>
+	docker run --rm <ImageName>
+
+### Run project in an interactive environment:
 	
-Open a shell (e.g. bash) for interactive work within a container:
+Open a bash shell for interactive work within a container:
 
 	docker run -it <ImageName> bash
 	
 Open the shell with a host directory mounted as volume:
 
-	docker run -it -v <host directory>:<container directory> <ImageName> bash
-
+	docker run -it -v <host directory>:/home/asterix/shared <ImageName> bash
 	
-### Jupyter notebooks
+To make sure a gui output (e.g. from napari) is directed to an X server (that must be installed on your host) 
+add the DISPLAY environment variable:
 
-Run the image to start a container with an interactive shell: 
+	docker run -it -v <host directory>:/home/asterix/shared -e DISPLAY=<IP-address>:0.0 <ImageName> bash
 
-	docker run -it jupyter_surepy bash
+### Use Jupyter notebooks:
 	
-Or run the image to start a container with jupyter lab
+Start a container providing browser access to jupyter lab with a host directory mounted as volume:
 	
-	docker run --rm -p 8888:8888 -e JUPYTER_ENABLE_LAB=yes <ImageName>
+	docker run -p 8888:8888 -e JUPYTER_ENABLE_LAB=yes -v <host directory>:/home/asterix/shared <ImageName>
 
-Start jupyter lab with a host directory mounted as volume:
+For gui (e.g. napari) interaction add the DISPLAY environment variable.
 
-	docker run --rm -p 8888:8888 -e JUPYTER_ENABLE_LAB=yes -v <host/directory>:/home/jovyan/work <ImageName>
-	
-For the host directory to be your home directory put in "~" .
+
+Clean up
+--------
 
 After closing a jupyter lab you might have to delete the container before running the image again 
 (e.g. if the option --rm was omitted):
@@ -73,4 +79,8 @@ After closing a jupyter lab you might have to delete the container before runnin
 or close all containers:
 
     docker rm -f $(docker ps -q)
+    
+To clean up your system:
+
+    docker system prune
     

@@ -14,7 +14,7 @@ import os
 import locale
 
 from surepy.constants import INSTALL_REQUIRES, EXTRAS_REQUIRE
-from surepy.version import __version__ as surepy_version
+from surepy import __version__ as surepy_version
 
 
 __all__ = ['system_info', 'dependency_info', 'show_versions']

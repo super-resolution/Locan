@@ -18,7 +18,11 @@ Surepy consists of the following modules:
    utils
    tests
 """
-from surepy.version import __version__
+try:
+    from surepy._version import version as __version__
+except ImportError:
+    __version__ = "0.6.0-not-installed"
+
 from surepy.constants import *  # constants has to be imported before any others due to pyqt5/sidepy2 issues.
 from surepy.analysis import *
 from surepy.data import *

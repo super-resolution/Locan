@@ -10,16 +10,25 @@ Dependencies
 * python 3
 * standard scipy and other open source libraries
 
-A list with all requirements is given in `environment.yml` and `requirements.txt`.
+A list with all requirements is given in `setup.cfg`, `environment.yml` and `requirements.txt`.
 
+Install from distribution
+------------------------------
+
+Download distribution or wheel archive and install with pip::
+
+    pip install <distribution_file>
 
 Install from source directory
 ------------------------------
 
-Use setuptools to install Surepy from sources::
+Use setuptools to install from sources (without extra requirements)::
 
     python setup.py install
 
+Alternatively, use pip to install from sources with extra requirements::
+
+    pip install .[all]
 
 Run tests
 -----------------------

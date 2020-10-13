@@ -36,7 +36,7 @@ __all__ = ['ROOT_DIR', 'DATASETS_DIR', 'PROPERTY_KEYS', 'HullType',
 
 
 # Provide list of dependencies with corresponding module names for import in python.
-# Should reflect the dependencies specified in setup.py.
+# Should reflect the dependencies specified in setup.cfg.
 # Some package names (as recommended for pip install) are different from the names for import.
 INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast_histogram', 'hdbscan', 'lmfit', 'google.protobuf',
                     'shapely', 'networkx', 'sklearn', 'skimage', 'matplotlib', 'scipy', 'pandas', 'numpy', 'numba',

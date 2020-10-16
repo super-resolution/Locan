@@ -17,14 +17,14 @@ def test_Drift():
 
     drift = Drift(chunk_size=200, target='first').compute(locdata)
     assert isinstance(drift.collection, LocData)
-    assert drift.results._fields == ('matrices', 'offsets')
-    assert len(drift.results.matrices) == 4
+    assert drift.results[0]._fields == ('matrix', 'offset')
+    assert len(drift.results) == 4
 
     drift = Drift(chunk_size=200, target='previous').compute(locdata)
     assert isinstance(drift.collection, LocData)
-    assert drift.results._fields == ('matrices', 'offsets')
-    assert len(drift.results.matrices) == 4
+    assert drift.results[0]._fields == ('matrix', 'offset')
+    assert len(drift.results) == 4
 
-    drift.plot(results_field='matrices', element=0)
-    drift.plot(results_field='offsets', element=None)
+    drift.plot(results_field='matrix', element=0)
+    drift.plot(results_field='offset', element=None)
     # plt.show()

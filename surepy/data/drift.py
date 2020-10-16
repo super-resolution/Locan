@@ -70,13 +70,13 @@ def drift_correction(locdata, chunk_size=1000, target='first', analysis_class=No
 
     transformed_locdatas = []
     if target == 'first':
-        transformed_locdatas = [transform_affine(locdata, matrix, offset) for locdata, matrix, offset
-                                in zip(drift.collection.references[1:], drift.results.matrices, drift.results.offsets)]
+        transformed_locdatas = [transform_affine(locdata, result.matrix, result.offset) for locdata, result
+                                in zip(drift.collection.references[1:], drift.results)]
     elif target == 'previous':
         for n, locdata in enumerate(drift.collection.references[1:]):
             transformed_locdata = locdata
-            for matrix, offset in zip(reversed(drift.results.matrices[:n]), reversed(drift.results.offsets[:n])):
-                transformed_locdata = transform_affine(transformed_locdata, matrix, offset)
+            for result in reversed(drift.results[:n]):
+                transformed_locdata = transform_affine(transformed_locdata, result.matrix, result.offset)
             transformed_locdatas.append(transformed_locdata)
 
     new_locdata = LocData.concat([drift.collection.references[0]] + transformed_locdatas)

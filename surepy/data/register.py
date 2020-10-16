@@ -6,6 +6,8 @@ This module registers localization data and provides transformation parameters t
 in registry.
 
 """
+from collections import namedtuple
+
 import numpy as np
 
 from surepy.data.locdata import LocData
@@ -45,7 +47,7 @@ def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_tra
 
     Returns
     -------
-    tuple of ndarrays
+    namedtuple('Transformation', 'matrix offset')
         Matrix and offset representing the optimized transformation.
     """
     if not _has_open3d:
@@ -110,7 +112,8 @@ def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_tra
     if verbose:
         print(registration)
 
-    return new_matrix, new_offset
+    Transformation = namedtuple('Transformation', 'matrix offset')
+    return Transformation(new_matrix, new_offset)
 
 
 def register_icp(locdata, other_locdata, matrix=None, offset=None, pre_translation=None,
@@ -139,7 +142,7 @@ def register_icp(locdata, other_locdata, matrix=None, offset=None, pre_translati
 
     Returns
     -------
-    tuple of ndarrays
+    namedtuple('Transformation', 'matrix offset')
         Matrix and offset representing the optimized transformation.
     """
     local_parameter = locals()
@@ -155,8 +158,8 @@ def register_icp(locdata, other_locdata, matrix=None, offset=None, pre_translati
     else:
         other_points = other_locdata
 
-    new_matrix, new_offset = _register_icp_open3d(points, other_points, matrix=matrix, offset=offset,
+    transformation = _register_icp_open3d(points, other_points, matrix=matrix, offset=offset,
                                                   pre_translation=pre_translation,
                                                   max_correspondence_distance=1_000, max_iteration=10_000,
                                                   verbose=True)
-    return new_matrix, new_offset
+    return transformation

@@ -41,8 +41,8 @@ def adjust_contrast(img, rescale=True, **kwargs):
     Other Parameters
     ----------------
     kwargs : dict
-        For 'rescale' = True kwargs are passed to exposure.rescale_intensity().
-        For 'rescale' = 'equal' kwargs are passed to exposure.equalize_hist().
+        For 'rescale' = True kwargs are passed to :func:`skimage.exposure.rescale_intensity`.
+        For 'rescale' = 'equal' kwargs are passed to :func:`skimage.exposure.equalize_hist`.
 
     Returns
     -------
@@ -114,10 +114,10 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
         Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
         shown.
     bins : sequence or int or None
-        The bin specification as defined in numpy.histogramdd:
-            A sequence of arrays describing the monotonically increasing bin edges along each dimension.
-            The number of bins for each dimension (nx, ny, … =bins)
-            The number of bins for all dimensions (nx=ny=…=bins).
+        The bin specification as defined in :func:`numpy.histogramdd`:
+        A sequence of arrays describing the monotonically increasing bin edges along each dimension.
+        The number of bins for each dimension (nx, ny, … =bins)
+        The number of bins for all dimensions (nx=ny=…=bins).
     bin_size : float or tuple, list, ndarray with with length equal to that of range (or the number of loc_properties).
         Number of bins to be used in all or each dimension for which a range is provided.
         The bin size in units of locdata coordinate units. Either bins or bin_size must be specified but not both.
@@ -136,8 +136,8 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
     Other Parameters
     ----------------
     kwargs : dict
-        For 'rescale' = True kwargs are passed to exposure.rescale_intensity().
-        For 'rescale' = 'equal' kwargs are passed to exposure.equalize_hist().
+        For 'rescale' = True kwargs are passed to :func:`skimage.exposure.rescale_intensity`.
+        For 'rescale' = 'equal' kwargs are passed to :func:`skimage.exposure.equalize_hist`.
 
     Returns
     -------

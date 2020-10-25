@@ -56,6 +56,7 @@ def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
 
 
 def _fit_image_copy(image, bin_edges):
+    # todo: make use of this function instead of _fit_image()
     """
     Fit 2D Gauss function to image data.
 

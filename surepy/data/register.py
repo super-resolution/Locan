@@ -9,14 +9,17 @@ in registry.
 from collections import namedtuple
 
 import numpy as np
+from lmfit import Model, Parameters
+import matplotlib.pyplot as plt
 
 from surepy.data.locdata import LocData
 from surepy.data.transform.transformation import _homogeneous_matrix
+from surepy.render import histogram
 from surepy.constants import _has_open3d
 if _has_open3d: import open3d as o3d
 
 
-__all__ = ['register_icp']
+__all__ = ['register_icp', 'register_cc']
 
 
 def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_translation=None,
@@ -163,3 +166,146 @@ def register_icp(locdata, other_locdata, matrix=None, offset=None, pre_translati
                                                   max_correspondence_distance=1_000, max_iteration=10_000,
                                                   verbose=True)
     return transformation
+
+def _xcorr(imageA, imageB):
+    """
+    This function is adapted from picasso/imageprocess by Joerg Schnitzbauer, MPI of Biochemistry
+    https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
+    """
+    FimageA = np.fft.fft2(imageA)
+    CFimageB = np.conj(np.fft.fft2(imageB))
+    return np.fft.fftshift(
+        np.real(np.fft.ifft2((FimageA * CFimageB)))
+        ) / np.sqrt(imageA.size)
+
+def _get_image_shift(imageA, imageB, box, roi=None, display=False):
+    """
+    Computes the shift from imageA to imageB.
+
+    This function is adapted from picasso/imageprocess by Joerg Schnitzbauer, MPI of Biochemistry
+    https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
+    """
+    if (np.sum(imageA) == 0) or (np.sum(imageB) == 0):
+        return 0, 0
+    # Compute image correlation
+    XCorr = _xcorr(imageA, imageB)
+    # Cut out center roi
+    Y, X = imageA.shape
+    if roi is not None:
+        Y_ = int((Y - roi) / 2)
+        X_ = int((X - roi) / 2)
+        if Y_ > 0:
+            XCorr = XCorr[Y_:-Y_, :]
+        else:
+            Y_ = 0
+        if X_ > 0:
+            XCorr = XCorr[:, X_:-X_]
+        else:
+            X_ = 0
+    else:
+        Y_ = X_ = 0
+    # A quarter of the fit ROI
+    fit_X = int(box / 2)
+    # A coordinate grid for the fitting ROI
+    y, x = np.mgrid[-fit_X: fit_X + 1, -fit_X: fit_X + 1]
+    # Find the brightest pixel and cut out the fit ROI
+    y_max_, x_max_ = np.unravel_index(XCorr.argmax(), XCorr.shape)
+    FitROI = XCorr[
+        y_max_ - fit_X: y_max_ + fit_X + 1,
+        x_max_ - fit_X: x_max_ + fit_X + 1,
+    ]
+
+    dimensions = FitROI.shape
+
+    if 0 in dimensions or dimensions[0] != dimensions[1]:
+        xc, yc = 0, 0
+    else:
+        # The fit model based on lmfit
+        def flat_2d_gaussian(a, xc, yc, s, b):
+            A = a * np.exp(-0.5 * ((x - xc) ** 2 + (y - yc) ** 2) / s ** 2) + b
+            return A.flatten()
+
+        gaussian2d = Model(
+            flat_2d_gaussian, name="2D Gaussian", independent_vars=[]
+        )
+
+        # Set up initial parameters and fit
+        params = Parameters()
+        params.add("a", value=FitROI.max(), vary=True, min=0)
+        params.add("xc", value=0, vary=True)
+        params.add("yc", value=0, vary=True)
+        params.add("s", value=1, vary=True, min=0)
+        params.add("b", value=FitROI.min(), vary=True, min=0)
+        results = gaussian2d.fit(FitROI.flatten(), params)
+
+        # Get maximum coordinates and add offsets
+        xc = results.best_values["xc"]
+        yc = results.best_values["yc"]
+        xc += X_ + x_max_
+        yc += Y_ + y_max_
+
+        if display:
+            plt.figure(figsize=(17, 10))
+            plt.subplot(1, 3, 1)
+            plt.imshow(imageA, interpolation="none")
+            plt.subplot(1, 3, 2)
+            plt.imshow(imageB, interpolation="none")
+            plt.subplot(1, 3, 3)
+            plt.imshow(XCorr, interpolation="none")
+            plt.plot(xc, yc, "x")
+            plt.show()
+
+        xc -= np.floor(X / 2)
+        yc -= np.floor(Y / 2)
+
+    return -xc, -yc
+
+def register_cc(locdata, other_locdata, max_offset=None, bin_size=None, verbose=False, **kwargs):
+    """
+    Register `points` or coordinates in `locdata` by a cross-correlation algorithm.
+
+    This function is based on code from picasso/imageprocess by Joerg Schnitzbauer, MPI of Biochemistry
+    https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
+
+    Parameters
+    ----------
+    locdata : array-like or LocData object
+        Localization data representing the source on which to perform the manipulation.
+    other_locdata : array-like or LocData object
+        Localization data representing the target.
+    max_offset : int or float or None
+        Maximum possible offset.
+    bin_size : tuple of int or float
+        Size per image pixel
+    verbose : bool
+        Flag indicating if transformation results are printed out.
+
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to :func:`surepy.render.render2d.histogram`.
+
+    Returns
+    -------
+    namedtuple('Transformation', 'matrix offset')
+        Matrix and offset representing the optimized transformation.
+    """
+    # adjust input
+    if isinstance(locdata, LocData) and isinstance(other_locdata, LocData):
+        mins = np.minimum(locdata.coordinates.min(axis=0), other_locdata.coordinates.min(axis=0))
+        maxs = np.maximum(locdata.coordinates.max(axis=0), other_locdata.coordinates.max(axis=0))
+        ranges = [(min, max) for min, max in zip(mins, maxs)]
+        image = histogram(locdata, bin_size=bin_size, **dict({'range': ranges}, **kwargs))[0]
+        other_image = histogram(other_locdata, bin_size=bin_size, **dict({'range': ranges}, **kwargs))[0]
+    else:
+        image = np.asarray(locdata)
+        other_image = np.asarray(other_locdata)
+
+    dimension = image.ndim
+    matrix = np.identity(dimension)
+    # todo: make box into parameter
+    offset = _get_image_shift(image, other_image, box=5, roi=max_offset, display=verbose)
+    offset = tuple(np.asarray(offset) * bin_size)
+
+    Transformation = namedtuple('Transformation', 'matrix offset')
+    return Transformation(matrix, offset)

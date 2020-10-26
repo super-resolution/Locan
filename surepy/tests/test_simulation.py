@@ -7,7 +7,7 @@ from surepy.simulation import make_csr, simulate_csr, make_csr_on_disc, make_csr
 from surepy.simulation import make_Matern, make_Thomas, make_Thomas_on_region
 from surepy.simulation import simulate_csr_on_disc, simulate_csr_on_region
 from surepy.simulation import simulate_Matern, simulate_Thomas, simulate_Thomas_on_region
-from surepy.simulation import resample, simulate_tracks, add_drift
+from surepy.simulation import resample, simulate_tracks, add_drift, simulate_frame_numbers
 from surepy.simulation.simulate_drift import _random_walk_drift, _drift
 
 
@@ -272,3 +272,9 @@ def test_visual_add_drift(locdata_2d):
     ax = locdata_2d.data.plot(*locdata_2d.coordinate_labels, kind='scatter')
     new_locdata.data.plot(*new_locdata.coordinate_labels, kind='scatter', ax=ax, c='r')
     plt.show()
+
+def test_simulate_frame_numbers(locdata_2d):
+    frames = simulate_frame_numbers(n_samples=(len(locdata_2d)), lam=2)
+    assert len(frames) == len(locdata_2d)
+    locdata_2d.dataframe = locdata_2d.dataframe.assign(frame=frames)
+    assert np.array_equal(locdata_2d.data.frame, frames)

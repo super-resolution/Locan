@@ -54,7 +54,7 @@ __all__ = ['make_csr', 'simulate_csr',
            'make_Thomas', 'simulate_Thomas',
            'make_csr_on_region', 'simulate_csr_on_region',
            'make_Thomas_on_region', 'simulate_Thomas_on_region',
-           'simulate_tracks', 'resample']
+           'simulate_tracks', 'resample', 'simulate_frame_numbers']
 
 
 def make_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed=None):
@@ -1034,3 +1034,61 @@ def resample(locdata, n_samples=10):
     new_locdata = LocData.from_dataframe(dataframe=dataframe, meta=meta_)
 
     return new_locdata
+
+
+def _random_poisson_repetitions(n_samples, lam):
+    """
+    Return numpy array of sorted integers with each integer i being repeated n(i) times
+    where n(i) is drawn from a Poisson distribution with mean `lam`.
+
+    Parameters
+    ----------
+    n_samples : int
+        number of elements to be returned
+    lam : float
+        mean of the Poisson distribution (lambda)
+
+    Returns
+    -------
+    numpy array with shape (n_samples,)
+        The generated sequence of integers.
+    """
+    repeats = np.random.poisson(lam=lam, size=n_samples)
+    frames = np.ones(n_samples, dtype=int)
+    position = 0
+    for number, repeat in zip(range(n_samples), repeats):
+        repeated_numbers = np.repeat(number, repeat)
+        try:
+            frames[position:position + repeat] = repeated_numbers
+        except ValueError:
+            frames[position:] = repeated_numbers[:n_samples - position]
+            break
+        position += repeat
+    return frames
+
+
+def simulate_frame_numbers(n_samples, lam):
+    """
+    Simulate Poisson-distributed frame numbers for a list of localizations.
+
+    Return numpy array of sorted integers with each integer i being repeated n(i) times
+    where n(i) is drawn from a Poisson distribution with mean `lam`.
+
+    Use the following to add frame numbers to a given LocData object::
+
+        frames = simulate_frame_numbers(n_samples=len(locdata), lam=5)
+        locdata.dataframe = locdata.dataframe.assign(frame = frames)
+
+    Parameters
+    ----------
+    n_samples : int
+        number of elements to be returned
+    lam : float
+        mean of the Poisson distribution (lambda)
+
+    Returns
+    -------
+    numpy array with shape (n_samples,)
+        The generated sequence of integers.
+    """
+    return _random_poisson_repetitions(n_samples, lam)

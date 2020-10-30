@@ -402,10 +402,10 @@ def test_locdata_from_selection_(
 
 
 @pytest.mark.parametrize('fixture_name, expected', [
-    ('locdata_empty', (1, (0,))),
+    ('locdata_empty', (0, (0,))),
     ('locdata_single_localization', (1, (1,))),
-    ('locdata_2d', (4, (2, 2, 2, 0))),
-    ('locdata_non_standard_index', (4, (2, 2, 2, 0)))
+    ('locdata_2d', (3, (2, 2, 2))),
+    ('locdata_non_standard_index', (3, (2, 2, 2)))
 ])
 def test_locdata_from_chunks(
         locdata_empty, locdata_single_localization, locdata_2d, locdata_non_standard_index,
@@ -414,5 +414,6 @@ def test_locdata_from_chunks(
     chunk_collection = LocData.from_chunks(locdata=dat, chunk_size=2, meta=COMMENT_METADATA)
     assert isinstance(chunk_collection.references, list)
     assert len(chunk_collection) == expected[0]
-    assert all(chunk_collection.data.localization_count == expected[1])
+    if len(chunk_collection) != 0:
+        assert all(chunk_collection.data.localization_count == expected[1])
     assert chunk_collection.meta.comment == COMMENT_METADATA.comment

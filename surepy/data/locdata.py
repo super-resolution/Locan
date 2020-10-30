@@ -533,7 +533,10 @@ class LocData:
         LocData object
             A new LocData instance with references and dataframe elements representing the individual chunks.
         """
-        chunk_sizes = [chunk_size] * (len(locdata) // chunk_size) + [(len(locdata) % chunk_size)]
+        if (len(locdata) % chunk_size) == 0:
+            chunk_sizes = [chunk_size] * (len(locdata) // chunk_size)
+        else:
+            chunk_sizes = [chunk_size] * (len(locdata) // chunk_size) + [(len(locdata) % chunk_size)]
         cum_chunk_sizes = list(accumulate(chunk_sizes))
         cum_chunk_sizes.insert(0, 0)
         index_lists = [locdata.data.index[slice(lower, upper)]

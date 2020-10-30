@@ -45,6 +45,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
+from scipy.interpolate import splev, splrep
+from lmfit.models import ConstantModel, LinearModel, PolynomialModel
 
 from surepy.constants import _has_open3d
 if _has_open3d: import open3d as o3d
@@ -55,7 +57,7 @@ from surepy.data.transform.transformation import transform_affine
 from surepy.data.metadata_utils import _modify_meta
 
 
-__all__ = ['Drift']
+__all__ = ['Drift', 'DriftComponent']
 
 ##### The algorithms
 
@@ -155,6 +157,189 @@ def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, **
 
 ##### The specific analysis classes
 
+
+class _LmfitModelFacade:
+
+    def __init__(self, model):
+        self.model = model
+        self.model_result = None
+
+    def fit(self, x, y, verbose=False, **kwargs):
+        params = self.model.guess(data=y, x=x)
+        self.model_result = self.model.fit(x=x, data=y, params=params, **kwargs)
+        if verbose:
+            self.plot()
+        return self.model_result
+
+    def eval(self, x):
+        x = np.asarray(x)
+        return self.model_result.eval(x=x)
+
+    def plot(self, **kwargs):
+        return self.model_result.plot(**kwargs)
+
+
+class _ConstantModelFacade:
+
+    def __init__(self, **kwargs):
+        self.model = ConstantModel(**kwargs)
+        self.model_result = None
+
+    def fit(self, x, y, verbose=False, **kwargs):
+        self.independent_variable = x
+        self.model_result = self.model.fit(x=x, data=y, **kwargs)
+        if verbose:
+            self.plot()
+        return self.model_result
+
+    def eval(self, x):
+        if isinstance(x, (tuple, list, np.ndarray)):
+            return np.array([self.model_result.eval()] * len(x))
+        else:
+            return self.model_result.eval(x=x)
+
+    def plot(self, **kwargs):
+        x = self.independent_variable
+        y = self.model_result.data
+        return plt.plot(x, y, 'o', x, self.eval(x=x), **kwargs)
+
+
+class _ConstantZeroModelFacade(_ConstantModelFacade):
+
+    def __init__(self):
+        self.model = ConstantModel()
+        self.model.set_param_hint(name='c', value=0, vary=False)
+        self.model_result = None
+
+
+class _ConstantOneModelFacade(_ConstantModelFacade):
+
+    def __init__(self):
+        self.model = ConstantModel()
+        self.model.set_param_hint(name='c', value=1, vary=False)
+        self.model_result = None
+
+
+class _SplineModelFacade:
+
+    def __init__(self, **kwargs):
+        self.model = 'spline'
+        self.model_result = None
+        self.parameter = kwargs
+
+    def fit(self, x, y, verbose=False, **kwargs):
+        self.independent_variable = x
+        self.data = y
+        self.model_result = splrep(x, y, **dict(dict(k=3, s=100), **dict(**self.parameter, **kwargs)))
+        if verbose:
+            self.plot()
+        return self.model_result
+
+    def eval(self, x):
+        np.asarray(x)
+        results = splev(x, self.model_result)
+        if isinstance(x, (tuple, list, np.ndarray)):
+            return results
+        else:
+            return float(results)
+
+    def plot(self, **kwargs):
+        x = self.independent_variable
+        y = self.data
+        x_ = np.linspace(np.min(x), np.max(x), 100)
+        return plt.plot(x, y, 'o', x_, self.eval(x=x_), **kwargs)
+
+
+class DriftComponent:
+    """
+    Class carrying model functions to describe drift over time (in unit of frames). DriftComponent provides
+    a transformation to apply a drift correction.
+
+    Standard models for constant, linear or polynomial drift correction are taken from :module:`lmfit.models`.
+    For fitting splines we use the scipy function :function:`scipy.interpolate.splrep`.
+
+    Parameters
+    ----------
+    type : string or `lmfit.models.Model` or None
+        Model class or indicator for setting up the corresponding model class. String can be one of ... .
+
+    Attributes
+    ----------
+    type : str
+        String indicator for model.
+    model : `lmfit.models.Model` or return value of :function:`scipy.interpolate.splrep`
+        The model definition
+    model_result : `lmfit.model.ModelResult` or collection of model results.
+        The results collected from fitting the model to specified data.
+    """
+
+    def __init__(self, type=None, **kwargs):
+        self.type = type
+        self.model_result = None
+
+        if type is None:
+            self.type = 'none'
+            self.model = None
+        elif type == 'zero':
+            self.model = _ConstantZeroModelFacade()
+        elif type == 'one':
+            self.model = _ConstantOneModelFacade()
+        elif type == 'constant':
+            self.model = _ConstantModelFacade(**kwargs)
+        elif type == 'linear':
+            self.model = _LmfitModelFacade(LinearModel(**kwargs))
+        elif type == 'polynomial':
+            self.model = _LmfitModelFacade(PolynomialModel(**dict(dict(degree=3), **kwargs)))
+        elif getattr(type, '__module__', None) == 'lmfit.models':
+            self.type = type.name
+            self.model = _LmfitModelFacade(model=type)
+        elif type == 'spline':
+            self.model = _SplineModelFacade(**kwargs)
+        else:
+            raise TypeError(f"DriftComponent cannot handle type={type}.")
+
+    def fit(self, x, y, verbose=False, **kwargs):
+        """
+        Fit model to the given data and create `self.model_results`.
+
+        Parameters
+        ----------
+        x : array-like
+            x data
+        y : array-like
+            y values
+        verbose : bool
+            show plot
+
+        Other Parameters
+        ----------------
+        kwargs : dict
+            Parameters passed to :func:`lmfit.model.fit` or to :func:`scipy.interpolate.splrep`
+            Use the parameter `s` to set the amount of smoothing.
+
+        Returns
+        -------
+        self
+        """
+        self.model_result = self.model.fit(x, y, verbose=verbose, **kwargs)
+        return self
+
+    def eval(self, x):
+        """
+        Compute a transformation for time `x` from the drift model.
+
+        Parameters
+        ----------
+        x : array-like
+            frame values
+
+        Returns
+        -------
+        Array of float.
+        """
+        return self.model.eval(x)
+
+
 class Drift(_Analysis):
     """
     Estimate drift.
@@ -170,7 +355,7 @@ class Drift(_Analysis):
     meta : Metadata protobuf message
         Metadata about the current analysis routine.
     method : string
-        The method (i.e. library or algorithm) used for computation. One of 'open3d', 'cc'.
+        The method (i.e. library or algorithm) used for computation. One of 'itc', 'cc'.
 
     Attributes
     ----------
@@ -194,7 +379,7 @@ class Drift(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, chunk_size=1000, target='first', method='open3d'):
+    def __init__(self, meta=None, chunk_size=1000, target='first', method='itc'):
         super().__init__(meta, chunk_size=chunk_size, target=target)
         self.locdata = None
         self.chunk_size = chunk_size
@@ -202,7 +387,7 @@ class Drift(_Analysis):
         self.method = method
         self.collection = None
         self.transformations = None
-        self.transformation_models = None
+        self.transformation_models = dict(matrix=None, offset=None)
         self.locdata_corrected = None
 
     def compute(self, locdata, **kwargs):
@@ -226,76 +411,129 @@ class Drift(_Analysis):
         Analysis class
             Returns the Analysis class object (self).
         """
-        if self.method == 'open3d':
+        if self.method == 'itc':
             collection, transformations = _estimate_drift_open3d(locdata=locdata, **self.parameter)
         elif self.method == 'cc':
             collection, transformations = _estimate_drift_cc(locdata=locdata, **self.parameter, **kwargs)
         else:
-            raise ValueError(f'Method {self.method} is not defined. One of "open3d", "cc".')
+            raise ValueError(f'Method {self.method} is not defined. One of "itc", "cc".')
         self.locdata = locdata
         self.collection = collection
         self.transformations = transformations
-        self.transformation_models = None
+        self.transformation_models = dict(matrix=None, offset=None)
         self.locdata_corrected = None
         return self
 
-    def fit_transformations(self, slice_data=slice(None), matrix_models=None, offset_models=None,
-                            verbose=False):
+    def _transformation_models_for_identity_matrix(self):
+        """Return transformation_models (dict) with DriftModels according to unit matrix."""
+        dimension = self.locdata.dimension
+        transformation_models = []
+        for k in np.identity(dimension).flatten():
+            if k == 0:
+                transformation_models.append(DriftComponent('zero'))
+            else:  # if k == 1
+                transformation_models.append(DriftComponent('one'))
+        return dict(matrix=transformation_models)
+
+    def _transformation_models_for_zero_offset(self):
+        """Return transformation_models (dict) with DriftModels according to zero offset."""
+        dimension = self.locdata.dimension
+        return dict(offset=[DriftComponent('zero') for _ in range(dimension)])
+
+    def fit_transformation(self, slice_data=slice(None), transformation_component='matrix', element=0,
+                           drift_model='linear', verbose=False):
         """
-        Fit model parameter to  the estimated transformations.
+        Fit drift model to selected component of the estimated transformations.
 
         Parameters
         ----------
         slice_data : Slice object
             Reduce data to a selection on the localization chunks.
-        matrix_models : list of lmfit models or None
-            Models to use for fitting each matrix component.
-            Length of list must be equal to the square of the transformations dimension (4 or 9).
-        offset_models : list of lmfit models or None
-            Models to use for fitting each offset component.
-            Length of list must be equal to the transformations dimension (2 or 3).
+        transformation_component : string
+            One of 'matrix' or 'offset'
+        element : int or None
+            The element of flattened transformation matrix or offset
+        drift_model : `DriftComponent`, string or None
+            A drift model as defined by a `DriftComponent` instance
+            or the parameter `type` as defined in :class:`DriftComponent`.
+            For None no change will occur. To reset transformation_models set the transformation_component to None:
+            e.g. self.transformation_components = None or self.transformation_components['matrix'] = None.
         verbose : bool
             Print the fitted model curves using lmfit.
         """
-        dim = self.locdata.dimension
+        dimension = self.locdata.dimension
         frames = np.array([locdata.data.frame.mean() for locdata in self.collection.references[1:]])[slice_data]
 
-        def fit_(x, y, model):
-            if model is None:
-                return None
-            else:
-                params = model.guess(data=y, x=x)
-                fit_results_ = model.fit(data=y, params=params, x=x)
-                if verbose:
-                    fit_results_.plot()
-                return fit_results_
+        if drift_model is None:
+            return self
+
+        if not isinstance(drift_model, DriftComponent):
+            drift_model = DriftComponent(type=drift_model)
 
         if self.target == 'first':
+            if transformation_component == 'matrix':
+                y = np.array([transformation.matrix[element // dimension][element % dimension]
+                              for transformation in self.transformations])[slice_data]
+                if self.transformation_models['matrix'] is None:
+                    self.transformation_models.update(self._transformation_models_for_identity_matrix())
 
-            if matrix_models is None:
-                model_results_matrix = [None for n in range(dim ** 2)]
-            else:
-                model_results_matrix = []
-                for i, model in enumerate(matrix_models):
-                    y = np.array([transformation.matrix[i // dim][i % dim] for transformation in self.transformations])[
-                        slice_data]
-                    fit_results = fit_(frames, y, model)
-                    model_results_matrix.append(fit_results)
+            elif transformation_component == 'offset':
+                y = np.array([transformation.offset[element] for transformation in self.transformations])[slice_data]
+                if self.transformation_models['offset'] is None:
+                    self.transformation_models.update(self._transformation_models_for_zero_offset())
 
-            if offset_models is None:
-                model_results_offset = [None] * dim
             else:
-                model_results_offset = []
-                for i, model in enumerate(offset_models):
-                    y = np.array([transformation.offset[i] for transformation in self.transformations])[slice_data]
-                    fit_results = fit_(frames, y, model)
-                    model_results_offset.append(fit_results)
+                raise ValueError("transformation_component must be 'matrix' or 'offset'.")
+
+            self.transformation_models[transformation_component][element] = drift_model
+
+            for drift_component in self.transformation_models[transformation_component]:
+                drift_component.fit(frames, y, verbose=False)
+
+            if verbose:
+                self.transformation_models[transformation_component][element].model.plot()
 
         elif self.target == 'previous':
             raise NotImplementedError("Not yet implemented. Use target = 'first'.")
 
-        Transformation_models = namedtuple('Transformation_models', 'matrix offset')
-        self.transformation_models = Transformation_models(model_results_matrix, model_results_offset)
+        return self
+
+    def fit_transformations(self, slice_data=slice(None), matrix_models=None, offset_models=None,
+                            verbose=False):
+        """
+        Fit model parameter to all estimated transformation components.
+
+        Parameters
+        ----------
+        slice_data : Slice object
+            Reduce data to a selection on the localization chunks.
+        matrix_models : list of `DriftComponent` or None
+            Models to use for fitting each matrix component.
+            Length of list must be equal to the square of the transformations dimension (4 or 9).
+            If None, no matrix transformation will be carried out when calling :func:`apply_correction`.
+        offset_models : list of `DriftComponent` or None
+            Models to use for fitting each offset component.
+            Length of list must be equal to the transformations dimension (2 or 3).
+            If None, no offset transformation will be carried out when calling :func:`apply_correction`.
+        verbose : bool
+            Print the fitted model curves.
+        """
+        if matrix_models is None:
+            self.transformation_models['matrix'] = None
+        else:
+            self.transformation_models.update(self._transformation_models_for_identity_matrix())
+            for n, matrix_model in enumerate(matrix_models):
+                self.fit_transformation(slice_data=slice_data, transformation_component='matrix', element=n,
+                                        drift_model=matrix_model, verbose=verbose)
+
+        if offset_models is None:
+            self.transformation_models['offset'] = None
+        else:
+            self.transformation_models.update(self._transformation_models_for_zero_offset())
+            for n, offset_model in enumerate(offset_models):
+                self.fit_transformation(slice_data=slice_data, transformation_component='offset', element=n,
+                                        drift_model=offset_model, verbose=verbose)
+
         return self
 
     def _apply_correction_on_chunks(self):
@@ -322,21 +560,32 @@ class Drift(_Analysis):
     def _apply_correction_from_model(self):
         """
         Correct drift by applying the estimated transformations to locdata.
+        If self.transformation_model['matrix'] is None, no matrix transformation will be carried out when calling
+        :func:`apply_correction` (same for 'offset').
         """
+        # check if any models are fitted, otherwise it is likely that the fitting procedure was accidentally omitted.
+        if self.transformation_models['matrix'] is None and self.transformation_models['offset'] is None:
+            raise AttributeError("The transformation_models have to be fitted before they can be evaluated.")
+
         dimension = self.locdata.dimension
-        frames = self.locdata.data.frame
+        frames = self.locdata.data.frame.values
         matrix = np.tile(np.identity(dimension), (len(frames), *([1] * dimension)))
         offset = np.zeros((len(frames), dimension))
 
-        for n, model_result in enumerate(self.transformation_models.matrix):
-            if model_result is not None:
-                matrix[:, n // dimension, n % dimension] = model_result.eval(x=frames)
+        if self.transformation_models['matrix'] is None:
+            transformed_points = self.locdata.coordinates
+        else:
+            for n, drift_model in enumerate(self.transformation_models['matrix']):
+                matrix[:, n // dimension, n % dimension] = drift_model.eval(frames)
+            transformed_points = np.einsum("...ij, ...j -> ...i", matrix, self.locdata.coordinates)
 
-        for n, model_result in enumerate(self.transformation_models.offset):
-            if model_result is not None:
-                offset[:, n] = model_result.eval(x=frames)
+        if self.transformation_models['offset'] is None:
+            pass
+        else:
+            for n, drift_model in enumerate(self.transformation_models['offset']):
+                offset[:, n] = drift_model.eval(frames)
+            transformed_points += offset
 
-        transformed_points = np.einsum("...ij, ...j -> ...i", matrix, self.locdata.coordinates) + offset
         return transformed_points
 
     def apply_correction(self, locdata=None, from_model=True):
@@ -376,7 +625,7 @@ class Drift(_Analysis):
         self.locdata_corrected = new_locdata
         return self
 
-    def plot(self, ax=None, results_field='matrix', element=None, window=1, **kwargs):
+    def plot(self, ax=None, transformation_component='matrix', element=None, window=1, **kwargs):
         """
         Provide plot as matplotlib axes object showing the running average of results over window size.
 
@@ -384,7 +633,7 @@ class Drift(_Analysis):
         ----------
         ax : matplotlib axes
             The axes on which to show the image
-        results_field : basestring
+        transformation_component : string
             One of 'matrix' or 'offset'
         element : int or None
             The element of flattened transformation matrix or offset to be plotted; if None all plots are shown.
@@ -408,7 +657,7 @@ class Drift(_Analysis):
         n_transformations = len(self.transformations)
         # prepare plot
         x = [reference.data.frame.mean() for reference in self.collection.references[1:]]
-        results = np.array([getattr(transformation, results_field) for transformation in self.transformations])
+        results = np.array([getattr(transformation, transformation_component) for transformation in self.transformations])
         if element is None:
             ys = results.reshape(n_transformations, -1).T
             for y in ys:
@@ -419,7 +668,7 @@ class Drift(_Analysis):
 
         ax.set(title=f'Drift\n (window={window})',
                xlabel='frame',
-               ylabel=''.join([results_field, '[', str(element), ']'])
+               ylabel=''.join([transformation_component, '[', str(element), ']'])
                )
 
         return ax

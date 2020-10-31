@@ -1053,17 +1053,20 @@ def _random_poisson_repetitions(n_samples, lam):
     numpy array with shape (n_samples,)
         The generated sequence of integers.
     """
-    repeats = np.random.poisson(lam=lam, size=n_samples)
     frames = np.ones(n_samples, dtype=int)
+    n_random_numbers = n_samples if lam > 0 else int(n_samples / lam)
     position = 0
-    for number, repeat in zip(range(n_samples), repeats):
-        repeated_numbers = np.repeat(number, repeat)
-        try:
-            frames[position:position + repeat] = repeated_numbers
-        except ValueError:
-            frames[position:] = repeated_numbers[:n_samples - position]
-            break
-        position += repeat
+    current_number = 0
+    while position < n_samples:
+        repeats = np.random.poisson(lam=lam, size=n_random_numbers)
+        for repeat in repeats:
+            try:
+                frames[position:position + repeat] = current_number
+            except ValueError:
+                frames[position:] = current_number
+                break
+            position += repeat
+            current_number += 1
     return frames
 
 

@@ -273,6 +273,7 @@ def test_visual_add_drift(locdata_2d):
     new_locdata.data.plot(*new_locdata.coordinate_labels, kind='scatter', ax=ax, c='r')
     plt.show()
 
+
 def test_simulate_frame_numbers(locdata_2d):
     frames = simulate_frame_numbers(n_samples=(len(locdata_2d)), lam=2)
     assert len(frames) == len(locdata_2d)

@@ -515,16 +515,20 @@ class LocData:
         return cls(references=references, dataframe=dataframe, meta=meta_)
 
     @classmethod
-    def from_chunks(cls, locdata, chunk_size, meta=None):
+    def from_chunks(cls, locdata, chunk_size=None, n_chunks=None, order='successive', meta=None):
         """
-        Divide locdata in chunks of successive elements.
+        Divide locdata in chunks of localization elements.
 
         Parameters
         ----------
         locdatas : list of LocData objects
             Locdata objects to concatenate.
-        chunk_size : int
-            Number of localizations per chunk
+        chunk_size : int or None
+            Number of localizations per chunk. One of `chunk_size` or `n_chunks` must be different from None.
+        n_chunks : int or None
+            Number of chunks. One of `chunk_size` or `n_chunks` must be different from None.
+        order : string
+            The order in which to select localizations. One of 'successive' or 'alternating'.
         meta : Metadata protobuf message
             Metadata about the current dataset and its history.
 
@@ -533,16 +537,38 @@ class LocData:
         LocData object
             A new LocData instance with references and dataframe elements representing the individual chunks.
         """
-        if (len(locdata) % chunk_size) == 0:
-            chunk_sizes = [chunk_size] * (len(locdata) // chunk_size)
-        else:
-            chunk_sizes = [chunk_size] * (len(locdata) // chunk_size) + [(len(locdata) % chunk_size)]
-        cum_chunk_sizes = list(accumulate(chunk_sizes))
-        cum_chunk_sizes.insert(0, 0)
-        index_lists = [locdata.data.index[slice(lower, upper)]
-                       for lower, upper in zip(cum_chunk_sizes[:-1], cum_chunk_sizes[1:])]
-        references = [LocData.from_selection(locdata=locdata, indices=index_list) for index_list in index_lists]
+        if chunk_size is None and n_chunks is None:
+            raise ValueError("One of `chunk_size` or `n_chunks` must be different from None.")
+        elif chunk_size is not None and n_chunks is not None:
+            raise ValueError("One of `chunk_size` or `n_chunks` must be None.")
+        elif chunk_size is not None:
+            if (len(locdata) % chunk_size) == 0:
+                n_chunks = len(locdata) // chunk_size
+            else:
+                n_chunks = len(locdata) // chunk_size + 1
+        else:  # if n_chunks is not None
+            if (len(locdata) % n_chunks) == 0:
+                chunk_size = len(locdata) // n_chunks
+            else:
+                chunk_size = len(locdata) // (n_chunks-1)
 
+        if order == 'successive':
+            if (len(locdata) % chunk_size) == 0:
+                chunk_sizes = [chunk_size] * n_chunks
+            else:
+                chunk_sizes = [chunk_size] * (n_chunks-1) + [(len(locdata) % chunk_size)]
+            cum_chunk_sizes = list(accumulate(chunk_sizes))
+            cum_chunk_sizes.insert(0, 0)
+            index_lists = [locdata.data.index[slice(lower, upper)]
+                           for lower, upper in zip(cum_chunk_sizes[:-1], cum_chunk_sizes[1:])]
+
+        elif order == 'alternating':
+            index_lists = [locdata.data.index[slice(i_chunk, None, n_chunks)] for i_chunk in range(n_chunks)]
+
+        else:
+            raise ValueError(f"The order {order} is not implemented.")
+
+        references = [LocData.from_selection(locdata=locdata, indices=index_list) for index_list in index_lists]
         dataframe = pd.DataFrame([ref.properties for ref in references])
 
         meta_ = metadata_pb2.Metadata()

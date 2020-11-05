@@ -401,6 +401,17 @@ def test_locdata_from_selection_(
     assert (sel.meta.comment == COMMENT_METADATA.comment)
 
 
+def test_locdata_from_chunks_(locdata_non_standard_index):
+    chunk_collection = LocData.from_chunks(locdata=locdata_non_standard_index, chunk_size=2)
+    assert all(chunk_collection.references[0].data.index == [2, 1])
+
+    chunk_collection = LocData.from_chunks(locdata=locdata_non_standard_index, n_chunks=3)
+    assert all(chunk_collection.references[0].data.index == [2, 1])
+
+    chunk_collection = LocData.from_chunks(locdata=locdata_non_standard_index, n_chunks=3, order='alternating')
+    assert all(chunk_collection.references[0].data.index == [2, 10])
+
+
 @pytest.mark.parametrize('fixture_name, expected', [
     ('locdata_empty', (0, (0,))),
     ('locdata_single_localization', (1, (1,))),
@@ -412,6 +423,13 @@ def test_locdata_from_chunks(
         fixture_name, expected):
     dat = eval(fixture_name)
     chunk_collection = LocData.from_chunks(locdata=dat, chunk_size=2, meta=COMMENT_METADATA)
+    assert isinstance(chunk_collection.references, list)
+    assert len(chunk_collection) == expected[0]
+    if len(chunk_collection) != 0:
+        assert all(chunk_collection.data.localization_count == expected[1])
+    assert chunk_collection.meta.comment == COMMENT_METADATA.comment
+
+    chunk_collection = LocData.from_chunks(locdata=dat, chunk_size=2, order='alternating', meta=COMMENT_METADATA)
     assert isinstance(chunk_collection.references, list)
     assert len(chunk_collection) == expected[0]
     if len(chunk_collection) != 0:

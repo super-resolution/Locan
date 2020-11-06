@@ -277,5 +277,3 @@ def test_visual_add_drift(locdata_2d):
 def test_simulate_frame_numbers(locdata_2d):
     frames = simulate_frame_numbers(n_samples=(len(locdata_2d)), lam=2)
     assert len(frames) == len(locdata_2d)
-    locdata_2d.dataframe = locdata_2d.dataframe.assign(frame=frames)
-    assert np.array_equal(locdata_2d.data.frame, frames)

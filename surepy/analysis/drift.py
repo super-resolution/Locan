@@ -137,8 +137,6 @@ def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, **
     # split in chunks
     collection = LocData.from_chunks(locdata, chunk_size=chunk_size)
     ranges = locdata.bounding_box.hull.T
-    # ranges = [(min, max) for min, max in zip(locdata.coordinates.min(axis=0),
-    #                                          locdata.coordinates.max(axis=0))]
 
     # register images
     transformations = []

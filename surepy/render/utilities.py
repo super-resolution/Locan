@@ -225,3 +225,4 @@ def _indices_to_bin_centers(bin_edges, indices):
     bin_centers = _bin_edges_to_centers(bin_edges)
     selected_bin_centers = np.array([bc[ver] for bc, ver in zip(bin_centers, indices.T)]).T
     return selected_bin_centers
+

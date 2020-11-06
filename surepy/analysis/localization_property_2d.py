@@ -169,7 +169,7 @@ def _localization_property2d(locdata, loc_properties=None, other_property=None,
 
     model_result = _fit_image(data, range)
 
-    Results = namedtuple('results', 'img range bin_edges label model_result')
+    Results = namedtuple('Results', 'image range bin_edges label model_result')
     results = Results(img, range, bin_edges, label, model_result)
     return results
 
@@ -282,7 +282,7 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        ax.imshow(self.results.img, cmap='viridis', origin='lower', extent=np.ravel(self.results.range))
+        ax.imshow(self.results.image, cmap='viridis', origin='lower', extent=np.ravel(self.results.range))
 
         x, y = self.results.bin_edges[0][1:], self.results.bin_edges[1][1:]
         xx, yy = np.meshgrid(x, y)
@@ -325,7 +325,7 @@ class LocalizationProperty2d(_Analysis):
         zz = np.stack((xx, yy), axis=-1).reshape((np.product(xx.shape), 2))
         z = self.results.model_result.eval(points=zz)
 
-        residuals = np.where(self.results.img == 0, np.nan, z.reshape((len(y), len(x))) - self.results.img)
+        residuals = np.where(self.results.image == 0, np.nan, z.reshape((len(y), len(x))) - self.results.image)
         max_absolute_value = max([abs(np.nanmin(residuals)), abs(np.nanmax(residuals))])
         ax.imshow(residuals, cmap=COLORMAP_DIVERGING, origin='lower', extent=np.ravel(self.results.range),
                   vmin=(-max_absolute_value), vmax=max_absolute_value)
@@ -361,9 +361,9 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        positions = np.nonzero(self.results.img)
-        mean_value = self.results.img[positions].mean()
-        deviations = np.where(self.results.img == 0, np.nan, self.results.img - mean_value)
+        positions = np.nonzero(self.results.image)
+        mean_value = self.results.image[positions].mean()
+        deviations = np.where(self.results.image == 0, np.nan, self.results.image - mean_value)
         max_absolute_value = max([abs(np.nanmin(deviations)), abs(np.nanmax(deviations))])
         ax.imshow(deviations, cmap=COLORMAP_DIVERGING, origin='lower', extent=np.ravel(self.results.range),
                   vmin=(-max_absolute_value), vmax=max_absolute_value)
@@ -397,9 +397,9 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        positions = np.nonzero(self.results.img)
-        median_value = np.median(self.results.img[positions])
-        deviations = np.where(self.results.img == 0, np.nan, self.results.img - median_value)
+        positions = np.nonzero(self.results.image)
+        median_value = np.median(self.results.image[positions])
+        deviations = np.where(self.results.image == 0, np.nan, self.results.image - median_value)
         max_absolute_value = max([abs(np.nanmin(deviations)), abs(np.nanmax(deviations))])
         ax.imshow(deviations, cmap=COLORMAP_DIVERGING, origin='lower', extent=np.ravel(self.results.range),
                   vmin=(-max_absolute_value), vmax=max_absolute_value)

@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import fast_histogram
 from skimage import exposure
+import scipy.signal.windows
 
 from surepy.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
 from surepy.constants import _has_mpl_scatter_density, _has_napari
@@ -19,16 +20,17 @@ from surepy.render.utilities import _coordinate_ranges, _bin_edges, _bin_edges_t
 
 
 __all__ = ['adjust_contrast', 'histogram',
-           'render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari', 'scatter_2d_mpl']
+           'render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari', 'scatter_2d_mpl',
+           'apply_window']
 
 
-def adjust_contrast(img, rescale=True, **kwargs):
+def adjust_contrast(image, rescale=True, **kwargs):
     """
-    Adjust contrast of img by equalization or rescaling all values.
+    Adjust contrast of image by equalization or rescaling all values.
 
     Parameters
     ----------
-    img : array-like
+    image : array-like
         Values to be adjusted
     rescale : True, tuple, False or None, 'equal', or 'unity.
         Rescale intensity values to be within percentile of max and min intensities
@@ -51,18 +53,18 @@ def adjust_contrast(img, rescale=True, **kwargs):
     if rescale is None or rescale is False:
         pass
     elif rescale is True:
-        img = exposure.rescale_intensity(img, **kwargs)  # scaling to min/max of img intensities
+        image = exposure.rescale_intensity(image, **kwargs)  # scaling to min/max of image intensities
     elif rescale == 'equal':
-        img = exposure.equalize_hist(img, **kwargs)
+        image = exposure.equalize_hist(image, **kwargs)
     elif rescale == 'unity':
-        img = exposure.rescale_intensity(img *1., **kwargs)
+        image = exposure.rescale_intensity(image * 1., **kwargs)
     elif isinstance(rescale, tuple):
-        p_low, p_high = np.ptp(img) * np.asarray(rescale) / 100 + img.min()
-        img = exposure.rescale_intensity(img, in_range=(p_low, p_high))
+        p_low, p_high = np.ptp(image) * np.asarray(rescale) / 100 + image.min()
+        image = exposure.rescale_intensity(image, in_range=(p_low, p_high))
     else:
         raise TypeError('Set rescale to tuple, None or "equal".')
 
-    return img
+    return image
 
 
 def _fast_histo_mean(x, y, values, bins, range):
@@ -142,7 +144,7 @@ def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_
     Returns
     -------
     tuple
-        (img, range, bin_edges, label)
+        (image, range, bin_edges, label)
     """
     # todo: adjust for loc_property input
     range_ = _coordinate_ranges(locdata, range=range)
@@ -527,3 +529,29 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs={}, **kwargs):
            )
 
     return ax
+
+
+def apply_window(image, window_function='tukey', **kwargs):
+    """
+    Apply window function to image.
+
+    Parameters
+    ----------
+    image : ndarray
+        Image
+    window_function : str
+        Window function to apply. One of 'tukey', 'hann' or any other in `scipy.signal.windows`.
+
+    Other parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to the `scipy.signal.windows` window function.
+    """
+    window_func = getattr(scipy.signal.windows, window_function)
+    windows = [window_func(M, **kwargs) for M in image.shape]
+
+    result = image.astype('float64')
+    result *= windows[0]
+    result *= windows[1][:, None]
+
+    return result

@@ -1,6 +1,5 @@
 #
-# Further tools for surepy development
-#
+# Tools for surepy development
 #
 # Update existing environment: conda env update --file "./environment_dev.yml"
 #
@@ -11,7 +10,14 @@ channels:
 - defaults
 
 dependencies:
-# Development related
+# Python
+- cython
+
+# Python tests
+- pytest
+
+# Development
+- twine
 - sphinx
 - sphinx_rtd_theme
 - ipython

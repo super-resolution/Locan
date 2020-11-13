@@ -1,5 +1,5 @@
 #
-# Minimal dependencies to use surepy
+# Minimal and extra dependencies to use surepy
 #
 
 # Python
@@ -39,4 +39,4 @@ colorcet
 trackpy
 open3d
 mpl_scatter_density
-napari
+napari<0.3.0

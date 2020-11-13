@@ -91,8 +91,6 @@ RUN conda init bash && \
     conda activate $ENVIRONMENT_NAME && \
     # install surepy
     python setup.py install && \
-    # currently napari scripts require an older version
-    conda install -c conda-forge napari=0.2.12 --freeze-installed && \
     # clean up
 	echo "conda activate $ENVIRONMENT_NAME" >> ~/.bashrc && \
 	rm -rf $HOME/surepy/* && \

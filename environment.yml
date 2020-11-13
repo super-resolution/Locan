@@ -1,5 +1,5 @@
 #
-# Minimal dependencies to use surepy
+# Minimal and extra dependencies to use surepy
 #
 # Create new environment: conda env create --file "./environment.yml"
 # Update existing environment: conda env update --file "./environment.yml"
@@ -49,5 +49,5 @@ dependencies:
 - colorcet
 - trackpy
 - open3d
-- napari
+- napari<0.3.0
 - mpl-scatter-density

@@ -1,9 +1,9 @@
 # Use an official image for a Python runtime that is based on debian
-ARG PYTHON_VERSION=3.7
+ARG PYTHON_VERSION=3.8
 FROM python:${PYTHON_VERSION}-slim-buster
 
 ARG PYTHON_VERSION
-ARG ENVIRONMENT_NAME="surepy_python_py37"
+ARG ENVIRONMENT_NAME="surepy_python_py38"
 
 ENV PYTHON_VERSION=${PYTHON_VERSION} \
     ENVIRONMENT_NAME=${ENVIRONMENT_NAME}
@@ -17,10 +17,11 @@ LABEL maintainer="SurepyDevelopers" \
 RUN ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 
 # Install gcc compiler and remove package manager cache
-RUN apt-get update \
- && apt-get install gcc -y \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install gcc -y && \
+    apt-get install qt5-default -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy the current directory contents into the container
 COPY . /surepy
@@ -33,17 +34,22 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH "$VIRTUAL_ENV/bin:$PATH"
 	
 # Update and install any needed packages and the project
-RUN pip install pip setuptools --trusted-host pypi.org --upgrade --no-cache-dir \
- && pip install cython hdbscan pytest --trusted-host pypi.org --no-cache-dir \
- && python setup.py install
+RUN pip install pip setuptools --trusted-host pypi.org --upgrade --no-cache-dir && \
+    pip install cython hdbscan pytest --trusted-host pypi.org --no-cache-dir && \
+# install project with setuptools including all extra requirements
+    python setup.py install
+# alternatively install project with pip including only specified extra requirements
+#    pip install .[all]
 
 # Volume for data
 VOLUME ["/shared"]
 
 # Run a command when the container launches
-CMD today=$(date +"%Y-%m-%d") \
- && base=${ENVIRONMENT_NAME}_$today \
- && echo $PATH > "/shared/path_$base.txt" \
- && pip freeze --all > "/shared/requirements_$base.txt" \
- && date > "/shared/test_results_$base.txt" \
- && pytest >> "/shared/test_results_$base.txt"
+CMD today=$(date +"%Y-%m-%d") && \
+    base=${ENVIRONMENT_NAME}_$today && \
+    echo $PATH > "/shared/path_$base.txt" && \
+    pip freeze --all > "/shared/requirements_$base.txt" && \
+    date > "/shared/versions_$base.txt" && \
+    surepy show_versions >> "/shared/versions_$base.txt" && \
+    date > "/shared/test_results_$base.txt" && \
+    surepy test >> "/shared/test_results_$base.txt"

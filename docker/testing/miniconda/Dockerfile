@@ -16,10 +16,10 @@ LABEL maintainer="SurepyDevelopers" \
 RUN ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 
 # Install GL library and remove package manager cache
-RUN apt-get update \
- && apt-get install libgl1-mesa-dev -y \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install libgl1-mesa-dev -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 #Activate bash shell for correct use of conda commands
 SHELL [ "/bin/bash", "--login", "-c" ]
@@ -30,21 +30,23 @@ COPY . surepy
 WORKDIR /surepy
 
 # Update conda & Create environment from environment.yml & Install the project
-RUN conda init bash \
- && conda update -n base -c defaults conda \
- && conda env create -n $ENVIRONMENT_NAME -f environment.yml python=$PYTHON_VERSION \
- && conda activate $ENVIRONMENT_NAME \
- && python setup.py install \
- && conda clean -afy
+RUN conda init bash && \
+    conda update -n base -c defaults conda && \
+    conda env create -n $ENVIRONMENT_NAME -f environment.yml python=$PYTHON_VERSION && \
+    conda activate $ENVIRONMENT_NAME && \
+    python setup.py install && \
+    conda clean -afy
 
 # Volume for data
 VOLUME ["/shared"]
 
 # Run a command when the container launches
-CMD conda activate $ENVIRONMENT_NAME \
- && today=$(date +"%Y-%m-%d") \
- && base=${ENVIRONMENT_NAME}_$today \
- && echo $PATH > "/shared/path_$base.txt" \
- && conda env export > "/shared/environment_$base.yml" \
- && date > "/shared/test_results_$base.txt" \
- && pytest >> "/shared/test_results_$base.txt"
+CMD conda activate $ENVIRONMENT_NAME && \
+    today=$(date +"%Y-%m-%d") && \
+    base=${ENVIRONMENT_NAME}_$today && \
+    echo $PATH > "/shared/path_$base.txt" && \
+    conda env export > "/shared/environment_$base.yml" && \
+    date > "/shared/versions_$base.txt" && \
+    surepy show_versions >> "/shared/versions_$base.txt" && \
+    date > "/shared/test_results_$base.txt" && \
+    surepy test >> "/shared/test_results_$base.txt"

@@ -1,0 +1,16 @@
+#
+# Tools for surepy development
+#
+
+# Python
+cython
+
+# Python tests
+pytest
+
+# Development
+pytest
+twine
+sphinx
+sphinx_rtd_theme
+ipython

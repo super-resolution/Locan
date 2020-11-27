@@ -22,13 +22,16 @@ surepy.data.rois.select_by_drawing_napari
 import argparse
 from pathlib import Path
 
+from surepy.constants import _has_napari
+if _has_napari: import napari
+
 from surepy.constants import FileType
 from surepy.gui.io import file_dialog
 import surepy.io.io_locdata as io
 from surepy.render.render2d import select_by_drawing_napari
 
 
-def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indicator='_roi'):
+def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indicator='_roi', bin_size=50):
     """
     Define regions of interest by drawing a boundary.
 
@@ -42,37 +45,39 @@ def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indic
     roi_file_indicator : str
         Indicator to add to the localization file name and use as roi file name (with further extension .yaml).
     """
+    with napari.gui_qt():
+        # choose file interactively
+        if file_path is None:
+            file_path = Path(file_dialog(message='choose file', filter='*.txt; *.csv')[0])
+        else:
+            file_path = Path(file_path)
 
-    # choose file interactively
-    if file_path is None:
-        file_path = Path(file_dialog(message='choose file', filter='*.txt; *.csv')[0])
-    else:
-        file_path = Path(file_path)
+        print(file_path)
 
-    print(file_path)
+        # load data
+        dat = io.load_locdata(path=file_path, file_type=file_type)
 
-    # load data
-    dat = io.load_locdata(path=file_path, file_type=file_type)
+        # set roi
+        rois = select_by_drawing_napari(locdata=dat, bin_size=bin_size, rescale='equal')
+        print(rois)
 
-    # set roi
-    rois = select_by_drawing_napari(locdata=dat, bin_size=50, rescale='equal')
-    print(rois)
-
-    # save roi
-    for i, roi in enumerate(rois):
-        roi_file = file_path.stem + roi_file_indicator + f'_{i}.yaml'
-        roi_path = file_path.with_name(roi_file)
-        roi.to_yaml(path=roi_path)
+        # save roi
+        for i, roi in enumerate(rois):
+            roi_file = file_path.stem + roi_file_indicator + f'_{i}.yaml'
+            roi_path = file_path.with_name(roi_file)
+            roi.to_yaml(path=roi_path)
 
 
 def _add_arguments(parser):
     parser.add_argument('-f', '--file', dest='file', type=str, default=None,
                         help='File path to localization data.')
-    parser.add_argument('-t', '--type', dest='type', type=int, default=1,
+    parser.add_argument('-t', '--type', dest='type', type=int, default=2,
                         help='Integer or string indicating the file type.')
     parser.add_argument('-i', '--indicator', dest='roi_file_indicator', type=str, default='_roi',
                         help='Indicator to add to the localization file name and use as roi file name '
                              '(with further extension .yaml).')
+    parser.add_argument('--bin_size', dest='bin_size', type=float, default=50,
+                        help='Keyword passed to render function.')
 
 
 def main(args=None):
@@ -81,7 +86,8 @@ def main(args=None):
     _add_arguments(parser)
     returned_args = parser.parse_args(args)
 
-    sc_draw_roi_napari(returned_args.file, returned_args.type, returned_args.roi_file_indicator)
+    sc_draw_roi_napari(returned_args.file, returned_args.type, returned_args.roi_file_indicator,
+                       bin_size=returned_args.bin_size)
 
 
 if __name__ == '__main__':

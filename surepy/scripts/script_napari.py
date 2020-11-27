@@ -43,22 +43,23 @@ def sc_napari(file_path=None, file_type=FileType.CUSTOM, **kwrds):
     kwrds : dict
         Keywords passed to render function.
     """
-
-    # choose file interactively
-    if file_path is None:
-        file_path = Path(file_dialog(message='choose file', filter=
-                    'Text files (*.txt);; CSV files (*.csv);; All files (*);; All files ()'
-                    )[0])
-    else:
-        file_path = Path(file_path)
-
-    print(file_path)
-
-    # load data
-    dat = io.load_locdata(path=file_path, file_type=file_type)
-
-    # render
     with napari.gui_qt():
+        # choose file interactively
+        if file_path is None:
+            file_path = Path(file_dialog(message='choose file', filter=
+                        'Text files (*.txt);; CSV files (*.csv);; All files (*);; All files ()'
+                        )[0])
+        else:
+            file_path = Path(file_path)
+
+        print(file_path)
+
+        # load data
+        dat = io.load_locdata(path=file_path, file_type=file_type)
+
+    # due to changed napari behavior from v3.0 on the context manager is moved up.
+    # with napari.gui_qt():
+        # render
         render_2d_napari(locdata=dat, **kwrds)
 
 

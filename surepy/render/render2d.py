@@ -286,8 +286,8 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
 
     Returns
     -------
-    napari Viewer object, ndarray, tuple of str
-        viewer, bins_edges, label
+    napari Viewer object, namedtuple('Histogram', "data bins labels"): (np.ndarray, `Bins`, list)
+        viewer, histogram
     """
     if not _has_napari:
         raise ImportError('Function requires napari.')
@@ -514,14 +514,14 @@ def select_by_drawing_napari(locdata, bin_size=10, **kwargs):
     # select roi
 
     with napari.gui_qt():
-        viewer, bins_edges, label = render_2d_napari(locdata, bin_size=bin_size, **kwargs)
+        viewer, hist = render_2d_napari(locdata, bin_size=bin_size, **kwargs)
 
     vertices = viewer.layers['Shapes'].data
     types = viewer.layers['Shapes'].shape_type
 
     regions = []
     for verts, typ in zip(vertices, types):
-        regions.append(_napari_shape_to_RoiRegion(verts, bins_edges, typ))
+        regions.append(_napari_shape_to_RoiRegion(verts, hist.bins.bin_edges, typ))
 
     roi_list = [Roi(reference=locdata, region_specs=region.region_specs,
                     region_type=region.region_type) for region in regions]

@@ -43,7 +43,7 @@ def test_register_cc(locdata_blobs_2d):
     offset_target = np.array([100., 50.])
     matrix_target = np.array([[1, 0], [0, 1]])
 
-    matrix, offset = register_cc(locdata_blobs_2d, locdata_2d_transformed, bin_size=100, verbose=False)
+    matrix, offset = register_cc(locdata_blobs_2d, locdata_2d_transformed, bin_size=50, verbose=False)
     assert np.allclose(np.array(offset), offset_target, atol=5)
     assert np.allclose(matrix, matrix_target)
 

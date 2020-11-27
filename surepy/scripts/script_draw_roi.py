@@ -26,7 +26,7 @@ from pathlib import Path
 
 from surepy.gui.io import file_dialog
 import surepy.io.io_locdata as io
-from surepy.data.rois import select_by_drawing_mpl
+from surepy.render.render2d import select_by_drawing_mpl
 
 
 def sc_draw_roi_mpl(file_path=None, file_type=1, roi_file_indicator='_roi', region_type='rectangle'):

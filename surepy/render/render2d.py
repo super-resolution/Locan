@@ -5,215 +5,34 @@ This module provides functions for rendering locdata objects.
 """
 import warnings
 from math import isclose
+from collections import namedtuple
 
 import numpy as np
 import matplotlib.pyplot as plt
 import fast_histogram
+from matplotlib import pyplot as plt
 from skimage import exposure
 import scipy.signal.windows
 
+from surepy.data.rois import Roi
+from surepy.data.region import RoiRegion
 from surepy.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
 from surepy.constants import _has_mpl_scatter_density, _has_napari
+from surepy.data.rois import _MplSelector
+from surepy.data.aggregate import histogram
+
 if _has_mpl_scatter_density: import mpl_scatter_density
 if _has_napari: import napari
-from surepy.render.utilities import _coordinate_ranges, _bin_edges, _bin_edges_to_number, _bin_edges_from_size
+from surepy.render.utilities import _coordinate_ranges
 
 
-__all__ = ['adjust_contrast', 'histogram',
-           'render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari', 'scatter_2d_mpl',
+__all__ = ['render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari', 'scatter_2d_mpl',
            'apply_window']
 
 
-def adjust_contrast(image, rescale=True, **kwargs):
-    """
-    Adjust contrast of image by equalization or rescaling all values.
-
-    Parameters
-    ----------
-    image : array-like
-        Values to be adjusted
-    rescale : True, tuple, False or None, 'equal', or 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
-        For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
-        For None or False no rescaling occurs.
-
-    Other Parameters
-    ----------------
-    kwargs : dict
-        For 'rescale' = True kwargs are passed to :func:`skimage.exposure.rescale_intensity`.
-        For 'rescale' = 'equal' kwargs are passed to :func:`skimage.exposure.equalize_hist`.
-
-    Returns
-    -------
-    numpy array
-    """
-    if rescale is None or rescale is False:
-        pass
-    elif rescale is True:
-        image = exposure.rescale_intensity(image, **kwargs)  # scaling to min/max of image intensities
-    elif rescale == 'equal':
-        image = exposure.equalize_hist(image, **kwargs)
-    elif rescale == 'unity':
-        image = exposure.rescale_intensity(image * 1., **kwargs)
-    elif isinstance(rescale, tuple):
-        p_low, p_high = np.ptp(image) * np.asarray(rescale) / 100 + image.min()
-        image = exposure.rescale_intensity(image, in_range=(p_low, p_high))
-    else:
-        raise TypeError('Set rescale to tuple, None or "equal".')
-
-    return image
-
-
-def _fast_histo_mean(x, y, values, bins, range):
-    """
-    Provide histogram with averaged values for all counts in each bin.
-
-    Parameters
-    ----------
-    x : array-like
-        first coordinate values
-    y : array-like
-        second coordinate values
-    values : int or float
-        property to be averaged
-    bins : sequence or int or None
-        The bin specification as defined in fast_histogram_histogram2d:
-            A sequence of arrays describing the monotonically increasing bin edges along each dimension.
-            The number of bins for each dimension (nx, ny, … =bins)
-    range : tuple with shape (dimension, 2) or None
-        range as requested by fast_histogram_histogram2d
-
-    Returns
-    -------
-    ndarray
-    """
-    hist_1 = fast_histogram.histogram2d(x, y, range=range, bins=bins)
-    hist_w = fast_histogram.histogram2d(x, y, range=range, bins=bins, weights=values)
-
-    with np.errstate(divide='ignore', invalid='ignore'):
-        hist_mean = np.true_divide(hist_w, hist_1)
-        hist_mean[hist_mean == np.inf] = 0
-        hist_mean = np.nan_to_num(hist_mean)
-
-    return hist_mean
-
-
-def histogram(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None, rescale=None,
-              **kwargs):
-    """
-    Make histogram of loc_properties by binning all localizations or averaging other_property within each bin.
-
-    Parameters
-    ----------
-    locdata : LocData object
-        Localization data.
-    loc_properties : list or None
-        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
-    other_property : str or None
-        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
-        shown.
-    bins : sequence or int or None
-        The bin specification as defined in :func:`numpy.histogramdd`:
-        A sequence of arrays describing the monotonically increasing bin edges along each dimension.
-        The number of bins for each dimension (nx, ny, … =bins)
-        The number of bins for all dimensions (nx=ny=…=bins).
-    bin_size : float or tuple, list, ndarray with with length equal to that of range (or the number of loc_properties).
-        Number of bins to be used in all or each dimension for which a range is provided.
-        The bin size in units of locdata coordinate units. Either bins or bin_size must be specified but not both.
-    range : tuple with shape (dimension, 2) or None or 'zero'
-        ((min_x, max_x), (min_y, max_y), ...) range for each coordinate;
-        for None (min, max) range are determined from data;
-        for 'zero' (0, max) range with max determined from data.
-    rescale : True, tuple, False or None, 'equal', or 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
-        For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
-        For None or False no rescaling occurs.
-
-    Other Parameters
-    ----------------
-    kwargs : dict
-        For 'rescale' = True kwargs are passed to :func:`skimage.exposure.rescale_intensity`.
-        For 'rescale' = 'equal' kwargs are passed to :func:`skimage.exposure.equalize_hist`.
-
-    Returns
-    -------
-    tuple
-        (image, range, bin_edges, label)
-    """
-    # todo: adjust for loc_property input
-    range_ = _coordinate_ranges(locdata, range=range)
-
-    if bins is not None and bin_size is not None:
-        raise ValueError('Only one of bins and bin_size can be different from None.')
-    elif bins is not None and bin_size is None:
-        bin_edges = _bin_edges(bins, range_)
-    elif bins is None and bin_size is not None:
-        bin_edges = _bin_edges_from_size(bin_size, range_)  # the last bin extends the range to have equally-sized bins.
-    else:
-        raise ValueError('One of bins or bin_size must be different from None.')
-
-    if loc_properties is None:
-        data = locdata.coordinates.T
-        labels = list(locdata.coordinate_labels)
-    elif isinstance(loc_properties, str) and loc_properties in locdata.coordinate_labels:
-        data = locdata.data[loc_properties].values.T
-        range_ = range_[locdata.coordinate_labels.index(loc_properties)]
-        bin_edges = bin_edges[locdata.coordinate_labels.index(loc_properties)]
-        labels = list(loc_properties)
-    elif isinstance(loc_properties, (list, tuple)):
-        for prop in loc_properties:
-            if prop not in locdata.coordinate_labels:
-                raise ValueError(f'{prop} is not a valid property in locdata.')
-        data = locdata.data[list(loc_properties)].values.T
-        labels = list(loc_properties)
-    else:
-        raise ValueError(f'{loc_properties} is not a valid property in locdata.')
-
-    n_bins = _bin_edges_to_number(
-        bin_edges)  # at this point only equally sized bins can be forwarded to fast_histogram.
-
-    if other_property is None:
-        # histogram data by counting points
-        if np.ndim(data) == 1:
-            img = fast_histogram.histogram1d(data, range=range_, bins=n_bins)
-        elif data.shape[0] == 2:
-            img = fast_histogram.histogram2d(*data, range=range_, bins=n_bins)
-            img = img.T  # to show image in the same format as scatter plot
-        elif data.shape[0] == 3:
-            raise NotImplementedError
-        else:
-            raise TypeError('No more than 3 elements in loc_properties are allowed.')
-        labels.append('counts')
-
-    elif other_property in locdata.data.columns:
-        # histogram data by averaging values
-        if np.ndim(data) == 1:
-            raise NotImplementedError
-        elif data.shape[0] == 2:
-            values = locdata.data[other_property].values
-            img = _fast_histo_mean(*data, values, range=range_, bins=n_bins)
-            img = img.T  # to show image in the same format as scatter plot
-        elif data.shape[0] == 3:
-            raise NotImplementedError
-        else:
-            raise TypeError('No more than 3 elements in loc_properties are allowed.')
-        labels.append(other_property)
-    else:
-        raise TypeError(f'No valid property name {other_property}.')
-
-    if rescale:
-        img = adjust_contrast(img, rescale, **kwargs)
-
-    return img, range_, bin_edges, labels
-
-
-def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None, rescale=None,
+def render_2d_mpl(locdata, loc_properties=None, other_property=None,
+                  bins=None, n_bins=None, bin_size=10, bin_edges=None, bin_range=None,
+                  rescale=None,
                   ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
@@ -227,17 +46,24 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, 
     other_property : str or None
         Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
         shown.
-    bins : sequence or int or None
-        The bin specification as defined in numpy.histogramdd:
-            A sequence of arrays describing the monotonically increasing bin edges along each dimension.
-            The number of bins for each dimension (nx, ny, … =bins)
-            The number of bins for all dimensions (nx=ny=…=bins).
-    bin_size : float or None
-        The bin size in units of locdata coordinate units. Either bins or bin_size must be specified but not both.
-    range : tuple with shape (dimension, 2) or None or 'zero'
-        ((min_x, max_x), (min_y, max_y), ...) range for each coordinate;
-        for None (min, max) range are determined from data;
-        for 'zero' (0, max) range with max determined from data.
+    bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
+        The bin specification as defined in :class:`Bins`
+    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimensions, n_bin_edges) or None
+        Array of bin edges for all or each dimension.
+    n_bins : int, list, tuple or numpy.ndarray or None
+        The number of bins for all or each dimension.
+        5 yields 5 bins in all dimensions.
+        (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
+    bin_size : float, list, tuple or numpy.ndarray or None
+        The size of bins in units of locdata coordinate units for all or each dimension.
+        5 would describe bin_size of 5 for all bins in all dimensions.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
+        To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
+    bin_range : tuple or tuple of tuples of float with shape (n_dimensions, 2) or None or 'zero'
+        The data bin_range to be taken into consideration for all or each dimension.
+        ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
+        for None (min, max) bin_range are determined from data;
+        for 'zero' (0, max) bin_range with max determined from data.
     rescale : True, tuple, False or None, 'equal', or 'unity.
         Rescale intensity values to be within percentile of max and min intensities
         (tuple with upper and lower bounds provided in percent).
@@ -272,16 +98,18 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None, bins=None, 
     if ax is None:
         ax = plt.gca()
 
-    img, range_, bin_edges, label = histogram(locdata, loc_properties, other_property, bins, bin_size, range, rescale)
+    hist = histogram(locdata, loc_properties, other_property,
+                                              bins, n_bins, bin_size, bin_edges, bin_range,
+                                              rescale)
 
-    mappable = ax.imshow(img, origin='lower', extent=[*range_[0], *range_[1]], cmap=cmap, **kwargs)
-    if bin_size is not None:
-        ax.set(title='Image ({:.0f} nm per bin)'.format(bin_size))
+    mappable = ax.imshow(hist.data, origin='lower', extent=[*hist.bins.bin_range[0], *hist.bins.bin_range[1]],
+                         cmap=cmap, **kwargs)
 
     ax.set(
-           xlabel='position_x',
-           ylabel='position_y'
-           )
+        title=hist.labels[-1],
+        xlabel=hist.labels[0],
+        ylabel=hist.labels[1]
+        )
 
     if cbar:
         if colorbar_kws is None:
@@ -313,9 +141,9 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
         Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
         shown.
     range : tuple with shape (dimension, 2) or None or 'zero'
-        ((min_x, max_x), (min_y, max_y), ...) range for each coordinate;
-        for None (min, max) range are determined from data;
-        for 'zero' (0, max) range with max determined from data.
+        ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
+        for None (min, max) bin_range are determined from data;
+        for 'zero' (0, max) bin_range with max determined from data.
     ax : matplotlib axes
         The axes on which to show the image
     cmap : str or Colormap instance
@@ -405,7 +233,8 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     return ax
 
 
-def render_2d_napari(locdata, loc_properties=None, other_property=None, bins=None, bin_size=10, range=None,
+def render_2d_napari(locdata, loc_properties=None, other_property=None,
+                     bins=None, n_bins=None, bin_size=10, bin_edges=None, bin_range=None,
                      rescale=None, viewer=None, cmap='viridis', **kwargs):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
@@ -420,17 +249,24 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None, bins=Non
     other_property : str or None
         Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
         shown.
-    bins : sequence or int or None
-        The bin specification as defined in numpy.histogramdd:
-            A sequence of arrays describing the monotonically increasing bin edges along each dimension.
-            The number of bins for each dimension (nx, ny, … =bins)
-            The number of bins for all dimensions (nx=ny=…=bins).
-    bin_size : float or None
-        The bin size in units of locdata coordinate units. Either bins or bin_size must be specified but not both.
-    range : tuple with shape (dimension, 2) or None or 'zero'
-        ((min_x, max_x), (min_y, max_y), ...) range for each coordinate;
-        for None (min, max) range are determined from data;
-        for 'zero' (0, max) range with max determined from data.
+    bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
+        The bin specification as defined in :class:`Bins`
+    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimensions, n_bin_edges) or None
+        Array of bin edges for all or each dimension.
+    n_bins : int, list, tuple or numpy.ndarray or None
+        The number of bins for all or each dimension.
+        5 yields 5 bins in all dimensions.
+        (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
+    bin_size : float, list, tuple or numpy.ndarray or None
+        The size of bins in units of locdata coordinate units for all or each dimension.
+        5 would describe bin_size of 5 for all bins in all dimensions.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
+        To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
+    bin_range : tuple or tuple of tuples of float with shape (n_dimensions, 2) or None or 'zero'
+        The data bin_range to be taken into consideration for all or each dimension.
+        ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
+        for None (min, max) bin_range are determined from data;
+        for 'zero' (0, max) bin_range with max determined from data.
     rescale : True, tuple, False or None, 'equal', or 'unity.
         Rescale intensity values to be within percentile of max and min intensities
         (tuple with upper and lower bounds provided in percent).
@@ -464,10 +300,12 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None, bins=Non
     if viewer is None:
         viewer = napari.Viewer(axis_labels=loc_properties)
 
-    img, range, bins_edges, label = histogram(locdata, loc_properties, other_property, bins, bin_size, range,
+    hist = histogram(locdata, loc_properties, other_property,
+                                              bins, n_bins, bin_size, bin_edges, bin_range,
                                               rescale)
-    viewer.add_image(img, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
-    return viewer, bins_edges, label
+
+    viewer.add_image(hist.data, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
+    return viewer, hist
 
 
 def render_2d(locdata, render_engine=RENDER_ENGINE, **kwargs):
@@ -555,3 +393,136 @@ def apply_window(image, window_function='tukey', **kwargs):
     result *= windows[1][:, None]
 
     return result
+
+
+def select_by_drawing_mpl(locdata, region_type='rectangle', **kwargs):
+    """
+    Select region of interest from rendered image by drawing rois.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        The localization data from which to select localization data.
+    region_type : str
+        rectangle, or ellipse specifying the selection widget to use.
+
+    Other Parameters
+    ----------------
+    kwargs :
+        kwargs as specified for render_2d
+
+    Returns
+    -------
+    list
+        A list of Roi objects
+
+    See Also
+    --------
+    surepy.scripts.sc_draw_roi_mpl : script for drawing rois
+    matplotlib.widgets : selector functions
+    """
+
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    render_2d_mpl(locdata, ax=ax, **kwargs)
+    selector = _MplSelector(ax, type=region_type)
+    plt.show()
+    roi_list = [Roi(reference=locdata, region_specs=roi['region_specs'],
+                    region_type=roi['region_type']) for roi in selector.rois]
+    return roi_list
+
+
+def _napari_shape_to_RoiRegion(vertices, bin_edges, region_type):
+    """
+    Convert napari shape to surepy RoiRegion
+
+    Parameters
+    ----------
+    vertices : ndarray of float
+        Sequence of point coordinates as returned by napari
+    bin_edges : tuple, list, ndarray of float with shape (n_dimension, n_bin_edges)
+        Array of bin edges for each dimension. At this point there are only equally-sized bins allowed.
+    region_type : str
+        String specifying the selector widget that can be either rectangle, ellipse, or polygon.
+
+    Returns
+    -------
+    RoiRegion
+    """
+    # at this point there are only equally-sized bins used.
+    bin_sizes = [bedges[1] - bedges[0] for bedges in bin_edges]
+
+    # flip since napari returns vertices with first component representing the horizontal axis
+    vertices = np.flip(vertices, axis=1)
+
+    vertices = np.array([bedges[0] + vert * bin_size
+                         for vert, bedges, bin_size in zip(vertices.T, bin_edges, bin_sizes)]
+                        ).T
+
+    if region_type == 'rectangle':
+        if len(set(vertices[:, 0].astype(int))) != 2:
+            raise NotImplementedError('Rotated rectangles are not implemented.')
+        mins = vertices.min(axis=0)
+        maxs = vertices.max(axis=0)
+        corner_x, corner_y = mins
+        width, height = maxs - mins
+        angle = 0
+        region_specs = ((corner_x, corner_y), width, height, angle)
+
+    elif region_type == 'ellipse':
+        if len(set(vertices[:, 0].astype(int))) != 2:
+            raise NotImplementedError('Rotated ellipses are not implemented.')
+        mins = vertices.min(axis=0)
+        maxs = vertices.max(axis=0)
+        width, height = maxs - mins
+        center_x, center_y = mins[0] + width/2, mins[1] + height/2
+        angle = 0
+        region_specs = ((center_x, center_y), width, height, angle)
+
+    elif region_type == 'polygon':
+        region_specs = np.concatenate([vertices, [vertices[0]]], axis=0)
+
+    else:
+        raise TypeError(f' Type {region_type} is not defined in surepy.')
+
+    return RoiRegion(region_specs=region_specs, region_type=region_type)
+
+
+def select_by_drawing_napari(locdata, bin_size=10, **kwargs):
+    """
+    Select region of interest from rendered image by drawing rois in napari.
+
+    Parameters
+    ----------
+    locdata : LocData object
+        The localization data from which to select localization data.
+    bin_size : float or None
+        The bin size in units of locdata coordinate units.
+
+    Other Parameters
+    ----------------
+    kwargs :
+        kwargs as specified for `render_2d_napari()`.
+
+    Returns
+    -------
+    list of Roi objects
+
+    See Also
+    --------
+    surepy.scripts.rois : script for drawing rois
+    """
+    # select roi
+
+    with napari.gui_qt():
+        viewer, bins_edges, label = render_2d_napari(locdata, bin_size=bin_size, **kwargs)
+
+    vertices = viewer.layers['Shapes'].data
+    types = viewer.layers['Shapes'].shape_type
+
+    regions = []
+    for verts, typ in zip(vertices, types):
+        regions.append(_napari_shape_to_RoiRegion(verts, bins_edges, typ))
+
+    roi_list = [Roi(reference=locdata, region_specs=region.region_specs,
+                    region_type=region.region_type) for region in regions]
+    return roi_list

@@ -100,6 +100,7 @@ _has_mpl_scatter_density = importlib.util.find_spec("mpl_scatter_density") is no
 _has_napari = importlib.util.find_spec("napari") is not None
 _has_open3d = importlib.util.find_spec("open3d") is not None
 _has_trackpy = importlib.util.find_spec("trackpy") is not None
+_has_boost_histogram = importlib.util.find_spec("boost_histogram") is not None
 
 try:
     from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark

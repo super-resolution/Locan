@@ -13,8 +13,9 @@ from lmfit import Model, Parameters
 import matplotlib.pyplot as plt
 
 from surepy.data.locdata import LocData
+from surepy.data.properties.locdata_statistics import range_from_collection
 from surepy.data.transform.transformation import _homogeneous_matrix
-from surepy.render import histogram
+from surepy.data.aggregate import histogram
 from surepy.constants import _has_open3d
 if _has_open3d: import open3d as o3d
 
@@ -260,7 +261,9 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
 
     return -xc, -yc
 
-def register_cc(locdata, other_locdata, max_offset=None, bin_size=None, verbose=False, **kwargs):
+def register_cc(locdata, other_locdata, max_offset=None,
+                bins=None, n_bins=None, bin_size=None, bin_edges=None, bin_range=None,
+                verbose=False, **kwargs):
     """
     Register `points` or coordinates in `locdata` by a cross-correlation algorithm.
 
@@ -275,8 +278,24 @@ def register_cc(locdata, other_locdata, max_offset=None, bin_size=None, verbose=
         Localization data representing the target.
     max_offset : int or float or None
         Maximum possible offset.
-    bin_size : tuple of int or float
-        Size per image pixel
+    bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
+        The bin specification as defined in :class:`Bins`
+    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimensions, n_bin_edges) or None
+        Array of bin edges for all or each dimension.
+    n_bins : int, list, tuple or numpy.ndarray or None
+        The number of bins for all or each dimension.
+        5 yields 5 bins in all dimensions.
+        (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
+    bin_size : float, list, tuple or numpy.ndarray or None
+        The size of bins in units of locdata coordinate units for all or each dimension.
+        5 would describe bin_size of 5 for all bins in all dimensions.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
+        To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
+    bin_range : tuple or tuple of tuples of float with shape (n_dimensions, 2) or None or 'zero'
+        The data bin_range to be taken into consideration for all or each dimension.
+        ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
+        for None (min, max) bin_range are determined from data;
+        for 'zero' (0, max) bin_range with max determined from data.
     verbose : bool
         Flag indicating if transformation results are printed out.
 
@@ -290,20 +309,24 @@ def register_cc(locdata, other_locdata, max_offset=None, bin_size=None, verbose=
     namedtuple('Transformation', 'matrix offset')
         Matrix and offset representing the optimized transformation.
     """
-    # adjust input
     if isinstance(locdata, LocData) and isinstance(other_locdata, LocData):
-        mins = np.minimum(locdata.coordinates.min(axis=0), other_locdata.coordinates.min(axis=0))
-        maxs = np.maximum(locdata.coordinates.max(axis=0), other_locdata.coordinates.max(axis=0))
-        ranges = [(min, max) for min, max in zip(mins, maxs)]
-        image = histogram(locdata, bin_size=bin_size, **dict({'range': ranges}, **kwargs))[0]
-        other_image = histogram(other_locdata, bin_size=bin_size, **dict({'range': ranges}, **kwargs))[0]
+        if bin_range is None:
+            bin_range_ = range_from_collection([locdata, other_locdata])
+        else:
+            bin_range_ = bin_range
+
+        image, bins_, labels_ = histogram(locdata, bins=bins, n_bins=n_bins, bin_size=bin_size, bin_edges=bin_edges,
+                                        bin_range=bin_range_, **kwargs)
+        other_image, _, _ = histogram(other_locdata, bins=bins, n_bins=n_bins, bin_size=bin_size, bin_edges=bin_edges,
+                                      bin_range=bin_range_, **kwargs)
+
     else:
         image = np.asarray(locdata)
         other_image = np.asarray(other_locdata)
 
     dimension = image.ndim
     matrix = np.identity(dimension)
-    # todo: make box into parameter
+    # todo: turn box into parameter
     offset = _get_image_shift(image, other_image, box=5, roi=max_offset, display=verbose)
     offset = tuple(np.asarray(offset) * bin_size)
 

@@ -25,7 +25,7 @@ from pathlib import Path
 from surepy.constants import FileType
 from surepy.gui.io import file_dialog
 import surepy.io.io_locdata as io
-from surepy.data.rois import select_by_drawing_napari
+from surepy.render.render2d import select_by_drawing_napari
 
 
 def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indicator='_roi'):

@@ -17,12 +17,14 @@ Submodules:
    region
    region_utils
    register
+   aggregate
    filter
    transform
    cluster
    tracking
 
 """
+from surepy.data.aggregate import *
 from surepy.data.cluster import *
 from surepy.data.properties import *
 from surepy.data.transform import *
@@ -37,6 +39,7 @@ from surepy.data.tracking import *
 
 
 __all__ = []
+__all__.extend(aggregate.__all__)
 __all__.extend(cluster.__all__)
 __all__.extend(properties.__all__)
 __all__.extend(transform.__all__)

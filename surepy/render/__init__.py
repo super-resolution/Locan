@@ -3,7 +3,7 @@
 Render localization data.
 
 This module provides functions to render and present localization data.
-It makes use of the matplotlib environment.
+It mostly makes use of the matplotlib environment.
 
 Submodules:
 -----------
@@ -12,6 +12,7 @@ Submodules:
    :toctree: ./
 
    render2d
+   utilities
 
 """
 

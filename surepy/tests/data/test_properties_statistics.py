@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from surepy import LocData
-from surepy.data.properties import statistics, range_from_collection
+from surepy.data.properties import statistics, ranges, range_from_collection
 
 
 @pytest.fixture()
@@ -60,8 +60,26 @@ def test_statistics_with_new_column(locdata_simple):
 def test_range_from_collection(locdata_3d):
     collection = LocData.from_chunks(locdata_3d, n_chunks=2)
     result = range_from_collection(collection)
-    print(result)
     assert result.position_x.min == 1
     assert result.position_x.max == 5
     assert result.position_z.min == 1
     assert result.position_z.max == 5
+
+
+def test__ranges(locdata_2d):
+    ranges_ = ranges(locdata_2d)
+    assert np.array_equal(ranges_, [[1, 5], [1, 6]])
+    ranges_ = ranges(locdata_2d, loc_properties=True)
+    assert np.array_equal(ranges_, [[1, 5], [1, 6], [1, 6], [80, 150]])
+    ranges_ = ranges(locdata_2d, loc_properties='intensity')
+    assert np.array_equal(ranges_, [[80, 150]])
+    ranges_ = ranges(locdata_2d, loc_properties=['intensity'])
+    assert np.array_equal(ranges_, [[80, 150]])
+    ranges_ = ranges(locdata_2d, loc_properties=['frame', 'intensity'])
+    assert np.array_equal(ranges_, [[1, 6], [80, 150]])
+    ranges_ = ranges(locdata_2d, loc_properties=('frame', 'intensity'))
+    assert np.array_equal(ranges_, [[1, 6], [80, 150]])
+    ranges_ = ranges(locdata_2d, loc_properties=None, special='zero')
+    assert np.array_equal(ranges_, [[0, 5], [0, 6]])
+    ranges_ = ranges(locdata_2d, loc_properties=True, special='link')
+    assert np.array_equal(ranges_, [[1, 150],  [1, 150], [1, 150], [1, 150]])

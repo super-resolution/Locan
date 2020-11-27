@@ -13,7 +13,7 @@ import pandas as pd
 from surepy.data.locdata import LocData
 
 
-__all__ = ['statistics', 'range_from_collection']
+__all__ = ['statistics', 'ranges', 'range_from_collection']
 
 
 def statistics(locdata, statistic_keys=('count', 'min', 'max', 'mean', 'median', 'std', 'sem')):
@@ -60,6 +60,54 @@ def statistics(locdata, statistic_keys=('count', 'min', 'max', 'mean', 'median',
     return dict_
 
 
+# todo: add DataFrame input
+def ranges(locdata: LocData, loc_properties=None, special=None):
+    """
+    Provide data ranges for locdata.data property.
+
+    Parameters
+    ----------
+    locdata : pandas DataFrame or LocData object
+        Localization data.
+    loc_properties : str or tuple[str] or list[str] or True or None.
+        Localization properties for which the range is determined.
+        If None the ranges for all spatial coordinates are returned.
+        If True the ranges for all locdata.data properties are returned.
+    special : None or str
+        If None (min, max) ranges are determined from data and returned;
+        if 'zero' (0, max) ranges with max determined from data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from all combined data are returned.
+
+    Returns
+    -------
+    numpy array of float with shape (n_dimensions, 2)
+        The data range (min, max) for each localization property.
+    """
+    if loc_properties is None:
+        ranges_ = locdata.bounding_box.hull.T.copy()
+    elif loc_properties is True:
+        ranges_ = np.array([locdata.data.min(), locdata.data.max()]).T
+    elif isinstance(loc_properties, str):
+        ranges_ = np.array([[locdata.data[loc_properties].min(),
+                            locdata.data[loc_properties].max()]])
+    else:
+        loc_properties = list(loc_properties)
+        ranges_ = np.array([locdata.data[loc_properties].min(),
+                            locdata.data[loc_properties].max()]).T
+
+    if special is None:
+        pass
+    elif special == 'zero':
+        ranges_[:, 0] = 0
+    elif special == 'link':
+        minmax = np.array([ranges_[:, 0].min(axis=0), ranges_[:, 1].max(axis=0)])
+        ranges_ = np.repeat(minmax[None, :], len(ranges_), axis=0)
+    else:
+        raise ValueError(f'The parameter special={special} is not defined.')
+
+    return ranges_
+
+
 def range_from_collection(locdata):
     """
     Compute the maximum range from all combined localizations for each dimension.
@@ -74,10 +122,12 @@ def range_from_collection(locdata):
     namedtuple
         A namedtuple('Ranges', locdata.coordinate_labels) of namedtuple('Range', 'min max').
     """
-    if isinstance(locdata.references, list):
-        locdatas = locdata.references
-    elif isinstance(locdata, (list, tuple)):
+    if isinstance(locdata, (list, tuple)):
         locdatas = locdata
+        labels = locdata[0].coordinate_labels
+    elif isinstance(locdata.references, list):
+        locdatas = locdata.references
+        labels = locdata.coordinate_labels
     else:
         raise TypeError('locdata must contain a collection of Locdata objects.')
 
@@ -85,7 +135,7 @@ def range_from_collection(locdata):
     mins = np.array(ranges)[:, 0].min(axis=0)
     maxs = np.array(ranges)[:, 1].max(axis=0)
 
-    Ranges = namedtuple('Ranges', locdata.coordinate_labels)
+    Ranges = namedtuple('Ranges', labels)
     Range = namedtuple('Range', 'min max')
     result = Ranges(*(Range(min_value, max_value) for min_value, max_value in zip(mins, maxs)))
     return result

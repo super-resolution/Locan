@@ -98,12 +98,12 @@ def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_tra
         other_point_cloud.translate(pre_translation_3d)
 
     # apply ICP
-    registration = o3d.registration.registration_icp(
+    registration = o3d.pipelines.registration.registration_icp(
         source=point_cloud, target=other_point_cloud,
         max_correspondence_distance=max_correspondence_distance,
         init=matrix_homogeneous,
-        estimation_method=o3d.registration.TransformationEstimationPointToPoint(with_scaling=with_scaling),
-        criteria=o3d.registration.ICPConvergenceCriteria(max_iteration=max_iteration)
+        estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPoint(with_scaling=with_scaling),
+        criteria=o3d.pipelines.registration.ICPConvergenceCriteria(max_iteration=max_iteration)
     )
 
     if dimension == 2:

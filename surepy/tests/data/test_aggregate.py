@@ -37,8 +37,7 @@ def test__bin_size_to_bin_edges_one_dimension():
 def test__bin_edges_to_n_bins_one_dimension():
     n_bins = _bin_edges_to_n_bins_one_dimension((1, 3, 5))
     assert n_bins == 2
-    with pytest.warns(UserWarning):
-        n_bins = _bin_edges_to_n_bins_one_dimension([1, 2, 4])
+    n_bins = _bin_edges_to_n_bins_one_dimension([1, 2, 4])
     assert n_bins == 2
 
 
@@ -49,12 +48,10 @@ def test__bin_edges_to_n_bins():
     n_bins = _bin_edges_to_n_bins(([1, 3, 5],))
     assert n_bins == (2,)
 
-    with pytest.warns(UserWarning):
-        n_bins = _bin_edges_to_n_bins([1, 2, 4])
+    n_bins = _bin_edges_to_n_bins([1, 2, 4])
     assert n_bins == (2,)
 
-    with pytest.warns(UserWarning):
-        n_bins = _bin_edges_to_n_bins(((1, 3, 5), (1, 2, 4, 5)))
+    n_bins = _bin_edges_to_n_bins(((1, 3, 5), (1, 2, 4, 5)))
     assert np.array_equal(n_bins, (2, 3))
 
     n_bins = _bin_edges_to_n_bins([[1, 3, 5], [1, 2, 3, 4]])
@@ -367,16 +364,6 @@ def test_Bins():
     assert bins.bin_size == ((2,), (1, 2, 3))
     assert bins.is_equally_sized == (True, False)
 
-    bhaxis = bh.axis.Regular(5, 0, 10)
-    bins = Bins(bins=bhaxis)
-    assert bins.n_dimensions == 1
-    assert bins.bin_range == ((0.0, 10.0),)
-    assert bins.n_bins == (5,)
-    assert bins.bin_size == ((2, 2, 2, 2, 2),)
-    assert np.array_equal(bins.bin_edges[0], np.array([0, 2, 4, 6, 8, 10]))
-    assert np.array_equal(bins.bin_centers[0], np.array([1, 3, 5, 7, 9]))
-    assert bins.is_equally_sized == (True,)
-
     bins = Bins(bins=Bins(n_bins=5, bin_range=(0, 10)))
     assert bins.n_dimensions == 1
     assert bins.bin_range == ((0.0, 10.0),)
@@ -398,6 +385,19 @@ def test_Bins():
     assert bins.n_dimensions == 1
     with pytest.raises(ValueError):
         Bins(n_bins=5, bin_range=(0, 10), labels=["position_x", "position_y"])
+
+
+@pytest.mark.skipif(not _has_boost_histogram, reason="Test requires boost_histogram.")
+def test_Bins_with_boost_histogram():
+    bhaxis = bh.axis.Regular(5, 0, 10)
+    bins = Bins(bins=bhaxis)
+    assert bins.n_dimensions == 1
+    assert bins.bin_range == ((0.0, 10.0),)
+    assert bins.n_bins == (5,)
+    assert bins.bin_size == ((2, 2, 2, 2, 2),)
+    assert np.array_equal(bins.bin_edges[0], np.array([0, 2, 4, 6, 8, 10]))
+    assert np.array_equal(bins.bin_centers[0], np.array([1, 3, 5, 7, 9]))
+    assert bins.is_equally_sized == (True,)
 
 
 def test_Bins_methods():

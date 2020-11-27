@@ -1,3 +1,5 @@
+import pytest
+
 import numpy as np
 import matplotlib.pyplot as plt  # needed for visual inspection
 from shapely.geometry import MultiPolygon
@@ -12,20 +14,20 @@ from surepy import render_2d_mpl, scatter_2d_mpl  # needed for visual inspection
 def test_surrounding_region():
     rr = RoiRegion(region_type='rectangle', region_specs=((0, 0), 1, 1, 0))
     sr = surrounding_region(region=rr, distance=1, support=None)
-    assert sr.area == 7.136548490545939
+    assert sr.area == pytest.approx(7.136548490545939)
 
     rr = RoiRegion(region_type='ellipse', region_specs=((0, 0), 1, 3, 0))
     sr = surrounding_region(region=rr, distance=1, support=None)
-    assert sr.area == 9.982235792799617
+    assert sr.area == pytest.approx(9.982235792799617)
 
     rr = RoiRegion(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0)))
     sr = surrounding_region(region=rr, distance=1, support=None)
-    assert sr.area == 6.754579952999869
+    assert sr.area == pytest.approx(6.754579952999869)
 
     rr = RoiRegion(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0)))
     sup = RoiRegion(region_type='rectangle', region_specs=((0, 0), 2, 2, 0))
     sr = surrounding_region(region=rr, distance=1, support=sup)
-    assert sr.area == 3.012009021216654
+    assert sr.area == pytest.approx(3.012009021216654)
 
 
 def test_localizations_in_cluster_regions(locdata_blobs_2d):

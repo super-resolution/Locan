@@ -133,11 +133,6 @@ def _bin_size_to_bin_edges_one_dimension(bin_size, bin_range, extend_range=None)
 
 
 def _bin_edges_to_n_bins_one_dimension(bin_edges):
-    bin_edges = np.array(bin_edges, dtype=np.float64)
-    differences = np.diff(bin_edges)
-    all_equal = np.all(np.isclose(differences, differences[0]))
-    if not all_equal:
-        warnings.warn('Bins are not equally sized.')
     n_bins = len(bin_edges) - 1
     return n_bins
 

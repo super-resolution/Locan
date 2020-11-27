@@ -22,7 +22,7 @@ y = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 def test__LmfitModelFacade():
     model = _LmfitModelFacade(LinearModel())
     model.fit(x=x, y=y, verbose=True)
-    assert model.eval(5) == 3.401234567901236
+    assert model.eval(5) == pytest.approx(3.401234567901236)
     assert len(model.eval([2, 5])) == 2
     model.plot()
     # plt.show()
@@ -31,7 +31,7 @@ def test__LmfitModelFacade():
 def test__ConstantModelFacade():
     model = _ConstantModelFacade()
     model.fit(x=x, y=y, verbose=True)
-    assert model.eval(5) == 5.500000000011998
+    assert model.eval(5) == pytest.approx(5.500000000011998)
     assert len(model.eval([2, 5])) == 2
     model.plot()
     # plt.show()
@@ -62,16 +62,16 @@ def test__SplineModelFacade():
     # print(model.eval((3, 5)))
     # print(model.eval([3, 5]))
     # print(model.eval(np.array([3, 5])))
-    assert model.eval(5) == 3.417849958061275
+    assert model.eval(5) == pytest.approx(3.417849958061275)
     assert len(model.eval([2, 5])) == 2
     # model.plot()
     model.fit(x=x, y=y, s=0)
-    assert model.eval(5) == 3.5332295857553917
+    assert model.eval(5) == pytest.approx(3.5332295857553917)
     # model.plot()
     # plt.show()
     model = _SplineModelFacade(s=0)
     model.fit(x=x, y=y, verbose=True)
-    assert model.eval(5) == 3.5332295857553917
+    assert model.eval(5) == pytest.approx(3.5332295857553917)
 
 
 def test_DriftComponent():
@@ -86,7 +86,7 @@ def test_DriftComponent():
     drift_component = DriftComponent(type='linear').fit(x, y, verbose=True)
     assert isinstance(drift_component.model.model, LinearModel)
     assert isinstance(drift_component.model_result, ModelResult)
-    assert drift_component.eval(4) == 2.924242424242425
+    assert drift_component.eval(4) == pytest.approx(2.924242424242425)
     assert len(drift_component.eval([1, 4]) == 2)
 
     drift_component = DriftComponent(type='zero').fit(x, y, verbose=True)
@@ -106,8 +106,8 @@ def test_DriftComponent():
     drift_component = DriftComponent(type='constant').fit(x, y, verbose=True)
     assert isinstance(drift_component.model.model, ConstantModel)
     assert isinstance(drift_component.model_result, ModelResult)
-    assert drift_component.model_result.best_fit == 5.500000000011998
-    assert drift_component.eval(4) == 5.500000000011998
+    assert drift_component.model_result.best_fit == pytest.approx(5.500000000011998)
+    assert drift_component.eval(4) == pytest.approx(5.500000000011998)
     assert len(drift_component.eval([1, 4]) == 2)
 
     drift_component = DriftComponent(type='polynomial', degree=2).fit(x, y, verbose=True)
@@ -115,13 +115,13 @@ def test_DriftComponent():
     assert isinstance(drift_component.model_result, ModelResult)
 
     drift_component = DriftComponent(type='spline').fit(x, y, verbose=True, s=0.3)
-    assert drift_component.eval(4) == 3.0972390587725087
+    assert drift_component.eval(4) == pytest.approx(3.0972390587725087)
     assert len(drift_component.eval([1, 4]) == 2)
 
     drift_component = DriftComponent(type=LinearModel()).fit(x, y, verbose=True)
     assert isinstance(drift_component.model.model, LinearModel)
     assert isinstance(drift_component.model_result, ModelResult)
-    assert drift_component.eval(4) == 2.924242424242425
+    assert drift_component.eval(4) == pytest.approx(2.924242424242425)
     assert len(drift_component.eval([1, 4]) == 2)
     # plt.show()
 

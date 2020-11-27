@@ -14,8 +14,8 @@ def test__circumcircle_2d(locdata_2d):
     points = locdata_2d.coordinates
     triangulation = Delaunay(points)
     center, radius = _circumcircle(points, triangulation.simplices[0])
-    assert radius == 1.8210786221487993
-    assert center[0] == 3.357142857142857
+    assert radius == pytest.approx(1.8210786221487993)
+    assert center[0] == pytest.approx(3.357142857142857)
 
 
 def test__half_distance():

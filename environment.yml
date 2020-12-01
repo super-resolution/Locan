@@ -42,6 +42,7 @@ dependencies:
 
 # Data analysis tools
 - hdbscan
+- boost-histogram
 - fast-histogram
 
 # Extra requirements
@@ -49,5 +50,5 @@ dependencies:
 - colorcet
 - trackpy
 - open3d
-- napari<0.3.0
+- napari
 - mpl-scatter-density

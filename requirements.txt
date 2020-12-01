@@ -31,6 +31,7 @@ asdf
 
 # Data analysis tools
 hdbscan
+boost-histogram
 fast-histogram
 
 # Extra requirements
@@ -39,4 +40,4 @@ colorcet
 trackpy
 open3d
 mpl_scatter_density
-napari<0.3.0
+napari

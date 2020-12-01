@@ -1,4 +1,5 @@
 from pathlib import Path
+import tempfile
 
 import pytest
 import pandas as pd
@@ -41,8 +42,14 @@ def test_Pipeline_class_method(locdata_simple):
     # print(f'results: {pipe.test}')
     # print(f'meta: {pipe.meta}')
 
-    path = ROOT_DIR / 'tests/test_data/pipe.txt'
-    pipe.save_protocol(path)
+    with tempfile.TemporaryDirectory() as tmp_directory:
+        # for visual inspection use:
+        # file_path = ROOT_DIR / 'tests/test_data/pipe.txt'
+        file_path = Path(tmp_directory) / 'pipe.txt'
+        pipe.save_protocol(file_path)
+        with open(file_path) as f:
+            first_line = f.readline()
+            assert first_line == "Analysis Pipeline: MyPipe\n"
 
 
 def test_Pipeline_from_path_and_roi(locdata_simple):

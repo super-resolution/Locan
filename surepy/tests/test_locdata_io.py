@@ -1,3 +1,7 @@
+from pathlib import Path
+import tempfile
+import pickle
+
 import pytest
 from pandas.testing import assert_frame_equal
 import surepy.constants
@@ -64,19 +68,21 @@ def test_loading_txt_file():
     assert (len(dat) == 10)
 
 
-def test_save_asdf(locdata_2d):
-    io.save_asdf(locdata_2d, path=surepy.constants.ROOT_DIR / 'tests/test_data/locdata.asdf')
+def test_save_and_load_asdf(locdata_2d):
+    # for visual inspection use:
+    # io.save_asdf(locdata_2d, path=surepy.constants.ROOT_DIR / 'tests/test_data/locdata.asdf')
+    with tempfile.TemporaryDirectory() as tmp_directory:
+        file_path = Path(tmp_directory) / 'locdata.asdf'
+        io.save_asdf(locdata_2d, path=file_path)
 
+        locdata = io.load_asdf_file(path=file_path)
+        # print(locdata.data)
+        assert_frame_equal(locdata.data, locdata_2d.data)
+        assert (locdata.meta.identifier == locdata_2d.meta.identifier)
+        assert (locdata.properties == locdata_2d.properties)
 
-def test_load_asdf_file(locdata_2d):
-    locdata = io.load_asdf_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/locdata.asdf')
-    # print(locdata.data)
-    assert_frame_equal(locdata.data, locdata_2d.data)
-    assert(locdata.meta.identifier == locdata_2d.meta.identifier)
-    assert(locdata.properties == locdata_2d.properties)
-
-    dat = io.load_asdf_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/locdata.asdf', nrows=5)
-    assert (len(dat) == 5)
+        dat = io.load_asdf_file(path=file_path, nrows=5)
+        assert (len(dat) == 5)
 
 
 def test__map_file_type_to_load_function():
@@ -113,12 +119,11 @@ def test_load_locdata():
 
 
 def test_pickling_locdata(locdata_2d):
-    import pickle
-    from surepy.data import metadata_pb2
-    path = surepy.constants.ROOT_DIR / 'tests/test_data/pickled_locdata.pickle'
-    with open(path, 'wb') as file:
-        pickle.dump(locdata_2d, file, pickle.HIGHEST_PROTOCOL)
-    with open(path, 'rb') as file:
-        locdata = pickle.load(file)
-    assert len(locdata_2d) == len(locdata)
-    assert isinstance(locdata.meta, metadata_pb2.Metadata)
+    with tempfile.TemporaryDirectory() as tmp_directory:
+        file_path = Path(tmp_directory) / 'pickled_locdata.pickle'
+        with open(file_path, 'wb') as file:
+            pickle.dump(locdata_2d, file, pickle.HIGHEST_PROTOCOL)
+        with open(file_path, 'rb') as file:
+            locdata = pickle.load(file)
+        assert len(locdata_2d) == len(locdata)
+        assert isinstance(locdata.meta, metadata_pb2.Metadata)

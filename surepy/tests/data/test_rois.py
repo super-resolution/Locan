@@ -1,4 +1,5 @@
 from pathlib import Path
+import tempfile
 
 import pytest
 import numpy as np
@@ -49,48 +50,50 @@ def test_Roi(locdata):
 
 
 def test_Roi_io(locdata):
-    path = ROOT_DIR / 'tests/test_data/roi.yaml'
+    with tempfile.TemporaryDirectory() as tmp_directory:
+        file_path = Path(tmp_directory) / 'roi.yaml'
+        #file_path = ROOT_DIR / 'tests/test_data/roi.yaml'
 
-    roi = Roi(region_specs=((0, 0), 2, 1, 10), region_type='rectangle')
-    roi.to_yaml(path=path)
+        roi = Roi(region_specs=((0, 0), 2, 1, 10), region_type='rectangle')
+        roi.to_yaml(path=file_path)
 
-    roi = Roi(reference=locdata, region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
-    with pytest.warns(UserWarning):
-        roi.to_yaml(path=path)
+        roi = Roi(reference=locdata, region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
+        with pytest.warns(UserWarning):
+            roi.to_yaml(path=file_path)
 
-    roi_new = Roi.from_yaml(path=path)
-    assert roi_new.reference is None
+        roi_new = Roi.from_yaml(path=file_path)
+        assert roi_new.reference is None
 
-    roi = Roi(reference=dict(file_path=ROOT_DIR / 'tests/test_data/five_blobs.txt', file_type=1),
-              region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
-    assert isinstance(roi.reference, (metadata_pb2.Metadata, Path))
-    roi.to_yaml(path=path)
+        roi = Roi(reference=dict(file_path=ROOT_DIR / 'tests/test_data/five_blobs.txt', file_type=1),
+                  region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
+        assert isinstance(roi.reference, (metadata_pb2.Metadata, Path))
+        roi.to_yaml(path=file_path)
 
-    roi_new = Roi.from_yaml(path=path)
-    assert roi_new
+        roi_new = Roi.from_yaml(path=file_path)
+        assert roi_new
 
-    # test region specs with numpy floats
-    roi = Roi(reference=dict(file_path=ROOT_DIR / 'tests/test_data/five_blobs.txt', file_type=1),
-              region_type='rectangle',
-              region_specs=(np.array([0, 0], dtype=np.float), np.float(2), np.float(1), np.float(10))
-              )
-    assert isinstance(roi.reference, metadata_pb2.Metadata)
-    roi.to_yaml(path=path)
+        # test region specs with numpy floats
+        roi = Roi(reference=dict(file_path=file_path, file_type=1),
+                  region_type='rectangle',
+                  region_specs=(np.array([0, 0], dtype=np.float), np.float(2), np.float(1), np.float(10))
+                  )
+        assert isinstance(roi.reference, metadata_pb2.Metadata)
+        roi.to_yaml(path=file_path)
 
-    roi_new = Roi.from_yaml(path=path)
-    assert roi_new
+        roi_new = Roi.from_yaml(path=file_path)
+        assert roi_new
 
-    locdata_2 = LocData.from_selection(locdata,
-                                       meta=dict(file_path=str(ROOT_DIR / 'tests/test_data/five_blobs.txt'),
-                                                 file_type=1))
-    roi = Roi(reference=locdata_2,
-              region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
-    assert isinstance(roi.reference.meta, metadata_pb2.Metadata)
-    roi.to_yaml(path=path)
+        locdata_2 = LocData.from_selection(locdata,
+                                           meta=dict(file_path=str(file_path),
+                                                     file_type=1))
+        roi = Roi(reference=locdata_2,
+                  region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
+        assert isinstance(roi.reference.meta, metadata_pb2.Metadata)
+        roi.to_yaml(path=file_path)
 
-    roi_new = Roi.from_yaml(path=path)
-    assert roi_new
-    assert isinstance(roi_new.reference, metadata_pb2.Metadata)
+        roi_new = Roi.from_yaml(path=file_path)
+        assert roi_new
+        assert isinstance(roi_new.reference, metadata_pb2.Metadata)
 
 
 def test_roi_locdata_from_file():
@@ -118,14 +121,14 @@ def test_as_artist():
     # plt.show()
 
 
-@pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
+@pytest.mark.skip('GUI tests are skipped because they need user interaction.')
 def test_select_by_drawing_mpl():
     dat = load_txt_file(path=ROOT_DIR / 'tests/test_data/five_blobs.txt')
     select_by_drawing_mpl(dat, region_type='rectangle')
     select_by_drawing_mpl(dat, region_type='ellipse')
 
 
-@pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
+@pytest.mark.skip('GUI tests are skipped because they need user interaction.')
 def test_select_by_drawing_napari():
     dat = load_txt_file(path=ROOT_DIR / 'tests/test_data/five_blobs.txt')
     roi_list = select_by_drawing_napari(dat)

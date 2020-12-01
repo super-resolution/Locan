@@ -1,7 +1,0 @@
-Analysis Pipeline: MyPipe
-
-def compute_test(self):
-    """ A pipeline definition for testing."""
-    self.test = True
-
-    return self

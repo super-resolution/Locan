@@ -102,16 +102,20 @@ def test_LocData_from_dataframe_empty(df_empty):
     # print(dat.data)
 
 
-@pytest.mark.skip('Requires individual test run to yield correct results.')
-# this test is not running within complete test run. But it works when run by itself.
 def test_LocData_count(df_simple):
+    # The following is commented out because it requires time and is not needed to ensure correct functionality.
+    # import gc
+    # print("Current number of LocData instances: ",
+    #       len([item for item in gc.get_referrers(LocData) if isinstance(item, LocData)]))
+    n_instances = LocData.count
+
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-    assert LocData.count == 1
+    assert LocData.count == 1 + n_instances
     dat_2 = LocData.from_dataframe(dataframe=df_simple)
     assert(dat.properties == dat_2.properties)
-    assert LocData.count == 2
+    assert LocData.count == 2 + n_instances
     del dat
-    assert LocData.count == 1
+    assert LocData.count == 1 + n_instances
 
 
 def test_LocData_from_dataframe_with_meta_dict(df_simple):

@@ -91,7 +91,7 @@ class Pipeline():
 
         Parameters
         ----------
-        path : str or Path object
+        path : str or os.PathLike
             Path and file name for saving the text file.
         '''
         import inspect

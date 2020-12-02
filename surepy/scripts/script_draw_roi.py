@@ -35,7 +35,7 @@ def sc_draw_roi_mpl(file_path=None, file_type=1, roi_file_indicator='_roi', regi
 
     Parameters
     ----------
-    file_path : string or Path object
+    file_path : string or os.PathLike
         File path to localization data.
     file_type : int, str, surepy.constants.FileType, metadata_pb2
         Indicator for the file type.

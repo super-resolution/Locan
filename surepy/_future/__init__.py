@@ -14,7 +14,7 @@ def pair_files(files, source, target):
 
     Parameters
     ----------
-    files : list of string or Path objects
+    files : list of string or os.PathLikes
         List of file names containing all elements.
     source : str
         the string identifying source names.
@@ -24,7 +24,7 @@ def pair_files(files, source, target):
     Returns
     -------
     tuple
-        Tuple with source and target file names or Path objects.
+        Tuple with source and target file names or os.PathLike.
     """
     pairs = [(file, file.with_name(file.name.replace(source, target))) for file in files if source in str(file)]
     return pairs

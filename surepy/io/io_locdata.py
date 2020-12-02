@@ -28,6 +28,7 @@ import time
 import io
 import warnings
 from enum import Enum
+from contextlib import closing
 
 import numpy as np
 import pandas as pd
@@ -46,6 +47,36 @@ __all__ = ['save_asdf', 'save_thunderstorm_csv',
            'load_locdata']
 
 
+def open_path_or_file_like(path_or_file_like, mode='r', encoding=None):
+    """
+    Provide open-file context from `path_or_file_like` input.
+
+    Parameters
+    ----------
+    path_or_file_like : str, os.PathLike, or file-like
+        Identifier for file
+    mode
+        same as in `open()`
+    encoding
+        same as in `open()`
+
+    Returns
+    -------
+    context for file object
+    """
+    try:
+        all(getattr(path_or_file_like, attr) for attr in ('seek', 'read', 'close'))
+        file = path_or_file_like
+    except (AttributeError, io.UnsupportedOperation):
+        try:
+            # if hasattr(path_or_file_like, "__fspath__")
+            # or isinstance(path_or_file_like, (str, bytes)):
+            file = open(path_or_file_like, mode=mode, encoding=encoding)
+        except TypeError:
+            raise TypeError("path_or_file_like must be str, bytes, os.PathLike or file-like.")
+    return closing(file)
+
+
 def save_asdf(locdata, path):
     """
     Save LocData attributes in an asdf file.
@@ -62,7 +93,7 @@ def save_asdf(locdata, path):
     ----------
     locdata : LocData object
         The LocData object to be saved.
-    path : str or Path object
+    path : str, os.PathLike, or file-like
         File path including file name to save to.
     """
     # Prepare tree
@@ -92,7 +123,7 @@ def save_thunderstorm_csv(locdata, path):
     ----------
     locdata : LocData object
         The LocData object to be saved.
-    path : str or Path object
+    path : str, os.PathLike, or file-like
         File path including file name to save to.
     """
     # get data from locdata object
@@ -116,7 +147,7 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
 
     Parameters
     ----------
-    path : str or Path object
+    path : str, os.PathLike, or file-like
         File path for a localization file to load.
     sep : str
         separator between column values (Default: ',')
@@ -163,25 +194,23 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
     return dat
 
 
-def load_rapidSTORM_header(path):
+def read_rapidSTORM_header(file):
     """
-    Load xml header from a rapidSTORM single-molecule localization file and identify column names.
+    Read xml header from a rapidSTORM single-molecule localization file and identify column names.
 
     Parameters
     ----------
-    path : str or Path object
-        File path for a rapidSTORM file to load.
+    file : file-like
+        A rapidSTORM file to load.
 
     Returns
     -------
     list of str
         A list of valid dataset property keys as derived from the rapidSTORM identifiers.
     """
-
     # read xml part in header
-    with open(path) as file:
-        header = file.readline()
-        header = header[2:]
+    header = file.readline()
+    header = header[2:]
 
     # get iteratible
     parsed = etree.XML(header)
@@ -204,13 +233,33 @@ def load_rapidSTORM_header(path):
     return column_keys
 
 
+def load_rapidSTORM_header(path):
+    """
+    Load xml header from a rapidSTORM single-molecule localization file and identify column names.
+
+    Parameters
+    ----------
+    path : str, os.PathLike, or file-like
+        File path for a rapidSTORM file to load.
+
+    Returns
+    -------
+    list of str
+        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
+    """
+
+    # read xml part in header
+    with open_path_or_file_like(path) as file:
+        return read_rapidSTORM_header(file)
+
+
 def load_rapidSTORM_file(path, nrows=None, **kwargs):
     """
     Load data from a rapidSTORM single-molecule localization file.
 
     Parameters
     ----------
-    path : string or Path object
+    path : str, os.PathLike, or file-like
         File path for a rapidSTORM file to load.
     nrows : int, default: None
         The number of localizations to load from file. None means that all available rows are loaded.
@@ -225,8 +274,9 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
     LocData
         A new instance of LocData with all localizations.
     """
-    columns = load_rapidSTORM_header(path)
-    dataframe = pd.read_csv(path, sep=" ", skiprows=1, nrows=nrows, names=columns, **kwargs)
+    with open_path_or_file_like(path) as file:
+        columns = read_rapidSTORM_header(file)
+        dataframe = pd.read_csv(file, sep=" ", skiprows=0, nrows=nrows, names=columns, **kwargs)
 
     # correct data formats
     integer_Frames = pd.to_numeric(dataframe['frame'], downcast='integer')
@@ -248,23 +298,21 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
     return dat
 
 
-def load_Elyra_header(path):
+def read_Elyra_header(file):
     """
-    Load xml header from a Zeiss Elyra single-molecule localization file and identify column names.
+    Read xml header from a Zeiss Elyra single-molecule localization file and identify column names.
 
     Parameters
     ----------
-    path : str or Path object
-        File path for a rapidSTORM file to load.
+    file : file-like
+        A rapidSTORM file to load.
 
     Returns
     -------
     list of str
         A list of valid dataset property keys as derived from the rapidSTORM identifiers.
     """
-
-    with open(path) as file:
-        header = file.readline().split('\n')[0]
+    header = file.readline().split('\n')[0]
 
     # list identifiers
     identifiers = header.split("\t")
@@ -282,13 +330,32 @@ def load_Elyra_header(path):
     return column_keys
 
 
+def load_Elyra_header(path):
+    """
+    Load xml header from a Zeiss Elyra single-molecule localization file and identify column names.
+
+    Parameters
+    ----------
+    path : str, os.PathLike, or file-like
+        File path for a rapidSTORM file to load.
+
+    Returns
+    -------
+    list of str
+        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
+    """
+
+    with open_path_or_file_like(path, encoding='latin-1') as file:
+        return read_Elyra_header(file)
+
+
 def load_Elyra_file(path, nrows=None, **kwargs):
     """
     Load data from a rapidSTORM single-molecule localization file.
 
     Parameters
     ----------
-    path : string or Path object
+    path : str, os.PathLike, or file-like
         File path for a rapidSTORM file to load.
     nrows : int, default: None
         The number of localizations to load from file. None means that all available rows are loaded.
@@ -308,15 +375,14 @@ def load_Elyra_file(path, nrows=None, **kwargs):
     Data is loaded with encoding = 'latin-1' and only data before the first NUL character is returned.
     Additional information appended at the end of the file is thus ignored.
     """
-    columns = load_Elyra_header(path)
-
-    with open(path, encoding='latin-1') as f:
-        string = f.read()
+    with open_path_or_file_like(path, encoding='latin-1') as file:
+        columns = read_Elyra_header(file)
+        string = file.read()
         # remove metadata following nul byte
         string = string.split('\x00')[0]
 
         stream = io.StringIO(string)
-        dataframe = pd.read_csv(stream, sep="\t", skiprows=1, nrows=nrows, names=columns, **kwargs)
+        dataframe = pd.read_csv(stream, sep="\t", skiprows=0, nrows=nrows, names=columns, **kwargs)
 
     # correct data formats
     if 'original_index' in columns:
@@ -342,7 +408,7 @@ def load_asdf_file(path, nrows=None):
 
     Parameters
     ----------
-    path : string or Path object
+    path : str, os.PathLike, or file-like
         File path for a rapidSTORM file to load.
     nrows : int, default: None
         The number of localizations to load from file. None means that all available rows are loaded.
@@ -359,24 +425,22 @@ def load_asdf_file(path, nrows=None):
     return locdata
 
 
-def load_thunderstorm_header(path):
+def read_thunderstorm_header(file):
     """
-    Load csv header from a Thunderstorm single-molecule localization file and identify column names.
+    Read csv header from a Thunderstorm single-molecule localization file and identify column names.
 
     Parameters
     ----------
-    path : str or Path object
-        File path for a Thunderstorm file to load.
+    file : file-like
+        Thunderstorm file to read.
 
     Returns
     -------
     list of str
         A list of valid dataset property keys as derived from the Thunderstorm identifiers.
     """
-
     # read csv header
-    with open(path) as file:
-        header = file.readline().split('\n')[0]
+    header = file.readline().split('\n')[0]
 
     # list identifiers
     identifiers = [x.strip('"') for x in header.split(',')]
@@ -391,13 +455,32 @@ def load_thunderstorm_header(path):
     return column_keys
 
 
+def load_thunderstorm_header(path):
+    """
+    Load csv header from a Thunderstorm single-molecule localization file and identify column names.
+
+    Parameters
+    ----------
+    path : str, os.PathLike, or file-like
+        File path for a Thunderstorm file to load.
+
+    Returns
+    -------
+    list of str
+        A list of valid dataset property keys as derived from the Thunderstorm identifiers.
+    """
+    # read csv header
+    with open_path_or_file_like(path) as file:
+        return read_thunderstorm_header(file)
+
+
 def load_thunderstorm_file(path, nrows=None, **kwargs):
     """
     Load data from a Thunderstorm single-molecule localization file.
 
     Parameters
     ----------
-    path : string or Path object
+    path : str, os.PathLike, or file-like
         File path for a Thunderstorm file to load.
     nrows : int, default: None
         The number of localizations to load from file. None means that all available rows are loaded.
@@ -412,8 +495,9 @@ def load_thunderstorm_file(path, nrows=None, **kwargs):
     LocData
         A new instance of LocData with all localizations.
     """
-    columns = load_thunderstorm_header(path)
-    dataframe = pd.read_csv(path, sep=',', skiprows=1, nrows=nrows, names=columns, **kwargs)
+    with open_path_or_file_like(path) as file:
+        columns = read_thunderstorm_header(file)
+        dataframe = pd.read_csv(file, sep=',', skiprows=0, nrows=nrows, names=columns, **kwargs)
 
     # correct data formats
     if 'original_index' in columns:
@@ -491,7 +575,7 @@ def load_locdata(path, file_type=1, nrows=None, **kwargs):
 
     Parameters
     ----------
-    path : string or Path object
+    path : str, os.PathLike, or file-like
         File path for a localization data file to load.
     file_type : int, str, surepy.constants.FileType, metadata_pb2
         Indicator for the file type.

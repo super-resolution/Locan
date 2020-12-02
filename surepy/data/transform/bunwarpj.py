@@ -76,7 +76,7 @@ def _read_matrix(path):
 
     Parameters
     ----------
-    path : path object
+    path : str or os.PathLike
         Path to file with a raw matrix from BunwarpJ.
 
     Returns

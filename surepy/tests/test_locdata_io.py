@@ -1,6 +1,7 @@
 from pathlib import Path
 import tempfile
 import pickle
+from io import StringIO, BytesIO, TextIOWrapper
 
 import pytest
 from pandas.testing import assert_frame_equal
@@ -9,8 +10,50 @@ import surepy.io.io_locdata as io
 from surepy.data import metadata_pb2
 
 
+def test_open_path_or_file_like():
+    inputs = [
+        str(surepy.constants.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+        str(surepy.constants.ROOT_DIR) + r'\tests\test_data\rapidSTORM_dstorm_data.txt',
+        surepy.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
+        surepy.constants.ROOT_DIR / r'tests\test_data\rapidSTORM_dstorm_data.txt'
+    ]
+    for pfl in inputs:
+        with io.open_path_or_file_like(path_or_file_like=pfl) as data:
+            assert isinstance(data, TextIOWrapper)
+            out = data.read(10)
+            assert out and isinstance(out, str)
+            assert not data.closed
+        assert data.closed
+
+    pfl = StringIO("This is a file-like object to be read.")
+    with io.open_path_or_file_like(path_or_file_like=pfl) as data:
+        assert isinstance(data, StringIO)
+        out = data.read(10)
+        assert out and isinstance(out, str)
+        assert not data.closed
+    assert data.closed
+
+    pfl = BytesIO(b"This is a file-like object to be read.")
+    with io.open_path_or_file_like(path_or_file_like=pfl) as data:
+        assert isinstance(data, BytesIO)
+        out = data.read(10)
+        assert out and isinstance(out, bytes)
+        assert not data.closed
+    assert data.closed
+
+    pfl = surepy.constants.ROOT_DIR / 'tests/test_data/some_file_that_does_not_exits.txt'
+    with pytest.raises(FileNotFoundError):
+        with io.open_path_or_file_like(path_or_file_like=pfl) as data:
+            pass
+
+
 def test_get_correct_column_names_from_rapidSTORM_header():
     columns = io.load_rapidSTORM_header(path=surepy.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt')
+    assert columns == ['position_x', 'position_y', 'frame', 'intensity', 'chi_square', 'local_background']
+
+    file_like = StringIO('# <localizations insequence="true" repetitions="variable"><field identifier="Position-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="position in sample space in X" unit="nanometer" min="0 m" max="3.27165e-005 m" /><field identifier="Position-1-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="position in sample space in Y" unit="nanometer" min="0 m" max="3.27165e-005 m" /><field identifier="ImageNumber-0-0" syntax="integer" semantic="frame number" unit="frame" min="0 fr" /><field identifier="Amplitude-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="emission strength" unit="A/D count" /><field identifier="FitResidues-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="fit residue chi square value" unit="dimensionless" /><field identifier="LocalBackground-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="local background" unit="A/D count" /></localizations>\n'
+                         '9657.4 24533.5 0 33290.1 1.19225e+006 767.733')
+    columns = io.load_rapidSTORM_header(path=file_like)
     assert columns == ['position_x', 'position_y', 'frame', 'intensity', 'chi_square', 'local_background']
 
 
@@ -21,6 +64,11 @@ def test_loading_rapidSTORM_file():
     #dat.print_meta()
     assert (len(dat) == 10)
 
+    file_like = StringIO('# <localizations insequence="true" repetitions="variable"><field identifier="Position-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="position in sample space in X" unit="nanometer" min="0 m" max="3.27165e-005 m" /><field identifier="Position-1-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="position in sample space in Y" unit="nanometer" min="0 m" max="3.27165e-005 m" /><field identifier="ImageNumber-0-0" syntax="integer" semantic="frame number" unit="frame" min="0 fr" /><field identifier="Amplitude-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="emission strength" unit="A/D count" /><field identifier="FitResidues-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="fit residue chi square value" unit="dimensionless" /><field identifier="LocalBackground-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="local background" unit="A/D count" /></localizations>\n'
+                         '9657.4 24533.5 0 33290.1 1.19225e+006 767.733')
+    dat = io.load_rapidSTORM_file(path=file_like, nrows=1)
+    assert (len(dat) == 1)
+
 
 def test_get_correct_column_names_from_Elyra_header():
     columns = io.load_Elyra_header(path=surepy.constants.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt')
@@ -28,11 +76,22 @@ def test_get_correct_column_names_from_Elyra_header():
                         'precision', 'intensity', 'local_background', 'chi_square', 'psf_half_width', 'channel',
                         'slice_z'])
 
+    file_like = StringIO("Index	First Frame	Number Frames	Frames Missing	Position X [nm]	Position Y [nm]\n"
+                         "1  1   1   0   15850.6 23502.1")
+    columns = io.load_Elyra_header(path=file_like)
+    assert (columns == ['original_index', 'frame', 'frames_number', 'frames_missing', 'position_x', 'position_y'])
+
 
 def test_loading_Elyra_file():
     dat = io.load_Elyra_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt')
     # loading is not limited by nrows=10 to ensure correct treatment of file appendix and NUL character.
     assert (len(dat) == 999)
+
+    file_like = StringIO("Index\tFirst Frame\tNumber Frames\tFrames Missing\tPosition X [nm]\tPosition Y [nm]\n"
+                         "1\t1\t1\t0\t15850.6\t23502.1")
+    dat = io.load_Elyra_file(path=file_like)
+    # loading is not limited by nrows=10 to ensure correct treatment of file appendix and NUL character.
+    assert (len(dat) == 1)
 
 
 def test_get_correct_column_names_from_Thunderstorm_header():
@@ -42,6 +101,11 @@ def test_get_correct_column_names_from_Thunderstorm_header():
     assert (columns == ['original_index', 'frame', 'position_x', 'position_y', 'psf_sigma_x', 'intensity',
                         'local_background', 'bkgstd [photon]', 'chi_square', 'uncertainty [nm]'])
 
+    file_like = StringIO("id,frame,x [nm],y [nm]\n"
+                         "73897.0,2001.0,1320.109670647555,26344.7124618434")
+    columns = io.load_thunderstorm_header(path=file_like)
+    assert (columns == ['original_index', 'frame', 'position_x', 'position_y'])
+
 
 def test_loading_Thunderstorm_file():
     with pytest.warns(UserWarning):
@@ -49,6 +113,11 @@ def test_loading_Thunderstorm_file():
                                     nrows=10)
     #print(dat.data.columns)
     assert (len(dat) == 10)
+
+    file_like = StringIO("id,frame,x [nm],y [nm]\n"
+                         "73897.0,2001.0,1320.109670647555,26344.7124618434")
+    dat = io.load_thunderstorm_file(path=file_like, nrows=1)
+    assert (len(dat) == 1)
 
 
 def test_loading_txt_file():
@@ -60,6 +129,12 @@ def test_loading_txt_file():
                            columns=['index', 'position_x', 'position_y', 'cluster_label'], nrows=10)
     # print(dat.data)
     assert (len(dat) == 10)
+
+    file_like = StringIO("index,position_x,position_y,cluster_label\n"
+                         "0,624,919,3")
+    dat = io.load_txt_file(path=file_like,
+                           columns=['index', 'position_x', 'position_y', 'cluster_label'], nrows=1)
+    assert (len(dat) == 1)
 
     with pytest.warns(UserWarning):
         dat = io.load_txt_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt',

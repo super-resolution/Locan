@@ -6,6 +6,7 @@ A class to carry localization data.
 import time
 import warnings
 from itertools import accumulate
+import copy
 
 from google.protobuf import text_format, json_format
 import numpy as np
@@ -143,6 +144,38 @@ class LocData:
         # Restore protobuf class for meta attribute
         self.meta = metadata_pb2.Metadata()
         self.meta = json_format.Parse(state['meta'], self.meta)
+
+    def __copy__(self):
+        """
+        Create a shallow copy of locdata (keeping all references) with the following exceptions:
+        (i) The class variable `count` is increased for the copied LocData object.
+        (ii) Metadata keeps the original meta.creation_date while meta.modification_date and meta.history is updated.
+        """
+        new_locdata = LocData(self.references,
+                              self.dataframe,
+                              self.indices,
+                              meta=None)
+        # meta
+        meta_ = _modify_meta(self, new_locdata, function_name='LocData.copy',
+                             parameter=None, meta=None)
+        new_locdata.meta = meta_
+        return new_locdata
+
+    def __deepcopy__(self, memodict={}):
+        """
+        Create a deep copy of locdata (including all references) with the following exceptions:
+        (i) The class variable `count` is increased for all deepcopied LocData objects.
+        (ii) Metadata keeps the original meta.creation_date while meta.modification_date and meta.history is updated.
+        """
+        new_locdata = LocData(copy.deepcopy(self.references, memodict),
+                              copy.deepcopy(self.dataframe, memodict),
+                              copy.deepcopy(self.indices, memodict),
+                              meta=None)
+        # meta
+        meta_ = _modify_meta(self, new_locdata, function_name='LocData.deepcopy',
+                             parameter=None, meta=None)
+        new_locdata.meta = meta_
+        return new_locdata
 
     @property
     def bounding_box(self):

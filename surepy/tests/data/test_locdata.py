@@ -1,3 +1,5 @@
+import copy
+
 import pytest
 import numpy as np
 import pandas as pd
@@ -439,3 +441,45 @@ def test_locdata_from_chunks(
     if len(chunk_collection) != 0:
         assert all(chunk_collection.data.localization_count == expected[1])
     assert chunk_collection.meta.comment == COMMENT_METADATA.comment
+
+
+def test_copy():
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame({'col_1': [1, 2, 3], 'col_2': ['a', 'b', 'c']}))
+    selection = LocData.from_selection(locdata, indices=[0, 1])
+    new_locdata = copy.copy(selection)
+
+    assert new_locdata is not selection
+    assert len(selection) == len(new_locdata)
+    for attr in ['dataframe', 'indices', 'references']:
+        assert getattr(selection, attr) is getattr(new_locdata, attr)
+    for attr in ['properties', 'data', 'meta']:
+        assert getattr(selection, attr) is not getattr(new_locdata, attr)
+    pd.testing.assert_frame_equal(new_locdata.dataframe, selection.dataframe)
+    pd.testing.assert_frame_equal(new_locdata.data, selection.data)
+    assert new_locdata.properties == selection.properties
+    assert new_locdata.indices == selection.indices
+    assert new_locdata.references == selection.references
+    assert new_locdata.meta != selection.meta
+    assert int(new_locdata.references.meta.identifier) == int(selection.meta.identifier) - 1
+    assert int(new_locdata.meta.identifier) == int(selection.meta.identifier) + 1
+    assert new_locdata.meta.creation_date == selection.meta.creation_date
+
+
+def test_deepcopy():
+    locdata = LocData.from_dataframe(dataframe=pd.DataFrame({'col_1': [1, 2, 3], 'col_2': ['a', 'b', 'c']}))
+    selection = LocData.from_selection(locdata, indices=[0, 1])
+    new_locdata = copy.deepcopy(selection)
+
+    assert new_locdata is not selection
+    assert len(selection) == len(new_locdata)
+    for attr in ['data', 'dataframe', 'indices', 'meta', 'properties', 'references']:
+        assert getattr(selection, attr) is not getattr(new_locdata, attr)
+    pd.testing.assert_frame_equal(new_locdata.dataframe, selection.dataframe)
+    pd.testing.assert_frame_equal(new_locdata.data, selection.data)
+    assert new_locdata.properties == selection.properties
+    assert new_locdata.indices == selection.indices
+    assert new_locdata.references != selection.references
+    assert new_locdata.meta != selection.meta
+    assert int(new_locdata.references.meta.identifier) == int(selection.meta.identifier) + 1
+    assert int(new_locdata.meta.identifier) == int(selection.meta.identifier) + 2
+    assert new_locdata.meta.creation_date == selection.meta.creation_date

@@ -32,7 +32,8 @@ WORKDIR /surepy
 # Update conda & Create environment from environment.yml & Install the project
 RUN conda init bash && \
     conda update -n base -c defaults conda && \
-    conda env create -n $ENVIRONMENT_NAME -f environment.yml python=$PYTHON_VERSION && \
+    conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION && \
+    conda env update -n $ENVIRONMENT_NAME -f environment.yml && \
     conda activate $ENVIRONMENT_NAME && \
     python setup.py install && \
     conda clean -afy

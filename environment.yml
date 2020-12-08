@@ -17,6 +17,11 @@ dependencies:
 - pip
 - numba
 
+# additions for open3d
+- addict
+- plyfile
+- tqdm
+
 # Python tests
 - pytest-runner
 - pytest

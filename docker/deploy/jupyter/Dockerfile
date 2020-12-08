@@ -86,7 +86,7 @@ WORKDIR $HOME/surepy
 
 # create new environment
 RUN conda init bash && \
-    conda env create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION && \
+    conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION && \
     conda env update -n $ENVIRONMENT_NAME --file environment.yml && \
     conda activate $ENVIRONMENT_NAME && \
     # install surepy

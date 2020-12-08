@@ -1,3 +1,4 @@
+from platform import system
 from pathlib import Path
 import tempfile
 import pickle
@@ -11,12 +12,24 @@ from surepy.data import metadata_pb2
 
 
 def test_open_path_or_file_like():
-    inputs = [
-        str(surepy.constants.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
-        str(surepy.constants.ROOT_DIR) + r'\tests\test_data\rapidSTORM_dstorm_data.txt',
-        surepy.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
-        surepy.constants.ROOT_DIR / r'tests\test_data\rapidSTORM_dstorm_data.txt'
-    ]
+    if system() == 'Linux':
+        inputs = [
+            str(surepy.constants.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+            surepy.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
+        ]
+    elif system() == 'Windows':
+        inputs = [
+            str(surepy.constants.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+            str(surepy.constants.ROOT_DIR) + r'\tests\test_data\rapidSTORM_dstorm_data.txt',
+            surepy.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
+            surepy.constants.ROOT_DIR / r'tests\test_data\rapidSTORM_dstorm_data.txt'
+        ]
+    else:
+        inputs = [
+            str(surepy.constants.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+            surepy.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
+        ]
+
     for pfl in inputs:
         with io.open_path_or_file_like(path_or_file_like=pfl) as data:
             assert isinstance(data, TextIOWrapper)

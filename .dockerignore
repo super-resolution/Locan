@@ -13,7 +13,7 @@ build
 *.egg-info
 
 # git
-.git
+#.git
 .gitattributes
 .gitignore
 

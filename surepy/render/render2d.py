@@ -20,10 +20,10 @@ from surepy.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine, REND
 from surepy.constants import _has_mpl_scatter_density, _has_napari
 from surepy.data.rois import _MplSelector
 from surepy.data.aggregate import histogram
+from surepy.data.properties.locdata_statistics import ranges
 
 if _has_mpl_scatter_density: import mpl_scatter_density
 if _has_napari: import napari
-from surepy.render.utilities import _coordinate_ranges
 
 
 __all__ = ['render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari', 'scatter_2d_mpl',
@@ -120,7 +120,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
     return ax
 
 
-def render_2d_scatter_density(locdata, loc_properties=None, other_property=None, range=None,
+def render_2d_scatter_density(locdata, loc_properties=None, other_property=None, bin_range=None,
                               ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
@@ -140,7 +140,7 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     other_property : str or None
         Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
         shown.
-    range : tuple with shape (dimension, 2) or None or 'zero'
+    bin_range : tuple with shape (dimension, 2) or None or 'zero'
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
@@ -176,15 +176,11 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
         fig = ax.get_figure()
         ax = fig.add_subplot(1, 1, 1, projection='scatter_density', label='scatter_density')
 
-    # todo: adjust for loc_property input
-    range_ = _coordinate_ranges(locdata, range=range)
-
     if loc_properties is None:
         data = locdata.coordinates.T
         labels = list(locdata.coordinate_labels)
     elif isinstance(loc_properties, str) and loc_properties in locdata.coordinate_labels:
         data = locdata.data[loc_properties].values.T
-        range_ = range_[locdata.coordinate_labels.index(loc_properties)]
         labels = list(loc_properties)
     elif isinstance(loc_properties, (list, tuple)):
         for prop in loc_properties:
@@ -194,6 +190,11 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
         labels = list(loc_properties)
     else:
         raise ValueError(f'{loc_properties} is not a valid property in locdata.')
+
+    if bin_range is None or isinstance(bin_range, str):
+        bin_range_ = ranges(locdata, loc_properties=labels, special=bin_range)
+    else:
+        bin_range_ = bin_range
 
     if other_property is None:
         # histogram data by counting points
@@ -213,11 +214,11 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     else:
         raise TypeError(f'No valid property name {other_property}.')
 
-    a = mpl_scatter_density.ScatterDensityArtist(ax, *data, c=values, origin='lower', extent=[*range_[0], *range_[1]],
+    a = mpl_scatter_density.ScatterDensityArtist(ax, *data, c=values, origin='lower', extent=[*bin_range_[0], *bin_range_[1]],
                                                  cmap=cmap, **kwargs)
     mappable = ax.add_artist(a)
-    ax.set_xlim(*range_[0])
-    ax.set_ylim(*range_[1])
+    ax.set_xlim(*bin_range_[0])
+    ax.set_ylim(*bin_range_[1])
 
     ax.set(title=labels[-1],
            xlabel=labels[0],

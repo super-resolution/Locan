@@ -47,7 +47,7 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
 
     # render_2d_scatter_density(locdata_blobs_2d, other_property='position_x')
 
-    # plt.show()
+    #plt.show()
 
 
 @pytest.mark.skip('GUI tests are skipped because they would need user interaction.')

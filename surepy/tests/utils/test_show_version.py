@@ -6,7 +6,7 @@ from surepy.utils.system_information import system_info, dependency_info, show_v
 def test__get_sys_info():
     sys_info = system_info()
     # print(sys_info)
-    assert len(sys_info) == 13
+    assert len(sys_info) == 12
 
 
 def test___get_dependency_info():

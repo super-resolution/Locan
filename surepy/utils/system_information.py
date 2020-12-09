@@ -22,7 +22,7 @@ __all__ = ['system_info', 'dependency_info', 'show_versions']
 
 def system_info(verbose=True):
     """
-    Return system and python information.
+    Return system information.
 
     Parameters
     ----------
@@ -32,13 +32,12 @@ def system_info(verbose=True):
     Return
     ------
     dict
-        System and Python version information
+        System information
     """
     uname_result = platform.uname()
     language_code, encoding = locale.getlocale()
 
     sys_info = {
-        "python": platform.python_version(),
         "python-bits": struct.calcsize("P") * 8,
         "system": uname_result.system,
         "release": uname_result.release,
@@ -103,30 +102,46 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
     return deps_info
 
 
-def show_versions(surepy=True, system=True, dependencies=True,
+def show_versions(surepy=True, python=True, system=True, dependencies=True,
                   verbose=True, extra_dependencies=True, other_dependencies=None):
     """
     Print useful debugging information on system and dependency versions.
 
     Parameters
     ----------
+    surepy : bool
+        Show surepy version
+    python : bool
+        Show python version
+    system : bool
+        Show system information
     verbose : bool
         If True information on node and executable path are added.
-
+    dependencies : bool
+        Show main dependencies
     extra_dependencies : bool
         Include extra dependencies as specified in setup.py if True.
-
     other_dependencies : list or None
         Include other module names.
+
+    Returns
+    -------
+    None
     """
 
     surepy_info = {'version': surepy_version}
+    python_info = {'version': platform.python_version()}
     sys_info = system_info(verbose)
     deps_info = dependency_info(extra_dependencies, other_dependencies)
 
     if surepy:
         print('\nSurepy:')
         for key, value in surepy_info.items():
+            print(f"{key:>10}: {value}")
+
+    if python:
+        print('\nPython:')
+        for key, value in python_info.items():
             print(f"{key:>10}: {value}")
 
     if system:

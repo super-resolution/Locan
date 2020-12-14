@@ -37,7 +37,7 @@ def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, trans
         Pixel size for images (in locdata units).
     transpose : bool
         If True transpose x and y axis of `images`.
-    locdata : LocData object
+    locdata : LocData
         Localization data that corresponds to `images` raw data.
     viewer : napari viewer
         The viewer object on which to add the image
@@ -90,30 +90,30 @@ def sc_check(pixel_size, file_images=None, file_locdata=None, file_type=sp.FileT
     ---------
     pixel_size : float or tuple of float with shape (2,)
         Pixel size for images (in locdata units).
-    file_images : str or Path
+    file_images : str, os.PathLike
         File path for stack of raw data as recorded by camera.
-    file_locdata : str or Path
+    file_locdata : str, os.PathLike
         File path for localization data that corresponds to `images` raw data.
-    file_type : int, str, surepy.constants.FileType, metadata_pb2
+    file_type : int, str, surepy.constants.FileType, surepy.data.metadata_pb2.Metadata
         Indicator for the file type.
         Integer or string should be according to surepy.constants.FileType.
     transpose : bool
         If True transpose x and y axis of `images`.
-    locdata : LocData object
+    locdata : LocData
         Localization data that corresponds to `images` raw data.
-    viewer : napari viewer
+    viewer : napari.Viewer
         The viewer object on which to add the image
 
     Other Parameters
     ----------------
     kwargs_image : dict
-        Other parameters passed to napari.Viewer().add_image().
+        Other parameters passed to :meth:`napari.Viewer.add_image`.
     kwargs_points : dict
-        Other parameters passed to napari.Viewer().add_points().
+        Other parameters passed to :meth:`napari.Viewer.add_points`.
 
     Returns
     -------
-    napari Viewer object
+    napar.Viewer
         Viewer with the image.
     """
     with napari.gui_qt():

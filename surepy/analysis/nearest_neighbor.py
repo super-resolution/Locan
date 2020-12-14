@@ -109,7 +109,7 @@ class NearestNeighborDistances(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     k : int
         Compute the kth nearest neighbor.
@@ -121,9 +121,9 @@ class NearestNeighborDistances(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy array or pandas DataFrame
+    results : numpy.ndarray or pandas.DataFrame
         Computed results.
     distribution_statistics : Distribution_stats object, None
         Distribution parameters derived from MLE fitting of results.
@@ -141,9 +141,9 @@ class NearestNeighborDistances(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
            Localization data.
-        other_locdata : LocData object
+        other_locdata : LocData
             Other localization data from which nearest neighbors are taken.
 
         Returns
@@ -188,7 +188,7 @@ class NearestNeighborDistances(_Analysis):
 
     def hist(self, ax=None, bins='auto', density=True, fit=False, **kwargs):
         """
-        Provide histogram as matplotlib axes object showing hist(results).
+        Provide histogram as matplotlib.axes.Axes object showing hist(results).
 
         Parameters
         ----------
@@ -321,11 +321,11 @@ class _DistributionFits:
 
     def plot(self, ax=None, **kwargs):
         """
-        Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
+        Provide plot as matplotlib.axes.Axes object showing the probability distribution functions of fitted results.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image.
 
         Other Parameters

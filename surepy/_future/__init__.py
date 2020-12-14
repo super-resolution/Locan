@@ -10,16 +10,16 @@ def pair_files(files, source, target):
     """
     Pair file names depending on corresponding parts in the file name.
 
-    A source string is replaced by teh target string and the resulting pairs are returned as dictionary.
+    A source string is replaced by the target string and the resulting pairs are returned as dictionary.
 
     Parameters
     ----------
-    files : list of string or os.PathLikes
+    files : list of str or os.PathLikes
         List of file names containing all elements.
     source : str
-        the string identifying source names.
+        The string identifying source names.
     target : str
-        the string being inserted to identify target names.
+        The string being inserted to identify target names.
 
     Returns
     -------

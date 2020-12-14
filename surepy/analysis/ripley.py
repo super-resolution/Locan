@@ -118,7 +118,7 @@ class RipleysKFunction(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     radii: array of float
         Radii at which to compute Ripley's k function.
@@ -132,9 +132,9 @@ class RipleysKFunction(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas data frame
+    results : pandas.DataFrame
         Data frame with radii as provided and Ripley's K function.
     """
     count = 0
@@ -149,9 +149,9 @@ class RipleysKFunction(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
             Localization data with 2D or 3D coordinates on which to estimate Ripley's K function.
-        other_locdata : LocData object
+        other_locdata : LocData
             Other localization data from which to estimate Ripley's K function (e.g. subset of points).
             For None other_points is set to points (default).
 
@@ -188,7 +188,7 @@ class RipleysLFunction(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     radii: array of float
         Radii at which to compute Ripley's k function.
@@ -201,9 +201,9 @@ class RipleysLFunction(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas data frame
+    results : pandas.DataFrame
         Data frame with radii as provided and Ripley's L function.
     """
     count = 0
@@ -218,9 +218,9 @@ class RipleysLFunction(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
             Localization data with 2D or 3D coordinates on which to estimate Ripley's L function.
-        other_locdata : LocData object
+        other_locdata : LocData
             Other localization data from which to estimate Ripley's L function (e.g. subset of points).
             For None other_points is set to points (default).
 
@@ -257,7 +257,7 @@ class RipleysHFunction(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     radii: array of float
         Radii at which to compute Ripley's k function.
@@ -270,11 +270,11 @@ class RipleysHFunction(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas data frame
+    results : pandas.DataFrame
         Data frame with radii as provided and Ripley's H function.
-    Ripley_h_maximum : pandas data frame
+    Ripley_h_maximum : pandas.DataFrame
         Data frame with radius and Ripley's H value for the radius at which the H function has its maximum.
     """
     count = 0
@@ -290,9 +290,9 @@ class RipleysHFunction(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
             Localization data with 2D or 3D coordinates on which to estimate Ripley's H function.
-        other_locdata : LocData object
+        other_locdata : LocData
             Other localization data from which to estimate Ripley's H function (e.g. subset of points).
             For None other_points is set to points (default).
 
@@ -345,11 +345,11 @@ class RipleysHFunction(_Analysis):
 
 def plot(self, ax=None, **kwargs):
     """
-    Provide plot of results as matplotlib axes object.
+    Provide plot of results as matplotlib.axes.Axes object.
 
     Parameters
     ----------
-    ax : matplotlib axes
+    ax : matplotlib.axes.Axes
         The axes on which to show the image
 
     Other Parameters

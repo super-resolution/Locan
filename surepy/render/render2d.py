@@ -39,7 +39,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         Localization data.
     loc_properties : list or None
         Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
@@ -71,7 +71,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
         For 'equal' intensity values are rescaled by histogram equalization.
         For 'unity' intensity values are rescaled to (0, 1).
         For None or False no rescaling occurs.
-    ax : matplotlib axes
+    ax : matplotlib.axes.Axes
         The axes on which to show the image
     cmap : str or Colormap instance
         The colormap used to map normalized data values to RGBA colors.
@@ -94,7 +94,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
     if not len(locdata):
         raise ValueError('Locdata does not contain any data points.')
 
-    # Provide matplotlib axes if not provided
+    # Provide matplotlib.axes.Axes if not provided
     if ax is None:
         ax = plt.gca()
 
@@ -125,7 +125,7 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
 
-    Prepare matplotlib axes with image.
+    Prepare matplotlib.axes.Axes with image.
 
     Note
     ----
@@ -133,7 +133,7 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         Localization data.
     loc_properties : list or None
         Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
@@ -144,7 +144,7 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    ax : matplotlib axes
+    ax : matplotlib.axes.Axes
         The axes on which to show the image
     cmap : str or Colormap instance
         The colormap used to map normalized data values to RGBA colors.
@@ -170,7 +170,7 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     if not len(locdata):
         raise ValueError('Locdata does not contain any data points.')
 
-    # Provide matplotlib axes if not provided
+    # Provide matplotlib.axes.Axes if not provided
     if ax is None:
         ax = plt.gca()
         fig = ax.get_figure()
@@ -243,7 +243,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         Localization data.
     loc_properties : list or None
         Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
@@ -328,9 +328,9 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs={}, **kwargs):
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
        Localization data.
-    ax : matplotlib axes
+    ax : matplotlib.axes.Axes
        The axes on which to show the plot
     index : bool
        Flag indicating if element indices are shown.
@@ -350,7 +350,7 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs={}, **kwargs):
     if not len(locdata):
         raise ValueError('Locdata does not contain any data points.')
 
-    # Provide matplotlib axes if not provided
+    # Provide matplotlib.axes.Axes if not provided
     if ax is None:
         ax = plt.gca()
 
@@ -376,7 +376,7 @@ def apply_window(image, window_function='tukey', **kwargs):
 
     Parameters
     ----------
-    image : ndarray
+    image : numpy.ndarray
         Image
     window_function : str
         Window function to apply. One of 'tukey', 'hann' or any other in `scipy.signal.windows`.
@@ -402,7 +402,7 @@ def select_by_drawing_mpl(locdata, region_type='rectangle', **kwargs):
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         The localization data from which to select localization data.
     region_type : str
         rectangle, or ellipse specifying the selection widget to use.
@@ -438,9 +438,9 @@ def _napari_shape_to_RoiRegion(vertices, bin_edges, region_type):
 
     Parameters
     ----------
-    vertices : ndarray of float
+    vertices : numpy.ndarray of float
         Sequence of point coordinates as returned by napari
-    bin_edges : tuple, list, ndarray of float with shape (n_dimension, n_bin_edges)
+    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimension, n_bin_edges)
         Array of bin edges for each dimension. At this point there are only equally-sized bins allowed.
     region_type : str
         String specifying the selector widget that can be either rectangle, ellipse, or polygon.
@@ -494,7 +494,7 @@ def select_by_drawing_napari(locdata, bin_size=10, **kwargs):
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         The localization data from which to select localization data.
     bin_size : float or None
         The bin size in units of locdata coordinate units.

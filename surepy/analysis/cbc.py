@@ -103,7 +103,7 @@ class CoordinateBasedColocalization(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     radius : int or float
         The maximum radius up to which nearest neighbors are determined
@@ -116,9 +116,9 @@ class CoordinateBasedColocalization(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas DataFrame
+    results : pandas.DataFrame
         Coordinate-based colocalization coefficients for each input point.
     """
     count = 0
@@ -133,9 +133,9 @@ class CoordinateBasedColocalization(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
             Localization data for which CBC values are computed.
-        other_locdata : LocData object or None
+        other_locdata : LocData or None
             Localization data to be colocalized. If None other_locdata is set to locdata.
 
         Returns
@@ -157,7 +157,7 @@ class CoordinateBasedColocalization(_Analysis):
 
     def hist(self, ax=None, bins=(-1, -0.3333, 0.3333, 1), density=True, **kwargs):
         """
-        Provide histogram as matplotlib axes object showing hist(results).
+        Provide histogram as matplotlib.axes.Axes object showing hist(results).
 
         Parameters
         ----------

@@ -38,7 +38,7 @@ def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None):
 
     Returns
     -------
-    ndarray with shape (n_points, diffusion_constant.shape)
+    numpy.ndarray with shape (n_points, diffusion_constant.shape)
         Position deltas that have to be added to the original localizations.
     """
     if seed is not None:
@@ -68,7 +68,7 @@ def _drift(frames, diffusion_constant=None, velocity=None, seed=None):
 
     Returns
     -------
-    ndarray with shape (n_points, diffusion_constant.shape)
+    numpy.ndarray with shape (n_points, diffusion_constant.shape)
         Position deltas that have to be added to the original localizations.
     """
     frames_ = np.asarray(frames)

@@ -19,7 +19,7 @@ def _time_string(time_value):
     Parameters
     ----------
     time_value : float
-        return value from time.time()
+        Return value from :func:`time.time`
 
     Returns
     -------

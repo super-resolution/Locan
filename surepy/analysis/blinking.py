@@ -43,7 +43,7 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
 
     Returns
     -------
-    dict with values being ndarrays
+    dict with values beingnumpy.ndarrays
         'on_periods' and 'off_periods' in units of frame numbers.
     """
     if isinstance(locdata, LocData):
@@ -102,7 +102,7 @@ class BlinkStatistics(_Analysis):
     memory : int
         The maximum number of intermittent frames without any localization
         that are still considered to belong to the same on-period.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
 
     Attributes
@@ -111,9 +111,9 @@ class BlinkStatistics(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : tuple of ndarrays
+    results : tuple ofnumpy.ndarrays
         Two arrays with on- and off-periods in units of frame numbers.
     """
     count = 0
@@ -176,13 +176,13 @@ class BlinkStatistics(_Analysis):
 
     def hist(self, data_identifier='on_periods', ax=None, bins='auto', log=True, fit=True, **kwargs):
         """
-        Provide histogram as matplotlib axes object showing hist(results).
+        Provide histogram as matplotlib.axes.Axes object showing hist(results).
 
         Parameters
         ----------
         data_identifier : str
             'on_periods' or 'off_periods'.
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         bins : float
             Bin specifications (passed to matplotlib.hist).
@@ -246,11 +246,11 @@ class _DistributionFits:
     ----------
     analyis_class : Analysis object
         The analysis class with result data to fit.
-    distribution : str or scipy.stats distribution object
+    distribution : str or `scipy.stats` distribution object
         Distribution model to fit.
     data_identifier : str
         String to identify the data in `results` for which to fit an appropriate distribution
-    parameters : list of string
+    parameters : list of str
         Distribution parameters.
     """
     def __init__(self, analysis_class, distribution, data_identifier):
@@ -308,11 +308,11 @@ class _DistributionFits:
 
     def plot(self, ax=None, **kwargs):
         """
-        Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
+        Provide plot as matplotlib.axes.Axes object showing the probability distribution functions of fitted results.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image.
 
         Other Parameters

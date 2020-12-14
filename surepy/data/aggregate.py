@@ -748,7 +748,7 @@ def adjust_contrast(image, rescale=True, **kwargs):
 
     Returns
     -------
-    numpy array
+    numpy.ndarray
     """
     if rescale is None or rescale is False:
         pass
@@ -812,7 +812,7 @@ def histogram(locdata, loc_properties=None, other_property=None,
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         Localization data.
     loc_properties : list of str or None
         Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.

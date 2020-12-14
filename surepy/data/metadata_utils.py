@@ -24,12 +24,12 @@ def _modify_meta(locdata, new_locdata, function_name=None, parameter=None, meta=
         Name of function that was applied for modification.
     parameter : dict
         Parameter for function that was applied for modification.
-    meta : Metadata protobuf message
+    meta : surepy.data.metadata_pb2.Metadata
         Metadata about the current dataset and its history.
 
     Returns
     -------
-    Metadata protobuf message
+    surepy.data.metadata_pb2.Metadata
         Metadata about the current dataset and its history.
     """
     meta_ = metadata_pb2.Metadata()

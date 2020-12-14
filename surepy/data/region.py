@@ -55,7 +55,6 @@ class RoiRegion:
         * ellipsoid: ((center_x, center_y, center_z), length, width, height, angle_1, angle_2, angle_3)
         * polyhedron: (...)
 
-
     Attributes
     ----------
     region_type : str
@@ -64,7 +63,7 @@ class RoiRegion:
         Specifications for region
     _region : RoiRegion object
         RoiRegion instance for the specified region type.
-    polygon : ndarray of tuples
+    polygon :numpy.ndarray of tuples
         Array of points for a closed polygon approximating the region of interest in clockwise orientation. The first
         and last point must be identical.
     dimension : int
@@ -145,7 +144,7 @@ class RoiRegion:
 
         Returns
         -------
-        ndarray of ints
+        numpy.ndarray of ints
             Array with indices for all points in original point array that are within the region.
         """
         return self._region.contains(points)
@@ -179,7 +178,6 @@ class RoiRegion:
         Returns
         -------
         shapely.Polygon object
-
         """
         return self._region.to_shapely()
 

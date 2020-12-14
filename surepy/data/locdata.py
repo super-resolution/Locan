@@ -29,33 +29,33 @@ class LocData:
     """
     This class carries localization data, aggregated properties and meta data.
 
-    Data consist of individual elements being either localizations or other LocData objects. Both, localizations and
-    Locdata objects have properties. Properties come from the original data or are added by analysis procedures.
+    Data consist of individual elements being either localizations or other `LocData` objects. Both, localizations and
+    `Locdata` objects have properties. Properties come from the original data or are added by analysis procedures.
 
     Parameters
     ----------
-    references : LocData, list(LocData), or None
-        A locData reference or an array with references to locData objects referring to the selected localizations
+    references : LocData, list(LocData), None
+        A `LocData` reference or an array with references to `LocData` objects referring to the selected localizations
         in dataset.
-    dataframe : Pandas DataFrame or None
+    dataframe : pandas.DataFrame, None
         Dataframe with localization data.
     indices : slice object or list(int) or None
-        Indices for dataframe in references that makes up the data. `Indices` refers to index label, not position.
-    meta : Metadata protobuf message or dictionary
+        Indices for dataframe in references that makes up the data. `indices` refers to index label, not position.
+    meta : surepy.data.metadata_pb2.Metadata, dictionary
         Metadata about the current dataset and its history.
 
     Attributes
     ----------
-    references : LocData, list(LocData) or None
-        A locData reference or an array with references to locData objects referring to the selected localizations
+    references : LocData, list(LocData), None
+        A LocData reference or an array with references to LocData objects referring to the selected localizations
         in dataframe.
-    dataframe : Pandas DataFrame or None
+    dataframe : pandas.DataFrame, None
         Dataframe with localization data.
     indices : slice object or list(int) or None
         Indices for dataframe in references that makes up the data.
-    meta : Metadata protobuf message
+    meta : surepy.data.metadata_pb2.Metadata
         Metadata about the current dataset and its history.
-    properties : Pandas DataFrame
+    properties : pandas.DataFrame
         List of properties generated from data.
     coordinate_labels : list of str
         The available coordinate properties.
@@ -294,7 +294,7 @@ class LocData:
 
     @property
     def data(self):
-        """pandas DataFrame: Return all elements either copied from the reference or referencing the current
+        """pandas.DataFrame: Return all elements either copied from the reference or referencing the current
         dataframe. """
         if isinstance(self.references, LocData):
             # we refer to the localization data by its index label, not position
@@ -325,18 +325,18 @@ class LocData:
     @classmethod
     def from_dataframe(cls, dataframe=pd.DataFrame(), meta=None):
         """
-        Create new LocData object from pandas DataFrame with localization data.
+        Create new LocData object from pandas.DataFrame with localization data.
 
         Parameters
         ----------
-        dataframe : pandas DataFrame
+        dataframe : pandas.DataFrame
             Localization data.
-        meta : Metadata protobuf message
+        meta : surepy.data.metadata_pb2.Metadata
             Metadata about the current dataset and its history.
 
         Returns
         -------
-        LocData object
+        LocData
             A new LocData instance with dataframe representing the concatenated data.
         """
         dataframe = dataframe
@@ -367,12 +367,12 @@ class LocData:
             Sequence of tuples with localization coordinates
         coordinate_labels : sequence of str
             The available coordinate properties.
-        meta : Metadata protobuf message
+        meta : surepy.data.metadata_pb2.Metadata
             Metadata about the current dataset and its history.
 
         Returns
         -------
-        LocData object
+        LocData
             A new LocData instance with dataframe representing the concatenated data.
         """
         dimension = len(coordinates[0])
@@ -409,18 +409,18 @@ class LocData:
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
             Locdata object from which to select elements.
         indices : slice object or list(int) or None
             Index labels for elements in locdata that make up the new data.
             Note that contrary to usual python slices, both the start and the stop are included
             (see pandas documentation). `Indices` refer to index value not position in list.
-        meta : Metadata protobuf message
+        meta : surepy.data.metadata_pb2.Metadata
             Metadata about the current dataset and its history.
 
         Returns
         -------
-        LocData object
+        LocData
             A new LocData instance with dataframe representing the selected data.
         """
 
@@ -467,14 +467,14 @@ class LocData:
 
         Parameters
         ----------
-        locdatas : list of LocData objects
+        locdatas : list of LocData
             Locdata objects to collect.
-        meta : Metadata protobuf message
+        meta : surepy.data.metadata_pb2.Metadata
             Metadata about the current dataset and its history.
 
         Returns
         -------
-        LocData object
+        LocData
             A new LocData instance with dataframe representing the concatenated data.
         """
         references = locdatas
@@ -504,14 +504,14 @@ class LocData:
 
         Parameters
         ----------
-        locdatas : list of LocData objects
+        locdatas : list of LocData
             Locdata objects to concatenate.
-        meta : Metadata protobuf message
+        meta : surepy.data.metadata_pb2.Metadata
             Metadata about the current dataset and its history.
 
         Returns
         -------
-        LocData object
+        LocData
             A new LocData instance with dataframe representing the concatenated data.
         """
 
@@ -554,20 +554,20 @@ class LocData:
 
         Parameters
         ----------
-        locdatas : list of LocData objects
+        locdatas : list of LocData
             Locdata objects to concatenate.
         chunk_size : int or None
             Number of localizations per chunk. One of `chunk_size` or `n_chunks` must be different from None.
         n_chunks : int or None
             Number of chunks. One of `chunk_size` or `n_chunks` must be different from None.
-        order : string
+        order : str
             The order in which to select localizations. One of 'successive' or 'alternating'.
-        meta : Metadata protobuf message
+        meta : surepy.data.metadata_pb2.Metadata
             Metadata about the current dataset and its history.
 
         Returns
         -------
-        LocData object
+        LocData
             A new LocData instance with references and dataframe elements representing the individual chunks.
         """
         if chunk_size is None and n_chunks is None:
@@ -664,11 +664,11 @@ class LocData:
 
         Parameters
         ----------
-        dataframe : Pandas DataFrame or None
+        dataframe : pandas.DataFrame, None
             Dataframe with localization data.
         reset_index : Bool
             Flag indicating if the index is reset to integer values. If True the previous index values are discarded.
-        meta : Metadata protobuf message
+        meta : surepy.data.metadata_pb2.Metadata
             Metadata about the current dataset and its history.
 
         Returns

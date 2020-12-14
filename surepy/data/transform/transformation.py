@@ -40,7 +40,7 @@ def _transform_affine_numpy(points, matrix=None, offset=None, pre_translation=No
 
     Returns
     -------
-    ndarray
+    numpy.ndarray
         Transformed coordinates.
     """
     points_ = np.asarray(points)
@@ -76,7 +76,7 @@ def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)):
 
     Returns
     -------
-    ndarray with shape (d+1, d+1)
+    numpy.ndarray with shape (d+1, d+1)
         Homogeneous transformation matrix to be used with homogeneous coordinate vector.
     """
     dimension = np.shape(matrix)[0]
@@ -113,7 +113,7 @@ def _transform_affine_open3d(points, matrix=None, offset=None, pre_translation=N
 
     Returns
     -------
-    ndarray
+    numpy.ndarray
         Transformed coordinates.
     """
     if not _has_open3d:
@@ -168,7 +168,7 @@ def transform_affine(locdata, matrix=None, offset=None, pre_translation=None, me
 
     Parameters
     ----------
-    locdata : ndarray or LocData object
+    locdata : numpy.ndarray or LocData
         Localization data on which to perform the manipulation.
     matrix :
         Transformation matrix. If None the unit matrix is used.
@@ -182,7 +182,7 @@ def transform_affine(locdata, matrix=None, offset=None, pre_translation=None, me
 
     Returns
     -------
-    ndarray or LocData object
+    numpy.ndarray or LocData
         New localization data with transformed coordinates.
     """
     local_parameter = locals()
@@ -232,7 +232,7 @@ def randomize(locdata, hull_region='bb'):
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         Localization data to be randomized
     hull_region : str, RoiRegion Object, or dict
         Region of interest as specified by a hull or a `RoiRegion` or dictionary with keys `region_specs` and
@@ -242,7 +242,7 @@ def randomize(locdata, hull_region='bb'):
 
     Returns
     -------
-    locdata : LocData object
+    locdata : LocData
         New localization data with randomized coordinates.
     """
     local_parameter = locals()

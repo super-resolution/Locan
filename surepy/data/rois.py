@@ -141,10 +141,10 @@ class Roi:
 
     Parameters
     ----------
-    reference : LocData object, dict, surepy.data.metadata_pb2 object, or None
+    reference : LocData, dict, surepy.data.metadata_pb2.Metadata, None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
         a reference to a saved SMLM file, or None for indicating no specific reference.
-        When referencing a saved SMLM file, reference must be a dict or surepy.data.metadata_pb2 with keys `file_path`
+        When referencing a saved SMLM file, reference must be a dict or surepy.data.metadata_pb2.Metadata with keys `file_path`
         and `file_type` for a path pointing to a localization file and an integer or string indicating the file type.
         Integer or string should be according to surepy.constants.FileType.
     region_type : str
@@ -163,23 +163,23 @@ class Roi:
         * cuboid: ((corner_x, corner_y, corner_z), length, width, height, angle_1, angle_2, angle_3)
         * ellipsoid: ((center_x, center_y, center_z), length, width, height, angle_1, angle_2, angle_3)
         * polyhedron: (...)
-    properties_for_roi : tuple of string
+    properties_for_roi : tuple of str
         Localization properties in LocData object on which the region selection will be applied (for instance the
         coordinate_labels).
 
 
     Attributes
     ----------
-    reference : LocData object, surepy.data.metadata_pb2 object, or None
+    reference : LocData, surepy.data.metadata_pb2.Metadata, None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
-        a reference (surepy.data.metadata_pb2) to a saved SMLM file, or None for indicating no specific reference.
+        a reference (surepy.data.metadata_pb2.Metadata) to a saved SMLM file, or None for indicating no specific reference.
         When referencing a saved SMLM file, reference as attributes `file_path`
         and `file_type` for a path pointing to a localization file and an integer indicating the file type.
-        The integer should be according to surepy.data.metadata_pb2.file_type.
-    _region : RoiRegion or list of RoiRegion
+        The integer should be according to surepy.data.metadata_pb2.Metadata.file_type.
+    _region : RoiRegion, list of RoiRegion
         Object specifying the geometrical region of interest. In case a list of RoiRegion is provided it is the union
         that makes up the region of interest.
-    properties_for_roi : tuple of string
+    properties_for_roi : tuple of str
         Localization properties in LocData object on which the region selection will be applied (for instance the
         coordinate_labels).
     """
@@ -356,14 +356,14 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2), properties_for_roi=())
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         The localization data from which to select localization data.
-    support : tuple of tuples or None
+    support : tuple of tuples, None
         Coordinate intervals that are divided in `n_regions` subintervals.
         For None intervals are taken from the bounding box.
     n_regions : tuple with size 2 or 3.
         Number of regions in each dimension. E.g. `n_regions` = (2, 2) returns 4 rectangular Roi objects.
-    properties_for_roi : tuple of string
+    properties_for_roi : tuple of str
         Localization properties in LocData object on which the region selection will be applied.
         (Only implemented for coordinates labels)
 

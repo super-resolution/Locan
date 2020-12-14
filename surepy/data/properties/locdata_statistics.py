@@ -22,10 +22,10 @@ def statistics(locdata, statistic_keys=('count', 'min', 'max', 'mean', 'median',
 
     Parameters
     ----------
-    locdata : LocData, Pandas DataFrame or Pandas Series
+    locdata : LocData, pandas.DataFrame, pandas.Series
         Localization data
 
-    statistic_keys : str or tuple of strings
+    statistic_keys : str or tuple of str
         Pandas statistic functions. Default: ('count', 'min', 'max', 'mean', 'median', 'std', 'sem')
 
     Returns
@@ -39,7 +39,7 @@ def statistics(locdata, statistic_keys=('count', 'min', 'max', 'mean', 'median',
     elif isinstance(locdata, (pd.DataFrame, pd.Series)):
         data = locdata
     else:
-        raise TypeError('locdata should be of type Locdata or Pandas.DataFrame.')
+        raise TypeError('locdata should be of type surepy.LocData or pandas.DataFrame.')
 
     statistics_ = data.agg(statistic_keys)
 
@@ -67,7 +67,7 @@ def ranges(locdata: LocData, loc_properties=None, special=None):
 
     Parameters
     ----------
-    locdata : pandas DataFrame or LocData object
+    locdata : pandas.DataFrame or LocData
         Localization data.
     loc_properties : str or tuple[str] or list[str] or True or None.
         Localization properties for which the range is determined.
@@ -80,7 +80,7 @@ def ranges(locdata: LocData, loc_properties=None, special=None):
 
     Returns
     -------
-    numpy array of float with shape (n_dimensions, 2)
+    numpy.ndarray of float with shape (n_dimensions, 2)
         The data range (min, max) for each localization property.
     """
     if loc_properties is None:

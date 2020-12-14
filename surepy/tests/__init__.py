@@ -17,8 +17,8 @@ def test(args=None):
 
     Parameters
     ----------
-    args : string or list of string
-        Parameters passed to pytest.main()
+    args : str, list of str
+        Parameters passed to :func:`pytest.main`
     """
     try:
         import pytest

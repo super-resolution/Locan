@@ -616,7 +616,7 @@ def make_csr_on_region(region, n_samples=100, seed=None):
 
     Parameters
     ----------
-    region : RoiRegion Object, or dict
+    region : RoiRegion, or dict
         Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
         Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
     n_samples : int
@@ -667,7 +667,7 @@ def simulate_csr_on_region(region, n_samples=100, seed=None):
 
     Parameters
     ----------
-    region : RoiRegion Object, or dict
+    region : RoiRegion, dict
         Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
         Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
     n_samples : int
@@ -716,7 +716,7 @@ def make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
 
     Parameters
     ----------
-    region : RoiRegion Object, or dict
+    region : RoiRegion, dict
         Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
         Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
     n_samples : int or array-like
@@ -809,7 +809,7 @@ def simulate_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1
 
     Parameters
     ----------
-    region : RoiRegion Object, or dict
+    region : RoiRegion, dict
         Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
         Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
     n_samples : int or array-like
@@ -965,14 +965,14 @@ def resample(locdata, n_samples=10):
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         Localization data to be resampled
     n_samples : int
         The number of localizations generated for each original localization.
 
     Returns
     -------
-    locdata : LocData object
+    locdata : LocData
         New localization data with simulated coordinates.
     """
 
@@ -1038,7 +1038,7 @@ def resample(locdata, n_samples=10):
 
 def _random_poisson_repetitions(n_samples, lam):
     """
-    Return numpy array of sorted integers with each integer i being repeated n(i) times
+    Return numpy.ndarray of sorted integers with each integer i being repeated n(i) times
     where n(i) is drawn from a Poisson distribution with mean `lam`.
 
     Parameters
@@ -1050,7 +1050,7 @@ def _random_poisson_repetitions(n_samples, lam):
 
     Returns
     -------
-    numpy array with shape (n_samples,)
+    numpy.ndarray with shape (n_samples,)
         The generated sequence of integers.
     """
     frames = np.ones(n_samples, dtype=int)
@@ -1074,7 +1074,7 @@ def simulate_frame_numbers(n_samples, lam):
     """
     Simulate Poisson-distributed frame numbers for a list of localizations.
 
-    Return numpy array of sorted integers with each integer i being repeated n(i) times
+    Return numpy.ndarray of sorted integers with each integer i being repeated n(i) times
     where n(i) is drawn from a Poisson distribution with mean `lam`.
 
     Use the following to add frame numbers to a given LocData object::
@@ -1091,7 +1091,7 @@ def simulate_frame_numbers(n_samples, lam):
 
     Returns
     -------
-    numpy array with shape (n_samples,)
+    numpy.ndarray with shape (n_samples,)
         The generated sequence of integers.
     """
     return _random_poisson_repetitions(n_samples, lam)

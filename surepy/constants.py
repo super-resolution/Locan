@@ -140,9 +140,9 @@ class FileType(Enum):
     """
     File types for localization files.
 
-    The listed file types are supported with input/output functions in io.io_locdata.
+    The listed file types are supported with input/output functions in :func:`io.io_locdata`.
     The types correspond to the metadata keys for LocData objects. That is they are equal to the file types in
-    the protobuf message metadata_pb2.
+    the protobuf message `surepy.data.metadata_pb2.Metadata`.
     """
     UNKNOWN_FILE_TYPE = 0
     CUSTOM = 1

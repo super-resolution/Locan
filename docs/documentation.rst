@@ -45,6 +45,19 @@ We try to follow standard docstring as illustrated here::
         Returns
         -------
         None
+
+        Examples
+        --------
+        >>> 1 + 2
+        3
+
+        See Also
+        --------
+        :func:`surepy.tests.test`
+
+        Notes
+        -----
+        Whatever there is to note.
         """
         return None
 
@@ -65,8 +78,8 @@ We try to follow standard docstring as illustrated here::
         kwargs : dict
             Parameters passed to some other documented function
 
-        Arguments
-        ---------
+        Attributes
+        ----------
         arg : None, other type
             Description
 

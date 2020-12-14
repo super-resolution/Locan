@@ -19,7 +19,7 @@ def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         Localization data.
     algorithm : callable
         The surepy clustering algorithm to use on locdata.
@@ -34,7 +34,7 @@ def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
 
     Returns
     -------
-    Tuple of Locdata
+    Tuple of LocData
         The first element is a LocData object with a selection of all localizations that are defined as noise.
         If noise is false this element will be None.
         The second element is a new LocData instance assembling all generated selections (i.e. localization cluster).

@@ -92,7 +92,7 @@ class LocalizationPrecision(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     radius : int or float
         Search radius for nearest-neighbor searches.
@@ -103,9 +103,9 @@ class LocalizationPrecision(_Analysis):
         A counter for counting instantiations (class attribute).
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy array or pandas DataFrame
+    results : numpy.ndarray or pandas.DataFrame
         Computed results.
     distribution_statistics : Distribution_fits object, None
         Distribution parameters derived from MLE fitting of results.
@@ -121,7 +121,7 @@ class LocalizationPrecision(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
             Localization data.
 
         Returns
@@ -169,11 +169,11 @@ class LocalizationPrecision(_Analysis):
 
     def plot(self, ax=None, loc_property=None, window=1, **kwargs):
         """
-        Provide plot as matplotlib axes object showing the running average of results over window size.
+        Provide plot as matplotlib.axes.Axes object showing the running average of results over window size.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         loc_property : str or list(str)
             The property for which to plot localization precision; if None all plots are shown.
@@ -209,11 +209,11 @@ class LocalizationPrecision(_Analysis):
 
     def hist(self, ax=None, loc_property='position_distance', bins='auto', fit=True, **kwargs):
         """
-        Provide histogram as matplotlib axes object showing the distributions of results.
+        Provide histogram as matplotlib.axes.Axes object showing the distributions of results.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         loc_property : str
             The property for which to plot localization precision.
@@ -478,7 +478,7 @@ class _DistributionFits:
         The analysis class with result data to fit.
     pairwise_distribution : Pairwise_distance_distribution_2d
         Continuous distribution function used to fit Position_distances
-    parameters : list of string
+    parameters : list of str
         Distribution parameters.
 
     Notes
@@ -553,11 +553,11 @@ class _DistributionFits:
 
     def plot(self, ax=None, loc_property='position_distance', **kwargs):
         """
-        Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
+        Provide plot as matplotlib.axes.Axes object showing the probability distribution functions of fitted results.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image.
         loc_property : str
             The property for which to plot the distribution fit.

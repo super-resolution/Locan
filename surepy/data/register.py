@@ -127,9 +127,9 @@ def register_icp(locdata, other_locdata, matrix=None, offset=None, pre_translati
 
     Parameters
     ----------
-    locdata : array-like or LocData object
+    locdata : array-like or LocData
         Localization data representing the source on which to perform the manipulation.
-    other_locdata : array-like or LocData object
+    other_locdata : array-like or LocData
         Localization data representing the target.
     matrix : tuple with shape (d, d)
         Transformation matrix used as initial value. If None the unit matrix is used.
@@ -272,9 +272,9 @@ def register_cc(locdata, other_locdata, max_offset=None,
 
     Parameters
     ----------
-    locdata : array-like or LocData object
+    locdata : array-like or LocData
         Localization data representing the source on which to perform the manipulation.
-    other_locdata : array-like or LocData object
+    other_locdata : array-like or LocData
         Localization data representing the target.
     max_offset : int or float or None
         Maximum possible offset.

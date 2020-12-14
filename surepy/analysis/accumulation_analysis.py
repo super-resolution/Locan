@@ -154,7 +154,7 @@ class AccumulationClusterCheck(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     region_measure : float or str
         Region measure (area or volume) for the support of locdata. String can be any of standard hull identifiere.
@@ -182,9 +182,9 @@ class AccumulationClusterCheck(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas data frame
+    results : pandas.DataFrame
         Data frame with  localization density, relative area coverage by the clusters (eta), average density of
         localizations within apparent clusters (rho), and rho normalized to the extrapolated value of rho for
         localization_density=0 (rho_zero). If the extrapolation of rho yields a negative value rho_zero is set to 1.
@@ -203,7 +203,7 @@ class AccumulationClusterCheck(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
           Localization data that might be clustered.
 
         Returns
@@ -216,11 +216,11 @@ class AccumulationClusterCheck(_Analysis):
 
     def plot(self, ax=None, **kwargs):
         """
-        Provide plot of results as matplotlib axes object.
+        Provide plot of results as matplotlib.axes.Axes object.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         kwargs : dict
             Other parameters passed to `matplotlib.pyplot.plot()`.

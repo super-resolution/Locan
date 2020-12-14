@@ -71,7 +71,7 @@ class BoundingBox:
 
     Parameters
     ----------
-    points : ndarray of double, shape (npoints, ndim)
+    points : numpy.ndarray of double, shape (npoints, ndim)
         Coordinates of input points.
 
     Attributes
@@ -125,7 +125,7 @@ class _ConvexHullScipy:
 
     Parameters
     ----------
-    points : ndarray of double, shape (npoints, ndim)
+    points : numpy.ndarray of double, shape (npoints, ndim)
         Coordinates of input points.
 
     Attributes
@@ -184,7 +184,7 @@ class _ConvexHullShapely:
 
     Parameters
     ----------
-    points : ndarray of double, shape (npoints, ndim)
+    points : numpy.ndarray of double, shape (npoints, ndim)
         Coordinates of input points.
 
     Attributes
@@ -246,7 +246,7 @@ class ConvexHull:
 
     Parameters
     ----------
-    points : ndarray of double, shape (npoints, ndim)
+    points : numpy.ndarray of double, shape (npoints, ndim)
         Coordinates of input points.
     method : string
         Specific class to compute the convex hull and attributes. One of 'scipy', 'shapely'.
@@ -296,7 +296,7 @@ class OrientedBoundingBox:
 
     Parameters
     ----------
-    points : ndarray of double, shape (npoints, ndim)
+    points : numpy.ndarray of double, shape (npoints, ndim)
         Coordinates of input points.
 
     Attributes

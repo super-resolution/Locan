@@ -68,11 +68,11 @@ def _estimate_drift_open3d(locdata, chunk_size=1000, target='first'):
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
        Localization data with properties for coordinates and frame.
     chunk_size : int
        Number of consecutive localizations to form a single chunk of data.
-    target : string
+    target : str
        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
 
     Returns
@@ -115,11 +115,11 @@ def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, **
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
        Localization data with properties for coordinates and frame.
     chunk_size : int
        Number of consecutive localizations to form a single chunk of data.
-    target : string
+    target : str
        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
     bin_size : tuple of int or float
         Size per image pixel
@@ -254,19 +254,20 @@ class DriftComponent:
     Class carrying model functions to describe drift over time (in unit of frames). DriftComponent provides
     a transformation to apply a drift correction.
 
-    Standard models for constant, linear or polynomial drift correction are taken from :module:`lmfit.models`.
-    For fitting splines we use the scipy function :function:`scipy.interpolate.splrep`.
+    Standard models for constant, linear or polynomial drift correction are taken from :mod:`lmfit.models`.
+    For fitting splines we use the scipy function :func:`scipy.interpolate.splrep`.
 
     Parameters
     ----------
-    type : string or `lmfit.models.Model` or None
-        Model class or indicator for setting up the corresponding model class. String can be one of ... .
+    type : str or `lmfit.models.Model` or None
+        Model class or indicator for setting up the corresponding model class.
+        String can be one of `zero`, `one`, `constant`, `linear`, `polynomial`, `spline`.
 
     Attributes
     ----------
     type : str
         String indicator for model.
-    model : `lmfit.models.Model` or return value of :function:`scipy.interpolate.splrep`
+    model : `lmfit.models.Model` or return value of :func:`scipy.interpolate.splrep`
         The model definition
     model_result : `lmfit.model.ModelResult` or collection of model results.
         The results collected from fitting the model to specified data.
@@ -345,15 +346,15 @@ class Drift(_Analysis):
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         Localization data representing the source on which to perform the manipulation.
     chunk_size : int
         Number of consecutive localizations to form a single chunk of data.
-    target : string
+    target : str
         The chunk on which all other chunks are aligned. One of 'first', 'previous'.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    method : string
+    method : str
         The method (i.e. library or algorithm) used for computation. One of 'itc', 'cc'.
 
     Attributes
@@ -362,9 +363,9 @@ class Drift(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    locdata : LocData object
+    locdata : LocData
         Localization data representing the source on which to perform the manipulation.
     collection : Locdata object
         Collection of locdata chunks
@@ -372,7 +373,7 @@ class Drift(_Analysis):
         Transformations for locdata chunks
     transformation_models : namedtuple('Transformation_models', 'matrix offset') with lists of lmfit.ModelResult objects.
         The fitted model objects.
-    locdata_corrected : LocData object
+    locdata_corrected : LocData
         Localization data with drift-corrected coordinates.
     """
 
@@ -395,7 +396,7 @@ class Drift(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
             Localization data representing the source on which to perform the manipulation.
         bin_size : tuple of int or float
             Only for method='cc': Size per image pixel
@@ -448,11 +449,11 @@ class Drift(_Analysis):
         ----------
         slice_data : Slice object
             Reduce data to a selection on the localization chunks.
-        transformation_component : string
+        transformation_component : str
             One of 'matrix' or 'offset'
         element : int or None
             The element of flattened transformation matrix or offset
-        drift_model : `DriftComponent`, string or None
+        drift_model : `DriftComponent`, str or None
             A drift model as defined by a `DriftComponent` instance
             or the parameter `type` as defined in :class:`DriftComponent`.
             For None no change will occur. To reset transformation_models set the transformation_component to None:
@@ -626,13 +627,13 @@ class Drift(_Analysis):
 
     def plot(self, ax=None, transformation_component='matrix', element=None, window=1, **kwargs):
         """
-        Provide plot as matplotlib axes object showing the running average of results over window size.
+        Provide plot as matplotlib.axes.Axes object showing the running average of results over window size.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes
             The axes on which to show the image
-        transformation_component : string
+        transformation_component : str
             One of 'matrix' or 'offset'
         element : int or None
             The element of flattened transformation matrix or offset to be plotted; if None all plots are shown.

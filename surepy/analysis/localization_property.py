@@ -8,6 +8,7 @@ It is often useful to analyze the properties from all localizations within a sel
 probability distribution.
 
 """
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -40,7 +41,7 @@ class LocalizationProperty(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     loc_property : str
         The property to analyze.
@@ -53,9 +54,9 @@ class LocalizationProperty(_Analysis):
         A counter for counting instantiations (class attribute).
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy array or pandas DataFrame
+    results : numpy.ndarray or pandas.DataFrame
         Computed results.
     distribution_statistics : Distribution_stats object, None
         Distribution parameters derived from MLE fitting of results.
@@ -71,7 +72,7 @@ class LocalizationProperty(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
             Localization data.
 
         Returns
@@ -79,6 +80,10 @@ class LocalizationProperty(_Analysis):
         Analysis class
             Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            warnings.warn('Locdata is empty.', UserWarning)
+            return self
+
         self.results = _localization_property(locdata=locdata, **self.parameter)
         return self
 
@@ -105,14 +110,13 @@ class LocalizationProperty(_Analysis):
         self.distribution_statistics = _DistributionFits(self)
         self.distribution_statistics.fit(distribution, with_constraints=with_constraints, **kwargs)
 
-
     def plot(self, ax=None, window=1, **kwargs):
         """
-        Provide plot as matplotlib axes object showing the running average of results over window size.
+        Provide plot as matplotlib.axes.Axes object showing the running average of results over window size.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         window: int
             Window for running average that is applied before plotting.
@@ -133,20 +137,19 @@ class LocalizationProperty(_Analysis):
         self.results.rolling(window=window, center=True).mean().plot(ax=ax, legend=False, **kwargs)
         # todo: sc_check rolling on arbitrary index
         ax.set(title=f"{self.parameter['loc_property']}({self.parameter['index']})\n (window={window})",
-               xlabel = self.parameter['index'],
-               ylabel = self.parameter['loc_property']
+               xlabel=self.parameter['index'],
+               ylabel=self.parameter['loc_property']
                )
 
         return ax
 
-
     def hist(self, ax=None, bins='auto', log=True, fit=True, **kwargs):
         """
-        Provide histogram as matplotlib axes object showing hist(results). Nan entries are ignored.
+        Provide histogram as matplotlib.axes.Axes object showing hist(results). Nan entries are ignored.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         bins : float
             Bin specifications (passed to matplotlib.hist).
@@ -170,9 +173,9 @@ class LocalizationProperty(_Analysis):
             ax = plt.gca()
 
         ax.hist(self.results.dropna(axis=0).values, bins=bins, density=True, log=log, **kwargs)
-        ax.set(title = self.parameter['loc_property'],
-               xlabel = self.parameter['loc_property'],
-               ylabel = 'PDF'
+        ax.set(title=self.parameter['loc_property'],
+               xlabel=self.parameter['loc_property'],
+               ylabel='PDF'
                )
 
         # fit distributions:
@@ -184,6 +187,7 @@ class LocalizationProperty(_Analysis):
                 self.distribution_statistics.plot(ax=ax)
 
         return ax
+
 
 # todo add Dependence_stats to fit a plot to a linear function, log function, or exponential decay.
 
@@ -203,13 +207,13 @@ class _DistributionFits:
 
     Attributes
     ----------
-    analyis_class : LocalizationPrecision object
+    analyis_class : LocalizationPrecision
         The analysis class with result data to fit.
-    loc_property : LocData property
-        The property for which to fit an appropriate distribution
-    distribution : str or scipy.stats distribution object
+    loc_property : str
+        The LocData property for which to fit an appropriate distribution.
+    distribution : str or scipy.stats distribution
         Distribution model to fit.
-    parameters : list of string
+    parameters : list of str
         Distribution parameters.
     """
     def __init__(self, analysis_class):
@@ -239,12 +243,12 @@ class _DistributionFits:
         """
         self.distribution = distribution
         for param in _list_parameters(distribution):
-            self.parameters.append(self.loc_property +  '_' + param)
+            self.parameters.append(self.loc_property + '_' + param)
 
         if with_constraints and self.distribution == stats.expon:
             # MLE fit of exponential distribution with constraints
             fit_results = stats.expon.fit(self.analysis_class.results[self.loc_property].values,
-                                         floc=np.min(self.analysis_class.results[self.loc_property].values), **kwargs)
+                                          floc=np.min(self.analysis_class.results[self.loc_property].values), **kwargs)
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
         else:
@@ -252,14 +256,13 @@ class _DistributionFits:
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
 
-
     def plot(self, ax=None, **kwargs):
         """
-        Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
+        Provide plot as matplotlib.axes.Axes object showing the probability distribution functions of fitted results.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image.
 
         Other Parameters

@@ -35,7 +35,7 @@ class LocalizationPropertyCorrelations(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     loc_properties : list or None
         Localization properties to be analyzed. If None all are used.
@@ -46,9 +46,9 @@ class LocalizationPropertyCorrelations(_Analysis):
         A counter for counting instantiations (class attribute).
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas DataFrame
+    results : pandas.DataFrame
         The correlation coefficients..
     """
     def __init__(self, meta=None, loc_properties=None):
@@ -61,7 +61,7 @@ class LocalizationPropertyCorrelations(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
             Localization data.
 
         Returns
@@ -80,11 +80,11 @@ class LocalizationPropertyCorrelations(_Analysis):
 
     def plot(self, ax=None, cbar=True, colorbar_kws=None, **kwargs):
         """
-        Provide heatmap of all correlation values as matplotlib axes object.
+        Provide heatmap of all correlation values as matplotlib.axes.Axes object.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         cbar : bool
             If true draw a colorbar.

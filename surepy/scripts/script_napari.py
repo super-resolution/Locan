@@ -35,9 +35,9 @@ def sc_napari(file_path=None, file_type=FileType.CUSTOM, **kwrds):
 
     Parameters
     ----------
-    file_path : string or os.PathLike
+    file_path : str, os.PathLike
         File path to localization data.
-    file_type : int, str, surepy.constants.FileType, metadata_pb2
+    file_type : int, str, surepy.constants.FileType, surepy.data.metadata_pb2.Metadata
         Indicator for the file type.
         Integer or string should be according to surepy.constants.FileType.
     kwrds : dict

@@ -64,7 +64,7 @@ class AnalysisExampleAlgorithm_1(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     kwargs :
         Parameter that are passed to the algorithm.
@@ -75,9 +75,9 @@ class AnalysisExampleAlgorithm_1(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy array or pandas DataFrame
+    results : numpy.ndarray or pandas.DataFrame
         Computed results.
     '''
     count = 0
@@ -91,7 +91,7 @@ class AnalysisExampleAlgorithm_1(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
           Localization data that might be clustered.
 
         Returns
@@ -128,7 +128,7 @@ class AnalysisExampleAlgorithm_2(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     kwargs :
         Parameter that are passed to the algorithm.
@@ -139,9 +139,9 @@ class AnalysisExampleAlgorithm_2(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy array or pandas DataFrame
+    results : numpy.ndarray or pandas.DataFrame
         Computed results.
     '''
     count = 0
@@ -155,7 +155,7 @@ class AnalysisExampleAlgorithm_2(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
           Localization data that might be clustered.
 
         Returns

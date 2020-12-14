@@ -17,9 +17,9 @@ class _Analysis:
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         Localization data.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
 
     Other Parameters
@@ -29,11 +29,11 @@ class _Analysis:
 
     Attributes
     ----------
-    locdata : LocData object
+    locdata : LocData
         Localization data.
     parameter : dict
         A dictionary with all settings (i.e. the kwargs) for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     """
     count = 0

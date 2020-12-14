@@ -22,14 +22,14 @@ def _localizations_per_frame(data, norm=None):
 
     Parameters
     ----------
-    data : Pandas DataFrame
+    data : pandas.DataFrame
         DataFrame object that contains a column `Frame` to be grouped.
     norm : int, float, str, None
         Normalization factor that can be None, a number, or another property in `data`.
 
     Returns:
     --------
-    Pandas Series
+    pandas.Series
     """
     # normalization
     if norm is None:
@@ -57,7 +57,7 @@ class LocalizationsPerFrame(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     norm : int, float, str, None
         Normalization factor that can be None, a number, or another property in `data`.
@@ -68,9 +68,9 @@ class LocalizationsPerFrame(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy array or pandas DataFrame
+    results : numpy.ndarray or pandas.DataFrame
         Computed results.
     distribution_statistics : Distribution_fits object, None
         Distribution parameters derived from MLE fitting of results.
@@ -88,7 +88,7 @@ class LocalizationsPerFrame(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
            Localization data.
 
         Returns
@@ -114,11 +114,11 @@ class LocalizationsPerFrame(_Analysis):
 
     def plot(self, ax=None, window=1, **kwargs):
         """
-        Provide plot as matplotlib axes object showing the running average of results over window size.
+        Provide plot as matplotlib.axes.Axes object showing the running average of results over window size.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         window: int
             Window for running average that is applied before plotting.
@@ -148,11 +148,11 @@ class LocalizationsPerFrame(_Analysis):
 
     def hist(self, ax=None, fit=True, bins='auto', **kwargs):
         """
-        Provide histogram as matplotlib axes object showing hist(results).
+        Provide histogram as matplotlib.axes.Axes object showing hist(results).
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         bins : float
             Bin specifications (passed to matplotlib.hist).
@@ -245,11 +245,11 @@ class _DistributionFits:
 
     def plot(self, ax=None, **kwargs):
         """
-        Provide plot as matplotlib axes object showing the probability distribution functions of fitted results.
+        Provide plot as matplotlib.axes.Axes object showing the probability distribution functions of fitted results.
 
         Parameters
         ----------
-        ax : matplotlib axes
+        ax : matplotlib.axes.Axes
             The axes on which to show the image.
 
         Other Parameters

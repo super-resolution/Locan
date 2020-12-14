@@ -82,7 +82,7 @@ def save_asdf(locdata, path):
     Save LocData attributes in an asdf file.
 
     In the Advanced Scientific Data Format (ASDF) file format we store metadata, properties and column names as human-
-    readable yaml header. The data is stored as binary numpy array.
+    readable yaml header. The data is stored as binary numpy.ndarray.
 
     Note
     ----
@@ -91,7 +91,7 @@ def save_asdf(locdata, path):
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         The LocData object to be saved.
     path : str, os.PathLike, or file-like
         File path including file name to save to.
@@ -121,7 +121,7 @@ def save_thunderstorm_csv(locdata, path):
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         The LocData object to be saved.
     path : str, os.PathLike, or file-like
         File path including file name to save to.
@@ -529,12 +529,13 @@ def _map_file_type_to_load_function(file_type):
 
     Parameters
     ----------
-    file_type : int, str, surepy.constants.FileType, metadata_pb2
+    file_type : int, str, surepy.constants.FileType, surepy.data.metadata_pb2.Metadata
         Identifier for the file type. Integer or string should be according to surepy.constants.FileType.
 
     Returns
     -------
-    Name of function for loading the localization file of `type`.
+    callable
+        Name of function for loading the localization file of `type`.
     """
     look_up_table = dict(
         load_txt_file=load_txt_file,
@@ -575,9 +576,9 @@ def load_locdata(path, file_type=1, nrows=None, **kwargs):
 
     Parameters
     ----------
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path for a localization data file to load.
-    file_type : int, str, surepy.constants.FileType, metadata_pb2
+    file_type : int, str, surepy.constants.FileType, surepy.data.metadata_pb2.Metadata
         Indicator for the file type.
         Integer or string should be according to surepy.constants.FileType.
     nrows : int, default: None

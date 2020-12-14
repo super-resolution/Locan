@@ -37,20 +37,20 @@ class Pipeline():
 
     Parameters
     ----------
-    locdata : LocData object, Roi object, or dict
+    locdata : LocData, Roi object, or dict
         Localization data or a dict with keys `file_path` and `file_type` for a path pointing to a localization file and
-        an integer indicating the file type. The integer should be according to surepy.data.metadata_pb2.file_type.
+        an integer indicating the file type. The integer should be according to surepy.data.metadata_pb2.Metadata.file_type.
         If the `file_type` is "roi" a Roi object is loaded from the given `file_path`.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
 
     Attributes
     ----------
     count : int
         A counter for counting instantiations.
-    locdata : LocData object
+    locdata : LocData
         Localization data.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     """
     # todo sc_check on input of meta

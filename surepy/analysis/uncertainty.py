@@ -54,7 +54,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
 
     Parameters
     ----------
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
 
     Attributes
@@ -63,9 +63,9 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
         A counter for counting instantiations.
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : Metadata protobuf message
+    meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas data frame
+    results : pandas.DataFrame
         The number of localizations per frame or
         the number of localizations per frame normalized to region_measure(hull).
     """
@@ -81,7 +81,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData object
+        locdata : LocData
             Localization data.
 
         Returns

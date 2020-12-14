@@ -202,7 +202,7 @@ def distance_to_region(locdata, region):
 
     Returns
     --------
-    ndarray
+    numpy.ndarray
         Distance for each localization.
     """
     if isinstance(region, list):
@@ -237,7 +237,7 @@ def distance_to_region_boundary(locdata, region):
 
     Returns
     --------
-    ndarray
+    numpy.ndarray
         Distance for each localization.
     """
     if isinstance(region, list):

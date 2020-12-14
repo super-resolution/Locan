@@ -52,7 +52,7 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size, matrix_size):
 
     Returns
     -------
-    ndarray with shape (n_points, 2)
+    numpy.ndarray with shape (n_points, 2)
         Transformed point coordinates
     """
     points_ = np.asarray(points)
@@ -111,7 +111,7 @@ def bunwarp(locdata, matrix_path, pixel_size):
 
     Parameters
     ----------
-    locdata : LocData object
+    locdata : LocData
         specifying the localization data on which to perform the manipulation.
     matrix_path :
         Path to file with a raw matrix from BunwarpJ.
@@ -120,7 +120,7 @@ def bunwarp(locdata, matrix_path, pixel_size):
 
     Returns
     -------
-    locdata : LocData object
+    locdata : LocData
         New localization data with transformed coordinates.
     """
     local_parameter = locals()

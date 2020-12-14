@@ -341,7 +341,7 @@ class AlphaComplex:
 
         Returns
         -------
-        ndarray
+        numpy.ndarray
         """
         if np.size(self.lines) == 0:
             return np.array([])
@@ -377,7 +377,7 @@ class AlphaShape:
     ----------
     alpha_complex : AlphaComplex
         The unfiltered alpha complex with computed interval values.
-    alpha_shape : ndarray
+    alpha_shape : numpy.ndarray
         The list of k-simplices (edges) from the alpha complex that make up the alpha shape.
         Or: Simplicial subcomplex of the Delaunay triangulation with regular simplices from the alpha complex.
     hull : shapely.geometry.Polygon or shapely.geometry.MultiPolygon or None (in 2D)

@@ -133,6 +133,31 @@ def test_loading_Thunderstorm_file():
     assert (len(dat) == 1)
 
 
+def test_get_correct_column_names_from_Nanoimager_header():
+    columns = io.load_Nanoimager_header(
+        path=surepy.constants.ROOT_DIR / 'tests/test_data/Nanoimager_dstorm_data.csv')
+    assert (columns == ['channel', 'frame', 'position_x', 'position_y', 'position_z', 'intensity',
+                        'local_background'])
+
+    file_like = StringIO("Channel,Frame,X (nm),Y (nm),Z (nm),Photons,Background\n"
+                         "0,1548,40918.949219,56104.691406,0.000000,139.828232,0.848500")
+    columns = io.load_Nanoimager_header(path=file_like)
+    assert (columns == ['channel', 'frame', 'position_x', 'position_y', 'position_z', 'intensity',
+                        'local_background'])
+
+
+def test_loading_Nanoimager_file():
+    dat = io.load_Nanoimager_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/Nanoimager_dstorm_data.csv',
+                                nrows=10)
+    #print(dat.data.columns)
+    assert (len(dat) == 10)
+
+    file_like = StringIO("id,frame,x [nm],y [nm]\n"
+                         "73897.0,2001.0,1320.109670647555,26344.7124618434")
+    dat = io.load_Nanoimager_file(path=file_like, nrows=1)
+    assert (len(dat) == 1)
+
+
 def test_loading_txt_file():
     dat = io.load_txt_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt', nrows=10)
     # print(dat.data)

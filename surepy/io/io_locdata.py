@@ -44,7 +44,7 @@ from surepy.data import metadata_pb2
 
 __all__ = ['save_asdf', 'save_thunderstorm_csv',
            'load_txt_file', 'load_rapidSTORM_file', 'load_Elyra_file', 'load_asdf_file', 'load_thunderstorm_file',
-           'load_locdata']
+           'load_Nanoimager_file', 'load_locdata']
 
 
 def open_path_or_file_like(path_or_file_like, mode='r', encoding=None):
@@ -523,6 +523,105 @@ def load_thunderstorm_file(path, nrows=None, **kwargs):
     return dat
 
 
+def read_Nanoimager_header(file):
+    """
+    Read csv header from a Nanoimager single-molecule localization file and identify column names.
+
+    Parameters
+    ----------
+    file : file-like
+        Nanoimager file to read.
+
+    Returns
+    -------
+    list of str
+        A list of valid dataset property keys as derived from the Nanoimager identifiers.
+    """
+    # read csv header
+    header = file.readline().split('\n')[0]
+
+    # list identifiers
+    identifiers = [x.strip('"') for x in header.split(',')]
+
+    column_keys = []
+    for i in identifiers:
+        if i in surepy.constants.NANOIMAGER_KEYS:
+            column_keys.append(surepy.constants.NANOIMAGER_KEYS[i])
+        else:
+            warnings.warn('{} is not a Surepy property standard.'.format(i), UserWarning)
+            column_keys.append(i)
+    return column_keys
+
+
+def load_Nanoimager_header(path):
+    """
+    Load csv header from a Nanoimager single-molecule localization file and identify column names.
+
+    Parameters
+    ----------
+    path : str, os.PathLike, or file-like
+        File path for a Nanoimager file to load.
+
+    Returns
+    -------
+    list of str
+        A list of valid dataset property keys as derived from the Nanoimager identifiers.
+    """
+    # read csv header
+    with open_path_or_file_like(path) as file:
+        return read_Nanoimager_header(file)
+
+
+def load_Nanoimager_file(path, nrows=None, **kwargs):
+    """
+    Load data from a Nanoimager single-molecule localization file.
+
+    Parameters
+    ----------
+    path : str, os.PathLike, or file-like
+        File path for a Nanoimager file to load.
+    nrows : int, default: None
+        The number of localizations to load from file. None means that all available rows are loaded.
+
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Other parameters passed to `pandas.read_csv()`.
+
+    Returns
+    -------
+    LocData
+        A new instance of LocData with all localizations.
+    """
+    with open_path_or_file_like(path) as file:
+        columns = read_Nanoimager_header(file)
+        dataframe = pd.read_csv(file, sep=',', skiprows=0, nrows=nrows, names=columns, **kwargs)
+
+    # correct data formats
+    if 'original_index' in columns:
+        integer_Index = pd.to_numeric(dataframe['original_index'], downcast='integer')
+        dataframe['original_index'] = integer_Index
+    if 'frame' in columns:
+        integer_Frames = pd.to_numeric(dataframe['frame'], downcast='integer')
+        dataframe['frame'] = integer_Frames
+
+    dat = LocData.from_dataframe(dataframe=dataframe)
+
+    dat.meta.source = metadata_pb2.EXPERIMENT
+    dat.meta.state = metadata_pb2.RAW
+    dat.meta.file_type = metadata_pb2.NANOIMAGER
+    dat.meta.file_path = str(path)
+
+    for property in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
+        dat.meta.unit.add(property=property, unit='nm')
+
+    del dat.meta.history[:]
+    dat.meta.history.add(name='load_Nanoimager_file', parameter='path={}, nrows={}'.format(path, nrows))
+
+    return dat
+
+
+
 def _map_file_type_to_load_function(file_type):
     """
     Interpret user input for file_type.
@@ -543,6 +642,7 @@ def _map_file_type_to_load_function(file_type):
         load_Elyra_file=load_Elyra_file,
         load_thunderstorm_file=load_thunderstorm_file,
         load_asdf_file=load_asdf_file,
+        load_Nanoimager_file=load_Nanoimager_file,
     )
 
     class LoadFunction(Enum):
@@ -551,6 +651,7 @@ def _map_file_type_to_load_function(file_type):
         load_Elyra_file = 3
         load_thunderstorm_file = 4
         load_asdf_file = 5
+        load_Nanoimager_file = 6
 
     try:
         if isinstance(file_type, int):

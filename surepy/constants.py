@@ -150,6 +150,7 @@ class FileType(Enum):
     ELYRA = 3
     THUNDERSTORM = 4
     ASDF = 5
+    NANOIMAGER = 6
 
 
 # Render engines
@@ -228,6 +229,19 @@ THUNDERSTORM_KEYS = {
     'sigma [nm]': 'psf_sigma_x'
 }
 # todo: map "bkgstd [photon]", "uncertainty [nm]" to something usefull
+
+
+#: Mapping column names in Nanoimager files to LocData property keys
+NANOIMAGER_KEYS = {
+    'Channel': 'channel',
+    'Frame': 'frame',
+    'X (nm)': 'position_x',
+    'Y (nm)': 'position_y',
+    'Z (nm)': 'position_z',
+    'Photons': 'intensity',
+    'Background': 'local_background'
+}
+
 
 #: The number of cores that are used in parallel for some algorithms.
 #: Following the scikit convention: n_jobs is the number of parallel jobs to run.

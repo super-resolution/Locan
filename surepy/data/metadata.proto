@@ -28,6 +28,7 @@ enum File_type {
     ELYRA = 3;
     THUNDERSTORM = 4;
     ASDF = 5;
+    NANOIMAGER = 6;
 }
 
 message Operation {

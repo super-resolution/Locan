@@ -39,7 +39,7 @@ class LocData:
         in dataset.
     dataframe : pandas.DataFrame, None
         Dataframe with localization data.
-    indices : slice object or list(int) or None
+    indices : slice object, list(int), None
         Indices for dataframe in references that makes up the data. `indices` refers to index label, not position.
     meta : surepy.data.metadata_pb2.Metadata, dictionary
         Metadata about the current dataset and its history.
@@ -51,7 +51,7 @@ class LocData:
         in dataframe.
     dataframe : pandas.DataFrame, None
         Dataframe with localization data.
-    indices : slice object or list(int) or None
+    indices : slice object, list(int), None
         Indices for dataframe in references that makes up the data.
     meta : surepy.data.metadata_pb2.Metadata
         Metadata about the current dataset and its history.
@@ -411,7 +411,7 @@ class LocData:
         ----------
         locdata : LocData
             Locdata object from which to select elements.
-        indices : slice object or list(int) or None
+        indices : slice object, list(int), None
             Index labels for elements in locdata that make up the new data.
             Note that contrary to usual python slices, both the start and the stop are included
             (see pandas documentation). `Indices` refer to index value not position in list.
@@ -556,9 +556,9 @@ class LocData:
         ----------
         locdatas : list of LocData
             Locdata objects to concatenate.
-        chunk_size : int or None
+        chunk_size : int, None
             Number of localizations per chunk. One of `chunk_size` or `n_chunks` must be different from None.
-        n_chunks : int or None
+        n_chunks : int, None
             Number of chunks. One of `chunk_size` or `n_chunks` must be different from None.
         order : str
             The order in which to select localizations. One of 'successive' or 'alternating'.

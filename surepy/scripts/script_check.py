@@ -33,7 +33,7 @@ def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, trans
     ---------
     images : np.array
         Stack of raw data as recorded by camera.
-    pixel_size : float or tuple of float with shape (2,)
+    pixel_size : float, tuple of float with shape (2,)
         Pixel size for images (in locdata units).
     transpose : bool
         If True transpose x and y axis of `images`.

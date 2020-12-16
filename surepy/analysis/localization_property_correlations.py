@@ -37,7 +37,7 @@ class LocalizationPropertyCorrelations(_Analysis):
     ----------
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    loc_properties : list or None
+    loc_properties : list, None
         Localization properties to be analyzed. If None all are used.
 
     Attributes
@@ -98,7 +98,7 @@ class LocalizationPropertyCorrelations(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

@@ -121,7 +121,7 @@ def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, **
        Number of consecutive localizations to form a single chunk of data.
     target : str
        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
-    bin_size : tuple of int or float
+    bin_size : tuple of int, float
         Size per image pixel
 
     Other Parameters
@@ -259,7 +259,7 @@ class DriftComponent:
 
     Parameters
     ----------
-    type : str or `lmfit.models.Model` or None
+    type : str, lmfit.models.Model, None
         Model class or indicator for setting up the corresponding model class.
         String can be one of `zero`, `one`, `constant`, `linear`, `polynomial`, `spline`.
 
@@ -267,9 +267,9 @@ class DriftComponent:
     ----------
     type : str
         String indicator for model.
-    model : `lmfit.models.Model` or return value of :func:`scipy.interpolate.splrep`
+    model : lmfit.models.Model, return value of :func:`scipy.interpolate.splrep`
         The model definition
-    model_result : `lmfit.model.ModelResult` or collection of model results.
+    model_result : lmfit.model.ModelResult, collection of model results.
         The results collected from fitting the model to specified data.
     """
 
@@ -398,7 +398,7 @@ class Drift(_Analysis):
         ----------
         locdata : LocData
             Localization data representing the source on which to perform the manipulation.
-        bin_size : tuple of int or float
+        bin_size : tuple of int, float
             Only for method='cc': Size per image pixel
 
         Other Parameters
@@ -451,9 +451,9 @@ class Drift(_Analysis):
             Reduce data to a selection on the localization chunks.
         transformation_component : str
             One of 'matrix' or 'offset'
-        element : int or None
+        element : int, None
             The element of flattened transformation matrix or offset
-        drift_model : `DriftComponent`, str or None
+        drift_model : DriftComponent, str, None
             A drift model as defined by a `DriftComponent` instance
             or the parameter `type` as defined in :class:`DriftComponent`.
             For None no change will occur. To reset transformation_models set the transformation_component to None:
@@ -507,11 +507,11 @@ class Drift(_Analysis):
         ----------
         slice_data : Slice object
             Reduce data to a selection on the localization chunks.
-        matrix_models : list of `DriftComponent` or None
+        matrix_models : list of DriftComponent, None
             Models to use for fitting each matrix component.
             Length of list must be equal to the square of the transformations dimension (4 or 9).
             If None, no matrix transformation will be carried out when calling :func:`apply_correction`.
-        offset_models : list of `DriftComponent` or None
+        offset_models : list of DriftComponent, None
             Models to use for fitting each offset component.
             Length of list must be equal to the transformations dimension (2 or 3).
             If None, no offset transformation will be carried out when calling :func:`apply_correction`.
@@ -648,7 +648,7 @@ class Drift(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

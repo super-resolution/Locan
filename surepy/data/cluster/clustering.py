@@ -1,8 +1,8 @@
-'''
+"""
 
 Methods for clustering localization data in LocData objects.
 
-'''
+"""
 
 import sys
 
@@ -73,7 +73,7 @@ def cluster_hdbscan(locdata, min_cluster_size = 5, kdims=None, allow_single_clus
 
     Returns
     -------
-    LocData or tuple of LocData
+    LocData, tuple of LocData
         A new LocData instance assembling all generated selections (i.e. localization cluster).
         If noise is True the first LocData object is a selection of all localizations that are defined as noise.
     """

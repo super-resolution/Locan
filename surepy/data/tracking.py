@@ -30,10 +30,10 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     ----------
     locdata : LocData
         Localization data on which to perform the manipulation.
-    search_range : float or tuple
+    search_range : float, tuple
         The maximum distance features can move between frames,
         optionally per dimension
-    memory : integer, optional
+    memory : int
         The maximum number of frames during which a feature can vanish,
         then reappear nearby, and be considered the same particle. 0 by default.
 
@@ -69,9 +69,9 @@ def track(locdata, search_range=40, memory=0, **kwargs):
     ----------
     locdata : LocData
         Localization data on which to perform the manipulation.
-    search_range : float or tuple
+    search_range : float, tuple
         The maximum distance features can move between frames, optionally per dimension
-    memory : integer, optional
+    memory : int
         The maximum number of frames during which a feature can vanish, then reappear nearby,
         and be considered the same particle.
 

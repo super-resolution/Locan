@@ -156,7 +156,7 @@ class AccumulationClusterCheck(_Analysis):
     ----------
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    region_measure : float or str
+    region_measure : float, str
         Region measure (area or volume) for the support of locdata. String can be any of standard hull identifiere.
     algorithm : callable
         Clustering algorithm.
@@ -165,7 +165,7 @@ class AccumulationClusterCheck(_Analysis):
     hull : str
         Hull computation that is used to compute cluster region measures (area or volume). The identifier string can
         be one of the defined hulls.
-    n_loc : int or sequence of scalars
+    n_loc : int, sequence of scalars
         If n_loc is an int, it defines the number of localization subsets into which the total number of localizations
         are distributed.
         If n_loc is a sequence, it defines the number of localizations used for each localization subset.
@@ -232,7 +232,7 @@ class AccumulationClusterCheck(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

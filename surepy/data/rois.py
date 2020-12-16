@@ -222,7 +222,7 @@ class Roi:
 
         Parameters
         ----------
-        path : str, os.PathLike, or None
+        path : str, os.PathLike, None
             Path for yaml file. If None a roi file path is generated from the metadata.
         """
 
@@ -279,7 +279,7 @@ class Roi:
 
         Parameters
         ----------
-        path : str or os.PathLike
+        path : str, os.PathLike
             Path for yaml file.
         """
         yaml = YAML(typ='safe')

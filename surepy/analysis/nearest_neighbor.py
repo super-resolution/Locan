@@ -123,7 +123,7 @@ class NearestNeighborDistances(_Analysis):
         A dictionary with all settings for the current computation.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy.ndarray or pandas.DataFrame
+    results : numpy.ndarray, pandas.DataFrame
         Computed results.
     distribution_statistics : Distribution_stats object, None
         Distribution parameters derived from MLE fitting of results.
@@ -177,7 +177,7 @@ class NearestNeighborDistances(_Analysis):
 
         Parameters
         ----------
-        distribution : str or scipy.stats distribution object
+        distribution : str, scipy.stats.distribution
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
@@ -192,7 +192,7 @@ class NearestNeighborDistances(_Analysis):
 
         Parameters
         ----------
-        bins : int, list or 'auto'
+        bins : int, list, 'auto'
             Bin specification as used in matplotlib.hist
         density : bool
             Flag for normalization as used in matplotlib.hist. True returns probability density function; None returns
@@ -207,7 +207,7 @@ class NearestNeighborDistances(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -263,16 +263,16 @@ class _DistributionFits:
 
     Parameters
     ----------
-    analyis_class : LocalizationPrecision object
+    analyis_class : LocalizationPrecision
         The analysis class with result data to fit.
 
     Attributes
     ----------
-    analyis_class : LocalizationPrecision object
+    analyis_class : LocalizationPrecision
         The analysis class with result data to fit.
-    loc_property : LocData property
-        The property for which to fit an appropriate distribution
-    distribution : str or scipy.stats distribution object
+    loc_property : str
+        The LocData property for which to fit an appropriate distribution
+    distribution : str, scipy.stats.distribution
         Distribution model to fit.
     parameters : list of str
         Free parameters in `distribution`.
@@ -292,7 +292,7 @@ class _DistributionFits:
 
         Parameters
         ----------
-        distribution : str or scipy.stats distribution object
+        distribution : str, scipy.stats.distribution
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
@@ -335,7 +335,7 @@ class _DistributionFits:
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

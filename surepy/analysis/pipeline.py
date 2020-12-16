@@ -37,7 +37,7 @@ class Pipeline():
 
     Parameters
     ----------
-    locdata : LocData, Roi object, or dict
+    locdata : LocData, Roi object, dict
         Localization data or a dict with keys `file_path` and `file_type` for a path pointing to a localization file and
         an integer indicating the file type. The integer should be according to surepy.data.metadata_pb2.Metadata.file_type.
         If the `file_type` is "roi" a Roi object is loaded from the given `file_path`.
@@ -86,14 +86,14 @@ class Pipeline():
 
 
     def save_protocol(self, path):
-        '''
+        """
         Save the analysis routine (i.e. the compute() method) as human readable text.
 
         Parameters
         ----------
-        path : str or os.PathLike
+        path : str, os.PathLike
             Path and file name for saving the text file.
-        '''
+        """
         import inspect
         with open(path, 'w') as handle:
             handle.write('Analysis Pipeline: {}\n\n'.format(self.__class__.__name__))

@@ -93,7 +93,7 @@ class AlphaComplex:
     ----------
     points : array-like with shape (npoints, ndim)
         Coordinates of input points.
-    delaunay : Delaunay object
+    delaunay : scipy.spatial.Delaunay
         Object with attribute `simplices` specifying a list of indices in the array of points that define the
         simplexes in the Delaunay triangulation.
         Also an attribute `neighbor` is required that specifies indices of neighboring simplices.
@@ -109,7 +109,7 @@ class AlphaComplex:
         3-simplices (tetrahedrons) that represent a simplicial subcomplex of the Delaunay triangulation with intervals.
     dimension : int
         Spatial dimension of the hull.
-    delaunay_triangulation : Delaunay object
+    delaunay_triangulation : scipy.spatial.Delaunay
         Object with attribute `simplices` specifying a list of indices in the array of points that define the
         simplexes in the Delaunay triangulation.
         Also an attribute `neighbor` is required that specifies indices of neighboring simplices.
@@ -363,11 +363,11 @@ class AlphaShape:
     ----------
     alpha : float
         Alpha parameter specifying a unique alpha complex.
-    points : array-like with shape (npoints, ndim) or None
+    points : array-like with shape (npoints, ndim), None
         Coordinates of input points. Either `points` or `alpha_complex` have to be specified but not both.
-    alpha_complex : AlphaComplex or None
+    alpha_complex : AlphaComplex, None
         The unfiltered alpha complex with computed interval values.
-    delaunay : Delaunay object or None
+    delaunay : scipy.spatial.Delaunay, None
         Object with attribute `simplices` specifying a list of indices in the array of points that define the
         simplexes in the Delaunay triangulation.
         Also an attribute `neighbor` is required that specifies indices of neighboring simplices.
@@ -383,7 +383,7 @@ class AlphaShape:
     hull : shapely.geometry.Polygon or shapely.geometry.MultiPolygon or None (in 2D)
         hull object for the alpha shape that contains all d-simplices (triangles in 2D) of the specific alpha complex.
         None if the complex is empty.
-    connected_components : list of RoiRegion objects
+    connected_components : list of RoiRegion
         Connected components, i.e. a list of the individual unconnected polygons that together make up the alpha shape.
     dimension : int
         Spatial dimension of the hull as determined from the dimension of `points`

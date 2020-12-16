@@ -25,7 +25,7 @@ def statistics(locdata, statistic_keys=('count', 'min', 'max', 'mean', 'median',
     locdata : LocData, pandas.DataFrame, pandas.Series
         Localization data
 
-    statistic_keys : str or tuple of str
+    statistic_keys : str, tuple of str
         Pandas statistic functions. Default: ('count', 'min', 'max', 'mean', 'median', 'std', 'sem')
 
     Returns
@@ -67,13 +67,13 @@ def ranges(locdata: LocData, loc_properties=None, special=None):
 
     Parameters
     ----------
-    locdata : pandas.DataFrame or LocData
+    locdata : pandas.DataFrame, LocData
         Localization data.
-    loc_properties : str or tuple[str] or list[str] or True or None.
+    loc_properties : str, tuple[str], list[str], True, None.
         Localization properties for which the range is determined.
         If None the ranges for all spatial coordinates are returned.
         If True the ranges for all locdata.data properties are returned.
-    special : None or str
+    special : None, str
         If None (min, max) ranges are determined from data and returned;
         if 'zero' (0, max) ranges with max determined from data are returned.
         if 'link' (min_all, max_all) ranges with min and max determined from all combined data are returned.

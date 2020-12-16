@@ -35,7 +35,7 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
 
     Parameters
     ----------
-    locdata : LocData or array-like
+    locdata : LocData, array-like
         Localization data or just the frame values of given localizations.
     memory : int
         The maximum number of intermittent frames without any localization
@@ -43,7 +43,7 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
 
     Returns
     -------
-    dict with values beingnumpy.ndarrays
+    dict with numpy.ndarray as values
         'on_periods' and 'off_periods' in units of frame numbers.
     """
     if isinstance(locdata, LocData):
@@ -129,7 +129,7 @@ class BlinkStatistics(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData or array-like
+        locdata : LocData, array-like
             Localization data or just the frame values of given localizations.
 
         Returns
@@ -151,7 +151,7 @@ class BlinkStatistics(_Analysis):
 
         Parameters
         ----------
-        distribution : str or scipy.stats distribution object
+        distribution : str, scipy.stats.distribution
             Distribution model to fit.
         data_identifier : str
             String to identify the data in `results` for which to fit an appropriate distribution, here
@@ -188,7 +188,7 @@ class BlinkStatistics(_Analysis):
             Bin specifications (passed to matplotlib.hist).
         log : Bool
             Flag for plotting on a log scale.
-        fit: Bool or None
+        fit: bool, None
             Flag indicating if distribution fit is shown. The fit will only be computed if `distribution_statistics`
              is None.
 
@@ -199,7 +199,7 @@ class BlinkStatistics(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -237,7 +237,7 @@ class _DistributionFits:
     ----------
     analyis_class : Analysis object
         The analysis class with result data to fit.
-    distribution : str or scipy.stats distribution object
+    distribution : str, scipy.stats.distribution
         Distribution model to fit.
     data_identifier : str
         String to identify the data in `results` for which to fit an appropriate distribution
@@ -246,7 +246,7 @@ class _DistributionFits:
     ----------
     analyis_class : Analysis object
         The analysis class with result data to fit.
-    distribution : str or `scipy.stats` distribution object
+    distribution : str, scipy.stats.distribution
         Distribution model to fit.
     data_identifier : str
         String to identify the data in `results` for which to fit an appropriate distribution
@@ -322,7 +322,7 @@ class _DistributionFits:
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

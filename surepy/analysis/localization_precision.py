@@ -94,7 +94,7 @@ class LocalizationPrecision(_Analysis):
     ----------
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    radius : int or float
+    radius : int, float
         Search radius for nearest-neighbor searches.
 
     Attributes
@@ -105,7 +105,7 @@ class LocalizationPrecision(_Analysis):
         A dictionary with all settings for the current computation.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy.ndarray or pandas.DataFrame
+    results : numpy.ndarray, pandas.DataFrame
         Computed results.
     distribution_statistics : Distribution_fits object, None
         Distribution parameters derived from MLE fitting of results.
@@ -146,8 +146,8 @@ class LocalizationPrecision(_Analysis):
 
         Parameters
         ----------
-        loc_property : LocData property
-            The property for which to fit an appropriate distribution; if None all plots are shown.
+        loc_property : str
+            The LocData property for which to fit an appropriate distribution; if None all plots are shown.
 
         Other Parameters
         ----------------
@@ -175,7 +175,7 @@ class LocalizationPrecision(_Analysis):
         ----------
         ax : matplotlib.axes.Axes
             The axes on which to show the image
-        loc_property : str or list(str)
+        loc_property : str, list(str)
             The property for which to plot localization precision; if None all plots are shown.
         window: int
             Window for running average that is applied before plotting.
@@ -187,7 +187,7 @@ class LocalizationPrecision(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -229,7 +229,7 @@ class LocalizationPrecision(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -569,7 +569,7 @@ class _DistributionFits:
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

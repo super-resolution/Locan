@@ -45,7 +45,7 @@ class LocalizationProperty(_Analysis):
         Metadata about the current analysis routine.
     loc_property : str
         The property to analyze.
-    index : str or None
+    index : str, None
         The property name that should serve as index (i.e. x-axis in x-y-plot)
 
     Attributes
@@ -56,7 +56,7 @@ class LocalizationProperty(_Analysis):
         A dictionary with all settings for the current computation.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy.ndarray or pandas.DataFrame
+    results : numpy.ndarray, pandas.DataFrame
         Computed results.
     distribution_statistics : Distribution_stats object, None
         Distribution parameters derived from MLE fitting of results.
@@ -97,7 +97,7 @@ class LocalizationProperty(_Analysis):
 
         Parameters
         ----------
-        distribution : str or scipy.stats distribution object
+        distribution : str, scipy.stats distribution object
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
@@ -128,7 +128,7 @@ class LocalizationProperty(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -155,7 +155,7 @@ class LocalizationProperty(_Analysis):
             Bin specifications (passed to matplotlib.hist).
         log : Bool
             Flag for plotting on a log scale.
-        fit: Bool or None
+        fit: bool, None
             Flag indicating if distribution fit is shown. The fit will only be computed if `distribution_statistics`
              is None.
 
@@ -166,7 +166,7 @@ class LocalizationProperty(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -211,7 +211,7 @@ class _DistributionFits:
         The analysis class with result data to fit.
     loc_property : str
         The LocData property for which to fit an appropriate distribution.
-    distribution : str or scipy.stats distribution
+    distribution : str, scipy.stats.distribution
         Distribution model to fit.
     parameters : list of str
         Distribution parameters.
@@ -231,7 +231,7 @@ class _DistributionFits:
 
         Parameters
         ----------
-        distribution : str or scipy.stats distribution object
+        distribution : str, scipy.stats.distribution
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
@@ -272,7 +272,7 @@ class _DistributionFits:
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

@@ -96,7 +96,7 @@ def _list_parameters(distribution):
 
     Parameters
     ----------
-    distribution : str or scipy.stats distribution object
+    distribution : str, scipy.stats.distribution
         Distribution of choice.
 
     Returns

@@ -35,11 +35,11 @@ def _coordinate_based_colocalization(points, other_points=None, radius=100, n_st
     points : array of tuple
         Array of points (each point represented by a tuple with coordinates) for which CBC values are computed.
 
-    other_points : array of tuple or None
+    other_points : array of tuple, None
         Array of points (each represented by a tuple with coordinates) to be compared with points. If None other_points
         are set to points.
 
-    radius : int or float
+    radius : int, float
         The maximum radius up to which nearest neighbors are determined
 
     n_steps : int
@@ -105,7 +105,7 @@ class CoordinateBasedColocalization(_Analysis):
     ----------
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    radius : int or float
+    radius : int, float
         The maximum radius up to which nearest neighbors are determined
     n_steps : int
         The number of bins from which Spearman correlation is computed.
@@ -135,7 +135,7 @@ class CoordinateBasedColocalization(_Analysis):
         ----------
         locdata : LocData
             Localization data for which CBC values are computed.
-        other_locdata : LocData or None
+        other_locdata : LocData, None
             Localization data to be colocalized. If None other_locdata is set to locdata.
 
         Returns
@@ -161,7 +161,7 @@ class CoordinateBasedColocalization(_Analysis):
 
         Parameters
         ----------
-        bins : int, list or 'auto'
+        bins : int, list, 'auto'
             Bin specification as used in matplotlib.hist
         density : bool
             Flag for normalization as used in matplotlib.hist. True returns probability density function; None returns
@@ -174,7 +174,7 @@ class CoordinateBasedColocalization(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

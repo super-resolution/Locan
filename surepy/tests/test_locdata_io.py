@@ -151,11 +151,15 @@ def test_loading_Nanoimager_file():
                                 nrows=10)
     #print(dat.data.columns)
     assert (len(dat) == 10)
+    assert all(dat.data.columns == ['channel', 'frame', 'position_x', 'position_y', 'position_z', 'intensity',
+                                    'local_background'])
 
-    file_like = StringIO("id,frame,x [nm],y [nm]\n"
-                         "73897.0,2001.0,1320.109670647555,26344.7124618434")
+    file_like = StringIO("Channel,Frame,X (nm),Y (nm),Z (nm),Photons,Background\n"
+                         "0,1548,40918.949219,56104.691406,0.000000,139.828232,0.848500")
     dat = io.load_Nanoimager_file(path=file_like, nrows=1)
     assert (len(dat) == 1)
+    assert all(dat.data.columns == ['channel', 'frame', 'position_x', 'position_y', 'position_z', 'intensity',
+                                    'local_background'])
 
 
 def test_loading_txt_file():

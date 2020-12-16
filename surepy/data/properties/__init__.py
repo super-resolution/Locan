@@ -1,4 +1,4 @@
-'''
+"""
 Compute additional properties for locdata objects.
 
 These functions take locdata as input, compute one or more new properties, and return a dict with the property names
@@ -12,7 +12,7 @@ Submodules:
 
    max_distance
    statistics
-'''
+"""
 
 from surepy.data.properties.distances import *
 from surepy.data.properties.locdata_statistics import *

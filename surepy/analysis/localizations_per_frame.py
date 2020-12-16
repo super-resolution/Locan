@@ -52,7 +52,7 @@ def _localizations_per_frame(data, norm=None):
 # The specific analysis classes
 
 class LocalizationsPerFrame(_Analysis):
-    '''
+    """
     Compute localizations per frame.
 
     Parameters
@@ -70,11 +70,11 @@ class LocalizationsPerFrame(_Analysis):
         A dictionary with all settings for the current computation.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy.ndarray or pandas.DataFrame
+    results : numpy.ndarray, pandas.DataFrame
         Computed results.
     distribution_statistics : Distribution_fits object, None
         Distribution parameters derived from MLE fitting of results.
-    '''
+    """
     count = 0
 
     def __init__(self, meta=None, norm=None):
@@ -106,8 +106,8 @@ class LocalizationsPerFrame(_Analysis):
 
         Parameters
         ----------
-        loc_property : LocData property
-            The property for which to fit an appropriate distribution; if None all plots are shown.
+        loc_property : str
+            The LocData property for which to fit an appropriate distribution; if None all plots are shown.
         """
         self.distribution_statistics = _DistributionFits(self)
         self.distribution_statistics.fit(**kwargs)
@@ -130,7 +130,7 @@ class LocalizationsPerFrame(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -166,7 +166,7 @@ class LocalizationsPerFrame(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -204,11 +204,11 @@ class _DistributionFits:
 
     Attributes
     ----------
-    analyis_class : LocalizationPrecision object
+    analyis_class : LocalizationPrecision
         The analysis class with result data to fit.
-    loc_property : LocData property
-        The property for which to fit an appropriate distribution
-    distribution : str or scipy.stats distribution object
+    loc_property : str
+        The LocData property for which to fit an appropriate distribution
+    distribution : str, scipy.stats.distribution
         Distribution model to fit.
     parameters :
     """
@@ -227,7 +227,7 @@ class _DistributionFits:
 
         Parameters
         ----------
-        distribution : str or scipy.stats distribution object
+        distribution : str, scipy.stats.distribution
             Distribution model to fit.
 
         Other Parameters
@@ -259,7 +259,7 @@ class _DistributionFits:
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

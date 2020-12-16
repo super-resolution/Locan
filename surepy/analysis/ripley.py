@@ -359,7 +359,7 @@ def plot(self, ax=None, **kwargs):
 
     Returns
     -------
-    matplotlib Axes
+    matplotlib.axes.Axes
         Axes object with the plot.
     """
     if ax is None:

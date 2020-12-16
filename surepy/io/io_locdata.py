@@ -53,7 +53,7 @@ def open_path_or_file_like(path_or_file_like, mode='r', encoding=None):
 
     Parameters
     ----------
-    path_or_file_like : str, os.PathLike, or file-like
+    path_or_file_like : str, os.PathLike, file-like
         Identifier for file
     mode
         same as in `open()`
@@ -93,7 +93,7 @@ def save_asdf(locdata, path):
     ----------
     locdata : LocData
         The LocData object to be saved.
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path including file name to save to.
     """
     # Prepare tree
@@ -123,7 +123,7 @@ def save_thunderstorm_csv(locdata, path):
     ----------
     locdata : LocData
         The LocData object to be saved.
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path including file name to save to.
     """
     # get data from locdata object
@@ -147,13 +147,13 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
 
     Parameters
     ----------
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path for a localization file to load.
     sep : str
         separator between column values (Default: ',')
-    columns : list of str or None
+    columns : list of str, None
         Surepy column names. If None the first line is interpreted as header (Default: None).
-    nrows : int, default: None
+    nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded (Default: None).
 
     Other Parameters
@@ -239,7 +239,7 @@ def load_rapidSTORM_header(path):
 
     Parameters
     ----------
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path for a rapidSTORM file to load.
 
     Returns
@@ -259,9 +259,9 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
 
     Parameters
     ----------
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path for a rapidSTORM file to load.
-    nrows : int, default: None
+    nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
 
     Other Parameters
@@ -336,7 +336,7 @@ def load_Elyra_header(path):
 
     Parameters
     ----------
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path for a rapidSTORM file to load.
 
     Returns
@@ -355,9 +355,9 @@ def load_Elyra_file(path, nrows=None, **kwargs):
 
     Parameters
     ----------
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path for a rapidSTORM file to load.
-    nrows : int, default: None
+    nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
 
     Other Parameters
@@ -408,9 +408,9 @@ def load_asdf_file(path, nrows=None):
 
     Parameters
     ----------
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path for a rapidSTORM file to load.
-    nrows : int, default: None
+    nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
 
     Returns
@@ -461,7 +461,7 @@ def load_thunderstorm_header(path):
 
     Parameters
     ----------
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path for a Thunderstorm file to load.
 
     Returns
@@ -480,9 +480,9 @@ def load_thunderstorm_file(path, nrows=None, **kwargs):
 
     Parameters
     ----------
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path for a Thunderstorm file to load.
-    nrows : int, default: None
+    nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
 
     Other Parameters
@@ -559,7 +559,7 @@ def load_Nanoimager_header(path):
 
     Parameters
     ----------
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path for a Nanoimager file to load.
 
     Returns
@@ -578,9 +578,9 @@ def load_Nanoimager_file(path, nrows=None, **kwargs):
 
     Parameters
     ----------
-    path : str, os.PathLike, or file-like
+    path : str, os.PathLike, file-like
         File path for a Nanoimager file to load.
-    nrows : int, default: None
+    nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
 
     Other Parameters
@@ -682,7 +682,7 @@ def load_locdata(path, file_type=1, nrows=None, **kwargs):
     file_type : int, str, surepy.constants.FileType, surepy.data.metadata_pb2.Metadata
         Indicator for the file type.
         Integer or string should be according to surepy.constants.FileType.
-    nrows : int, default: None
+    nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
 
     Returns

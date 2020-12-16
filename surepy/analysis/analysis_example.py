@@ -23,13 +23,13 @@ from surepy.analysis.analysis_base import _Analysis
 #
 
 def _algorithm_1(data=None, limits=(0, 10)):
-    ''' Provides a list of data values. data is actually not used.'''
+    """ Provides a list of data values. data is actually not used."""
     results = [i for i in range(*limits)]  # some complicated algorithm
     return results
 
 
 def _algorithm_2(data=None, n_sample=100, seed=None):
-    ''' Provides random normal distributed data. data is actually not used.'''
+    """ Provides random normal distributed data. data is actually not used."""
     np.random.seed(seed)
     dict = {'a': np.random.normal(size=n_sample),
             'b': np.random.normal(size=n_sample)}
@@ -54,7 +54,7 @@ def _algorithm_2(data=None, n_sample=100, seed=None):
 #
 
 class AnalysisExampleAlgorithm_1(_Analysis):
-    '''
+    """
     Example for an analysis class implementing algorithm_1.
     Compute some data and provide a plot and histogram with secondary data (e.g. from fitting plot or histogram).
 
@@ -77,9 +77,9 @@ class AnalysisExampleAlgorithm_1(_Analysis):
         A dictionary with all settings for the current computation.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy.ndarray or pandas.DataFrame
+    results : numpy.ndarray, pandas.DataFrame
         Computed results.
-    '''
+    """
     count = 0
 
     def __init__(self, meta=None, limits=(0, 10)):
@@ -118,7 +118,7 @@ class AnalysisExampleAlgorithm_1(_Analysis):
 
 
 class AnalysisExampleAlgorithm_2(_Analysis):
-    '''
+    """
     Example for an analysis class implementing algorithm_2.
     Compute some data and provide a plot and histogram with secondary data (e.g. from fitting plot or histogram).
 
@@ -141,9 +141,9 @@ class AnalysisExampleAlgorithm_2(_Analysis):
         A dictionary with all settings for the current computation.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy.ndarray or pandas.DataFrame
+    results : numpy.ndarray, pandas.DataFrame
         Computed results.
-    '''
+    """
     count = 0
 
     def __init__(self, meta=None, n_sample=100, seed=None):
@@ -188,9 +188,9 @@ class AnalysisExampleAlgorithm_2(_Analysis):
 
 
 def plot(self, ax=None):
-    '''
+    """
     A specialized plot to give a standardized visualization of results.
-    '''
+    """
     if ax is None:
         ax = plt.gca()
 
@@ -204,9 +204,9 @@ def plot(self, ax=None):
 
 
 def plot_2(self, ax=None, bins='auto', density=True, log=False, fit=True):
-    '''
+    """
     A specialized plot to give a standardized visualization of results - in this case a histogram of results.
-    '''
+    """
     if ax is None:
         fig = plt.figure(figsize=(8, 3))
         ax = fig.subplots(nrows=1, ncols=2)
@@ -239,9 +239,9 @@ def plot_2(self, ax=None, bins='auto', density=True, log=False, fit=True):
 
 
 def plot_histogram_fit(self, ax=None):
-    '''
+    """
     A specialized plot to give a standardized visualization of results - in this case a histogram of results.
-    '''
+    """
     if ax is None:
         fig = plt.figure(figsize=(8, 3))
         ax = fig.subplots(nrows=1, ncols=2)
@@ -287,11 +287,11 @@ def fit_histogram(self, data, id):
 
 
 def report(self, path=None):
-    '''
+    """
     Provide a report that is either displayed or saved as pdf.
     The report is a figure summarizing all visual representations. It is arranged specifically for a particular
     analysis routine.
-    '''
+    """
     fig = plt.figure(figsize=(8.3, 11.7))
     ax = fig.subplots(nrows=3, ncols=2)
 

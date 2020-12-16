@@ -29,9 +29,9 @@ def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
 
     Parameters
     ----------
-    x : float or array-like
+    x : float, array-like
         all x values
-    y : float or array-like
+    y : float, array-like
         all y values
     amplitude : float
         amplitude
@@ -196,7 +196,7 @@ class LocalizationProperty2d(_Analysis):
         The bin specification as defined in :class:`Bins`
     bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimensions, n_bin_edges), None
         Array of bin edges for all or each dimension.
-    n_bins : int, list, tuple or numpy.ndarray, None
+    n_bins : int, list, tuple, numpy.ndarray, None
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
@@ -285,7 +285,7 @@ class LocalizationProperty2d(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -323,7 +323,7 @@ class LocalizationProperty2d(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -364,7 +364,7 @@ class LocalizationProperty2d(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -400,7 +400,7 @@ class LocalizationProperty2d(_Analysis):
 
         Returns
         -------
-        matplotlib Axes
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

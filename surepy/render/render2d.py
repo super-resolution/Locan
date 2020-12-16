@@ -41,30 +41,30 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
     ----------
     locdata : LocData
         Localization data.
-    loc_properties : list or None
+    loc_properties : list, None
         Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
-    other_property : str or None
+    other_property : str, None
         Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
         shown.
-    bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
+    bins : int, sequence, Bins, boost_histogram.axis.Axis, None
         The bin specification as defined in :class:`Bins`
-    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimensions, n_bin_edges) or None
+    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimensions, n_bin_edges), None
         Array of bin edges for all or each dimension.
-    n_bins : int, list, tuple or numpy.ndarray or None
+    n_bins : int, list, tuple, numpy.ndarray, None
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float, list, tuple or numpy.ndarray or None
+    bin_size : float, list, tuple, numpy.ndarray, None
         The size of bins in units of locdata coordinate units for all or each dimension.
         5 would describe bin_size of 5 for all bins in all dimensions.
         (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
         To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple or tuple of tuples of float with shape (n_dimensions, 2) or None or 'zero'
+    bin_range : tuple, tuple of tuples of float with shape (n_dimensions, 2), None, 'zero'
         The data bin_range to be taken into consideration for all or each dimension.
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : True, tuple, False or None, 'equal', or 'unity.
+    rescale : True, tuple, False, None, 'equal', 'unity.
         Rescale intensity values to be within percentile of max and min intensities
         (tuple with upper and lower bounds provided in percent).
         For True intensity values are rescaled to the min and max possible values of the given representation.
@@ -87,7 +87,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
 
     Returns
     -------
-    matplotlib Axes
+    matplotlib.axes.Axes
         Axes object with the image.
     """
     # todo: plot empty image if ranges are provided.
@@ -160,7 +160,7 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
 
     Returns
     -------
-    matplotlib Axes
+    matplotlib.axes.Axes
         Axes object with the image.
     """
     if not _has_mpl_scatter_density:
@@ -344,7 +344,7 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs={}, **kwargs):
 
     Returns
     -------
-    matplotlib Axes
+    matplotlib.axes.Axes
        Axes object with the image.
     """
     if not len(locdata):

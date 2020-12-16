@@ -139,8 +139,8 @@ class RoiRegion:
 
         Parameters
         ----------
-        points : array of 2D or 3D coordinates
-            Points that are tested for being inside the specified region.
+        points : array
+            2D or 3D coordinates of oints that are tested for being inside the specified region.
 
         Returns
         -------

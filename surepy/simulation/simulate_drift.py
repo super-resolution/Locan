@@ -57,7 +57,7 @@ def _drift(frames, diffusion_constant=None, velocity=None, seed=None):
     ----------
     frames : array-like of int
         array with frame numbers
-    diffusion_constant : tuple of float with shape (point_dimension,) or None
+    diffusion_constant : tuple of float with shape (point_dimension,), None
         Diffusion constant for each dimension specifying the drift velocity.
         The diffusion constant has the unit of square of localization coordinate unit per frame unit.
         If None only linear drift is computed.
@@ -96,7 +96,7 @@ def add_drift(locdata, diffusion_constant=None, velocity=None, seed=None):
     ----------
     locdata : LocData object
         Original localization data
-    diffusion_constant : tuple of float with shape (point_dimension,) or None
+    diffusion_constant : tuple of float with shape (point_dimension,), None
         Diffusion constant for each dimension specifying the drift velocity.
         The diffusion constant has the unit of square of localization coordinate unit per frame unit.
     velocity : tuple of float with shape (point_dimension,)

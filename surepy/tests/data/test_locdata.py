@@ -181,6 +181,12 @@ def test_LocData_from_collection(df_simple):
     assert set(col.data.columns) == {'localization_count', 'localization_density_bb', 'position_x', 'position_y',
                                      'region_measure_bb', 'subregion_measure_bb',
                                      'region_measure_ch', 'localization_density_ch'}
+
+    col.update_oriented_bounding_box_in_references()
+    assert set(col.data.columns) == {'localization_count', 'localization_density_bb', 'localization_density_ch',
+                                     'localization_density_obb', 'orientation_obb', 'position_x', 'position_y',
+                                     'region_measure_bb', 'region_measure_ch', 'region_measure_obb',
+                                     'subregion_measure_bb'}
     # print(col.properties)
 
 
@@ -368,6 +374,7 @@ def test_locdata_hulls(
         fixture_name, expected):
     dat = eval(fixture_name)
     assert dat.bounding_box.region_measure == 0
+    assert dat.oriented_bounding_box.region_measure == 0
     with pytest.warns(UserWarning):
         assert dat.convex_hull is None
     with pytest.raises(AttributeError):

@@ -1,6 +1,10 @@
 import pytest
 import numpy as np
-from surepy import BoundingBox, ConvexHull
+import matplotlib.pyplot as plt
+from shapely.geometry import MultiPoint
+from shapely import affinity
+
+from surepy import BoundingBox, ConvexHull, OrientedBoundingBox
 from surepy.data.hulls.hull import _ConvexHullScipy, _ConvexHullShapely
 
 
@@ -97,6 +101,62 @@ def test_ConvexHull(locdata_empty, locdata_single_localization,
                     fixture_name, expected):
     locdata = eval(fixture_name)
     with pytest.raises(TypeError):
-        hull = ConvexHull(locdata.coordinates, method='scipy')
+        ConvexHull(locdata.coordinates, method='scipy')
     with pytest.raises(TypeError):
-        hull = ConvexHull(locdata.coordinates, method='shapely')
+        ConvexHull(locdata.coordinates, method='shapely')
+
+
+@pytest.mark.skip('Test needs visual inspection.')
+def test_OrientedBoundingBox_2d_points_visual():
+    points = np.array([[0, 0], [0, 2], [1, 2], [1, 0], [0, 0]])
+
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5, 5))
+    for angle in np.linspace(0, 180, 5):
+        rotated_points = affinity.rotate(MultiPoint(points), angle, origin=[0, 0], use_radians=False)
+        ax.plot(*np.array(rotated_points).T)
+
+        obb = OrientedBoundingBox(np.array(rotated_points))
+        assert np.int(obb.angle) in [0, 45, 90, -45]
+        print(obb.region)
+        print(obb.vertices)
+        print(obb.width)
+        print(angle, obb.angle)
+        ax.plot(*obb.vertices.T)
+        ax.add_patch(obb.region.as_artist())
+    ax.set(xlim=(-3, 3), ylim=(-3, 3))
+    plt.show()
+
+
+def test_OrientedBoundingBox_2d_points():
+    points = np.array([[0, 0], [0, 2], [1, 2], [1, 0], [0, 0]])
+    for angle in np.linspace(0, 180, 5):
+        rotated_points = affinity.rotate(MultiPoint(points), angle, origin=[0, 0], use_radians=False)
+        obb = OrientedBoundingBox(np.array(rotated_points))
+        assert np.int(obb.angle) in [0, 45, 90, -45]
+        assert np.isclose(obb.region_measure, 2)
+        assert np.isclose(obb.subregion_measure, 6)
+
+
+def test_OrientedBoundingBox_2d(locdata_2d):
+    hull = OrientedBoundingBox(locdata_2d.coordinates)
+    assert hull.width.shape == (2,)
+    assert(locdata_2d.properties['region_measure_bb'] == hull.region_measure == 20)
+    assert(hull.subregion_measure == 18)
+    assert hull.region.region_measure == 20
+
+
+def test_OrientedBoundingBox_3d(locdata_3d):
+    with pytest.raises(TypeError):
+        OrientedBoundingBox(locdata_3d.coordinates)
+
+
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_empty', 0),
+    ('locdata_single_localization', 0),
+    ('locdata_non_standard_index', 20)
+])
+def test_OrientedBoundingBox(locdata_empty, locdata_single_localization, locdata_non_standard_index,
+                             fixture_name, expected):
+    locdata = eval(fixture_name)
+    hull = OrientedBoundingBox(locdata.coordinates)
+    assert hull.region_measure == expected

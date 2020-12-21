@@ -45,8 +45,8 @@ class RoiRegion:
         1D rois are defined by the following tuple:
         * interval: (start, stop)
         2D rois are defined by the following tuples:
-        * rectangle: ((corner_x, corner_y), width, height, angle)
-        * ellipse: ((center_x, center_y), width, height, angle)
+        * rectangle: ((corner_x, corner_y), width, height, angle) with angle in degree
+        * ellipse: ((center_x, center_y), width, height, angle) with angle in degree
         * polygon: ((point1_x, point1_y), (point2_x, point2_y), ..., (point1_x, point1_y))
         * shapelyPolygon: ((point_tuples), ((hole_tuples), ...))
         * shapelyMultiPolygon: (shapelyPolygon_specs_1, shapelyPolygon_specs_2, ...)

@@ -183,8 +183,8 @@ class LocData:
         if self._bounding_box is None:
             try:
                 self._bounding_box = surepy.data.hulls.BoundingBox(self.coordinates)
+                self.properties['region_measure_bb'] = self._bounding_box.region_measure
                 if self._bounding_box.region_measure:
-                    self.properties['region_measure_bb'] = self._bounding_box.region_measure
                     self.properties['localization_density_bb'] = \
                         self.properties['localization_count'] / self._bounding_box.region_measure
                 if self._bounding_box.subregion_measure:
@@ -200,8 +200,9 @@ class LocData:
             try:
                 self._convex_hull = surepy.data.hulls.ConvexHull(self.coordinates)
                 self.properties['region_measure_ch'] = self._convex_hull.region_measure
-                self.properties['localization_density_ch'] = self.properties['localization_count'] \
-                                                                  / self._convex_hull.region_measure
+                if self._convex_hull.region_measure:
+                    self.properties['localization_density_ch'] = self.properties['localization_count'] \
+                                                                      / self._convex_hull.region_measure
             except (TypeError, QhullError):
                 warnings.warn('Properties related to convex hull could not be computed.', UserWarning)
         return self._convex_hull
@@ -213,8 +214,10 @@ class LocData:
             try:
                 self._oriented_bounding_box = surepy.data.hulls.OrientedBoundingBox(self.coordinates)
                 self.properties['region_measure_obb'] = self._oriented_bounding_box.region_measure
-                self.properties['localization_density_obb'] = self.properties['localization_count'] \
-                                                                  / self._oriented_bounding_box.region_measure
+                if self._oriented_bounding_box.region_measure:
+                    self.properties['localization_density_obb'] = self.properties['localization_count'] \
+                                                                      / self._oriented_bounding_box.region_measure
+                self.properties['orientation_obb'] = self._oriented_bounding_box.angle
             except TypeError:
                 warnings.warn('Properties related to oriented bounding box could not be computed.', UserWarning)
         return self._oriented_bounding_box
@@ -748,6 +751,21 @@ class LocData:
         if isinstance(self.references, list):
             for reference in self.references:
                 reference.convex_hull  # request property to update reference._convex_hull
+            self.dataframe = pd.DataFrame([reference.properties for reference in self.references])
+        return self
+
+    def update_oriented_bounding_box_in_references(self):
+        """
+        Compute the oriented bounding box for each element in locdata.references and update locdata.dataframe.
+
+        Returns
+        -------
+        LocData
+            The modified object
+        """
+        if isinstance(self.references, list):
+            for reference in self.references:
+                reference.oriented_bounding_box  # request property to update reference._convex_hull
             self.dataframe = pd.DataFrame([reference.properties for reference in self.references])
         return self
 

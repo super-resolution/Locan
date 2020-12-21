@@ -93,14 +93,13 @@ class BoundingBox:
     """
 
     def __init__(self, points):
+        self.dimension = np.shape(points)[1]
         if len(points) < 2:
-            self.dimension = np.shape(points)[1]
             self.hull = np.array([])
-            self.width = 0
+            self.width = np.zeros(self.dimension)
             self.region_measure = 0
             self.subregion_measure = 0
         else:
-            self.dimension = np.shape(points)[1]
             self.hull = np.array([np.min(points, axis=0), np.max(points, axis=0)])
             self.width = np.diff(self.hull, axis=0).flatten()
             self.region_measure = np.prod(self.width)
@@ -315,24 +314,40 @@ class OrientedBoundingBox:
         measure of the sub-dimensional region, i.e. circumference or surface
     region : RoiRegion
         Convert the hull to a RoiRegion object.
+    angle : float
+        Orientation defined as angle (in degrees) between the vector from first to last point and x-axis.
+    
     """
     def __init__(self, points):
         self.dimension = np.shape(points)[1]
+
         if self.dimension >= 3:
             raise TypeError('OrientedBoundingBox only takes 1 or 2-dimensional points as input.')
 
-        self.hull = MultiPoint(points).minimum_rotated_rectangle
-        self.width = np.array([LineString(self.vertices[0:2]).length, LineString(self.vertices[1:3]).length])
-        self.region_measure = self.hull.area
-        self.subregion_measure = self.hull.length
+        if len(points) < 3:
+            self.hull = np.array([])
+            self.width = np.zeros(self.dimension)
+            self.region_measure = 0
+            self.subregion_measure = 0
+            self.angle = 0
+        else:
+            self.hull = MultiPoint(points).minimum_rotated_rectangle
+            difference = np.diff(self.vertices[0:3], axis=0)
+            self.width = np.array([np.linalg.norm(difference[0]), np.linalg.norm(difference[1])])
+            self.region_measure = self.hull.area
+            self.subregion_measure = self.hull.length
+            self.angle = np.degrees(np.arctan2(difference[0][1], difference[0][0]))
+            # numpy.arctan2(y, x) takes reversed x, y arguments.
 
     @property
     def vertices(self):
         return np.array(self.hull.exterior.coords)
 
-    # todo: compute angle
-    # @property
-    # def region(self):
-    #     angle =
-    #     region_ = RoiRegion(region_type='rectangle', region_specs= (self.hull[0], self.width[0], self.width[1], 0))
-    #     return region_
+    @property
+    def region(self):
+        if self.dimension == 2:
+            region_ = RoiRegion(region_type='rectangle',
+                                region_specs=(self.vertices[0], self.width[0], self.width[1], self.angle))
+        else:
+            raise NotImplementedError
+        return region_

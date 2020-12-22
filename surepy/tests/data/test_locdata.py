@@ -78,6 +78,10 @@ def test_LocData(df_simple):
     assert 'region_measure_as' in dat.properties
     assert 'localization_density_as' in dat.properties
 
+    assert len(dat.inertia_moments.eigenvalues) == 2
+    assert 'orientation_im' in dat.properties
+    assert 'circularity_im' in dat.properties
+
 
 def test_LocData_empty(df_empty):
     dat = LocData(dataframe=df_empty)
@@ -183,7 +187,7 @@ def test_LocData_from_collection(df_simple):
                                      'region_measure_ch', 'localization_density_ch'}
 
     col.update_oriented_bounding_box_in_references()
-    assert set(col.data.columns) == {'elongation_obb', 'localization_count', 'localization_density_bb',
+    assert set(col.data.columns) == {'circularity_obb', 'localization_count', 'localization_density_bb',
                                      'localization_density_ch',
                                      'localization_density_obb', 'orientation_obb', 'position_x', 'position_y',
                                      'region_measure_bb', 'region_measure_ch', 'region_measure_obb',

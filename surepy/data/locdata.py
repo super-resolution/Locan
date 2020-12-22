@@ -20,6 +20,7 @@ import surepy.data.hulls
 from surepy.data import metadata_pb2
 from surepy.data.metadata_utils import _modify_meta
 from surepy.utils.format import _time_string
+from surepy.data.properties import compute_inertia_moments
 
 
 __all__ = ['LocData']
@@ -82,6 +83,7 @@ class LocData:
         self._oriented_bounding_box = None
         self._convex_hull = None
         self._alpha_shape = None
+        self._inertia_moments = None
 
         self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'position_x',
                                                                                   'position_y',
@@ -218,7 +220,7 @@ class LocData:
                     self.properties['localization_density_obb'] = self.properties['localization_count'] \
                                                                       / self._oriented_bounding_box.region_measure
                 self.properties['orientation_obb'] = self._oriented_bounding_box.angle
-                self.properties['elongation_obb'] = self._oriented_bounding_box.elongation
+                self.properties['circularity_obb'] = self._oriented_bounding_box.elongation
             except TypeError:
                 warnings.warn('Properties related to oriented bounding box could not be computed.', UserWarning)
         return self._oriented_bounding_box
@@ -269,7 +271,34 @@ class LocData:
         """
         if isinstance(self.references, list):
             for reference in self.references:
-                reference.update_alpha_shape(alpha=alpha)  # request property to update reference._convex_hull
+                reference.update_alpha_shape(alpha=alpha)
+            self.dataframe = pd.DataFrame([reference.properties for reference in self.references])
+        return self
+
+    @property
+    def inertia_moments(self):
+        """Hull object: Return an object representing the oriented minimal bounding box."""
+        if self._inertia_moments is None:
+            try:
+                self._inertia_moments = surepy.data.properties.compute_inertia_moments(self.coordinates)
+                self.properties['orientation_im'] = self._inertia_moments.orientation
+                self.properties['circularity_im'] = self._inertia_moments.excentricity
+            except TypeError:
+                warnings.warn('Properties related to inertia_moments could not be computed.', UserWarning)
+        return self._inertia_moments
+
+    def update_inertia_moments_in_references(self):
+        """
+        Compute inertia_moments for each element in locdata.references and update locdata.dataframe.
+
+        Returns
+        -------
+        LocData
+            The modified object
+        """
+        if isinstance(self.references, list):
+            for reference in self.references:
+                reference.inertia_moments  # request property to update
             self.dataframe = pd.DataFrame([reference.properties for reference in self.references])
         return self
 

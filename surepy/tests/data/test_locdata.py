@@ -183,7 +183,8 @@ def test_LocData_from_collection(df_simple):
                                      'region_measure_ch', 'localization_density_ch'}
 
     col.update_oriented_bounding_box_in_references()
-    assert set(col.data.columns) == {'localization_count', 'localization_density_bb', 'localization_density_ch',
+    assert set(col.data.columns) == {'elongation_obb', 'localization_count', 'localization_density_bb',
+                                     'localization_density_ch',
                                      'localization_density_obb', 'orientation_obb', 'position_x', 'position_y',
                                      'region_measure_bb', 'region_measure_ch', 'region_measure_obb',
                                      'subregion_measure_bb'}

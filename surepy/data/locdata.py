@@ -218,6 +218,7 @@ class LocData:
                     self.properties['localization_density_obb'] = self.properties['localization_count'] \
                                                                       / self._oriented_bounding_box.region_measure
                 self.properties['orientation_obb'] = self._oriented_bounding_box.angle
+                self.properties['elongation_obb'] = self._oriented_bounding_box.elongation
             except TypeError:
                 warnings.warn('Properties related to oriented bounding box could not be computed.', UserWarning)
         return self._oriented_bounding_box

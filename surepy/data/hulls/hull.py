@@ -329,7 +329,8 @@ class OrientedBoundingBox:
             self.width = np.zeros(self.dimension)
             self.region_measure = 0
             self.subregion_measure = 0
-            self.angle = 0
+            self.angle = np.nan
+            self.elongation = np.nan
         else:
             self.hull = MultiPoint(points).minimum_rotated_rectangle
             difference = np.diff(self.vertices[0:3], axis=0)
@@ -338,6 +339,7 @@ class OrientedBoundingBox:
             self.subregion_measure = self.hull.length
             self.angle = np.degrees(np.arctan2(difference[0][1], difference[0][0]))
             # numpy.arctan2(y, x) takes reversed x, y arguments.
+            self.elongation = 1 - np.divide(*sorted(self.width))
 
     @property
     def vertices(self):

@@ -51,28 +51,19 @@ def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
         iterated_arguments = {k: v for k, v in zip(keys, l)}
         results.append(algorithm(locdata, **iterated_arguments, **kwargs))
 
-    if signature(algorithm).parameters['noise'].default or\
-            ('noise' in kwargs and kwargs['noise']):
+    noise_locdata = [result[0] for result in results]
+    noise_collection = LocData.from_collection(noise_locdata)
+    noise_collection.dataframe = noise_collection.dataframe.assign(**dictionary)
+    collection_locdata = [result[1] for result in results]
+    collection = LocData.from_collection(collection_locdata)
+    collection.dataframe = collection.dataframe.assign(**dictionary)
 
-        noise_locdata = [res[0] for res in results]
-        noise_collection = LocData.from_collection(noise_locdata)
-        noise_collection.dataframe = noise_collection.dataframe.assign(**dictionary)
-        collection_locdata = [res[1] for res in results]
-        collection = LocData.from_collection(collection_locdata)
-        collection.dataframe = collection.dataframe.assign(**dictionary)
-
-        # metadata for noise_collection
-        del noise_collection.meta.history[:]
-        noise_collection.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
-
-    else:
-        noise_collection = None
-        collection = LocData.from_collection(results)
-        collection.dataframe = collection.dataframe.assign(**dictionary)
+    # metadata for noise_collection
+    del noise_collection.meta.history[:]
+    noise_collection.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 
     # metadata for collection
     del collection.meta.history[:]
     collection.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
 
     return noise_collection, collection
-

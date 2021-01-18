@@ -103,3 +103,27 @@ def locdata_blobs_3d():
     dat = load_txt_file(path)
     dat.meta.creation_date = "1111-11-11 11:11:11 +0100"
     return dat
+
+
+@pytest.fixture(scope='session')
+def locdata_two_cluster_2d():
+    points = np.array([[0.5, 0.5], [1, 0.6], [1.1, 1], [5, 5.6], [5.1, 6], [5.5, 5]])
+    locdata_dict = {
+        'position_x': points.T[0],
+        'position_y': points.T[1],
+        'cluster_label': np.array([1, 1, 1, 2, 2, 2])
+    }
+    df = pd.DataFrame(locdata_dict)
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+
+
+@pytest.fixture(scope='session')
+def locdata_two_cluster_with_noise_2d():
+    points = np.array([[0.5, 0.5], [1, 0.6], [1.1, 1], [5, 5.6], [5.1, 6], [5.5, 5], [100, 100]])
+    locdata_dict = {
+        'position_x': points.T[0],
+        'position_y': points.T[1],
+        'cluster_label': np.array([1, 1, 1, 2, 2, 2, -1])
+    }
+    df = pd.DataFrame(locdata_dict)
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})

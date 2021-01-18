@@ -117,8 +117,7 @@ def compute_clust(self):
     from surepy.data.filter import select_by_condition
 
     # compute cluster
-    self.noise, self.clust = cluster_hdbscan(self.locdata, min_cluster_size=5, allow_single_cluster=False,
-                                             noise=True)
+    self.noise, self.clust = cluster_hdbscan(self.locdata, min_cluster_size=5, allow_single_cluster=False)
 
     # compute convex hull
     Hs = [ConvexHull(self.clust.references[i].coordinates) for i in range(len(self.clust))]

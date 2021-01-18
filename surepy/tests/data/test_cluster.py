@@ -1,119 +1,116 @@
-import pytest
-from pathlib import Path
+from copy import deepcopy
 
-import pandas as pd
 import numpy as np
 
-from surepy.constants import ROOT_DIR
-from surepy.io.io_locdata import load_txt_file
 from surepy.data.cluster.clustering import cluster_hdbscan, cluster_dbscan
 from surepy.data.cluster.utils import serial_clustering
 
 
-# fixtures
-
-@pytest.fixture()
-def locdata():
-    path = Path(ROOT_DIR / 'tests/test_data/five_blobs.txt')
-    dat = load_txt_file(path)
-    return dat
-
-
-@pytest.fixture()
-def locdata_3d():
-    path = Path(ROOT_DIR / 'tests/test_data/five_blobs_3D.txt')
-    dat = load_txt_file(path)
-    return dat
-
-
 # tests hdbscan
 
-def test_cluster_hdbscan(locdata):
-    # print(locdata.data.head())
-    clust = cluster_hdbscan(locdata, min_cluster_size=5, allow_single_cluster=False)
-    # print(clust.data.head())
-    assert (len(clust) == 5)
-    assert all(clust.references[0].data.cluster_label == 2)
+def test_cluster_hdbscan_2d(locdata_two_cluster_2d):
+    noise, clust = cluster_hdbscan(locdata_two_cluster_2d, min_cluster_size=2, allow_single_cluster=False)
+    assert noise is None
+    assert (len(clust) == 2)
+    assert all(clust.data.localization_count == [3, 3])
+    assert all(clust.references[0].data.cluster_label == 1)
 
-    assert clust.data['subregion_measure_bb'].name == 'subregion_measure_bb'
-    assert isinstance(clust.data['localization_count'], pd.Series)
+    noise, clust = cluster_hdbscan(locdata_two_cluster_2d, min_cluster_size=5, allow_single_cluster=True)
+    assert (len(clust) == 1)
+    assert clust.data.localization_count[0] == 6
+    assert all(np.in1d(clust.references[0].data.cluster_label, [1, 2]))
 
-    clust.dataframe = clust.dataframe.assign(test_column=range(5))
-    assert isinstance(clust.data['test_column'], pd.Series)
+    noise, clust = cluster_hdbscan(locdata_two_cluster_2d, loc_properties=['position_x'],
+                                   min_cluster_size=2, allow_single_cluster=False)
+    assert noise is None
+    assert (len(clust) == 2)
+    assert all(clust.data.localization_count == [3, 3])
+    assert all(clust.references[0].data.cluster_label == 1)
 
 
-def test_cluster_hdbscan_with_shuffled_index(locdata):
+def test_cluster_hdbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
+    noise, clust = cluster_hdbscan(locdata_two_cluster_with_noise_2d, min_cluster_size=2, allow_single_cluster=False)
+    assert len(noise) == 1
+    assert (len(clust) == 2)
+    assert all(clust.data.localization_count == [3, 3])
+    assert all(clust.references[0].data.cluster_label == 1)
+
+    noise, clust = cluster_hdbscan(locdata_two_cluster_with_noise_2d, min_cluster_size=5, allow_single_cluster=True)
+    assert len(noise) == 1
+    assert (len(clust) == 1)
+    assert clust.data.localization_count[0] == 6
+    assert all(np.in1d(clust.references[0].data.cluster_label, [1, 2]))
+
+
+def test_cluster_hdbscan_with_shuffled_index(locdata_two_cluster_with_noise_2d):
+    locdata = deepcopy(locdata_two_cluster_with_noise_2d)
     new_index = list(locdata.data.index)
     np.random.shuffle(new_index)
     locdata.data.index = new_index
-    clust = cluster_hdbscan(locdata, min_cluster_size=5, allow_single_cluster=False)
-    assert (len(clust) == 5)
-    assert all(clust.references[0].data.cluster_label == 2)
-
-
-def test_cluster_hdbscan_with_noise(locdata):
-    # print(locdata.data.head())
-    clust = cluster_hdbscan(locdata, min_cluster_size=5, allow_single_cluster=False, noise=True)
-    # print(clust[0].data)
+    noise, clust = cluster_hdbscan(locdata, min_cluster_size=2, allow_single_cluster=False)
+    assert len(noise) == 1
     assert (len(clust) == 2)
-    assert all(clust[0].data.cluster_label == 2)
-
-
-def test_cluster_hdbscan_3d(locdata_3d):
-    # print(locdata.data.head())
-    clust = cluster_hdbscan(locdata_3d, min_cluster_size=5, allow_single_cluster=False)
-    # print(clust.data.head())
-    assert (len(clust) == 5)
-    # clust.print_meta()
+    assert all(clust.data.localization_count == [3, 3])
+    assert all(clust.references[0].data.cluster_label == 1)
 
 
 # tests dbscan
 
-def test_cluster_dbscan(locdata):
-    # print(locdata.data.head())
-    clust = cluster_dbscan(locdata, eps=100, min_samples=4)
-    # print(clust.data.head())
-    assert (len(clust) == 5)
-    assert all(clust.references[0].data.cluster_label == 3)
+def test_cluster_dbscan_2d(locdata_two_cluster_2d):
+    noise, clust = cluster_dbscan(locdata_two_cluster_2d, eps=2, min_samples=1)
+    assert noise is None
+    assert (len(clust) == 2)
+    assert all(clust.data.localization_count == [3, 3])
+    assert all(clust.references[0].data.cluster_label == 1)
+
+    noise, clust = cluster_dbscan(locdata_two_cluster_2d, eps=20, min_samples=1)
+    assert (len(clust) == 1)
+    assert clust.data.localization_count[0] == 6
+    assert all(np.in1d(clust.references[0].data.cluster_label, [1, 2]))
+
+    noise, clust = cluster_dbscan(locdata_two_cluster_2d, loc_properties=['position_x'], eps=2, min_samples=1)
+    assert noise is None
+    assert (len(clust) == 2)
+    assert all(clust.data.localization_count == [3, 3])
+    assert all(clust.references[0].data.cluster_label == 1)
 
 
-def test_cluster_dbscan_with_shuffled_index(locdata):
+def test_cluster_dbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
+    noise, clust = cluster_dbscan(locdata_two_cluster_with_noise_2d, eps=2, min_samples=1)
+    assert noise is None
+    assert (len(clust) == 3)
+    assert all(clust.data.localization_count == [3, 3, 1])
+    assert all(clust.references[0].data.cluster_label == 1)
+
+    noise, clust = cluster_dbscan(locdata_two_cluster_with_noise_2d, eps=2, min_samples=2)
+    assert len(noise) == 1
+    assert (len(clust) == 2)
+    assert all(clust.data.localization_count == [3, 3])
+    assert all(clust.references[0].data.cluster_label == 1)
+
+    noise, clust = cluster_dbscan(locdata_two_cluster_with_noise_2d, eps=20, min_samples=2)
+    assert len(noise) == 1
+    assert (len(clust) == 1)
+    assert clust.data.localization_count[0] == 6
+    assert all(np.in1d(clust.references[0].data.cluster_label, [1, 2]))
+
+
+def test_cluster_dbscan_with_shuffled_index(locdata_two_cluster_with_noise_2d):
+    locdata = deepcopy(locdata_two_cluster_with_noise_2d)
     new_index = list(locdata.data.index)
     np.random.shuffle(new_index)
     locdata.data.index = new_index
-    clust = cluster_dbscan(locdata, eps=100, min_samples=4)
-    assert (len(clust) == 5)
-    assert all(clust.references[0].data.cluster_label == 3)
-
-
-def test_cluster_dbscan_with_noise(locdata):
-    # print(locdata.data.head())
-    clust = cluster_dbscan(locdata, eps=100, min_samples=4, noise=True)
+    noise, clust = cluster_dbscan(locdata, eps=2, min_samples=2)
+    assert len(noise) == 1
     assert (len(clust) == 2)
-    assert all(clust[0].data.cluster_label == 3)
-
-
-def test_cluster_dbscan_3d(locdata_3d):
-    # print(locdata.data.head())
-    clust = cluster_dbscan(locdata_3d, eps=100, min_samples=5)
-    # print(clust.data.head())
-    assert (len(clust) == 5)
-    # clust.print_meta()
+    assert all(clust.data.localization_count == [3, 3])
+    assert all(clust.references[0].data.cluster_label == 1)
 
 
 # tests serial_clustering
 
-def test_serial_clustering(locdata):
-    # print(locdata.data.head())
-    noise, clust = serial_clustering(locdata, cluster_dbscan,
-                                     parameter_lists=dict(eps=[10, 20], min_samples=[4, 5]))
-    assert (noise is None)
-    assert (len(clust) == 4)
-    noise, clust = serial_clustering(locdata, cluster_dbscan,
-                                     parameter_lists=dict(eps=[10, 20], min_samples=[4, 5]),
-                                     noise=True)
-    # print(noise.data.head())
-    # print(clust.data.head())
-    # print(clust.meta)
+def test_serial_clustering(locdata_two_cluster_with_noise_2d):
+    noise, clust = serial_clustering(locdata_two_cluster_with_noise_2d, cluster_dbscan,
+                                     parameter_lists=dict(eps=[2, 20], min_samples=[2, 5]))
     assert (len(noise) == 4)
     assert (len(clust) == 4)

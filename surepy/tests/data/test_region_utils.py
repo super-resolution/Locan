@@ -33,7 +33,7 @@ def test_surrounding_region():
 def test_localizations_in_cluster_regions(locdata_blobs_2d):
     coordinates = [(200, 500), (200, 600), (900, 650), (1000, 600)]
     locdata = LocData.from_coordinates(coordinates)
-    collection = cluster_dbscan(locdata_blobs_2d, eps=100, min_samples=3)
+    noise, collection = cluster_dbscan(locdata_blobs_2d, eps=100, min_samples=3)
     # print(collection.data)
 
     # visualize

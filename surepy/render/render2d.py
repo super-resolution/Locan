@@ -299,7 +299,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
 
     # Provide napari viewer if not provided
     if viewer is None:
-        viewer = napari.Viewer(axis_labels=loc_properties)
+        viewer = napari.Viewer()
 
     hist = histogram(locdata, loc_properties, other_property,
                                               bins, n_bins, bin_size, bin_edges, bin_range,
@@ -513,9 +513,8 @@ def select_by_drawing_napari(locdata, bin_size=10, **kwargs):
     surepy.scripts.rois : script for drawing rois
     """
     # select roi
-
-    with napari.gui_qt():
-        viewer, hist = render_2d_napari(locdata, bin_size=bin_size, **kwargs)
+    viewer, hist = render_2d_napari(locdata, bin_size=bin_size, **kwargs)
+    napari.run()
 
     vertices = viewer.layers['Shapes'].data
     types = viewer.layers['Shapes'].shape_type

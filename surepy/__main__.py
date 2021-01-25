@@ -62,7 +62,8 @@ def main(args=None):
 
         elif returned_args.command == "rois":
             from .scripts.script_rois import sc_draw_roi_napari
-            sc_draw_roi_napari(returned_args.file, returned_args.type, returned_args.roi_file_indicator)
+            sc_draw_roi_napari(file_path=returned_args.file, file_type=returned_args.type,
+                               roi_file_indicator=returned_args.roi_file_indicator, bin_size=returned_args.bin_size)
 
         elif returned_args.command == "check":
             from .scripts.script_check import sc_check
@@ -72,7 +73,7 @@ def main(args=None):
 
         elif returned_args.command == "napari":
             from .scripts.script_napari import sc_napari
-            sc_napari(returned_args.file, returned_args.type, bin_size=returned_args.bin_size)
+            sc_napari(file_path=returned_args.file, file_type=returned_args.type, bin_size=returned_args.bin_size)
 
         elif returned_args.command == "show_versions":
             from .scripts.script_show_versions import sc_show_versions

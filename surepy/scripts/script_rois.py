@@ -45,27 +45,27 @@ def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indic
     roi_file_indicator : str
         Indicator to add to the localization file name and use as roi file name (with further extension .yaml).
     """
-    with napari.gui_qt():
-        # choose file interactively
-        if file_path is None:
-            file_path = Path(file_dialog(message='choose file', filter='*.txt; *.csv')[0])
-        else:
-            file_path = Path(file_path)
+    # choose file interactively
+    if file_path is None:
+        file_path = Path(file_dialog(message='choose file', filter='*.txt; *.csv')[0])
+    else:
+        file_path = Path(file_path)
 
-        print(file_path)
+    print(file_path)
 
-        # load data
-        dat = io.load_locdata(path=file_path, file_type=file_type)
+    # load data
+    dat = io.load_locdata(path=file_path, file_type=file_type)
 
-        # set roi
-        rois = select_by_drawing_napari(locdata=dat, bin_size=bin_size, rescale='equal')
-        print(rois)
+    # set roi
+    rois = select_by_drawing_napari(locdata=dat, bin_size=bin_size, rescale='equal')
+    napari.run()
+    print(rois)
 
-        # save roi
-        for i, roi in enumerate(rois):
-            roi_file = file_path.stem + roi_file_indicator + f'_{i}.yaml'
-            roi_path = file_path.with_name(roi_file)
-            roi.to_yaml(path=roi_path)
+    # save roi
+    for i, roi in enumerate(rois):
+        roi_file = file_path.stem + roi_file_indicator + f'_{i}.yaml'
+        roi_path = file_path.with_name(roi_file)
+        roi.to_yaml(path=roi_path)
 
 
 def _add_arguments(parser):

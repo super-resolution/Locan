@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt  # this import is needed for interactive tests
 from surepy.constants import RenderEngine  # this import is needed for interactive tests
 from surepy.constants import _has_mpl_scatter_density, _has_napari
 if _has_napari: import napari
-from surepy.render.render2d import render_2d_mpl, render_2d_scatter_density, render_2d_napari, scatter_2d_mpl
+from surepy.render.render2d import (render_2d_mpl, render_2d_scatter_density, render_2d_napari, scatter_2d_mpl,
+    select_by_drawing_napari)
 from surepy.render import render_2d, apply_window
 from surepy import cluster_dbscan
 
@@ -50,30 +51,38 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
     #plt.show()
 
 
-@pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
 @pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
 def test_render_2d(locdata_blobs_2d, test_input, expected):
     if _has_napari and test_input == RenderEngine.NAPARI:
-        with napari.gui_qt():
-            render_2d(locdata_blobs_2d, render_engine=test_input)
+        render_2d(locdata_blobs_2d, render_engine=test_input)
+        # napari.run()
     else:
         render_2d(locdata_blobs_2d, render_engine=test_input)
-    plt.show()
+    # plt.show()
+
+
+@pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
+def test_render_2d_napari(locdata_blobs_2d):
+    render_2d_napari(locdata_blobs_2d, bin_size=100, cmap='viridis', gamma=0.1)
+    # napari.run()
+
+    viewer, _ = render_2d_napari(locdata_blobs_2d, bin_size=50, cmap='magenta', gamma=0.1)
+    render_2d_napari(locdata_blobs_2d, viewer=viewer, bin_size=100, cmap='cyan', gamma=0.1, scale=(2, 2),
+                     blending='additive')
+    # napari.run()
+
+    render_2d(locdata_blobs_2d, render_engine=RenderEngine.NAPARI)
+    # napari.run()
 
 
 @pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
-def test_render_2d_napari(locdata_blobs_2d):
-    with napari.gui_qt():
-        render_2d_napari(locdata_blobs_2d, bin_size=100, cmap='viridis', gamma=0.1)
-
-    # with napari.gui_qt():
-    #     viewer = render_2d_napari(locdata_blobs_2d, bin_size=50, cmap='magenta', gamma=0.1)
-    #     render_2d_napari(locdata_blobs_2d, viewer=viewer, bin_size=100, cmap='cyan', gamma=0.1, scale=(2, 2),
-    #                      blending='additive')
-    #
-    # with napari.gui_qt():
-    #     render_2d(locdata_blobs_2d, render_engine=RenderEngine.NAPARI)
+def test_select_by_drawing_napari(locdata_blobs_2d):
+    viewer = napari.Viewer()
+    viewer.add_shapes(data=((1, 1), (5, 10)), shape_type='rectangle')
+    rois = select_by_drawing_napari(locdata_blobs_2d, viewer=viewer, bin_size=100, cmap='viridis', gamma=0.1)
+    # napari.run() is called inside test_select_by_drawing_napari.
+    assert len(rois) == 1
 
 
 def test_scatter_2d_mpl(locdata_2d):

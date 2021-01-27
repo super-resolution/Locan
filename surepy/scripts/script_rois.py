@@ -31,7 +31,7 @@ import surepy.io.io_locdata as io
 from surepy.render.render2d import select_by_drawing_napari
 
 
-def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indicator='_roi', bin_size=50):
+def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indicator='_roi', **kwargs):
     """
     Define regions of interest by drawing a boundary.
 
@@ -44,6 +44,11 @@ def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indic
         Integer or string should be according to surepy.constants.FileType.
     roi_file_indicator : str
         Indicator to add to the localization file name and use as roi file name (with further extension .yaml).
+
+    Other Parameters
+    ----------------
+    kwargs : dict
+        Keywords passed to :func:`render_2d_napari`.
     """
     # choose file interactively
     if file_path is None:
@@ -57,7 +62,7 @@ def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indic
     dat = io.load_locdata(path=file_path, file_type=file_type)
 
     # set roi
-    rois = select_by_drawing_napari(locdata=dat, bin_size=bin_size, rescale='equal')
+    rois = select_by_drawing_napari(locdata=dat, **kwargs)
     napari.run()
     print(rois)
 
@@ -66,6 +71,17 @@ def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indic
         roi_file = file_path.stem + roi_file_indicator + f'_{i}.yaml'
         roi_path = file_path.with_name(roi_file)
         roi.to_yaml(path=roi_path)
+
+
+def type_converter_rescale(input_string):
+    if input_string == 'None':
+        return None
+    elif input_string == 'True':
+        return True
+    elif input_string == 'False':
+        return False
+    else:
+        return input_string
 
 
 def _add_arguments(parser):
@@ -78,6 +94,8 @@ def _add_arguments(parser):
                              '(with further extension .yaml).')
     parser.add_argument('--bin_size', dest='bin_size', type=float, default=50,
                         help='Keyword passed to render function.')
+    parser.add_argument('--rescale', dest='rescale', type=type_converter_rescale, default='equal',
+                        help='Rescale intensity values. Keyword passed to render_2d_napari function.')
 
 
 def main(args=None):
@@ -87,7 +105,7 @@ def main(args=None):
     returned_args = parser.parse_args(args)
 
     sc_draw_roi_napari(returned_args.file, returned_args.type, returned_args.roi_file_indicator,
-                       bin_size=returned_args.bin_size)
+                       bin_size=returned_args.bin_size, rescale=returned_args.rescale)
 
 
 if __name__ == '__main__':

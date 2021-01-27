@@ -10,4 +10,4 @@ pytestmark = pytest.mark.skip('GUI tests are skipped because they would need use
 
 
 def test_draw_roi_napari():
-    sc_draw_roi_napari(file_type=2, bin_size=10)
+    sc_draw_roi_napari(file_type=2, bin_size=10, rescale=None)

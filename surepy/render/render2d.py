@@ -302,8 +302,8 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
         viewer = napari.Viewer()
 
     hist = histogram(locdata, loc_properties, other_property,
-                                              bins, n_bins, bin_size, bin_edges, bin_range,
-                                              rescale)
+                     bins, n_bins, bin_size, bin_edges, bin_range,
+                     rescale)
 
     viewer.add_image(hist.data, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
     return viewer, hist
@@ -488,7 +488,7 @@ def _napari_shape_to_RoiRegion(vertices, bin_edges, region_type):
     return RoiRegion(region_specs=region_specs, region_type=region_type)
 
 
-def select_by_drawing_napari(locdata, bin_size=10, **kwargs):
+def select_by_drawing_napari(locdata, **kwargs):
     """
     Select region of interest from rendered image by drawing rois in napari.
 
@@ -496,13 +496,11 @@ def select_by_drawing_napari(locdata, bin_size=10, **kwargs):
     ----------
     locdata : LocData
         The localization data from which to select localization data.
-    bin_size : float or None
-        The bin size in units of locdata coordinate units.
 
     Other Parameters
     ----------------
-    kwargs :
-        kwargs as specified for `render_2d_napari()`.
+    kwargs : dict
+        Keywords passed to :func:`render_2d_napari`.
 
     Returns
     -------
@@ -513,7 +511,7 @@ def select_by_drawing_napari(locdata, bin_size=10, **kwargs):
     surepy.scripts.rois : script for drawing rois
     """
     # select roi
-    viewer, hist = render_2d_napari(locdata, bin_size=bin_size, **kwargs)
+    viewer, hist = render_2d_napari(locdata, **kwargs)
     napari.run()
 
     vertices = viewer.layers['Shapes'].data

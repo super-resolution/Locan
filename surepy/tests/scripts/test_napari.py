@@ -10,4 +10,4 @@ pytestmark = pytest.mark.skip('GUI tests are skipped because they need user inte
 
 
 def test_napari():
-    sc_napari(file_type=2)
+    sc_napari(file_type=2, bin_size=10, rescale='equal')

@@ -116,7 +116,7 @@ def test_OrientedBoundingBox_2d_points_visual():
         ax.plot(*np.array(rotated_points).T)
 
         obb = OrientedBoundingBox(np.array(rotated_points))
-        assert np.int(obb.angle) in [0, 45, 90, -45]
+        assert int(obb.angle) in [0, 45, 90, -45]
         print(obb.region)
         print(obb.vertices)
         print(obb.width)
@@ -132,7 +132,7 @@ def test_OrientedBoundingBox_2d_points():
     for angle in np.linspace(0, 180, 5):
         rotated_points = affinity.rotate(MultiPoint(points), angle, origin=[0, 0], use_radians=False)
         obb = OrientedBoundingBox(np.array(rotated_points))
-        assert np.int(obb.angle) in [0, 45, 90, -45]
+        assert int(obb.angle) in [0, 45, 90, -45]
         assert np.isclose(obb.region_measure, 2)
         assert np.isclose(obb.subregion_measure, 6)
 

@@ -50,7 +50,7 @@ def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
     """
     x_ = np.asarray(x)
     y_ = np.asarray(y)
-    amplitude, center_x, center_y, sigma_x, sigma_y = (np.float(number) for number in
+    amplitude, center_x, center_y, sigma_x, sigma_y = (np.float64(number) for number in
                                                        (amplitude, center_x, center_y, sigma_x, sigma_y))
     return amplitude * np.exp(-((x_-center_x)**2/(2.*sigma_x**2) + (y_-center_y)**2/(2.*sigma_y**2)))
 

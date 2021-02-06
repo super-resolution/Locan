@@ -408,17 +408,21 @@ class LocData:
         LocData
             A new LocData instance with dataframe representing the concatenated data.
         """
-        dimension = len(coordinates[0])
+        if coordinates:
+            dimension = len(coordinates[0])
 
-        if coordinate_labels is None:
-            coordinate_labels = ['position_x', 'position_y', 'position_z'][0:dimension]
-        else:
-            if all(cl in PROPERTY_KEYS for cl in coordinate_labels):
-                coordinate_labels = coordinate_labels
+            if coordinate_labels is None:
+                coordinate_labels = ['position_x', 'position_y', 'position_z'][0:dimension]
             else:
-                raise ValueError('The given coordinate_labels are not standard property keys.')
+                if all(cl in PROPERTY_KEYS for cl in coordinate_labels):
+                    coordinate_labels = coordinate_labels
+                else:
+                    raise ValueError('The given coordinate_labels are not standard property keys.')
 
-        dataframe = pd.DataFrame.from_records(data=coordinates, columns=coordinate_labels)
+            dataframe = pd.DataFrame.from_records(data=coordinates, columns=coordinate_labels)
+
+        else:
+            dataframe = pd.DataFrame()
 
         meta_ = metadata_pb2.Metadata()
         meta_.source = metadata_pb2.DESIGN
@@ -440,6 +444,10 @@ class LocData:
         """
         Create new LocData object from selected elements in another `LocData`.
 
+        Notes:
+        -----
+        No error is raised if indices do not exist in locdata.
+
         Parameters
         ----------
         locdata : LocData
@@ -456,7 +464,6 @@ class LocData:
         LocData
             A new LocData instance with dataframe representing the selected data.
         """
-
         references = locdata
         indices = indices
         meta_ = metadata_pb2.Metadata()
@@ -693,7 +700,7 @@ class LocData:
         Update the dataframe attribute in place.
 
         Use this function rather than setting locdata.dataframe directly in order to automatically update
-        hulls, properties, and metadata.
+        the attributes for dimension, coordinate_labels, hulls, properties, and metadata.
 
         Parameters
         ----------
@@ -718,9 +725,11 @@ class LocData:
 
         self._time = time.time()
         self.dataframe = dataframe
-
-        # update hulls and properties
-        self.reset(reset_index=reset_index)
+        self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'position_x',
+                                                                                  'position_y',
+                                                                                  'position_z'})))
+        self.dimension = len(self.coordinate_labels)
+        self.reset(reset_index=reset_index)  # update hulls and properties
 
         # update meta
         self.meta.modification_date = _time_string(self._time)
@@ -757,7 +766,9 @@ class LocData:
         LocData
             The modified object
         """
-        if isinstance(self.references, (LocData, list)):
+        if self.references is None:
+            pass
+        elif isinstance(self.references, (LocData, list)):
             self.dataframe = self.data
             self.indices = None
             self.references = None

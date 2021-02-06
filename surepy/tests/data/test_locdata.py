@@ -84,7 +84,16 @@ def test_LocData(df_simple):
 
 
 def test_LocData_empty(df_empty):
+    dat = LocData()
+    assert dat.data.empty
+    assert dat.properties == {'localization_count': 0, 'region_measure_bb': 0}
+    assert len(dat) == 0
+    assert dat.coordinate_labels == []
+    assert dat.dimension == 0
+
     dat = LocData(dataframe=df_empty)
+    assert dat.data.empty
+    assert dat.properties == {'localization_count': 0, 'region_measure_bb': 0}
     assert len(dat) == 0
     assert dat.coordinate_labels == []
     assert dat.dimension == 0
@@ -139,6 +148,9 @@ def test_LocData_from_coordinates():
     assert len(dat) == 4
     assert dat.meta.comment == COMMENT_METADATA.comment
 
+    dat = LocData.from_coordinates(coordinates=[])
+    assert len(dat) == 0
+
 
 def test_LocData_from_selection(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple)
@@ -166,10 +178,25 @@ def test_LocData_from_selection(df_simple):
     assert (sel_sel.references is sel)
 
     sel_empty = LocData.from_selection(locdata=dat, indices=[], meta={'comment': 'This selection is empty.'})
-    assert sel_empty.data.index.values.size == 0
+    assert sel_empty.data.empty
+    assert len(sel_empty) == 0
+
+    dat = LocData()
+    sel_empty = LocData.from_selection(locdata=dat, indices=[])
+    assert sel_empty.data.empty
+    assert len(sel_empty) == 0
+
+    sel_empty = LocData.from_selection(locdata=dat, indices=[1, 3])
+    assert sel_empty.data.empty
+    assert len(sel_empty) == 0
 
 
 def test_LocData_from_collection(df_simple):
+    col = LocData.from_collection([LocData(), LocData()], meta=COMMENT_METADATA)
+    assert col.dimension == 0
+    assert len(col) == 2
+    assert col.properties == {'localization_count': 2, 'region_measure_bb': 0}
+
     dat = LocData.from_dataframe(dataframe=df_simple)
     sel_1 = LocData.from_selection(locdata=dat, indices=[0, 1, 2])
     sel_2 = LocData.from_selection(locdata=dat, indices=[3, 4])
@@ -220,6 +247,11 @@ def test_LocData_selection_from_collection(df_simple):
 
 
 def test_LocData_concat(df_simple):
+    col = LocData.concat([LocData(), LocData()], meta=COMMENT_METADATA)
+    assert col.dimension == 0
+    assert len(col) == 0
+    assert col.properties == {'localization_count': 0, 'region_measure_bb': 0}
+
     dat = LocData.from_dataframe(dataframe=df_simple)
     sel_1 = LocData.from_selection(locdata=dat, indices=[0, 1, 2])
     sel_2 = LocData.from_selection(locdata=dat, indices=[3, 4])
@@ -249,6 +281,18 @@ def test_LocData_reduce(df_simple):
     assert col.references is None
 
 
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_empty', 0),
+    ('locdata_single_localization', 1),
+])
+def test_locdata_reduce_empty(
+        locdata_empty, locdata_single_localization,
+        fixture_name, expected):
+    dat = eval(fixture_name)
+    new_dat = dat.reduce()
+    assert len(new_dat) == expected
+
+
 def test_LocData_reset(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
     assert dat.properties['position_x'] == 2
@@ -263,14 +307,35 @@ def test_LocData_reset(df_simple):
     assert (dat.meta.comment == COMMENT_METADATA.comment)
 
 
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('locdata_empty', 0),
+    ('locdata_single_localization', 1),
+])
+def test_locdata_reset_empty(
+        locdata_empty, locdata_single_localization,
+        fixture_name, expected):
+    dat = eval(fixture_name)
+    new_dat = dat.reset()
+    assert len(new_dat) == expected
+
+
 def test_LocData_update(df_simple):
-    dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-    assert dat.properties['position_x'] == 2
-    assert dat.meta.element_count == 5
     new_dataframe = pd.DataFrame.from_dict(
         {'position_x': [10, 0, 1, 4],
          'position_y': [10, 1, 3, 4]}
     )
+
+    dat = LocData()
+    dat.update(new_dataframe)
+    pd.testing.assert_frame_equal(dat.data, new_dataframe)
+    assert dat.properties['position_x'] == 3.75
+    assert dat.meta.element_count == 4
+    assert dat.meta.history[-1].name == "LocData.update"
+
+    dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
+    assert dat.properties['position_x'] == 2
+    assert dat.meta.element_count == 5
+
     dat.update(new_dataframe)
     pd.testing.assert_frame_equal(dat.data, new_dataframe)
     assert dat.properties['position_x'] == 3.75

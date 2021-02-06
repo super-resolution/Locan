@@ -5,6 +5,7 @@ Methods for clustering localization data in LocData objects.
 """
 
 import sys
+from copy import copy, deepcopy
 
 import numpy as np
 import pandas as pd
@@ -78,29 +79,38 @@ def cluster_hdbscan(locdata, min_cluster_size=5, loc_properties=None, allow_sing
     """
     parameter = locals()
 
-    if loc_properties is None:
-        fit_data = locdata.coordinates
+    if len(locdata) == 0:
+        locdata_noise = LocData()
+        collection = LocData()
+
+    if len(locdata) < min_cluster_size:
+        locdata_noise = copy(locdata)
+        collection = LocData()
+
     else:
-        fit_data = locdata.data[loc_properties]
+        if loc_properties is None:
+            fit_data = locdata.coordinates
+        else:
+            fit_data = locdata.data[loc_properties]
 
-    labels = HDBSCAN(
-        min_cluster_size=min_cluster_size,
-        allow_single_cluster=allow_single_cluster,
-        gen_min_span_tree=False,
-        **kwargs
-    ).fit_predict(fit_data)
+        labels = HDBSCAN(
+            min_cluster_size=min_cluster_size,
+            allow_single_cluster=allow_single_cluster,
+            gen_min_span_tree=False,
+            **kwargs
+        ).fit_predict(fit_data)
 
-    grouped = locdata.data.groupby(labels)
-    locdata_index_labels = [locdata.data.index[idxs] for idxs in grouped.indices.values()]
-    selections = [LocData.from_selection(locdata=locdata, indices=idxs) for idxs in locdata_index_labels]
+        grouped = locdata.data.groupby(labels)
+        locdata_index_labels = [locdata.data.index[idxs] for idxs in grouped.indices.values()]
+        selections = [LocData.from_selection(locdata=locdata, indices=idxs) for idxs in locdata_index_labels]
 
-    try:
-        grouped.get_group(-1)
-        locdata_noise = selections[0]
-        collection = LocData.from_collection(selections[1:])
-    except KeyError:
-        locdata_noise = None
-        collection = LocData.from_collection(selections)
+        try:
+            grouped.get_group(-1)
+            locdata_noise = selections[0]
+            collection = LocData.from_collection(selections[1:])
+        except KeyError:
+            locdata_noise = None
+            collection = LocData.from_collection(selections)
 
     # set regions
     if locdata_noise:
@@ -148,26 +158,31 @@ def cluster_dbscan(locdata, eps=20, min_samples=5, loc_properties=None, **kwargs
     """
     parameter = locals()
 
-    if loc_properties is None:
-        fit_data = locdata.coordinates
+    if len(locdata) == 0:
+        locdata_noise = LocData()
+        collection = LocData()
+
     else:
-        fit_data = locdata.data[loc_properties]
+        if loc_properties is None:
+            fit_data = locdata.coordinates
+        else:
+            fit_data = locdata.data[loc_properties]
 
-    labels = DBSCAN(
-        eps=eps, min_samples=min_samples, n_jobs=N_JOBS, **kwargs
-    ).fit_predict(fit_data)
+        labels = DBSCAN(
+            eps=eps, min_samples=min_samples, n_jobs=N_JOBS, **kwargs
+        ).fit_predict(fit_data)
 
-    grouped = locdata.data.groupby(labels)
-    locdata_index_labels = [locdata.data.index[idxs] for idxs in grouped.indices.values()]
-    selections = [LocData.from_selection(locdata=locdata, indices=idxs) for idxs in locdata_index_labels]
+        grouped = locdata.data.groupby(labels)
+        locdata_index_labels = [locdata.data.index[idxs] for idxs in grouped.indices.values()]
+        selections = [LocData.from_selection(locdata=locdata, indices=idxs) for idxs in locdata_index_labels]
 
-    try:
-        grouped.get_group(-1)
-        locdata_noise = selections[0]
-        collection = LocData.from_collection(selections[1:])
-    except KeyError:
-        locdata_noise = None
-        collection = LocData.from_collection(selections)
+        try:
+            grouped.get_group(-1)
+            locdata_noise = selections[0]
+            collection = LocData.from_collection(selections[1:])
+        except KeyError:
+            locdata_noise = None
+            collection = LocData.from_collection(selections)
 
     # set regions
     if locdata_noise:

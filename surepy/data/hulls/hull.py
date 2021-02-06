@@ -93,13 +93,20 @@ class BoundingBox:
     """
 
     def __init__(self, points):
-        self.dimension = np.shape(points)[1]
-        if len(points) < 2:
+        if np.size(points) == 0:
+            self.dimension = 0
+            self.hull = np.array([])
+            self.width = np.zeros(self.dimension)
+            self.region_measure = 0
+            self.subregion_measure = 0
+        elif len(points) < 2:
+            self.dimension = np.shape(points)[1]
             self.hull = np.array([])
             self.width = np.zeros(self.dimension)
             self.region_measure = 0
             self.subregion_measure = 0
         else:
+            self.dimension = np.shape(points)[1]
             self.hull = np.array([np.min(points, axis=0), np.max(points, axis=0)])
             self.width = np.diff(self.hull, axis=0).flatten()
             self.region_measure = np.prod(self.width)

@@ -50,6 +50,24 @@ Using Conda to set up a dedicated environment:
 
 	conda env create --file "./environment.yml"
 
-3) Install additional packages using the environment files for tutorials or development::
 
-    conda env update --file "./environment_dev.yml"
+Jupyter
+-----------------------
+
+To work with jupyter notebooks install jupyter lab::
+
+    pip install jupyterlab
+
+or inside a conda environment::
+
+    conda install -c conda-forge jupyterlab
+
+Make sure to add the appropriate lab extensions::
+
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager \
+                                 @pyviz/jupyterlab_pyviz \
+                                 jupyter-matplotlib
+
+You may need to install node.js for rebuilding jupyter-lab::
+
+    conda install -c conda-forge nodejs

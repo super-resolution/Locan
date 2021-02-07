@@ -8,8 +8,22 @@ We welcome any contributions for improving or further developing this package.
 
 However, please excuse that we are limited in time for development and support.
 
-
 Some things to keep in mind when adding code...
+
+Install
+------------------------------
+
+A few extra libraries are needed for development::
+
+        pip install .[dev]
+
+Install the extra requirements in a conda environment::
+
+        conda install twine sphinx sphinx_rtd_theme --name <environment>
+
+
+Alternatively, you may use the requirement files `requirements_dev.txt` or `environment_dev.yml`.
+
 
 Import Conventions:
 ====================

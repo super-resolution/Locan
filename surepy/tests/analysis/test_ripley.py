@@ -1,58 +1,74 @@
 import pytest
 import numpy as np
+import matplotlib.pyplot as plt  # needed for visualization
 
-import surepy.constants
-import surepy.io.io_locdata as io
+from surepy import LocData
 from surepy.analysis import RipleysKFunction, RipleysLFunction, RipleysHFunction
 
 
-@pytest.fixture()
-def locdata_blobs():
-    return io.load_txt_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt')
-
-
-@pytest.fixture()
-def locdata_blobs_3d():
-    return io.load_txt_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/five_blobs_3D.txt')
-
-
-def test_Ripleys_k_function(locdata_blobs):
-    radii = np.linspace(0, 100, 20)
-    rhf = RipleysKFunction(radii=radii).compute(locdata_blobs)
-    # print(rhf.results[0:5])
+def test_Ripleys_k_function(locdata_2d):
+    radii = np.linspace(0, 20, 11)
+    rhf = RipleysKFunction(radii=radii).compute(locdata_2d)
+    # print(rhf.results)
+    assert all(rhf.results.index == radii)
     assert (len(rhf.results) == len(radii))
-    # rhf.plot()
 
+    rhf.plot()
+    # plt.show()
 
-def test_Ripleys_k_function_3d(locdata_blobs_3d):
-    radii = np.linspace(0, 100, 20)
-    rhf = RipleysKFunction(radii=radii).compute(locdata_blobs_3d)
-    # print(rhf.results[0:5])
+    other_locdata = LocData.from_selection(locdata_2d, indices=[0, 1, 2])
+    rhf = RipleysKFunction(radii=radii, region_measure=1).compute(locdata_2d, other_locdata=other_locdata)
+    assert all(rhf.results.index == radii)
     assert (len(rhf.results) == len(radii))
 
 
-def test_Ripleys_k_function_estimate(locdata_blobs):
-    radii = np.linspace(0, 100, 20)
-    rhf = RipleysKFunction(radii=radii, region_measure=1).compute(locdata_blobs, other_locdata=locdata_blobs)
-    # print(rhf.results[0:5])
+def test_Ripleys_k_function_3d(locdata_3d):
+    radii = np.linspace(0, 20, 20)
+    rhf = RipleysKFunction(radii=radii).compute(locdata_3d)
+    assert all(rhf.results.index == radii)
+    assert (len(rhf.results) == len(radii))
+
+    rhf.plot()
+    # plt.show()
+
+    other_locdata = LocData.from_selection(locdata_3d, indices=[0, 1, 2])
+    rhf = RipleysKFunction(radii=radii, region_measure=1).compute(locdata_3d, other_locdata=other_locdata)
+    assert all(rhf.results.index == radii)
     assert (len(rhf.results) == len(radii))
 
 
-def test_Ripleys_l_function(locdata_blobs):
-    radii = np.linspace(0, 100, 20)
-    rhf = RipleysLFunction(radii=radii).compute(locdata_blobs)
-    # print(rhf.results[0:5])
+def test_Ripleys_l_function(locdata_2d):
+    radii = np.linspace(0, 20, 20)
+    rhf = RipleysLFunction(radii=radii).compute(locdata_2d)
+    assert all(rhf.results.index == radii)
+    assert (len(rhf.results) == len(radii))
+
+    rhf.plot()
+    # plt.show()
+
+    other_locdata = LocData.from_selection(locdata_2d, indices=[0, 1, 2])
+    rhf = RipleysLFunction(radii=radii, region_measure=1).compute(locdata_2d, other_locdata=other_locdata)
+    assert all(rhf.results.index == radii)
     assert (len(rhf.results) == len(radii))
 
 
-def test_Ripleys_h_function(locdata_blobs):
-    radii = np.linspace(0, 100, 20)
-    rhf = RipleysHFunction(radii=radii).compute(locdata_blobs)
-    # print(rhf._Ripley_h_maximum)
-    # print(rhf.Ripley_h_maximum)
-    # print(rhf.results[5:11])
-    assert len(rhf.results) == len(radii)
-    assert len(rhf.Ripley_h_maximum) == 2
+def test_Ripleys_h_function(locdata_2d):
+    radii = np.linspace(0, 20, 21)
+    rhf = RipleysHFunction(radii=radii).compute(locdata_2d)
+    assert all(rhf.results.index == radii)
+    assert (len(rhf.results) == len(radii))
+
+    rhf.plot()
+    # plt.show()
+
+    other_locdata = LocData.from_selection(locdata_2d, indices=[0, 1, 2])
+    rhf = RipleysHFunction(radii=radii, region_measure=1).compute(locdata_2d, other_locdata=other_locdata)
+    assert all(rhf.results.index == radii)
+    assert (len(rhf.results) == len(radii))
+
+    assert len(rhf.Ripley_h_maximum) == 1
+    assert rhf.Ripley_h_maximum.iloc[0].radius == 0
+    assert rhf.Ripley_h_maximum.iloc[0].Ripley_h_maximum == 0
     del rhf.Ripley_h_maximum
-    assert len(rhf.Ripley_h_maximum) == 2
-    # rhf.plot()
+    assert rhf.Ripley_h_maximum.iloc[0].radius == 0
+    assert rhf.Ripley_h_maximum.iloc[0].Ripley_h_maximum == 0

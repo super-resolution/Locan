@@ -14,7 +14,7 @@ Ripley' s k function is estimated by summing all points or over test points bein
    k(r) = \\frac{1}{\\lambda (n-1)} \\sum_{i=1}^{n} N_{p_{i}}(r)
 
 
-here :math:`p_i` is the i\ :sup:`th` point of n test points, :math:`N_{p_{i}}` is the number of points within the region
+here :math:`p_i` is the :math:`i^{th}` point of n test points, :math:`N_{p_{i}}` is the number of points within the region
 of radius r around :math:`p_{i}`, and :math:`\\lambda` is the density of all points.
 
 We follow the definition of l and h functions in [2]_. Ripley's l function is:
@@ -72,7 +72,7 @@ def _ripleys_k_function(points, radii, region_measure=1, other_points=None):
 
     Returns
     -------
-    ripley : 1D array of floats
+    ripley : numpy.ndarray of floats with shape (n_radii,)
         Ripley's K function evaluated at input radii.
     """
     if other_points is None:
@@ -176,6 +176,7 @@ class RipleysKFunction(_Analysis):
         ripley = _ripleys_k_function(points=points, radii=self.parameter['radii'],
                                            region_measure=region_measure, other_points=other_points)
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_k_data': ripley})
+        self.results = self.results.set_index('radius')
         return self
 
     def plot(self, ax=None, **kwargs):
@@ -245,6 +246,7 @@ class RipleysLFunction(_Analysis):
         ripley = _ripleys_l_function(points=points, radii=self.parameter['radii'],
                                            region_measure=region_measure, other_points=other_points)
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_l_data': ripley})
+        self.results = self.results.set_index('radius')
         return self
 
     def plot(self, ax=None, **kwargs):
@@ -320,6 +322,7 @@ class RipleysHFunction(_Analysis):
         ripley = _ripleys_h_function(points=points, radii=self.parameter['radii'],
                                            region_measure=region_measure, other_points=other_points)
         self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_h_data': ripley})
+        self.results = self.results.set_index('radius')
         return self
 
 
@@ -327,7 +330,7 @@ class RipleysHFunction(_Analysis):
     def Ripley_h_maximum(self):
         if self._Ripley_h_maximum is None:
             index = self.results['Ripley_h_data'].idxmax()
-            self._Ripley_h_maximum = self.results.iloc[index]
+            self._Ripley_h_maximum = pd.DataFrame({'radius': index, 'Ripley_h_maximum': self.results.loc[index]})
             return self._Ripley_h_maximum
         else:
             return self._Ripley_h_maximum
@@ -365,7 +368,7 @@ def plot(self, ax=None, **kwargs):
     if ax is None:
         ax = plt.gca()
 
-    self.results.plot(x='radius', ax=ax, **kwargs)
+    self.results.plot(ax=ax, **kwargs)
 
     if self.results.columns[0] == 'Ripley_k_data':
         title = 'Ripley\'s K function'
@@ -376,9 +379,9 @@ def plot(self, ax=None, **kwargs):
     else:
         title = None
 
-    ax.set(title = title,
-           xlabel = 'radius',
-           ylabel = self.results.columns[1]
+    ax.set(title=title,
+           xlabel='radius',
+           ylabel=title
            )
 
     return ax

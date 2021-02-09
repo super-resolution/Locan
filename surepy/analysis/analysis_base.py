@@ -5,6 +5,7 @@ It also provides helper functions to be used in specialized analysis classes.
 """
 import time
 
+from google.protobuf import text_format, json_format
 from scipy import stats
 
 from surepy.analysis import metadata_analysis_pb2
@@ -53,6 +54,23 @@ class _Analysis:
     def __repr__(self):
         """ Return representation of the Analysis class. """
         return f'{self.__class__.__name__}(**{self.parameter})'
+
+    def __getstate__(self):
+        """Modify pickling behavior."""
+        # Copy the object's state from self.__dict__ to avoid modifying the original state.
+        state = self.__dict__.copy()
+        # Serialize the unpicklable protobuf entries.
+        json_string = json_format.MessageToJson(self.meta, including_default_value_fields=False)
+        state['meta'] = json_string
+        return state
+
+    def __setstate__(self, state):
+        """Modify pickling behavior."""
+        # Restore instance attributes.
+        self.__dict__.update(state)
+        # Restore protobuf class for meta attribute
+        self.meta = metadata_analysis_pb2.AMetadata()
+        self.meta = json_format.Parse(state['meta'], self.meta)
 
     def compute(self):
         """ Apply analysis routine with the specified parameters on locdata and return results."""

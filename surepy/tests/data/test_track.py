@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 import pandas as pd
+import trackpy as tp
 
 from surepy import LocData
 from surepy.constants import _has_trackpy
@@ -9,6 +10,7 @@ if _has_trackpy:
 
 pytestmark = pytest.mark.skipif(not _has_trackpy, reason="requires trackpy")
 
+tp.quiet()
 
 @pytest.fixture()
 def locdata_simple():

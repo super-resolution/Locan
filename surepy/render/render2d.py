@@ -33,7 +33,8 @@ __all__ = ['render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d
 def render_2d_mpl(locdata, loc_properties=None, other_property=None,
                   bins=None, n_bins=None, bin_size=10, bin_edges=None, bin_range=None,
                   rescale=None,
-                  ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
+                  ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None,
+                  interpolation='nearest', **kwargs):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
 
@@ -78,12 +79,14 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
     cbar : bool
         If true draw a colorbar. The colobar axes is accessible using the cax property.
     colorbar_kws : dict
-        Keyword arguments for `matplotlib.pyplot.colorbar`.
+        Keyword arguments for :func:`matplotlib.pyplot.colorbar`.
+    interpolation : str
+        Keyword argument for :func:`matplotlib.axes.Axes.imshow`.
 
     Other Parameters
     ----------------
     kwargs : dict
-        Other parameters passed to matplotlib.axes.Axes.imshow().
+        Other parameters passed to :func:`matplotlib.axes.Axes.imshow`.
 
     Returns
     -------
@@ -103,7 +106,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
                                               rescale)
 
     mappable = ax.imshow(hist.data, origin='lower', extent=[*hist.bins.bin_range[0], *hist.bins.bin_range[1]],
-                         cmap=cmap, **kwargs)
+                         cmap=cmap, interpolation=interpolation, **kwargs)
 
     ax.set(
         title=hist.labels[-1],

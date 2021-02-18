@@ -19,6 +19,7 @@ See Also
 --------
 surepy.data.rois.select_by_drawing_napari
 """
+import re
 import argparse
 from pathlib import Path
 
@@ -81,7 +82,11 @@ def type_converter_rescale(input_string):
     elif input_string == 'False':
         return False
     else:
-        return input_string
+        pattern = re.match(r'\(?([0-9]*[.]?[0-9]+),?\s?([0-9]*[.]?[0-9]+)\)?', input_string)
+        if pattern:
+            return tuple(float(element) for element in pattern.groups())
+        else:
+            return input_string
 
 
 def _add_arguments(parser):

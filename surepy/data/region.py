@@ -112,6 +112,8 @@ class RoiRegion:
 
     def __getattr__(self, attr):
         """All non-adapted calls are passed to the _region object"""
+        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+            raise AttributeError
         return getattr(self._region, attr)
 
     def __repr__(self):
@@ -447,6 +449,8 @@ class _ShapelyPolygon:
 
     def __getattr__(self, attr):
         """All non-adapted calls are passed to the object"""
+        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+            raise AttributeError
         return getattr(self._region, attr)
 
     @classmethod
@@ -513,6 +517,8 @@ class _ShapelyMultiPolygon:
 
     def __getattr__(self, attr):
         """All non-adapted calls are passed to the object"""
+        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+            raise AttributeError
         return getattr(self._region, attr)
 
     @classmethod

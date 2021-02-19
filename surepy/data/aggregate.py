@@ -296,6 +296,8 @@ class _BinsFromBoostHistogramAxis:
             raise TypeError
 
     def __getattr__(self, attr):
+        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+            raise AttributeError
         return getattr(self._bins, attr)
 
 
@@ -690,6 +692,8 @@ class Bins:
             raise ValueError("`labels` must have a length of `n_dimensions`.")
 
     def __getattr__(self, attr):
+        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+            raise AttributeError
         return getattr(self._bins, attr)
 
     @property

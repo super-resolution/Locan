@@ -49,6 +49,21 @@ def test_Roi(locdata):
     assert len(empty_dat) == 0
 
 
+def test_pickling_locdata_from_Roi(locdata_2d):
+    import pickle
+    roi = Roi(reference=locdata_2d, region_specs=((0, 0), 2, 1, 0), region_type='rectangle')
+    new_dat = roi.locdata()
+
+    with tempfile.TemporaryDirectory() as tmp_directory:
+        file_path = Path(tmp_directory) / 'pickled_locdata.pickle'
+        with open(file_path, 'wb') as file:
+            pickle.dump(new_dat, file, pickle.HIGHEST_PROTOCOL)
+        with open(file_path, 'rb') as file:
+            locdata = pickle.load(file)
+        assert len(new_dat) == len(locdata)
+        assert isinstance(locdata.meta, metadata_pb2.Metadata)
+
+
 def test_Roi_io(locdata):
     with tempfile.TemporaryDirectory() as tmp_directory:
         file_path = Path(tmp_directory) / 'roi.yaml'

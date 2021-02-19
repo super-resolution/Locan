@@ -291,6 +291,9 @@ class ConvexHull:
             raise ValueError(f'The provided method {method} is not available.')
 
     def __getattr__(self, attr):
+        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+            raise AttributeError
+
         if attr in self.__dict__:
             return getattr(self, attr)
         return getattr(self._special_class, attr)

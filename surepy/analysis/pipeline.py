@@ -12,6 +12,7 @@ This module provides a class `Pipeline` to combine the analysis procedure, param
 in a single pickleable object.
 """
 import inspect
+import logging
 
 from google.protobuf import text_format, json_format
 
@@ -26,6 +27,8 @@ from surepy.analysis import metadata_analysis_pb2
 
 
 __all__ = ['Pipeline']
+
+logger = logging.getLogger(__name__)
 
 
 class Pipeline:
@@ -82,6 +85,9 @@ class Pipeline:
     def __init__(self, computation, meta=None, **kwargs):
         self.__class__.count += 1
 
+        if not callable(computation):
+            raise TypeError('A callable function `computation(self, locdata, **kwargs)` '
+                            'must be passed as first argument.')
         self.computation = computation
         self.parameter = kwargs  # is needed to init metadata_analysis_pb2.
         self.meta = _init_meta(self)
@@ -110,10 +116,7 @@ class Pipeline:
 
     def compute(self):
         """ Run the analysis procedure. All parameters must be given upon Pipeline instantiation."""
-        if self.computation is None:
-            raise NotImplementedError
-        else:
-            return self.computation(self, **self.parameter)
+        return self.computation(self, **self.parameter)
 
     def save_computation(self, path):
         """
@@ -128,7 +131,7 @@ class Pipeline:
             handle.write('Analysis Pipeline: {}\n\n'.format(self.__class__.__name__))
             handle.write(inspect.getsource(self.computation))
 
-    def computation_to_string(self):
+    def computation_as_string(self):
         """
         Return the analysis procedure (i.e. the computation() method) as string.
         """
@@ -139,5 +142,13 @@ def computation_test(self, locdata=None, parameter='test'):
     """ A pipeline definition for testing."""
     self.locdata = locdata
     something = 'changed_value'
+    logger.debug(f'something has a : {something}')
     self.test = parameter
+    logger.info(f'computation finished for locdata: {locdata}')
+
+    try:
+        raise NotImplementedError
+    except NotImplementedError:
+        logger.warning(f'An exception occured for locdata: {locdata}')
+
     return self

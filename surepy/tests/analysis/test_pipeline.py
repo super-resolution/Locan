@@ -9,22 +9,22 @@ from surepy.analysis import metadata_analysis_pb2
 
 
 def test_Pipeline(locdata_2d):
-    pipe = Pipeline(computation=None, parameter='my_test')
+    with pytest.raises(TypeError):
+        Pipeline()
+    with pytest.raises(TypeError):
+        Pipeline(computation=None, parameter='my_test')
+
+    pipe = Pipeline(computation=computation_test, parameter='my_test')
     assert isinstance(pipe.meta, metadata_analysis_pb2.AMetadata)
-    print(pipe)
-    # assert rep(pipe)
-    assert pipe.computation is None
     assert pipe.parameter == dict(parameter='my_test')
+    # assert rep(pipe)
+    pipe.compute()
+    assert pipe.test == 'my_test'
 
     # this is not recommended since self.parameters are not updated automatically.
     computation_test(pipe, parameter='my_next_test')
     assert pipe.test == 'my_next_test'
     assert pipe.parameter == dict(parameter='my_test')
-
-    pipe = Pipeline(computation=computation_test, parameter='my_test')
-    # assert rep(pipe)
-    pipe.compute()
-    assert pipe.test == 'my_test'
 
     # several parameter including locdata reference and piped compute method.
     pipe = Pipeline(computation=computation_test, locdata=locdata_2d, parameter='my_test').compute()
@@ -33,7 +33,8 @@ def test_Pipeline(locdata_2d):
     assert pipe.parameter['locdata'] is locdata_2d
     assert pipe.test == 'my_test'
 
-    print(pipe.computation_to_string())
+    # print(pipe.computation_as_string())
+    assert type(pipe.computation_as_string()) is str
 
     # save compute as text
     with tempfile.TemporaryDirectory() as tmp_directory:

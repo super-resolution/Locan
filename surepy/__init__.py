@@ -18,6 +18,9 @@ Surepy consists of the following modules:
    utils
    tests
 """
+import logging
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
 try:
     from surepy._version import version as __version__
 except ImportError:

@@ -1,79 +1,58 @@
 from pathlib import Path
 import tempfile
+import pickle
 
 import pytest
-import pandas as pd
 
-from surepy import LocData
-from surepy.constants import ROOT_DIR
-from surepy.analysis.pipeline import Pipeline, compute_test, compute_clust
+from surepy.analysis.pipeline import Pipeline, computation_test
+from surepy.analysis import metadata_analysis_pb2
 
 
-# fixtures
+def test_Pipeline(locdata_2d):
+    pipe = Pipeline(computation=None, parameter='my_test')
+    assert isinstance(pipe.meta, metadata_analysis_pb2.AMetadata)
+    print(pipe)
+    # assert rep(pipe)
+    assert pipe.computation is None
+    assert pipe.parameter == dict(parameter='my_test')
 
-@pytest.fixture()
-def locdata_simple():
-    locdata_dict = {
-        'position_x': [0, 0, 1, 4, 5],
-        'position_y': [0, 1, 3, 4, 1],
-        }
-    return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
+    # this is not recommended since self.parameters are not updated automatically.
+    computation_test(pipe, parameter='my_next_test')
+    assert pipe.test == 'my_next_test'
+    assert pipe.parameter == dict(parameter='my_test')
 
-
-# tests
-
-def test_Pipeline(locdata_simple):
-    """ use Pipeline by passing an instance """
-    pipe = Pipeline(locdata_simple)
-    compute_test(pipe)
-    assert pipe.test is True
-    # print(f'results: {pipe.test}')
-    # print(f'meta: {pipe.meta}')
-
-
-def test_Pipeline_class_method(locdata_simple):
-    """ use Pipeline by inheritance - recommended. """
-    class MyPipe(Pipeline):
-        compute = compute_test
-
-    pipe = MyPipe(locdata_simple)
+    pipe = Pipeline(computation=computation_test, parameter='my_test')
+    # assert rep(pipe)
     pipe.compute()
-    assert pipe.test is True
-    # print(f'results: {pipe.test}')
-    # print(f'meta: {pipe.meta}')
+    assert pipe.test == 'my_test'
 
+    # several parameter including locdata reference and piped compute method.
+    pipe = Pipeline(computation=computation_test, locdata=locdata_2d, parameter='my_test').compute()
+    # assert rep(pipe)
+    assert pipe.locdata is locdata_2d
+    assert pipe.parameter['locdata'] is locdata_2d
+    assert pipe.test == 'my_test'
+
+    print(pipe.computation_to_string())
+
+    # save compute as text
     with tempfile.TemporaryDirectory() as tmp_directory:
         # for visual inspection use:
         # file_path = ROOT_DIR / 'tests/test_data/pipe.txt'
         file_path = Path(tmp_directory) / 'pipe.txt'
-        pipe.save_protocol(file_path)
+        pipe.save_computation(file_path)
         with open(file_path) as f:
             first_line = f.readline()
-            assert first_line == "Analysis Pipeline: MyPipe\n"
+            assert first_line == "Analysis Pipeline: Pipeline\n"
 
-
-def test_Pipeline_from_path_and_roi(locdata_simple):
-    class MyPipe(Pipeline):
-        compute = compute_test
-
-    pipe = MyPipe(locdata_simple)
-    assert isinstance(pipe.locdata, LocData)
-
-    path = ROOT_DIR / 'tests/test_data/five_blobs.txt'
-    pipe = MyPipe(dict(file_path=path, file_type=1))
-    assert isinstance(pipe.locdata, LocData)
-
-    # todo: remove absolute path in roi.yaml
-    # path = ROOT_DIR / 'tests/test_data/roi.yaml'
-    # pipe = MyPipe(dict(file_path=path, file_type='roi'))
-    # assert isinstance(pipe.locdata, LocData)
-
-
-def test_Pipeline_clust(locdata_simple):
-    class MyPipe(Pipeline):
-        compute = compute_clust
-
-    path = ROOT_DIR / 'tests/test_data/five_blobs.txt'
-    pipe = MyPipe(dict(file_path=path, file_type=1)).compute()
-    assert len(pipe.clust) != 0
-    assert isinstance(pipe.locdata, LocData)
+    # pickling
+    with tempfile.TemporaryDirectory() as tmp_directory:
+        file_path = Path(tmp_directory) / 'pickled_pipeline.pickle'
+        with open(file_path, 'wb') as file:
+            pickle.dump(pipe, file, pickle.HIGHEST_PROTOCOL)
+        with open(file_path, 'rb') as file:
+            pipe_pickled = pickle.load(file)
+        assert len(pipe_pickled.parameter) == len(pipe.parameter)
+        assert isinstance(pipe_pickled.meta, metadata_analysis_pb2.AMetadata)
+        assert pipe_pickled.meta == pipe.meta
+        assert pipe_pickled.test == 'my_test'

@@ -1,14 +1,19 @@
 """
 Building an analysis pipeline.
 
-Pipeline refers to sequential analysis steps applied to a single LocData object. Pipeline thus include true piped
-analysis, where a preliminary result serves as input to the next analysis step, but also workflows that provide
-different results in parallel.
+Pipeline refers to sequential analysis steps that are applied to a single LocData object.
+An analysis pipeline here includes true piped analysis, where a preliminary result serves as input to the next analysis
+step, but also workflows that provide different results in parallel.
 
-Note
-----
-The implementation of an analysis pipeline is in an exploratory state.
+A batch process is a procedure for running a pipeline over multiple locdata objects while collecting and combing
+results.
+
+This module provides a class `Pipeline` to combine the analysis procedure, parameters and results
+in a single pickleable object.
 """
+import inspect
+
+from google.protobuf import text_format, json_format
 
 from surepy.data.locdata import LocData
 from surepy.io.io_locdata import load_locdata
@@ -17,17 +22,21 @@ from surepy.data.hulls import ConvexHull
 from surepy.data.filter import select_by_condition
 from surepy.data.cluster.clustering import cluster_hdbscan
 from surepy.analysis.analysis_base import _init_meta, _update_meta
+from surepy.analysis import metadata_analysis_pb2
 
 
 __all__ = ['Pipeline']
 
 
-class Pipeline():
+class Pipeline:
     """
-    The base class for specialized analysis pipelines to be used on LocData objects.
+    The base class for a specialized analysis pipeline to be used on LocData objects.
 
-    The custom analysis routine has to be added by implementing the compute(self) method. Results are provided as
-    customized attributes. We suggest abbreviated standard names for the most common procedures:
+    The custom analysis routine has to be added by implementing the method `computation(self, **kwargs)`.
+    Keyword arguments must include the locdata reference and optional parameters.
+
+    Results are provided as customized attributes.
+    We suggest abbreviated standard names for the most common procedures such as:
 
     * lp - Localization Precision
     * lprop - Localization Property
@@ -37,101 +46,98 @@ class Pipeline():
 
     Parameters
     ----------
-    locdata : LocData, Roi object, dict
-        Localization data or a dict with keys `file_path` and `file_type` for a path pointing to a localization file and
-        an integer indicating the file type. The integer should be according to surepy.data.metadata_pb2.Metadata.file_type.
-        If the `file_type` is "roi" a Roi object is loaded from the given `file_path`.
+    computation : callable
+        A function `computation(self, **kwargs)` specifying the analysis procedure.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
+    kwargs : dict
+        Locdata reference and optional parameters passed to `computation(self, **kwargs)`.
 
     Attributes
     ----------
     count : int
         A counter for counting instantiations.
-    locdata : LocData
-        Localization data.
+    computation : callable
+        A function `computation(self, **kwargs)` specifying the analysis procedure.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
+    parameter : dict
+        All parameters including the locdata reference that were passed to `computation(self, **kwargs)`.
+
+    Notes
+    -----
+    The class variable `Pipeline.count` is only incremented in a single process. In multiprocessing `Pipeline.count` and
+    `Pipeline.meta.identifier` (which is set using `count`) cannot be used to identify distinct Pipeline objects.
+
+    Notes
+    -----
+    For the Pipeline object to be pickleable attention has to be paid to the :func:`computation` method.
+    With multiprocessing it will have to be re-injected for each Pipeline object by `pipeline.computation = computation`
+    after computation and before pickling.
     """
     # todo sc_check on input of meta
 
     count = 0
 
-    def __init__(self, locdata, meta=None):
+    def __init__(self, computation, meta=None, **kwargs):
         self.__class__.count += 1
 
-        self.parameter = None # is needed to init metadata_analysis_pb2.
+        self.computation = computation
+        self.parameter = kwargs  # is needed to init metadata_analysis_pb2.
         self.meta = _init_meta(self)
         self.meta = _update_meta(self, meta)
-
-        # prepare locdata as general input
-        if isinstance(locdata, LocData):
-            self.locdata = locdata
-        elif isinstance(locdata, Roi):
-            self.locdata = locdata.locdata()
-        elif isinstance(locdata, dict) and locdata['file_type']=='roi':
-            self.locdata = Roi.from_yaml(path=locdata['file_path']).locdata()
-        elif isinstance(locdata, dict):
-            self.locdata = load_locdata(path=locdata['file_path'], file_type=locdata['file_type'])
-
 
     def __del__(self):
         """ updating the counter upon deletion of class instance. """
         self.__class__.count -= 1
 
+    def __getstate__(self):
+        """Modify pickling behavior."""
+        # Copy the object's state from self.__dict__ to avoid modifying the original state.
+        state = self.__dict__.copy()
+        # Serialize the unpicklable protobuf entries.
+        json_string = json_format.MessageToJson(self.meta, including_default_value_fields=False)
+        state['meta'] = json_string
+        return state
+
+    def __setstate__(self, state):
+        """Modify pickling behavior."""
+        # Restore instance attributes.
+        self.__dict__.update(state)
+        # Restore protobuf class for meta attribute
+        self.meta = metadata_analysis_pb2.AMetadata()
+        self.meta = json_format.Parse(state['meta'], self.meta)
 
     def compute(self):
-        """ The analysis routine to be applied on locdata."""
-        raise NotImplementedError
+        """ Run the analysis procedure. All parameters must be given upon Pipeline instantiation."""
+        if self.computation is None:
+            raise NotImplementedError
+        else:
+            return self.computation(self, **self.parameter)
 
-
-    def save_protocol(self, path):
+    def save_computation(self, path):
         """
-        Save the analysis routine (i.e. the compute() method) as human readable text.
+        Save the analysis procedure (i.e. the computation() method) as human readable text.
 
         Parameters
         ----------
         path : str, os.PathLike
             Path and file name for saving the text file.
         """
-        import inspect
         with open(path, 'w') as handle:
             handle.write('Analysis Pipeline: {}\n\n'.format(self.__class__.__name__))
-            handle.write(inspect.getsource(self.compute))
+            handle.write(inspect.getsource(self.computation))
+
+    def computation_to_string(self):
+        """
+        Return the analysis procedure (i.e. the computation() method) as string.
+        """
+        return inspect.getsource(self.computation)
 
 
-def compute_test(self):
+def computation_test(self, locdata=None, parameter='test'):
     """ A pipeline definition for testing."""
-    self.test = True
-
-    return self
-
-
-def compute_clust(self):
-    """ A Pipeline definition for standard cluster analysis. """
-
-    # import required modules
-    from pathlib import Path
-    from surepy.data.cluster import cluster_dbscan
-    from surepy.data.hulls import ConvexHull
-    from surepy.data.filter import select_by_condition
-
-    # compute cluster
-    self.noise, self.clust = cluster_hdbscan(self.locdata, min_cluster_size=5, allow_single_cluster=False)
-
-    # compute convex hull
-    Hs = [ConvexHull(self.clust.references[i].coordinates) for i in range(len(self.clust))]
-    self.clust.dataframe = self.clust.dataframe.assign(region_measure_ch=[H.region_measure for H in Hs])
-
-    # select cluster
-    self.clust_selection = select_by_condition(self.clust, condition='region_measure_ch < 10_000')
-
-    # free memory
-    self.clust_selection.reduce()
-
-    # epilogue
-    self.indicator = self.count - 1  # indices should start with 0
-    self.file_indicator = Path(self.locdata.meta.file_path).stem
-    print(f'Finished: {self.indicator}')
-
+    self.locdata = locdata
+    something = 'changed_value'
+    self.test = parameter
     return self

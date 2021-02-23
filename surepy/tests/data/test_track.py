@@ -10,7 +10,7 @@ if _has_trackpy:
 
 pytestmark = pytest.mark.skipif(not _has_trackpy, reason="requires trackpy")
 
-tp.quiet()
+tp.quiet()  # same as: trackpy.logger.setLevel(logging.WARN)
 
 @pytest.fixture()
 def locdata_simple():

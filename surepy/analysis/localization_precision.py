@@ -24,19 +24,23 @@ References
 """
 
 import warnings
+import logging
 
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 from sklearn.neighbors import NearestNeighbors
 from scipy import stats
 
-from surepy.constants import N_JOBS
+from surepy.constants import N_JOBS, TQDM_DISABLE, TQDM_LEAVE
 from surepy.analysis.analysis_base import _Analysis, _list_parameters
 
 
 __all__ = ['LocalizationPrecision']
+
+logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
@@ -51,7 +55,8 @@ def _localization_precision(locdata, radius=50):
 
     results = pd.DataFrame()
 
-    for i in range(min, max - 1):
+    for i in tqdm(range(min, max - 1),
+                  desc='Processed frames:', leave=TQDM_LEAVE, disable=TQDM_DISABLE):
         try:
             points = grouped.get_group(i)[locdata.coordinate_labels]
             other_points = grouped.get_group(i + 1)[locdata.coordinate_labels]
@@ -130,12 +135,12 @@ class LocalizationPrecision(_Analysis):
             Returns the Analysis class object (self).
         """
         if not len(locdata):
-            warnings.warn('Locdata is empty.', UserWarning)
+            logger.warning('Locdata is empty.')
             return self
 
         self.results = _localization_precision(locdata=locdata, **self.parameter)
         if self.results.empty:
-            warnings.warn('No succesive localizations were found.', UserWarning)
+            logger.warning('No successive localizations were found.')
 
         return self
 
@@ -155,7 +160,7 @@ class LocalizationPrecision(_Analysis):
             Parameters passed to the `distribution.fit()` method.
         """
         if self.results is None:
-            warnings.warn(UserWarning('None object cannot be fitted.'))
+            logger.warning('Results is None and cannot be fitted.')
             return
 
         self.distribution_statistics = _DistributionFits(self)

@@ -248,6 +248,14 @@ NANOIMAGER_KEYS = {
 #: If -1, then the number of jobs is set to the number of CPU cores.
 N_JOBS = 1
 
+#: Leave tqdm progress bars after finishing the iteration.
+#: Flag to leave tqdm progress bars.
+TQDM_LEAVE = True
+
+#: Disable tqdm progress bars.
+#: Flag to disable all tqdm progress bars.
+TQDM_DISABLE = False
+
 #: LocData identifier
 #: Identifier for LocData objects that is reset for each surepy session and incremented with each LocData instantiation.
 LOCDATA_ID = 0

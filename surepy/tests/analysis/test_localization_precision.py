@@ -84,5 +84,4 @@ def test_standard_locdata_objects(
         locdata_empty, locdata_single_localization, locdata_2d, locdata_non_standard_index,
         fixture_name, expected):
     dat = eval(fixture_name)
-    with pytest.warns(UserWarning):
-        LocalizationPrecision(radius=1).compute(locdata=dat)
+    LocalizationPrecision(radius=1).compute(locdata=dat)

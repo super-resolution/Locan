@@ -5,7 +5,7 @@ Pipeline refers to sequential analysis steps that are applied to a single LocDat
 An analysis pipeline here includes true piped analysis, where a preliminary result serves as input to the next analysis
 step, but also workflows that provide different results in parallel.
 
-A batch process is a procedure for running a pipeline over multiple locdata objects while collecting and combing
+A batch process is a procedure for running a pipeline over multiple LocData objects while collecting and combing
 results.
 
 This module provides a class `Pipeline` to combine the analysis procedure, parameters and results

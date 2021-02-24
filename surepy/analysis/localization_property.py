@@ -58,7 +58,7 @@ class LocalizationProperty(_Analysis):
         Metadata about the current analysis routine.
     results : numpy.ndarray, pandas.DataFrame
         Computed results.
-    distribution_statistics : Distribution_stats object, None
+    distribution_statistics : Distribution_stats, None
         Distribution parameters derived from MLE fitting of results.
     """
     def __init__(self, meta=None, loc_property='Intensity', index=None):
@@ -97,7 +97,7 @@ class LocalizationProperty(_Analysis):
 
         Parameters
         ----------
-        distribution : str, scipy.stats distribution object
+        distribution : str, scipy.stats distribution
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.

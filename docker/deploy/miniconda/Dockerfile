@@ -44,6 +44,8 @@ RUN apt-get update --fix-missing && \
     # install libraries for napari
     # && apt-get install -qqy libxi6 libglib2.0-0 fontconfig libfontconfig1 libxrender1 libdbus-1-3 \
     apt-get install -qqy libxi6 fontconfig libfontconfig1 libdbus-1-3 && \
+    # install git for setuptools_scm to deal with surepy source distribution versioning
+    apt-get install -qqy git && \
     # remove package manager cache
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
@@ -86,7 +88,7 @@ WORKDIR $HOME/surepy
 
 # create new environment
 RUN conda init bash && \
-    conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION && \
+    conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION -c conda-forge && \
     conda env update -n $ENVIRONMENT_NAME --file environment.yml && \
     conda activate $ENVIRONMENT_NAME && \
     # install surepy

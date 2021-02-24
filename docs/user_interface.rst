@@ -4,7 +4,7 @@
 User Interface
 ==========================
 
-Surepy is mostly designed to work without a general user interface (gui).
+Surepy is mostly designed to work without a graphical user interface (gui).
 However, a few methods make use of a gui or interact with third party libraries that provide a gui.
 
 Various libraries make use of `qt` as a gui backend if it is installed together with appropriate python bindings.

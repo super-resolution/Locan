@@ -163,12 +163,14 @@ class LocData:
         new_locdata.meta = meta_
         return new_locdata
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict=None):
         """
         Create a deep copy of locdata (including all references) with the following exceptions:
         (i) The class variable `count` is increased for all deepcopied LocData objects.
         (ii) Metadata keeps the original meta.creation_date while meta.modification_date and meta.history is updated.
         """
+        if memodict is None:
+            memodict = {}
         new_locdata = LocData(copy.deepcopy(self.references, memodict),
                               copy.deepcopy(self.dataframe, memodict),
                               copy.deepcopy(self.indices, memodict),

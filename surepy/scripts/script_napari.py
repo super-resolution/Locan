@@ -7,7 +7,7 @@ With this script you can choose a file name and render the localization file in 
 
 To run the script::
 
-    napari -f <file> -t <file type> -k <string with kwrds for render function>
+    napari -f <file> -t <file type> -k <string with kwargs for render function>
 
 Try for instance::
 

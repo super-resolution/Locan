@@ -20,6 +20,8 @@ RUN ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 RUN apt-get update && \
     apt-get install gcc -y && \
     apt-get install qt5-default -y && \
+    # install git for setuptools_scm to deal with surepy source distribution versioning
+    apt-get install -qqy git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

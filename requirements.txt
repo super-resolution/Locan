@@ -5,6 +5,7 @@
 # Python
 cython
 numba
+tqdm
 
 # Python tests
 pytest-runner
@@ -38,6 +39,6 @@ fast-histogram
 pyside2
 colorcet
 trackpy
-open3d
+open3d!=0.12.0
 mpl_scatter_density
 napari

@@ -39,7 +39,7 @@ def test_RoiRegion(points):
     rr = RoiRegion(**region_dict['interval'])
     assert str(rr) == str({'region_type': 'interval', 'region_specs': (0, 1)})
     assert len(rr.contains(points[:, 0])) == 1
-    assert np.allclose(rr.polygon, region_dict['interval']['region_specs'])
+    assert np.allclose(rr.polygon.astype(float), region_dict['interval']['region_specs'])
     assert rr.dimension == 1
     assert rr.centroid == 0.5
     assert rr.max_distance == 1
@@ -112,9 +112,15 @@ def test__ShapelyPolygon():
     pol = Polygon(*region_specs)
     shapely_polygon = _ShapelyPolygon.from_shapely(pol)
     assert shapely_polygon.region_specs[1][0][1][1] == 0.5
+    print(shapely_polygon.polygon)
+    print(type(shapely_polygon.polygon))
+    # [list([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5], [0.0, 0.0]])
+    #  list([[[0.0, 0.0], [0.0, 0.5], [0.5, 0.5], [0.5, 0.0], [0.0, 0.0]]])]
 
     shapely_polygon = RoiRegion.from_shapely(region_type='shapelyPolygon', shapely_obj=pol)
     assert shapely_polygon.region_specs[1][0][1][1] == 0.5
+    print(shapely_polygon.polygon)
+    print(type(shapely_polygon.polygon))
 
 
 def test__ShapelyMultiPolygon():

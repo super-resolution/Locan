@@ -18,6 +18,8 @@ RUN ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 # Install GL library and remove package manager cache
 RUN apt-get update && \
     apt-get install libgl1-mesa-dev -y && \
+    # install git for setuptools_scm to deal with surepy source distribution versioning
+    apt-get install -qqy git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -32,8 +34,8 @@ WORKDIR /surepy
 # Update conda & Create environment from environment.yml & Install the project
 RUN conda init bash && \
     conda update -n base -c defaults conda && \
-    conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION && \
-    conda env update -n $ENVIRONMENT_NAME -f environment.yml && \
+    conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION -c conda-forge && \
+    conda env update -n $ENVIRONMENT_NAME --file environment.yml && \
     conda activate $ENVIRONMENT_NAME && \
     python setup.py install && \
     conda clean -afy

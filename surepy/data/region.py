@@ -61,9 +61,9 @@ class RoiRegion:
         Type of region
     region_specs : tuple
         Specifications for region
-    _region : RoiRegion object
+    _region : RoiRegion
         RoiRegion instance for the specified region type.
-    polygon :numpy.ndarray of tuples
+    polygon : numpy.ndarray of tuples
         Array of points for a closed polygon approximating the region of interest in clockwise orientation. The first
         and last point must be identical.
     dimension : int
@@ -168,7 +168,7 @@ class RoiRegion:
 
         Returns
         -------
-        patch : matplotlib.patches object
+        patch : matplotlib.patches
             Matplotlib patch for the specified region.
         """
         return self._region.as_artist(origin=origin, **kwargs)
@@ -179,7 +179,7 @@ class RoiRegion:
 
         Returns
         -------
-        shapely.Polygon object
+        shapely.Polygon
         """
         return self._region.to_shapely()
 
@@ -201,7 +201,7 @@ class _RoiInterval:
 
     @property
     def polygon(self):
-        return np.array(self.region_specs)
+        return np.array(self.region_specs, dtype=object)
 
     @property
     def dimension(self):
@@ -401,7 +401,7 @@ class _RoiPolygon:
 
     @property
     def polygon(self):
-        return np.array(self.region_specs)
+        return np.array(self.region_specs, dtype=object)
 
     @property
     def dimension(self):
@@ -469,7 +469,7 @@ class _ShapelyPolygon:
 
     @property
     def polygon(self):
-        return np.array(self.region_specs)
+        return np.array(self.region_specs, dtype=object)
 
     @property
     def dimension(self):
@@ -537,7 +537,7 @@ class _ShapelyMultiPolygon:
 
     @property
     def polygon(self):
-        return np.array(self.region_specs)
+        return np.array(self.region_specs, dtype=object)
 
     @property
     def dimension(self):

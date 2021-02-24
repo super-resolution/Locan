@@ -90,7 +90,7 @@ def test_Roi_io(locdata):
         # test region specs with numpy floats
         roi = Roi(reference=dict(file_path=file_path, file_type=1),
                   region_type='rectangle',
-                  region_specs=(np.array([0, 0], dtype=np.float), float(2), float(1), float(10))
+                  region_specs=(np.array([0, 0], dtype=float), float(2), float(1), float(10))
                   )
         assert isinstance(roi.reference, metadata_pb2.Metadata)
         roi.to_yaml(path=file_path)

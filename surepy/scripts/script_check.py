@@ -25,7 +25,7 @@ import surepy as sp
 
 
 def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, transpose=True,
-                                 kwargs_image={}, kwargs_points={}):
+                                 kwargs_image=None, kwargs_points=None):
     """
     Display original recording and overlay localization spots in napari.
 
@@ -54,6 +54,11 @@ def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, trans
     napari Viewer object
         Viewer with the image.
     """
+    if kwargs_image is None:
+        kwargs_image = {}
+    if kwargs_points is None:
+        kwargs_points = {}
+
     if np.ndim(pixel_size) == 0:
         pixel_size_ = (pixel_size, pixel_size)
     elif np.ndim(pixel_size) == 1 and len(pixel_size) == 2:
@@ -82,7 +87,7 @@ def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, trans
 
 
 def sc_check(pixel_size, file_images=None, file_locdata=None, file_type=sp.FileType.RAPIDSTORM,
-             viewer=None, transpose=True, kwargs_image={}, kwargs_points={}):
+             viewer=None, transpose=True, kwargs_image=None, kwargs_points=None):
     """
     Load and display original recording and load and overlay localization spots in napari.
 
@@ -116,6 +121,11 @@ def sc_check(pixel_size, file_images=None, file_locdata=None, file_type=sp.FileT
     napar.Viewer
         Viewer with the image.
     """
+    if kwargs_image is None:
+        kwargs_image = {}
+    if kwargs_points is None:
+        kwargs_points = {}
+
     with napari.gui_qt():
         # load images
         if file_images is None:

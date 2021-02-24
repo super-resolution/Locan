@@ -290,7 +290,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
 
     Returns
     -------
-    napari Viewer object, namedtuple('Histogram', "data bins labels"): (np.ndarray, `Bins`, list)
+    napari Viewer object, namedtuple('Histogram', "data bins labels"): (numpy.ndarray, `Bins`, list)
         viewer, histogram
     """
     if not _has_napari:
@@ -325,7 +325,7 @@ def render_2d(locdata, render_engine=RENDER_ENGINE, **kwargs):
         return render_2d_napari(locdata, **kwargs)
 
 
-def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs={}, **kwargs):
+def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
     """
     Scatter plot of locdata elements with text marker for each element.
 
@@ -350,6 +350,8 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs={}, **kwargs):
     matplotlib.axes.Axes
        Axes object with the image.
     """
+    if text_kwargs is None:
+        text_kwargs = {}
     if not len(locdata):
         raise ValueError('Locdata does not contain any data points.')
 

@@ -317,7 +317,7 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
                              f"and radius = {radius}")
         else:
             radii = radius
-    else:  # if isinstance(radius, (float, np.float)):
+    else:  # if isinstance(radius, float):
         radii = np.full(len(centers), radius)
 
     # discs
@@ -515,7 +515,7 @@ def make_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feat
                              f"and cluster_std = {cluster_std}")
         else:
             cluster_std_list = cluster_std
-    else:  # if isinstance(radius, (float, np.float)):
+    else:  # if isinstance(radius, float):
         cluster_std_list = np.full(len(centers), cluster_std)
 
     # normal-distributed spots

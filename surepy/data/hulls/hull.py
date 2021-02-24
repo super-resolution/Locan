@@ -16,7 +16,7 @@ from surepy.data.region import RoiRegion
 __all__ = ['BoundingBox', 'ConvexHull', 'OrientedBoundingBox']
 
 
-class Hull:
+class _Hull:
     """
     Abstract class for the hull of a selection.
 
@@ -136,7 +136,7 @@ class _ConvexHullScipy:
 
     Attributes
     ----------
-    hull : hull object
+    hull : Hull object
         hull object from the corresponding algorithm
     dimension : int
         spatial dimension of hull
@@ -195,7 +195,7 @@ class _ConvexHullShapely:
 
     Attributes
     ----------
-    hull : hull object
+    hull : Hull object
         Polygon object from the .convex_hull method
     dimension : int
         Spatial dimension of hull
@@ -261,7 +261,7 @@ class ConvexHull:
     ----------
     method : string
         Specific class to compute the convex hull and attributes. One of 'scipy', 'shapely'.
-    hull : hull object
+    hull : Hull object
         Polygon object from the .convex_hull method
     dimension : int
         Spatial dimension of hull

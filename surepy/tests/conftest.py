@@ -1,5 +1,5 @@
 from pathlib import Path
-import warnings
+import logging
 
 import pytest
 import numpy as np
@@ -12,14 +12,16 @@ from surepy.constants import _has_open3d, _has_napari, _has_mpl_scatter_density,
     _has_colorcet, _has_cupy, _has_trackpy
 
 
+logger = logging.getLogger(__name__)
+
 for package_string, package_flag in zip(
         ['open3d', 'napari', 'mpl-scatter-density', 'colorcet', 'cupy', 'trackpy'],
         [_has_open3d, _has_napari, _has_mpl_scatter_density, _has_colorcet, _has_cupy, _has_trackpy]):
     if not package_flag:
-        warnings.warn(f'Extra dependency {package_string} is not available.', UserWarning)
+        logger.info(f'Extra dependency {package_string} is not available.')
 
 if QT_BINDINGS == QtBindings.NONE:
-    warnings.warn(f'Extra dependency for Qt bindings (pyside2 or pyqt5) is not available.', UserWarning)
+    logger.warning(f'Extra dependency for Qt bindings (pyside2 or pyqt5) is not available.')
 
 
 # fixtures for random points

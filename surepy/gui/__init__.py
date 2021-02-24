@@ -2,7 +2,7 @@
 
 User interfaces.
 
-This module provides functions and classes for using general user interfaces (GUI).
+This module provides functions and classes for using graphical user interfaces (GUI).
 Functions provide a GUI based on QT if the QT backend and appropriate python bindings are available.
 
 The constant `surepy.constants.QT_BINDINGS` declares which python binding to use.

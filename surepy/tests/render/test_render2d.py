@@ -10,6 +10,9 @@ from surepy.render.render2d import (render_2d_mpl, render_2d_scatter_density, re
 from surepy.render import render_2d, apply_window
 from surepy import cluster_dbscan
 
+# flag to skip some of the following tests
+skip_tests = True
+
 
 def test_render_2d_mpl(locdata_blobs_2d):
     # render_2d_mpl(locdata_blobs_2d)
@@ -51,6 +54,7 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
     #plt.show()
 
 
+@pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
 @pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
 def test_render_2d(locdata_blobs_2d, test_input, expected):
     if _has_napari and test_input == RenderEngine.NAPARI:
@@ -61,6 +65,7 @@ def test_render_2d(locdata_blobs_2d, test_input, expected):
     # plt.show()
 
 
+@pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_render_2d_napari(locdata_blobs_2d):
     render_2d_napari(locdata_blobs_2d, bin_size=100, cmap='viridis', gamma=0.1)
@@ -75,7 +80,7 @@ def test_render_2d_napari(locdata_blobs_2d):
     # napari.run()
 
 
-@pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
+@pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_select_by_drawing_napari(locdata_blobs_2d):
     viewer = napari.Viewer()

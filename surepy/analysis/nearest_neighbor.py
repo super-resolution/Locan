@@ -125,7 +125,7 @@ class NearestNeighborDistances(_Analysis):
         Metadata about the current analysis routine.
     results : numpy.ndarray, pandas.DataFrame
         Computed results.
-    distribution_statistics : Distribution_stats object, None
+    distribution_statistics : Distribution_stats, None
         Distribution parameters derived from MLE fitting of results.
     """
     count = 0

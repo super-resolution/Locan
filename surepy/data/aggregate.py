@@ -857,7 +857,7 @@ def histogram(locdata, loc_properties=None, other_property=None,
 
     Returns
     -------
-    namedtuple('Histogram', "data bins labels"): (np.ndarray, `Bins`, list)
+    namedtuple('Histogram', "data bins labels"): (numpy.ndarray, `Bins`, list)
     """
     if loc_properties is None:  # use coordinate_labels
         labels_ = locdata.coordinate_labels.copy()

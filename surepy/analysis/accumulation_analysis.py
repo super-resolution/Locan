@@ -19,6 +19,7 @@ References
 
 """
 import warnings
+import logging
 
 import numpy as np
 import pandas as pd
@@ -33,6 +34,7 @@ from surepy.data.hulls import ConvexHull
 
 __all__ = ['AccumulationClusterCheck']
 
+logger = logging.getLogger(__name__)
 
 #### The algorithms
 
@@ -134,8 +136,8 @@ def _accumulation_cluster_check(locdata, region_measure='bb', algorithm=cluster_
     fit_coefficients = np.polyfit(x[0:n_extrapolate], y[0:n_extrapolate], deg=1)
     rho_zero = fit_coefficients[-1]
 
-    if rho_zero <=0.:
-        warnings.warn('Extrapolation of rho yields a negative value.', UserWarning)
+    if rho_zero <= 0.:
+        logger.warning('Extrapolation of rho yields a negative value.')
         rho_zero = 1
 
     # combine results
@@ -208,8 +210,8 @@ class AccumulationClusterCheck(_Analysis):
 
         Returns
         -------
-        Analysis class
-          Returns the Analysis class object (self).
+        AccumulationClusterCheck
+          Returns the `Analysis` object (self).
         """
         self.results = _accumulation_cluster_check(locdata, **self.parameter)
         return self

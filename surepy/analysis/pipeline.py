@@ -14,16 +14,7 @@ in a single pickleable object.
 import inspect
 import logging
 
-from google.protobuf import text_format, json_format
-
-from surepy.data.locdata import LocData
-from surepy.io.io_locdata import load_locdata
-from surepy.data.rois import Roi
-from surepy.data.hulls import ConvexHull
-from surepy.data.filter import select_by_condition
-from surepy.data.cluster.clustering import cluster_hdbscan
-from surepy.analysis.analysis_base import _init_meta, _update_meta
-from surepy.analysis import metadata_analysis_pb2
+from surepy.analysis.analysis_base import _Analysis
 
 
 __all__ = ['Pipeline']
@@ -31,7 +22,7 @@ __all__ = ['Pipeline']
 logger = logging.getLogger(__name__)
 
 
-class Pipeline:
+class Pipeline(_Analysis):
     """
     The base class for a specialized analysis pipeline to be used on LocData objects.
 
@@ -59,13 +50,15 @@ class Pipeline:
     Attributes
     ----------
     count : int
-        A counter for counting instantiations.
-    computation : callable
-        A function `computation(self, **kwargs)` specifying the analysis procedure.
+        A counter for counting instantiations (class attribute).
+    parameter : dict
+        A dictionary with all settings for the current computation.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    parameter : dict
-        All parameters including the locdata reference that were passed to `computation(self, **kwargs)`.
+    computation : callable
+        A function `computation(self, **kwargs)` specifying the analysis procedure.
+    kwargs : dict
+        All parameters including the locdata reference that are passed to `computation(self, **kwargs)`.
 
     Note
     ----
@@ -78,45 +71,18 @@ class Pipeline:
     With multiprocessing it will have to be re-injected for each Pipeline object by `pipeline.computation = computation`
     after computation and before pickling.
     """
-    # todo sc_check on input of meta
-
-    count = 0
-
     def __init__(self, computation, meta=None, **kwargs):
-        self.__class__.count += 1
+        super().__init__(meta=meta, computation=computation, **kwargs)
 
         if not callable(computation):
             raise TypeError('A callable function `computation(self, locdata, **kwargs)` '
                             'must be passed as first argument.')
         self.computation = computation
-        self.parameter = kwargs  # is needed to init metadata_analysis_pb2.
-        self.meta = _init_meta(self)
-        self.meta = _update_meta(self, meta)
-
-    def __del__(self):
-        """ updating the counter upon deletion of class instance. """
-        self.__class__.count -= 1
-
-    def __getstate__(self):
-        """Modify pickling behavior."""
-        # Copy the object's state from self.__dict__ to avoid modifying the original state.
-        state = self.__dict__.copy()
-        # Serialize the unpicklable protobuf entries.
-        json_string = json_format.MessageToJson(self.meta, including_default_value_fields=False)
-        state['meta'] = json_string
-        return state
-
-    def __setstate__(self, state):
-        """Modify pickling behavior."""
-        # Restore instance attributes.
-        self.__dict__.update(state)
-        # Restore protobuf class for meta attribute
-        self.meta = metadata_analysis_pb2.AMetadata()
-        self.meta = json_format.Parse(state['meta'], self.meta)
+        self.kwargs = kwargs
 
     def compute(self):
         """ Run the analysis procedure. All parameters must be given upon Pipeline instantiation."""
-        return self.computation(self, **self.parameter)
+        return self.computation(self, **self.kwargs)
 
     def save_computation(self, path):
         """
@@ -149,6 +115,6 @@ def computation_test(self, locdata=None, parameter='test'):
     try:
         raise NotImplementedError
     except NotImplementedError:
-        logger.warning(f'An exception occured for locdata: {locdata}')
+        logger.warning(f'An exception occurred for locdata: {locdata}')
 
     return self

@@ -112,7 +112,6 @@ def save_asdf(locdata, path):
     af.write_to(path)
 
 
-# todo: handle ambiguous mapping of sigma key for 3D data
 def save_thunderstorm_csv(locdata, path):
     """
     Save LocData attributes Thunderstorm-readable csv-file.

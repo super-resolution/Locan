@@ -95,7 +95,7 @@ def test_scatter_2d_mpl(locdata_2d):
     # plt.show()
 
 
-@pytest.mark.skip('Visual sc_check repeating previously checked functionality.')
+@pytest.mark.skip('Visual check repeating previously checked functionality.')
 def test_scatter_2d_mpl_2(locdata_blobs_2d):
     _, collection = cluster_dbscan(locdata_blobs_2d, eps=20, min_samples=3, noise=True)
     render_2d_mpl(locdata_blobs_2d)

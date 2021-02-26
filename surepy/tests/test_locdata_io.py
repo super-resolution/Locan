@@ -86,7 +86,7 @@ def test_loading_rapidSTORM_file():
 def test_get_correct_column_names_from_Elyra_header():
     columns = io.load_Elyra_header(path=surepy.constants.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt')
     assert (columns == ['original_index', 'frame', 'frames_number', 'frames_missing', 'position_x', 'position_y',
-                        'precision', 'intensity', 'local_background', 'chi_square', 'psf_half_width', 'channel',
+                        'uncertainty', 'intensity', 'local_background', 'chi_square', 'psf_half_width', 'channel',
                         'slice_z'])
 
     file_like = StringIO("Index	First Frame	Number Frames	Frames Missing	Position X [nm]	Position Y [nm]\n"

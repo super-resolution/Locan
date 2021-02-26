@@ -13,7 +13,7 @@ The datatype for all keys is string. We stick to the following conventions:
     * start with lower case letters
     * use underscore
     * do not use CamelCase or blanks
-    * add coordinate identifiers or identifiers of statistical functions in the end ('position_x_mean_mean')
+    * add coordinate identifiers or identifiers of statistical functions in the end (`position_x_mean_mean`)
 
 A list of well defined property keys is given in the constant: DATA_PROPERTY_KEYS.
 
@@ -22,38 +22,63 @@ Localization properties:
 ========================
 
 Each localization has properties that can usually be identified in the various file formats. We will use the following
-keys (where 'c' stands for the coordinate 'x', 'y' or 'z' ):
+keys (where `c` stands for the coordinate `x`, `y` or `z` ):
 
-    * 'index'
+    * `index`
         localization index
-    * 'position_c'
+    * `position_c`
         coordinate for the c-position
-    * 'frame'
+    * `frame`
         frame  number in which the localization occurs
-    * 'intensity'
+    * `intensity`
         intensity or emission strength as estimated by the fitter
-    * 'local_background'
+    * `local_background`
         background in the neighborhood of localization as estimated by the fitter
-    * 'chi_square'
+    * `local_background_sigma`
+        variation of local background in terms of standard deviation
+    * `signal_noise_ratio`
+        ratio between mean intensity (i.e. intensity for a single localization)
+        and the standard deviation of local_background (i.e. local_background_sigma for a single localization)
+    * `signal_background_ratio`
+        ratio between mean intensity (i.e. `intensity` for a single localization) and the local_background
+    * `chi_square`
         chi-square value of the fitting procedure as estimated by the fitter
-    * 'psf_sigma_c'
+    * `psf_sigma_c`
         sigma of the fitted Gauss-function in c-dimension as estimated by the fitter
-    * 'uncertainty_c'
+    * `psf_sigma`
+        sigma of the fitted Gauss-function -
+        being isotropic or representing the root-mean-square of psf_sigma_c for all dimensions
+    * `psf_width_c`
+        full-width-half-max of the fitted Gauss-function in c-dimension as estimated by the fitter
+    * `psf_width`
+        full-width-half-max of the fitted Gauss-function -
+        being isotropic or representing the root-mean-square of psf_width_c for all dimensions
+    * `uncertainty_c`
         localization error in c-dimension estimated by a fitter
-    * 'channel'
+        or representing a value proportional to psf_sigma_c / sqrt(intensity)
+    * `uncertainty`
+        localization error for all dimensions
+        or representing a value proportional to psf_sigma / sqrt(intensity)
+        or representing the root-mean-square of uncertainty_c for all dimensions.
+    * `channel`
         identifier for various channels
-    * 'two_kernel_improvement'
-        a rapidSTORM parameter describing the improvement from two kernel fitting.
+    * `two_kernel_improvement`
+        a rapidSTORM parameter describing the improvement from two kernel fitting
+    * `frames_number`
+        number of frames that contributed to a merged localization
+    * `frames_missing`
+        number of frames that occurred between two successive localizations
+
 
 Additional localization properties are computed by various analysis procedures including:
 
-    * 'cluster_label'
+    * `cluster_label`
         identifier for a localization cluster
-    * 'nn_distance'
+    * `nn_distance`
         nearest-neighbor distance
-    * 'nn_distance_k'
+    * `nn_distance_k`
         k-nearest-neighbor distance (k can be any integer)
-    * 'colocalization_cbc'
+    * `colocalization_cbc`
         coordinate-based colocalization value
 
 
@@ -67,7 +92,7 @@ The new locdata coordinates are computed from the centroids of grouped localizat
 
 We will use the following keys for statistics of localization properties:
 
-    * 'property_stats'
+    * `property_stats`
         where property is the localization property key and stats is one of the following:
 
             * count (number of elements)
@@ -80,7 +105,7 @@ We will use the following keys for statistics of localization properties:
 
 For example:
 
-    * 'intensity_sum'
+    * `intensity_sum`
         total intensity of all localizations in the group
 
 Some properties are derived from a hull of all localizations or centroids. We provide four hulls:
@@ -92,32 +117,32 @@ Some properties are derived from a hull of all localizations or centroids. We pr
 
 From each hull a region measure (the area in 2D) and a subregion measure (the circumference in 2D) is computed.
 
-We will use the following keys for additional properties (where 'c' stands for the coordinate 'x', 'y' or 'z'
-and 'h' stands for the corresponding hull 'bb', 'ch', 'as', 'obb'):
+We will use the following keys for additional properties (where `c` stands for the coordinate `x`, `y` or `z`
+and `h` stands for the corresponding hull `bb`, `ch`, `as`, `obb`):
 
     * centroid
         tuple with mean of all localization coordinates
-    * 'localization_count'
+    * `localization_count`
         number of localizations from all groups
-    * 'region_measure_h'
+    * `region_measure_h`
         area/volume (for all possible hulls)
-    * 'subregion_measure_h'
+    * `subregion_measure_h`
         circumference/surface (for all possible hulls)
-    * 'localization_density_h'
+    * `localization_density_h`
         density of localizations (for all possible hulls)
-    * 'boundary_localizations_h'
+    * `boundary_localizations_h`
         absolute number of localizations on boundary (for all possible hulls)
-    * 'boundary_localizations_ratio_h'
+    * `boundary_localizations_ratio_h`
         ratio between number of localizations on hull boundary and within hull (for all possible hulls)
-    * 'max_distance'
+    * `max_distance`
         maximum distance between any two localizations
-    * 'inertia_moments'
+    * `inertia_moments`
         inertia moments of all localizations
-    * 'orientation_obb'
+    * `orientation_obb`
         angle between the x-axis and the long axis of the oriented bounding box
-    * 'orientation_im'
+    * `orientation_im`
         angle between inertia moment principal component vectors
-    * 'circularity_obb'
+    * `circularity_obb`
         elongation estimated from oriented bounding box
-    * 'circularity_im'
+    * `circularity_im`
         excentricity estimated from inertia moments

@@ -118,10 +118,13 @@ DATASETS_DIR = ROOT_DIR.parent.parent / 'Surepy_datasets'
 
 #: Keys for the most common LocData properties.
 PROPERTY_KEYS = ['index', 'original_index', 'position_x', 'position_y', 'position_z', 'frame', 'intensity',
-                 'local_background', 'chi_square',
-                 'psf_sigma_x', 'psf_sigma_y', 'psf_sigma_z', 'uncertainty_x', 'uncertainty_y', 'uncertainty_z',
+                 'local_background', 'local_background_sigma', 'signal_noise_ratio', 'signal_background_ratio',
+                 'chi_square',
+                 'psf_sigma', 'psf_sigma_x', 'psf_sigma_y', 'psf_sigma_z',
+                 'uncertainty', 'uncertainty_x', 'uncertainty_y', 'uncertainty_z',
                  'channel', 'index', 'cluster_label', 'two_kernel_improvement',
-                 'frames_number', 'frames_missing', 'precision', 'psf_width', 'slice_z'
+                 'frames_number', 'frames_missing',
+                 'psf_width', 'slice_z'
                  ]
 
 
@@ -201,9 +204,9 @@ ELYRA_KEYS = {
     'Position X [nm]': 'position_x',
     'Position Y [nm]': 'position_y',
     'Position Z [nm]': 'position_z',
-    'Precision [nm]': 'precision',
+    'Precision [nm]': 'uncertainty',
     'Number Photons': 'intensity',
-    'Background variance': 'local_background',
+    'Background variance': 'local_background_sigma',
     'Chi square': 'chi_square',
     'PSF half width [nm]': 'psf_half_width',
     'PSF width [nm]': 'psf_width',
@@ -219,16 +222,18 @@ THUNDERSTORM_KEYS = {
     'x [nm]': 'position_x',
     'y [nm]': 'position_y',
     'z [nm]': 'position_z',
+    'uncertainty [nm]': 'uncertainty',
     'uncertainty_xy [nm]': 'uncertainty_x',
     'uncertainty_z [nm]': 'uncertainty_z',
     'intensity [photon]': 'intensity',
     'offset [photon]': 'local_background',
+    'bkgstd [photon]': 'local_background_sigma',
     'chi2': 'chi_square',
     'sigma1 [nm]': 'psf_sigma_x',
     'sigma2 [nm]': 'psf_sigma_y',
-    'sigma [nm]': 'psf_sigma_x'
+    'sigma [nm]': 'psf_sigma',
+    'detections': 'frames_number'
 }
-# todo: map "bkgstd [photon]", "uncertainty [nm]" to something usefull
 
 
 #: Mapping column names in Nanoimager files to LocData property keys

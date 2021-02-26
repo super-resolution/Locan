@@ -11,18 +11,10 @@ Each instance of an analysis class carries metadata that includes input paramete
 Metadata is saved together with data or analysis results in order to provide human- and machine-readable information
 and serve for information exchange between methods.
 
-Metadata containting method names and  parameter settings can e.g. be used in an analysis pipeline or for
+Metadata containing method names and  parameter settings can e.g. be used in an analysis pipeline or for
 batch processing.
 
 All metadata is structured as (nested) key:value pairs and implemented through Google's protobuf format.
-
-YAML_  seems to be the preferred file format for such metadata. For a python implementation we use
-ruamel.yaml_ .
-
-.. _YAML: http://www.yaml.org/spec/1.2/spec.html
-.. _ruamel.yaml: http://yaml.readthedocs.io/en/latest/index.html
-
-The YAML format can possibly also serve as YAML header in a ASDF file format.
 
 
 Structure of metadata for data classes
@@ -31,11 +23,6 @@ Structure of metadata for data classes
 The current structure for metadata of the Locdata class is defined in metadata.proto.
 
 The current structure for metadata of Analysis classes is define in analysis_metadata.proto.
-
-
-The following list most likely needs updates:
-
-.. todo update list
 
 LocData:
 ---------
@@ -112,12 +99,15 @@ Structure of metadata for analysis classes
 Analysis class:
 ---------------
 
-    Analysis: ``dict``
-        A dictionary with 'Method' and 'Parameter' describing the applied analysis procedure. This data can be used
-        to programmatically rerun the procedure.
+    Identifier: ``str``
+            Some short name.
 
-    Data: ``dict``
-        Metadata of the input locdata on which the analysis procedure was applied.
+    Creation date: ``str`` (ISO standard)
+            Date and time when the current dataset was created.
+
+    Method: ``dict``
+        A dictionary with 'name' and 'parameter' describing the applied analysis procedure. This data can be used
+        to programmatically rerun the procedure.
 
     Comments: ``str``
         A user comment.

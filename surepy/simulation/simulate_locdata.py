@@ -258,7 +258,7 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
     if seed is not None:
         np.random.seed(seed)
 
-    # sc_check n_feature consistent with feature_range
+    # check n_feature consistent with feature_range
     if (len(np.shape(feature_range)) != 1) and (np.shape(feature_range)[0] != n_features):
         raise ValueError(f'The number of feature_range elements (if sequence) must be equal to n_features.')
 
@@ -456,7 +456,7 @@ def make_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feat
     if seed is not None:
         np.random.seed(seed)
 
-    # sc_check n_feature consistent with feature_range
+    # check n_feature consistent with feature_range
     if (len(np.shape(feature_range)) != 1) and (np.shape(feature_range)[0] != n_features):
         raise ValueError(f'The number of feature_range elements (if sequence) must be equal to n_features.')
 
@@ -759,7 +759,7 @@ def make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
                                  f'Got region dimension: {region_.dimension} and '
                                  f'center dimensions: {np.shape(centers)[1]} instead.')
             n_centers = np.shape(centers)[0]
-            # todo add sc_check if centers in region else raise ValueError
+            # todo add check if centers in region else raise ValueError
 
     else:  # if n_samples is array
         n_centers = len(n_samples)  # Set n_centers by looking at [n_samples] arg

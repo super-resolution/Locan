@@ -370,8 +370,8 @@ def load_Elyra_file(path, nrows=None, **kwargs):
     LocData
         A new instance of LocData with all localizations.
 
-    Notes
-    -----
+    Note
+    ----
     Data is loaded with encoding = 'latin-1' and only data before the first NUL character is returned.
     Additional information appended at the end of the file is thus ignored.
     """

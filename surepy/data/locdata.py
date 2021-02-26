@@ -446,10 +446,6 @@ class LocData:
         """
         Create new LocData object from selected elements in another `LocData`.
 
-        Notes:
-        -----
-        No error is raised if indices do not exist in locdata.
-
         Parameters
         ----------
         locdata : LocData
@@ -465,6 +461,10 @@ class LocData:
         -------
         LocData
             A new LocData instance with dataframe representing the selected data.
+
+        Note
+        ----
+        No error is raised if indices do not exist in locdata.
         """
         references = locdata
         indices = indices

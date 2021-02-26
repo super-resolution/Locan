@@ -67,13 +67,13 @@ class Pipeline:
     parameter : dict
         All parameters including the locdata reference that were passed to `computation(self, **kwargs)`.
 
-    Notes
-    -----
+    Note
+    ----
     The class variable `Pipeline.count` is only incremented in a single process. In multiprocessing `Pipeline.count` and
     `Pipeline.meta.identifier` (which is set using `count`) cannot be used to identify distinct Pipeline objects.
 
-    Notes
-    -----
+    Note
+    ----
     For the Pipeline object to be pickleable attention has to be paid to the :func:`computation` method.
     With multiprocessing it will have to be re-injected for each Pipeline object by `pipeline.computation = computation`
     after computation and before pickling.

@@ -47,8 +47,8 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     pandas Series
         A series named 'Track' referring to the track number.
 
-    Notes:
-    ------
+    Note
+    ----
     In order to switch off the printout from :func:`trackpy.link` and increase performance use
     :func:`trackpy.quiet()` to silence the logging outputs.
     """
@@ -91,8 +91,8 @@ def track(locdata, search_range=40, memory=0, **kwargs):
         A new LocData instance assembling all generated selections (i.e. localization cluster).
         A series named 'Track' referring to the track number.
 
-    Notes:
-    ------
+    Note
+    ----
     In order to switch off the printout from :func:`trackpy.link` and increase performance use
     :func:`trackpy.quiet()` to silence the logging outputs.
     """

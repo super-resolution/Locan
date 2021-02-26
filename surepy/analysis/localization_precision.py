@@ -486,8 +486,8 @@ class _DistributionFits:
     parameters : list of str
         Distribution parameters.
 
-    Notes
-    -----
+    Note
+    ----
     Attributes for fit parameter are generated dynamically, named as loc_property + distribution parameters and listed
     in parameters.
     """

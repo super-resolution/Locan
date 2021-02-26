@@ -1,4 +1,4 @@
-# Dockerfile for deploying surepy, napari and others in a conda environment as non-root user.
+# Dockerfile for deploying jupyter lab, surepy, napari and others in a conda environment as non-root user.
 #
 # This dockerfile is in parts adapted from dockerfiles by the Jupyter Development Team
 # https://hub.docker.com/r/jupyter/base-notebook/dockerfile
@@ -63,7 +63,8 @@ SHELL [ "/bin/bash", "--login", "-c" ]
 USER $USER
 
 # install miniconda3 according to https://github.com/ContinuumIO/docker-images/blob/master/miniconda3/debian/Dockerfile
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh -O ~/miniconda.sh  && \
+RUN wget --quiet -O ~/miniconda.sh  \
+        https://repo.anaconda.com/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh && \
     chmod +x ~/miniconda.sh && \
     ~/miniconda.sh -b -p $CONDA_DIR && \
     rm ~/miniconda.sh && \
@@ -71,9 +72,13 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-${MINICONDA_VERS
     echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
     # make conda activate command available from /bin/bash --login shells
     echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.profile && \
+    # conda configuration
+    echo "conda ${MINICONDA_VERSION}" >> $CONDA_DIR/conda-meta/pinned && \
+    $CONDA_DIR/bin/conda config --system --prepend channels conda-forge && \
+    $CONDA_DIR/bin/conda config --system --set auto_update_conda false && \
+    $CONDA_DIR/bin/conda config --system --set show_channel_urls true && \
+    $CONDA_DIR/bin/conda config --system --set channel_priority strict && \
     # update
-    $CONDA_DIR/bin/conda update -n base -c defaults conda && \
-    $CONDA_DIR/bin/conda install -y python=$PYTHON_VERSION && \
     $CONDA_DIR/bin/conda update -n base --all && \
     # clean up
     find $CONDA_DIR -follow -type f -name '*.a' -delete && \
@@ -82,13 +87,13 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-${MINICONDA_VERS
     rm -rf $HOME/.cache/yarn
 
 # Copy the current directory contents into the container
-COPY --chown=$UID:$GID . $HOME/surepy
+COPY --chown=$UID:$GID jupyter $HOME/surepy
 
 WORKDIR $HOME/surepy
 
 # create new environment
 RUN conda init bash && \
-    conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION -c conda-forge && \
+    conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION && \
     conda env update -n $ENVIRONMENT_NAME --file environment.yml && \
     conda activate $ENVIRONMENT_NAME && \
     # install surepy
@@ -99,16 +104,46 @@ RUN conda init bash && \
 	conda clean -afy && \
     rm -rf $HOME/.cache/yarn
 
+# install jupyter
+RUN conda activate $ENVIRONMENT_NAME && \
+    conda install -c conda-forge \
+        nodejs \
+        jupyterlab && \
+    # install extensions
+    conda activate $ENVIRONMENT_NAME && \
+    jupyter notebook --generate-config && \
+    # activate ipywidgets extension in the environment that runs the notebook server
+    jupyter nbextension enable --py widgetsnbextension --sys-prefix && \
+    # activate ipywidgets extension for JupyterLab
+    jupyter labextension install \
+        @jupyter-widgets/jupyterlab-manager \
+        jupyter-matplotlib \
+        --no-build && \
+    # clean up
+    jupyter lab build -y && \
+    jupyter lab clean -y && \
+    npm cache clean --force && \
+    conda clean -afy && \
+    rm -rf $HOME/.cache/yarn
+
 # Volume for data
 VOLUME ["$HOME/shared"]
 
-WORKDIR $HOME/shared
+WORKDIR $HOME
 
 # Provide a test and environment file for reference:
 RUN conda activate $ENVIRONMENT_NAME && \
-    mkdir $HOME/surepy/reports && \
+    mkdir $HOME/reports && \
     today=$(date +"%Y-%m-%d") && \
     base=${ENVIRONMENT_NAME}_$today && \
-    conda env export > "$HOME/surepy/reports/environment_$base.yml" && \
-    date > "$HOME/surepy/reports/test_results_$base.txt" && \
-    surepy test >> "$HOME/surepy/reports/test_results_$base.txt"
+    conda env export > "$HOME/reports/environment_$base.yml" && \
+    date > "$HOME/reports/test_results_$base.txt" && \
+    surepy test >> "$HOME/reports/test_results_$base.txt"
+
+EXPOSE 8888
+
+# Copy surepy documentation
+COPY --chown=$UID:$GID ./docs/_build $HOME/surepy/docs
+
+CMD conda activate $ENVIRONMENT_NAME && \
+    jupyter lab --no-browser --ip 0.0.0.0

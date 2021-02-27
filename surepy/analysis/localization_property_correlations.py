@@ -90,9 +90,6 @@ class LocalizationPropertyCorrelations(_Analysis):
             If true draw a colorbar.
         colorbar_kws : dict
             Keyword arguments for `matplotlib.pyplot.colorbar`.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to `matplotlib.pyplot.imshow()`.
 

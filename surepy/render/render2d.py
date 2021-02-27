@@ -82,9 +82,6 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
         Keyword arguments for :func:`matplotlib.pyplot.colorbar`.
     interpolation : str
         Keyword argument for :func:`matplotlib.axes.Axes.imshow`.
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Other parameters passed to :func:`matplotlib.axes.Axes.imshow`.
 
@@ -155,9 +152,6 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
         If true draw a colorbar. The colobar axes is accessible using the cax property.
     colorbar_kws : dict
         Keyword arguments for `matplotlib.pyplot.colorbar`.
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Other parameters passed to mpl_scatter_density.ScatterDensityArtist().
 
@@ -282,9 +276,6 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
         The viewer object on which to add the image
     cmap : str or Colormap instance
         The colormap used to map normalized data values to RGBA colors.
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Other parameters passed to napari.Viewer().add_image().
 
@@ -339,9 +330,6 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
        Flag indicating if element indices are shown.
     text_kwargs : dict
        Keyword arguments for `matplotlib.axes.Axes.text()`.
-
-    Other Parameters
-    ----------------
     kwargs : dict
        Other parameters passed to matplotlib.axes.Axes.scatter().
 
@@ -385,9 +373,6 @@ def apply_window(image, window_function='tukey', **kwargs):
         Image
     window_function : str
         Window function to apply. One of 'tukey', 'hann' or any other in `scipy.signal.windows`.
-
-    Other parameters
-    ----------------
     kwargs : dict
         Other parameters passed to the `scipy.signal.windows` window function.
     """

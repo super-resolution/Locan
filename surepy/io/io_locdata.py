@@ -154,9 +154,6 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
         Surepy column names. If None the first line is interpreted as header (Default: None).
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded (Default: None).
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -262,9 +259,6 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
         File path for a rapidSTORM file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -358,9 +352,6 @@ def load_Elyra_file(path, nrows=None, **kwargs):
         File path for a rapidSTORM file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -483,9 +474,6 @@ def load_thunderstorm_file(path, nrows=None, **kwargs):
         File path for a Thunderstorm file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -581,9 +569,6 @@ def load_Nanoimager_file(path, nrows=None, **kwargs):
         File path for a Nanoimager file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 

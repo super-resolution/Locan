@@ -184,9 +184,6 @@ class LocalizationPrecision(_Analysis):
             The property for which to plot localization precision; if None all plots are shown.
         window: int
             Window for running average that is applied before plotting.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.plot().
 
@@ -226,9 +223,6 @@ class LocalizationPrecision(_Analysis):
             Bin specifications (passed to matplotlib.hist).
         fit: Bool
             Flag indicating if distributions fit are shown.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.hist().
 

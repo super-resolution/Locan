@@ -227,11 +227,6 @@ class AccumulationClusterCheck(_Analysis):
         kwargs : dict
             Other parameters passed to `matplotlib.pyplot.plot()`.
 
-        Other Parameters
-        ----------------
-        kwargs : dict
-            Other parameters passed to matplotlib.pyplot.plot().
-
         Returns
         -------
         matplotlib.axes.Axes

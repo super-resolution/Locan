@@ -101,9 +101,6 @@ class LocalizationProperty(_Analysis):
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """
@@ -120,9 +117,6 @@ class LocalizationProperty(_Analysis):
             The axes on which to show the image
         window: int
             Window for running average that is applied before plotting.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.plot().
 
@@ -158,9 +152,6 @@ class LocalizationProperty(_Analysis):
         fit: bool, None
             Flag indicating if distribution fit is shown. The fit will only be computed if `distribution_statistics`
              is None.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.hist().
 
@@ -235,9 +226,6 @@ class _DistributionFits:
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """

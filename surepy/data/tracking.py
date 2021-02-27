@@ -36,9 +36,6 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     memory : int
         The maximum number of frames during which a feature can vanish,
         then reappear nearby, and be considered the same particle. 0 by default.
-
-    Other Parameters
-    ----------------
     kwargs :
         Other parameters passed to trackpy.link_df().
 
@@ -79,9 +76,6 @@ def track(locdata, search_range=40, memory=0, **kwargs):
     memory : int
         The maximum number of frames during which a feature can vanish, then reappear nearby,
         and be considered the same particle.
-
-    Other Parameters
-    ----------------
     kwargs :
         Other parameters passed to trackpy.link_df.
 

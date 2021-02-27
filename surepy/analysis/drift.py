@@ -123,9 +123,6 @@ def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, **
        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
     bin_size : tuple of int, float
         Size per image pixel
-
-    Other Parameters
-    -----------------
     kwargs :
         Other parameters passed to :func:register_cc.
 
@@ -400,9 +397,6 @@ class Drift(_Analysis):
             Localization data representing the source on which to perform the manipulation.
         bin_size : tuple of int, float
             Only for method='cc': Size per image pixel
-
-        Other Parameters
-        -----------------
         kwargs : dict
             Only for method='cc':Other parameters passed to :func:register_cc.
 
@@ -640,9 +634,6 @@ class Drift(_Analysis):
         window: int
             Window for running average that is applied before plotting.
             Not implemented yet.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.plot().
 

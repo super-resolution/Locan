@@ -122,9 +122,6 @@ class LocalizationsPerFrame(_Analysis):
             The axes on which to show the image
         window: int
             Window for running average that is applied before plotting.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.plot().
 
@@ -158,9 +155,6 @@ class LocalizationsPerFrame(_Analysis):
             Bin specifications (passed to matplotlib.hist).
         fit: Bool
             Flag indicating if distributions fit are shown.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.hist().
 
@@ -229,9 +223,6 @@ class _DistributionFits:
         ----------
         distribution : str, scipy.stats.distribution
             Distribution model to fit.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """

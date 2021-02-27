@@ -158,9 +158,6 @@ class BlinkStatistics(_Analysis):
             'on_periods' or 'off_periods'. For True all are fitted.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """
@@ -191,9 +188,6 @@ class BlinkStatistics(_Analysis):
         fit: bool, None
             Flag indicating if distribution fit is shown. The fit will only be computed if `distribution_statistics`
              is None.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.hist().
 
@@ -279,9 +273,6 @@ class _DistributionFits:
         ----------
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """

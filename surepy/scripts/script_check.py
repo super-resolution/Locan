@@ -41,9 +41,6 @@ def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, trans
         Localization data that corresponds to `images` raw data.
     viewer : napari viewer
         The viewer object on which to add the image
-
-    Other Parameters
-    ----------------
     kwargs_image : dict
         Other parameters passed to napari.Viewer().add_image().
     kwargs_points : dict
@@ -108,9 +105,6 @@ def sc_check(pixel_size, file_images=None, file_locdata=None, file_type=sp.FileT
         Localization data that corresponds to `images` raw data.
     viewer : napari.Viewer
         The viewer object on which to add the image
-
-    Other Parameters
-    ----------------
     kwargs_image : dict
         Other parameters passed to :meth:`napari.Viewer.add_image`.
     kwargs_points : dict

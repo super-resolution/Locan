@@ -298,9 +298,6 @@ def register_cc(locdata, other_locdata, max_offset=None,
         for 'zero' (0, max) bin_range with max determined from data.
     verbose : bool
         Flag indicating if transformation results are printed out.
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Other parameters passed to :func:`surepy.render.render2d.histogram`.
 

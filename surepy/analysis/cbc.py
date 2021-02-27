@@ -166,9 +166,6 @@ class CoordinateBasedColocalization(_Analysis):
         density : bool
             Flag for normalization as used in matplotlib.hist. True returns probability density function; None returns
             counts.
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.plot().
 

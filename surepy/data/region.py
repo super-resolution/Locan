@@ -160,9 +160,6 @@ class RoiRegion:
         origin : array_like
             The (x, y) pixel position of the origin of the displayed image.
             Default is (0, 0).
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to the `matplotlib.patches` object.
 

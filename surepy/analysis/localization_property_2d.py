@@ -277,9 +277,6 @@ class LocalizationProperty2d(_Analysis):
         ----------
         ax : matplotlib.axes.Axes
             The axes on which to show the image
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.contour().
 
@@ -315,9 +312,6 @@ class LocalizationProperty2d(_Analysis):
         ----------
         ax : matplotlib.axes.Axes
             The axes on which to show the image
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.contour().
 
@@ -356,9 +350,6 @@ class LocalizationProperty2d(_Analysis):
         ----------
         ax : matplotlib.axes.Axes
             The axes on which to show the image
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.contour().
 
@@ -392,9 +383,6 @@ class LocalizationProperty2d(_Analysis):
         ----------
         ax : matplotlib.axes.Axes
             The axes on which to show the image
-
-        Other Parameters
-        ----------------
         kwargs : dict
             Other parameters passed to matplotlib.pyplot.contour().
 

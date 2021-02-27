@@ -63,9 +63,6 @@ def cluster_hdbscan(locdata, min_cluster_size=5, loc_properties=None, allow_sing
         minimumm cluster size in HDBSCAN algorithm (default: 5)
     allow_single_cluster : bool
         allowing to return single cluster (default: False)
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Other parameters passed to `hdbscan.HDBSCAN`.
 
@@ -142,9 +139,6 @@ def cluster_dbscan(locdata, eps=20, min_samples=5, loc_properties=None, **kwargs
         This includes the point itself.
     loc_properties : list of string, None
         The LocData properties to be used for clustering. If None, locdata.coordinates will be used.
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Other parameters passed to `sklearn.cluster.DBSCAN`.
 

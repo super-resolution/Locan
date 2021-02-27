@@ -3,7 +3,7 @@ Changelog
 =======================
 
 
-0.6 (unreleased)
+0.7 (unreleased)
 ================
 
 
@@ -115,6 +115,86 @@ surepy.simulation
 Other Changes and Additions
 ---------------------------
 -
+
+0.6 (26.2.2021)
+================
+
+New Features
+------------
+- Introduced logging capability.
+- Added script for running tests from command line interface.
+
+surepy.analysis
+^^^^^^^^^^^^^^^
+- Make all analysis classes pickleable.
+- Refactored Pipeline class
+- Enabled and tested multiprocessing based on multiprocessing or ray.
+- Added more processing bars.
+- Added drift analysis and correction based on imagecorrelation and iterative closest point registration.
+
+surepy.data
+^^^^^^^^^^^^^^^
+- Made LocData class pickleable.
+- Added computation of inertia moments.
+- Added orientation property based on oriented bounding box and inertia moments.
+- Added elongation property based on oriented bounding box.
+- Add transformation method to overlay LocData objects.
+
+surepy.io
+^^^^^^^^^^^^^^^
+- Added loading function for Nanoimager data.
+
+surepy.render
+^^^^^^^^^^^^^^^
+- Added windowing function for image data.
+
+API Changes
+-----------
+
+surepy.data
+^^^^^^^^^^^^^^^
+- Implemented copy and deepcopy for LocData.
+- Changed noise output in clustering methods. Removed noise parameter.
+
+surepy.datasets
+^^^^^^^^^^^^^^^
+- Added dataset for microtubules
+
+surepy.io
+^^^^^^^^^^^^^^^
+- Added option for file-like objects in io_locdata functions.
+- Added Bins class, introduced use of boost-histogram package, and restructured binning.
+- Introduced use of napari.run.
+- Changed default value in render_2d_mpl to interpolation='nearest'.
+
+surepy.scripts
+^^^^^^^^^^^^^^^
+- Added arguments for surepy napari and surepy rois.
+
+surepy.simulation
+^^^^^^^^^^^^^^^^^^^
+- Added simulation of frame values.
+
+Bug Fixes
+---------
+
+surepy.data
+^^^^^^^^^^^^^^^
+- Fixed treatment of empty LocData in clustering and hull functions.
+
+surepy.gui
+^^^^^^^^^^^^^^^
+- Use PySide2 as default QT backend depending on QT_API setting.
+
+surepy.io
+^^^^^^^^^^^^^^^
+- Fixed enconding issues for loading Elyra data.
+
+Other Changes and Additions
+---------------------------
+- Test data is included in distribution.
+- New dockerfiles for test and deployment.
+- Included pyproject.toml file
 
 
 0.5.1 (25.3.2020)

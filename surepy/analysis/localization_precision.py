@@ -174,22 +174,22 @@ class LocalizationPrecision(_Analysis):
 
     def plot(self, ax=None, loc_property=None, window=1, **kwargs):
         """
-        Provide plot as matplotlib.axes.Axes object showing the running average of results over window size.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the running average of results over window size.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
         loc_property : str, list(str)
             The property for which to plot localization precision; if None all plots are shown.
         window: int
             Window for running average that is applied before plotting.
         kwargs : dict
-            Other parameters passed to matplotlib.pyplot.plot().
+            Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:
@@ -211,24 +211,24 @@ class LocalizationPrecision(_Analysis):
 
     def hist(self, ax=None, loc_property='position_distance', bins='auto', fit=True, **kwargs):
         """
-        Provide histogram as matplotlib.axes.Axes object showing the distributions of results.
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing the distributions of results.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
         loc_property : str
             The property for which to plot localization precision.
         bins : float
-            Bin specifications (passed to matplotlib.hist).
+            Bin specifications (passed to :func:`matplotlib.hist`).
         fit: Bool
             Flag indicating if distributions fit are shown.
         kwargs : dict
-            Other parameters passed to matplotlib.pyplot.hist().
+            Other parameters passed to :func:`matplotlib.pyplot.his`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:
@@ -552,11 +552,11 @@ class _DistributionFits:
 
     def plot(self, ax=None, loc_property='position_distance', **kwargs):
         """
-        Provide plot as matplotlib.axes.Axes object showing the probability distribution functions of fitted results.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the probability distribution functions of fitted results.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image.
         loc_property : str
             The property for which to plot the distribution fit.
@@ -564,11 +564,11 @@ class _DistributionFits:
         Other Parameters
         ----------------
         kwargs : dict
-            parameters passed to matplotlib.pyplot.plot().
+            parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:

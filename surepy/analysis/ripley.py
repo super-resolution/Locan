@@ -348,21 +348,21 @@ class RipleysHFunction(_Analysis):
 
 def plot(self, ax=None, **kwargs):
     """
-    Provide plot of results as matplotlib.axes.Axes object.
+    Provide plot of results as :class:`matplotlib.axes.Axes` object.
 
     Parameters
     ----------
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
         The axes on which to show the image
 
     Other Parameters
     ----------------
     kwargs : dict
-        Parameters passed to `matplotlib.pyplot.plot()`.
+        Parameters passed to :func:`matplotlib.pyplot.plot`.
 
     Returns
     -------
-    matplotlib.axes.Axes
+    :class:`matplotlib.axes.Axes`
         Axes object with the plot.
     """
     if ax is None:

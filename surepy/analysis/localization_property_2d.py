@@ -271,18 +271,18 @@ class LocalizationProperty2d(_Analysis):
 
     def plot(self, ax=None, **kwargs):
         """
-        Provide histogram as matplotlib.axes.Axes object showing plot(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
         kwargs : dict
-            Other parameters passed to matplotlib.pyplot.contour().
+            Other parameters passed to :func:`matplotlib.pyplot.contour`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:
@@ -306,18 +306,18 @@ class LocalizationProperty2d(_Analysis):
 
     def plot_residuals(self, ax=None, **kwargs):
         """
-        Provide histogram as matplotlib.axes.Axes object showing plot(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
         kwargs : dict
-            Other parameters passed to matplotlib.pyplot.contour().
+            Other parameters passed to :func:`matplotlib.pyplot.contour`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:
@@ -344,18 +344,18 @@ class LocalizationProperty2d(_Analysis):
 
     def plot_deviation_from_mean(self, ax=None, **kwargs):
         """
-        Provide histogram as matplotlib.axes.Axes object showing plot(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
         kwargs : dict
-            Other parameters passed to matplotlib.pyplot.contour().
+            Other parameters passed to :func:`matplotlib.pyplot.contour`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:
@@ -377,18 +377,18 @@ class LocalizationProperty2d(_Analysis):
 
     def plot_deviation_from_median(self, ax=None, **kwargs):
         """
-        Provide histogram as matplotlib.axes.Axes object showing plot(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
 
         Parameters
         ----------
         ax : matplotlib.axes.Axes
             The axes on which to show the image
         kwargs : dict
-            Other parameters passed to matplotlib.pyplot.contour().
+            Other parameters passed to :func:`matplotlib.pyplot.contour`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:

@@ -188,23 +188,23 @@ class NearestNeighborDistances(_Analysis):
 
     def hist(self, ax=None, bins='auto', density=True, fit=False, **kwargs):
         """
-        Provide histogram as matplotlib.axes.Axes object showing hist(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results).
 
         Parameters
         ----------
         bins : int, list, 'auto'
-            Bin specification as used in matplotlib.hist
+            Bin specification as used in :func:`matplotlib.hist`
         density : bool
             Flag for normalization as used in matplotlib.hist. True returns probability density function; None returns
             counts.
         fit : bool
             Flag indicating to fit pdf of nearest-neighbor distances under complete spatial randomness.
         kwargs : dict
-            Other parameters passed to matplotlib.plot().
+            Other parameters passed to :func:`matplotlib.plot`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:
@@ -318,21 +318,22 @@ class _DistributionFits:
 
     def plot(self, ax=None, **kwargs):
         """
-        Provide plot as matplotlib.axes.Axes object showing the probability distribution functions of fitted results.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the probability distribution functions of fitted
+        results.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image.
 
         Other Parameters
         ----------------
         kwargs : dict
-            parameters passed to matplotlib.pyplot.plot().
+            Parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:

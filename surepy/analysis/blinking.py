@@ -173,27 +173,27 @@ class BlinkStatistics(_Analysis):
 
     def hist(self, data_identifier='on_periods', ax=None, bins='auto', log=True, fit=True, **kwargs):
         """
-        Provide histogram as matplotlib.axes.Axes object showing hist(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results).
 
         Parameters
         ----------
         data_identifier : str
             'on_periods' or 'off_periods'.
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
         bins : float
-            Bin specifications (passed to matplotlib.hist).
+            Bin specifications (passed to :func:`matplotlib.hist`).
         log : Bool
             Flag for plotting on a log scale.
         fit: bool, None
             Flag indicating if distribution fit is shown. The fit will only be computed if `distribution_statistics`
              is None.
         kwargs : dict
-            Other parameters passed to matplotlib.pyplot.hist().
+            Other parameters passed to :func:`matplotlib.pyplot.hist`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:
@@ -299,21 +299,22 @@ class _DistributionFits:
 
     def plot(self, ax=None, **kwargs):
         """
-        Provide plot as matplotlib.axes.Axes object showing the probability distribution functions of fitted results.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the probability distribution functions of fitted
+        results.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image.
 
         Other Parameters
         ----------------
         kwargs : dict
-            parameters passed to matplotlib.pyplot.plot().
+            parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:

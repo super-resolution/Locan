@@ -80,22 +80,22 @@ class LocalizationPropertyCorrelations(_Analysis):
 
     def plot(self, ax=None, cbar=True, colorbar_kws=None, **kwargs):
         """
-        Provide heatmap of all correlation values as matplotlib.axes.Axes object.
+        Provide heatmap of all correlation values as :class:`matplotlib.axes.Axes` object.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
         cbar : bool
             If true draw a colorbar.
         colorbar_kws : dict
-            Keyword arguments for `matplotlib.pyplot.colorbar`.
+            Keyword arguments for :func:`matplotlib.pyplot.colorbar`.
         kwargs : dict
-            Other parameters passed to `matplotlib.pyplot.imshow()`.
+            Other parameters passed to :func:`matplotlib.pyplot.imshow`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:

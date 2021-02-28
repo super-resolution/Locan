@@ -151,6 +151,10 @@ surepy.render
 API Changes
 -----------
 
+surepy.analysis
+^^^^^^^^^^^^^^^
+- Fixed and extended methods for Drift analysis and correction.
+
 surepy.data
 ^^^^^^^^^^^^^^^
 - Implemented copy and deepcopy for LocData.

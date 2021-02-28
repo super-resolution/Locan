@@ -43,7 +43,7 @@ class _MplSelector:
 
     Parameters
     ----------
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
         Axes to use the widget on.
     type : str
         Type is a string specifying the selector widget that can be either rectangle, ellipse, or polygon.
@@ -53,7 +53,7 @@ class _MplSelector:
     rois : List of dict
         A list of rois where each element is a dict with keys `region_specs` and 'region_type'.
         `region_specs` contain a tuple with specifications for the chosen region type (see ``Roi``).
-        The region_type is a string identifyer that can be either rectangle, ellipse, or polygon.
+        The region_type is a string identifier that can be either rectangle, ellipse, or polygon.
     """
 
     def __init__(self, ax, type='rectangle'):

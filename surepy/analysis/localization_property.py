@@ -109,20 +109,20 @@ class LocalizationProperty(_Analysis):
 
     def plot(self, ax=None, window=1, **kwargs):
         """
-        Provide plot as matplotlib.axes.Axes object showing the running average of results over window size.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the running average of results over window size.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
         window: int
             Window for running average that is applied before plotting.
         kwargs : dict
-            Other parameters passed to matplotlib.pyplot.plot().
+            Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:
@@ -139,25 +139,25 @@ class LocalizationProperty(_Analysis):
 
     def hist(self, ax=None, bins='auto', log=True, fit=True, **kwargs):
         """
-        Provide histogram as matplotlib.axes.Axes object showing hist(results). Nan entries are ignored.
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results). Nan entries are ignored.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
         bins : float
-            Bin specifications (passed to matplotlib.hist).
+            Bin specifications (passed to :func:`matplotlib.hist`).
         log : Bool
             Flag for plotting on a log scale.
         fit: bool, None
             Flag indicating if distribution fit is shown. The fit will only be computed if `distribution_statistics`
              is None.
         kwargs : dict
-            Other parameters passed to matplotlib.pyplot.hist().
+            Other parameters passed to :func:`matplotlib.pyplot.hist`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:
@@ -246,21 +246,22 @@ class _DistributionFits:
 
     def plot(self, ax=None, **kwargs):
         """
-        Provide plot as matplotlib.axes.Axes object showing the probability distribution functions of fitted results.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the probability distribution functions of fitted
+        results.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image.
 
         Other Parameters
         ----------------
         kwargs : dict
-            parameters passed to matplotlib.pyplot.plot().
+            parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:

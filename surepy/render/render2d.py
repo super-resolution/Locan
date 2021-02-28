@@ -72,7 +72,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
         For 'equal' intensity values are rescaled by histogram equalization.
         For 'unity' intensity values are rescaled to (0, 1).
         For None or False no rescaling occurs.
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
         The axes on which to show the image
     cmap : str or Colormap instance
         The colormap used to map normalized data values to RGBA colors.
@@ -87,7 +87,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
 
     Returns
     -------
-    matplotlib.axes.Axes
+    :class:`matplotlib.axes.Axes`
         Axes object with the image.
     """
     # todo: plot empty image if ranges are provided.
@@ -125,7 +125,7 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
 
-    Prepare matplotlib.axes.Axes with image.
+    Prepare :class:`matplotlib.axes.Axes` with image.
 
     Note
     ----
@@ -144,20 +144,20 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
         The axes on which to show the image
     cmap : str or Colormap instance
         The colormap used to map normalized data values to RGBA colors.
     cbar : bool
         If true draw a colorbar. The colobar axes is accessible using the cax property.
     colorbar_kws : dict
-        Keyword arguments for `matplotlib.pyplot.colorbar`.
+        Keyword arguments for :func:`matplotlib.pyplot.colorbar`.
     kwargs : dict
-        Other parameters passed to mpl_scatter_density.ScatterDensityArtist().
+        Other parameters passed to :class:`mpl_scatter_density.ScatterDensityArtist`.
 
     Returns
     -------
-    matplotlib.axes.Axes
+    :class:`matplotlib.axes.Axes`
         Axes object with the image.
     """
     if not _has_mpl_scatter_density:
@@ -324,18 +324,18 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
     ----------
     locdata : LocData
        Localization data.
-    ax : matplotlib.axes.Axes
+    ax : :class:`matplotlib.axes.Axes`
        The axes on which to show the plot
     index : bool
        Flag indicating if element indices are shown.
     text_kwargs : dict
-       Keyword arguments for `matplotlib.axes.Axes.text()`.
+       Keyword arguments for :func:`matplotlib.axes.Axes.text`.
     kwargs : dict
-       Other parameters passed to matplotlib.axes.Axes.scatter().
+       Other parameters passed to :func:`matplotlib.axes.Axes.scatter`.
 
     Returns
     -------
-    matplotlib.axes.Axes
+    :class:`matplotlib.axes.Axes`
        Axes object with the image.
     """
     if text_kwargs is None:

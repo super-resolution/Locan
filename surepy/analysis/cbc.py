@@ -157,21 +157,21 @@ class CoordinateBasedColocalization(_Analysis):
 
     def hist(self, ax=None, bins=(-1, -0.3333, 0.3333, 1), density=True, **kwargs):
         """
-        Provide histogram as matplotlib.axes.Axes object showing hist(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results).
 
         Parameters
         ----------
         bins : int, list, 'auto'
-            Bin specification as used in matplotlib.hist
+            Bin specification as used in :func:`matplotlib.hist`.
         density : bool
-            Flag for normalization as used in matplotlib.hist. True returns probability density function; None returns
+            Flag for normalization as used in :func:`matplotlib.hist`. True returns probability density function; None returns
             counts.
         kwargs : dict
-            Other parameters passed to matplotlib.plot().
+            Other parameters passed to :func:`matplotlib.plot`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:

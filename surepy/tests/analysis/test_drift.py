@@ -1,10 +1,5 @@
 import pytest
 import numpy as np
-import pandas as pd
-from pandas.testing import assert_frame_equal
-import matplotlib.pyplot as plt
-
-from lmfit import Model
 from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, PolynomialModel
 
@@ -12,8 +7,10 @@ from surepy import LocData
 from surepy.constants import _has_open3d
 from surepy.io.io_locdata import load_rapidSTORM_file
 from surepy.constants import ROOT_DIR
-from surepy.analysis.drift import Drift, DriftComponent, \
-    _LmfitModelFacade, _ConstantModelFacade, _ConstantZeroModelFacade, _ConstantOneModelFacade, _SplineModelFacade
+from surepy import Drift, DriftComponent
+from surepy.analysis.drift import _LmfitModelFacade, _ConstantModelFacade, _ConstantZeroModelFacade, \
+    _ConstantOneModelFacade, _SplineModelFacade
+
 
 x = np.array([1, 2, 4, 6, 9, 10, 11, 15, 16, 20])
 y = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
@@ -81,7 +78,7 @@ def test_DriftComponent():
         drift_component.eval(3)
 
     with pytest.raises(TypeError):
-        drift_component = DriftComponent(type='undefined')
+        DriftComponent(type='undefined')
 
     drift_component = DriftComponent(type='linear').fit(x, y, verbose=True)
     assert isinstance(drift_component.model.model, LinearModel)
@@ -127,20 +124,19 @@ def test_DriftComponent():
 
 
 @pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
-def test_Drift():
+def test_Drift(locdata_blobs_2d):
     locdata = load_rapidSTORM_file(path=ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt')
 
     drift = Drift(chunk_size=100, target='first').compute(locdata)
     assert isinstance(drift.locdata, LocData)
     assert isinstance(drift.collection, LocData)
     assert drift.transformations[0]._fields == ('matrix', 'offset')
-    assert len(drift.transformations) == 9
+    assert len(drift.transformations) == 10
     assert drift.transformation_models['matrix'] is None
     assert drift.transformation_models['offset'] is None
 
     std_trafo_models = drift._transformation_models_for_identity_matrix()
     assert std_trafo_models['matrix'][0].type == 'one'
-
     std_trafo_models = drift._transformation_models_for_zero_offset()
     assert std_trafo_models['offset'][0].type == 'zero'
 
@@ -177,8 +173,8 @@ def test_Drift():
     assert drift.transformation_models['offset'][0].type == 'spline'
     assert drift.transformation_models['offset'][1].type == 'spline'
 
-    assert drift.transformation_models['offset'][0].eval(3) == pytest.approx(-54.68879605850089)
-    assert drift.transformation_models['offset'][1].eval(3) == pytest.approx(-54.68879605850089)
+    assert drift.transformation_models['offset'][0].eval(3) == pytest.approx(-6.227589344498715)
+    assert drift.transformation_models['offset'][1].eval(3) == pytest.approx(-2.8927851131432862)
 
     assert drift.locdata_corrected is None
     new_locdata = drift._apply_correction_on_chunks()
@@ -187,7 +183,7 @@ def test_Drift():
     drift.transformation_models['matrix'] = None
     drift.transformation_models['offset'] = None
     with pytest.raises(AttributeError):
-        transformed_points = drift._apply_correction_from_model()
+        drift._apply_correction_from_model()
 
     drift.fit_transformation(slice_data=slice(None), transformation_component='matrix', element=1,
                              drift_model='linear', verbose=True)
@@ -196,11 +192,17 @@ def test_Drift():
     # print(drift.transformation_models['matrix'][1].model_result)
     # print(drift.transformation_models['matrix'][1].eval(3))
 
+    drift.fit_transformation(slice_data=slice(None), transformation_component='matrix', element=0,
+                             drift_model='one', verbose=True)
     assert drift.transformation_models['matrix'][0].type == 'one'
     # print(drift.transformation_models['matrix'][0].model)
     # print(drift.transformation_models['matrix'][0].model_result)
     # print(drift.transformation_models['matrix'][0].eval(3))
 
+    drift.fit_transformations(slice_data=slice(None),
+                              matrix_models=['linear'] * 4,
+                              offset_models=['linear'] * 2,
+                              verbose=False)
     transformed_points = drift._apply_correction_from_model()
     assert len(transformed_points) == len(locdata)
 
@@ -215,7 +217,7 @@ def test_Drift():
     drift = Drift(chunk_size=200, target='previous').compute(locdata)
     assert isinstance(drift.collection, LocData)
     assert drift.transformations[0]._fields == ('matrix', 'offset')
-    assert len(drift.transformations) == 4
+    assert len(drift.transformations) == 5
 
     drift.plot(transformation_component='matrix', element=None)
     drift.plot(transformation_component='matrix', element=3)
@@ -236,4 +238,4 @@ def test_Drift():
     assert isinstance(drift.locdata, LocData)
     assert isinstance(drift.collection, LocData)
     assert drift.transformations[0]._fields == ('matrix', 'offset')
-    assert len(drift.transformations) == 4
+    assert len(drift.transformations) == 5

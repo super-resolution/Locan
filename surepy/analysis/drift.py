@@ -3,9 +3,12 @@ Drift analysis for localization coordinates.
 
 This module provides functions for estimating spatial drift in localization data.
 
-Software based drift correction has been described in several publications [1]_, [2]_, [3]_.
-Methods employed for drift estimation comprise single molecule localization analysis or image correlation analysis.
+Software based drift correction using image correlation has been described in several publications .
+Methods employed for drift estimation comprise single molecule localization analysis (an iterative closest point (icp)
+algorithm as implemented in the open3d library [1]_, [2]_) or image cross-correlation analysis [3]_, [4]_, [5]_.
 
+Examples
+--------
 Please use the following procedure to estimate and correct for spatial drift::
 
     from lmfit import LinearModel
@@ -17,34 +20,35 @@ Please use the following procedure to estimate and correct for spatial drift::
             apply_correction()
     locdata_corrected = drift.locdata_corrected
 
-Note
-----
-The analysis procedure is in an exploratory state and has not been fully developed and tested.
-
 References
 ----------
-.. [1] C. Geisler,
+.. [1] Qian-Yi Zhou, Jaesik Park, Vladlen Koltun,
+   Open3D: A Modern Library for 3D Data Processing,
+   arXiv 2018, 1801.09847
+
+.. [2] Rusinkiewicz and M. Levoy,
+   Efficient variants of the ICP algorithm,
+   In 3-D Digital Imaging and Modeling, 2001.
+
+.. [3] C. Geisler,
    Drift estimation for single marker switching based imaging schemes,
    Optics Express. 2012, 20(7):7274-89.
 
-.. [2] Yina Wang et al.,
+.. [4] Yina Wang et al.,
    Localization events-based sample drift correction for localization microscopy with redundant cross-correlation
    algorithm, Optics Express 2014, 22(13):15982-91.
 
-.. [3] Michael J. Mlodzianoski et al.,
+.. [5] Michael J. Mlodzianoski et al.,
    Sample drift correction in 3D fluorescence photoactivation localization microscopy,
    Opt Express. 2011 Aug 1;19(16):15009-19.
 
 """
 import sys
-import warnings
-from itertools import accumulate, chain
 from collections import namedtuple
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy import stats
 from scipy.interpolate import splev, splrep
 from lmfit.models import ConstantModel, LinearModel, PolynomialModel
 
@@ -59,9 +63,10 @@ from surepy.data.metadata_utils import _modify_meta
 
 __all__ = ['Drift', 'DriftComponent']
 
+
 ##### The algorithms
 
-def _estimate_drift_open3d(locdata, chunk_size=1000, target='first'):
+def _estimate_drift_icp(locdata, chunk_size=1000, target='first'):
     """
     Estimate drift from localization coordinates by registering points in successive time-chunks of localization
     data using an "Iterative Closest Point" algorithm.
@@ -87,7 +92,9 @@ def _estimate_drift_open3d(locdata, chunk_size=1000, target='first'):
     collection = LocData.from_chunks(locdata, chunk_size=chunk_size)
 
     # register locdatas
-    transformations = []
+    # initialize with identity transformation for chunk zero.
+    Transformation = namedtuple('Transformation', 'matrix offset')
+    transformations = [Transformation(np.identity(locdata.dimension), np.zeros(locdata.dimension))]
     if target == 'first':
         for locdata in collection.references[1:]:
             transformation = _register_icp_open3d(locdata.coordinates, collection.references[0].coordinates,
@@ -136,7 +143,9 @@ def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, **
     ranges = locdata.bounding_box.hull.T
 
     # register images
-    transformations = []
+    # initialize with identity transformation for chunk zero.
+    Transformation = namedtuple('Transformation', 'matrix offset')
+    transformations = [Transformation(np.identity(locdata.dimension), np.zeros(locdata.dimension))]
     if target == 'first':
         for reference in collection.references[1:]:
             transformation = register_cc(reference, collection.references[0], range=ranges, bin_size=bin_size, **kwargs)
@@ -152,7 +161,6 @@ def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, **
 
 
 ##### The specific analysis classes
-
 
 class _LmfitModelFacade:
 
@@ -180,6 +188,7 @@ class _ConstantModelFacade:
     def __init__(self, **kwargs):
         self.model = ConstantModel(**kwargs)
         self.model_result = None
+        self.independent_variable = None
 
     def fit(self, x, y, verbose=False, **kwargs):
         self.independent_variable = x
@@ -222,6 +231,8 @@ class _SplineModelFacade:
         self.model = 'spline'
         self.model_result = None
         self.parameter = kwargs
+        self.independent_variable = None
+        self.data = None
 
     def fit(self, x, y, verbose=False, **kwargs):
         self.independent_variable = x
@@ -339,7 +350,8 @@ class DriftComponent:
 
 class Drift(_Analysis):
     """
-    Estimate drift.
+    Estimate drift from localization coordinates by registering points in successive time-chunks of localization
+    data using an iterative closest point algorithm (icp) or image cross-correlation algorithm (cc).
 
     Parameters
     ----------
@@ -352,7 +364,8 @@ class Drift(_Analysis):
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     method : str
-        The method (i.e. library or algorithm) used for computation. One of 'itc', 'cc'.
+        The method used for computation.
+        One of iterative closest point algorithm 'icp' or image cross-correlation algorithm 'cc'.
 
     Attributes
     ----------
@@ -376,7 +389,7 @@ class Drift(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, chunk_size=1000, target='first', method='itc'):
+    def __init__(self, meta=None, chunk_size=1000, target='first', method='icp'):
         super().__init__(meta, chunk_size=chunk_size, target=target)
         self.locdata = None
         self.chunk_size = chunk_size
@@ -398,19 +411,19 @@ class Drift(_Analysis):
         bin_size : tuple of int, float
             Only for method='cc': Size per image pixel
         kwargs : dict
-            Only for method='cc':Other parameters passed to :func:register_cc.
+            Only for method='cc': Other parameters passed to :func:register_cc.
 
         Returns
         -------
         Analysis class
             Returns the Analysis class object (self).
         """
-        if self.method == 'itc':
-            collection, transformations = _estimate_drift_open3d(locdata=locdata, **self.parameter)
+        if self.method == 'icp':
+            collection, transformations = _estimate_drift_icp(locdata=locdata, **self.parameter)
         elif self.method == 'cc':
             collection, transformations = _estimate_drift_cc(locdata=locdata, **self.parameter, **kwargs)
         else:
-            raise ValueError(f'Method {self.method} is not defined. One of "itc", "cc".')
+            raise ValueError(f'Method {self.method} is not defined. One of "icp", "cc".')
         self.locdata = locdata
         self.collection = collection
         self.transformations = transformations
@@ -448,7 +461,7 @@ class Drift(_Analysis):
         element : int, None
             The element of flattened transformation matrix or offset
         drift_model : DriftComponent, str, None
-            A drift model as defined by a `DriftComponent` instance
+            A drift model as defined by a :class:`DriftComponent` instance
             or the parameter `type` as defined in :class:`DriftComponent`.
             For None no change will occur. To reset transformation_models set the transformation_component to None:
             e.g. self.transformation_components = None or self.transformation_components['matrix'] = None.
@@ -456,7 +469,8 @@ class Drift(_Analysis):
             Print the fitted model curves using lmfit.
         """
         dimension = self.locdata.dimension
-        frames = np.array([locdata.data.frame.mean() for locdata in self.collection.references[1:]])[slice_data]
+        # frames = np.array([locdata.data.frame.mean() for locdata in self.collection.references[1:]])[slice_data]
+        frames = np.array([locdata.data.frame.mean() for locdata in self.collection.references])[slice_data]
 
         if drift_model is None:
             return self
@@ -470,19 +484,15 @@ class Drift(_Analysis):
                               for transformation in self.transformations])[slice_data]
                 if self.transformation_models['matrix'] is None:
                     self.transformation_models.update(self._transformation_models_for_identity_matrix())
-
             elif transformation_component == 'offset':
                 y = np.array([transformation.offset[element] for transformation in self.transformations])[slice_data]
                 if self.transformation_models['offset'] is None:
                     self.transformation_models.update(self._transformation_models_for_zero_offset())
-
             else:
                 raise ValueError("transformation_component must be 'matrix' or 'offset'.")
 
             self.transformation_models[transformation_component][element] = drift_model
-
-            for drift_component in self.transformation_models[transformation_component]:
-                drift_component.fit(frames, y, verbose=False)
+            self.transformation_models[transformation_component][element].fit(frames, y, verbose=False)
 
             if verbose:
                 self.transformation_models[transformation_component][element].model.plot()
@@ -515,16 +525,25 @@ class Drift(_Analysis):
         if matrix_models is None:
             self.transformation_models['matrix'] = None
         else:
+            if len(matrix_models) != self.locdata.dimension**2:
+                raise ValueError('Length of matrix_models must be equal to the square of the '
+                                 'transformations dimension (4 or 9).')
             self.transformation_models.update(self._transformation_models_for_identity_matrix())
             for n, matrix_model in enumerate(matrix_models):
+                if matrix_model is None:
+                    matrix_model = self.transformation_models['matrix'][n]
                 self.fit_transformation(slice_data=slice_data, transformation_component='matrix', element=n,
                                         drift_model=matrix_model, verbose=verbose)
 
         if offset_models is None:
             self.transformation_models['offset'] = None
         else:
+            if len(offset_models) != self.locdata.dimension:
+                raise ValueError('Length of offset_models must be equal to the the transformations dimension (2 or 3).')
             self.transformation_models.update(self._transformation_models_for_zero_offset())
             for n, offset_model in enumerate(offset_models):
+                if offset_model is None:
+                    offset_model = self.transformation_models['offset'][n]
                 self.fit_transformation(slice_data=slice_data, transformation_component='offset', element=n,
                                         drift_model=offset_model, verbose=verbose)
 
@@ -612,8 +631,8 @@ class Drift(_Analysis):
 
         # update metadata
         meta_ = _modify_meta(self.locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
-                            parameter=local_parameter,
-                            meta=None)
+                             parameter=local_parameter,
+                             meta=None)
         new_locdata.meta = meta_
 
         self.locdata_corrected = new_locdata
@@ -621,11 +640,11 @@ class Drift(_Analysis):
 
     def plot(self, ax=None, transformation_component='matrix', element=None, window=1, **kwargs):
         """
-        Provide plot as matplotlib.axes.Axes object showing the running average of results over window size.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the running average of results over window size.
 
         Parameters
         ----------
-        ax : matplotlib.axes
+        ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
         transformation_component : str
             One of 'matrix' or 'offset'
@@ -635,11 +654,11 @@ class Drift(_Analysis):
             Window for running average that is applied before plotting.
             Not implemented yet.
         kwargs : dict
-            Other parameters passed to matplotlib.pyplot.plot().
+            Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        :class:`matplotlib.axes.Axes`
             Axes object with the plot.
         """
         if ax is None:
@@ -647,19 +666,20 @@ class Drift(_Analysis):
 
         n_transformations = len(self.transformations)
         # prepare plot
-        x = [reference.data.frame.mean() for reference in self.collection.references[1:]]
-        results = np.array([getattr(transformation, transformation_component) for transformation in self.transformations])
+        x = [reference.data.frame.mean() for reference in self.collection.references]
+        results = np.array([getattr(transformation, transformation_component) for transformation
+                            in self.transformations])
         if element is None:
             ys = results.reshape(n_transformations, -1).T
-            for y in ys:
-                ax.plot(x, y, **kwargs)
+            for i, y in enumerate(ys):
+                ax.plot(x, y, label=f'transformation_component[{i}]', **kwargs)
         else:
             y = results.reshape(n_transformations, -1).T[element]
-            ax.plot(x, y, **kwargs)
+            ax.plot(x, y, label=f'transformation_component[{element}]', **kwargs)
 
         ax.set(title=f'Drift\n (window={window})',
                xlabel='frame',
-               ylabel=''.join([transformation_component, '[', str(element), ']'])
+               ylabel=''.join([transformation_component])
                )
 
         return ax

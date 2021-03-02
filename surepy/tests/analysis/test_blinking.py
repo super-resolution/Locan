@@ -1,5 +1,4 @@
 import pytest
-import numpy as np
 import pandas as pd
 from scipy import stats
 
@@ -88,7 +87,7 @@ def test_blink_statistics__with_repetitions(locdata_with_repetitions):
 
 def test_BlinkStatistics(locdata_with_zero_frame):
     bs = BlinkStatistics().compute(locdata_with_zero_frame)
-    assert repr(bs) == "BlinkStatistics(**{'memory': 0, 'remove_heading_off_periods': True})"
+    assert repr(bs) == "BlinkStatistics(memory=0, remove_heading_off_periods=True)"
     assert all(bs.results['on_periods'] == [3, 1, 2, 1])
     assert all(bs.results['off_periods'] == [1, 5, 2])
     assert bs.distribution_statistics == {}
@@ -126,7 +125,7 @@ def test_fit_distributions(locdata_with_zero_frame):
            {'off_periods_loc': 1.0, 'off_periods_scale': 1.6666666666666665}
     bs.hist()
     bs.hist(data_identifier='off_periods')
-    del(bs)
+    del bs
 
     bs = BlinkStatistics().compute(locdata_with_zero_frame)
     bs.fit_distributions(data_identifier='on_periods')

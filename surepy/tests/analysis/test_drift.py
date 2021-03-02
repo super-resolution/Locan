@@ -226,15 +226,13 @@ def test_Drift(locdata_blobs_2d):
     # plt.show()
 
     # apply chained functions
-    drift = Drift(chunk_size=200, target='first').\
+    drift = Drift(chunk_size=200, target='first', method='cc').\
         compute(locdata).\
         fit_transformations(slice_data=slice(0, 3),
                             matrix_models=None,
                             offset_models=(None, LinearModel())).\
         apply_correction()
     assert len(drift.locdata_corrected) == len(drift.locdata)
-
-    drift = Drift(chunk_size=200, target='first', method='cc').compute(locdata)
     assert isinstance(drift.locdata, LocData)
     assert isinstance(drift.collection, LocData)
     assert drift.transformations[0]._fields == ('matrix', 'offset')

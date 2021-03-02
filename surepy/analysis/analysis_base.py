@@ -53,7 +53,8 @@ class _Analysis:
 
     def __repr__(self):
         """ Return representation of the Analysis class. """
-        return f'{self.__class__.__name__}(**{self.parameter})'
+        parameter_string = ", ".join((f'{key}={value}' for key, value in self.parameter.items()))
+        return f'{self.__class__.__name__}({parameter_string})'
 
     def __getstate__(self):
         """Modify pickling behavior."""

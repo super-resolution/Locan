@@ -9,6 +9,7 @@ probability distribution.
 
 """
 import warnings
+import logging
 
 import numpy as np
 import pandas as pd
@@ -20,6 +21,8 @@ from surepy.analysis.analysis_base import _Analysis, _list_parameters
 
 
 __all__ = ['LocalizationProperty']
+
+logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
@@ -66,6 +69,12 @@ class LocalizationProperty(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
+    def __bool__(self):
+        if self.results is not None:
+            return True
+        else:
+            return False
+
     def compute(self, locdata=None):
         """
         Run the computation.
@@ -81,7 +90,7 @@ class LocalizationProperty(_Analysis):
             Returns the Analysis class object (self).
         """
         if not len(locdata):
-            warnings.warn('Locdata is empty.', UserWarning)
+            logger.warning('Locdata is empty.')
             return self
 
         self.results = _localization_property(locdata=locdata, **self.parameter)
@@ -104,8 +113,11 @@ class LocalizationProperty(_Analysis):
         kwargs : dict
             Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """
-        self.distribution_statistics = _DistributionFits(self)
-        self.distribution_statistics.fit(distribution, with_constraints=with_constraints, **kwargs)
+        if self:
+            self.distribution_statistics = _DistributionFits(self)
+            self.distribution_statistics.fit(distribution, with_constraints=with_constraints, **kwargs)
+        else:
+            logger.warning('No results available to fit.')
 
     def plot(self, ax=None, window=1, **kwargs):
         """
@@ -127,6 +139,9 @@ class LocalizationProperty(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         self.results.rolling(window=window, center=True).mean().plot(ax=ax, legend=False, **kwargs)
         # todo: check rolling on arbitrary index
@@ -162,6 +177,9 @@ class LocalizationProperty(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         ax.hist(self.results.dropna(axis=0).values, bins=bins, density=True, log=log, **kwargs)
         ax.set(title=self.parameter['loc_property'],
@@ -266,6 +284,9 @@ class _DistributionFits:
         """
         if ax is None:
             ax = plt.gca()
+
+        if self.distribution is None:
+            return ax
 
         # plot fit curve
         parameter = self.parameter_dict().values()

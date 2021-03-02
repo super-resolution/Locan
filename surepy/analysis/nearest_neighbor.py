@@ -30,6 +30,7 @@ References
 
 """
 # todo: add fit
+import logging
 
 import numpy as np
 import pandas as pd
@@ -42,6 +43,8 @@ from surepy.constants import N_JOBS
 
 
 __all__ = ['NearestNeighborDistances']
+
+logger = logging.getLogger(__name__)
 
 
 #### The algorithms
@@ -135,6 +138,12 @@ class NearestNeighborDistances(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
+    def __bool__(self):
+        if self.results is not None:
+            return True
+        else:
+            return False
+
     def compute(self, locdata, other_locdata=None):
         """
         Run the computation.
@@ -151,6 +160,10 @@ class NearestNeighborDistances(_Analysis):
         Analysis class
            Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         #setting the localization density of locdata
         if other_locdata is None:
             self.localization_density = locdata.properties['localization_density_bb']
@@ -158,10 +171,10 @@ class NearestNeighborDistances(_Analysis):
             self.localization_density = other_locdata.properties['localization_density_bb']
 
         points = locdata.coordinates
-        if other_locdata is not None:
-            other_points = other_locdata.coordinates
-        else:
+        if other_locdata is None:
             other_points = None
+        else:
+            other_points = other_locdata.coordinates
 
         self.results = _nearest_neighbor_distances(points=points, **self.parameter, other_points=other_points)
         return self
@@ -182,9 +195,11 @@ class NearestNeighborDistances(_Analysis):
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
         """
-        self.distribution_statistics = _DistributionFits(self)
-        self.distribution_statistics.fit(with_constraints=with_constraints)
-
+        if self:
+            self.distribution_statistics = _DistributionFits(self)
+            self.distribution_statistics.fit(with_constraints=with_constraints)
+        else:
+            logger.warning('No results available to fit.')
 
     def hist(self, ax=None, bins='auto', density=True, fit=False, **kwargs):
         """
@@ -209,6 +224,9 @@ class NearestNeighborDistances(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         values, bin_values, patches = ax.hist(self.results['nn_distance'], bins=bins, density=density, label = 'data')
         x_data = (bin_values[:-1] + bin_values[1:]) / 2

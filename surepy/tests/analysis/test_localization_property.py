@@ -28,11 +28,18 @@ def test_DistributionFits(locdata):
 
 
 def test_Localization_property(locdata):
-    lprop = LocalizationProperty(loc_property='intensity').compute(locdata=locdata)
+    lprop = LocalizationProperty(loc_property='intensity')
+    assert not lprop
+    lprop.plot()
+    lprop.hist()
+    lprop.compute(locdata=locdata)
+    assert lprop
+    print(lprop)
+    assert repr(lprop) == "LocalizationProperty(loc_property=intensity, index=None)"
     assert(lprop.results.columns == pd.Index(['intensity'], dtype='object'))
     assert(lprop.distribution_statistics is None)
-    #  lprop.plot()
-    # lprop.hist()
+    lprop.plot()
+    lprop.hist()
     lprop.fit_distributions()
     assert(list(lprop.distribution_statistics.parameter_dict().keys()) == ['intensity_loc', 'intensity_scale'])
 

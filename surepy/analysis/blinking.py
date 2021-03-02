@@ -258,8 +258,7 @@ class _DistributionFits:
         param_dict = dict(analysis_class=self.analysis_class.__class__.__name__,
                           distribution=self.distribution.__class__.__name__,
                           data_identifier=self.data_identifier)
-        param_string = ''.join([f'{key}={val}, ' for key, val in param_dict.items()])
-        param_string = param_string[:-2]
+        param_string = ", ".join((f'{key}={val}' for key, val in param_dict.items()))
         return f'{self.__class__.__name__}({param_string})'
 
     def fit(self, with_constraints=True, **kwargs):

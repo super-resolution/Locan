@@ -3,6 +3,8 @@
 Compute localizations per frame.
 
 """
+import logging
+
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -12,6 +14,8 @@ from surepy.analysis.analysis_base import _Analysis
 
 
 __all__ = ['LocalizationsPerFrame']
+
+logger = logging.getLogger(__name__)
 
 
 #### The algorithms
@@ -82,6 +86,12 @@ class LocalizationsPerFrame(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
+    def __bool__(self):
+        if self.results is not None:
+            return True
+        else:
+            return False
+
     def compute(self, locdata):
         """
         Run the computation.
@@ -96,6 +106,10 @@ class LocalizationsPerFrame(_Analysis):
         Analysis class
            Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         self.results = _localizations_per_frame(data=locdata, **self.parameter)
         return self
 
@@ -109,8 +123,11 @@ class LocalizationsPerFrame(_Analysis):
         loc_property : str
             The LocData property for which to fit an appropriate distribution; if None all plots are shown.
         """
-        self.distribution_statistics = _DistributionFits(self)
-        self.distribution_statistics.fit(**kwargs)
+        if self:
+            self.distribution_statistics = _DistributionFits(self)
+            self.distribution_statistics.fit(**kwargs)
+        else:
+            logger.warning('No results available to fit.')
 
     def plot(self, ax=None, window=1, **kwargs):
         """
@@ -132,6 +149,9 @@ class LocalizationsPerFrame(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         # prepare plot
         self.results.rolling(window=window, center=True).mean().plot(ax=ax, **kwargs)
@@ -165,6 +185,9 @@ class LocalizationsPerFrame(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         ax.hist(self.results.values, bins=bins, density=True, log=False, **kwargs)
         ax.set(title = 'Localizations per Frame',
@@ -256,6 +279,9 @@ class _DistributionFits:
         """
         if ax is None:
             ax = plt.gca()
+
+        if self.distribution is None:
+            return ax
 
         # plot fit curve
         _center, _sigma = self.parameter_dict().values()

@@ -11,7 +11,7 @@ References
    Chemphyschem 17;15(4), 2014:664-70. doi: 10.1002/cphc.201300711
 
 """
-
+import logging
 
 import numpy as np
 import pandas as pd
@@ -22,6 +22,8 @@ from surepy.analysis.analysis_base import _Analysis
 
 
 __all__ = ['LocalizationUncertaintyFromIntensity']
+
+logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
@@ -75,6 +77,12 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
         super().__init__(meta=meta)
         self.results = None
 
+    def __bool__(self):
+        if self.results is not None:
+            return True
+        else:
+            return False
+
     def compute(self, locdata):
         """
         Run the computation.
@@ -89,5 +97,9 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
         Analysis class
             Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         self.results = _localization_uncertainty_from_intensity(locdata=locdata)
         return self

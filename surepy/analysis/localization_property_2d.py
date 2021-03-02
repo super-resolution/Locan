@@ -6,6 +6,7 @@ E.g. looking at how the local background is distributed over localization coordi
 illumination profile in SMLM experiments.
 """
 from collections import namedtuple
+import logging
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,6 +19,8 @@ from surepy.constants import COLORMAP_DIVERGING
 
 
 __all__ = ['LocalizationProperty2d']
+
+logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
@@ -239,6 +242,12 @@ class LocalizationProperty2d(_Analysis):
                          rescale=rescale)
         self.results = None
 
+    def __bool__(self):
+        if self.results is not None:
+            return True
+        else:
+            return False
+
     def compute(self, locdata=None):
         """
         Run the computation.
@@ -253,10 +262,18 @@ class LocalizationProperty2d(_Analysis):
         Analysis class
             Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         self.results = _localization_property2d(locdata=locdata, **self.parameter)
         return self
 
     def report(self):
+        if not self:
+            logger.warning('No results available')
+            return
+
         print('Fit results for:\n')
         print(self.results.model_result.fit_report(min_correl=0.25))
         # print(self.results.fit_results.best_values)
@@ -287,6 +304,9 @@ class LocalizationProperty2d(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         ax.imshow(self.results.image, cmap='viridis', origin='lower', extent=np.ravel(self.results.bins.bin_range))
 
@@ -322,6 +342,9 @@ class LocalizationProperty2d(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         x, y = self.results.bins.bin_edges[0][1:], self.results.bins.bin_edges[1][1:]
         xx, yy = np.meshgrid(x, y)
@@ -361,6 +384,9 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
+        if not self:
+            return ax
+
         positions = np.nonzero(self.results.image)
         mean_value = self.results.image[positions].mean()
         deviations = np.where(self.results.image == 0, np.nan, self.results.image - mean_value)
@@ -393,6 +419,9 @@ class LocalizationProperty2d(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         positions = np.nonzero(self.results.image)
         median_value = np.median(self.results.image[positions])

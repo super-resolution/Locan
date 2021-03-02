@@ -4,6 +4,7 @@ Analyze cross dependencies between localization properties.
 Analyze cross dependencies as indicated by the correlation coefficients between any two localization properties.
 """
 from collections import namedtuple
+import logging
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,6 +17,8 @@ from surepy.constants import COLORMAP_DIVERGING
 
 
 __all__ = ['LocalizationPropertyCorrelations']
+
+logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
@@ -55,6 +58,12 @@ class LocalizationPropertyCorrelations(_Analysis):
         super().__init__(meta=meta, loc_properties=loc_properties)
         self.results = None
 
+    def __bool__(self):
+        if self.results is not None:
+            return True
+        else:
+            return False
+
     def compute(self, locdata=None):
         """
         Run the computation.
@@ -69,10 +78,18 @@ class LocalizationPropertyCorrelations(_Analysis):
         Analysis class
             Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         self.results = _localization_property_correlations(locdata=locdata, **self.parameter)
         return self
 
     def report(self):
+        if not self:
+            logger.warning('No results available')
+            return
+
         print('Fit results for:\n')
         print(self.results.model_result.fit_report(min_correl=0.25))
         # print(self.results.fit_results.best_values)
@@ -100,6 +117,9 @@ class LocalizationPropertyCorrelations(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         im = ax.imshow(self.results, **dict(dict(vmin=-1, vmax=1, cmap=COLORMAP_DIVERGING), **kwargs))
         columns = self.results.columns

@@ -11,6 +11,7 @@ from surepy.analysis import metadata_analysis_pb2
 def test_Analysis_example():
     ae = AnalysisExampleAlgorithm_1(limits=(100, 110), meta={'comment': 'this is an example'})
     # print(ae)
+    assert repr(ae) == 'AnalysisExampleAlgorithm_1(limits=(100, 110))'
     assert str(ae) == repr(ae)
     assert ae.parameter == {'limits': (100, 110)}
     assert ae.meta.comment == 'this is an example'

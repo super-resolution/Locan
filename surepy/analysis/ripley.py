@@ -40,6 +40,7 @@ References
    derivatives to analyze domain size. Biophysical journal 97, 1095–1103
 
 """
+import logging
 
 import numpy as np
 import pandas as pd
@@ -51,8 +52,10 @@ from surepy.analysis.analysis_base import _Analysis
 
 __all__ = ['RipleysKFunction', 'RipleysLFunction', 'RipleysHFunction']
 
+logger = logging.getLogger(__name__)
 
 #### The algorithms
+
 
 def _ripleys_k_function(points, radii, region_measure=1, other_points=None):
     """
@@ -143,6 +146,12 @@ class RipleysKFunction(_Analysis):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
         self.results = None
 
+    def __bool__(self):
+        if self.results is not None:
+            return True
+        else:
+            return False
+
     def compute(self, locdata, other_locdata=None):
         """
         Run the computation.
@@ -160,6 +169,10 @@ class RipleysKFunction(_Analysis):
         Analysis class
            Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         points = locdata.coordinates
         if other_locdata is not None:
             other_points = other_locdata.coordinates
@@ -213,6 +226,12 @@ class RipleysLFunction(_Analysis):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
         self.results = None
 
+    def __bool__(self):
+        if self.results is not None:
+            return True
+        else:
+            return False
+
     def compute(self, locdata, other_locdata=None):
         """
         Run the computation.
@@ -230,6 +249,10 @@ class RipleysLFunction(_Analysis):
         Analysis class
            Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         points = locdata.coordinates
         if other_locdata is not None:
             other_points = other_locdata.coordinates
@@ -286,6 +309,12 @@ class RipleysHFunction(_Analysis):
         self.results = None
         self._Ripley_h_maximum = None
 
+    def __bool__(self):
+        if self.results is not None:
+            return True
+        else:
+            return False
+
     def compute(self, locdata, other_locdata=None):
         """
         Run the computation.
@@ -303,6 +332,10 @@ class RipleysHFunction(_Analysis):
         Analysis class
            Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         # reset secondary results
         self._Ripley_h_maximum = None
 
@@ -367,6 +400,9 @@ def plot(self, ax=None, **kwargs):
     """
     if ax is None:
         ax = plt.gca()
+
+    if not self:
+        return ax
 
     self.results.plot(ax=ax, **kwargs)
 

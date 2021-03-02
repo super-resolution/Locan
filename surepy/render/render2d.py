@@ -4,6 +4,7 @@ This module provides functions for rendering locdata objects.
 
 """
 import warnings
+import logging
 from math import isclose
 from collections import namedtuple
 
@@ -28,6 +29,8 @@ if _has_napari: import napari
 
 __all__ = ['render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari', 'scatter_2d_mpl',
            'apply_window']
+
+logger = logging.getLogger(__name__)
 
 
 def render_2d_mpl(locdata, loc_properties=None, other_property=None,
@@ -90,13 +93,15 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
     :class:`matplotlib.axes.Axes`
         Axes object with the image.
     """
-    # todo: plot empty image if ranges are provided.
-    if not len(locdata):
-        raise ValueError('Locdata does not contain any data points.')
-
     # Provide matplotlib.axes.Axes if not provided
     if ax is None:
         ax = plt.gca()
+
+    # return ax if no or single point in locdata
+    if len(locdata) < 2:
+        if len(locdata) == 1:
+            logger.warning('Locdata carries a single localization.')
+        return ax
 
     hist = histogram(locdata, loc_properties, other_property,
                                               bins, n_bins, bin_size, bin_edges, bin_range,
@@ -170,6 +175,13 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     # Provide matplotlib.axes.Axes if not provided
     if ax is None:
         ax = plt.gca()
+
+    # return ax if no or single point in locdata
+    if len(locdata) < 2:
+        if len(locdata) == 1:
+            logger.warning('Locdata carries a single localization.')
+        return ax
+    else:
         fig = ax.get_figure()
         ax = fig.add_subplot(1, 1, 1, projection='scatter_density', label='scatter_density')
 

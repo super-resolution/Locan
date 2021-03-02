@@ -14,24 +14,38 @@ from surepy import cluster_dbscan
 skip_tests = True
 
 
+def test_render_2d_mpl_empty(locdata_empty):
+    render_2d_mpl(locdata_empty, bin_size=5)
+    #plt.show()
+
+
+def test_render_2d_mpl_single(locdata_single_localization):
+    render_2d_mpl(locdata_single_localization, bin_size=5)
+    render_2d_mpl(locdata_single_localization, bin_size=0.5)
+    #plt.show()
+
+
 def test_render_2d_mpl(locdata_blobs_2d):
-    # render_2d_mpl(locdata_blobs_2d)
-    # render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=[[500, 1000], [500, 1000]], cbar=False)
+    render_2d_mpl(locdata_blobs_2d)
+    render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=[[500, 1000], [500, 1000]], cbar=False)
 
     render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale=None)
-    # render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale=True)
-    # render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale='unity')
-    # render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale='equal')
-    # render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale=(0, 50))
-    # render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range='zero')
-    #
-    # fig, ax = plt.subplots(nrows=1, ncols=2)
-    # render_2d_mpl(locdata_blobs_2d, ax=ax[0])
-    # render_2d_mpl(locdata_blobs_2d, bin_range='zero', ax=ax[1])
-    #
-    # render_2d_mpl(locdata_blobs_2d, ax=ax[0], colorbar_kws=dict(ax=ax[0]))
-    # render_2d_mpl(locdata_blobs_2d, bin_range='zero', ax=ax[1])
+    render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale=True)
+    render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale='unity')
+    render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale='equal')
+    render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale=(0, 50))
+    render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range='zero')
 
+    fig, ax = plt.subplots(nrows=1, ncols=2)
+    render_2d_mpl(locdata_blobs_2d, ax=ax[0])
+    render_2d_mpl(locdata_blobs_2d, bin_range='zero', ax=ax[1])
+
+    render_2d_mpl(locdata_blobs_2d, ax=ax[0], colorbar_kws=dict(ax=ax[0]))
+    render_2d_mpl(locdata_blobs_2d, bin_range='zero', ax=ax[1])
+
+
+def test_render_2d_mpl_show(locdata_blobs_2d):
+    render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale=None)
     # plt.show()
 
 

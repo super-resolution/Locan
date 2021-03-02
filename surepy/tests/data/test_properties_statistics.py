@@ -83,3 +83,11 @@ def test__ranges(locdata_2d):
     assert np.array_equal(ranges_, [[0, 5], [0, 6]])
     ranges_ = ranges(locdata_2d, loc_properties=True, special='link')
     assert np.array_equal(ranges_, [[1, 150],  [1, 150], [1, 150], [1, 150]])
+
+
+def test__ranges_empty(locdata_empty, locdata_single_localization):
+    assert ranges(locdata_empty) is None
+    ranges_ = ranges(locdata_single_localization, loc_properties=None)
+    assert np.array_equal(ranges_, [[1, 2], [1, 2]])
+    ranges_ = ranges(locdata_single_localization, loc_properties=True)
+    assert np.array_equal(ranges_, [[1, 2], [1, 2], [1, 2], [1, 2]])

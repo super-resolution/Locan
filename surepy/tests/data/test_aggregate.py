@@ -66,6 +66,8 @@ def test__bin_edges_to_bin_size_one_dimension():
     assert bin_size == 2
     bin_size = _bin_edges_to_bin_size_one_dimension([1, 2, 4])
     assert bin_size == (1, 2)
+    bin_size = _bin_edges_to_bin_size_one_dimension([1, 2])
+    assert bin_size == 1
 
 
 def test__bin_edges_to_bin_size():
@@ -456,6 +458,20 @@ def test_histogram(locdata_blobs_2d):
     assert hist.data.ndim == 2
     assert np.max(hist.data) == 7
 
+    hist = histogram(locdata_blobs_2d, n_bins=10, bin_range=((500, 1000), (500, 1000)))
+    assert hist.data.ndim == 2
+    assert np.max(hist.data) == 5
+
+    # todo: fix the following
+    # hist = histogram(locdata_blobs_2d, n_bins=10, bin_range=(500, 1000))
+
+    hist = histogram(locdata_blobs_2d, bin_edges=((500, 600, 700, 800, 900, 1000), (500, 600, 700, 800, 900, 1000)))
+    assert hist.data.ndim == 2
+    assert np.max(hist.data) == 7
+
+    # todo: fix the following
+    # hist = histogram(locdata_blobs_2d, bin_edges=(500, 600, 700, 800, 900, 1000))
+
     hist = histogram(locdata_blobs_2d, bin_size=10, bin_range='zero', rescale=True)
     assert np.max(hist.data) == 1
     assert 'counts' in hist.labels
@@ -474,3 +490,21 @@ def test_histogram(locdata_blobs_2d):
     hist = histogram(locdata_blobs_2d, bin_size=10, other_property='position_y')
     assert 'position_y' in hist.labels
     assert hist.data.shape == (55, 89)
+
+
+def test_histogram_empty(locdata_empty):
+    with pytest.raises(TypeError):
+        hist = histogram(locdata_empty, n_bins=10)
+
+
+def test_histogram_single_value(locdata_single_localization):
+    hist = histogram(locdata_single_localization, n_bins=3)
+    assert hist.data.shape == (3, 3)
+    assert np.array_equal(hist.bins.bin_range, [[1, 2], [1, 2]])
+
+    hist = histogram(locdata_single_localization, bin_size=0.2)
+    assert hist.data.shape == (5, 5)
+    assert np.array_equal(hist.bins.bin_range, [[1, 2], [1, 2]])
+
+    # todo: fix
+    # hist = histogram(locdata_single_localization, bin_size=2)

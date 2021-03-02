@@ -535,25 +535,25 @@ class _BinsFromSize:
         self.bin_size = _bin_edges_to_bin_size(self.bin_edges)
 
 
+# todo: add option for the following bin specifications.
+# Bin specifications from an appropriate class or as defined in :func:`numpy.histogramdd`:
+# The number of bins for all dimensions n.
+# The number of bins for each dimension (nx, ny)
+# A sequence of arrays ((edge_x1, edge_x2), (edge_y1, edge_y2)) describing the monotonically
+# increasing bin edges along each dimension.
 class Bins:
     """
     Bin definitions to be used in histogram and render functions.
-    `Bins`can be instantiated from one of the following parameters (`bins`, `bin_edges`) or (`n_bins`, `bin_size`)
-    in combination with `bin_range`.
+    `Bins`can be instantiated from specifications for `bins` or `bin_edges`
+    or for one of `n_bins` or `bin_size` in combination with `bin_range`.
     One and only one of (`bins`, `bin_edges`, `n_bins`, `bin_size`) must be different from None in any instantiating
     function.
     To pass bin specifications to other functions use an instance of `Bins` or `bin_edges`.
 
     Parameters
     ----------
-    bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
-
-        # todo: add option for the following bin specifications.
-        Bin specifications from an appropriate class or as defined in :func:`numpy.histogramdd`:
-        The number of bins for all dimensions n.
-        The number of bins for each dimension (nx, ny)
-        A sequence of arrays ((edge_x1, edge_x2), (edge_y1, edge_y2)) describing the monotonically
-        increasing bin edges along each dimension.
+    bins : `Bins` or `boost_histogram.axis.Axis` or None
+        Specific class specifying the bins.
 
     bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimensions, n_bin_edges) or None
         Array of bin edges for all or each dimension.
@@ -872,8 +872,10 @@ def histogram(locdata, loc_properties=None, other_property=None,
         if all(loc_property not in locdata.data.columns for loc_property in loc_properties):
             raise ValueError(f'{loc_properties} is not a valid property in locdata.data.')
         data = locdata.data[labels_].values.T
+    else:
+        raise ValueError(f'{loc_properties} is not a valid property in locdata.data.')
 
-    if bin_range is None or isinstance(bin_range, str):
+    if (bin_range is None or isinstance(bin_range, str)) and bin_edges is None:
         bin_range_ = ranges(locdata, loc_properties=labels_, special=bin_range)
     else:
         bin_range_ = bin_range

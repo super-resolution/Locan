@@ -60,14 +60,15 @@ def statistics(locdata, statistic_keys=('count', 'min', 'max', 'mean', 'median',
     return dict_
 
 
-# todo: add DataFrame input
-def ranges(locdata: LocData, loc_properties=None, special=None):
+def ranges(locdata: LocData, loc_properties=None, special=None, epsilon=1):
     """
     Provide data ranges for locdata.data property.
+    If LocData is empty None is returned.
+    If LocData carries a single value, the range will be (value, value + `epsilon`).
 
     Parameters
     ----------
-    locdata : pandas.DataFrame, LocData
+    locdata : LocData
         Localization data.
     loc_properties : str, tuple[str], list[str], True, None.
         Localization properties for which the range is determined.
@@ -77,12 +78,19 @@ def ranges(locdata: LocData, loc_properties=None, special=None):
         If None (min, max) ranges are determined from data and returned;
         if 'zero' (0, max) ranges with max determined from data are returned.
         if 'link' (min_all, max_all) ranges with min and max determined from all combined data are returned.
+    epsilon : float
+        number to specify the range for single values in locdata.
 
     Returns
     -------
-    numpy.ndarray of float with shape (n_dimensions, 2)
+    numpy.ndarray of float with shape (n_dimensions, 2), None
         The data range (min, max) for each localization property.
     """
+    if locdata.data.empty:
+        return None
+    elif len(locdata) == 1:
+        pass
+
     if loc_properties is None:
         ranges_ = locdata.bounding_box.hull.T.copy()
     elif loc_properties is True:
@@ -94,6 +102,12 @@ def ranges(locdata: LocData, loc_properties=None, special=None):
         loc_properties = list(loc_properties)
         ranges_ = np.array([locdata.data[loc_properties].min(),
                             locdata.data[loc_properties].max()]).T
+
+    if len(locdata) == 1:
+        if ranges_.size == 0:
+            ranges_ = np.concatenate([locdata.coordinates, locdata.coordinates + epsilon], axis=0).T
+        else:
+            ranges_ = ranges_ + [0, epsilon]
 
     if special is None:
         pass

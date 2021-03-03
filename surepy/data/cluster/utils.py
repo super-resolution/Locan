@@ -26,9 +26,6 @@ def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
     parameter_lists : dict
         A dictionary with all parameter lists that are to be iterated. The keys should be identical to parameter names
         of the used algorithm.
-
-    Other Parameters
-    ----------------
     kwargs : dict
         Optional keyword arguments that are passed to the algorithm.
 

@@ -305,11 +305,8 @@ class _DistributionFits:
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
-
-        Other Parameters
-        ----------------
         kwargs : dict
-            Parameters passed to the `distribution.fit()` method.
+            Other parameters passed to the `distribution.fit()` method.
         """
         self.distribution = NNDistances_csr_2d()
         # todo: add 3D
@@ -337,11 +334,8 @@ class _DistributionFits:
         ----------
         ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image.
-
-        Other Parameters
-        ----------------
         kwargs : dict
-            Parameters passed to :func:`matplotlib.pyplot.plot`.
+            Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------

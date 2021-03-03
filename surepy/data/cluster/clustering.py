@@ -22,33 +22,6 @@ from surepy.constants import N_JOBS
 __all__ = ['cluster_hdbscan', 'cluster_dbscan']
 
 
-# A general function for clustering should maybe be implemented.
-#
-# def find_cluster(locdata, algorithm, **kwargs):
-#     """
-#     Cluster localizations in LocData using a specified clustering algorithm.
-#
-#     Parameters
-#     ----------
-#     locdata : LocData
-#         Localization data on which to perform the manipulation.
-#     algorithm : str
-#         Name of the cluster function to use on `locdata`.
-#
-#     Other Parameters
-#     ----------------
-#     kwargs : dict
-#         Parameters for specified clustering algorithm.
-#
-#     Returns
-#     -------
-#     LocData
-#         A new instance of LocData (representing a collection of Locdata)
-#         assembling all generated selections (i.e. localization cluster).
-#     """
-#     raise NotImplementedError
-
-
 def cluster_hdbscan(locdata, min_cluster_size=5, loc_properties=None, allow_single_cluster=False, **kwargs):
     """
     Cluster localizations in locdata using the hdbscan clustering algorithm.

@@ -369,11 +369,8 @@ def plot(self, ax=None, **kwargs):
     ----------
     ax : :class:`matplotlib.axes.Axes`
         The axes on which to show the image
-
-    Other Parameters
-    ----------------
     kwargs : dict
-        Parameters passed to :func:`matplotlib.pyplot.plot`.
+        Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
     Returns
     -------

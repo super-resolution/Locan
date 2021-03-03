@@ -41,11 +41,8 @@ def sc_napari(file_path=None, file_type=FileType.CUSTOM, **kwargs):
     file_type : int, str, surepy.constants.FileType, surepy.data.metadata_pb2.Metadata
         Indicator for the file type.
         Integer or string should be according to surepy.constants.FileType.
-
-    Other Parameters
-    ----------------
     kwargs : dict
-        Keywords passed to :func:`render_2d_napari`.
+        Other parameters passed to :func:`render_2d_napari`.
     """
     # choose file interactively
     if file_path is None:

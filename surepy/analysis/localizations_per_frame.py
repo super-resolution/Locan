@@ -260,11 +260,8 @@ class _DistributionFits:
         ----------
         ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image.
-
-        Other Parameters
-        ----------------
         kwargs : dict
-            parameters passed to :func:`matplotlib.pyplot.plot`.
+            Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------

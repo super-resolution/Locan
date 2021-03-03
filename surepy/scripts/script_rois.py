@@ -45,11 +45,8 @@ def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indic
         Integer or string should be according to surepy.constants.FileType.
     roi_file_indicator : str
         Indicator to add to the localization file name and use as roi file name (with further extension .yaml).
-
-    Other Parameters
-    ----------------
     kwargs : dict
-        Keywords passed to :func:`render_2d_napari`.
+        Other parameters passed to :func:`render_2d_napari`.
     """
     # choose file interactively
     if file_path is None:

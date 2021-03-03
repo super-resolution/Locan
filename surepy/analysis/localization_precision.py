@@ -153,11 +153,8 @@ class LocalizationPrecision(_Analysis):
         ----------
         loc_property : str
             The LocData property for which to fit an appropriate distribution; if None all plots are shown.
-
-        Other Parameters
-        ----------------
         kwargs : dict
-            Parameters passed to the `distribution.fit()` method.
+            Other parameters passed to the `distribution.fit()` method.
         """
         if not self:
             logger.warning('No results available to be fitted.')
@@ -519,11 +516,8 @@ class _DistributionFits:
         ----------
         loc_property : str
             The property for which to fit an appropriate distribution
-
-        Other Parameters
-        ----------------
         kwargs : dict
-            Parameters passed to the `distribution.fit()` method.
+            Other parameters passed to the `distribution.fit()` method.
         """
         # prepare parameters
         if 'position_delta_' in loc_property:
@@ -561,11 +555,8 @@ class _DistributionFits:
             The axes on which to show the image.
         loc_property : str
             The property for which to plot the distribution fit.
-
-        Other Parameters
-        ----------------
         kwargs : dict
-            parameters passed to :func:`matplotlib.pyplot.plot`.
+            Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------

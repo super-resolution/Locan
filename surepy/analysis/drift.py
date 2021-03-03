@@ -321,11 +321,8 @@ class DriftComponent:
             y values
         verbose : bool
             show plot
-
-        Other Parameters
-        ----------------
         kwargs : dict
-            Parameters passed to :func:`lmfit.model.fit` or to :func:`scipy.interpolate.splrep`
+            Other parameters passed to :func:`lmfit.model.fit` or to :func:`scipy.interpolate.splrep`
             Use the parameter `s` to set the amount of smoothing.
 
         Returns
@@ -710,10 +707,10 @@ class Drift(_Analysis):
         if element is None:
             ys = results.reshape(n_transformations, -1).T
             for i, y in enumerate(ys):
-                ax.plot(x, y, label=f'transformation_component[{i}]', **kwargs)
+                ax.plot(x, y, **dict(dict(label=f'{transformation_component}[{i}]'), **kwargs))
         else:
             y = results.reshape(n_transformations, -1).T[element]
-            ax.plot(x, y, label=f'transformation_component[{element}]', **kwargs)
+            ax.plot(x, y, **dict(dict(label=f'{transformation_component}[{element}]'), **kwargs))
 
         ax.set(title=f'Drift\n (window={window})',
                xlabel='frame',

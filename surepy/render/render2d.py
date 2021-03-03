@@ -408,20 +408,17 @@ def select_by_drawing_mpl(locdata, region_type='rectangle', **kwargs):
         The localization data from which to select localization data.
     region_type : str
         rectangle, or ellipse specifying the selection widget to use.
-
-    Other Parameters
-    ----------------
     kwargs :
-        kwargs as specified for render_2d
+        Other parameters as specified for :func:`render_2d`.
 
     Returns
     -------
-    list
-        A list of Roi objects
+    list of Roi
+        A list of :class:`Roi` objects.
 
     See Also
     --------
-    surepy.scripts.sc_draw_roi_mpl : script for drawing rois
+    :func:`surepy.scripts.sc_draw_roi_mpl` : script for drawing rois
     matplotlib.widgets : selector functions
     """
 
@@ -498,11 +495,8 @@ def select_by_drawing_napari(locdata, **kwargs):
     ----------
     locdata : LocData
         The localization data from which to select localization data.
-
-    Other Parameters
-    ----------------
     kwargs : dict
-        Keywords passed to :func:`render_2d_napari`.
+        Other parameters passed to :func:`render_2d_napari`.
 
     Returns
     -------
@@ -510,7 +504,7 @@ def select_by_drawing_napari(locdata, **kwargs):
 
     See Also
     --------
-    surepy.scripts.rois : script for drawing rois
+    :func:`surepy.scripts.rois` : script for drawing rois
     """
     # select roi
     viewer, hist = render_2d_napari(locdata, **kwargs)

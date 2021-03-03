@@ -202,8 +202,7 @@ class LocalizationPrecision(_Analysis):
         self.results.rolling(window=window, center=True).mean().plot(ax=ax,
                                                                      x='frame',
                                                                      y=loc_property,
-                                                                     legend=False,
-                                                                     **kwargs)
+                                                                     **dict(dict(legend=False), **kwargs))
         ax.set(title=f'Localization Precision\n (window={window})',
                xlabel='frame',
                ylabel=loc_property
@@ -241,7 +240,7 @@ class LocalizationPrecision(_Analysis):
             return ax
 
         # prepare plot
-        ax.hist(self.results[loc_property].values, bins=bins, density=True, log=False, **kwargs)
+        ax.hist(self.results[loc_property].values, bins=bins, **dict(dict(density=True, log=False), **kwargs))
         ax.set(title='Localization Precision',
                xlabel=loc_property,
                ylabel='PDF'

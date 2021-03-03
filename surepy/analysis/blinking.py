@@ -212,7 +212,7 @@ class BlinkStatistics(_Analysis):
         if not self:
             return ax
 
-        ax.hist(self.results[data_identifier], bins=bins, density=True, log=log, **kwargs)
+        ax.hist(self.results[data_identifier], bins=bins, **dict(dict(density=True, log=log), **kwargs))
         ax.set(title = f'Distribution of {data_identifier}',
                xlabel = f'{data_identifier} (frames)',
                ylabel = 'PDF'
@@ -230,7 +230,6 @@ class BlinkStatistics(_Analysis):
         return ax
 
 
-# todo: incorporate fitting of geometrical distribution instead of exponential.
 class _DistributionFits:
     """
     Handle for distribution fits.
@@ -301,7 +300,7 @@ class _DistributionFits:
         # perform fit
         if with_constraints and self.distribution == stats.expon:
             # MLE fit of exponential distribution with constraints
-            fit_results = stats.expon.fit(data, floc=np.min(data), **kwargs)
+            fit_results = stats.expon.fit(data, **dict(dict(floc=np.min(data)), **kwargs))
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
         else:
@@ -339,8 +338,9 @@ class _DistributionFits:
         parameter = self.parameter_dict().values()
         x_values = np.linspace(self.distribution.ppf(1e-4, *parameter),
                                self.distribution.ppf(1 - 1e-4, *parameter), 100)
-        ax.plot(x_values, self.distribution.pdf(x_values, *parameter), 'r-', lw=3, alpha=0.6,
-                label=str(self.distribution) + ' pdf', **kwargs)
+        ax.plot(x_values, self.distribution.pdf(x_values, *parameter), 'r-',
+                **dict(dict(lw=3, alpha=0.6, label=str(self.distribution.name) + ' pdf'),
+                       **kwargs))
 
         return ax
 

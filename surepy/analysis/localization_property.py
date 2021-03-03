@@ -137,7 +137,7 @@ class LocalizationProperty(_Analysis):
         if not self:
             return ax
 
-        self.results.rolling(window=window, center=True).mean().plot(ax=ax, legend=False, **kwargs)
+        self.results.rolling(window=window, center=True).mean().plot(ax=ax, **dict(dict(legend=False), **kwargs))
         # todo: check rolling on arbitrary index
         ax.set(title=f"{self.parameter['loc_property']}({self.parameter['index']})\n (window={window})",
                xlabel=self.parameter['index'],
@@ -175,7 +175,7 @@ class LocalizationProperty(_Analysis):
         if not self:
             return ax
 
-        ax.hist(self.results.dropna(axis=0).values, bins=bins, density=True, log=log, **kwargs)
+        ax.hist(self.results.dropna(axis=0).values, bins=bins, **dict(dict(density=True, log=log), **kwargs))
         ax.set(title=self.parameter['loc_property'],
                xlabel=self.parameter['loc_property'],
                ylabel='PDF'
@@ -248,7 +248,8 @@ class _DistributionFits:
         if with_constraints and self.distribution == stats.expon:
             # MLE fit of exponential distribution with constraints
             fit_results = stats.expon.fit(self.analysis_class.results[self.loc_property].values,
-                                          floc=np.min(self.analysis_class.results[self.loc_property].values), **kwargs)
+                                          **dict(dict(floc=np.min(self.analysis_class.results[self.loc_property].values)
+                                                      ), **kwargs))
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
         else:
@@ -286,8 +287,8 @@ class _DistributionFits:
         parameter = self.parameter_dict().values()
         x_values = np.linspace(self.distribution.ppf(0.001, *parameter),
                                self.distribution.ppf(0.999, *parameter), 100)
-        ax.plot(x_values, self.distribution.pdf(x_values, *parameter), 'r-', lw=3, alpha=0.6,
-                label=str(self.distribution) + ' pdf', **kwargs)
+        ax.plot(x_values, self.distribution.pdf(x_values, *parameter), 'r-',
+                **dict(dict(lw=3, alpha=0.6, label=str(self.distribution.name) + ' pdf'), **kwargs))
 
         return ax
 

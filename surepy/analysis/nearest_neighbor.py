@@ -319,7 +319,7 @@ class _DistributionFits:
         if with_constraints:
             fit_results = self.distribution.fit(data=self.analysis_class.results[self.loc_property].values,
                                                 density=self.analysis_class.localization_density,
-                                                floc=0, fscale=1, **kwargs)
+                                                **dict(dict(floc=0, fscale=1), **kwargs))
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
         else:
@@ -354,8 +354,8 @@ class _DistributionFits:
         # plot fit curve
         x_values = np.linspace(self.distribution.ppf(0.001, **self.parameter_dict()),
                                self.distribution.ppf(0.999, **self.parameter_dict()), 100)
-        ax.plot(x_values, self.distribution.pdf(x_values, **self.parameter_dict()), 'r-', lw=3, alpha=0.6,
-                label=str(self.distribution) + ' pdf', **kwargs)
+        ax.plot(x_values, self.distribution.pdf(x_values, **self.parameter_dict()), 'r-',
+                **dict(dict(lw=3, alpha=0.6, label=str(self.distribution.name) + ' pdf'), **kwargs))
         return ax
 
     def parameter_dict(self):

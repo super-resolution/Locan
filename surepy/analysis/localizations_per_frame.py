@@ -183,7 +183,7 @@ class LocalizationsPerFrame(_Analysis):
         if not self:
             return ax
 
-        ax.hist(self.results.values, bins=bins, density=True, log=False, **kwargs)
+        ax.hist(self.results.values, bins=bins, **dict(dict(density=True, log=False), **kwargs))
         ax.set(title = 'Localizations per Frame',
                xlabel = self.results.name,
                ylabel = 'PDF'
@@ -282,8 +282,8 @@ class _DistributionFits:
 
         x_values = np.linspace(self.distribution.ppf(0.001, loc=_center, scale=_sigma),
                                self.distribution.ppf(0.999, loc=_center, scale=_sigma), 100)
-        ax.plot(x_values, self.distribution.pdf(x_values, loc=_center, scale=_sigma), 'r-', lw=3, alpha=0.6,
-                label=str(self.distribution) + ' pdf', **kwargs)
+        ax.plot(x_values, self.distribution.pdf(x_values, loc=_center, scale=_sigma), 'r-',
+                **dict(dict(lw=3, alpha=0.6, label=str(self.distribution.name) + ' pdf'), **kwargs))
         return ax
 
     def parameter_dict(self):

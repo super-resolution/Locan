@@ -146,12 +146,6 @@ class RipleysKFunction(_Analysis):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
         self.results = None
 
-    def __bool__(self):
-        if self.results is not None:
-            return True
-        else:
-            return False
-
     def compute(self, locdata, other_locdata=None):
         """
         Run the computation.
@@ -225,12 +219,6 @@ class RipleysLFunction(_Analysis):
     def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb'):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
         self.results = None
-
-    def __bool__(self):
-        if self.results is not None:
-            return True
-        else:
-            return False
 
     def compute(self, locdata, other_locdata=None):
         """
@@ -308,12 +296,6 @@ class RipleysHFunction(_Analysis):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
         self.results = None
         self._Ripley_h_maximum = None
-
-    def __bool__(self):
-        if self.results is not None:
-            return True
-        else:
-            return False
 
     def compute(self, locdata, other_locdata=None):
         """

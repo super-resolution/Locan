@@ -45,6 +45,7 @@ References
 """
 import sys
 from collections import namedtuple
+import logging
 
 import numpy as np
 import pandas as pd
@@ -62,6 +63,8 @@ from surepy.data.metadata_utils import _modify_meta
 
 
 __all__ = ['Drift', 'DriftComponent']
+
+logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
@@ -400,6 +403,12 @@ class Drift(_Analysis):
         self.transformation_models = dict(matrix=None, offset=None)
         self.locdata_corrected = None
 
+    def __bool__(self):
+        if self.transformations is not None:
+            return True
+        else:
+            return False
+
     def compute(self, locdata, **kwargs):
         """
         Run the computation.
@@ -418,6 +427,10 @@ class Drift(_Analysis):
         Analysis class
             Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         if self.method == 'icp':
             collection, transformations = _estimate_drift_icp(locdata=locdata, **self.parameter)
         elif self.method == 'cc':
@@ -522,6 +535,10 @@ class Drift(_Analysis):
         verbose : bool
             Print the fitted model curves.
         """
+        if not self:
+            logger.warning('No transformations available to be fitted.')
+            return self
+
         if matrix_models is None:
             self.transformation_models['matrix'] = None
         else:
@@ -570,27 +587,32 @@ class Drift(_Analysis):
         new_locdata = LocData.concat([self.collection.references[0]] + transformed_locdatas)
         return new_locdata
 
-    def _apply_correction_from_model(self):
+    def _apply_correction_from_model(self, locdata):
         """
         Correct drift by applying the estimated transformations to locdata.
         If self.transformation_model['matrix'] is None, no matrix transformation will be carried out when calling
         :func:`apply_correction` (same for 'offset').
+
+        Parameters
+        ----------
+        locdata : LocData or None
+            Localization data to apply correction on. If None correction is applied to self.locdata.
         """
         # check if any models are fitted, otherwise it is likely that the fitting procedure was accidentally omitted.
         if self.transformation_models['matrix'] is None and self.transformation_models['offset'] is None:
             raise AttributeError("The transformation_models have to be fitted before they can be evaluated.")
 
-        dimension = self.locdata.dimension
-        frames = self.locdata.data.frame.values
+        dimension = locdata.dimension
+        frames = locdata.data.frame.values
         matrix = np.tile(np.identity(dimension), (len(frames), *([1] * dimension)))
         offset = np.zeros((len(frames), dimension))
 
         if self.transformation_models['matrix'] is None:
-            transformed_points = self.locdata.coordinates
+            transformed_points = locdata.coordinates
         else:
             for n, drift_model in enumerate(self.transformation_models['matrix']):
                 matrix[:, n // dimension, n % dimension] = drift_model.eval(frames)
-            transformed_points = np.einsum("...ij, ...j -> ...i", matrix, self.locdata.coordinates)
+            transformed_points = np.einsum("...ij, ...j -> ...i", matrix, locdata.coordinates)
 
         if self.transformation_models['offset'] is None:
             pass
@@ -613,20 +635,33 @@ class Drift(_Analysis):
             If `True` compute transformation matrix from fitted transformation models and apply interpolated
             transformations. If False use the estimated transformation matrix for each data chunk.
         """
+        if not self:
+            logger.warning('No transformations available to be applied.')
+            return self
+
         local_parameter = locals()
 
-        if locdata is not None:
-            self.locdata = locdata
+        if locdata is None:
+            locdata_orig = self.locdata
+        else:
+            locdata_orig = locdata
+
+        if not len(locdata_orig):
+            logger.warning('Locdata is empty.')
+            self.locdata_corrected = locdata_orig
+            return self
 
         if from_model:
-            transformed_points = self._apply_correction_from_model()
+            transformed_points = self._apply_correction_from_model(locdata=locdata_orig)
         else:
+            if locdata is not None:
+                raise TypeError('Locdata must be None since correction can only be applied to original locdata chunks.')
             transformed_points = self._apply_correction_on_chunks().coordinates
 
         # new LocData object
-        new_dataframe = self.locdata.data.copy()
-        new_dataframe.update(pd.DataFrame(transformed_points, columns=self.locdata.coordinate_labels,
-                                          index=self.locdata.data.index))
+        new_dataframe = locdata_orig.data.copy()
+        new_dataframe.update(pd.DataFrame(transformed_points, columns=locdata_orig.coordinate_labels,
+                                          index=locdata_orig.data.index))
         new_locdata = LocData.from_dataframe(new_dataframe)
 
         # update metadata
@@ -640,7 +675,7 @@ class Drift(_Analysis):
 
     def plot(self, ax=None, transformation_component='matrix', element=None, window=1, **kwargs):
         """
-        Provide plot as :class:`matplotlib.axes.Axes` object showing the running average of results over window size.
+        Plot the transformation components as function of average frame for each locdata chunk.
 
         Parameters
         ----------
@@ -663,6 +698,9 @@ class Drift(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         n_transformations = len(self.transformations)
         # prepare plot

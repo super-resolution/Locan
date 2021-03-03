@@ -22,9 +22,6 @@ class _Analysis:
         Localization data.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-
-    Other Parameters
-    ----------------
     kwargs :
         Parameter that are passed to the algorithm.
 
@@ -36,6 +33,8 @@ class _Analysis:
         A dictionary with all settings (i.e. the kwargs) for the current computation.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
+    results : any
+        Computed results.
     """
     count = 0
     """int: A counter for counting Analysis class instantiations (class attribute)."""
@@ -46,6 +45,7 @@ class _Analysis:
         self.parameter = kwargs
         self.meta = _init_meta(self)
         self.meta = _update_meta(self, meta)
+        self.results = None
 
     def __del__(self):
         """ Update the counter upon deletion of class instance. """
@@ -72,6 +72,12 @@ class _Analysis:
         # Restore protobuf class for meta attribute
         self.meta = metadata_analysis_pb2.AMetadata()
         self.meta = json_format.Parse(state['meta'], self.meta)
+
+    def __bool__(self):
+        if self.results is not None:
+            return True
+        else:
+            return False
 
     def compute(self):
         """ Apply analysis routine with the specified parameters on locdata and return results."""

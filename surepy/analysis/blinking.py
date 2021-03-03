@@ -10,6 +10,7 @@ The data is currently fitted to an exponential function. This is not correct and
 
 """
 import warnings
+import logging
 
 import numpy as np
 import pandas as pd
@@ -21,6 +22,8 @@ from surepy.data.locdata import LocData
 
 
 __all__ = ['BlinkStatistics']
+
+logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
@@ -56,7 +59,7 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
     # provide warning if duplicate frames are found. This should not be the case for appropriate localization clusters.
     if np.any(counts > 1):
         counts_larger_one = counts[counts > 1]
-        warnings.warn(f'There are {sum(counts_larger_one) - len(counts_larger_one)} '
+        logger.warning(f'There are {sum(counts_larger_one) - len(counts_larger_one)} '
                       f'duplicated frames found that will be ignored.')
 
     # frames are counted from 0. We change this to start with 1 and insert 0 to get a 1 frame on period
@@ -137,6 +140,10 @@ class BlinkStatistics(_Analysis):
         Analysis class
             Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         self.results = _blink_statistics(locdata=locdata, **self.parameter)
         return self
 
@@ -161,15 +168,18 @@ class BlinkStatistics(_Analysis):
         kwargs : dict
             Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """
-        if isinstance(data_identifier, (tuple, list)):
-            data_identifier_ = data_identifier
+        if not self:
+            logger.warning('No results available to fit.')
         else:
-            data_identifier_ = (data_identifier,)
+            if isinstance(data_identifier, (tuple, list)):
+                data_identifier_ = data_identifier
+            else:
+                data_identifier_ = (data_identifier,)
 
-        for data_id in data_identifier_:
-            self.distribution_statistics[data_id] = _DistributionFits(self, data_identifier=data_id,
-                                             distribution=distribution)
-            self.distribution_statistics[data_id].fit(with_constraints=with_constraints, **kwargs)
+            for data_id in data_identifier_:
+                self.distribution_statistics[data_id] = _DistributionFits(self, data_identifier=data_id,
+                                                 distribution=distribution)
+                self.distribution_statistics[data_id].fit(with_constraints=with_constraints, **kwargs)
 
     def hist(self, data_identifier='on_periods', ax=None, bins='auto', log=True, fit=True, **kwargs):
         """
@@ -198,6 +208,9 @@ class BlinkStatistics(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         ax.hist(self.results[data_identifier], bins=bins, density=True, log=log, **kwargs)
         ax.set(title = f'Distribution of {data_identifier}',
@@ -318,6 +331,9 @@ class _DistributionFits:
         """
         if ax is None:
             ax = plt.gca()
+
+        if self.distribution is None:
+            return ax
 
         # plot fit curve
         parameter = self.parameter_dict().values()

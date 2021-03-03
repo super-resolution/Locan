@@ -11,6 +11,7 @@ References
    Histochem Cell Biol. 2012, 137(1):1-10.
    doi: 10.1007/s00418-011-0880-5
 """
+import logging
 
 import numpy as np
 import pandas as pd
@@ -22,6 +23,8 @@ from surepy.analysis.analysis_base import _Analysis
 
 
 __all__ = ['CoordinateBasedColocalization']
+
+logger = logging.getLogger(__name__)
 
 
 ##### The algorithm
@@ -143,6 +146,10 @@ class CoordinateBasedColocalization(_Analysis):
         Analysis class
            Returns the Analysis class object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         points = locdata.coordinates
         if other_locdata is not None:
             other_points = other_locdata.coordinates
@@ -176,6 +183,9 @@ class CoordinateBasedColocalization(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         ax.hist(self.results.iloc[:, 0].values, bins=bins, density=density, label='cbc')
 

@@ -183,7 +183,7 @@ def test_Drift(locdata_blobs_2d):
     drift.transformation_models['matrix'] = None
     drift.transformation_models['offset'] = None
     with pytest.raises(AttributeError):
-        drift._apply_correction_from_model()
+        drift._apply_correction_from_model(drift.locdata)
 
     drift.fit_transformation(slice_data=slice(None), transformation_component='matrix', element=1,
                              drift_model='linear', verbose=True)
@@ -203,7 +203,7 @@ def test_Drift(locdata_blobs_2d):
                               matrix_models=['linear'] * 4,
                               offset_models=['linear'] * 2,
                               verbose=False)
-    transformed_points = drift._apply_correction_from_model()
+    transformed_points = drift._apply_correction_from_model(drift.locdata)
     assert len(transformed_points) == len(locdata)
 
     drift.apply_correction(from_model=True)

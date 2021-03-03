@@ -58,12 +58,6 @@ class LocalizationPropertyCorrelations(_Analysis):
         super().__init__(meta=meta, loc_properties=loc_properties)
         self.results = None
 
-    def __bool__(self):
-        if self.results is not None:
-            return True
-        else:
-            return False
-
     def compute(self, locdata=None):
         """
         Run the computation.

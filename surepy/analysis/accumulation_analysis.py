@@ -213,6 +213,10 @@ class AccumulationClusterCheck(_Analysis):
         AccumulationClusterCheck
           Returns the `Analysis` object (self).
         """
+        if not len(locdata):
+            logger.warning('Locdata is empty.')
+            return self
+
         self.results = _accumulation_cluster_check(locdata, **self.parameter)
         return self
 
@@ -234,6 +238,9 @@ class AccumulationClusterCheck(_Analysis):
         """
         if ax is None:
             ax = plt.gca()
+
+        if not self:
+            return ax
 
         self.results.plot(x='eta', y='rho/rho_0', ax=ax, **kwargs)
 

@@ -120,12 +120,6 @@ class LocalizationPrecision(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def __bool__(self):
-        if self.results is not None:
-            return True
-        else:
-            return False
-
     def compute(self, locdata):
         """
         Run the computation.

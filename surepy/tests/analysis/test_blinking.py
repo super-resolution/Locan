@@ -81,8 +81,7 @@ def test_blink_statistics(locdata_with_zero_frame, locdata_without_zero_frame):
 
 
 def test_blink_statistics__with_repetitions(locdata_with_repetitions):
-    with pytest.warns(UserWarning):
-        _blink_statistics(locdata_with_repetitions, memory=0, remove_heading_off_periods=False)
+    _blink_statistics(locdata_with_repetitions, memory=0, remove_heading_off_periods=False)
 
 
 def test_BlinkStatistics(locdata_with_zero_frame):

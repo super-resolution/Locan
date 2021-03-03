@@ -77,12 +77,6 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
         super().__init__(meta=meta)
         self.results = None
 
-    def __bool__(self):
-        if self.results is not None:
-            return True
-        else:
-            return False
-
     def compute(self, locdata):
         """
         Run the computation.

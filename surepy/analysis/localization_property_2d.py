@@ -242,12 +242,6 @@ class LocalizationProperty2d(_Analysis):
                          rescale=rescale)
         self.results = None
 
-    def __bool__(self):
-        if self.results is not None:
-            return True
-        else:
-            return False
-
     def compute(self, locdata=None):
         """
         Run the computation.

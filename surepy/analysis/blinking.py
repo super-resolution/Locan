@@ -3,13 +3,7 @@ Compute on- and off-periods from localization frames.
 
 Assuming that the provided localizations are acquired from the same label, we analyze the times of recording as
 provided by the `frame` property.
-
-Note
-----
-The data is currently fitted to an exponential function. This is not correct and will be changed soon.
-
 """
-import warnings
 import logging
 
 import numpy as np

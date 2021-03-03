@@ -75,7 +75,7 @@ def _bin_size_to_bin_edges_one_dimension(bin_size, bin_range, extend_range=None)
 
     Parameters
     ----------
-    bin_size : float or tuple, list, numpy.ndarray of lfoat with shape (n_bins,).
+    bin_size : float or tuple, list, numpy.ndarray of float with shape (n_bins,).
         One size or sequence of sizes for bins.
     bin_range : tuple, list, or numpy.ndarray of float with shape (2,).
         Minimum and maximum edge of binned bin_range.
@@ -97,20 +97,30 @@ def _bin_size_to_bin_edges_one_dimension(bin_size, bin_range, extend_range=None)
     """
     if _is_scalar(bin_size):
         bin_edges = np.arange(*bin_range, bin_size, dtype=float)
-        last_edge = bin_edges[-1] + bin_size
-        if isclose(last_edge, bin_range[-1]):
-            bin_edges = np.append(bin_edges, last_edge)
-        else:
-            if extend_range is None:
-                pass
-            elif extend_range is True:
-                bin_edges = np.append(bin_edges, last_edge)
+        if bin_edges.size == 1:  # this is the case if bin_size is greater than the bin_range
+            if extend_range is None or extend_range is True:
+                bin_edges = np.append(bin_edges, bin_size)
             elif extend_range is False:
-                bin_edges = np.append(bin_edges, bin_range[-1])
+                bin_edges = bin_range
             else:
                 raise ValueError('`extend_range` must be None, True or False.')
+        else:
+            last_edge = bin_edges[-1] + bin_size
+            if isclose(last_edge, bin_range[-1]):
+                bin_edges = np.append(bin_edges, last_edge)
+            else:
+                if extend_range is None:
+                    pass
+                elif extend_range is True:
+                    bin_edges = np.append(bin_edges, last_edge)
+                elif extend_range is False:
+                    bin_edges = np.append(bin_edges, bin_range[-1])
+                else:
+                    raise ValueError('`extend_range` must be None, True or False.')
 
     elif _is_1d_array_of_scalar(bin_size):
+        if bin_size[0] > np.diff(bin_range):
+            raise ValueError('The first bin size is greater than the maximum bin_range.')
         bin_edges_ = np.concatenate((np.asarray([bin_range[0]]), np.cumsum(bin_size) + bin_range[0]))
         bin_edges = bin_edges_[bin_edges_ <= bin_range[-1]]
         if extend_range is None:
@@ -743,12 +753,10 @@ def adjust_contrast(image, rescale=True, **kwargs):
         For 'equal' intensity values are rescaled by histogram equalization.
         For 'unity' intensity values are rescaled to (0, 1).
         For None or False no rescaling occurs.
-
-    Other Parameters
-    ----------------
     kwargs : dict
-        For 'rescale' = True kwargs are passed to :func:`skimage.exposure.rescale_intensity`.
-        For 'rescale' = 'equal' kwargs are passed to :func:`skimage.exposure.equalize_hist`.
+        Other parameters that
+        for 'rescale' = True kwargs are passed to :func:`skimage.exposure.rescale_intensity` and
+        for 'rescale' = 'equal' kwargs are passed to :func:`skimage.exposure.equalize_hist`.
 
     Returns
     -------
@@ -848,9 +856,6 @@ def histogram(locdata, loc_properties=None, other_property=None,
         For 'equal' intensity values are rescaled by histogram equalization.
         For 'unity' intensity values are rescaled to (0, 1).
         For None or False no rescaling occurs.
-
-    Other Parameters
-    ----------------
     kwargs : dict
         For 'rescale' = True kwargs are passed to :func:`skimage.exposure.rescale_intensity`.
         For 'rescale' = 'equal' kwargs are passed to :func:`skimage.exposure.equalize_hist`.

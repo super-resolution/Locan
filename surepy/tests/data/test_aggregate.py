@@ -506,5 +506,6 @@ def test_histogram_single_value(locdata_single_localization):
     assert hist.data.shape == (5, 5)
     assert np.array_equal(hist.bins.bin_range, [[1, 2], [1, 2]])
 
-    # todo: fix
-    # hist = histogram(locdata_single_localization, bin_size=2)
+    hist = histogram(locdata_single_localization, bin_size=2)
+    assert hist.data.shape == (1, 1)
+    assert np.array_equal(hist.bins.bin_range, [[1, 2], [1, 2]])

@@ -122,32 +122,40 @@ def ranges(locdata: LocData, loc_properties=None, special=None, epsilon=1):
     return ranges_
 
 
-def range_from_collection(locdata):
+def range_from_collection(locdatas, loc_properties=None, special=None, epsilon=1):
     """
     Compute the maximum range from all combined localizations for each dimension.
 
     Parameters
     ----------
-    locdata : LocData or list(LocData)
+    locdatas : list of LocData
         Collection of localization datasets.
+    loc_properties : str, tuple[str], list[str], True, None.
+        Localization properties for which the range is determined.
+        If None the ranges for all spatial coordinates are returned.
+        If True the ranges for all locdata.data properties are returned.
+    special : None, str
+        If None (min, max) ranges are determined from data and returned;
+        if 'zero' (0, max) ranges with max determined from data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from all combined data are returned.
+    epsilon : float
+        number to specify the range for single values in locdata.
 
     Returns
     -------
     namedtuple
         A namedtuple('Ranges', locdata.coordinate_labels) of namedtuple('Range', 'min max').
     """
-    if isinstance(locdata, (list, tuple)):
-        locdatas = locdata
-        labels = locdata[0].coordinate_labels
-    elif isinstance(locdata.references, list):
-        locdatas = locdata.references
-        labels = locdata.coordinate_labels
-    else:
-        raise TypeError('locdata must contain a collection of Locdata objects.')
+    ranges_ = [ranges(locdata=locdata, loc_properties=loc_properties, special=special, epsilon=epsilon)
+               for locdata in locdatas]
 
-    ranges = [locdata.bounding_box.hull for locdata in locdatas]
-    mins = np.array(ranges)[:, 0].min(axis=0)
-    maxs = np.array(ranges)[:, 1].max(axis=0)
+    mins = np.min([rand[:, 0] for rand in ranges_], axis=0)
+    maxs = np.max([rand[:, 1] for rand in ranges_], axis=0)
+
+    if loc_properties is None:
+        labels = locdatas[0].coordinate_labels
+    else:
+        labels = loc_properties
 
     Ranges = namedtuple('Ranges', labels)
     Range = namedtuple('Range', 'min max')

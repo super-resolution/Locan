@@ -59,7 +59,7 @@ def test_statistics_with_new_column(locdata_simple):
 
 def test_range_from_collection(locdata_3d):
     collection = LocData.from_chunks(locdata_3d, n_chunks=2)
-    result = range_from_collection(collection)
+    result = range_from_collection(collection.references)
     assert result.position_x.min == 1
     assert result.position_x.max == 5
     assert result.position_z.min == 1

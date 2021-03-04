@@ -54,8 +54,8 @@ dependencies:
 - napari
 - mpl-scatter-density
 
-# Current fixes
-# - jedi<=0.17.2
+# Various issues
+- pydantic!=1.8.0
 
 # additions for open3d
 - addict

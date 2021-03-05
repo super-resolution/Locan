@@ -19,14 +19,15 @@ assert ren_eng
 
 assert N_JOBS == 1
 
+
 def test_rapidstorm_keys_are_mapped_on_valid_property_keys():
     for item in RAPIDSTORM_KEYS.values():
         assert (True if item in PROPERTY_KEYS else False)
 
 
-# def test_elyra_keys_are_mapped_on_valid_property_keys():
-#     for item in ELYRA_KEYS.values():
-#         assert (True if item in PROPERTY_KEYS else False)
+def test_elyra_keys_are_mapped_on_valid_property_keys():
+    for item in ELYRA_KEYS.values():
+        assert (True if item in PROPERTY_KEYS else False)
 
 
 def test_thunderstorm_keys_are_mapped_on_valid_property_keys():

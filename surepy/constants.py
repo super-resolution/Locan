@@ -117,15 +117,22 @@ DATASETS_DIR = ROOT_DIR.parent.parent / 'Surepy_datasets'
 
 
 #: Keys for the most common LocData properties.
-PROPERTY_KEYS = ['index', 'original_index', 'position_x', 'position_y', 'position_z', 'frame', 'intensity',
-                 'local_background', 'local_background_sigma', 'signal_noise_ratio', 'signal_background_ratio',
-                 'chi_square',
-                 'psf_sigma', 'psf_sigma_x', 'psf_sigma_y', 'psf_sigma_z',
-                 'uncertainty', 'uncertainty_x', 'uncertainty_y', 'uncertainty_z',
-                 'channel', 'index', 'cluster_label', 'two_kernel_improvement',
-                 'frames_number', 'frames_missing',
-                 'psf_width', 'slice_z'
-                 ]
+# values suggest a type for conversion.
+# If 'integer', 'signed', 'unsigned', 'float' pandas.to_numeric can be applied.
+# Otherwise pandas.astype can be applied.
+PROPERTY_KEYS = {'index': 'integer', 'original_index': 'integer',
+                 'position_x': 'float', 'position_y': 'float', 'position_z': 'float',
+                 'frame': 'integer', 'frames_number': 'integer', 'frames_missing': 'integer',
+                 'intensity': 'float',
+                 'local_background': 'float', 'local_background_sigma': 'float',
+                 'signal_noise_ratio': 'float', 'signal_background_ratio': 'float',
+                 'chi_square': 'float', 'two_kernel_improvement': 'float',
+                 'psf_sigma': 'float', 'psf_sigma_x': 'float', 'psf_sigma_y': 'float', 'psf_sigma_z': 'float',
+                 'psf_width': 'float', 'psf_half_width': 'float',
+                 'uncertainty': 'float', 'uncertainty_x': 'float', 'uncertainty_y': 'float', 'uncertainty_z': 'float',
+                 'channel': 'integer', 'cluster_label': 'integer',
+                 'slice_z': 'float'
+                 }
 
 
 class HullType(Enum):

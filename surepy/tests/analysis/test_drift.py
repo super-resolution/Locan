@@ -173,8 +173,8 @@ def test_Drift(locdata_blobs_2d):
     assert drift.transformation_models['offset'][0].type == 'spline'
     assert drift.transformation_models['offset'][1].type == 'spline'
 
-    assert drift.transformation_models['offset'][0].eval(3) == pytest.approx(-6.227589344498715)
-    assert drift.transformation_models['offset'][1].eval(3) == pytest.approx(-2.8927851131432862)
+    assert drift.transformation_models['offset'][0].eval(3) == pytest.approx(-6.228, abs=1e-3)
+    assert drift.transformation_models['offset'][1].eval(3) == pytest.approx(-2.893, abs=1e-3)
 
     assert drift.locdata_corrected is None
     new_locdata = drift._apply_correction_on_chunks()

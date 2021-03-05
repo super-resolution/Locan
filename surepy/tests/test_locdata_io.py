@@ -6,10 +6,19 @@ from io import StringIO, BytesIO, TextIOWrapper
 import logging
 
 import pytest
+import numpy as np
 from pandas.testing import assert_frame_equal
 import surepy.constants
 import surepy.io.io_locdata as io
 from surepy.data import metadata_pb2
+
+
+def test_convert_property_types(locdata_2d):
+    df = locdata_2d.data.copy()
+    types_mapping = {'position_x': 'float', 'position_y': str, 'frame': np.int64, 'not_in_there': 'float'}
+    converted_df = io.convert_property_types(dataframe=df, loc_properties=None, types=types_mapping)
+    assert all(converted_df.dtypes == [np.float32, object, np.int64, np.int32])
+    assert isinstance(converted_df['position_y'].iloc[0], str)
 
 
 def test_open_path_or_file_like():

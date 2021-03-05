@@ -43,11 +43,49 @@ import surepy.constants
 from surepy.data import metadata_pb2
 
 
-__all__ = ['save_asdf', 'save_thunderstorm_csv',
+__all__ = ['convert_property_types', 'save_asdf', 'save_thunderstorm_csv',
            'load_txt_file', 'load_rapidSTORM_file', 'load_Elyra_file', 'load_asdf_file', 'load_thunderstorm_file',
            'load_Nanoimager_file', 'load_locdata']
 
 logger = logging.getLogger(__name__)
+
+
+def convert_property_types(dataframe, types, loc_properties=None):
+    """
+    Convert data types according to the column-type mapping in types.
+    If the target type is one of 'integer', 'signed', 'unsigned', 'float'
+    then :func:`pandas.to_numeric` will be applied.
+    Otherwise, if the target type is any type object like `int`, `str`, `np.float64` or similar
+    then :func:`pandas.astype` will be applied.
+
+    Parameters
+    ----------
+    dataframe : pandas.DataFrame
+        Data to be converted
+    types : dict
+        Mapping of loc_properties to types
+    loc_properties : list(str), None
+        The columns in dataframe to be converted. If None all columns will be converted according to types.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A copy of dataframe with converted types
+    """
+    new_df = dataframe.copy()
+    if loc_properties is None:
+        loc_properties = dataframe.columns
+    else:
+        loc_properties = [key for key in loc_properties if key in dataframe.columns]
+    selected_property_keys = {key: types[key] for key in loc_properties if key in types}
+
+    for key, value in selected_property_keys.items():
+        if isinstance(value, str):
+            new_df[key] = pd.to_numeric(dataframe[key], downcast=value, errors='coerce')
+        else:
+            new_df[key] = dataframe[key].astype(value)
+
+    return new_df
 
 
 def open_path_or_file_like(path_or_file_like, mode='r', encoding=None):
@@ -252,7 +290,7 @@ def load_rapidSTORM_header(path):
         return read_rapidSTORM_header(file)
 
 
-def load_rapidSTORM_file(path, nrows=None, **kwargs):
+def load_rapidSTORM_file(path, nrows=None, convert=True, **kwargs):
     """
     Load data from a rapidSTORM single-molecule localization file.
 
@@ -262,6 +300,8 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
         File path for a rapidSTORM file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
+    convert : bool
+        If True convert types by applying type specifications in surepy.constants.PROPERTY_KEYS.
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -274,9 +314,8 @@ def load_rapidSTORM_file(path, nrows=None, **kwargs):
         columns = read_rapidSTORM_header(file)
         dataframe = pd.read_csv(file, sep=" ", skiprows=0, nrows=nrows, names=columns, **kwargs)
 
-    # correct data formats
-    integer_Frames = pd.to_numeric(dataframe['frame'], downcast='integer')
-    dataframe['frame'] = integer_Frames
+    if convert:
+        dataframe = convert_property_types(dataframe, types=surepy.constants.PROPERTY_KEYS)
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
@@ -345,7 +384,7 @@ def load_Elyra_header(path):
         return read_Elyra_header(file)
 
 
-def load_Elyra_file(path, nrows=None, **kwargs):
+def load_Elyra_file(path, nrows=None, convert=True, **kwargs):
     """
     Load data from a rapidSTORM single-molecule localization file.
 
@@ -355,6 +394,8 @@ def load_Elyra_file(path, nrows=None, **kwargs):
         File path for a rapidSTORM file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
+    convert : bool
+        If True convert types by applying type specifications in surepy.constants.PROPERTY_KEYS.
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -377,10 +418,8 @@ def load_Elyra_file(path, nrows=None, **kwargs):
         stream = io.StringIO(string)
         dataframe = pd.read_csv(stream, sep="\t", skiprows=0, nrows=nrows, names=columns, **kwargs)
 
-    # correct data formats
-    if 'original_index' in columns:
-        integer_index = pd.to_numeric(dataframe['original_index'], downcast='integer')
-        dataframe['original_index'] = integer_index
+    if convert:
+        dataframe = convert_property_types(dataframe, types=surepy.constants.PROPERTY_KEYS)
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
@@ -467,7 +506,7 @@ def load_thunderstorm_header(path):
         return read_thunderstorm_header(file)
 
 
-def load_thunderstorm_file(path, nrows=None, **kwargs):
+def load_thunderstorm_file(path, nrows=None, convert=True, **kwargs):
     """
     Load data from a Thunderstorm single-molecule localization file.
 
@@ -477,6 +516,8 @@ def load_thunderstorm_file(path, nrows=None, **kwargs):
         File path for a Thunderstorm file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
+    convert : bool
+        If True convert types by applying type specifications in surepy.constants.PROPERTY_KEYS.
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -489,13 +530,8 @@ def load_thunderstorm_file(path, nrows=None, **kwargs):
         columns = read_thunderstorm_header(file)
         dataframe = pd.read_csv(file, sep=',', skiprows=0, nrows=nrows, names=columns, **kwargs)
 
-    # correct data formats
-    if 'original_index' in columns:
-        integer_Index = pd.to_numeric(dataframe['original_index'], downcast='integer')
-        dataframe['original_index'] = integer_Index
-    if 'frame' in columns:
-        integer_Frames = pd.to_numeric(dataframe['frame'], downcast='integer')
-        dataframe['frame'] = integer_Frames
+    if convert:
+        dataframe = convert_property_types(dataframe, types=surepy.constants.PROPERTY_KEYS)
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
@@ -562,7 +598,7 @@ def load_Nanoimager_header(path):
         return read_Nanoimager_header(file)
 
 
-def load_Nanoimager_file(path, nrows=None, **kwargs):
+def load_Nanoimager_file(path, nrows=None, convert=True, **kwargs):
     """
     Load data from a Nanoimager single-molecule localization file.
 
@@ -572,6 +608,8 @@ def load_Nanoimager_file(path, nrows=None, **kwargs):
         File path for a Nanoimager file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
+    convert : bool
+        If True convert types by applying type specifications in surepy.constants.PROPERTY_KEYS.
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -584,13 +622,8 @@ def load_Nanoimager_file(path, nrows=None, **kwargs):
         columns = read_Nanoimager_header(file)
         dataframe = pd.read_csv(file, sep=',', skiprows=0, nrows=nrows, names=columns, **kwargs)
 
-    # correct data formats
-    if 'original_index' in columns:
-        integer_Index = pd.to_numeric(dataframe['original_index'], downcast='integer')
-        dataframe['original_index'] = integer_Index
-    if 'frame' in columns:
-        integer_Frames = pd.to_numeric(dataframe['frame'], downcast='integer')
-        dataframe['frame'] = integer_Frames
+    if convert:
+        dataframe = convert_property_types(dataframe, types=surepy.constants.PROPERTY_KEYS)
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 

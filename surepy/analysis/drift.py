@@ -69,7 +69,7 @@ logger = logging.getLogger(__name__)
 
 ##### The algorithms
 
-def _estimate_drift_icp(locdata, chunk_size=1000, target='first'):
+def _estimate_drift_icp(locdata, chunk_size=1000, target='first', kwargs_chunk=None, kwargs_register=None):
     """
     Estimate drift from localization coordinates by registering points in successive time-chunks of localization
     data using an "Iterative Closest Point" algorithm.
@@ -82,17 +82,26 @@ def _estimate_drift_icp(locdata, chunk_size=1000, target='first'):
        Number of consecutive localizations to form a single chunk of data.
     target : str
        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
+    kwargs_chunk : dict
+        Other parameter passed to :meth:`LocData.from_chunks`.
+    kwargs_register : dict
+        Other parameter passed to :func:`_register_icp_open3d`.
 
     Returns
     -------
     tuple(LocData, list of namedtuple('Transformation', 'matrix offset'))
         Collection and corresponding transformations.
     """
+    if kwargs_chunk is None:
+        kwargs_chunk = {}
+    if kwargs_register is None:
+        kwargs_register = {}
+
     if not _has_open3d:
         raise ImportError("open3d is required.")
 
     # split in chunks
-    collection = LocData.from_chunks(locdata, chunk_size=chunk_size)
+    collection = LocData.from_chunks(locdata, chunk_size=chunk_size, **kwargs_chunk)
 
     # register locdatas
     # initialize with identity transformation for chunk zero.
@@ -101,24 +110,24 @@ def _estimate_drift_icp(locdata, chunk_size=1000, target='first'):
     if target == 'first':
         for locdata in collection.references[1:]:
             transformation = _register_icp_open3d(locdata.coordinates, collection.references[0].coordinates,
-                                                  matrix=None, offset=None, pre_translation=None,
+                                                  **dict(dict(matrix=None, offset=None, pre_translation=None,
                                                   max_correspondence_distance=100, max_iteration=10_000,
-                                                  verbose=False)
+                                                  verbose=False), **kwargs_register))
             transformations.append(transformation)
 
     elif target == 'previous':
         for n in range(len(collection.references)-1):
             transformation = _register_icp_open3d(collection.references[n+1].coordinates,
                                                   collection.references[n].coordinates,
-                                                  matrix=None, offset=None, pre_translation=None,
+                                                  **dict(dict(matrix=None, offset=None, pre_translation=None,
                                                   max_correspondence_distance=100, max_iteration=10_000,
-                                                  with_scaling=False, verbose=False)
+                                                  with_scaling=False, verbose=False), **kwargs_register))
             transformations.append(transformation)
 
     return collection, transformations
 
 
-def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, **kwargs):
+def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, kwargs_chunk=None, kwargs_register=None):
     """
     Estimate drift from localization coordinates by registering points in successive time-chunks of localization
     data using a cross-correlation algorithm.
@@ -133,16 +142,23 @@ def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, **
        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
     bin_size : tuple of int, float
         Size per image pixel
-    kwargs :
-        Other parameters passed to :func:register_cc.
+    kwargs_chunk : dict
+        Other parameter passed to :meth:`LocData.from_chunks`.
+    kwargs_register : dict
+        Other parameter passed to :func:`register_cc`.
 
     Returns
     -------
     Locdata and list of namedtuple
         collection and corresponding transformations.
     """
+    if kwargs_chunk is None:
+        kwargs_chunk = {}
+    if kwargs_register is None:
+        kwargs_register = {}
+
     # split in chunks
-    collection = LocData.from_chunks(locdata, chunk_size=chunk_size)
+    collection = LocData.from_chunks(locdata, chunk_size=chunk_size, **kwargs_chunk)
     ranges = locdata.bounding_box.hull.T
 
     # register images
@@ -151,13 +167,14 @@ def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, **
     transformations = [Transformation(np.identity(locdata.dimension), np.zeros(locdata.dimension))]
     if target == 'first':
         for reference in collection.references[1:]:
-            transformation = register_cc(reference, collection.references[0], range=ranges, bin_size=bin_size, **kwargs)
+            transformation = register_cc(reference, collection.references[0],
+                                         **dict(dict(range=ranges, bin_size=bin_size), **kwargs_register))
             transformations.append(transformation)
 
     elif target == 'previous':
         for n in range(len(collection) - 1):
-            transformation = register_cc(collection.references[n + 1], collection.references[n], range=ranges,
-                                         bin_size=bin_size, **kwargs)
+            transformation = register_cc(collection.references[n + 1], collection.references[n],
+                                         **dict(dict(range=ranges, bin_size=bin_size), **kwargs_register))
             transformations.append(transformation)
 
     return collection, transformations
@@ -366,6 +383,14 @@ class Drift(_Analysis):
     method : str
         The method used for computation.
         One of iterative closest point algorithm 'icp' or image cross-correlation algorithm 'cc'.
+    bin_size : tuple of int, float
+        Only for method='cc': Size per image pixel
+    kwargs_chunk : dict
+        Other parameter passed to :meth:`LocData.from_chunks`.
+    kwargs_icp : dict
+        Other parameter passed to :func:`_register_icp_open3d`.
+    kwargs_cc : dict
+        Other parameter passed to :func:`register_cc`.
 
     Attributes
     ----------
@@ -386,15 +411,13 @@ class Drift(_Analysis):
     locdata_corrected : LocData
         Localization data with drift-corrected coordinates.
     """
-
     count = 0
 
-    def __init__(self, meta=None, chunk_size=1000, target='first', method='icp'):
-        super().__init__(meta, chunk_size=chunk_size, target=target)
+    def __init__(self, meta=None, chunk_size=1000, target='first', method='icp',
+                 kwargs_chunk=None, kwargs_register=None):
+        super().__init__(meta, chunk_size=chunk_size, target=target, method=method,
+                         kwargs_chunk=kwargs_chunk, kwargs_register=kwargs_register)
         self.locdata = None
-        self.chunk_size = chunk_size
-        self.target = target
-        self.method = method
         self.collection = None
         self.transformations = None
         self.transformation_models = dict(matrix=None, offset=None)
@@ -406,7 +429,7 @@ class Drift(_Analysis):
         else:
             return False
 
-    def compute(self, locdata, **kwargs):
+    def compute(self, locdata):
         """
         Run the computation.
 
@@ -414,10 +437,6 @@ class Drift(_Analysis):
         ----------
         locdata : LocData
             Localization data representing the source on which to perform the manipulation.
-        bin_size : tuple of int, float
-            Only for method='cc': Size per image pixel
-        kwargs : dict
-            Only for method='cc': Other parameters passed to :func:register_cc.
 
         Returns
         -------
@@ -428,12 +447,16 @@ class Drift(_Analysis):
             logger.warning('Locdata is empty.')
             return self
 
-        if self.method == 'icp':
-            collection, transformations = _estimate_drift_icp(locdata=locdata, **self.parameter)
-        elif self.method == 'cc':
-            collection, transformations = _estimate_drift_cc(locdata=locdata, **self.parameter, **kwargs)
+        if self.parameter['method'] == 'icp':
+            collection, transformations = _estimate_drift_icp(locdata=locdata, chunk_size=self.parameter['chunk_size'],
+                                                              kwargs_chunk=self.parameter['kwargs_chunk'],
+                                                              kwargs_register=self.parameter['kwargs_register'])
+        elif self.parameter['method'] == 'cc':
+            collection, transformations = _estimate_drift_cc(locdata=locdata, chunk_size=self.parameter['chunk_size'],
+                                                             kwargs_chunk=self.parameter['kwargs_chunk'],
+                                                             kwargs_register=self.parameter['kwargs_register'])
         else:
-            raise ValueError(f'Method {self.method} is not defined. One of "icp", "cc".')
+            raise ValueError(f'Method {self.parameter["method"]} is not defined. One of "icp", "cc".')
         self.locdata = locdata
         self.collection = collection
         self.transformations = transformations
@@ -488,7 +511,7 @@ class Drift(_Analysis):
         if not isinstance(drift_model, DriftComponent):
             drift_model = DriftComponent(type=drift_model)
 
-        if self.target == 'first':
+        if self.parameter['target'] == 'first':
             if transformation_component == 'matrix':
                 y = np.array([transformation.matrix[element // dimension][element % dimension]
                               for transformation in self.transformations])[slice_data]
@@ -507,7 +530,7 @@ class Drift(_Analysis):
             if verbose:
                 self.transformation_models[transformation_component][element].model.plot()
 
-        elif self.target == 'previous':
+        elif self.parameter['target'] == 'previous':
             raise NotImplementedError("Not yet implemented. Use target = 'first'.")
 
         return self
@@ -568,12 +591,12 @@ class Drift(_Analysis):
         Correct drift by applying the estimated transformations to locdata chunks.
         """
         transformed_locdatas = []
-        if self.target == 'first':
+        if self.parameter['target'] == 'first':
             transformed_locdatas = [transform_affine(locdata, transformation.matrix, transformation.offset)
                                     for locdata, transformation
                                     in zip(self.collection.references[1:], self.transformations)]
 
-        elif self.target == 'previous':
+        elif self.parameter['target'] == 'previous':
             for n, locdata in enumerate(self.collection.references[1:]):
                 transformed_locdata = locdata
                 for transformation in reversed(self.transformations[:n]):

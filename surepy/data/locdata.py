@@ -590,7 +590,7 @@ class LocData:
         return cls(references=references, dataframe=dataframe, meta=meta_)
 
     @classmethod
-    def from_chunks(cls, locdata, chunk_size=None, n_chunks=None, order='successive', meta=None):
+    def from_chunks(cls, locdata, chunk_size=None, n_chunks=None, order='successive', drop=False, meta=None):
         """
         Divide locdata in chunks of localization elements.
 
@@ -604,6 +604,8 @@ class LocData:
             Number of chunks. One of `chunk_size` or `n_chunks` must be different from None.
         order : str
             The order in which to select localizations. One of 'successive' or 'alternating'.
+        drop : bool
+            If True the last chunk will be eliminated if it has fewer localizations than the other chunks.
         meta : surepy.data.metadata_pb2.Metadata
             Metadata about the current dataset and its history.
 
@@ -642,6 +644,9 @@ class LocData:
 
         else:
             raise ValueError(f"The order {order} is not implemented.")
+
+        if drop:
+            index_lists = index_lists[:-1]
 
         references = [LocData.from_selection(locdata=locdata, indices=index_list) for index_list in index_lists]
         dataframe = pd.DataFrame([ref.properties for ref in references])

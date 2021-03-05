@@ -3,6 +3,7 @@ from pathlib import Path
 import tempfile
 import pickle
 from io import StringIO, BytesIO, TextIOWrapper
+import logging
 
 import pytest
 from pandas.testing import assert_frame_equal
@@ -160,7 +161,7 @@ def test_loading_Nanoimager_file():
                                     'local_background'])
 
 
-def test_loading_txt_file():
+def test_loading_txt_file(caplog):
     dat = io.load_txt_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt', nrows=10)
     # print(dat.data)
     assert (len(dat) == 10)
@@ -176,9 +177,10 @@ def test_loading_txt_file():
                            columns=['index', 'position_x', 'position_y', 'cluster_label'], nrows=1)
     assert (len(dat) == 1)
 
-    with pytest.warns(UserWarning):
-        dat = io.load_txt_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt',
-                               columns=['c1'], nrows=10)
+    dat = io.load_txt_file(path=surepy.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt',
+                           columns=['c1'], nrows=10)
+    assert caplog.record_tuples == [('surepy.io.io_locdata', logging.WARNING,
+                                     'Column c1 is not a Surepy property standard.')]
     # print(dat.data)
     assert (len(dat) == 10)
 

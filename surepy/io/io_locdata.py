@@ -27,6 +27,7 @@ References
 import time
 import io
 import warnings
+import logging
 from enum import Enum
 from contextlib import closing
 
@@ -45,6 +46,8 @@ from surepy.data import metadata_pb2
 __all__ = ['save_asdf', 'save_thunderstorm_csv',
            'load_txt_file', 'load_rapidSTORM_file', 'load_Elyra_file', 'load_asdf_file', 'load_thunderstorm_file',
            'load_Nanoimager_file', 'load_locdata']
+
+logger = logging.getLogger(__name__)
 
 
 def open_path_or_file_like(path_or_file_like, mode='r', encoding=None):
@@ -168,11 +171,11 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
 
         for c in dataframe.columns:
             if c not in surepy.constants.PROPERTY_KEYS:
-                warnings.warn('{} is not a Surepy property standard.'.format(c), UserWarning)
+                logger.warning(f'Column {c} is not a Surepy property standard.')
     else:
         for c in columns:
             if c not in surepy.constants.PROPERTY_KEYS:
-                warnings.warn('{} is not a Surepy property standard.'.format(c), UserWarning)
+                logger.warning(f'Column {c} is not a Surepy property standard.')
 
         dataframe = pd.read_csv(path, sep=sep, skiprows=1, nrows=nrows, names=columns)
 
@@ -224,7 +227,7 @@ def read_rapidSTORM_header(file):
         if i in surepy.constants.RAPIDSTORM_KEYS:
             column_keys.append(surepy.constants.RAPIDSTORM_KEYS[i])
         else:
-            warnings.warn('{} is not a Surepy property standard.'.format(i), UserWarning)
+            logger.warning(f'Column {i} is not a Surepy property standard.')
             column_keys.append(i)
     return column_keys
 
@@ -317,7 +320,7 @@ def read_Elyra_header(file):
         if i in surepy.constants.ELYRA_KEYS:
             column_keys.append(surepy.constants.ELYRA_KEYS[i])
         else:
-            warnings.warn('{} is not a Surepy property standard.'.format(i), UserWarning)
+            logger.warning(f'Column {i} is not a Surepy property standard.')
             column_keys.append(i)
 
     return column_keys
@@ -440,7 +443,7 @@ def read_thunderstorm_header(file):
         if i in surepy.constants.THUNDERSTORM_KEYS:
             column_keys.append(surepy.constants.THUNDERSTORM_KEYS[i])
         else:
-            warnings.warn('{} is not a Surepy property standard.'.format(i), UserWarning)
+            logger.warning(f'Column {i} is not a Surepy property standard.')
             column_keys.append(i)
     return column_keys
 
@@ -535,7 +538,7 @@ def read_Nanoimager_header(file):
         if i in surepy.constants.NANOIMAGER_KEYS:
             column_keys.append(surepy.constants.NANOIMAGER_KEYS[i])
         else:
-            warnings.warn('{} is not a Surepy property standard.'.format(i), UserWarning)
+            logger.warning(f'Column {i} is not a Surepy property standard.')
             column_keys.append(i)
     return column_keys
 

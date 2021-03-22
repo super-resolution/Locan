@@ -117,9 +117,9 @@ DATASETS_DIR = ROOT_DIR.parent.parent / 'Surepy_datasets'
 
 
 #: Keys for the most common LocData properties.
-# values suggest a type for conversion.
-# If 'integer', 'signed', 'unsigned', 'float' pandas.to_numeric can be applied.
-# Otherwise pandas.astype can be applied.
+#: Values suggest a type for conversion.
+#: If 'integer', 'signed', 'unsigned', 'float' :func:`pandas.to_numeric` can be applied.
+#: Otherwise :func:`pandas.astype` can be applied.
 PROPERTY_KEYS = {'index': 'integer', 'original_index': 'integer',
                  'position_x': 'float', 'position_y': 'float', 'position_z': 'float',
                  'frame': 'integer', 'frames_number': 'integer', 'frames_missing': 'integer',

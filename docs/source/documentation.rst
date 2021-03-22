@@ -4,8 +4,8 @@
 Documentation
 ===========================
 
-Documentation is provided as restructured text and as docstrings within the code. HTML pages are formatted using
-Sphinx_.
+Documentation is provided as restructured text, myst markdown, and as docstrings within the code.
+HTML pages and other documentation formats are build using Sphinx_.
 
 .. _Sphinx: http://www.sphinx-doc.org
 
@@ -19,7 +19,7 @@ Update documentation
 
 To update the documentation from sources delete ``/docs/sources/generated`` and run::
 
-    sphinx-html -b html -E YOUR_PATH\Surepy\docs YOUR_PATH\Surepy\docs\_build
+    sphinx-build -b html -E YOUR_PATH\Surepy\docs YOUR_PATH\Surepy\docs\_build
 
 
 Example docstring
@@ -36,11 +36,8 @@ We try to follow standard docstring as illustrated here::
         ----------
         par : None, other type
             Description
-
-        Other parameters
-        ----------------
         kwargs : dict
-            Parameters passed to some other documented function
+            Parameters passed to some other documented function :func:`function_name`
 
         Returns
         -------
@@ -62,6 +59,7 @@ We try to follow standard docstring as illustrated here::
         return None
 
 
+
     class SomeClass:
         """
         Short title.
@@ -72,11 +70,8 @@ We try to follow standard docstring as illustrated here::
         ----------
         par : None, other type
             Description
-
-        Other parameters
-        ----------------
         kwargs : dict
-            Parameters passed to some other documented function
+            Parameters passed to some other documented function :func:`function_name`
 
         Attributes
         ----------

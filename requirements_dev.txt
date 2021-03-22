@@ -9,8 +9,10 @@ cython
 pytest
 
 # Development
-pytest
 twine
 sphinx
-sphinx_rtd_theme
 ipython
+myst-nb
+sphinx-copybutton
+sphinx_rtd_theme
+furo

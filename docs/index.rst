@@ -1,13 +1,10 @@
-.. TheProject documentation master file, created by
-   sphinx-quickstart on Fri Nov 24 18:29:19 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. Documentation master file
 
 ======================================
 Welcome to Surepy's documentation!
 ======================================
 
-.. include:: ./introduction.rst
+.. include:: ./source/introduction.rst
 
 
 .. toctree::
@@ -15,9 +12,9 @@ Welcome to Surepy's documentation!
    :caption: Getting started
    :name: mastertoc_start
 
-   installation
-   tutorials
-   docker_readme_link
+   ./source/installation
+   ./tutorials/tutorials
+   ./source/docker_readme_link
 
 
 .. toctree::
@@ -25,19 +22,19 @@ Welcome to Surepy's documentation!
    :caption: User Guide
    :name: mastertoc_use
 
-   aim
-   design
-   command_line_interface
-   colormaps
-   user_interface
+   ./source/aim
+   ./source/design
+   ./source/command_line_interface
+   ./source/colormaps
+   ./source/user_interface
+
 
 .. toctree::
    :maxdepth: 1
-   :caption: Developer Guide
-   :name: mastertoc_develop
+   :caption: API Documentation
+   :name: apitoc
 
-   documentation
-   development
+   ./source/modules
 
 
 .. toctree::
@@ -45,18 +42,19 @@ Welcome to Surepy's documentation!
    :caption: Project Details
    :name: mastertoc_project
 
-   background
-   changes_link
-   contributions
-   license
+   ./source/background
+   ./source/changes_link
+   ./source/contributions
+   ./source/license
 
 
 .. toctree::
-   :maxdepth: 4
-   :caption: API Documentation
-   :name: apitoc
+   :maxdepth: 1
+   :caption: Developer Guide
+   :name: mastertoc_develop
 
-   ./source/modules
+   ./source/documentation
+   ./source/development
 
 
 Indices and tables

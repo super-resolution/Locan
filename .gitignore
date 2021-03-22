@@ -63,8 +63,8 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-docs/_static/
-docs/_templates/
+docs/.jupyter_cache/
+docs/jupyter_execute/
 /docs/source/generated/
 
 # PyBuilder

@@ -1,5 +1,5 @@
-Welcome to Surepy
-=================
+![logo](./docs/_static/logo.png) Welcome to Surepy
+==================================================
 
 [![GitHub](https://img.shields.io/github/license/super-resolution/surepy)](https://github.com/super-resolution/Surepy/blob/master/LICENSE.md)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/super-resolution/surepy)](https://github.com/super-resolution/Surepy)

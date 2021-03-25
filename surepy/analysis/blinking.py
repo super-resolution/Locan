@@ -26,7 +26,7 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
     """
     Estimate on and off times from the frame values provided.
 
-    On and off-periods are determined from the sorted frame values.
+    On and off-periods and the first frame of each period are determined from the sorted frame values.
     A series of frame values that constantly increase by one is considered a on-period.
     Each series of missing frame values between two given frame values is considered an off-period.
 
@@ -54,34 +54,54 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
     if np.any(counts > 1):
         counts_larger_one = counts[counts > 1]
         logger.warning(f'There are {sum(counts_larger_one) - len(counts_larger_one)} '
-                      f'duplicated frames found that will be ignored.')
+                       f'duplicated frames found that will be ignored.')
 
-    # frames are counted from 0. We change this to start with 1 and insert 0 to get a 1 frame on period
-    # for a localization in frame 0.
-    frames = frames + 1
-    frames = np.insert(frames, 0, 0)
+    # transform to a zero first frame.
+    first_frame = frames[0]
+    if first_frame != 0:
+        frames = frames - first_frame
 
     differences = np.diff(frames)
-    indices = np.nonzero(differences > memory + 1)[0]
-    groups = np.split(differences, indices)
 
+    # determine first frame in on_periods
+    indices_in_sequence = np.nonzero(differences <= memory + 1)[0] + 1  # +1 since difference drops first frame
+    on_periods_frame = np.delete(frames, indices_in_sequence)
+    if first_frame != 0:
+        on_periods_frame = on_periods_frame + first_frame
+
+    # determine first frame in off_periods
+    indices_off = np.nonzero(differences > memory + 1)[0]
+    off_periods_frame = frames[indices_off] + 1  # plus one to start with undetected frame
+    if first_frame != 0:
+        off_periods_frame = off_periods_frame + first_frame
+        off_periods_frame = np.insert(off_periods_frame, 0, 0)
+
+    # on-times
+    groups = np.split(differences, indices_off)
+
+    # the sum is taken to include memory>0.
+    # one is added since a single localization is considered to be on for one frame.
+    on_periods = np.array([np.sum(group[1:]) + 1 for group in groups[1:]])
+    on_periods = np.insert(on_periods, 0, np.sum(groups[0]) + 1)
+
+    # off-times
+    # if the first on-period is one frame the first group is empty
     if groups[0].size == 0:
         groups = groups[1:]
 
-    # on-times
-    # the sum is taken to include memory>0.
-    # one is added since a single localization is considered to be on for one frame.
-    on_periods = np.array([np.sum(group[1:]) + 1 for group in groups])
-
-    # off-times
     off_periods = np.array([group[0] - 1 for group in groups])
     if off_periods[0] == 0:
         off_periods = off_periods[1:]
-    else:
-        if remove_heading_off_periods:
-            off_periods = off_periods[1:]
+    if first_frame != 0 and not remove_heading_off_periods:
+        off_periods = np.insert(off_periods, 0, first_frame)
 
-    return dict(on_periods=on_periods, off_periods=off_periods)
+    # grouped indices to all localizations in each on-period
+    indices = range(len(frames))
+    on_periods_indices = np.split(indices, indices_off+1)
+
+    return dict(on_periods=on_periods, on_periods_frame=on_periods_frame,
+                off_periods=off_periods, off_periods_frame=off_periods_frame,
+                on_periods_indices=on_periods_indices)
 
 
 ##### The specific analysis classes
@@ -90,15 +110,22 @@ class BlinkStatistics(_Analysis):
     """
     Estimate on and off times from the frame values provided.
 
-    On and off-periods are determined from the sorted frame values.
+    On and off-periods and the first frame of each period are determined from the sorted frame values.
     A series of frame values that constantly increase by one is considered a on-period.
     Each series of missing frame values between two given frame values is considered an off-period.
+
+    A log warning is provided if a frame number occurs multiple times.
+
+    Missing localizations within an on-period can be taken into account by increasing the `memory` parameter.
+    There is no way to correct for false positive localizations.
 
     Parameters
     ----------
     memory : int
         The maximum number of intermittent frames without any localization
         that are still considered to belong to the same on-period.
+    remove_heading_off_periods : bool
+        Flag to indicate if off-periods at the beginning of the series are excluded.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
 
@@ -110,7 +137,7 @@ class BlinkStatistics(_Analysis):
         A dictionary with all settings for the current computation.
     meta : surepy.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : tuple ofnumpy.ndarrays
+    results : tuple of numpy.ndarrays
         Two arrays with on- and off-periods in units of frame numbers.
     """
     count = 0

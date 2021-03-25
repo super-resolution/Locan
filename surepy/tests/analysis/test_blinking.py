@@ -1,4 +1,7 @@
+from collections import namedtuple
+
 import pytest
+import numpy as np
 import pandas as pd
 from scipy import stats
 
@@ -6,6 +9,44 @@ from surepy import LocData
 from surepy.analysis.blinking import _blink_statistics, _DistributionFits
 from surepy.analysis import BlinkStatistics
 
+
+# frame with on and off periods up to three frames and starting with two-frame on-period.
+FramesTest = namedtuple('FramesTest',
+                         ['frames',
+                          'on_periods_expected', 'on_periods_frame_expected',
+                          'off_periods_expected', 'off_periods_frame_expected'])
+
+@pytest.fixture()
+def frames_1():
+    return FramesTest(
+        frames=np.array([0, 4, 6, 7, 8, 12, 13]),
+        on_periods_expected=[1, 1, 3, 2],
+        on_periods_frame_expected=[0, 4, 6, 12],
+        off_periods_expected=[3, 1, 3],
+        off_periods_frame_expected=[1, 5, 9]
+        )
+
+# frame with on and off periods up to three frames and starting with two-frame on-period.
+@pytest.fixture()
+def frames_2():
+    return FramesTest(
+        frames=np.array([0, 1, 4, 6, 7, 8, 12, 13]),
+        on_periods_expected=[2, 1, 3, 2],
+        on_periods_frame_expected=[0, 4, 6, 12],
+        off_periods_expected=[2, 1, 3],
+        off_periods_frame_expected=[2, 5, 9]
+        )
+
+# frame with on and off periods up to three frames and starting with off-period.
+@pytest.fixture()
+def frames_3():
+    return FramesTest(
+        frames=np.array([0, 1, 4, 6, 7, 8, 12, 13]) + 4,
+        on_periods_expected=[2, 1, 3, 2],
+        on_periods_frame_expected=[4, 8, 10, 16],
+        off_periods_expected=[4, 2, 1, 3],
+        off_periods_frame_expected=[0, 6, 9, 13]
+        )
 
 @pytest.fixture()
 def locdata_simple():
@@ -40,6 +81,25 @@ def locdata_with_repetitions():
         'frame': [2, 2, 2, 4, 4, 14]
     }
     return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
+
+
+@pytest.mark.parametrize('fixture_name, expected', [
+    ('frames_1', 0),
+    ('frames_2', 0),
+    ('frames_3', 0),
+])
+def test__blink_statistics(frames_1, frames_2, frames_3, fixture_name, expected):
+    frames_ = eval(fixture_name)
+    results = _blink_statistics(frames_.frames, memory=0, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], frames_.on_periods_expected)
+    assert np.array_equal(results['off_periods'], frames_.off_periods_expected)
+    assert np.array_equal(results['on_periods_frame'], frames_.on_periods_frame_expected)
+    assert np.array_equal(results['off_periods_frame'], frames_.off_periods_frame_expected)
+    for op, op_indices in zip(results['on_periods'], results['on_periods_indices']):
+        assert len(op_indices) == op
+    assert np.sum([len(op_indices) for op_indices in results['on_periods_indices']]) == len(frames_.frames)
 
 
 def test_blink_statistics(locdata_with_zero_frame, locdata_without_zero_frame):
@@ -99,7 +159,8 @@ def test_BlinkStatistics(locdata_with_zero_frame):
 def test_DistributionFits(locdata_with_zero_frame):
     bs = BlinkStatistics().compute(locdata_with_zero_frame)
     df = _DistributionFits(bs, distribution=stats.expon, data_identifier='on_periods')
-    assert len(df.analysis_class.results) == 2
+    print(df.analysis_class.results)
+    assert len(df.analysis_class.results) == 5
     assert df.data_identifier == 'on_periods'
     assert repr(df) == "_DistributionFits(analysis_class=BlinkStatistics, " \
                        "distribution=expon_gen, data_identifier=on_periods)"

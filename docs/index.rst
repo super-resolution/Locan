@@ -1,5 +1,10 @@
 .. Documentation master file
 
+.. image:: ./_static/logo_plus.png
+   :align: center
+   :scale: 40
+
+
 ======================================
 Welcome to Locan's documentation!
 ======================================
@@ -22,7 +27,6 @@ Welcome to Locan's documentation!
    :caption: User Guide
    :name: mastertoc_use
 
-   ./source/aim
    ./source/design
    ./source/command_line_interface
    ./source/colormaps
@@ -42,7 +46,6 @@ Welcome to Locan's documentation!
    :caption: Project Details
    :name: mastertoc_project
 
-   ./source/background
    ./source/changes_link
    ./source/contributions
    ./source/license

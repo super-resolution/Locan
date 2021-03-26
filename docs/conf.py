@@ -114,6 +114,7 @@ html_theme_options = {
 }
 
 html_title = f'{project}\n{release}'
+# html_title = f'{release}'
 html_short_title = f'{project}'
 
 html_logo = '_static/logo.png'

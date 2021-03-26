@@ -12,10 +12,30 @@ Package Design
    properties
    methods
 
-Outline:
+
+Aim
+==========================
+
+We aim at providing a python package with data structures and methods for analyzing single-molecule localization data.
+Locan is a Python package providing functionality to load, manipulate and analyze localization data.
+
+The package provides:
+
+* a class structure for localization data with appropriate meta data
+* rendering functions to visualize localization data
+* methods for carrying out established analysis routines
+* an interface to save analysis results and run batch processes.
+
+Locan provides standard routines and interfaces for setting up reproducible analysis pipelines and batch
+processes. At the same time it allows flexibility on all programmatic levels either in Python scripts,
+Jupyter notebooks or dashboard apps.
+We provide original algorithms and include existing solutions by providing appropriate wrapper functions.
+
+
+Outline
 ========
 
-We aim at designing a standard class structure to hold and deal with localization data and analysis results
+Locan provides a standardized class structure to hold and deal with localization data and analysis results
 (see :ref:`Data structures <datastructures>`).
 
 :ref:`Metadata <metadata>` will be part of each data class and either added by user input or generated during

@@ -10,13 +10,17 @@ Intensity values are represented by color according to a selected colormap.
 Various colormaps can be chosen that accentuate certain data structures.
 
 
-For SMLM images we aim at using colormaps that SMLM users are used to but that perform well with respect to human perception.
-Therefore, we recommend using colormaps that are optimized for accurate perception as provided by the colorcet_ library.
-All 2D one-channel plot functions use the fire_ colormap as default if colorcet is installed.
-Otherwise we use the matplotlib colormap viridis_ as default.
+For SMLM images we aim at using colormaps that SMLM users are used to but that perform well with respect to human
+perception.
+Therefore, we recommend using colormaps that are optimized for accurate perception as provided by the `colorcet`_
+library.
+All 2D one-channel plot functions use the `fire`_ colormap as default if `colorcet` is installed.
+Otherwise we use the matplotlib colormap `viridis`_ as default.
 
-For categorical data we use glasbey_dark_ from colorcet_ as default colormap or alternatively tab20 from matplotlib.
-For diverging data we use coolwarm_ from colorcet_ as default colormap or alternatively coolwarm from matplotlib.
+For categorical data we use `glasbey_dark`_ from `colorcet`_ as default colormap or alternatively `tab20` from
+`matplotlib`.
+For diverging data we use `coolwarm`_ from `colorcet`_ as default colormap or alternatively `coolwarm` from
+`matplotlib`.
 
 Other colormaps can be applied using the cmap keyword.
 

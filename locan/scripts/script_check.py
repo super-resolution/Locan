@@ -21,7 +21,7 @@ import tifffile as tif
 from locan.constants import _has_napari
 if _has_napari: import napari
 
-import locan as sp
+import locan as lc
 
 
 def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, transpose=True,
@@ -76,14 +76,14 @@ def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, trans
         viewer = napari.Viewer()
 
     viewer.add_image(images_, name=f'Raw data', **kwargs_image, scale=pixel_size_)
-    viewer.add_points(data=points, name=f'LocData {sp.LOCDATA_ID}',
+    viewer.add_points(data=points, name=f'LocData {lc.LOCDATA_ID}',
                       symbol='disc', size=500, face_color='r', edge_color='r', opacity=0.3,
                       **kwargs_points)
 
     return viewer
 
 
-def sc_check(pixel_size, file_images=None, file_locdata=None, file_type=sp.FileType.RAPIDSTORM,
+def sc_check(pixel_size, file_images=None, file_locdata=None, file_type=lc.FileType.RAPIDSTORM,
              viewer=None, transpose=True, kwargs_image=None, kwargs_points=None):
     """
     Load and display original recording and load and overlay localization spots in napari.
@@ -123,17 +123,17 @@ def sc_check(pixel_size, file_images=None, file_locdata=None, file_type=sp.FileT
     with napari.gui_qt():
         # load images
         if file_images is None:
-            file_images = sp.file_dialog(directory=None,
+            file_images = lc.file_dialog(directory=None,
                                          message='Select images file...', filter='Tif files (*.tif)')[0]
         # load images from tiff file
         image_stack = tif.imread(str(file_images))  #, key=range(0, 10, 1))  - maybe add key parameter
 
         # load locdata
         if file_locdata is None:
-            file_locdata = sp.file_dialog(directory=None,
+            file_locdata = lc.file_dialog(directory=None,
                                           message='Select a localization file...',
                                           filter='Text files (*.txt);; CSV files (*.csv)')[0]
-        locdata = sp.load_locdata(file_locdata, file_type=file_type)
+        locdata = lc.load_locdata(file_locdata, file_type=file_type)
 
     # due to changed napari behavior from v3.0 on the context manager is moved up.
     # with napari.gui_qt():

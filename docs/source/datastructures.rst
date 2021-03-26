@@ -4,7 +4,7 @@
 Data structures
 ================
 
-Surepy provides LocData as the one data class to deal with the following data structures:
+Locan provides LocData as the one data class to deal with the following data structures:
 
     1) localization data
     2) selections of localization data

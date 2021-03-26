@@ -1,4 +1,4 @@
-# Dockerfile for deploying jupyter lab, surepy, napari and others in a conda environment as non-root user.
+# Dockerfile for deploying jupyter lab, locan, napari and others in a conda environment as non-root user.
 #
 # This dockerfile is in parts adapted from dockerfiles by the Jupyter Development Team
 # https://hub.docker.com/r/jupyter/base-notebook/dockerfile
@@ -14,7 +14,7 @@ ARG UID=1000
 ARG GID=100
 
 ENV PYTHON_VERSION=$PYTHON_VERSION \
-    ENVIRONMENT_NAME=surepy \
+    ENVIRONMENT_NAME=locan \
     MINICONDA_VERSION=$MINICONDA_VERSION \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
@@ -30,8 +30,8 @@ ENV PYTHON_VERSION=$PYTHON_VERSION \
     TZ=Europe/Amsterdam \
     DEBIAN_FRONTEND=noninteractive
 
-LABEL maintainer="SurepyDevelopers" \
-      project="surepy" \
+LABEL maintainer="LocanDevelopers" \
+      project="locan" \
       python_version=${PYTHON_VERSION}
 
 RUN apt-get update --fix-missing && \
@@ -44,7 +44,7 @@ RUN apt-get update --fix-missing && \
     # install libraries for napari
     # && apt-get install -qqy libxi6 libglib2.0-0 fontconfig libfontconfig1 libxrender1 libdbus-1-3 \
     apt-get install -qqy libxi6 fontconfig libfontconfig1 libdbus-1-3 && \
-    # install git for setuptools_scm to deal with surepy source distribution versioning
+    # install git for setuptools_scm to deal with locan source distribution versioning
     apt-get install -qqy git && \
     # remove package manager cache
     apt-get clean && \
@@ -87,20 +87,20 @@ RUN wget --quiet -O ~/miniconda.sh  \
     rm -rf $HOME/.cache/yarn
 
 # Copy the current directory contents into the container
-COPY --chown=$UID:$GID jupyter $HOME/surepy
+COPY --chown=$UID:$GID jupyter $HOME/locan
 
-WORKDIR $HOME/surepy
+WORKDIR $HOME/locan
 
 # create new environment
 RUN conda init bash && \
     conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION && \
     conda env update -n $ENVIRONMENT_NAME --file environment.yml && \
     conda activate $ENVIRONMENT_NAME && \
-    # install surepy
+    # install locan
     python setup.py install && \
     # clean up
 	echo "conda activate $ENVIRONMENT_NAME" >> ~/.bashrc && \
-	rm -rf $HOME/surepy/* && \
+	rm -rf $HOME/locan/* && \
 	conda clean -afy && \
     rm -rf $HOME/.cache/yarn
 
@@ -138,12 +138,12 @@ RUN conda activate $ENVIRONMENT_NAME && \
     base=${ENVIRONMENT_NAME}_$today && \
     conda env export > "$HOME/reports/environment_$base.yml" && \
     date > "$HOME/reports/test_results_$base.txt" && \
-    surepy test >> "$HOME/reports/test_results_$base.txt"
+    locan test >> "$HOME/reports/test_results_$base.txt"
 
 EXPOSE 8888
 
-# Copy surepy documentation
-COPY --chown=$UID:$GID ./docs/_build $HOME/surepy/docs
+# Copy locan documentation
+COPY --chown=$UID:$GID ./docs/_build $HOME/locan/docs
 
 CMD conda activate $ENVIRONMENT_NAME && \
     jupyter lab --no-browser --ip 0.0.0.0

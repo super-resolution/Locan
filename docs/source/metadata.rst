@@ -66,7 +66,7 @@ LocData:
     File type: ``str``
         Name of the file or program that produced the data (a fitter or simulation program).
 
-        \[rapidStorm, Elyra, ThunderStorm, Surepy]
+        \[rapidStorm, Elyra, ThunderStorm, Locan]
 
     File path: ``str``
         Path and name of data file.

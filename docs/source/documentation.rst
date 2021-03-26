@@ -19,7 +19,7 @@ Update documentation
 
 To update the documentation from sources delete ``/docs/sources/generated`` and run::
 
-    sphinx-build -b html -E YOUR_PATH\Surepy\docs YOUR_PATH\Surepy\docs\_build
+    sphinx-build -b html -E YOUR_PATH\Locan\docs YOUR_PATH\Locan\docs\_build
 
 
 Example docstring
@@ -50,7 +50,7 @@ We try to follow standard docstring as illustrated here::
 
         See Also
         --------
-        :func:`surepy.tests.test`
+        :func:`locan.tests.test`
 
         Notes
         -----

@@ -1,7 +1,7 @@
 .. Documentation master file
 
 ======================================
-Welcome to Surepy's documentation!
+Welcome to Locan's documentation!
 ======================================
 
 .. include:: ./source/introduction.rst

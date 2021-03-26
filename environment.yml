@@ -1,10 +1,10 @@
 #
-# Minimal and extra dependencies to use surepy
+# Minimal and extra dependencies to use locan
 #
 # Create new environment: conda env create --file "./environment.yml"
 # Update existing environment: conda env update --file "./environment.yml"
 #
-name: surepy
+name: locan
 
 channels:
 - open3d-admin

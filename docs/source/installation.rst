@@ -37,9 +37,9 @@ Use setuptools (which is configured for running pytest) to run the tests::
 
     python setup.py test
 
-Or run a surepy script from any directory::
+Or run a locan script from any directory::
 
-    surepy test
+    locan test
 
 
 Using Conda to set up a dedicated environment:

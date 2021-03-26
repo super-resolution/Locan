@@ -3,5 +3,5 @@
 API Reference
 =============
 
-.. automodule:: surepy
+.. automodule:: locan
 

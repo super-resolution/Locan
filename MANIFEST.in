@@ -1,2 +1,2 @@
-include LICENSE
-graft surepy/tests/test_data
+include LICENSE.md
+graft locan/tests/test_data

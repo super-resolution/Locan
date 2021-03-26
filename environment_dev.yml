@@ -1,9 +1,9 @@
 #
-# Tools for surepy development
+# Tools for locan development
 #
 # Update existing environment: conda env update --file "./environment_dev.yml"
 #
-name: surepy
+name: locan
 
 channels:
 - conda-forge

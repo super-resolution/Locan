@@ -4,7 +4,7 @@
 Methods
 ========
 
-Surepy will provide methods to work on LocData objects and carry out standard analysis procedures. Some of these
+Locan will provide methods to work on LocData objects and carry out standard analysis procedures. Some of these
 functions are merely wrapper functions for well established analysis routines in third-party packages.
 
 The methods in this context can either be stand-alone functions with a well-defined input and output and absolutely

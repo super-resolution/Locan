@@ -11,35 +11,35 @@ New Features
 ------------
 -
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 -
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 -
 
-surepy.datasets
+locan.datasets
 ^^^^^^^^^^^^^^^
 -
 
-surepy.gui
+locan.gui
 ^^^^^^^^^^^^^^^
 -
 
-surepy.io
+locan.io
 ^^^^^^^^^^^^^^^
 -
 
-surepy.render
+locan.render
 ^^^^^^^^^^^^^^^
 -
 
-surepy.scripts
+locan.scripts
 ^^^^^^^^^^^^^^^
 -
 
-surepy.simulation
+locan.simulation
 ^^^^^^^^^^^^^^^^^
 -
 
@@ -47,66 +47,66 @@ surepy.simulation
 API Changes
 -----------
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 -
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 -
 
-surepy.datasets
+locan.datasets
 ^^^^^^^^^^^^^^^
 -
 
-surepy.gui
+locan.gui
 ^^^^^^^^^^^^^^^
 -
 
-surepy.io
+locan.io
 ^^^^^^^^^^^^^^^
 -
 
-surepy.render
+locan.render
 ^^^^^^^^^^^^^^^
 -
 
-surepy.scripts
+locan.scripts
 ^^^^^^^^^^^^^^^
 -
 
-surepy.simulation
+locan.simulation
 ^^^^^^^^^^^^^^^^^^^
 -
 
 Bug Fixes
 ---------
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 -
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 -
 
-surepy.gui
+locan.gui
 ^^^^^^^^^^^^^^^
 -
 
-surepy.io
+locan.io
 ^^^^^^^^^^^^^^^
 -
 
-surepy.render
+locan.render
 ^^^^^^^^^^^^^^^
 -
 
-surepy.scripts
+locan.scripts
 ^^^^^^^^^^^^^^^
 -
 
-surepy.simulation
+locan.simulation
 ^^^^^^^^^^^^^^^^^
 -
 
@@ -121,7 +121,7 @@ Other Changes and Additions
 API Changes
 ------------
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - Added new keyword parameters in LocData.from_chunks and Drift.
 - Extended class for blinking analysis.
@@ -140,7 +140,7 @@ New Features
 - Introduced logging capability.
 - Added script for running tests from command line interface.
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - Make all analysis classes pickleable.
 - Refactored Pipeline class
@@ -148,7 +148,7 @@ surepy.analysis
 - Added more processing bars.
 - Added drift analysis and correction based on imagecorrelation and iterative closest point registration.
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - Made LocData class pickleable.
 - Added computation of inertia moments.
@@ -156,57 +156,57 @@ surepy.data
 - Added elongation property based on oriented bounding box.
 - Add transformation method to overlay LocData objects.
 
-surepy.io
+locan.io
 ^^^^^^^^^^^^^^^
 - Added loading function for Nanoimager data.
 
-surepy.render
+locan.render
 ^^^^^^^^^^^^^^^
 - Added windowing function for image data.
 
 API Changes
 -----------
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - Fixed and extended methods for Drift analysis and correction.
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - Implemented copy and deepcopy for LocData.
 - Changed noise output in clustering methods. Removed noise parameter.
 
-surepy.datasets
+locan.datasets
 ^^^^^^^^^^^^^^^
 - Added dataset for microtubules
 
-surepy.io
+locan.io
 ^^^^^^^^^^^^^^^
 - Added option for file-like objects in io_locdata functions.
 - Added Bins class, introduced use of boost-histogram package, and restructured binning.
 - Introduced use of napari.run.
 - Changed default value in render_2d_mpl to interpolation='nearest'.
 
-surepy.scripts
+locan.scripts
 ^^^^^^^^^^^^^^^
-- Added arguments for surepy napari and surepy rois.
+- Added arguments for locan napari and locan rois.
 
-surepy.simulation
+locan.simulation
 ^^^^^^^^^^^^^^^^^^^
 - Added simulation of frame values.
 
 Bug Fixes
 ---------
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - Fixed treatment of empty LocData in clustering and hull functions.
 
-surepy.gui
+locan.gui
 ^^^^^^^^^^^^^^^
 - Use PySide2 as default QT backend depending on QT_API setting.
 
-surepy.io
+locan.io
 ^^^^^^^^^^^^^^^
 - Fixed enconding issues for loading Elyra data.
 
@@ -229,26 +229,26 @@ Other Changes and Additions
 New Features
 ------------
 
-surepy.utils
+locan.utils
 ^^^^^^^^^^^^^^^
-- Module surepy.utils.system_information with methods to get debugging information is added.
+- Module locan.utils.system_information with methods to get debugging information is added.
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - LocalizationPropertyCorrelation analysis class is added.
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - LocData.from_coordinates() is added.
 - LocData.update() method is added to change dataframe with correspodning updates of hull, properties and metadata.
 - Methods to compute alpha shape hulls are added.
 - Pickling capability for LocData is added.
 
-surepy.render
+locan.render
 ^^^^^^^^^^^^^^^
 - scatter_2d_mpl() is added. to show locdata as scatter plot
 
-surepy.scripts
+locan.scripts
 ^^^^^^^^^^^^^^^
 - show_versions()
 
@@ -256,13 +256,13 @@ surepy.scripts
 API Changes
 -----------
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - LocalizationProperty2D was modified and fixed.
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
-- surepy.data.region_utils module is added with utility functions to analyze locdata regions.
+- locan.data.region_utils module is added with utility functions to analyze locdata regions.
 - RoiRegions are added that support shapely Polygon and MultiPolygon objects.
 
 
@@ -270,7 +270,7 @@ Bug Fixes
 ---------
 
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - Adapt colormap and rescaling in LocalizationProperty2D plot functions.
 
@@ -282,7 +282,7 @@ surepy.analysis
 Bug Fixes
 ---------
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - Fix LocalizationProperty2d fit procedure
 
@@ -299,7 +299,7 @@ New Features
 ------------
 - New function test() to run pytest on whole test suite.
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - New rasterize function to divide localization support into rectangular rois.
 - New functions to perform affine transformation using open3d.
@@ -307,11 +307,11 @@ surepy.data
 - New function for drift correction using icp (from open3d).
 - Increase performance of maximum distance computation of localization data.
 
-surepy.datasets
+locan.datasets
 ^^^^^^^^^^^^^^^
 - Added functions to load example datasets. The datasets will be provided in a separate directory (repository).
 
-surepy.scripts
+locan.scripts
 ^^^^^^^^^^^^^^^
 - Introduced command-line interface with compound commands.
 - New script to render localization data in napari
@@ -322,27 +322,27 @@ surepy.scripts
 API Changes
 -----------
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - New analysis class for drift estimation.
 - New analysis class for analysing 2d distribution of localization property.
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - Deprecate `update_convex_hull_in_collection()`. Use `LocData.update_convex_hulls_in_references()`.
 - Metadata on time is changed from timestamp to formatted time expression.
 
-surepy.render
+locan.render
 ^^^^^^^^^^^^^^^
 - Default colormaps are set to selected ones from colorcet or matplotlib.
 - Add histogram function for rendering localization data.
 - Add render functions to work with mpl, mpl-scatter-density, napari
 
-surepy.scripts
+locan.scripts
 ^^^^^^^^^^^^^^^
 - Add selection option for ellipse roi.
 
-surepy.simulation
+locan.simulation
 ^^^^^^^^^^^^^^^^^^^
 - Add functions for drift simulation.
 
@@ -350,7 +350,7 @@ surepy.simulation
 Bug Fixes
 ---------
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - Fixed update of bounding_box, convex_hull and oriented bounding box.
 
@@ -367,11 +367,11 @@ Other Changes and Additions
 New Features
 ------------
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - Added analysis class BlinkStatistics to compute on/off times in localization cluster.
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - Introduced global variable LOCDATA_ID that serves as standard running ID for LocData objects.
 - Added function update_convex_hulls_in_collection
@@ -380,12 +380,12 @@ surepy.data
 API Changes
 -----------
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - Refactored all analysis class names to CamelCode.
 - Refactored handling of LocData input in analysis classes to better resemble the scikit-learn API.
 
-surepy.simulation
+locan.simulation
 ^^^^^^^^^^^^^^^^^^^
 - Deleted deprecated simulation functions.
 
@@ -394,8 +394,8 @@ Other Changes and Additions
 ---------------------------
 
 - Refactored all localization property names to follow the convention to start with small letters.
-- Changed import organization by adding __add__ to enable import surepy as sp.
-- Added dockerfiles for using and testing surepy.
+- Changed import organization by adding __add__ to enable import locan as sp.
+- Added dockerfiles for using and testing locan.
 - various other small changes and fixes as documented in the version control log.
 
 
@@ -405,19 +405,19 @@ Other Changes and Additions
 New Features
 ------------
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - implemented an analysis class CoordinateBasedColocalization.
 - implemented an analysis class AccumulationClusterCheck.
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - implemented a function exclude_sparse_points to eliminate localizations in low local density regions.
 - implemented a function to apply affine coordinate transformations.
 - implemented a function to to apply a Bunwarp-transformation based on the raw transformation matrix from the ImageJ
   plugin BUnwarpJ
 
-surepy.simulation
+locan.simulation
 ^^^^^^^^^^^^^^^^^
 - implemented functions to simulate localization data based on complete spatial randomness, Thomas, or Matern processes.
 - implemented functions simulate_xxx to provided LocData objects.
@@ -427,7 +427,7 @@ surepy.simulation
 API Changes
 -----------
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - implemented a new region of interest management. A RoiRegion class was defined as region object in Roi objects.
 
@@ -435,11 +435,11 @@ surepy.data
 Bug Fixes
 ---------
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - corrected index handling in track.track(), LocData.data and LocData.reduce().
 
-surepy.io
+locan.io
 ^^^^^^^^^^^^^^^
 - changed types for column values returned from load_thunderstorm_file.
 
@@ -450,7 +450,7 @@ surepy.io
 New Features
 ------------
 
-surepy.analysis
+locan.analysis
 ^^^^^^^^^^^^^^^
 - localization_precision
 - localization_property
@@ -460,7 +460,7 @@ surepy.analysis
 - ripley
 - uncertainty
 
-surepy.data
+locan.data
 ^^^^^^^^^^^^^^^
 - cluster
 - properties
@@ -471,23 +471,23 @@ surepy.data
 - track
 - transformation
 
-surepy.gui
+locan.gui
 ^^^^^^^^^^^^^^^
 - io
 
-surepy.io
+locan.io
 ^^^^^^^^^^^^^^^
 - io_locdata
 
-surepy.render
+locan.render
 ^^^^^^^^^^^^^^^
 - render2d
 
-surepy.scripts
+locan.scripts
 ^^^^^^^^^^^^^^^
 - sc_draw_roi_mpl
 
-surepy.simulation
+locan.simulation
 ^^^^^^^^^^^^^^^^^^
 - simulate_locdata
 
@@ -495,7 +495,7 @@ surepy.simulation
 Other Changes and Additions
 ---------------------------
 
-surepy.tests
+locan.tests
 ^^^^^^^^^^^^^
 - corresponding unit tests
 
@@ -503,7 +503,7 @@ docs
 ^^^^^
 - rst files for sphinx documentation.
 
-surepy
+locan
 ^^^^^^^
 - CHANGES.rst
 - LICENSE.md

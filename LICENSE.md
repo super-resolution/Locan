@@ -29,4 +29,4 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-Surepy makes use of libraries and code that are compatibly licensed as listed in the licences directory.
+Locan makes use of libraries and code that are compatibly licensed as listed in the licences directory.

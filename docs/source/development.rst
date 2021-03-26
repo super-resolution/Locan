@@ -28,7 +28,7 @@ Alternatively, you may use the requirement files `requirements_dev.txt` or `envi
 Import Conventions:
 ====================
 
-The following import conventions are used throughout Surepy source code and documentation:
+The following import conventions are used throughout Locan source code and documentation:
 
 * import numpy as np
 * import pandas as pd
@@ -45,7 +45,7 @@ For testing we use py.test_.
 
 .. _py.test: https://docs.pytest.org/en/latest/index.html
 
-A test suite is provided in Surepy/tests.
+A test suite is provided in Locan/tests.
 
 For unit testing we supply test data as data files located in tests/test_data.
 

@@ -2,13 +2,13 @@
 FROM continuumio/miniconda3
 
 ARG PYTHON_VERSION=3.8
-ARG ENVIRONMENT_NAME="surepy_conda_py38"
+ARG ENVIRONMENT_NAME="locan_conda_py38"
 
 ENV PYTHON_VERSION=${PYTHON_VERSION} \
     ENVIRONMENT_NAME=${ENVIRONMENT_NAME}
 
-LABEL maintainer="SurepyDevelopers" \
-      project="surepy" \
+LABEL maintainer="LocanDevelopers" \
+      project="locan" \
       python_version=${PYTHON_VERSION} \
       environment_name=${ENVIRONMENT_NAME}
 	  
@@ -18,7 +18,7 @@ RUN ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 # Install GL library and remove package manager cache
 RUN apt-get update && \
     apt-get install libgl1-mesa-dev -y && \
-    # install git for setuptools_scm to deal with surepy source distribution versioning
+    # install git for setuptools_scm to deal with locan source distribution versioning
     apt-get install -qqy git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -27,9 +27,9 @@ RUN apt-get update && \
 SHELL [ "/bin/bash", "--login", "-c" ]
 
 # Copy the current directory contents into the container
-COPY . surepy
+COPY . locan
 
-WORKDIR /surepy
+WORKDIR /locan
 
 # Update conda & Create environment from environment.yml & Install the project
 RUN conda init bash && \
@@ -50,6 +50,6 @@ CMD conda activate $ENVIRONMENT_NAME && \
     echo $PATH > "/shared/path_$base.txt" && \
     conda env export > "/shared/environment_$base.yml" && \
     date > "/shared/versions_$base.txt" && \
-    surepy show_versions >> "/shared/versions_$base.txt" && \
+    locan show_versions >> "/shared/versions_$base.txt" && \
     date > "/shared/test_results_$base.txt" && \
-    surepy test >> "/shared/test_results_$base.txt"
+    locan test >> "/shared/test_results_$base.txt"

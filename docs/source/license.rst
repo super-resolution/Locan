@@ -38,4 +38,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Other Licenses
 ===========================
 
-Surepy makes use of libraries and code that are compatibly licensed as listed in the licences directory.
+Locan makes use of libraries and code that are compatibly licensed as listed in the licences directory.

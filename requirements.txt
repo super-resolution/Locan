@@ -1,5 +1,5 @@
 #
-# Minimal and extra dependencies to use surepy
+# Minimal and extra dependencies to use locan
 #
 
 # Python

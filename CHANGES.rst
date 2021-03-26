@@ -49,7 +49,8 @@ API Changes
 
 surepy.analysis
 ^^^^^^^^^^^^^^^
--
+- Added new keyword parameters in LocData.from_chunks and Drift.
+- Extended class for blinking analysis.
 
 surepy.data
 ^^^^^^^^^^^^^^^
@@ -114,7 +115,8 @@ surepy.simulation
 
 Other Changes and Additions
 ---------------------------
--
+- Turn warning into log for file io.
+- Restructured documentation, added tutorials, and changed html-scheme to furo.
 
 0.6 (4.3.2021)
 ================

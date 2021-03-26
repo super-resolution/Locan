@@ -24,7 +24,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 try:
     from surepy._version import version as __version__
 except ImportError:
-    __version__ = "0.7-not-installed"
+    __version__ = "0.8-not-installed"
 
 from surepy.constants import *  # constants has to be imported before any others due to pyqt5/sidepy2 issues.
 from surepy.analysis import *

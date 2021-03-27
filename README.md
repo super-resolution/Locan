@@ -15,8 +15,6 @@ To install the package please read the [instructions](docs/source/installation.r
 
 For details on usage and development please read the [documentation](docs/index.rst).
 
-Read the [html version](docs/_build/source/index.html) in your browser using CTRL-click on the link.
-
 Tutorials are provided as Jupyter notebooks in a separate 
 [repository](https://github.com/super-resolution/Locan_tutorials).
 

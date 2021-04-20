@@ -15,8 +15,7 @@ package locan;
 
 message Analysis_routine {
     optional string name = 1;
-    optional string algorithm = 2;
-    optional string parameter = 3;
+    optional string parameter = 2;
 }
 
 

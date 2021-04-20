@@ -41,7 +41,7 @@ message Unit {
     optional string unit = 2;
 }
 
-// Next id: 19
+// Next id: 18
 message Metadata {
   optional string identifier = 1;
   optional string comment = 2;
@@ -63,10 +63,9 @@ message Metadata {
 
   optional File_type file_type = 13;
   optional string file_path = 14;
-  optional string experimental_setup = 15;
-  optional string experimental_sample = 16;
 
-  optional string simulation = 17;
-  map<string, string> map = 18;
+  map<string, string> experimental_setup = 15;
+  map<string, string> experimental_sample = 16;
 
+  map<string, string> map = 17;
 }

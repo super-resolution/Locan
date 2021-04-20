@@ -35,13 +35,13 @@ We provide original algorithms and include existing solutions by providing appro
 Outline
 ========
 
-Locan provides a standardized class structure to hold and deal with localization data and analysis results
-(see :ref:`Data structures <datastructures>`).
+Locan provides a standardized class structure to hold and deal with :ref:`data structures <datastructures>`
+such as localization data and analysis results.
 
-:ref:`Metadata <metadata>` will be part of each data class and either added by user input or generated during
+:ref:`Metadata <metadata>` will be part of each data class and is either added by user input or generated during
 manipulation of data classes.
 
-Locdata, the data class for localization data, carries certain properties that describe individual or
+:class:`LocData`, the data class for localization data, carries certain properties that describe individual or
 averaged features of the underlying localizations or groups thereof. We suggest a canonical set of
 :ref:`properties`.
 

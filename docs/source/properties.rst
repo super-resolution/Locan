@@ -4,25 +4,27 @@
 Properties
 ===========================
 
-Locdata, the data class for localization data, carries certain properties that describe individual or
-averaged features of the underlying localizations or groups thereof.
+:class:`LocData`, the data class for localization data, carries certain properties that describe individual
+(localization properties) or averaged features of the underlying localizations or groups thereof (LocData properties).
 In the following we provide names (or keys) for those properties.
 
-The datatype for all keys is string. We stick to the following conventions:
+The datatype for all keys is `string`. We stick to the following conventions:
 
-    * start with lower case letters
-    * use underscore
-    * do not use CamelCase or blanks
-    * add coordinate identifiers or identifiers of statistical functions in the end (`position_x_mean_mean`)
+* be explicit
+* start with lower case letters
+* use underscore
+* do not use CamelCase or blanks
+* use reverse notation in the sense that coordinate identifiers or identifiers of statistical functions are added
+  in the end (``position_x_mean_mean``)
 
-A list of well defined property keys is given in the constant: DATA_PROPERTY_KEYS.
+A list of well defined property keys used throughout locan is given by the constant: `locan/constants/PROPERTY_KEYS`.
 
 
 Localization properties:
 ========================
 
-Each localization has properties that can usually be identified in the various file formats. We will use the following
-keys (where `c` stands for the coordinate `x`, `y` or `z` ):
+Each localization has properties that can usually be identified in the various input (file) formats.
+We will use the following keys (where `c` stands for the coordinate `x`, `y` or `z` ):
 
     * `index`
         localization index
@@ -70,7 +72,7 @@ keys (where `c` stands for the coordinate `x`, `y` or `z` ):
         number of frames that occurred between two successive localizations
 
 
-Additional localization properties are computed by various analysis procedures including:
+Additional localization properties are computed by various analysis procedures including (among others):
 
     * `cluster_label`
         identifier for a localization cluster
@@ -82,40 +84,39 @@ Additional localization properties are computed by various analysis procedures i
         coordinate-based colocalization value
 
 
-Locdata properties:
+LocData properties:
 ========================
 
-A group of localizations makes up a LocData entity for which further properties are defined. Groups of locdata are
-further combined in Locdata entities with additional properties.
+A group of localizations makes up a LocData entity for which further properties are defined.
 
-The new locdata coordinates are computed from the centroids of grouped localizations.
+The coordinates for a localization group are defined by their centroids.
 
-We will use the following keys for statistics of localization properties:
+In general, we will use the following keys for statistics of localization properties:
 
     * `property_stats`
         where property is the localization property key and stats is one of the following:
 
-            * count (number of elements)
-            * min (minimum of all elements)
-            * max (maximum of all elements)
-            * sum (sum of all elements)
-            * mean (the mean of all elements)
-            * std (standard deviation of all elements)
-            * sem (standard error of the mean of all elements)
+        * count (number of elements)
+        * min (minimum of all elements)
+        * max (maximum of all elements)
+        * sum (sum of all elements)
+        * mean (the mean of all elements)
+        * std (standard deviation of all elements)
+        * sem (standard error of the mean of all elements)
 
 For example:
 
     * `intensity_sum`
         total intensity of all localizations in the group
 
-Some properties are derived from a hull of all localizations or centroids. We provide four hulls:
+Some properties are derived from a hull of all element positions. We provide four hulls:
 
-    1. bounding box
-    2. convex hull
-    3. alpha shape
-    4. oriented bounding box
+1. bounding box
+2. convex hull
+3. alpha shape
+4. oriented bounding box
 
-From each hull a region measure (the area in 2D) and a subregion measure (the circumference in 2D) is computed.
+From each hull a region measure (e.g. the area in 2D) and a subregion measure (e.g. the circumference in 2D) is computed.
 
 We will use the following keys for additional properties (where `c` stands for the coordinate `x`, `y` or `z`
 and `h` stands for the corresponding hull `bb`, `ch`, `as`, `obb`):
@@ -123,7 +124,7 @@ and `h` stands for the corresponding hull `bb`, `ch`, `as`, `obb`):
     * centroid
         tuple with mean of all localization coordinates
     * `localization_count`
-        number of localizations from all groups
+        number of localizations within a group
     * `region_measure_h`
         area/volume (for all possible hulls)
     * `subregion_measure_h`

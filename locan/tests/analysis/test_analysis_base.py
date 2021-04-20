@@ -14,9 +14,22 @@ def test_Analysis():
     assert str(ae) == repr(ae)
     assert ae.parameter == {'limits': (100, 110)}
 
+    #print(ae.meta)
+    #print(dir(metadata_analysis_pb2))
     assert isinstance(ae.meta, metadata_analysis_pb2.AMetadata)
-    assert (ae.meta.method.name == "_Analysis")
+    assert ae.meta.identifier
+    assert ae.meta.creation_date
+    assert ae.meta.method.name == "_Analysis"
     assert ae.meta.comment == 'this is an example'
+
+    ae.meta.comment = 'new comment'
+    assert ae.meta.comment == 'new comment'
+
+    ae.meta.map['variable key'] = 'value_1'
+    assert ae.meta.map == {'variable key': 'value_1'}
+
+    ae.meta.map['key_2'] = 'value_2'
+    assert ae.meta.map['key_2'] == 'value_2'
 
     with pytest.raises(NotImplementedError):
         ae.compute()

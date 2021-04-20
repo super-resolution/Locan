@@ -24,13 +24,13 @@ To update the documentation from sources delete ``/docs/sources/generated`` and 
 
 Example docstring
 -----------------
-We try to follow standard docstring as illustrated here::
+We try to follow standard docstrings as illustrated here::
 
     def function(par=None, **kwargs):
         """
         Short title.
 
-        Long description.
+        Long description with some reference [1]_.
 
         Parameters
         ----------
@@ -55,6 +55,10 @@ We try to follow standard docstring as illustrated here::
         Notes
         -----
         Whatever there is to note.
+
+        References
+        ----------
+        .. [1] <authors>, <title>. <journal> <year>, <volume>:<pages>. <doi>
         """
         return None
 
@@ -77,20 +81,5 @@ We try to follow standard docstring as illustrated here::
         ----------
         arg : None, other type
             Description
-
-        References
-        ----------
-        .. [1] some reference
         """
         return None
-
-Examples
---------
-
-In some examples we use the ipython directive sphinx extension:
-
-.. ipython:: python
-
-   x = 2
-   print('hello')
-   x*3

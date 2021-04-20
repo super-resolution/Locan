@@ -11,21 +11,16 @@ However, please excuse that we are limited in time for development and support.
 Some things to keep in mind when adding code...
 
 Install
-------------------------------
+========
 
 A few extra libraries are needed for development::
 
         pip install .[dev]
 
-Install the extra requirements in a conda environment::
-
-        conda install twine sphinx sphinx_rtd_theme --name <environment>
-
-
 Alternatively, you may use the requirement files `requirements_dev.txt` or `environment_dev.yml`.
 
 
-Import Conventions:
+Import Conventions
 ====================
 
 The following import conventions are used throughout Locan source code and documentation:
@@ -36,18 +31,25 @@ The following import conventions are used throughout Locan source code and docum
 * import matplotlib.pyplot as plt
 * import open3d as o3d
 * import networkx as nx
+* import boost_histogram as bh
 
 
-Unit tests:
+Unit tests
 ===========
 
 For testing we use py.test_.
 
 .. _py.test: https://docs.pytest.org/en/latest/index.html
 
-A test suite is provided in Locan/tests.
+A test suite is provided in locan/tests.
 
-For unit testing we supply test data as data files located in tests/test_data.
+For unit testing we supply test data as data files located in locan/tests/test_data.
+
+Versioning
+===========
+
+We use [SemVer](http://semver.org/) for versioning. For all versions available, see the
+[releases in this repository](https://github.com/super-resolution/Locan/releases).
 
 
 To remember:

@@ -35,9 +35,9 @@ And Ripley's h function is:
 
 References
 ----------
-.. [1] B.D. Ripley (1977) Modelling spatial patterns. Journal of the Royal Statistical Society, 172–212
-.. [2] Kiskowski, M. A., Hancock, J. F., and Kenworthy, A. K. (2009) On the use of Ripley's K-function and its
-   derivatives to analyze domain size. Biophysical journal 97, 1095–1103
+.. [1] B.D. Ripley, Modelling spatial patterns. Journal of the Royal Statistical Society, 1977, 172–212.
+.. [2] Kiskowski, M. A., Hancock, J. F., and Kenworthy, A. K., On the use of Ripley's K-function and its
+   derivatives to analyze domain size. Biophysical journal, 2009, 97, 1095–1103.
 
 """
 import logging

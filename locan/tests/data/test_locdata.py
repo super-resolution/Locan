@@ -399,12 +399,23 @@ def test_LocData_add_column_to_dataframe(df_simple):
 
 def test_LocData_handling_metadata(df_simple):
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
+    # print(dat.meta)
+    # print(dir(metadata_pb2))
+    assert dat.meta.identifier
+    assert dat.meta.creation_date
+    assert dat.meta.source == metadata_pb2.DESIGN
+    assert dat.meta.state == metadata_pb2.RAW
+    assert dat.meta.history[0].name == "LocData.from_dataframe"
+    assert dat.meta.element_count == 5
+
     dat.meta.comment = 'new comment'
-    assert (dat.meta.comment == 'new comment')
+    assert dat.meta.comment == 'new comment'
 
     dat.meta.map['variable key'] = 'new comment'
-    # print(dat.meta.map)
-    assert (dat.meta.map == {'variable key': 'new comment'})
+    assert dat.meta.map == {'variable key': 'new comment'}
+
+    dat.meta.map['key_2'] = 'value_2'
+    assert dat.meta.map['key_2'] == 'value_2'
 
 
 # locdata and regions

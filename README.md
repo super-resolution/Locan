@@ -15,11 +15,9 @@ To install the package please read the [instructions](docs/source/installation.r
 
 For details on usage and development please read the [documentation](docs/index.rst).
 
-Tutorials are provided as Jupyter notebooks in a separate 
-[repository](https://github.com/super-resolution/Locan_tutorials).
+[Tutorials](docs/tutorials/tutorials.rst) are provided as Jupyter notebooks.
 
 You can use the package in a docker container as described in [docker/README.md](docker/README.md).
-
 
 Contributing
 ------------
@@ -27,12 +25,6 @@ Contributing
 Development takes place on the [Locan Github page](https://github.com/super-resolution/Locan).
 
 Please read [development.rst](docs/source/development.rst) for details on how to help develop this project further.
-
-Versioning
-----------
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the 
-[tags on this repository](https://github.com/super-resolution/Locan/tags).
 
 Developers
 ----------
@@ -43,3 +35,13 @@ License
 -------
 
 This project is licensed under the BSD-3 License - see the [LICENSE](LICENSE.md) file for details.
+
+Citing
+-------
+
+If you want to acknowledge locan please cite this repository using the DOI provided by zenodo:
+
+    to be added
+
+Note this DOI will resolve to all versions of locan. 
+To cite a specific version please find the DOI of that version on the zenodo page. 

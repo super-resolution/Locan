@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2018, Biotechnologie und Biophysik - Universität Würzburg
+Copyright (c) 2018-2021, Biotechnologie und Biophysik - Universität Würzburg
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

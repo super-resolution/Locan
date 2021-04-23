@@ -115,8 +115,8 @@ Other Changes and Additions
 ---------------------------
 
 
-0.7 (26.3.2021)
-===============
+0.7 - 2021-03-26
+================
 
 API Changes
 ------------
@@ -132,7 +132,7 @@ Other Changes and Additions
 - Restructured documentation, added tutorials, and changed html-scheme to furo.
 
 
-0.6 (4.3.2021)
+0.6 - 2021-03-04
 ================
 
 New Features
@@ -217,12 +217,12 @@ Other Changes and Additions
 - Included pyproject.toml file
 
 
-0.5.1 (25.3.2020)
-=================
+0.5.1 - 2020-03-25
+==================
 - Update environment and requirement files
 
 
-0.5 (22.3.2020)
+0.5 - 2020-03-22
 ================
 
 
@@ -275,8 +275,8 @@ locan.analysis
 - Adapt colormap and rescaling in LocalizationProperty2D plot functions.
 
 
-0.4.1 (16.2.2020)
-=================
+0.4.1 - 2020-02-16
+==================
 
 
 Bug Fixes
@@ -292,7 +292,7 @@ Other Changes and Additions
 
 
 
-0.4 (13.02.2020)
+0.4 - 2020-02-13
 ================
 
 New Features
@@ -361,7 +361,7 @@ Other Changes and Additions
 - Implemented use of QT_API to set the QT bindings and work in combination with napari.
 - Make shapely a required dependency.
 
-0.3 (09.07.2019)
+0.3 - 2019-07-09
 ================
 
 New Features
@@ -399,7 +399,7 @@ Other Changes and Additions
 - various other small changes and fixes as documented in the version control log.
 
 
-0.2 (22.3.2019)
+0.2 - 2019-03-22
 ================
 
 New Features
@@ -444,7 +444,7 @@ locan.io
 - changed types for column values returned from load_thunderstorm_file.
 
 
-0.1 (9.12.2018)
+0.1 - 2018-12-09
 ========================
 
 New Features

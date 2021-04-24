@@ -1,0 +1,13 @@
+# <localizations insequence="true" repetitions="variable"><field identifier="Position-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="position in sample space in X" unit="nanometer" min="0 m" max="1.69545e-005 m" /><field identifier="Position-1-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="position in sample space in Y" unit="nanometer" min="0 m" max="1.69545e-005 m" /><field identifier="ImageNumber-0-0" syntax="integer" semantic="frame number" unit="frame" min="0 fr" max="21250 fr" /><field identifier="Amplitude-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="emission strength" unit="A/D count" /><field identifier="PSFWidth-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="PSF FWHM in X" unit="nanometer" min="2.5e-007 m" max="5.8e-007 m" /><field identifier="PSFWidth-1-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="PSF FWHM in Y" unit="nanometer" min="2.5e-007 m" max="5.8e-007 m" /><field identifier="FitResidues-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="fit residue chi square value" unit="dimensionless" /><field identifier="LocalBackground-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="local background" unit="A/D count" /></localizations>
+11135.1 4757.58 1 2213.93 345.357 424.191 87112.5 530.336
+11408.2 7687.04 3 2841.81 306.655 407.985 51133 536.402
+11104.1 4733.26 3 1964.34 377.695 384.434 64557.5 534.664
+11409 7679.6 4 4545.83 309.657 377.221 97935.6 544.206
+11421.8 7690.59 5 2650.34 290.488 370.382 69614.8 541.402
+11110.7 4780.71 5 2038.26 300.524 383.034 52986.9 528.379
+11413.5 7691.55 6 2947.5 309.194 433.106 71653.7 539.371
+11403.7 7695.03 7 3504.92 361.37 387.81 105505 536.977
+11414 7688.19 8 2283.69 330.941 338.831 60944.6 543.794
+11450.3 7670.08 10 1877.59 263.981 398.514 79666.3 538.783
+13262.7 5473.82 27 2352.66 362.807 333.066 41344.8 530.062
+13243.5 5441.64 29 1911.59 299.07 354.838 61510.2 537

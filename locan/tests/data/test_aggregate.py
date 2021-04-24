@@ -229,6 +229,14 @@ def test__BinsFromNumber_():
     assert np.array_equal(bins.bin_edges[0], np.array([0, 5, 10]))
     assert np.array_equal(bins.bin_edges[1], np.array([0, 2.5, 5]))
 
+    bins = _BinsFromNumber(n_bins=(2,), bin_range=((0, 10), (0, 5)))
+    assert bins.n_dimensions == 2
+    assert bins.bin_range == ((0, 10), (0, 5))
+    assert bins.n_bins == (2,)
+    assert bins.bin_size == (5, 2.5)
+    assert np.array_equal(bins.bin_edges[0], np.array([0, 5, 10]))
+    assert np.array_equal(bins.bin_edges[1], np.array([0, 2.5, 5]))
+
     bins = _BinsFromNumber(n_bins=(2, 5, 2), bin_range=(0, 10))
     assert bins.n_dimensions == 3
     assert bins.bin_range == ((0, 10), (0, 10), (0, 10))
@@ -246,6 +254,23 @@ def test__BinsFromNumber_():
         _BinsFromNumber(n_bins=5, bin_range=(1, 2, 3))
     with pytest.raises(TypeError):
         _BinsFromNumber(n_bins=(5, (1, 2)), bin_range=(1, 2, 3))
+
+    with pytest.raises(TypeError):
+        _BinsFromNumber(n_bins=(5,), bin_range=1)
+    with pytest.raises(TypeError):
+        _BinsFromNumber(n_bins=(5,), bin_range=(0,))
+    with pytest.raises(TypeError):
+        _BinsFromNumber(n_bins=(5,), bin_range=(1, 2, 3))
+
+    with pytest.raises(TypeError):
+        _BinsFromNumber(n_bins=(2, 5, 2), bin_range=1)
+    with pytest.raises(TypeError):
+        _BinsFromNumber(n_bins=(2, 5, 2), bin_range=(0,))
+    with pytest.raises(TypeError):
+        _BinsFromNumber(n_bins=(2, 5, 2), bin_range=(1, 2, 3))
+
+    with pytest.raises(TypeError):
+        _BinsFromNumber(n_bins=(5, (1, 2)), bin_range=(1, 2))
 
 
 def test__BinsFromSize():
@@ -325,10 +350,24 @@ def test__BinsFromSize():
     assert np.array_equal(bins.bin_edges[0], np.array([0, 2, 4, 6, 8, 10]))
     assert np.array_equal(bins.bin_edges[1], np.array([0, 1, 3, 6, 10]))
 
+    bins = _BinsFromSize(bin_size=(2, (1, 2, 3, 4)), bin_range=((0, 10), (0, 20)))
+    assert bins.n_dimensions == 2
+    assert bins.bin_range == ((0.0, 10.0), (0.0, 20.0))
+    assert bins.n_bins == (5, 4)
+    assert bins.bin_size == (2, (1, 2, 3, 4))
+    assert np.array_equal(bins.bin_edges[0], np.array([0, 2, 4, 6, 8, 10]))
+    assert np.array_equal(bins.bin_edges[1], np.array([0, 1, 3, 6, 10]))
+
     with pytest.raises(TypeError):
         _BinsFromSize(bin_size=5, bin_range=(0,))
     with pytest.raises(TypeError):
         _BinsFromSize(bin_size=5, bin_range=(1, 2, 3))
+
+    with pytest.raises(TypeError):
+        _BinsFromSize(bin_size=(2, 2, (1, 2, 3, 4)), bin_range=((0, 10), (0, 20)))
+
+    with pytest.raises(TypeError):
+        _BinsFromSize(bin_size=((1, 2, 3, 4), (1, 2, 3, 4), (1, 2, 3, 4)), bin_range=((0, 10), (0, 20)))
 
 
 def test_Bins():

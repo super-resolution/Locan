@@ -64,6 +64,12 @@ def test_cbc_nan(locdata_line):
     assert(np.isnan(res[4]))
 
 
+def test_Coordinate_based_colocalization_empty(caplog):
+    cbc = CoordinateBasedColocalization().compute(LocData())
+    cbc.hist()
+    assert caplog.record_tuples == [('locan.analysis.cbc', 30, 'Locdata is empty.')]
+
+
 def test_Coordinate_based_colocalization(locdata_line):
     other_locdata = transform_affine(locdata_line)
     cbc = CoordinateBasedColocalization(radius=100, n_steps=10).compute(locdata=locdata_line,
@@ -71,7 +77,4 @@ def test_Coordinate_based_colocalization(locdata_line):
     # print(cbc.results)
     assert(cbc.results.columns == f'colocalization_cbc_{other_locdata.meta.identifier}')
 
-    cbc = CoordinateBasedColocalization(radius=100, n_steps=10).compute(locdata=locdata_line,
-                                                                        other_locdata=other_locdata)
-    # print(other_locdata.meta)
-    # assert(cbc.results.columns == 'colocalization_cbc_self')
+    cbc.hist()

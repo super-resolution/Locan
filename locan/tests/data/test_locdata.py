@@ -148,6 +148,15 @@ def test_LocData_from_coordinates():
     assert len(dat) == 4
     assert dat.meta.comment == COMMENT_METADATA.comment
 
+    dat = LocData.from_coordinates(coordinates=coordinates, coordinate_labels=['position_x', 'position_z'],
+                                   meta=dict(comment='special order'))
+    assert np.array_equal(dat.coordinates, np.asarray(coordinates))
+    assert all(item in ['position_x', 'position_z'] for item in dat.coordinate_labels)
+    assert len(dat) == 4
+
+    with pytest.raises(ValueError):
+        LocData.from_coordinates(coordinates=coordinates, coordinate_labels=['position_x', 'whatever'])
+
     dat = LocData.from_coordinates(coordinates=[])
     assert len(dat) == 0
 
@@ -196,14 +205,15 @@ def test_LocData_from_collection(df_simple):
     assert col.dimension == 0
     assert len(col) == 2
     assert col.properties == {'localization_count': 2, 'region_measure_bb': 0}
+    assert (col.meta.comment == COMMENT_METADATA.comment)
 
     dat = LocData.from_dataframe(dataframe=df_simple)
     sel_1 = LocData.from_selection(locdata=dat, indices=[0, 1, 2])
     sel_2 = LocData.from_selection(locdata=dat, indices=[3, 4])
-    col = LocData.from_collection([sel_1, sel_2], meta=COMMENT_METADATA)
+    col = LocData.from_collection([sel_1, sel_2], meta=dict(comment='yet another comment'))
     assert (len(col.references) == 2)
     assert (len(col) == 2)
-    assert (col.meta.comment == COMMENT_METADATA.comment)
+    assert (col.meta.comment == 'yet another comment')
     assert set(col.data.columns) == {'localization_count', 'localization_density_bb', 'position_x', 'position_y',
                                      'region_measure_bb', 'subregion_measure_bb'}
 
@@ -220,6 +230,23 @@ def test_LocData_from_collection(df_simple):
                                      'region_measure_bb', 'region_measure_ch', 'region_measure_obb',
                                      'subregion_measure_bb'}
     # print(col.properties)
+
+    col.update_alpha_shape_in_references(alpha=1)
+    assert set(col.data.columns) == {'circularity_obb', 'localization_count', 'localization_density_bb',
+                                     'localization_density_ch',
+                                     'localization_density_obb', 'orientation_obb', 'position_x', 'position_y',
+                                     'region_measure_bb', 'region_measure_ch', 'region_measure_obb',
+                                     'subregion_measure_bb',
+                                     'region_measure_as', 'localization_density_as'}
+
+    col.update_inertia_moments_in_references()
+    assert set(col.data.columns) == {'circularity_obb', 'localization_count', 'localization_density_bb',
+                                     'localization_density_ch',
+                                     'localization_density_obb', 'orientation_obb', 'position_x', 'position_y',
+                                     'region_measure_bb', 'region_measure_ch', 'region_measure_obb',
+                                     'subregion_measure_bb',
+                                     'region_measure_as', 'localization_density_as',
+                                     'circularity_im', 'orientation_im'}
 
 
 def test_LocData_selection_from_collection(df_simple):
@@ -251,13 +278,14 @@ def test_LocData_concat(df_simple):
     assert col.dimension == 0
     assert len(col) == 0
     assert col.properties == {'localization_count': 0, 'region_measure_bb': 0}
+    assert (col.meta.comment == COMMENT_METADATA.comment)
 
     dat = LocData.from_dataframe(dataframe=df_simple)
     sel_1 = LocData.from_selection(locdata=dat, indices=[0, 1, 2])
     sel_2 = LocData.from_selection(locdata=dat, indices=[3, 4])
-    col = LocData.concat([sel_1, sel_2], meta=COMMENT_METADATA)
+    col = LocData.concat([sel_1, sel_2], meta=dict(comment='yet another comment'))
     assert (len(col) == 5)
-    assert (col.meta.comment == COMMENT_METADATA.comment)
+    assert (col.meta.comment == 'yet another comment')
     assert len(col.references) == 2
     sel_1.reduce()
     col = LocData.concat([sel_1, sel_2], meta=COMMENT_METADATA)
@@ -322,11 +350,12 @@ def test_locdata_reset_empty(
 def test_LocData_update(df_simple):
     new_dataframe = pd.DataFrame.from_dict(
         {'position_x': [10, 0, 1, 4],
-         'position_y': [10, 1, 3, 4]}
+         'position_y': [10, 1, 3, 4],
+         'frame': [0, 1, 1, 4]}
     )
 
     dat = LocData()
-    dat.update(new_dataframe)
+    dat.update(new_dataframe, meta=COMMENT_METADATA)
     pd.testing.assert_frame_equal(dat.data, new_dataframe)
     assert dat.properties['position_x'] == 3.75
     assert dat.meta.element_count == 4
@@ -336,7 +365,7 @@ def test_LocData_update(df_simple):
     assert dat.properties['position_x'] == 2
     assert dat.meta.element_count == 5
 
-    dat.update(new_dataframe)
+    dat.update(new_dataframe, meta=dict(comment='yet another comment'))
     pd.testing.assert_frame_equal(dat.data, new_dataframe)
     assert dat.properties['position_x'] == 3.75
     assert dat.meta.element_count == 4
@@ -416,6 +445,9 @@ def test_LocData_handling_metadata(df_simple):
 
     dat.meta.map['key_2'] = 'value_2'
     assert dat.meta.map['key_2'] == 'value_2'
+
+    dat = LocData.from_dataframe(dataframe=df_simple, meta=dict(comment='yet another comment'))
+    assert dat.meta.comment == 'yet another comment'
 
 
 # locdata and regions
@@ -523,12 +555,13 @@ def test_locdata_from_chunks(
         assert all(chunk_collection.data.localization_count == expected[1])
     assert chunk_collection.meta.comment == COMMENT_METADATA.comment
 
-    chunk_collection = LocData.from_chunks(locdata=dat, chunk_size=2, order='alternating', meta=COMMENT_METADATA)
+    chunk_collection = LocData.from_chunks(locdata=dat, chunk_size=2, order='alternating',
+                                           meta=dict(comment='yet another comment'))
     assert isinstance(chunk_collection.references, list)
     assert len(chunk_collection) == expected[0]
     if len(chunk_collection) != 0:
         assert all(chunk_collection.data.localization_count == expected[1])
-    assert chunk_collection.meta.comment == COMMENT_METADATA.comment
+    assert chunk_collection.meta.comment == 'yet another comment'
 
     chunk_collection = LocData.from_chunks(locdata=dat, chunk_size=4, drop=True)
     assert isinstance(chunk_collection.references, list)
@@ -577,3 +610,17 @@ def test_deepcopy():
     assert int(new_locdata.references.meta.identifier) == int(selection.meta.identifier) + 1
     assert int(new_locdata.meta.identifier) == int(selection.meta.identifier) + 2
     assert new_locdata.meta.creation_date == selection.meta.creation_date
+
+
+def test_locdata_print_summary(capfd, locdata_2d):
+    locdata_2d.print_summary()
+    captured = capfd.readouterr()
+    for element in ['identifier', 'creation_date', 'source', 'state', 'element_count']:
+        assert element in captured.out
+
+
+def test_locdata_print_meta(capfd, locdata_2d):
+    locdata_2d.print_meta()
+    captured = capfd.readouterr()
+    for element in ['identifier', 'creation_date', 'source', 'state', 'element_count']:
+        assert element in captured.out

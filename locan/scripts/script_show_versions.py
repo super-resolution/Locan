@@ -6,11 +6,11 @@ Show system information and dependency versions.
 
 To run the script::
 
-    show_versions -v -e -o <module name> [<module name>...]
+    locan show_versions -v -e -o <module name> [<module name>...]
 
 Try for instance::
 
-    show_versions
+    locan show_versions -v -e
 
 See Also
 --------
@@ -31,13 +31,11 @@ def _add_arguments(parser):
 
 
 def main(args=None):
-
     parser = argparse.ArgumentParser(description='Show system information and dependency versions.')
     _add_arguments(parser)
     returned_args = parser.parse_args(args)
-    print(returned_args)
     sc_show_versions(verbose=returned_args.verbose, extra_dependencies=returned_args.extra,
-                  other_dependencies=returned_args.other)
+                     other_dependencies=returned_args.other)
 
 
 if __name__ == '__main__':

@@ -220,6 +220,7 @@ def simulate_csr_on_disc(n_samples=100, radius=1.0, seed=None):
     return locdata
 
 
+# todo: implement n_features=1 and n_features=3
 def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
                 shuffle=True, seed=None):
     """
@@ -232,7 +233,7 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
         If int, it is the total number of points equally divided among clusters.
         If array-like, each element of the sequence indicates the number of samples per cluster.
     n_features : int
-        The number of features for each sample. One of (1, 2, 3).
+        The number of features for each sample. One of (1, 2, 3) - currently only 2 is implemented.
     centers : int or array of shape [n_centers, n_features]
         The number of centers to generate, or the fixed center locations.
         If centers is an array, n_features is taken from centers shape.
@@ -299,7 +300,7 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
                                  f"and number of centers = {len(centers)}")
             if n_features != np.shape(centers)[1]:
                 raise ValueError(f'n_features must be the same as the dimensions for each center. '
-                                 f'Got n_features: {n_features} and center dimensions: {centers.shape[1]} instead.')
+                                 f'Got n_features: {n_features} and center dimensions: {np.shape(centers)[1]} instead.')
 
     # set n_samples_per_center
     if isinstance(n_samples, (int, np.integer)):
@@ -325,14 +326,16 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
     labels = []
     if n_features == 1:
         raise NotImplementedError
-    elif n_features == 3:
-        raise NotImplementedError
     elif n_features == 2:
         for i, (number, r, center) in enumerate(zip(n_samples_per_center, radii, centers)):
             pts = make_csr_on_disc(n_samples=number, radius=r, seed=seed)
             pts = pts + center
             disk_samples.append(pts)
             labels += [i] * number
+    elif n_features == 3:
+        raise NotImplementedError
+    else:
+        raise ValueError("n_features must be 1, 2, or 3.")
 
     # shift and concatenate
     samples = np.concatenate(disk_samples)
@@ -618,7 +621,8 @@ def make_csr_on_region(region, n_samples=100, seed=None):
     ----------
     region : RoiRegion, or dict
         Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
-        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
+        Allowed values for `region_specs` and `region_type` are defined in the docstrings for :class:`Roi` and
+        :class:`RoiRegion`.
     n_samples : int
        total number of localizations
     seed : int

@@ -5,8 +5,6 @@ from lmfit.models import ConstantModel, LinearModel, PolynomialModel
 
 from locan import LocData
 from locan.constants import _has_open3d
-from locan.io.io_locdata import load_rapidSTORM_file
-from locan.constants import ROOT_DIR
 from locan import Drift, DriftComponent
 from locan.analysis.drift import _LmfitModelFacade, _ConstantModelFacade, _ConstantZeroModelFacade, \
     _ConstantOneModelFacade, _SplineModelFacade
@@ -123,11 +121,21 @@ def test_DriftComponent():
     # plt.show()
 
 
-@pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
-def test_Drift(locdata_blobs_2d):
-    locdata = load_rapidSTORM_file(path=ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt')
+def test_Drift_empty(caplog):
+    drift = Drift().compute(LocData())
+    drift.plot()
+    drift.apply_correction()
+    drift.fit_transformation()
+    drift.fit_transformations()
+    assert caplog.record_tuples == [('locan.analysis.drift', 30, 'Locdata is empty.'),
+                                    ('locan.analysis.drift', 30, 'No transformations available to be applied.'),
+                                    ('locan.analysis.drift', 30, 'No transformations available to be fitted.'),
+                                    ('locan.analysis.drift', 30, 'No transformations available to be fitted.')]
 
-    drift = Drift(chunk_size=100, target='first').compute(locdata)
+
+@pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
+def test_Drift(locdata_blobs_2d, locdata_rapidSTORM_2d):
+    drift = Drift(chunk_size=100, target='first').compute(locdata_rapidSTORM_2d)
     assert isinstance(drift.locdata, LocData)
     assert isinstance(drift.collection, LocData)
     assert drift.transformations[0]._fields == ('matrix', 'offset')
@@ -178,12 +186,12 @@ def test_Drift(locdata_blobs_2d):
 
     assert drift.locdata_corrected is None
     new_locdata = drift._apply_correction_on_chunks()
-    assert len(new_locdata) == len(locdata)
+    assert len(new_locdata) == len(locdata_rapidSTORM_2d)
 
     drift.transformation_models['matrix'] = None
     drift.transformation_models['offset'] = None
     with pytest.raises(AttributeError):
-        drift._apply_correction_from_model(drift.locdata)
+        drift._apply_correction_from_model(drift.locdata_rapidSTORM_2d)
 
     drift.fit_transformation(slice_data=slice(None), transformation_component='matrix', element=1,
                              drift_model='linear', verbose=True)
@@ -204,7 +212,7 @@ def test_Drift(locdata_blobs_2d):
                               offset_models=['linear'] * 2,
                               verbose=False)
     transformed_points = drift._apply_correction_from_model(drift.locdata)
-    assert len(transformed_points) == len(locdata)
+    assert len(transformed_points) == len(locdata_rapidSTORM_2d)
 
     drift.apply_correction(from_model=True)
     assert isinstance(drift.locdata_corrected, LocData)
@@ -214,7 +222,7 @@ def test_Drift(locdata_blobs_2d):
     assert isinstance(drift.locdata_corrected, LocData)
     assert len(drift.locdata_corrected) == len(drift.collection.references[0])
 
-    drift = Drift(chunk_size=200, target='previous').compute(locdata)
+    drift = Drift(chunk_size=200, target='previous').compute(locdata_rapidSTORM_2d)
     assert isinstance(drift.collection, LocData)
     assert drift.transformations[0]._fields == ('matrix', 'offset')
     assert len(drift.transformations) == 5
@@ -225,9 +233,15 @@ def test_Drift(locdata_blobs_2d):
     drift.plot(transformation_component='offset', element=0)
     # plt.show()
 
+    with pytest.raises(NotImplementedError):
+        drift.fit_transformations(slice_data=slice(None),
+                                  matrix_models=['linear'] * 4,
+                                  offset_models=['linear'] * 2,
+                                  verbose=False)
+
     # apply chained functions
     drift = Drift(chunk_size=200, target='first', method='cc').\
-        compute(locdata).\
+        compute(locdata_rapidSTORM_2d).\
         fit_transformations(slice_data=slice(0, 3),
                             matrix_models=None,
                             offset_models=(None, LinearModel())).\

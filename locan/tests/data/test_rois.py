@@ -189,7 +189,6 @@ def test_rasterize_3d(locdata_3d):
 
 
 def test__napari_shape_to_RoiRegion():
-
     # rectangle
     vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
     bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)

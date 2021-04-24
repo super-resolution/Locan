@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 import matplotlib.pyplot as plt  # needed for visual inspection
-from shapely.geometry import MultiPolygon
+from shapely.geometry import Polygon, MultiPolygon
 
 from locan import LocData, select_by_condition, HullType, RoiRegion
 from locan import surrounding_region, localizations_in_cluster_regions, distance_to_region, \
@@ -14,6 +14,8 @@ from locan import render_2d_mpl, scatter_2d_mpl  # needed for visual inspection
 def test_surrounding_region():
     rr = RoiRegion(region_type='rectangle', region_specs=((0, 0), 1, 1, 0))
     sr = surrounding_region(region=rr, distance=1, support=None)
+    assert sr.area == pytest.approx(7.136548490545939)
+    sr = surrounding_region(region=rr.to_shapely(), distance=1, support=None)
     assert sr.area == pytest.approx(7.136548490545939)
 
     rr = RoiRegion(region_type='ellipse', region_specs=((0, 0), 1, 3, 0))
@@ -28,6 +30,26 @@ def test_surrounding_region():
     sup = RoiRegion(region_type='rectangle', region_specs=((0, 0), 2, 2, 0))
     sr = surrounding_region(region=rr, distance=1, support=sup)
     assert sr.area == pytest.approx(3.012009021216654)
+
+    rr = RoiRegion(region_type='rectangle', region_specs=((0, 0), 1, 1, 0))
+    rr_1 = RoiRegion(region_type='rectangle', region_specs=((0, 0), 1, 1, 0))
+    sr = surrounding_region(region=[rr, rr_1], distance=1, support=None)
+    assert sr.area == pytest.approx(7.136548490545939)
+    assert isinstance(sr, Polygon)
+    rr_1 = RoiRegion(region_type='rectangle', region_specs=((10, 10), 1, 1, 0))
+    sr = surrounding_region(region=[rr, rr_1], distance=1, support=None)
+    assert sr.area == pytest.approx(2*7.136548490545939)
+    assert isinstance(sr, MultiPolygon)
+
+    # visualize
+    # fig, ax = plt.subplots()
+    # #ax.scatter((-1, 3), (-1, 3))
+    # ax.add_patch(rr.as_artist(fill=True))
+    # ax.add_patch(rr_1.as_artist(fill=True))
+    # sr_region = RoiRegion.from_shapely(region_type='shapelyMultiPolygon', shapely_obj=sr)
+    # for pat in sr_region.as_artist(fill=False):
+    #     ax.add_patch(pat)
+    # plt.show()
 
 
 def test_localizations_in_cluster_regions(locdata_blobs_2d):
@@ -73,6 +95,10 @@ def test_distance_to_region(locdata_2d):
     distances = distance_to_region(locdata_2d, region)
     assert np.array_equal(distances[:-1], np.array([0, 1, 0, 2, 0]))
 
+    region_2 = RoiRegion(region_type='rectangle', region_specs=((3, 3), 3, 3, 0))
+    distances = distance_to_region(locdata_2d, [region, region_2])
+    assert np.array_equal(distances[:-1], np.array([0, 1, 0, 0, 0]))
+
 
 def test_distance_to_region_boundary(locdata_2d):
     region = RoiRegion(region_type='rectangle', region_specs=((1, 1), 3, 3, 0))
@@ -82,6 +108,10 @@ def test_distance_to_region_boundary(locdata_2d):
     # plt.show()
     distances = distance_to_region_boundary(locdata_2d, region)
     assert np.array_equal(distances[:-1], np.array([0, 1, 1, 2, 0]))
+
+    region_2 = RoiRegion(region_type='rectangle', region_specs=((3.5, 3.5), 3, 3, 0))
+    distances = distance_to_region(locdata_2d, [region, region_2])
+    assert np.array_equal(distances[:-1], np.array([0, 1, 0, 0.5, 0]))
 
 
 def test_localizations_in_region(locdata_2d):
@@ -102,6 +132,7 @@ def test_localizations_in_region(locdata_2d):
     # test with shapely Polygon
     new_locdata = localizations_in_region(locdata_2d, region.to_shapely())
     assert len(new_locdata) == 2
+
 
 def test_localizations_in_region_2(locdata_2d):
     # test with shapely MultiPolygon

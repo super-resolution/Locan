@@ -144,6 +144,14 @@ def test_blink_statistics__with_repetitions(locdata_with_repetitions):
     _blink_statistics(locdata_with_repetitions, memory=0, remove_heading_off_periods=False)
 
 
+def test_BlinkStatistics_empty(caplog):
+    bs = BlinkStatistics().compute(LocData())
+    bs.fit_distributions()
+    bs.hist()
+    assert caplog.record_tuples == [('locan.analysis.blinking', 30, 'Locdata is empty.'),
+                                    ('locan.analysis.blinking', 30, 'No results available to fit.')]
+
+
 def test_BlinkStatistics(locdata_with_zero_frame):
     bs = BlinkStatistics().compute(locdata_with_zero_frame)
     assert repr(bs) == "BlinkStatistics(memory=0, remove_heading_off_periods=True)"
@@ -185,6 +193,12 @@ def test_fit_distributions(locdata_with_zero_frame):
            {'off_periods_loc': 1.0, 'off_periods_scale': 1.6666666666666665}
     bs.hist()
     bs.hist(data_identifier='off_periods')
+    del bs
+
+    bs = BlinkStatistics().compute(locdata_with_zero_frame)
+    bs.fit_distributions(with_constraints=False)
+    assert bs.distribution_statistics['on_periods'].parameter_dict()['on_periods_loc'] == 1
+    assert bs.distribution_statistics['off_periods'].parameter_dict()['off_periods_loc'] == 1
     del bs
 
     bs = BlinkStatistics().compute(locdata_with_zero_frame)

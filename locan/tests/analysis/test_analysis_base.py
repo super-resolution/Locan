@@ -3,8 +3,9 @@ import tempfile
 import pickle
 
 import pytest
+from scipy import stats
 
-from locan.analysis.analysis_base import _Analysis
+from locan.analysis.analysis_base import _Analysis, _list_parameters
 from locan.analysis import metadata_analysis_pb2
 
 
@@ -46,3 +47,14 @@ def test_pickling_Analysis():
         assert ae_pickled.parameter == ae.parameter
         assert isinstance(ae_pickled.meta, metadata_analysis_pb2.AMetadata)
         assert ae_pickled.meta == ae.meta
+
+
+def test__list_parameters():
+    with pytest.raises(AttributeError):
+        parameters = _list_parameters('fail')
+    parameters = _list_parameters('expon')
+    assert parameters == ['loc', 'scale']
+    parameters = _list_parameters(stats.gamma)
+    assert parameters == ['a', 'loc', 'scale']
+    parameters = _list_parameters(stats.poisson)
+    assert parameters == ['mu', 'loc']

@@ -9,11 +9,11 @@ The roi is then saved as _roi.yaml file.
 
 To run the script::
 
-    draw_roi_mpl -f <file> -t <file type> -i <roi file indicator> -r <region type>
+    locan draw_roi_mpl -f <file> -t <file type> -i <roi file indicator> -r <region type>
 
 Try for instance::
 
-    draw_roi_mpl -f "locan/tests/test_data/five_blobs.txt" -t 1 -i "_roi" -r "ellipse"
+    locan draw_roi_mpl -f "locan/tests/test_data/five_blobs.txt" -t 1 -i "_roi" -r "ellipse"
 
 See Also
 --------

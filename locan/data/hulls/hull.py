@@ -16,55 +16,6 @@ from locan.data.region import RoiRegion
 __all__ = ['BoundingBox', 'ConvexHull', 'OrientedBoundingBox']
 
 
-class _Hull:
-    """
-    Abstract class for the hull of a selection.
-
-    This class is not inherited at this point. It just serves as template for the design of specific hull objects.
-
-    Parameters
-    ----------
-    points : array-like of tuples with floats
-        coordinates of points for which the hull is computed
-
-    Attributes
-    ----------
-    hull : hull object
-        hull object from the corresponding algorithm
-    vertices : array of coordinate tuples
-        Coordinates of points that make up the hull.
-    vertex_indices : indices for points
-        indices identifying a polygon of all points that make up the hull
-    dimension : int
-        spatial dimension of hull
-    width : array-like of float
-        length in x, y[, and z]-dimension of aligned hulls or max length of oriented hulls
-    points_on_boundary : int
-        absolute number of points that are part of the convex hull
-    points_on_boundary_rel : float
-        The number of points on the hull relative to all input points
-    region_measure : float
-        hull measure, i.e. area or volume
-    subregion_measure : float
-        measure of the sub-dimensional region, i.e. circumference or surface
-    region : RoiRegion
-        Convert the hull to a RoiRegion object.
-    """
-
-    def __init__(self, points):
-        self.points = points
-        self.hull = None
-        self.vertices = None
-        self.vertex_indices = None
-        self.dimension = None
-        self.width = None
-        self.points_on_boundary = None
-        self.points_on_boundary_rel = None
-        self.region_measure = None
-        self.subregion_measure = None
-        self.region = None
-
-
 class BoundingBox:
     """
     Class with bounding box computed using numpy operations.

@@ -22,18 +22,20 @@ from locan.analysis.analysis_base import _Analysis
 # The user will not have to use this particular function directly.
 #
 
+
 def _algorithm_1(data=None, limits=(0, 10)):
-    """ Provides a list of data values. data is actually not used."""
+    """ Provides a list of data values. data would be input data that is currently not used."""
     results = [i for i in range(*limits)]  # some complicated algorithm
+    results = pd.DataFrame.from_dict(dict(a=results))
     return results
 
 
 def _algorithm_2(data=None, n_sample=100, seed=None):
-    """ Provides random normal distributed data. data is actually not used."""
+    """ Provides random normal distributed data. data would be input data that is currently not used."""
     np.random.seed(seed)
-    dict = {'a': np.random.normal(size=n_sample),
-            'b': np.random.normal(size=n_sample)}
-    results = pd.DataFrame.from_dict(dict)
+    dict_ = {'a': np.random.normal(size=n_sample),
+             'b': np.random.normal(size=n_sample)}
+    results = pd.DataFrame.from_dict(dict_)
     return results
 
 #
@@ -50,7 +52,7 @@ def _algorithm_2(data=None, n_sample=100, seed=None):
 #
 # This specific analysis classes inherit from _Analysis.
 #
-# The classes for each particular algorith are defined as:
+# The classes for each particular algorithm are defined as:
 #
 
 class AnalysisExampleAlgorithm_1(_Analysis):
@@ -66,7 +68,7 @@ class AnalysisExampleAlgorithm_1(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    kwargs :
+    kwargs : dict
         Parameter that are passed to the algorithm.
 
     Attributes
@@ -116,7 +118,6 @@ class AnalysisExampleAlgorithm_1(_Analysis):
         report(self, path)
 
 
-
 class AnalysisExampleAlgorithm_2(_Analysis):
     """
     Example for an analysis class implementing algorithm_2.
@@ -130,7 +131,7 @@ class AnalysisExampleAlgorithm_2(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    kwargs :
+    kwargs : dict
         Parameter that are passed to the algorithm.
 
     Attributes
@@ -248,7 +249,7 @@ def plot_histogram_fit(self, ax=None):
         plt.subplots_adjust(wspace=0)
 
     # fit distributions
-    loc, scale = fit_histogram(self, data=self.results['a'].values, id='a')
+    loc, scale = fit_histogram(self, data=self.results['a'].values, id_='a')
 
     # plot fit
     x_values = np.linspace(stats.norm.ppf(0.01, loc=loc, scale=scale),
@@ -271,13 +272,13 @@ def plot_histogram_fit(self, ax=None):
     return ax
 
 
-def fit_histogram(self, data, id):
+def fit_histogram(self, data, id_):
 
     # MLE fit of distribution on data
     loc, scale = stats.norm.fit(data)
 
-    attribute_center = id + '_center'
-    attribute_sigma = id + '_sigma'
+    attribute_center = id_ + '_center'
+    attribute_sigma = id_ + '_sigma'
     self.attribute_center = loc
     self.attribute_sigma = scale
 

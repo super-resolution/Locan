@@ -6,6 +6,12 @@ from locan import LocData
 from locan.analysis import RipleysKFunction, RipleysLFunction, RipleysHFunction
 
 
+def test_Ripleys_k_function_empty(caplog):
+    rhf = RipleysKFunction().compute(LocData())
+    rhf.plot()
+    assert caplog.record_tuples == [('locan.analysis.ripley', 30, 'Locdata is empty.')]
+
+
 def test_Ripleys_k_function(locdata_2d):
     radii = np.linspace(0, 20, 11)
     rhf = RipleysKFunction(radii=radii).compute(locdata_2d)

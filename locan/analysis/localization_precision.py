@@ -281,10 +281,10 @@ class PairwiseDistance1d(stats.rv_continuous):
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
-    def _pdf(x, mu, sigma_1, sigma_2):
+    def _pdf(self, x, mu, sigma_1, sigma_2):
         sigma = np.sqrt(sigma_1 ** 2 + sigma_2 ** 2)
-        return np.sqrt(2 / np.pi) / sigma * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * np.cosh(
-            x * mu / (sigma ** 2))
+        return np.sqrt(2 / np.pi) / sigma * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) \
+               * np.cosh(x * mu / (sigma ** 2))
 
 
 class PairwiseDistance2d(stats.rv_continuous):
@@ -332,10 +332,8 @@ class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
         distance
     mu : float
         Distance between the point cloud center positions.
-    sigma_1 : float
-        Standard deviation for one point cloud.
-    sigma_2 : float
-        Standard deviation for the other point cloud.
+    sigma : float
+        Standard deviation for both point clouds.
 
     References
     ----------
@@ -374,9 +372,9 @@ class PairwiseDistance3d(stats.rv_continuous):
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
-    def _pdf(x, mu, sigma_1, sigma_2):
+    def _pdf(self, x, mu, sigma_1, sigma_2):
         sigma = np.sqrt(sigma_1 ** 2 + sigma_2 ** 2)
-        if mu == 0:
+        if all(mu == 0):
             return np.sqrt(2 / np.pi) * x / sigma * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * x / (sigma ** 2)
         else:
             return np.sqrt(2 / np.pi) * x / sigma / mu * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * np.sinh(
@@ -538,7 +536,7 @@ class _DistributionFits:
             fit_results = self.distribution.fit(self.analysis_class.results[loc_property].values, **kwargs)
         elif loc_property == 'position_distance':
             fit_results = self.distribution.fit(self.analysis_class.results[loc_property].values,
-                                                floc=0, fscale=1, **kwargs)
+                                                **dict(dict(floc=0, fscale=1), **kwargs))
         else:
             raise TypeError('Unknown localization property.')
 
@@ -547,7 +545,8 @@ class _DistributionFits:
 
     def plot(self, ax=None, loc_property='position_distance', **kwargs):
         """
-        Provide plot as :class:`matplotlib.axes.Axes` object showing the probability distribution functions of fitted results.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the probability distribution functions of fitted
+        results.
 
         Parameters
         ----------
@@ -580,14 +579,16 @@ class _DistributionFits:
                     label='fitted pdf', **kwargs)
 
         elif loc_property == 'position_distance':
-            if isinstance(self.pairwise_distribution, PairwiseDistance2dIdenticalSigma):
+            if isinstance(self.pairwise_distribution, PairwiseDistance2dIdenticalSigma):  # pragma: no cover
                 _sigma = self.position_distance_sigma
                 _mu = self.position_distance_mu
                 x_values = np.linspace(self.pairwise_distribution.ppf(0.01, mu=_mu, sigma=_sigma),
                                        self.pairwise_distribution.ppf(0.99, mu=_mu, sigma=_sigma), 100)
                 ax.plot(x_values, self.pairwise_distribution.pdf(x_values, mu=_mu, sigma=_sigma), 'r-', lw=3, alpha=0.6,
                         label='fitted pdf', **kwargs)
-            elif isinstance(self.pairwise_distribution, PairwiseDistance2dIdenticalSigmaZeroMu):
+            elif isinstance(self.pairwise_distribution, (PairwiseDistance1dIdenticalSigmaZeroMu,
+                                                         PairwiseDistance2dIdenticalSigmaZeroMu,
+                                                         PairwiseDistance3dIdenticalSigmaZeroMu)):
                 _sigma = self.position_distance_sigma
                 x_values = np.linspace(self.pairwise_distribution.ppf(0.01, sigma=_sigma),
                                        self.pairwise_distribution.ppf(0.99, sigma=_sigma), 100)

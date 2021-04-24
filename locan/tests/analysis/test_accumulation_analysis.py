@@ -46,6 +46,12 @@ def test__accumulation_cluster_check(locdata_blobs):
     assert len(results.columns) == 5
 
 
+def test_AccumulationClusterCheck_empty(caplog):
+    acc = AccumulationClusterCheck().compute(LocData())
+    acc.plot()
+    assert caplog.record_tuples == [('locan.analysis.accumulation_analysis', 30, 'Locdata is empty.')]
+
+
 def test_AccumulationClusterCheck(locdata_blobs):
     acc = AccumulationClusterCheck(algo_parameter=dict(min_cluster_size=3, allow_single_cluster=False),
                                     n_loc=5).compute(locdata_blobs)

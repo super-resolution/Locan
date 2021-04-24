@@ -387,7 +387,7 @@ class _BinsFromNumber:
                 self.n_dimensions = len(bin_range)
                 self.bin_edges = tuple(_n_bins_to_bin_edges_one_dimension(n_bins[0], single_range)
                                        for single_range in bin_range)
-                self.n_bins = tuple(n_bins for _ in bin_range)
+                self.n_bins = tuple(n_bins)
                 self.bin_range = tuple(bin_range)
 
             else:

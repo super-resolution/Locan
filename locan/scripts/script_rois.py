@@ -9,11 +9,12 @@ Upon closing napari each shape is taken as single roi and saved as _roi.yaml fil
 
 To run the script::
 
-    rois -f <file> -t <file type> -i <roi file indicator>
+    locan rois -f <file> -t <file type> -i <roi file indicator> --bin_size <>
+    --rescale <string with tuple or rescale>
 
 Try for instance::
 
-    rois -f "locan/tests/test_data/five_blobs.txt" -t 1 -i "_roi"
+    locan rois -f "locan/tests/test_data/five_blobs.txt" -t 1 -i "_roi" --bin_size 10
 
 See Also
 --------
@@ -65,10 +66,14 @@ def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indic
     print(rois)
 
     # save roi
+    roi_path_list = []
     for i, roi in enumerate(rois):
         roi_file = file_path.stem + roi_file_indicator + f'_{i}.yaml'
         roi_path = file_path.with_name(roi_file)
+        roi_path_list.append(roi_path)
         roi.to_yaml(path=roi_path)
+
+    return roi_path_list
 
 
 def type_converter_rescale(input_string):

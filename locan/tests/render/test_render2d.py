@@ -10,19 +10,20 @@ from locan.render.render2d import (render_2d_mpl, render_2d_scatter_density, ren
 from locan.render import render_2d, apply_window
 from locan import cluster_dbscan
 
+
 # flag to skip some of the following tests
 skip_tests = True
 
 
 def test_render_2d_mpl_empty(locdata_empty):
     render_2d_mpl(locdata_empty, bin_size=5)
-    #plt.show()
+    # plt.show()
 
 
 def test_render_2d_mpl_single(locdata_single_localization):
     render_2d_mpl(locdata_single_localization, bin_size=5)
     render_2d_mpl(locdata_single_localization, bin_size=0.5)
-    #plt.show()
+    # plt.show()
 
 
 def test_render_2d_mpl(locdata_blobs_2d):
@@ -65,7 +66,7 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
 
     # render_2d_scatter_density(locdata_blobs_2d, other_property='position_x')
 
-    #plt.show()
+    # plt.show()
 
 
 @pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')

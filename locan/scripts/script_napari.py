@@ -7,11 +7,12 @@ With this script you can choose a file name and render the localization file in 
 
 To run the script::
 
-    napari -f <file> -t <file type> -k <string with kwargs for render function>
+    locan napari -f <file> -t <file type> -k <string with kwargs for render function> --bin_size <>
+    --rescale <string with tuple or rescale>
 
 Try for instance::
 
-    napari -f "locan/tests/test_data/five_blobs.txt" -t 1 -k "bin_size=50"
+    locan napari -f "locan/tests/test_data/five_blobs.txt" -t 1 --bin_size 10 --rescale "0 1"
 
 See Also
 --------

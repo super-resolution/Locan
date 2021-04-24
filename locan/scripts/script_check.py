@@ -6,11 +6,11 @@ Data is rendered in napari.
 
 To run the script::
 
-    check <pixel size> -f <images file> -l <localization file> -t <file type>
+    locan check <pixel size> -f <images file> -l <localization file> -t <file type>
 
 Try for instance::
 
-    check 130 -f "locan/tests/test_data/images.tif" -l "locan/tests/test_data/rapidStorm.txt" -t 2
+    locan check 133 -f "locan/tests/test_data/images.tif" -l "locan/tests/test_data/rapidStorm_from_images.txt" -t 2
 """
 import argparse
 from pathlib import Path

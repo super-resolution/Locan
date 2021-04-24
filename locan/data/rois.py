@@ -36,7 +36,7 @@ from locan.data.region import RoiRegion
 __all__ = ['Roi', 'rasterize']
 
 
-class _MplSelector:
+class _MplSelector:  # pragma: no cover
     """
     Class to use matplotlib widgets (RectangleSelector, EllipseSelector or PolygonSelector) on rendered localization
     data.

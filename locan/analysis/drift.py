@@ -501,6 +501,10 @@ class Drift(_Analysis):
         verbose : bool
             Print the fitted model curves using lmfit.
         """
+        if not self:
+            logger.warning('No transformations available to be fitted.')
+            return self
+
         dimension = self.locdata.dimension
         # frames = np.array([locdata.data.frame.mean() for locdata in self.collection.references[1:]])[slice_data]
         frames = np.array([locdata.data.frame.mean() for locdata in self.collection.references])[slice_data]

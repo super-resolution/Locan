@@ -1,10 +1,9 @@
 """
 Utility methods to print system and dependency information.
 
-adapted from :func:`pandas.show_versions`
-and from :func:`scikit-learn.show_versions`
+adapted from :func:`pandas.show_versions` (`locan/licences/PANDAS.rst`)
+and from :func:`scikit-learn.show_versions` (`locan/licences/SCIKIT-LEARN.rst`)
 """
-# License: BSD 3 clause
 
 import platform
 import sys
@@ -84,8 +83,7 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
             deps.extend(ed)
 
     if other_dependencies:
-        for od in other_dependencies:
-            deps.extend(od)
+        deps.extend(other_dependencies)
 
     deps_info = {}
     for modname in deps:
@@ -146,10 +144,10 @@ def show_versions(locan=True, python=True, system=True, dependencies=True,
 
     if system:
         print('\nSystem:')
-        for k, stat in sys_info.items():
-            print("{k:>10}: {stat}".format(k=k, stat=stat))
+        for key, value in sys_info.items():
+            print(f"{key:>10}: {value}")
 
     if dependencies:
         print('\nPython dependencies:')
-        for k, stat in deps_info.items():
-            print("{k:>10}: {stat}".format(k=k, stat=stat))
+        for key, value in deps_info.items():
+            print(f"{key:>10}: {value}")

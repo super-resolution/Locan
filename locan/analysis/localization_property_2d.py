@@ -58,62 +58,6 @@ def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
     return amplitude * np.exp(-((x_-center_x)**2/(2.*sigma_x**2) + (y_-center_y)**2/(2.*sigma_y**2)))
 
 
-def _fit_image_copy(image, bin_edges):
-    # todo: make use of this function instead of _fit_image()
-    """
-    Fit 2D Gauss function to image data.
-
-    Parameters
-    ----------
-    image : numpy.ndarray
-        binned localization data
-    bin_edges : numpy.ndarray
-        bin_edges as returned from histogram().
-
-    Returns
-    -------
-    lmfit.model.ModelResult object
-        The fit results.
-    """
-    # prepare 1D lmfit model from 2D model function
-    def model_function(points, amplitude=1, center_x=0, center_y=0, sigma_x=1, sigma_y=1):
-        return np.ravel(_gauss_2d(*points.T, amplitude, center_x, center_y, sigma_x, sigma_y))
-
-    model = Model(model_function, nan_policy='omit')
-    # print(model.param_names, model.independent_vars)
-
-    # simple definition of range (which is not strictly the same as outter `bin_edges`).
-    range_ = np.array([bin_edges[0][[0, -1]], bin_edges[1][[0, -1]]])
-
-    # prepare data
-    xx, yy = np.meshgrid(bin_edges[0][1:], bin_edges[1][1:])
-    data = np.empty((np.product(image.shape), 3))
-    data[:, 0] = xx.flatten()
-    data[:, 1] = yy.flatten()
-    data[:, 2] = image.flatten()
-
-    data[:, 2][data[:, 2] == 0] = np.nan
-
-    # instantiate lmfit Parameters
-    params = Parameters()
-    params.add('amplitude', value=np.amax(image))
-    centers = np.add(range_[:, 0], np.diff(range_).flatten() / 2)
-    params.add('center_x', value=centers[0])
-    params.add('center_y', value=centers[1])
-    sigmas = np.diff(range_).ravel() / 4
-    params.add('sigma_x', value=sigmas[0])
-    params.add('sigma_y', value=sigmas[1])
-
-    # fit
-    model_result = model.fit(data[:, 2], points=data[:, 0:2], params=params)
-
-    mask = np.isfinite(data[:, 2])
-    best_fit_with_nan = np.copy(data[:, 2])
-    best_fit_with_nan[mask] = model_result.best_fit
-
-    return model_result, best_fit_with_nan
-
-
 def _fit_image(data, bin_range):
     """
     Fit 2D Gauss function to image data.

@@ -45,6 +45,15 @@ A test suite is provided in locan/tests.
 
 For unit testing we supply test data as data files located in locan/tests/test_data.
 
+Coverage
+===========
+
+For measuring code coverage in testing we use coverage.py_.
+
+.. _coverage.py: https://coverage.readthedocs.io
+
+Configurations are kept in setup.cfg.
+
 Versioning
 ===========
 

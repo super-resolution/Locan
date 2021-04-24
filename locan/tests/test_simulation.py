@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt  # needed for visual inspection
 
 from locan import LocData
 from locan.simulation import make_csr, simulate_csr, make_csr_on_disc, make_csr_on_region
@@ -51,8 +52,12 @@ def test_make_Matern():
                                   radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=1)
     assert len(samples) == 100
     assert max(labels) + 1 == 1
+
     samples, labels = make_Matern(n_samples=100, n_features=2, centers=5,
                                   radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=1)
+    assert len(samples) == 100
+    assert max(labels) + 1 == 5
+
     samples, labels = make_Matern(n_samples=100, n_features=2, centers=((0, 0), (0, 1)),
                                   radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=1)
     samples, labels = make_Matern(n_samples=(1, 2), n_features=2, centers=None,
@@ -82,6 +87,19 @@ def test_make_Matern():
     with pytest.raises(ValueError):
         samples, labels = make_Matern(n_samples=10, n_features=2, centers=2,
                                       radius=(1, 2, 3), feature_range=(0, 1), shuffle=True, seed=1)
+    with pytest.raises(ValueError):
+        samples, labels = make_Matern(n_samples=(1, 2), n_features=2, centers=((0, 1),),
+                                      radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=1)
+    with pytest.raises(ValueError):
+        samples, labels = make_Matern(n_samples=(1, 2), n_features=3, centers=((0, 1), (0, 1)),
+                                      radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=1)
+
+    with pytest.raises(NotImplementedError):
+        samples, labels = make_Matern(n_samples=100, n_features=1, centers=5,
+                                      radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=1)
+    with pytest.raises(NotImplementedError):
+        samples, labels = make_Matern(n_samples=100, n_features=3, centers=5,
+                                      radius=1.0, feature_range=(-10.0, 10.0), shuffle=True, seed=1)
 
     samples, labels = make_Matern(n_samples=1000, n_features=2, centers=5,
                                   radius=(1, 2, 3, 4, 5), feature_range=(-10.0, 10.0), shuffle=False, seed=1)
@@ -99,6 +117,19 @@ def test_simulate_Matern():
                           shuffle=True, seed=1)
     assert len(dat) == 100
     assert dat.meta.element_count == 100
+
+    with pytest.raises(NotImplementedError):
+        simulate_Matern(n_samples=100, n_features=1, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
+                              shuffle=True, seed=1)
+
+    with pytest.raises(NotImplementedError):
+        simulate_Matern(n_samples=100, n_features=3, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
+                              shuffle=True, seed=1)
+
+    with pytest.raises(ValueError):
+        simulate_Matern(n_samples=100, n_features=4, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
+                              shuffle=True, seed=1)
+
 
 
 def test_make_Thomas():
@@ -122,9 +153,21 @@ def test_make_Thomas():
     samples, labels = make_Thomas(n_samples=10, shuffle=False)
     assert len(samples) == 10
 
+    with pytest.raises(ValueError):
+        samples, labels = make_Matern(n_samples=(1, 2), n_features=2, centers=((0, 1),),
+                                      feature_range=(-10.0, 10.0), shuffle=True, seed=1)
+    with pytest.raises(ValueError):
+        samples, labels = make_Matern(n_samples=(1, 2), n_features=3, centers=((0, 1), (0, 1)),
+                                      feature_range=(-10.0, 10.0), shuffle=True, seed=1)
+
 
 def test_simulate_Thomas():
     dat = simulate_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feature_range=(-10.0, 10.0),
+                          shuffle=True, seed=1)
+    assert len(dat) == 100
+    assert dat.meta.element_count == 100
+
+    dat = simulate_Thomas(n_samples=100, n_features=4, centers=None, cluster_std=1.0, feature_range=(-10.0, 10.0),
                           shuffle=True, seed=1)
     assert len(dat) == 100
     assert dat.meta.element_count == 100
@@ -185,6 +228,20 @@ def test_simulate_Thomas_on_region():
     region_dict = dict(region_type='polygon', region_specs=((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
     dat = simulate_Thomas_on_region(region_dict, n_samples=1000, centers=5, cluster_std=0.1, seed=1)
     assert all(dat.data.columns == ['position_x', 'position_y'])
+    assert len(dat) == 1000
+
+    dat = simulate_Thomas_on_region(region_dict, n_samples=(1, 2), centers=2, cluster_std=0.1, seed=1)
+    assert len(dat) == 3
+
+    dat = simulate_Thomas_on_region(region_dict, n_samples=(1, 2), centers=((0, 1), (0, 2)), cluster_std=0.1, seed=1)
+    assert len(dat) == 3
+
+    with pytest.raises(ValueError):
+        dat = simulate_Thomas_on_region(region_dict, n_samples=(1, 2), centers=3, cluster_std=0.1, seed=1)
+    with pytest.raises(ValueError):
+        dat = simulate_Thomas_on_region(region_dict, n_samples=(1, 2), centers=((0, 1),), cluster_std=0.1, seed=1)
+    with pytest.raises(ValueError):
+        dat = simulate_Thomas_on_region(region_dict, n_samples=100, centers=((0, 1, 2),), cluster_std=0.1, seed=1)
 
     # dat.data.plot(x='Position_x', y='Position_y', kind='scatter')
     # plt.show()
@@ -249,8 +306,6 @@ def test_simulate_drift(locdata_2d):
 
 @pytest.mark.skip('Test needs visual inspection.')
 def test_visual__drift():
-    import matplotlib.pyplot as plt
-
     frames = np.arange(0, 1_000_000, dtype=int)
     print(frames.shape)
 
@@ -266,7 +321,6 @@ def test_visual__drift():
 
 @pytest.mark.skip('Test needs visual inspection.')
 def test_visual_add_drift(locdata_2d):
-    import matplotlib.pyplot as plt
     # new_locdata = add_drift(locdata_2d, diffusion_constant=(1, 10), velocity=(10, 10), seed=1)
     new_locdata = add_drift(locdata_2d, diffusion_constant=None, velocity=(1, 1), seed=1)
     ax = locdata_2d.data.plot(*locdata_2d.coordinate_labels, kind='scatter')

@@ -16,6 +16,11 @@ def locdata_simple():
     return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
 
 
+def test_uncertainty_empty(caplog):
+    unc = LocalizationUncertaintyFromIntensity().compute(LocData())
+    assert caplog.record_tuples == [('locan.analysis.uncertainty', 30, 'Locdata is empty.')]
+
+
 def test_uncertainty(locdata_simple):
     unc = LocalizationUncertaintyFromIntensity().compute(locdata_simple)
     # print(unc.results)

@@ -7,7 +7,7 @@ import pandas as pd
 
 from locan import LocData
 from locan.constants import ROOT_DIR, QtBindings, QT_BINDINGS
-from locan.io.io_locdata import load_txt_file
+from locan.io.io_locdata import load_txt_file, load_rapidSTORM_file
 from locan.constants import _has_open3d, _has_napari, _has_mpl_scatter_density, \
     _has_colorcet, _has_cupy, _has_trackpy
 
@@ -54,6 +54,17 @@ def locdata_single_localization():
 
 
 @pytest.fixture(scope='session')
+def locdata_1d():
+    locdata_dict = {
+        'position_x': np.array([1, 1, 2, 3, 4, 5]),
+        'frame': np.array([1, 2, 2, 4, 5, 6]),
+        'intensity': np.array([100, 150, 110, 80, 105, 95]),
+    }
+    df = pd.DataFrame(locdata_dict)
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+
+
+@pytest.fixture(scope='session')
 def locdata_2d():
     locdata_dict = {
         'position_x': np.array([1, 1, 2, 3, 4, 5]),
@@ -89,6 +100,14 @@ def locdata_non_standard_index():
     df = pd.DataFrame(locdata_dict)
     df.index = [2, 1, 5, 10, 100, 200]
     return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+
+
+@pytest.fixture(scope='session')
+def locdata_rapidSTORM_2d():
+    path = Path(ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt')
+    dat = load_rapidSTORM_file(path)
+    dat.meta.creation_date = "1111-11-11 11:11:11 +0100"
+    return dat
 
 
 @pytest.fixture(scope='session')

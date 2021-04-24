@@ -105,6 +105,7 @@ def test_RoiRegion_shapely(points):
     assert rr.subregion_measure == 7.23606797749979
     assert isinstance(rr.to_shapely(), MultiPolygon)
 
+
 def test__ShapelyPolygon():
     # Polygon with holes
     region_specs = [[(0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0)],
@@ -112,15 +113,13 @@ def test__ShapelyPolygon():
     pol = Polygon(*region_specs)
     shapely_polygon = _ShapelyPolygon.from_shapely(pol)
     assert shapely_polygon.region_specs[1][0][1][1] == 0.5
-    print(shapely_polygon.polygon)
-    print(type(shapely_polygon.polygon))
+    # print(shapely_polygon.polygon)
     # [list([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5], [0.0, 0.0]])
+    # print(type(shapely_polygon.polygon))
     #  list([[[0.0, 0.0], [0.0, 0.5], [0.5, 0.5], [0.5, 0.0], [0.0, 0.0]]])]
 
     shapely_polygon = RoiRegion.from_shapely(region_type='shapelyPolygon', shapely_obj=pol)
     assert shapely_polygon.region_specs[1][0][1][1] == 0.5
-    print(shapely_polygon.polygon)
-    print(type(shapely_polygon.polygon))
 
 
 def test__ShapelyMultiPolygon():
@@ -142,8 +141,6 @@ def test_RoiRegion_RoiPolygon_error():
         RoiRegion(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5)))
 
 
-# This test is just for visualization
-@pytest.mark.skip('Test needs visual inspection.')
 def test_show_regions_as_artist_(points):
     roiI = RoiRegion(region_specs=(0, 0), region_type='interval')
     roiR = RoiRegion(region_specs=((0, 0), 2, 1, 0), region_type='rectangle')
@@ -154,8 +151,8 @@ def test_show_regions_as_artist_(points):
     roi_sMP = RoiRegion(region_specs=[[((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0)), []], []],
                         region_type='shapelyMultiPolygon')
     fig, ax = plt.subplots()
-    ax.scatter(points[:,0], points[:,1])
-    # ax.add_patch(roiI._region.as_artist())
+    ax.scatter(points[:, 0], points[:, 1])
+    # ax.add_patch(roiI._region.as_artist())   # not implemented
     ax.add_patch(roiR.as_artist(origin=(-1, 0), fill=False))
     ax.add_patch(roiE.as_artist(origin=(-1, 0), fill=False))
     ax.add_patch(roiP.as_artist(origin=(-1, 0), fill=False))
@@ -164,4 +161,4 @@ def test_show_regions_as_artist_(points):
         ax.add_patch(pat)
     ax.set_xlim([0, 4])
     ax.set_ylim([0, 4])
-    plt.show()
+    # plt.show()

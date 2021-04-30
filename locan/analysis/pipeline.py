@@ -80,6 +80,9 @@ class Pipeline(_Analysis):
         self.computation = computation
         self.kwargs = kwargs
 
+    def __bool__(self):
+        return True
+
     def compute(self):
         """ Run the analysis procedure. All parameters must be given upon Pipeline instantiation."""
         return self.computation(self, **self.kwargs)

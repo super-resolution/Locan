@@ -49,6 +49,6 @@ CMD today=$(date +"%Y-%m-%d") && \
     echo $PATH > "/shared/path_$base.txt" && \
     pip freeze --all > "/shared/requirements_$base.txt" && \
     date > "/shared/versions_$base.txt" && \
-    locan show_versions >> "/shared/versions_$base.txt" && \
+    locan show_versions -e -v >> "/shared/versions_$base.txt" && \
     date > "/shared/test_results_$base.txt" && \
     locan test >> "/shared/test_results_$base.txt"

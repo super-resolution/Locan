@@ -37,6 +37,7 @@ ENV PATH "$VIRTUAL_ENV/bin:$PATH"
 	
 # Update and install any needed packages and the project
 RUN pip install pip setuptools --trusted-host pypi.org --upgrade --no-cache-dir && \
+    # cython needs to be installed before hdbscan to build hdbscan correctly
     pip install cython hdbscan pytest --trusted-host pypi.org --no-cache-dir && \
 # install project with setuptools including all extra requirements
     python setup.py install
@@ -52,6 +53,6 @@ CMD today=$(date +"%Y-%m-%d") && \
     echo $PATH > "/shared/path_$base.txt" && \
     pip freeze --all > "/shared/requirements_$base.txt" && \
     date > "/shared/versions_$base.txt" && \
-    locan show_versions >> "/shared/versions_$base.txt" && \
+    locan show_versions -e -v >> "/shared/versions_$base.txt" && \
     date > "/shared/test_results_$base.txt" && \
     locan test >> "/shared/test_results_$base.txt"

@@ -167,7 +167,7 @@ def test_BlinkStatistics(locdata_with_zero_frame):
 def test_DistributionFits(locdata_with_zero_frame):
     bs = BlinkStatistics().compute(locdata_with_zero_frame)
     df = _DistributionFits(bs, distribution=stats.expon, data_identifier='on_periods')
-    print(df.analysis_class.results)
+    # print(df.analysis_class.results)
     assert len(df.analysis_class.results) == 5
     assert df.data_identifier == 'on_periods'
     assert repr(df) == "_DistributionFits(analysis_class=BlinkStatistics, " \

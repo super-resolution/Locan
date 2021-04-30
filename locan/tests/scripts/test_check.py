@@ -11,7 +11,7 @@ from locan import load_locdata
 from locan.scripts.script_check import render_locs_per_frame_napari, sc_check
 
 
-# @pytest.mark.skip('GUI tests are skipped because they need user interaction.')
+@pytest.mark.skip('GUI tests are skipped because they need user interaction.')
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_render_locs_per_frame_napari(locdata_2d):
     images_path = Path(ROOT_DIR / 'tests/test_data/images.tif')

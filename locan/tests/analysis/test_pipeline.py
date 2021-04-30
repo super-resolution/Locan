@@ -15,11 +15,11 @@ def test_Pipeline(locdata_2d):
         Pipeline(computation=None, parameter='my_test')
 
     pipe = Pipeline(computation=computation_test, parameter='my_test')
+    assert pipe
     assert isinstance(pipe.meta, metadata_analysis_pb2.AMetadata)
     assert pipe.kwargs == dict(parameter='my_test')
     pipe.compute()
     assert pipe.test == 'my_test'
-    print(pipe.meta)
 
     # this is not recommended since self.parameters are not updated automatically.
     computation_test(pipe, parameter='my_next_test')

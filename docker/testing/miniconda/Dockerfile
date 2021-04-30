@@ -50,6 +50,6 @@ CMD conda activate $ENVIRONMENT_NAME && \
     echo $PATH > "/shared/path_$base.txt" && \
     conda env export > "/shared/environment_$base.yml" && \
     date > "/shared/versions_$base.txt" && \
-    locan show_versions >> "/shared/versions_$base.txt" && \
+    locan show_versions -e -v >> "/shared/versions_$base.txt" && \
     date > "/shared/test_results_$base.txt" && \
     locan test >> "/shared/test_results_$base.txt"

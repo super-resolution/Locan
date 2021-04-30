@@ -113,7 +113,7 @@ def test_Nearest_neighbor_distances(locdata_simple, other_locdata_simple):
 
 
 def test_NearestNeighborDistances_3d(locdata_3d):
-    print(locdata_3d.data)
+    # print(locdata_3d.data)
     nn_1 = NearestNeighborDistances().compute(locdata_3d)
     assert repr(nn_1) == "NearestNeighborDistances(k=1)"
     assert nn_1.dimension == 3

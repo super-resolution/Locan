@@ -38,13 +38,15 @@ __all__ = ['ROOT_DIR', 'DATASETS_DIR', 'PROPERTY_KEYS', 'HullType',
 # Provide list of dependencies with corresponding module names for import in python.
 # Should reflect the dependencies specified in setup.cfg.
 # Some package names (as recommended for pip install) are different from the names for import.
-INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast_histogram', 'hdbscan', 'lmfit', 'google.protobuf',
-                    'shapely', 'networkx', 'sklearn', 'skimage', 'matplotlib', 'scipy', 'pandas', 'numpy', 'numba',
-                    'cython']
+INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast_histogram', 'boost_histogram', 'hdbscan', 'lmfit',
+                    'google.protobuf',
+                    'shapely', 'networkx', 'sklearn', 'skimage', 'matplotlib', 'scipy', 'pandas', 'numpy', 'tqdm',
+                    'numba', 'cython']
 
 EXTRAS_REQUIRE = {'Colormaps': ["colorcet"], 'Track': ["trackpy"], 'Register': ["open3d"],
                   'Render': ["napari", "mpl_scatter_density"], 'QT': ["PySide2"],
-                  'Dev': ["sphinx", "sphinx_rtd_theme", "ipython"]}
+                  'Dev': ['twine', 'sphinx', 'ipython', 'myst-nb', 'sphinx-copybutton', 'sphinx_rtd_theme', 'furo']
+                  }
 
 
 # Possible python bindings to interact with QT

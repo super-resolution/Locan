@@ -3,81 +3,15 @@ Changelog
 =======================
 
 
-0.8 (unreleased)
+0.8 - 2021-05-06
 ================
-
-
-New Features
-------------
--
-
-locan.analysis
-^^^^^^^^^^^^^^^
--
-
-locan.data
-^^^^^^^^^^^^^^^
--
-
-locan.datasets
-^^^^^^^^^^^^^^^
--
-
-locan.gui
-^^^^^^^^^^^^^^^
--
-
-locan.io
-^^^^^^^^^^^^^^^
--
-
-locan.render
-^^^^^^^^^^^^^^^
--
-
-locan.scripts
-^^^^^^^^^^^^^^^
--
-
-locan.simulation
-^^^^^^^^^^^^^^^^^
--
-
 
 API Changes
 -----------
 
-locan.analysis
-^^^^^^^^^^^^^^^
--
-
-locan.data
-^^^^^^^^^^^^^^^
--
-
-locan.datasets
-^^^^^^^^^^^^^^^
--
-
-locan.gui
-^^^^^^^^^^^^^^^
--
-
-locan.io
-^^^^^^^^^^^^^^^
--
-
-locan.render
-^^^^^^^^^^^^^^^
--
-
 locan.scripts
 ^^^^^^^^^^^^^^^
 - Default values for verbose and extra flags in script show_versions were changed.
-
-locan.simulation
-^^^^^^^^^^^^^^^^^^^
--
 
 Bug Fixes
 ---------
@@ -85,38 +19,14 @@ Bug Fixes
 locan.analysis
 ^^^^^^^^^^^^^^^
 - Fit procedure was fixed for NearestNeighborDistances.
-
-locan.data
-^^^^^^^^^^^^^^^
--
-
-locan.gui
-^^^^^^^^^^^^^^^
--
-
-locan.io
-^^^^^^^^^^^^^^^
--
-
-locan.render
-^^^^^^^^^^^^^^^
--
-
-locan.scripts
-^^^^^^^^^^^^^^^
--
-
-locan.simulation
-^^^^^^^^^^^^^^^^^
--
-
+- Added __bool__ to Pipeline definition.
 
 Other Changes and Additions
 ---------------------------
-- Library was renamed to LOCAN
-- Documentation and tutorials were modified accordingly
-- Test coverage was improved and use of coverage.py introduced
-- _future module was deprecated
+- Library was renamed to LOCAN.
+- Documentation and tutorials were modified accordingly.
+- Test coverage was improved and use of coverage.py introduced.
+- _future module was deprecated.
 
 0.7 - 2021-03-26
 ================

@@ -2,8 +2,7 @@
 Changelog
 =======================
 
-
-0.8 (unreleased)
+0.9 (unreleased)
 ================
 
 
@@ -73,7 +72,7 @@ locan.render
 
 locan.scripts
 ^^^^^^^^^^^^^^^
-- Default values for verbose and extra flags in script show_versions were changed.
+-
 
 locan.simulation
 ^^^^^^^^^^^^^^^^^^^
@@ -84,7 +83,7 @@ Bug Fixes
 
 locan.analysis
 ^^^^^^^^^^^^^^^
-- Fit procedure was fixed for NearestNeighborDistances.
+-
 
 locan.data
 ^^^^^^^^^^^^^^^
@@ -113,10 +112,33 @@ locan.simulation
 
 Other Changes and Additions
 ---------------------------
+-
+
+
+0.8 - 2021-05-06
+================
+
+API Changes
+-----------
+
+locan.scripts
+^^^^^^^^^^^^^^^
+- Default values for verbose and extra flags in script show_versions were changed.
+
+Bug Fixes
+---------
+
+locan.analysis
+^^^^^^^^^^^^^^^
+- Fit procedure was fixed for NearestNeighborDistances.
+
+Other Changes and Additions
+---------------------------
 - Library was renamed to LOCAN
 - Documentation and tutorials were modified accordingly
 - Test coverage was improved and use of coverage.py introduced
 - _future module was deprecated
+
 
 0.7 - 2021-03-26
 ================

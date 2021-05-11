@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+import locan
 from locan import LocData
 from locan.constants import ROOT_DIR
 from locan.io.io_locdata import load_txt_file
@@ -37,6 +38,9 @@ def test_Roi(locdata):
     roi = Roi(reference=locdata, region_specs=((0, 0), 2, 1, 0), region_type='rectangle')
     new_dat = roi.locdata()
     assert len(new_dat) == 2
+    assert isinstance(roi.region, locan.RoiRegion)
+    roi.region = locan.RoiRegion(region_specs=((0, 0), 2, 1, 0), region_type='rectangle')
+    assert isinstance(roi.region, locan.RoiRegion)
 
     roi = Roi(reference=locdata, region_specs=((0, 0), 2, 3, 0), region_type='rectangle',
               properties_for_roi=('position_y', 'position_z'))

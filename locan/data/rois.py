@@ -216,6 +216,15 @@ class Roi:
             f'region_specs={self._region.region_specs},' \
             f' properties_for_roi={self.properties_for_roi})'
 
+    @property
+    def region(self):
+        return self._region
+
+    @region.setter
+    def region(self, region_):
+        if isinstance(region_, RoiRegion):
+            self._region = region_
+
     def to_yaml(self, path=None):
         """
         Save Roi object in yaml format.

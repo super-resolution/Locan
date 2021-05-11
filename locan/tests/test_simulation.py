@@ -21,6 +21,9 @@ def test_make_csr():
     assert points.shape == (5, 2)
     points = make_csr(n_samples=5, n_features=3, feature_range=((-10, -5), (5, 10), (100, 200)), seed=1)
     assert points.shape == (5, 3)
+    points_0 = make_csr(n_samples=1, n_features=1, feature_range=(0, 10), seed=None)
+    points_1 = make_csr(n_samples=1, n_features=1, feature_range=(0, 10), seed=None)
+    assert points_0[0] != points_1[0]
 
 
 def test_simulate_csr():
@@ -33,6 +36,9 @@ def test_simulate_csr():
 def test_make_csr_on_disc():
     samples = make_csr_on_disc(n_samples=10, radius=2.0, seed=1)
     assert len(samples) == 10
+    points_0 = make_csr_on_disc(n_samples=1, radius=2.0, seed=None)
+    points_1 = make_csr_on_disc(n_samples=1, radius=2.0, seed=None)
+    assert all(points_0[0] != points_1[0])
     # fig, ax = plt.subplots(nrows=1, ncols=1)
     # plt.scatter(samples[:,0], samples[:,1])
     # ax.axis('equal')
@@ -104,6 +110,11 @@ def test_make_Matern():
     samples, labels = make_Matern(n_samples=1000, n_features=2, centers=5,
                                   radius=(1, 2, 3, 4, 5), feature_range=(-10.0, 10.0), shuffle=False, seed=1)
     assert len(samples) == len(labels)
+
+    points_0 = make_Matern(n_samples=1, n_features=2, radius=1, feature_range=(-10.0, 10.0), shuffle=False, seed=None)
+    points_1 = make_Matern(n_samples=1, n_features=2, radius=1, feature_range=(-10.0, 10.0), shuffle=False, seed=None)
+    assert all(points_0[0][0] != points_1[0][0])
+
     # print(labels)
 
     # fig, ax = plt.subplots(nrows=1, ncols=1)

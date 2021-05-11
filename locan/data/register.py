@@ -5,6 +5,8 @@ Register localization data.
 This module registers localization data and provides transformation parameters to put other localization data
 in registry.
 
+Parts of this code is adapted from https://github.com/jungmannlab/picasso.
+(MIT license, Copyright (c) 2016 Jungmann Lab, MPI of Biochemistry)
 """
 from collections import namedtuple
 
@@ -172,6 +174,7 @@ def _xcorr(imageA, imageB):
     """
     This function is adapted from picasso/imageprocess by Joerg Schnitzbauer, MPI of Biochemistry
     https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
+    (MIT license, Copyright (c) 2016 Jungmann Lab, MPI of Biochemistry)
     """
     FimageA = np.fft.fft2(imageA)
     CFimageB = np.conj(np.fft.fft2(imageB))
@@ -185,6 +188,7 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
 
     This function is adapted from picasso/imageprocess by Joerg Schnitzbauer, MPI of Biochemistry
     https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
+    (MIT license, Copyright (c) 2016 Jungmann Lab, MPI of Biochemistry)
     """
     if (np.sum(imageA) == 0) or (np.sum(imageB) == 0):
         return 0, 0

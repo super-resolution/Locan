@@ -2,7 +2,10 @@
 Utility methods to print system and dependency information.
 
 adapted from :func:`pandas.show_versions` (`locan/licences/PANDAS.rst`)
+(BSD 3-Clause License, Copyright (c) 2008-2011, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development
+Team, Copyright (c) 2011-2021, Open source contributors.)
 and from :func:`scikit-learn.show_versions` (`locan/licences/SCIKIT-LEARN.rst`)
+(BSD 3-Clause License, Copyright (c) 2007-2020 The scikit-learn developers.)
 """
 
 import platform

@@ -3,30 +3,24 @@
 Simulate localization data.
 
 This module provides functions to simulate localization data and return LocData objects.
+Localizations are often distributed either by a spatial process of complete-spatial randomness or following a
+Neyman-Scott process [1]_. For a Neyman-Scott process parent events (representing single emitters) yield a random number
+of offspring events (representing localizations due to repeated blinking). Related spatial point processes include
+Matérn and Thomas processes.
+
+Notes
+-----
+Different from the original definitions of Matern, Thomas, and Neyman-SCott spatial processes, we assume that all
+parent events are distributed within the region of interest (the support). Offspring events that would result from
+parent events outside the region of interest are not included.
+
 
 Functions that are named as make_* provide point data arrays. Functions that are named as simulate_* provide
 locdata.
 
-Use simulate_csr to get localizations that are spatially distributed by a Poisson process (i.e. homogeneous).
 
-Use simulate_Matern to get localizations that are homogeneously distributed in spherical clusters with cluster centers
-being homogeneously distributed.
-
-Use simulate_blobs to get localizations that are normally distributed in spherical clusters with cluster centers
-being homogeneously distributed.
-
-
-Localizations are often distributed either by a spatial process of complete-spatial randomness or following a
-Neyman-Scott process [1]_. For a Neyman-Scott process parent events (representing single emitters) yield a random number
-of offspring events (representing localizations due to repeated blinking). The total number of emitters is specified
-by <Parent Event Number>. The number of offspring events is Poisson distributed with mean <Offspring Number>.
-The spatial distribution of parent events is distributed according to complete-spatial randomness;
-the spatial distribution of offspring events is Gauss-distributed with the given <Standard Deviation> for each emitter.
-
-Intensity distributions are often simulated in the following way: Each localization is given an emission strength drawn
-from an intensity distribution that is either "Exponential" or "Poisson" with <Mean Intensity>.
-
-Parts of this code is adapted from scikit-learn/sklearn/datasets/samples_generator.py .
+Parts of this code is adapted from scikit-learn/sklearn/datasets/_samples_generator.py .
+(BSD 3-Clause License, Copyright (c) 2007-2020 The scikit-learn developers.)
 
 References
 ----------
@@ -70,7 +64,7 @@ def make_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed=None):
         The number of features for each sample.
     feature_range : pair of floats (min, max) or sequence of pair of floats
         The bounding box for each feature. If sequence the number of elements but be equal to n_features.
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -78,16 +72,15 @@ def make_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed=None):
     array of shape [n_samples, n_features]
         The generated samples.
     """
-    if seed is not None:
-        np.random.seed(seed)
+    rng = np.random.default_rng(seed)
 
     if len(np.shape(feature_range)) == 1:
-        samples = np.random.uniform(*feature_range, size=(n_samples, n_features))
+        samples = rng.uniform(*feature_range, size=(n_samples, n_features))
     else:
         if np.shape(feature_range)[0] != n_features:
             raise ValueError(f'The number of feature_range elements (if sequence) must be equal to n_features.')
         else:
-            samples = np.random.rand(n_samples, n_features)
+            samples = rng.random(size=(n_samples, n_features))
             for i, (low, high) in enumerate(feature_range):
                 if low < high:
                     samples[:, i] = samples[:, i] * (high - low) + low
@@ -111,7 +104,7 @@ def simulate_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed=None):
         `Position_z`.
     feature_range : pair of floats (min, max) or sequence of pair of floats
         The bounding box for each feature. If sequence the number of elements but be equal to n_features.
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -158,7 +151,7 @@ def make_csr_on_disc(n_samples=100, radius=1.0, seed=None):
        total number of localizations
     radius : float
         radius of the disc
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
        random number generation seed
 
     Returns
@@ -166,12 +159,11 @@ def make_csr_on_disc(n_samples=100, radius=1.0, seed=None):
     array of shape [n_samples, 2]
        The generated samples.
     """
-    if seed is not None:
-        np.random.seed(seed)
+    rng = np.random.default_rng(seed)
 
     # angular and radial coordinates of Poisson points
-    theta = np.random.rand(n_samples) * 2 * np.pi
-    rho = radius * np.sqrt(np.random.rand(n_samples))
+    theta = rng.random(n_samples) * 2 * np.pi
+    rho = radius * np.sqrt(rng.random(n_samples))
 
     # Convert from polar to Cartesian coordinates
     xx = rho * np.cos(theta)
@@ -192,7 +184,7 @@ def simulate_csr_on_disc(n_samples=100, radius=1.0, seed=None):
        total number of localizations
     radius : float
         radius of the disc
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
        random number generation seed
 
     Returns
@@ -246,7 +238,7 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
         generated at random. If sequence the number of elements must be equal to n_features.
     shuffle : boolean
         Shuffle the samples.
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -256,8 +248,7 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
     labels : array of shape [n_samples]
         The integer labels for cluster membership of each sample.
     """
-    if seed is not None:
-        np.random.seed(seed)
+    rng = np.random.default_rng(seed)
 
     # check n_feature consistent with feature_range
     if (len(np.shape(feature_range)) != 1) and (np.shape(feature_range)[0] != n_features):
@@ -271,7 +262,7 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
 
         if isinstance(centers, (int, np.integer)):
             n_centers = centers
-            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=seed)
+            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=rng)
         else:  # if centers is array
             if n_features != np.shape(centers)[1]:
                 raise ValueError(f'n_features must be the same as the dimensions for each center. '
@@ -281,13 +272,13 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
     else:  # if n_samples is array
         n_centers = len(n_samples)  # Set n_centers by looking at [n_samples] arg
         if centers is None:
-            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=seed)
+            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=rng)
         elif isinstance(centers, (int, np.integer)):
             if centers != len(n_samples):
                 raise ValueError(f"Length of `n_samples` not consistent"
                                  f" with number of centers. Got length of n_samples = {n_centers} "
                                  f"and centers = {centers}")
-            centers = make_csr(n_samples=centers, n_features=n_features, feature_range=feature_range, seed=seed)
+            centers = make_csr(n_samples=centers, n_features=n_features, feature_range=feature_range, seed=rng)
         else:  # if centers is array
             try:
                 assert len(centers) == n_centers
@@ -328,7 +319,7 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
         raise NotImplementedError
     elif n_features == 2:
         for i, (number, r, center) in enumerate(zip(n_samples_per_center, radii, centers)):
-            pts = make_csr_on_disc(n_samples=number, radius=r, seed=seed)
+            pts = make_csr_on_disc(n_samples=number, radius=r, seed=rng)
             pts = pts + center
             disk_samples.append(pts)
             labels += [i] * number
@@ -345,7 +336,7 @@ def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_r
     if shuffle:
         total_n_samples = np.sum(n_samples)
         indices = np.arange(total_n_samples)
-        np.random.shuffle(indices)
+        rng.shuffle(indices)
         samples = samples[indices]
         labels = labels[indices]
 
@@ -378,7 +369,7 @@ def simulate_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, featu
         generated at random. If sequence the number of elements must be equal to n_features.
     shuffle : boolean
         Shuffle the samples.
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -387,9 +378,6 @@ def simulate_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, featu
         A new LocData instance with localization data.
     """
     parameter = locals()
-
-    if seed is not None:
-        np.random.seed(seed)
 
     samples, labels = make_Matern(n_samples=n_samples, n_features=n_features, centers=centers, radius=radius,
                                   feature_range=feature_range, shuffle=shuffle, seed=seed)
@@ -446,7 +434,7 @@ def make_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feat
         generated at random. If sequence the number of elements must be equal to n_features.
     shuffle : boolean
         Shuffle the samples.
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -456,8 +444,7 @@ def make_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feat
     labels : array of shape [n_samples]
         The integer labels for cluster membership of each sample.
     """
-    if seed is not None:
-        np.random.seed(seed)
+    rng = np.random.default_rng(seed)
 
     # check n_feature consistent with feature_range
     if (len(np.shape(feature_range)) != 1) and (np.shape(feature_range)[0] != n_features):
@@ -471,7 +458,7 @@ def make_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feat
 
         if isinstance(centers, (int, np.integer)):
             n_centers = centers
-            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=seed)
+            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=rng)
         else:  # if centers is array
             if n_features != np.shape(centers)[1]:
                 raise ValueError(f'n_features must be the same as the dimensions for each center. '
@@ -481,13 +468,13 @@ def make_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feat
     else:  # if n_samples is array
         n_centers = len(n_samples)  # Set n_centers by looking at [n_samples] arg
         if centers is None:
-            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=seed)
+            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=rng)
         elif isinstance(centers, (int, np.integer)):
             if centers != len(n_samples):
                 raise ValueError(f"Length of `n_samples` not consistent"
                                  f" with number of centers. Got length of n_samples = {n_centers} "
                                  f"and centers = {centers}")
-            centers = make_csr(n_samples=centers, n_features=n_features, feature_range=feature_range, seed=seed)
+            centers = make_csr(n_samples=centers, n_features=n_features, feature_range=feature_range, seed=rng)
         else:  # if centers is array
             try:
                 assert len(centers) == n_centers
@@ -525,7 +512,7 @@ def make_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feat
     spot_samples = []
     labels = []
     for i, (center, std, number) in enumerate(zip(centers, cluster_std_list, n_samples_per_center)):
-        pts = np.random.normal(loc=center, scale=std, size=(number, n_features))
+        pts = rng.normal(loc=center, scale=std, size=(number, n_features))
         spot_samples.append(pts)
         labels += [i] * number
 
@@ -537,7 +524,7 @@ def make_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feat
     if shuffle:
         total_n_samples = np.sum(n_samples)
         indices = np.arange(total_n_samples)
-        np.random.shuffle(indices)
+        rng.shuffle(indices)
         samples = samples[indices]
         labels = labels[indices]
 
@@ -570,7 +557,7 @@ def simulate_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, 
         generated at random. If sequence the number of elements must be equal to n_features.
     shuffle : boolean
         Shuffle the samples.
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -579,9 +566,6 @@ def simulate_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, 
         A new LocData instance with localization data.
     """
     parameter = locals()
-
-    if seed is not None:
-        np.random.seed(seed)
 
     samples, labels = make_Thomas(n_samples=n_samples, n_features=n_features, centers=centers, cluster_std=cluster_std,
                                   feature_range=feature_range, shuffle=shuffle, seed=seed)
@@ -625,7 +609,7 @@ def make_csr_on_region(region, n_samples=100, seed=None):
         :class:`RoiRegion`.
     n_samples : int
        total number of localizations
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
        random number generation seed
 
     Returns
@@ -633,8 +617,7 @@ def make_csr_on_region(region, n_samples=100, seed=None):
     array of shape [n_samples, 2]
        The generated samples.
     """
-    if seed is not None:
-        np.random.seed(seed)
+    rng = np.random.default_rng(seed)
 
     if isinstance(region, dict):
         region_ = RoiRegion(region_specs=region['region_specs'], region_type=region['region_type'])
@@ -648,7 +631,7 @@ def make_csr_on_region(region, n_samples=100, seed=None):
     n_remaining = n_samples
     samples = []
     while n_remaining > 0:
-        new_samples = np.random.rand(n_samples, region_.dimension)
+        new_samples = rng.random(size=(n_samples, region_.dimension))
         for i, (low, high) in enumerate(bounding_box):
             if low < high:
                 new_samples[:, i] = new_samples[:, i] * (high - low) + low
@@ -676,7 +659,7 @@ def simulate_csr_on_region(region, n_samples=100, seed=None):
         Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
     n_samples : int
        total number of localizations
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
        random number generation seed
 
     Returns
@@ -736,7 +719,7 @@ def make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
         If sequence, the number of elements must be equal to the number of centers.
     shuffle : boolean
         Shuffle the samples.
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -744,6 +727,8 @@ def make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
     array of shape [n_samples, 2]
        The generated samples.
     """
+    rng = np.random.default_rng(seed)
+
     if isinstance(region, dict):
         region_ = RoiRegion(region_specs=region['region_specs'], region_type=region['region_type'])
     else:
@@ -756,7 +741,7 @@ def make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
 
         if isinstance(centers, (int, np.integer)):
             n_centers = centers
-            centers = make_csr_on_region(region=region, n_samples=n_centers, seed=seed)
+            centers = make_csr_on_region(region=region, n_samples=n_centers, seed=rng)
         else:  # if centers is array
             if region_.dimension != np.shape(centers)[1]:
                 raise ValueError(f'Region dimensions must be the same as the dimensions for each center. '
@@ -768,13 +753,13 @@ def make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
     else:  # if n_samples is array
         n_centers = len(n_samples)  # Set n_centers by looking at [n_samples] arg
         if centers is None:
-            centers = make_csr_on_region(region=region, n_samples=n_centers, seed=seed)
+            centers = make_csr_on_region(region=region, n_samples=n_centers, seed=rng)
         elif isinstance(centers, (int, np.integer)):
             if centers != len(n_samples):
                 raise ValueError(f"Length of `n_samples` not consistent"
                                  f" with number of centers. Got length of n_samples = {n_centers} "
                                  f"and centers = {centers}")
-            centers = make_csr_on_region(region=region, n_samples=centers, seed=seed)
+            centers = make_csr_on_region(region=region, n_samples=centers, seed=rng)
         else:  # if centers is array
             try:
                 assert len(centers) == n_centers
@@ -799,7 +784,7 @@ def make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
         n_samples_per_center = n_samples
 
     samples, labels = make_Thomas(n_samples=n_samples_per_center, n_features=region_.dimension, centers=centers,
-                                  cluster_std=cluster_std, shuffle=shuffle, seed=seed)
+                                  cluster_std=cluster_std, shuffle=shuffle, seed=rng)
 
     return samples, labels
 
@@ -829,7 +814,7 @@ def simulate_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1
         If sequence, the number of elements must be equal to the number of centers.
     shuffle : boolean
         Shuffle the samples.
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -865,7 +850,7 @@ def simulate_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1
     return locdata
 
 
-def _random_walk(n_walks=1, n_steps=10, dimensions=2, diffusion_constant=1, time_step=10):
+def _random_walk(n_walks=1, n_steps=10, dimensions=2, diffusion_constant=1, time_step=10, seed=None):
     """
     Random walk simulation
 
@@ -881,17 +866,20 @@ def _random_walk(n_walks=1, n_steps=10, dimensions=2, diffusion_constant=1, time
         Diffusion constant in units length per seconds^2
     time_step : float
         Time per frame (or simulation step) in seconds.
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+        random number generation seed
 
     Returns
     -------
     tuple of arrays
         (times, positions), where shape(times) is 1 and shape of positions is (n_walks, n_steps, dimensions)
     """
+    rng = np.random.default_rng(seed)
     # equally spaced time steps
     times = np.arange(n_steps) * time_step
 
     # random step sizes according to the diffusion constant
-    random_numbers = np.random.randint(0, 2, size=(n_walks, n_steps, dimensions))
+    random_numbers = rng.integers(0, 2, size=(n_walks, n_steps, dimensions))  # np.random.randint(0, 2, size=(n_walks, n_steps, dimensions))
     step_size = np.sqrt(2 * dimensions * diffusion_constant * time_step)
     steps = np.where(random_numbers == 0, -step_size, +step_size)
 
@@ -919,7 +907,7 @@ def simulate_tracks(n_walks=1, n_steps=10, ranges=((0, 10000), (0, 10000)), diff
         Diffusion constant with unit length per seconds^2
     time_step : float
         Time per frame (or simulation step) in seconds.
-    seed : int
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -929,13 +917,10 @@ def simulate_tracks(n_walks=1, n_steps=10, ranges=((0, 10000), (0, 10000)), diff
     """
     parameter = locals()
 
-    if seed is not None:
-        np.random.seed(seed)
-
     start_positions = np.array([np.random.uniform(*_range, size=n_walks) for _range in ranges]).T
 
     times, positions = _random_walk(n_walks=n_walks, n_steps=n_steps, dimensions=len(ranges),
-                                    diffusion_constant=diffusion_constant, time_step=time_step)
+                                    diffusion_constant=diffusion_constant, time_step=time_step, seed=seed)
 
     new_positions = np.concatenate([
         start_position + position
@@ -959,13 +944,13 @@ def simulate_tracks(n_walks=1, n_steps=10, ranges=((0, 10000), (0, 10000)), diff
     return locdata
 
 
-def resample(locdata, n_samples=10):
+def resample(locdata, n_samples=10, seed=None):
     """
     Resample locdata according to localization uncertainty. Per localization *n_samples* new localizations
     are simulated normally distributed around the localization coordinates with a standard deviation set to the
     uncertainty in each dimension.
-    The resulting LocData object carries new localizations with the following properties: 'Position_x',
-    'Position_y'[, 'Position_z'], 'Origin_index'
+    The resulting LocData object carries new localizations with the following properties: 'position_x',
+    'position_y'[, 'position_z'], 'origin_index'
 
     Parameters
     ----------
@@ -973,35 +958,38 @@ def resample(locdata, n_samples=10):
         Localization data to be resampled
     n_samples : int
         The number of localizations generated for each original localization.
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+        random number generation seed
 
     Returns
     -------
     locdata : LocData
         New localization data with simulated coordinates.
     """
+    rng = np.random.default_rng(seed)
 
     # generate dataframe
     list_ = []
     for i in range(len(locdata)):
         new_d = {}
         new_d.update({'origin_index': np.full(n_samples, i)})
-        x_values = np.random.normal(loc=locdata.data.iloc[i]['position_x'],
-                                    scale=locdata.data.iloc[i]['uncertainty_x'],
-                                    size=n_samples
-                                    )
+        x_values = rng.normal(loc=locdata.data.iloc[i]['position_x'],
+                              scale=locdata.data.iloc[i]['uncertainty_x'],
+                              size=n_samples
+                              )
         new_d.update({'position_x': x_values})
 
-        y_values = np.random.normal(loc=locdata.data.iloc[i]['position_y'],
-                                    scale=locdata.data.iloc[i]['uncertainty_y'],
-                                    size=n_samples
-                                    )
+        y_values = rng.normal(loc=locdata.data.iloc[i]['position_y'],
+                              scale=locdata.data.iloc[i]['uncertainty_y'],
+                              size=n_samples
+                              )
         new_d.update({'position_y': y_values})
 
         try:
-            z_values = np.random.normal(loc=locdata.data.iloc[i]['position_z'],
-                                        scale=locdata.data.iloc[i]['uncertainty_z'],
-                                        size=n_samples
-                                        )
+            z_values = rng.normal(loc=locdata.data.iloc[i]['position_z'],
+                                  scale=locdata.data.iloc[i]['uncertainty_z'],
+                                  size=n_samples
+                                  )
             new_d.update({'position_z': z_values})
         except KeyError:
             pass
@@ -1040,7 +1028,7 @@ def resample(locdata, n_samples=10):
     return new_locdata
 
 
-def _random_poisson_repetitions(n_samples, lam):
+def _random_poisson_repetitions(n_samples, lam, seed=None):
     """
     Return numpy.ndarray of sorted integers with each integer i being repeated n(i) times
     where n(i) is drawn from a Poisson distribution with mean `lam`.
@@ -1051,18 +1039,22 @@ def _random_poisson_repetitions(n_samples, lam):
         number of elements to be returned
     lam : float
         mean of the Poisson distribution (lambda)
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+        random number generation seed
 
     Returns
     -------
     numpy.ndarray with shape (n_samples,)
         The generated sequence of integers.
     """
+    rng = np.random.default_rng(seed)
+
     frames = np.ones(n_samples, dtype=int)
     n_random_numbers = n_samples if lam > 0 else int(n_samples / lam)
     position = 0
     current_number = 0
     while position < n_samples:
-        repeats = np.random.poisson(lam=lam, size=n_random_numbers)
+        repeats = rng.poisson(lam=lam, size=n_random_numbers)
         for repeat in repeats:
             try:
                 frames[position:position + repeat] = current_number
@@ -1074,7 +1066,7 @@ def _random_poisson_repetitions(n_samples, lam):
     return frames
 
 
-def simulate_frame_numbers(n_samples, lam):
+def simulate_frame_numbers(n_samples, lam, seed=None):
     """
     Simulate Poisson-distributed frame numbers for a list of localizations.
 
@@ -1092,10 +1084,12 @@ def simulate_frame_numbers(n_samples, lam):
         number of elements to be returned
     lam : float
         mean of the Poisson distribution (lambda)
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+        random number generation seed
 
     Returns
     -------
     numpy.ndarray with shape (n_samples,)
         The generated sequence of integers.
     """
-    return _random_poisson_repetitions(n_samples, lam)
+    return _random_poisson_repetitions(n_samples, lam, seed=seed)

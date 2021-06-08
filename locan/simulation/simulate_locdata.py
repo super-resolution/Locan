@@ -5,15 +5,8 @@ Simulate localization data.
 This module provides functions to simulate localization data and return LocData objects.
 Localizations are often distributed either by a spatial process of complete-spatial randomness or following a
 Neyman-Scott process [1]_. For a Neyman-Scott process parent events (representing single emitters) yield a random number
-of offspring events (representing localizations due to repeated blinking). Related spatial point processes include
+of cluster_mu events (representing localizations due to repeated blinking). Related spatial point processes include
 Matérn and Thomas processes.
-
-Notes
------
-Different from the original definitions of Matern, Thomas, and Neyman-SCott spatial processes, we assume that all
-parent events are distributed within the region of interest (the support). Offspring events that would result from
-parent events outside the region of interest are not included.
-
 
 Functions that are named as make_* provide point data arrays. Functions that are named as simulate_* provide
 locdata.
@@ -29,409 +22,235 @@ References
    Astrophysical Journal 1952, vol. 116, p.144.
 
 """
-
 import sys
 import time
+from itertools import chain
 
 import numpy as np
 import pandas as pd
-from shapely.geometry import Polygon
 
 from locan.data.locdata import LocData, _time_string
 from locan.data import metadata_pb2
-from locan.data.region import RoiRegion
+from locan.data.region import Region, EmptyRegion, Interval, Rectangle, Ellipse, \
+    AxisOrientedCuboid, AxisOrientedHypercuboid
+from locan.data.region_utils import expand_region
 
 
-__all__ = ['make_csr', 'simulate_csr',
-           'make_csr_on_disc', 'simulate_csr_on_disc',
-           'make_Matern', 'simulate_Matern',
-           'make_Thomas', 'simulate_Thomas',
-           'make_csr_on_region', 'simulate_csr_on_region',
-           'make_Thomas_on_region', 'simulate_Thomas_on_region',
+__all__ = ['make_uniform', 'make_Poisson', 'make_cluster', 'make_NeymanScott', 'make_Matern', 'make_Thomas',
+           'simulate_uniform', 'simulate_Poisson',
+           'simulate_cluster', 'simulate_NeymanScott', 'simulate_Matern', 'simulate_Thomas',
            'simulate_tracks', 'resample', 'simulate_frame_numbers']
 
 
-def make_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed=None):
+def make_uniform(n_samples, region=(0, 1), seed=None):
     """
-    Provide points that are spatially-distributed by complete spatial
-    randomness within the boundarys given by `feature_range`.
+    Provide points that are distributed by a uniform (complete spatial randomness) point process
+    within the boundaries given by `region`.
 
     Parameters
     ----------
     n_samples : int
-        total number of localizations
-    n_features : int
-        The number of features for each sample.
-    feature_range : pair of floats (min, max) or sequence of pair of floats
-        The bounding box for each feature. If sequence the number of elements but be equal to n_features.
+        The total number of localizations of the point process
+    region : Region, array-like
+        The region (or support) for all features.
+        If array-like it must provide upper and lower bounds for each feature.
     seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
-        random number generation seed
+        Random number generation seed
 
     Returns
     -------
-    array of shape [n_samples, n_features]
+    numpy.ndarray of shape (n_samples, n_features)
         The generated samples.
     """
     rng = np.random.default_rng(seed)
 
-    if len(np.shape(feature_range)) == 1:
-        samples = rng.uniform(*feature_range, size=(n_samples, n_features))
+    if not isinstance(region, Region):
+        region = Region.from_intervals(region)
+
+    if isinstance(region, EmptyRegion):
+        samples = np.array([])
+    elif isinstance(region, (Interval, Rectangle, AxisOrientedCuboid, AxisOrientedHypercuboid)):
+        samples = rng.uniform(region.bounds[:region.dimension], region.bounds[region.dimension:],
+                              size=(n_samples, region.dimension))
+    elif isinstance(region, Ellipse) and region.width == region.height:
+        radius = region.width / 2
+        # angular and radial coordinates of Poisson points
+        theta = rng.random(n_samples) * 2 * np.pi
+        rho = radius * np.sqrt(rng.random(n_samples))
+        # Convert from polar to Cartesian coordinates
+        xx = rho * np.cos(theta)
+        yy = rho * np.sin(theta)
+        samples = np.array((xx, yy)).T
     else:
-        if np.shape(feature_range)[0] != n_features:
-            raise ValueError(f'The number of feature_range elements (if sequence) must be equal to n_features.')
-        else:
-            samples = rng.random(size=(n_samples, n_features))
-            for i, (low, high) in enumerate(feature_range):
-                if low < high:
-                    samples[:, i] = samples[:, i] * (high - low) + low
-                else:
-                    raise ValueError(f'The first value of feature_range {low} must be smaller than the second one '
-                                     f'{high}.')
+        sampling_ratio = region.region_measure / region.bounding_box.region_measure
+        n_samples_updated = int(n_samples / sampling_ratio * 2)
+
+        samples = []
+        n_remaining = n_samples
+        while n_remaining > 0:
+            new_samples = rng.random(size=(n_samples_updated, region.dimension))
+            new_samples = region.extent * new_samples + region.bounding_box.corner
+            new_samples = new_samples[region.contains(new_samples)]
+            samples.append(new_samples)
+            n_remaining = n_remaining - len(new_samples)
+
+        samples = np.concatenate(samples)
+        samples = samples[0: n_samples]
+
     return samples
 
 
-def simulate_csr(n_samples=100, n_features=2, feature_range=(0, 1.), seed=None):
+def simulate_uniform(n_samples, region=(0, 1), seed=None):
     """
-    Provide a dataset of localizations with coordinates that are spatially-distributed by complete spatial
-    randomness within the boundarys given by `feature_range`.
+    Provide points that are distributed by a uniform Poisson point process within the boundaries given by `region`.
 
     Parameters
     ----------
     n_samples : int
-        total number of localizations
-    n_features : int
-        The number of features for each sample. The first three features are taken as `Position_x`, `Position_y`, and
-        `Position_z`.
-    feature_range : pair of floats (min, max) or sequence of pair of floats
-        The bounding box for each feature. If sequence the number of elements but be equal to n_features.
+        The total number of localizations of the point process
+    region : Region, array-like
+        The region (or support) for each feature.
+        If array-like it must provide upper and lower bounds for each feature.
     seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
     -------
     LocData
-        A new LocData instance with localization data.
+        The generated samples.
     """
     parameter = locals()
-
-    samples = make_csr(n_samples=n_samples, n_features=n_features, feature_range=feature_range, seed=seed)
-
-    property_names = []
-    for i in range(n_features):
-        if i == 0:
-            property_names.append('position_x')
-        elif i == 1:
-            property_names.append('position_y')
-        elif i == 2:
-            property_names.append('position_z')
-        else:
-            property_names.append(f'feature_{i - 3}')
-
-    dict_ = {}
-    for name, data in zip(property_names, samples.T):
-        dict_.update({name: data})
-
-    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
+    samples = make_uniform(n_samples=n_samples, region=region, seed=seed)
+    region_ = region if isinstance(region, Region) else Region.from_intervals(region)
+    locdata = LocData.from_coordinates(coordinates=samples)
+    locdata.dimension = region_.dimension
+    locdata.region = region_
 
     # metadata
     locdata.meta.source = metadata_pb2.SIMULATION
     del locdata.meta.history[:]
-    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+    locdata.meta.history.add(name=make_uniform.__name__, parameter=str(parameter))
 
     return locdata
 
 
-def make_csr_on_disc(n_samples=100, radius=1.0, seed=None):
+def make_Poisson(intensity, region=(0, 1), seed=None):
     """
-    Provide points that are spatially-distributed on a disc by complete spatial randomness.
+    Provide points that are distributed by a uniform Poisson point process within the boundaries given by `region`.
 
     Parameters
     ----------
-    n_samples : int
-       total number of localizations
-    radius : float
-        radius of the disc
+    intensity : int
+        The intensity (points per unit region measure) of the point process
+    region : Region, array-like
+        The region (or support) for all features.
+        If array-like it must provide upper and lower bounds for each feature.
     seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
-       random number generation seed
+        random number generation seed
 
     Returns
     -------
-    array of shape [n_samples, 2]
-       The generated samples.
+    numpy.ndarray of shape (n_samples, n_features)
+        The generated samples.
     """
     rng = np.random.default_rng(seed)
 
-    # angular and radial coordinates of Poisson points
-    theta = rng.random(n_samples) * 2 * np.pi
-    rho = radius * np.sqrt(rng.random(n_samples))
+    if not isinstance(region, Region):
+        region = Region.from_intervals(region)
 
-    # Convert from polar to Cartesian coordinates
-    xx = rho * np.cos(theta)
-    yy = rho * np.sin(theta)
+    n_samples = rng.poisson(lam=intensity*region.region_measure)
 
-    samples = np.array((xx, yy)).T
+    if isinstance(region, EmptyRegion):
+        samples = np.array([])
+    elif isinstance(region, (Interval, Rectangle, AxisOrientedCuboid, AxisOrientedHypercuboid)):
+        samples = rng.uniform(region.bounds[:region.dimension], region.bounds[region.dimension:],
+                              size=(n_samples, region.dimension))
+    elif isinstance(region, Ellipse) and region.width == region.height:
+        radius = region.width / 2
+        # angular and radial coordinates of Poisson points
+        theta = rng.random(n_samples) * 2 * np.pi
+        rho = radius * np.sqrt(rng.random(n_samples))
+        # Convert from polar to Cartesian coordinates
+        xx = rho * np.cos(theta)
+        yy = rho * np.sin(theta)
+        samples = np.array((xx, yy)).T
+    else:
+        sampling_ratio = region.region_measure / region.bounding_box.region_measure
+        n_samples_updated = int(n_samples / sampling_ratio * 2)
+
+        samples = []
+        n_remaining = n_samples
+        while n_remaining > 0:
+            new_samples = rng.random(size=(n_samples_updated, region.dimension))
+            new_samples = region.extent * new_samples + region.bounding_box.corner
+            new_samples = new_samples[region.contains(new_samples)]
+            samples.append(new_samples)
+            n_remaining = n_remaining - len(new_samples)
+
+        samples = np.concatenate(samples)
+        samples = samples[0: n_samples]
+
     return samples
 
 
-def simulate_csr_on_disc(n_samples=100, radius=1.0, seed=None):
+def simulate_Poisson(intensity, region=(0, 1), seed=None):
     """
-    Provide a dataset of localizations with coordinates that are spatially-distributed on a disc by complete spatial
-    randomness..
+    Provide points that are distributed by a uniform Poisson point process within the boundaries given by `region`.
 
     Parameters
     ----------
-    n_samples : int
-       total number of localizations
-    radius : float
-        radius of the disc
-    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
-       random number generation seed
-
-    Returns
-    -------
-    LocData
-        A new LocData instance with localization data.
-    """
-    parameter = locals()
-
-    samples = make_csr_on_disc(n_samples=n_samples, radius=radius, seed=seed)
-
-    property_names = ['position_x', 'position_y']
-
-    dict_ = {}
-    for name, data in zip(property_names, samples.T):
-        dict_.update({name: data})
-
-    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
-
-    # metadata
-    locdata.meta.source = metadata_pb2.SIMULATION
-    del locdata.meta.history[:]
-    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
-
-    return locdata
-
-
-# todo: implement n_features=1 and n_features=3
-def make_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
-                shuffle=True, seed=None):
-    """
-    Generate spots with equally distributed points inside. Centers are spatially-distributed by complete spatial
-    randomness within the boundaries given by `feature_range`. The number of dimensions is specified by `n_features`.
-
-    Parameters
-    ----------
-    n_samples : int or array-like
-        If int, it is the total number of points equally divided among clusters.
-        If array-like, each element of the sequence indicates the number of samples per cluster.
-    n_features : int
-        The number of features for each sample. One of (1, 2, 3) - currently only 2 is implemented.
-    centers : int or array of shape [n_centers, n_features]
-        The number of centers to generate, or the fixed center locations.
-        If centers is an array, n_features is taken from centers shape.
-        If n_samples is an int and centers is None, 3 centers are generated.
-        If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
-    radius : float or sequence of floats
-        The radius for the spots. If tuple, the number of elements must be equal to the number of centers.
-    feature_range : pair of floats (min, max) or sequence of pair of floats
-        The bounding box for each cluster center when centers are
-        generated at random. If sequence the number of elements must be equal to n_features.
-    shuffle : boolean
-        Shuffle the samples.
+    intensity : int
+        The intensity (points per unit region measure) of the point process
+    region : Region, array-like
+        The region (or support) for each feature.
+        If array-like it must provide upper and lower bounds for each feature.
     seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
     -------
-    samples : array of shape [n_samples, n_features]
+    LocData
         The generated samples.
-    labels : array of shape [n_samples]
-        The integer labels for cluster membership of each sample.
-    """
-    rng = np.random.default_rng(seed)
-
-    # check n_feature consistent with feature_range
-    if (len(np.shape(feature_range)) != 1) and (np.shape(feature_range)[0] != n_features):
-        raise ValueError(f'The number of feature_range elements (if sequence) must be equal to n_features.')
-
-    # n_samples, centers, n_centers
-    if isinstance(n_samples, (int, np.integer)):
-        # Set n_centers by looking at centers arg
-        if centers is None:
-            centers = 3
-
-        if isinstance(centers, (int, np.integer)):
-            n_centers = centers
-            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=rng)
-        else:  # if centers is array
-            if n_features != np.shape(centers)[1]:
-                raise ValueError(f'n_features must be the same as the dimensions for each center. '
-                                 f'Got n_features: {n_features} and center dimensions: {np.shape(centers)[1]} instead.')
-            n_centers = np.shape(centers)[0]
-
-    else:  # if n_samples is array
-        n_centers = len(n_samples)  # Set n_centers by looking at [n_samples] arg
-        if centers is None:
-            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=rng)
-        elif isinstance(centers, (int, np.integer)):
-            if centers != len(n_samples):
-                raise ValueError(f"Length of `n_samples` not consistent"
-                                 f" with number of centers. Got length of n_samples = {n_centers} "
-                                 f"and centers = {centers}")
-            centers = make_csr(n_samples=centers, n_features=n_features, feature_range=feature_range, seed=rng)
-        else:  # if centers is array
-            try:
-                assert len(centers) == n_centers
-            except TypeError:
-                raise ValueError(f"Parameter `centers` must be array-like or None. "
-                                 f"Got {centers} instead")
-            except AssertionError:
-                raise ValueError(f"Length of `n_samples` not consistent"
-                                 f" with number of centers. Got length of n_samples = {n_centers} "
-                                 f"and number of centers = {len(centers)}")
-            if n_features != np.shape(centers)[1]:
-                raise ValueError(f'n_features must be the same as the dimensions for each center. '
-                                 f'Got n_features: {n_features} and center dimensions: {np.shape(centers)[1]} instead.')
-
-    # set n_samples_per_center
-    if isinstance(n_samples, (int, np.integer)):
-        n_samples_per_center = [int(n_samples // n_centers)] * n_centers
-        for i in range(n_samples % n_centers):
-            n_samples_per_center[i] += 1
-    else:
-        n_samples_per_center = n_samples
-
-    # radius: if radius is given as list, it must be consistent with the n_centers
-    if hasattr(radius, "__len__"):
-        if len(radius) != n_centers:
-            raise ValueError(f"Length of `radius` not consistent with "
-                             f"number of centers. Got number of centers = {n_centers} "
-                             f"and radius = {radius}")
-        else:
-            radii = radius
-    else:  # if isinstance(radius, float):
-        radii = np.full(len(centers), radius)
-
-    # discs
-    disk_samples = []
-    labels = []
-    if n_features == 1:
-        raise NotImplementedError
-    elif n_features == 2:
-        for i, (number, r, center) in enumerate(zip(n_samples_per_center, radii, centers)):
-            pts = make_csr_on_disc(n_samples=number, radius=r, seed=rng)
-            pts = pts + center
-            disk_samples.append(pts)
-            labels += [i] * number
-    elif n_features == 3:
-        raise NotImplementedError
-    else:
-        raise ValueError("n_features must be 1, 2, or 3.")
-
-    # shift and concatenate
-    samples = np.concatenate(disk_samples)
-    labels = np.array(labels)
-
-    # shuffle
-    if shuffle:
-        total_n_samples = np.sum(n_samples)
-        indices = np.arange(total_n_samples)
-        rng.shuffle(indices)
-        samples = samples[indices]
-        labels = labels[indices]
-
-    return samples, labels
-
-
-def simulate_Matern(n_samples=100, n_features=2, centers=None, radius=1.0, feature_range=(-10.0, 10.0),
-                    shuffle=True, seed=None):
-    """
-    Provide a dataset of localizations with coordinates and labels that are spatially-distributed spots with
-    homogeneously distributed points inside. Centers are spatially-distributed by complete spatial
-    randomness within the boundaries given by `feature_range`. The number of dimensions is specified by `n_features`.
-
-    Parameters
-    ----------
-    n_samples : int or array-like
-        If int, it is the total number of points equally divided among clusters.
-        If array-like, each element of the sequence indicates the number of samples per cluster.
-    n_features : int
-        The number of features for each sample. One of (1, 2, 3).
-    centers : int or array of shape [n_centers, n_features]
-        The number of centers to generate, or the fixed center locations.
-        If centers is an array, n_features is taken from centers shape.
-        If n_samples is an int and centers is None, 3 centers are generated.
-        If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
-    radius : float or sequence of floats
-        The radius for the spots. If tuple, the number of elements must be equal to the number of centers.
-    feature_range : pair of floats (min, max) or sequence of pair of floats
-        The bounding box for each cluster center when centers are
-        generated at random. If sequence the number of elements must be equal to n_features.
-    shuffle : boolean
-        Shuffle the samples.
-    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
-        random number generation seed
-
-    Returns
-    -------
-    LocData
-        A new LocData instance with localization data.
     """
     parameter = locals()
-
-    samples, labels = make_Matern(n_samples=n_samples, n_features=n_features, centers=centers, radius=radius,
-                                  feature_range=feature_range, shuffle=shuffle, seed=seed)
-
-    property_names = []
-    for i in range(n_features):
-        if i == 0:
-            property_names.append('position_x')
-        elif i == 1:
-            property_names.append('position_y')
-        elif i == 2:
-            property_names.append('position_z')
-        else:
-            property_names.append(f'feature_{i - 3}')
-
-    dict_ = {}
-    for name, data in zip(property_names, samples.T):
-        dict_.update({name: data})
-    dict_.update({'cluster_label': labels})
-
-    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
+    samples = make_Poisson(intensity=intensity, region=region, seed=seed)
+    region_ = region if isinstance(region, Region) else Region.from_intervals(region)
+    locdata = LocData.from_coordinates(coordinates=samples)
+    locdata.dimension = region_.dimension
+    locdata.region = region_
 
     # metadata
     locdata.meta.source = metadata_pb2.SIMULATION
     del locdata.meta.history[:]
-    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+    locdata.meta.history.add(name=make_Poisson.__name__, parameter=str(parameter))
 
     return locdata
 
 
-def make_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feature_range=(-10.0, 10.0),
-                shuffle=True, seed=None):
+def make_cluster(centers=3, region=(0, 1.), expansion_distance=0, offspring=None,
+                 clip=True, shuffle=True, seed=None):
     """
-    Generate spots with normally distributed points inside. Centers are spatially-distributed by complete spatial
-    randomness within the boundaries given by `feature_range`. The number of dimensions is specified by `n_features`.
+    Generate clustered point data.
+    Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
+    within the boundaries given by `region` expanded by the expansion_distance.
+    Each parent position is then replaced by cluster_mu offspring points as passed or generated by a given function.
+    Offspring from parent events that are located outside the region are included.
 
     Parameters
     ----------
-    n_samples : int or array-like
-        If int, it is the total number of points equally divided among clusters.
-        If array-like, each element of the sequence indicates the number of samples per cluster.
-    n_features : int
-        The number of features for each sample. One of (1, 2, 3).
-    centers : int or array of shape [n_centers, n_features]
-        The number of centers to generate, or the fixed center locations.
-        If centers is an array, n_features is taken from centers shape.
-        If n_samples is an int and centers is None, 3 centers are generated.
-        If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
-    cluster_std : float or sequence of floats
-        The standard deviation for the spots. If sequence, the number of elements must be equal to the number of centers.
-        # todo add different std for each feature
-    feature_range : pair of floats (min, max) or sequence of pair of floats
-        The bounding box for each cluster center when centers are
-        generated at random. If sequence the number of elements must be equal to n_features.
+    centers : int, array-like
+        The number of parents or coordinates for parent events, where each parent represents a cluster center.
+    region : Region, array-like
+        The region (or support) for all features.
+        If array-like it must provide upper and lower bounds for each feature.
+    expansion_distance : float
+        The distance by which region is expanded on all boundaries.
+    offspring : array-like, callable, None
+        Points or function for point process to provide cluster.
+        Callable must take single parent point as parameter and return an iterable.
+        If array-like it must have the same length as parent events.
+    clip : bool
+        If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
     seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
@@ -439,284 +258,449 @@ def make_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feat
 
     Returns
     -------
-    samples : array of shape [n_samples, n_features]
-        The generated samples.
-    labels : array of shape [n_samples]
-        The integer labels for cluster membership of each sample.
+    tuple of numpy.ndarray of shape (n_samples, n_features) and region
+       The generated samples, labels, parent_samples, region
     """
     rng = np.random.default_rng(seed)
 
-    # check n_feature consistent with feature_range
-    if (len(np.shape(feature_range)) != 1) and (np.shape(feature_range)[0] != n_features):
-        raise ValueError(f'The number of feature_range elements (if sequence) must be equal to n_features.')
+    if isinstance(region, EmptyRegion):
+        samples, labels, parent_samples, region = np.array([]), np.array([]), np.array([]), EmptyRegion()
+        return samples, labels, parent_samples, region
+    elif not isinstance(region, Region):
+        region = Region.from_intervals(region)
 
-    # n_samples, centers, n_centers
-    if isinstance(n_samples, (int, np.integer)):
-        # Set n_centers by looking at centers arg
-        if centers is None:
-            centers = 3
+    expanded_region = expand_region(region, expansion_distance)
 
-        if isinstance(centers, (int, np.integer)):
-            n_centers = centers
-            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=rng)
-        else:  # if centers is array
-            if n_features != np.shape(centers)[1]:
-                raise ValueError(f'n_features must be the same as the dimensions for each center. '
-                                 f'Got n_features: {n_features} and center dimensions: {np.shape(centers)[1]} instead.')
-            n_centers = np.shape(centers)[0]
+    if isinstance(centers, (int, np.integer)):
+        n_centers = centers
+        parent_samples = make_uniform(n_samples=n_centers, region=expanded_region, seed=rng)
+    else:  # if centers is array
+        parent_samples = np.array(centers)
+        centers_shape = np.shape(parent_samples)
+        centers_dimension = 1 if len(centers_shape) == 1 else centers_shape[1]
+        if region.dimension != centers_dimension:
+            raise ValueError(f'Region dimensions must be the same as the dimensions for each center. '
+                             f'Got region dimension: {region.dimension} and '
+                             f'center dimensions: {centers_dimension} instead.')
+        n_centers = centers_shape[0]
 
-    else:  # if n_samples is array
-        n_centers = len(n_samples)  # Set n_centers by looking at [n_samples] arg
-        if centers is None:
-            centers = make_csr(n_samples=n_centers, n_features=n_features, feature_range=feature_range, seed=rng)
-        elif isinstance(centers, (int, np.integer)):
-            if centers != len(n_samples):
-                raise ValueError(f"Length of `n_samples` not consistent"
-                                 f" with number of centers. Got length of n_samples = {n_centers} "
-                                 f"and centers = {centers}")
-            centers = make_csr(n_samples=centers, n_features=n_features, feature_range=feature_range, seed=rng)
-        else:  # if centers is array
-            try:
-                assert len(centers) == n_centers
-            except TypeError:
-                raise ValueError(f"Parameter `centers` must be array-like or None. "
-                                 f"Got {centers} instead")
-            except AssertionError:
-                raise ValueError(f"Length of `n_samples` not consistent"
-                                 f" with number of centers. Got length of n_samples = {n_centers} "
-                                 f"and number of centers = {len(centers)}")
-            if n_features != np.shape(centers)[1]:
-                raise ValueError(f'n_features must be the same as the dimensions for each center. '
-                                 f'Got n_features: {n_features} and center dimensions: {centers.shape[1]} instead.')
+    # replace parents by offspring samples
+    if offspring is None:
+        samples = parent_samples
+        labels = np.arange(0, len(parent_samples))
 
-    # set n_samples_per_center
-    if isinstance(n_samples, (int, np.integer)):
-        n_samples_per_center = [int(n_samples // n_centers)] * n_centers
-        for i in range(n_samples % n_centers):
-            n_samples_per_center[i] += 1
+    elif callable(offspring):
+        try:
+            offspring_samples = offspring(parent_samples)
+            labels = [[i] * len(os) for i, os in enumerate(offspring_samples)]
+        except TypeError:
+            offspring_samples = []
+            labels = []
+            for i, parent in enumerate(parent_samples):
+                offspring_samples_ = offspring(parent)
+                offspring_samples.append(offspring_samples_)
+                labels.append([i] * len(offspring_samples_))
+        samples = np.array(list(chain(*offspring_samples)))
+        labels = np.array(list(chain(*labels)))
+
+    elif len(offspring) >= len(parent_samples):
+        offspring_samples = []
+        labels = []
+        for i, (os, parent) in enumerate(zip(offspring[:n_centers], parent_samples)):
+            offspring_samples_ = np.asarray(os) + parent
+            offspring_samples.append(offspring_samples_)
+            labels.append([i] * len(offspring_samples_))
+        samples = np.array(list(chain(*offspring_samples)))
+        labels = np.array(list(chain(*labels)))
+
     else:
-        n_samples_per_center = n_samples
+        raise TypeError(f"offspring must be callable or array-like with length >= than n_centers {n_centers}.")
 
-    # cluster_std: if cluster_std is given as list, it must be consistent with the n_centers
-    if hasattr(cluster_std, "__len__"):
-        if len(cluster_std) != n_centers:
-            raise ValueError(f"Length of `cluster_std` not consistent with "
-                             f"number of centers. Got number of centers = {n_centers} "
-                             f"and cluster_std = {cluster_std}")
-        else:
-            cluster_std_list = cluster_std
-    else:  # if isinstance(radius, float):
-        cluster_std_list = np.full(len(centers), cluster_std)
+    if samples.ndim == 1:  # this is to convert 1-dimensional arrays into arrays with shape (n_samples, 1).
+        samples.shape = (len(samples), 1)
 
-    # normal-distributed spots
-    spot_samples = []
-    labels = []
-    for i, (center, std, number) in enumerate(zip(centers, cluster_std_list, n_samples_per_center)):
-        pts = rng.normal(loc=center, scale=std, size=(number, n_features))
-        spot_samples.append(pts)
-        labels += [i] * number
-
-    # concatenate
-    samples = np.concatenate(spot_samples)
-    labels = np.array(labels)
-
-    # shuffle
-    if shuffle:
-        total_n_samples = np.sum(n_samples)
-        indices = np.arange(total_n_samples)
-        rng.shuffle(indices)
-        samples = samples[indices]
-        labels = labels[indices]
-
-    return samples, labels
-
-
-def simulate_Thomas(n_samples=100, n_features=2, centers=None, cluster_std=1.0, feature_range=(-10.0, 10.0),
-                    shuffle=True, seed=None):
-    """
-    Provide a dataset of localizations with coordinates and labels that are spatially-distributed spots with
-    with normally distributed points inside. Centers are spatially-distributed by complete spatial
-    randomness within the boundaries given by `feature_range`. The number of dimensions is specified by `n_features`.
-
-    Parameters
-    ----------
-    n_samples : int or array-like
-        If int, it is the total number of points equally divided among clusters.
-        If array-like, each element of the sequence indicates the number of samples per cluster.
-    n_features : int
-        The number of features for each sample. One of (1, 2, 3).
-    centers : int or array of shape [n_centers, n_features]
-        The number of centers to generate, or the fixed center locations.
-        If centers is an array, n_features is taken from centers shape.
-        If n_samples is an int and centers is None, 3 centers are generated.
-        If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
-    cluster_std : float or sequence of floats
-        The standard deviation for the spots. If sequence, the number of elements must be equal to the number of centers.
-    feature_range : pair of floats (min, max) or sequence of pair of floats
-        The bounding box for each cluster center when centers are
-        generated at random. If sequence the number of elements must be equal to n_features.
-    shuffle : boolean
-        Shuffle the samples.
-    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
-        random number generation seed
-
-    Returns
-    -------
-    LocData
-        A new LocData instance with localization data.
-    """
-    parameter = locals()
-
-    samples, labels = make_Thomas(n_samples=n_samples, n_features=n_features, centers=centers, cluster_std=cluster_std,
-                                  feature_range=feature_range, shuffle=shuffle, seed=seed)
-
-    property_names = []
-    for i in range(n_features):
-        if i == 0:
-            property_names.append('position_x')
-        elif i == 1:
-            property_names.append('position_y')
-        elif i == 2:
-            property_names.append('position_z')
-        else:
-            property_names.append(f'feature_{i - 3}')
-
-    dict_ = {}
-    for name, data in zip(property_names, samples.T):
-        dict_.update({name: data})
-    dict_.update({'cluster_label': labels})
-
-    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
-
-    # metadata
-    locdata.meta.source = metadata_pb2.SIMULATION
-    del locdata.meta.history[:]
-    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
-
-    return locdata
-
-
-# todo add 3D
-def make_csr_on_region(region, n_samples=100, seed=None):
-    """
-    Provide points that are spatially-distributed inside the specified region by complete spatial randomness.
-
-    Parameters
-    ----------
-    region : RoiRegion, or dict
-        Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
-        Allowed values for `region_specs` and `region_type` are defined in the docstrings for :class:`Roi` and
-        :class:`RoiRegion`.
-    n_samples : int
-       total number of localizations
-    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
-       random number generation seed
-
-    Returns
-    -------
-    array of shape [n_samples, 2]
-       The generated samples.
-    """
-    rng = np.random.default_rng(seed)
-
-    if isinstance(region, dict):
-        region_ = RoiRegion(region_specs=region['region_specs'], region_type=region['region_type'])
-    else:
+    if clip is True:
+        inside_indices = region.contains(samples)
+        samples = samples[inside_indices]
+        labels = labels[inside_indices]
         region_ = region
+    else:
+        region_ = expanded_region
 
-    shapely_polygon = region_.to_shapely()
-    min_x, min_y, max_x, max_y = shapely_polygon.bounds
-    bounding_box = ((min_x, max_x), (min_y, max_y))
+    if shuffle:
+        shuffled_indices = rng.permutation(len(samples))
+        samples = samples[shuffled_indices]
+        labels = labels[shuffled_indices]
 
-    n_remaining = n_samples
+    return samples, labels, parent_samples, region_
+
+
+def simulate_cluster(centers=3, region=(0, 1.), expansion_distance=0, offspring=None,
+                     clip=True, shuffle=True, seed=None):
+    """
+    Generate clustered point data.
+    Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
+    within the boundaries given by `region` expanded by the expansion_distance.
+    Each parent position is then replaced by cluster_mu offspring points as passed or generated by a given function.
+    Offspring from parent events that are located outside the region are included.
+
+    Parameters
+    ----------
+    centers : int, array-like
+        The number of parents or coordinates for parent events, where each parent represents a cluster center.
+    region : Region, array-like
+        The region (or support) for each feature.
+        If array-like it must provide upper and lower bounds for each feature.
+    expansion_distance : float
+        The distance by which region is expanded on all boundaries.
+    offspring : array-like, callable, None
+        Points or function for point process to provide cluster.
+        Callable must take single parent point as parameter and return an iterable.
+        If array-like it must have the same length as parent events.
+    clip : bool
+        If True the result will be clipped to 'region'. If False the extended region will be kept.
+    shuffle : boolean
+        Shuffle the samples.
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+        random number generation seed
+
+    Returns
+    -------
+    LocData
+        The generated samples.
+    """
+    parameter = locals()
+    samples, labels, _, region = make_cluster(centers, region, expansion_distance, offspring,
+                                     clip, shuffle, seed)
+    region_ = region if isinstance(region, Region) else Region.from_intervals(region)
+    locdata = LocData.from_coordinates(coordinates=samples)
+    locdata.dimension = region_.dimension
+    locdata.region = region_
+    locdata.dataframe = locdata.dataframe.assign(cluster_label=labels)
+
+    # metadata
+    locdata.meta.source = metadata_pb2.SIMULATION
+    del locdata.meta.history[:]
+    locdata.meta.history.add(name=make_cluster.__name__, parameter=str(parameter))
+
+    return locdata
+
+
+def make_NeymanScott(parent_intensity=100, region=(0, 1.), expansion_distance=0, offspring=None,
+                     clip=True, shuffle=True, seed=None):
+    """
+    Generate clustered point data following a Neyman-Scott random point process.
+    Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
+    within the boundaries given by `region` expanded by the expansion_distance.
+    Each parent position is then replaced by cluster_mu points as passed or generated by a given function.
+    Offspring from parent events that are located outside the region are included.
+
+    Parameters
+    ----------
+    parent_intensity : int
+        The intensity (points per unit region measure) of the Poisson point process for parent events.
+    region : Region, array-like
+        The region (or support) for all features.
+        If array-like it must provide upper and lower bounds for each feature.
+    expansion_distance : float
+        The distance by which region is expanded on all boundaries.
+    offspring : array-like, callable, None
+        Points or function for point process to provide cluster_mu. Callable must take single parent point as parameter.
+        If array-like it must have enough elements to fit the randomly generated number of parent events.
+    clip : bool
+        If True the result will be clipped to 'region'. If False the extended region will be kept.
+    shuffle : boolean
+        Shuffle the samples.
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+        random number generation seed
+
+    Returns
+    -------
+    tuple of numpy.ndarray of shape (n_samples, n_features)
+       The generated samples, labels, parent_samples
+    """
+    rng = np.random.default_rng(seed)
+
+    if isinstance(region, EmptyRegion):
+        samples, labels, parent_samples, region = np.array([]), np.array([]), np.array([]), EmptyRegion()
+        return samples, labels, parent_samples, region
+    elif not isinstance(region, Region):
+        region = Region.from_intervals(region)
+
+    expanded_region = expand_region(region, expansion_distance)
+
+    parent_samples = make_Poisson(intensity=parent_intensity, region=expanded_region, seed=rng)
+
+    # replace parents by offspring samples
+    if offspring is None:
+        samples = parent_samples
+        labels = np.arange(0, len(parent_samples))
+
+    elif callable(offspring):
+        try:
+            offspring_samples = offspring(parent_samples)
+            labels = [[i] * len(os) for i, os in enumerate(offspring_samples)]
+        except TypeError:
+            offspring_samples = []
+            labels = []
+            for i, parent in enumerate(parent_samples):
+                offspring_samples_ = offspring(parent)
+                offspring_samples.append(offspring_samples_)
+                labels.append([i] * len(offspring_samples_))
+        samples = np.array(list(chain(*offspring_samples)))
+        labels = np.array(list(chain(*labels)))
+
+    elif len(offspring) >= len(parent_samples):
+        offspring_samples = np.asarray(offspring[:len(parent_samples)]) + parent_samples
+        labels = [[i] * len(os) for i, os in enumerate(offspring_samples)]
+        samples = np.array(list(chain(*offspring_samples)))
+        labels = np.array(list(chain(*labels)))
+
+    else:
+        raise TypeError(f"offspring must be callable or array-like with "
+                        f"length >= than n_centers {len(parent_samples)}.")
+
+    if samples.ndim == 1:  # this is to convert 1-dimensional arrays into arrays with shape (n_samples, 1).
+        samples.shape = (len(samples), 1)
+
+    if clip is True:
+        inside_indices = region.contains(samples)
+        samples = samples[inside_indices]
+        labels = labels[inside_indices]
+        region_ = region
+    else:
+        region_ = expanded_region
+
+    if shuffle:
+        shuffled_indices = rng.permutation(len(samples))
+        samples = samples[shuffled_indices]
+        labels = labels[shuffled_indices]
+
+    return samples, labels, parent_samples, region_
+
+
+def simulate_NeymanScott(parent_intensity=100, region=(0, 1.), expansion_distance=0, offspring=None,
+                     clip=True, shuffle=True, seed=None):
+    """
+    Generate clustered point data following a Neyman-Scott random point process.
+    Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
+    within the boundaries given by `region` expanded by the expansion_distance.
+    Each parent position is then replaced by cluster_mu points as passed or generated by a given function.
+    Offspring from parent events that are located outside the region are included.
+
+    Parameters
+    ----------
+    parent_intensity : int
+        The intensity (points per unit region measure) of the Poisson point process for parent events.
+    region : Region, array-like
+        The region (or support) for each feature.
+        If array-like it must provide upper and lower bounds for each feature.
+    expansion_distance : float
+        The distance by which region is expanded on all boundaries.
+    offspring : array-like, callable, None
+        Points or function for point process to provide cluster_mu. Callable must take single parent point as parameter.
+        If array-like it must have enough elements to fit the randomly generated number of parent events.
+    clip : bool
+        If True the result will be clipped to 'region'. If False the extended region will be kept.
+    shuffle : boolean
+        Shuffle the samples.
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+        random number generation seed
+
+    Returns
+    -------
+    LocData
+        The generated samples.
+    """
+    parameter = locals()
+    samples, labels, _, region = make_NeymanScott(parent_intensity, region, expansion_distance, offspring,
+                                     clip, shuffle, seed)
+    region_ = region if isinstance(region, Region) else Region.from_intervals(region)
+    locdata = LocData.from_coordinates(coordinates=samples)
+    locdata.dimension = region_.dimension
+    locdata.region = region_
+    locdata.dataframe = locdata.dataframe.assign(cluster_label=labels)
+
+    # metadata
+    locdata.meta.source = metadata_pb2.SIMULATION
+    del locdata.meta.history[:]
+    locdata.meta.history.add(name=make_NeymanScott.__name__, parameter=str(parameter))
+
+    return locdata
+
+
+def make_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0,
+                clip=True, shuffle=True, seed=None):
+    """
+    Generate clustered point data following a Matern cluster random point process.
+    Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
+    within the boundaries given by `region` expanded by the maximum radius.
+    Each parent position is then replaced by spots of size `radius` with Poisson distributed points inside.
+    Offspring from parent events that are located outside the region are included.
+
+    Parameters
+    ----------
+    parent_intensity : float
+        The intensity (points per unit region measure) of the Poisson point process for parent events.
+    region : Region, array-like
+        The region (or support) for all features.
+        If array-like it must provide upper and lower bounds for each feature.
+    cluster_mu : float
+        The mean number of points of the Poisson point process for cluster(cluster_mu) events.
+    radius : float or sequence of floats
+        The radius for the spots. If tuple, the number of elements must be larger than the expected number of parents.
+    clip : bool
+        If True the result will be clipped to 'region'. If False the extended region will be kept.
+    shuffle : boolean
+        Shuffle the samples.
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+        random number generation seed
+
+    Returns
+    -------
+    tuple of numpy.ndarray of shape (n_samples, n_features)
+       The generated samples, labels, parent_samples
+    """
+    rng = np.random.default_rng(seed)
+
+    if isinstance(region, EmptyRegion):
+        samples, labels, parent_samples, region = np.array([]), np.array([]), np.array([]), EmptyRegion()
+        return samples, labels, parent_samples, region
+    elif not isinstance(region, Region):
+        region = Region.from_intervals(region)
+
+    expansion_distance = np.max(radius)
+    expanded_region = expand_region(region, expansion_distance)
+
+    parent_samples = make_Poisson(intensity=parent_intensity, region=expanded_region, seed=rng)
+
+    # radius: if radius is given as list, it must be consistent with the n_parent_samples
+    if hasattr(radius, "__len__"):
+        if len(radius) < len(parent_samples):
+            raise ValueError(f"Length of `radius` {len(radius)} is less than "
+                             f"the generated n_parent_samples {len(parent_samples)}."
+                             )
+        else:
+            radii = radius[:len(parent_samples)]
+    else:  # if isinstance(radius, float):
+        radii = np.full(len(parent_samples), radius)
+
+    # replace parents by offspring samples
     samples = []
-    while n_remaining > 0:
-        new_samples = rng.random(size=(n_samples, region_.dimension))
-        for i, (low, high) in enumerate(bounding_box):
-            if low < high:
-                new_samples[:, i] = new_samples[:, i] * (high - low) + low
-            else:
-                raise ValueError(f'The first value of feature_range {low} must be smaller than the second one '
-                                 f'{high}.')
-        new_samples = new_samples[region_.contains(new_samples)]
-        samples.append(new_samples)
-        n_remaining = n_remaining - len(new_samples)
+    labels = []
+    for i, (parent, radius_) in enumerate(zip(parent_samples, radii)):
+        if region.dimension == 1:
+            offspring_region = Interval(-radius_, radius_)
+            offspring_intensity = cluster_mu / offspring_region.region_measure
+            offspring_samples = make_Poisson(intensity=offspring_intensity, region=offspring_region, seed=rng)
+        elif region.dimension == 2:
+            offspring_region = Ellipse((0, 0), 2*radius_, 2*radius_, 0)
+            offspring_intensity = cluster_mu / offspring_region.region_measure
+            offspring_samples = make_Poisson(intensity=offspring_intensity, region=offspring_region, seed=rng)
+        elif region.dimension == 3:
+            raise NotImplementedError
+        else:
+            raise ValueError("region dimension must be 1, 2, or 3.")
+        offspring_samples = offspring_samples + parent
+        samples.append(offspring_samples)
+        labels += [i] * len(offspring_samples)
 
     samples = np.concatenate(samples)
-    samples = samples[0: n_samples]
-    return samples
+    labels = np.array(labels)
+
+    if clip is True:
+        inside_indices = region.contains(samples)
+        samples = samples[inside_indices]
+        labels = labels[inside_indices]
+        region_ = region
+    else:
+        region_ = expanded_region
+
+    if shuffle:
+        shuffled_indices = rng.permutation(len(samples))
+        samples = samples[shuffled_indices]
+        labels = labels[shuffled_indices]
+
+    return samples, labels, parent_samples, region_
 
 
-def simulate_csr_on_region(region, n_samples=100, seed=None):
+def simulate_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0,
+                clip=True, shuffle=True, seed=None):
     """
-    Provide a dataset of localizations with coordinates that are spatially-distributed inside the specified region by
-    complete spatial randomness..
+    Generate clustered point data following a Matern cluster random point process.
+    Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
+    within the boundaries given by `region` expanded by the maximum radius.
+    Each parent position is then replaced by spots of size `radius` with Poisson distributed points inside.
+    Offspring from parent events that are located outside the region are included.
 
     Parameters
     ----------
-    region : RoiRegion, dict
-        Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
-        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
-    n_samples : int
-       total number of localizations
+    parent_intensity : float
+        The intensity (points per unit region measure) of the Poisson point process for parent events.
+    region : Region, array-like
+        The region (or support) for each feature.
+        If array-like it must provide upper and lower bounds for each feature.
+    cluster_mu : float
+        The mean number of points of the Poisson point process for cluster(cluster_mu) events.
+    radius : float or sequence of floats
+        The radius for the spots. If tuple, the number of elements must be larger than the expected number of parents.
+    clip : bool
+        If True the result will be clipped to 'region'. If False the extended region will be kept.
+    shuffle : boolean
+        Shuffle the samples.
     seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
-       random number generation seed
+        random number generation seed
 
     Returns
     -------
     LocData
-        A new LocData instance with localization data.
+        The generated samples.
     """
     parameter = locals()
-
-    samples = make_csr_on_region(region=region, n_samples=n_samples, seed=seed)
-
-    property_names = []
-    for i in range(np.shape(samples)[-1]):
-        if i == 0:
-            property_names.append('position_x')
-        elif i == 1:
-            property_names.append('position_y')
-        elif i == 2:
-            property_names.append('position_z')
-
-    dict_ = {}
-    for name, data in zip(property_names, samples.T):
-        dict_.update({name: data})
-
-    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
+    samples, labels, _, region = make_Matern(parent_intensity, region, cluster_mu, radius,
+                          clip, shuffle, seed)
+    region_ = region if isinstance(region, Region) else Region.from_intervals(region)
+    locdata = LocData.from_coordinates(coordinates=samples)
+    locdata.dimension = region_.dimension
+    locdata.region = region_
+    locdata.dataframe = locdata.dataframe.assign(cluster_label=labels)
 
     # metadata
     locdata.meta.source = metadata_pb2.SIMULATION
     del locdata.meta.history[:]
-    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+    locdata.meta.history.add(name=make_Matern.__name__, parameter=str(parameter))
 
     return locdata
 
 
-def make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
-                          shuffle=True, seed=None):
+def make_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
+                cluster_mu=1, cluster_std=1.0,
+                clip=True, shuffle=True, seed=None):
     """
-    Provide points that are spatially-distributed spots
-    with normally distributed points inside. Centers are spatially-distributed by complete spatial
-    randomness within the region. The number of dimensions also called `n_features` is given by the `region` dimensions.
+    Generate clustered point data following a Thomas random point process.
+    Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
+    within the boundaries given by `region` expanded by an expansion distance that equals
+    expansion_factor * max(cluster_std).
+    Each parent position is then replaced by n offspring points
+    where n is Poisson-distributed with mean number `cluster_mu`
+    and point coordinates are normal-distributed around the parent point with standard deviation `cluster_std`.
+    Offspring from parent events that are located outside the region are included.
 
     Parameters
     ----------
-    region : RoiRegion, dict
-        Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
-        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
-    n_samples : int or array-like
-        If int, it is the total number of points equally divided among clusters.
-        If array-like, each element of the sequence indicates the number of samples per cluster.
-    centers : int or array of shape [n_centers, n_features]
-        The number of centers to generate, or the fixed center locations.
-        If centers is an array, n_features is taken from centers shape.
-        If n_samples is an int and centers is None, 3 centers are generated.
-        If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
-    cluster_std : float or sequence of floats
-        The standard deviation for the spots.
-        If sequence, the number of elements must be equal to the number of centers.
+    parent_intensity : float
+        The intensity (points per unit region measure) of the Poisson point process for parent events.
+    region : Region, array-like
+        The region (or support) for all features.
+        If array-like it must provide upper and lower bounds for each feature.
+    expansion_factor : int, float
+        Factor by which the cluster_std is multiplied to set the region expansion distance.
+    cluster_mu : float, sequence of floats
+        The mean number of points for normal-distributed offspring points.
+    cluster_std : float, sequence of floats, sequence of sequence of floats
+        The standard deviation for normal-distributed offspring points.
+    clip : bool
+        If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
     seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
@@ -724,94 +708,107 @@ def make_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
 
     Returns
     -------
-    array of shape [n_samples, 2]
-       The generated samples.
+    tuple of numpy.ndarray of shape (n_samples, n_features)
+       The generated samples, labels, parent_samples
     """
     rng = np.random.default_rng(seed)
 
-    if isinstance(region, dict):
-        region_ = RoiRegion(region_specs=region['region_specs'], region_type=region['region_type'])
+    if isinstance(region, EmptyRegion):
+        samples, labels, parent_samples, region = np.array([]), np.array([]), np.array([]), EmptyRegion()
+        return samples, labels, parent_samples, region
+    elif not isinstance(region, Region):
+        region = Region.from_intervals(region)
+
+    # expand region
+    expansion_distance = expansion_factor * np.max(cluster_std)
+    expanded_region = expand_region(region, expansion_distance)
+
+    parent_samples = make_Poisson(intensity=parent_intensity, region=expanded_region, seed=rng)
+    n_cluster = len(parent_samples)
+
+    # check cluster_std consistent with n_centers or n_features
+    if len(np.shape(cluster_std)) == 0:
+        cluster_std_ = np.full(shape=(n_cluster, region.dimension), fill_value=cluster_std)
+    elif len(np.shape(cluster_std)) == 1:  # iterate over cluster_std for each feature
+        if region.dimension == 1 or len(cluster_std) != region.dimension:
+            raise TypeError(f"The shape of cluster_std {np.shape(cluster_std)} is incompatible "
+                            f"with n_features {region.dimension}.")
+        else:
+            cluster_std_ = np.empty(shape=(n_cluster, region.dimension))
+            for i, element in enumerate(cluster_std):
+                cluster_std_[:, i] = np.full((n_cluster,), element)
+    elif len(np.shape(cluster_std)) == 2:  # iterate over cluster_std for each center
+        if np.shape(cluster_std) < (n_cluster, region.dimension):
+            raise TypeError(f"The shape of cluster_std {np.shape(cluster_std)} is incompatible with "
+                            f"n_cluster {n_cluster} or n_features {region.dimension}.")
+        else:
+            cluster_std_ = cluster_std
     else:
+        raise TypeError(f"The shape of cluster_std {np.shape(cluster_std)} is incompatible.")
+
+    # replace parents by normal-distributed offspring samples
+    try:
+        n_offspring_list = rng.poisson(lam=cluster_mu[:n_cluster], size=n_cluster)
+    except ValueError as e:
+        e.args += (f"Too few offspring events for n_cluster: {n_cluster}",)
+        raise
+    except TypeError:
+        n_offspring_list = rng.poisson(lam=cluster_mu, size=n_cluster)
+    samples = []
+    labels = []
+    for i, (parent, std, n_offspring) in enumerate(zip(parent_samples, cluster_std_, n_offspring_list)):
+        offspring_samples = rng.normal(loc=parent, scale=std, size=(n_offspring, region.dimension))
+
+        samples.append(offspring_samples)
+        labels += [i] * len(offspring_samples)
+
+    samples = np.concatenate(samples)
+    labels = np.array(labels)
+
+    if clip is True:
+        inside_indices = region.contains(samples)
+        samples = samples[inside_indices]
+        labels = labels[inside_indices]
         region_ = region
-
-    if isinstance(n_samples, (int, np.integer)):
-        # Set n_centers by looking at centers arg
-        if centers is None:
-            centers = 3
-
-        if isinstance(centers, (int, np.integer)):
-            n_centers = centers
-            centers = make_csr_on_region(region=region, n_samples=n_centers, seed=rng)
-        else:  # if centers is array
-            if region_.dimension != np.shape(centers)[1]:
-                raise ValueError(f'Region dimensions must be the same as the dimensions for each center. '
-                                 f'Got region dimension: {region_.dimension} and '
-                                 f'center dimensions: {np.shape(centers)[1]} instead.')
-            n_centers = np.shape(centers)[0]
-            # todo add check if centers in region else raise ValueError
-
-    else:  # if n_samples is array
-        n_centers = len(n_samples)  # Set n_centers by looking at [n_samples] arg
-        if centers is None:
-            centers = make_csr_on_region(region=region, n_samples=n_centers, seed=rng)
-        elif isinstance(centers, (int, np.integer)):
-            if centers != len(n_samples):
-                raise ValueError(f"Length of `n_samples` not consistent"
-                                 f" with number of centers. Got length of n_samples = {n_centers} "
-                                 f"and centers = {centers}")
-            centers = make_csr_on_region(region=region, n_samples=centers, seed=rng)
-        else:  # if centers is array
-            try:
-                assert len(centers) == n_centers
-            except TypeError:
-                raise ValueError(f"Parameter `centers` must be array-like or None. "
-                                 f"Got {centers} instead")
-            except AssertionError:
-                raise ValueError(f"Length of `n_samples` not consistent"
-                                 f" with number of centers. Got length of n_samples = {n_centers} "
-                                 f"and number of centers = {len(centers)}")
-            if region_.dimension != np.shape(centers)[1]:
-                raise ValueError(f'Region dimensions must be the same as the dimensions for each center. '
-                                 f'Got Region dimensions: {region_.dimension} and '
-                                 f'center dimensions: {centers.shape[1]} instead.')
-
-        # set n_samples_per_center
-    if isinstance(n_samples, (int, np.integer)):
-        n_samples_per_center = [int(n_samples // n_centers)] * n_centers
-        for i in range(n_samples % n_centers):
-            n_samples_per_center[i] += 1
     else:
-        n_samples_per_center = n_samples
+        region_ = expanded_region
 
-    samples, labels = make_Thomas(n_samples=n_samples_per_center, n_features=region_.dimension, centers=centers,
-                                  cluster_std=cluster_std, shuffle=shuffle, seed=rng)
+    if shuffle:
+        shuffled_indices = rng.permutation(len(samples))
+        samples = samples[shuffled_indices]
+        labels = labels[shuffled_indices]
 
-    return samples, labels
+    return samples, labels, parent_samples, region_
 
 
-def simulate_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1.0,
-                              shuffle=True, seed=None):
+def simulate_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
+                cluster_mu=1, cluster_std=1.0,
+                clip=True, shuffle=True, seed=None):
     """
-    Provide a dataset of localizations with coordinates and labels that are spatially-distributed spots
-    with normally distributed points inside. Centers are spatially-distributed by complete spatial
-    randomness within the region. The number of dimensions also called `n_features` is given by the `region` dimensions.
+    Generate clustered point data following a Thomas random point process.
+    Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
+    within the boundaries given by `region` expanded by an expansion distance that equals
+    expansion_factor * max(cluster_std).
+    Each parent position is then replaced by n offspring points
+    where n is Poisson-distributed with mean number `cluster_mu`
+    and point coordinates are normal-distributed around the parent point with standard deviation `cluster_std`.
+    Offspring from parent events that are located outside the region are included.
 
     Parameters
     ----------
-    region : RoiRegion, dict
-        Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
-        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
-    n_samples : int or array-like
-        If int, it is the total number of points equally divided among clusters.
-        If array-like, each element of the sequence indicates the number of samples per cluster.
-    centers : int or array of shape [n_centers, n_features]
-        The number of centers to generate, or the fixed center locations.
-        If centers is an array, n_features is taken from centers shape.
-        If n_samples is an int and centers is None, 3 centers are generated.
-        If n_samples is array-like, centers must be either None or an array of length equal to the length of n_samples.
-    cluster_std : float or sequence of floats
-        The standard deviation for the spots.
-        If sequence, the number of elements must be equal to the number of centers.
+    parent_intensity : float
+        The intensity (points per unit region measure) of the Poisson point process for parent events.
+    region : Region, array-like
+        The region (or support) for each feature.
+        If array-like it must provide upper and lower bounds for each feature.
+    expansion_factor : int, float
+        Factor by which the cluster_std is multiplied to set the region expansion distance.
+    cluster_mu : float, sequence of floats
+        The mean number of points for normal-distributed offspring points.
+    cluster_std : float, sequence of floats, sequence of sequence of floats
+        The standard deviation for normal-distributed offspring points.
+    clip : bool
+        If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
     seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
@@ -820,32 +817,22 @@ def simulate_Thomas_on_region(region, n_samples=100, centers=None, cluster_std=1
     Returns
     -------
     LocData
-        A new LocData instance with localization data.
+        The generated samples.
     """
     parameter = locals()
-
-    samples, labels = make_Thomas_on_region(region=region, n_samples=n_samples, centers=centers,
-                                            cluster_std=cluster_std, shuffle=shuffle, seed=seed)
-
-    property_names = []
-    for i in range(np.shape(samples)[-1]):
-        if i == 0:
-            property_names.append('position_x')
-        elif i == 1:
-            property_names.append('position_y')
-        elif i == 2:
-            property_names.append('position_z')
-
-    dict_ = {}
-    for name, data in zip(property_names, samples.T):
-        dict_.update({name: data})
-
-    locdata = LocData.from_dataframe(dataframe=pd.DataFrame(dict_))
+    samples, labels, _, region = make_Thomas(parent_intensity, region, expansion_factor,
+                          cluster_mu, cluster_std,
+                          clip, shuffle, seed)
+    region_ = region if isinstance(region, Region) else Region.from_intervals(region)
+    locdata = LocData.from_coordinates(coordinates=samples)
+    locdata.dimension = region_.dimension
+    locdata.region = region_
+    locdata.dataframe = locdata.dataframe.assign(cluster_label=labels)
 
     # metadata
     locdata.meta.source = metadata_pb2.SIMULATION
     del locdata.meta.history[:]
-    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+    locdata.meta.history.add(name=make_Thomas.__name__, parameter=str(parameter))
 
     return locdata
 

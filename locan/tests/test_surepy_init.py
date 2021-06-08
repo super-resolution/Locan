@@ -5,8 +5,11 @@ from locan.__main__ import main
 
 
 def test_version():
-    assert isinstance(locan._version.version, str)
-    assert isinstance(locan._version.version_tuple, tuple)
+    try:
+        assert isinstance(locan._version.version, str)
+        assert isinstance(locan._version.version_tuple, tuple)
+    except AttributeError:
+        pass
     assert locan.__version__
     assert locan.__all__
     # print(dir(locan))

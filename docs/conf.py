@@ -73,7 +73,7 @@ napoleon_use_param = True
 napoleon_use_rtype = True
 
 # myST-NB settings
-jupyter_execute_notebooks = 'cache'  # 'off'
+jupyter_execute_notebooks = 'force' # 'cache'  # 'off'
 
 # copybutton settings
 copybutton_prompt_text = ">>> "

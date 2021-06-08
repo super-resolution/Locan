@@ -15,7 +15,7 @@ from scipy.spatial.qhull import QhullError
 
 from locan.constants import LOCDATA_ID  # is required to use LOCDATA_ID as global variable
 from locan import PROPERTY_KEYS
-from locan.data.region import RoiRegion
+from locan.data.region import Region, RoiRegion
 import locan.data.hulls
 from locan.data import metadata_pb2
 from locan.data.metadata_utils import _modify_meta
@@ -279,7 +279,7 @@ class LocData:
 
     @property
     def inertia_moments(self):
-        """Hull object: Return an object representing the oriented minimal bounding box."""
+        """Inertia moments are returned as computed by :func:`locan.data.properties.compute_inertia_moments`."""
         if self._inertia_moments is None:
             try:
                 self._inertia_moments = locan.data.properties.compute_inertia_moments(self.coordinates)
@@ -311,11 +311,24 @@ class LocData:
 
     @region.setter
     def region(self, region):
-        # todo add check if all localizations are within region. If not put out a warning.
-        if isinstance(region, RoiRegion) or region is None:
+        if region is not None:
+            if region.dimension != self.dimension:
+                raise TypeError("Region dimension and coordinates dimension must be identical.")
+            elif len(self) != len(region.contains(self.coordinates)):
+                warnings.warn("Not all coordinates are within region.")
+
+        if isinstance(region, (Region, RoiRegion)) or region is None:
             self._region = region
-        elif isinstance(region, dict):
-            self._region = RoiRegion(**region)
+
+        elif isinstance(region, dict):  # legacy code to deal with deprecated RoiLegacy_0
+            region_ = RoiRegion(**region)
+            if region_ is not None:
+                if region_.dimension != self.dimension:
+                    raise TypeError("Region dimension and coordinates dimension must be identical.")
+                elif len(self) != len(region_.contains(self.coordinates)):
+                    warnings.warn("Not all coordinates are within region.")
+            self._region = region_
+
         else:
             raise TypeError
 
@@ -410,7 +423,7 @@ class LocData:
         LocData
             A new LocData instance with dataframe representing the concatenated data.
         """
-        if coordinates:
+        if np.size(coordinates):
             dimension = len(coordinates[0])
 
             if coordinate_labels is None:

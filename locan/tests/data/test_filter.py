@@ -1,10 +1,12 @@
 import pytest
 import numpy as np
 import pandas as pd
-from locan import LocData
-from locan.data.rois import RoiRegion
-from locan.data.filter import select_by_condition, random_subset, select_by_region, exclude_sparse_points
-from locan.data.transform import transform_affine
+import matplotlib.pyplot as plt  # needed for visual inspection
+from locan import render_2d_mpl  # needed for visual inspection
+from locan import LocData, scatter_2d_mpl, transform_affine, cluster_dbscan, HullType
+from locan import Rectangle, RoiRegion
+from locan import select_by_condition, random_subset, select_by_region, \
+    exclude_sparse_points, localizations_in_cluster_regions
 
 
 @pytest.fixture()
@@ -70,14 +72,74 @@ def test_random_subset(locdata_simple):
     # print(dat_s.meta)
 
 
-def test_select_by_region(locdata_simple):
-    roi_dict = dict(region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
-    dat = select_by_region(locdata=locdata_simple, region=roi_dict, properties_for_roi=['position_y', 'position_z'])
-    assert(len(dat) == 1)
+def test_localizations_in_cluster_regions(locdata_blobs_2d):
+    coordinates = [(200, 500), (200, 600), (900, 650), (1000, 600)]
+    locdata = LocData.from_coordinates(coordinates)
+    noise, collection = cluster_dbscan(locdata_blobs_2d, eps=100, min_samples=3)
+    # print(collection.data)
 
-    roi_region = RoiRegion(region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
-    dat = select_by_region(locdata_simple, region=roi_region)
-    assert(len(dat) == 2)
+    # visualize
+    # ax = render_2d_mpl(locdata_blobs_2d)
+    # scatter_2d_mpl(collection.references[2], index=False, marker='.', color='g')
+    # scatter_2d_mpl(locdata, index=False, marker='o')
+    # scatter_2d_mpl(collection)
+    # ax.add_patch(collection.references[2].convex_hull.region.as_artist(fill=False))
+    # plt.show()
+
+    # print(locdata_blobs_2d.convex_hull.region.contains(coordinates))
+    # print(collection.references[2].convex_hull.region.contains(coordinates))
+
+    # collection with references being a list of other LocData objects, e.g. individual clusters
+    result = localizations_in_cluster_regions(locdata, collection)
+    assert np.array_equal(result.data.localization_count.values, [0, 0, 1, 0, 0])
+
+    result = localizations_in_cluster_regions(locdata, collection, hull_type=HullType.BOUNDING_BOX)
+    assert np.array_equal(result.data.localization_count.values, [0, 0, 1, 0, 1])
+
+    # selection of collection with references being another LocData object
+    selected_collection = select_by_condition(collection, condition='subregion_measure_bb > 200')
+    result = localizations_in_cluster_regions(locdata, selected_collection)
+    assert np.array_equal(result.data.localization_count.values, [0, 1, 0, 0])
+
+    # collection being a list of other LocData objects
+    result = localizations_in_cluster_regions(locdata, collection.references)
+    assert np.array_equal(result.data.localization_count.values, [0, 0, 1, 0, 0])
+
+
+# def test_localizations_in_region_2(locdata_2d):
+#     # test with shapely MultiPolygon
+#     region = RoiRegion(region='rectangle', region_specs=((1, 1), 2.5, 2.5, 0))
+#     region_2 = RoiRegion(region='rectangle', region_specs=((4, 4), 1.5, 1.5, 0))
+#     # visualize
+#     # ax = scatter_2d_mpl(locdata_2d, index=True, marker='o', color='g')
+#     # ax.add_patch(region.as_artist(fill=False))
+#     # ax.add_patch(region_2.as_artist(fill=False))
+#     # plt.show()
+#
+#     multipol = MultiPolygon([region.to_shapely(), region_2.to_shapely()])
+#     new_locdata = localizations_within_region(locdata_2d, multipol)
+#     assert len(new_locdata) == 2
+
+
+def test_select_by_region(locdata_2d):
+    region = Rectangle((1, 1), 3.5, 4.5, 0)
+
+    # visualize
+    # ax = scatter_2d_mpl(locdata_2d, index=True, marker='o', color='g')
+    # ax.add_patch(region.as_artist(fill=False))
+    # plt.show()
+
+    new_locdata = select_by_region(locdata_2d, region)
+    # print(new_locdata.data)
+    assert new_locdata.meta.history[-1].name == "select_by_region"
+    assert len(new_locdata) == 2
+
+    new_locdata = select_by_region(locdata_2d, region, loc_properties=['position_x', 'frame'])
+    assert len(new_locdata) == 3
+
+    region = RoiRegion(region_type='rectangle', region_specs=((1, 1), 3.5, 4.5, 0))
+    new_locdata = select_by_region(locdata_2d, region, loc_properties=['position_x', 'frame'])
+    assert len(new_locdata) == 3
 
 
 def test_exclude_sparse_points(locdata_simple):

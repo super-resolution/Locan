@@ -6,7 +6,7 @@ import pandas as pd
 
 from locan.data import metadata_pb2
 from locan import LocData
-from locan import RoiRegion
+from locan import Region, Rectangle
 from locan import AlphaShape
 
 
@@ -72,8 +72,10 @@ def test_LocData(df_simple):
     assert 'region_measure_obb' in dat.properties
     assert 'localization_density_obb' in dat.properties
     assert dat.region is None
+    with pytest.warns(UserWarning):
+        dat.region = Rectangle()
     dat.region = dat.bounding_box.region
-    assert dat.region.region_type == dat.bounding_box.region.region_type
+    assert repr(dat.region) == repr(dat.bounding_box.region)
     assert isinstance(dat.update_alpha_shape(alpha=1).alpha_shape, AlphaShape)
     assert 'region_measure_as' in dat.properties
     assert 'localization_density_as' in dat.properties
@@ -147,6 +149,12 @@ def test_LocData_from_coordinates():
     assert all(item in ['position_x', 'position_y'] for item in dat.coordinate_labels)
     assert len(dat) == 4
     assert dat.meta.comment == COMMENT_METADATA.comment
+
+    coordinates =np.array([(200, 500), (200, 600), (900, 650), (1000, 600)])
+    dat = LocData.from_coordinates(coordinates=coordinates, meta=COMMENT_METADATA)
+    assert np.array_equal(dat.coordinates, np.asarray(coordinates))
+    assert all(item in ['position_x', 'position_y'] for item in dat.coordinate_labels)
+    assert len(dat) == 4
 
     dat = LocData.from_coordinates(coordinates=coordinates, coordinate_labels=['position_x', 'position_z'],
                                    meta=dict(comment='special order'))
@@ -453,13 +461,10 @@ def test_LocData_handling_metadata(df_simple):
 # locdata and regions
 
 def test_locdata_region(df_simple):
-    roi_dict = dict(region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
-    roi_region = RoiRegion(**roi_dict)
+    region = Rectangle((0, 0), 2, 1, 10)
     dat = LocData.from_dataframe(dataframe=df_simple)
-    dat.region = roi_region
-    assert isinstance(dat._region, RoiRegion)
-    dat.region = roi_dict
-    assert isinstance(dat._region, RoiRegion)
+    dat.region = region
+    assert isinstance(dat.region, Region)
     assert dat.region.region_measure == 2
 
 

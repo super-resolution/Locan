@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt  # this import is needed for visual inspection
 
-from locan import LocData, simulate_csr
+from locan import LocData, simulate_uniform
 from locan import NearestNeighborDistances  # from locan.analysis.nearest_neighbor
 from locan.analysis.nearest_neighbor import pdf_nnDistances_csr_2D, pdf_nnDistances_csr_3D, \
     NNDistances_csr_2d, NNDistances_csr_3d, _DistributionFits
@@ -164,7 +164,7 @@ def test_NearestNeighborDistances_1d(caplog, locdata_1d):
 
 @pytest.mark.skip('Test for visual inspection.')
 def test_NearestNeighborDistances_2d_random():
-    locdata = simulate_csr(n_samples=10_000, n_features=2)
+    locdata = simulate_uniform(n_samples=10_000, region=((0, 1), (0, 1)))
     nn_1 = NearestNeighborDistances().compute(locdata)
     assert nn_1.localization_density == locdata.properties['localization_density_bb']
     assert len(nn_1.results) == 10_000
@@ -174,7 +174,7 @@ def test_NearestNeighborDistances_2d_random():
 
 @pytest.mark.skip('Test for visual inspection.')
 def test_NearestNeighborDistances_3d_random():
-    locdata = simulate_csr(n_samples=10_000, n_features=3)
+    locdata = simulate_uniform(n_samples=10_000, region=((0, 1), (0, 1), (0, 1)))
     nn_1 = NearestNeighborDistances().compute(locdata)
     assert nn_1.localization_density == locdata.properties['localization_density_bb']
     assert len(nn_1.results) == 10_000

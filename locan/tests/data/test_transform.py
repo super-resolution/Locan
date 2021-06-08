@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from locan import LocData
 import locan.constants
 from locan.constants import _has_open3d
+from locan.data.region import Polygon
 from locan import render_2d
 from locan.io.io_locdata import load_rapidSTORM_file
 from locan.data.transform import randomize, transform_affine
@@ -22,8 +23,8 @@ def test_randomize_2d(locdata_2d):
     locdata_randomized = randomize(locdata_2d, hull_region='ch')
     assert len(locdata_randomized) == 6
 
-    region_dict = dict(region_type='polygon', region_specs=((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
-    locdata_randomized = randomize(locdata_2d, hull_region=region_dict)
+    region = Polygon(((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
+    locdata_randomized = randomize(locdata_2d, hull_region=region)
     assert len(locdata_randomized) == 6
 
 
@@ -33,10 +34,11 @@ def test_randomize_3d(locdata_3d):
     assert locdata_randomized.meta.history[-1].name == 'randomize'
 
     # todo: implement make_csr in 3d
-    # locdata_randomized = randomize(locdata_3d, hull_region='ch')
-    # assert len(locdata_randomized) == 6
+    with pytest.raises(NotImplementedError):
+        locdata_randomized = randomize(locdata_3d, hull_region='ch')
+        assert len(locdata_randomized) == 6
 
-    # region_dict = dict(region_type='polygon', region_specs=((0, 0, 0), (0, 5, 0), (4, 3, 2), (2, 0.5, 2), (0, 0, 0)))
+    # region_dict = dict(region='polygon', region_specs=((0, 0, 0), (0, 5, 0), (4, 3, 2), (2, 0.5, 2), (0, 0, 0)))
     # locdata_randomized = randomize(locdata_3d, hull_region=region_dict)
     # assert len(locdata_randomized) == 6
 

@@ -16,10 +16,9 @@ Tutorials are provided as Jupyter notebooks.
 
    LocData <./notebooks/LocData>
    Load localization data <./notebooks/Load_LocData>
-   Add hulls <./notebooks/LocData_add_hulls>
-   Add localization properties <./notebooks/LocData_add_localization_properties>
-   Add properties <./notebooks/LocData_add_properties>
+   Hulls <./notebooks/LocData_hulls>
 
+   Regions <./notebooks/Regions>
    Filter <./notebooks/Filter_LocData>
    Cluster <./notebooks/Cluster_LocData>
    Render <./notebooks/Render_LocData>

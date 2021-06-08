@@ -12,8 +12,8 @@ import pandas as pd
 
 from locan.data.locdata import LocData
 import locan.data.hulls
-from locan.data.region import RoiRegion
-from locan.simulation import simulate_csr, simulate_csr_on_region
+from locan.data.region import Region
+from locan.simulation import simulate_uniform
 from locan.data.metadata_utils import _modify_meta
 from locan.constants import _has_open3d
 if _has_open3d: import open3d as o3d
@@ -225,7 +225,7 @@ def transform_affine(locdata, matrix=None, offset=None, pre_translation=None, me
         return transformed_points
 
 
-def randomize(locdata, hull_region='bb'):
+def randomize(locdata, hull_region='bb', seed=None):
     """
     Transform locdata coordinates into randomized coordinates that follow complete spatial randomness on the same
     region as the input locdata.
@@ -234,11 +234,10 @@ def randomize(locdata, hull_region='bb'):
     ----------
     locdata : LocData
         Localization data to be randomized
-    hull_region : str, RoiRegion Object, or dict
-        Region of interest as specified by a hull or a `RoiRegion` or dictionary with keys `region_specs` and
-        `region_type`.
-        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
-        String identifier can be one of 'bb', 'ch', 'as', 'obb' referring to the corresponding hull.
+    hull_region : Region, str
+        Region of interest. String identifier can be one of 'bb', 'ch', 'as', 'obb' referring to the corresponding hull.
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+        random number generation seed
 
     Returns
     -------
@@ -247,6 +246,8 @@ def randomize(locdata, hull_region='bb'):
     """
     local_parameter = locals()
 
+    rng = np.random.default_rng(seed)
+
     if hull_region == 'bb':
         try:
             ranges = locdata.bounding_box.hull.T
@@ -254,7 +255,7 @@ def randomize(locdata, hull_region='bb'):
             locdata.bounding_box = locan.data.hulls.BoundingBox(locdata.coordinates)
             ranges = locdata.bounding_box.hull.T
 
-        new_locdata = simulate_csr(n_samples=len(locdata), n_features=len(ranges), feature_range=ranges)
+        new_locdata = simulate_uniform(n_samples=len(locdata), region=ranges, seed=rng)
 
     elif hull_region == 'ch':
         try:
@@ -262,18 +263,18 @@ def randomize(locdata, hull_region='bb'):
         except AttributeError:
             region_ = locan.data.hulls.ConvexHull(locdata.coordinates).region
 
-        new_locdata = simulate_csr_on_region(region_, n_samples=len(locdata))
+        new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
 
-    # todo: implement simulate_csr in 3D
-    # todo: implement simulate_csr on as and obb hull regions
+    # todo: implement on as and obb hull regions
+    elif hull_region == 'as':
+        raise NotImplementedError
 
-    elif isinstance(hull_region, (RoiRegion, dict)):
-        if isinstance(hull_region, dict):
-            region_ = RoiRegion(region_specs=hull_region['region_specs'], region_type=hull_region['region_type'])
-        else:
-            region_ = hull_region
+    # todo: implement on as and obb hull regions
+    elif hull_region == 'obb':
+        raise NotImplementedError
 
-        new_locdata = simulate_csr_on_region(region_, n_samples=len(locdata))
+    elif isinstance(hull_region, Region):
+        new_locdata = simulate_uniform(n_samples=len(locdata), region=hull_region, seed=rng)
 
     else:
         raise NotImplementedError

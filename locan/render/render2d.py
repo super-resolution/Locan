@@ -16,7 +16,7 @@ from skimage import exposure
 import scipy.signal.windows
 
 from locan.data.rois import Roi
-from locan.data.region import RoiRegion
+from locan.data.region import Rectangle, Ellipse, Polygon, RoiRegion
 from locan.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
 from locan.constants import _has_mpl_scatter_density, _has_napari
 from locan.data.rois import _MplSelector
@@ -28,7 +28,7 @@ if _has_napari: import napari
 
 
 __all__ = ['render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari', 'scatter_2d_mpl',
-           'apply_window']
+           'apply_window', 'select_by_drawing_napari']
 
 logger = logging.getLogger(__name__)
 
@@ -427,8 +427,64 @@ def select_by_drawing_mpl(locdata, region_type='rectangle', **kwargs):
     selector = _MplSelector(ax, type=region_type)
     plt.show()
     roi_list = [Roi(reference=locdata, region_specs=roi['region_specs'],
-                    region_type=roi['region_type']) for roi in selector.rois]
+                    region=roi['region']) for roi in selector.rois]
     return roi_list
+
+
+def _napari_shape_to_region(vertices, bin_edges, region_type):
+    """
+    Convert napari shape to `locan.Region`.
+
+    Parameters
+    ----------
+    vertices : numpy.ndarray of float
+        Sequence of point coordinates as returned by napari.
+    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimension, n_bin_edges)
+        Array of bin edges for each dimension. At this point there are only equally-sized bins allowed.
+    region_type : str
+        String specifying the selector widget that can be either rectangle, ellipse, or polygon.
+
+    Returns
+    -------
+    Region
+    """
+    # at this point there are only equally-sized bins used.
+    bin_sizes = [bedges[1] - bedges[0] for bedges in bin_edges]
+
+    # flip since napari returns vertices with first component representing the horizontal axis
+    vertices = np.flip(vertices, axis=1)
+
+    vertices = np.array([bedges[0] + vert * bin_size
+                         for vert, bedges, bin_size in zip(vertices.T, bin_edges, bin_sizes)]
+                        ).T
+
+    if region_type == 'rectangle':
+        if len(set(vertices[:, 0].astype(int))) != 2:
+            raise NotImplementedError('Rotated rectangles are not implemented.')
+        mins = vertices.min(axis=0)
+        maxs = vertices.max(axis=0)
+        corner_x, corner_y = mins
+        width, height = maxs - mins
+        angle = 0
+        region = Rectangle((corner_x, corner_y), width, height, angle)
+
+    elif region_type == 'ellipse':
+        if len(set(vertices[:, 0].astype(int))) != 2:
+            raise NotImplementedError('Rotated ellipses are not implemented.')
+        mins = vertices.min(axis=0)
+        maxs = vertices.max(axis=0)
+        width, height = maxs - mins
+        center_x, center_y = mins[0] + width/2, mins[1] + height/2
+        angle = 0
+        region = Ellipse((center_x, center_y), width, height, angle)
+
+    elif region_type == 'polygon':
+        region = Polygon(np.concatenate([vertices, [vertices[0]]], axis=0))
+
+    else:
+        raise TypeError(f' Type {region_type} is not defined.')
+
+    return region
 
 
 def _napari_shape_to_RoiRegion(vertices, bin_edges, region_type):
@@ -447,6 +503,11 @@ def _napari_shape_to_RoiRegion(vertices, bin_edges, region_type):
     Returns
     -------
     RoiRegion
+
+    Warnings
+    --------
+    This function is only used by :class:`locan.RoiLegacy_0` and will be deprecated.
+    Use :func:`locan.render.render2d._napari_shape_to_region` instead.
     """
     # at this point there are only equally-sized bins used.
     bin_sizes = [bedges[1] - bedges[0] for bedges in bin_edges]
@@ -515,8 +576,7 @@ def select_by_drawing_napari(locdata, **kwargs):
 
     regions = []
     for verts, typ in zip(vertices, types):
-        regions.append(_napari_shape_to_RoiRegion(verts, hist.bins.bin_edges, typ))
+        regions.append(_napari_shape_to_region(verts, hist.bins.bin_edges, typ))
 
-    roi_list = [Roi(reference=locdata, region_specs=region.region_specs,
-                    region_type=region.region_type) for region in regions]
+    roi_list = [Roi(reference=locdata, region=reg) for reg in regions]
     return roi_list

@@ -76,7 +76,7 @@ def _add_arguments(parser):
     parser.add_argument('-i', '--indicator', dest='roi_file_indicator', type=str, default='_roi',
                         help='Indicator to add to the localization file name and use as roi file name '
                              '(with further extension .yaml).')
-    parser.add_argument('-r', '--region', dest='region_type', type=str, default='rectangle',
+    parser.add_argument('-r', '--region', dest='region', type=str, default='rectangle',
                         help='String indicating the region type.')
 
 

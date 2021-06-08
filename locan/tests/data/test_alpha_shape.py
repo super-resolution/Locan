@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt  # needed for visualization
 import matplotlib.tri as mtri  # needed for visualization
 import networkx as nx
 
-from locan import AlphaShape, AlphaComplex, RoiRegion
+from locan import AlphaShape, AlphaComplex, RoiRegion, EmptyRegion, Region2D
 
 
 @pytest.mark.skip('Requires visual inspection.')
@@ -410,7 +410,7 @@ def test_AlphaShape_0():
     assert len(alpha_shape.alpha_shape) == 0
     assert isinstance(alpha_shape.alpha_shape, list)
     assert alpha_shape.dimension is None
-    assert alpha_shape.hull.is_empty
+    assert isinstance(alpha_shape.region, EmptyRegion)
     assert alpha_shape.region_measure == 0
     assert alpha_shape.subregion_measure == 0
     assert alpha_shape.n_points_alpha_shape == 0
@@ -425,7 +425,6 @@ def test_AlphaShape_0():
     cc = alpha_shape.connected_components
     assert len(cc) == 0
     assert alpha_shape.vertices_connected_components_indices == []
-    assert alpha_shape.region is None
 
 
 def test_AlphaShape_1():
@@ -438,7 +437,7 @@ def test_AlphaShape_1():
     assert len(alpha_shape.alpha_shape) == 13
     assert isinstance(alpha_shape.alpha_shape, list)
     assert alpha_shape.dimension == 2
-    assert alpha_shape.hull
+    assert isinstance(alpha_shape.region, Region2D)
     assert alpha_shape.region_measure == 10.5
     assert alpha_shape.subregion_measure == 13.16227766016838
     assert alpha_shape.n_points_alpha_shape == 8
@@ -451,9 +450,8 @@ def test_AlphaShape_1():
     assert len(alpha_shape.vertex_alpha_shape_indices) == 8
     cc = alpha_shape.connected_components
     assert len(cc) == 1
-    assert isinstance(cc[0], RoiRegion)
+    assert isinstance(cc[0], Region2D)
     assert alpha_shape.vertices_connected_components_indices == [[2, 1, 0, 5, 3, 4]]
-    assert isinstance(alpha_shape.region, RoiRegion)
 
     alpha = 1
     # alpha_shape = AlphaShape(alpha, points=points)
@@ -461,7 +459,7 @@ def test_AlphaShape_1():
     assert len(alpha_shape.alpha_shape) == 3
     assert isinstance(alpha_shape.alpha_shape, list)
     assert alpha_shape.dimension == 2
-    assert alpha_shape.hull.is_empty
+    assert isinstance(alpha_shape.region, EmptyRegion)
     assert alpha_shape.region_measure == 0
     assert alpha_shape.subregion_measure == 0
     assert alpha_shape.n_points_alpha_shape == 4
@@ -473,9 +471,8 @@ def test_AlphaShape_1():
     assert alpha_shape.vertices_alpha_shape.shape == (4, 2)
     assert len(alpha_shape.vertex_alpha_shape_indices) == 4
     cc = alpha_shape.connected_components
-    assert len(cc) == 0  # assert isinstance(cc[0], RoiRegion)
+    assert len(cc) == 0
     assert alpha_shape.vertices_connected_components_indices == []
-    assert alpha_shape.region is None  # assert isinstance(alpha_shape.region, RoiRegion)
 
 
 def test_AlphaShape_2():
@@ -495,7 +492,7 @@ def test_AlphaShape_2():
     assert len(alpha_shape.alpha_shape) == 25
     assert isinstance(alpha_shape.alpha_shape, list)
     assert alpha_shape.dimension == 2
-    assert alpha_shape.hull
+    assert isinstance(alpha_shape.region, Region2D)
     assert alpha_shape.region_measure == 21.0
     assert alpha_shape.subregion_measure == 26.32455532033676
     assert alpha_shape.n_points_alpha_shape == 15
@@ -508,9 +505,8 @@ def test_AlphaShape_2():
     assert len(alpha_shape.vertex_alpha_shape_indices) == 15
     cc = alpha_shape.connected_components
     assert len(cc) == 2
-    assert isinstance(cc[0], RoiRegion)
+    assert isinstance(cc[0], Region2D)
     assert alpha_shape.vertices_connected_components_indices == [[13, 11, 12, 8, 10, 9], [2, 1, 0, 5, 3, 4]]
-    assert isinstance(alpha_shape.region, RoiRegion)
 
 
 def test_AlphaShape_3():
@@ -530,7 +526,7 @@ def test_AlphaShape_3():
     assert len(alpha_shape.alpha_shape) == 75
     assert isinstance(alpha_shape.alpha_shape, list)
     assert alpha_shape.dimension == 2
-    assert alpha_shape.hull
+    assert isinstance(alpha_shape.region, Region2D)
     assert alpha_shape.region_measure == 65.0
     assert alpha_shape.subregion_measure == 73.81471965135825
     assert alpha_shape.n_points_alpha_shape == 33
@@ -544,8 +540,7 @@ def test_AlphaShape_3():
     assert len(alpha_shape.vertex_alpha_shape_indices) == 33
     cc = alpha_shape.connected_components
     assert len(cc) == 1
-    assert isinstance(cc[0], RoiRegion)
+    assert isinstance(cc[0], Region2D)
     assert sorted(alpha_shape.vertices_connected_components_indices[0]) == sorted(
            [26, 20, 32, 9, 4, 8, 25, 24, 13, 7, 23, 31, 22, 29, 10, 6, 11, 15, 27, 5, 21, 17, 1, 16, 0, 18, 2, 12,
             28, 19, 3, 14, 30])
-    assert isinstance(alpha_shape.region, RoiRegion)

@@ -31,10 +31,8 @@ import numpy as np
 from scipy.spatial import Delaunay
 import networkx as nx
 
-from shapely.geometry import Polygon, MultiPolygon
-from shapely.ops import unary_union
-
-from locan.data.region import RoiRegion
+from locan.data.region import Region2D, Polygon, MultiPolygon
+from locan.data.region_utils import regions_union
 from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance
 
 
@@ -121,13 +119,15 @@ class AlphaComplex:
         if np.size(self.points) == 0:
             self.dimension = None
             self.delaunay_triangulation = None
-            self.lines = self.triangles = []
+            self.lines = []
+            self.triangles = []
 
         elif np.size(self.points) <= 4 and delaunay is None:
             warnings.warn("Not enough points to construct initial simplex (need 4)")
             self.dimension = None
             self.delaunay_triangulation = None
-            self.lines = self.triangles = []
+            self.lines = []
+            self.triangles = []
 
         else:
             self.dimension = np.shape(self.points)[1]
@@ -136,7 +136,8 @@ class AlphaComplex:
             if self.dimension == 2:
                 self.lines, self.triangles = self._compute_2d()
             elif self.dimension == 3:
-                self.lines = self.triangles = []
+                self.lines = []
+                self.triangles = []
                 raise NotImplementedError
             else:
                 raise ValueError(f'There is no algorithm available for points with dimension {self.dimension}.')
@@ -380,10 +381,9 @@ class AlphaShape:
     alpha_shape : numpy.ndarray
         The list of k-simplices (edges) from the alpha complex that make up the alpha shape.
         Or: Simplicial subcomplex of the Delaunay triangulation with regular simplices from the alpha complex.
-    hull : shapely.geometry.Polygon or shapely.geometry.MultiPolygon or None (in 2D)
-        hull object for the alpha shape that contains all d-simplices (triangles in 2D) of the specific alpha complex.
-        None if the complex is empty.
-    connected_components : list of RoiRegion
+    region : Region
+        Region object.
+    connected_components : list of Region
         Connected components, i.e. a list of the individual unconnected polygons that together make up the alpha shape.
     dimension : int
         Spatial dimension of the hull as determined from the dimension of `points`
@@ -414,8 +414,6 @@ class AlphaShape:
         Hull measure, i.e. area or volume.
     subregion_measure : float
         Measure of the sub-dimensional region, i.e. circumference or surface.
-    region : RoiRegion
-        Convert the hull to a RoiRegion object.
     """
 
     def __init__(self, alpha, points=None, alpha_complex=None, delaunay=None):
@@ -427,7 +425,7 @@ class AlphaShape:
         self.points = self.alpha_complex.points
         self.dimension = self.alpha_complex.dimension
         self._alpha = None
-        self._hull = None
+        self._region = None
         self._connected_components = None
         self._vertices_connected_components_indices = None
 
@@ -440,7 +438,7 @@ class AlphaShape:
     @alpha.setter
     def alpha(self, alpha):
         self._alpha = alpha
-        self._hull = None
+        self._region = None
         self._connected_components = None
         self._vertices_connected_components_indices = None
 
@@ -458,19 +456,22 @@ class AlphaShape:
         except ZeroDivisionError:
             self.n_points_alpha_shape_rel = float('nan')
 
-        self.region_measure = self.hull.area
-        self.subregion_measure = self.hull.length
+        self.region_measure = self.region.region_measure
+        self.subregion_measure = self.region.subregion_measure
 
     @property
-    def hull(self):
-        if self._hull is None:
+    def region(self):
+        if self.dimension == 3:
+            raise NotImplementedError('Region for 3D data has not yet been implemented.')
+
+        if self._region is None:
             triangles = self.alpha_complex.get_alpha_complex_triangles(alpha=self.alpha)
-            if triangles == []:
+            if not triangles:
                 vertices = []
             else:
                 vertices = self.alpha_complex.delaunay_triangulation.simplices[triangles]
-            self._hull = unary_union([Polygon(pts) for pts in self.points[vertices]])
-        return self._hull
+            self._region = regions_union([Polygon(pts) for pts in self.points[vertices]])
+        return self._region
 
     @property
     def connected_components(self):
@@ -483,22 +484,13 @@ class AlphaShape:
                 self._vertices_connected_components_indices.append(list(subgraph.nodes))
                 triangles = list({edge[2] for edge in subgraph.edges.data('triangle')})
                 vertices = self.alpha_complex.delaunay_triangulation.simplices[triangles]
-                cc_hull = unary_union([Polygon(pts) for pts in self.points[vertices]])
-
-                if isinstance(cc_hull, MultiPolygon):
-                    region = RoiRegion.from_shapely(region_type='shapelyMultiPolygon', shapely_obj=cc_hull)
-                elif isinstance(cc_hull, Polygon):
-                    region = RoiRegion.from_shapely(region_type='shapelyPolygon', shapely_obj=cc_hull)
-                elif cc_hull.is_empty:
-                    region = None
-                else:
-                    raise TypeError('The connected component should be either Polygon or MultiPolygon.')
+                region = regions_union([Polygon(pts) for pts in self.points[vertices]])
                 self._connected_components.append(region)
         return self._connected_components
 
     @property
     def vertices_connected_components_indices(self):
-        _ = self.connected_components
+        _ = self.connected_components  # trigger computation of _vertices_connected_components_indices
         return self._vertices_connected_components_indices
 
     @property
@@ -524,18 +516,3 @@ class AlphaShape:
         array_s = self.alpha_complex.get_alpha_complex_lines(self.alpha, type='singular')
         array_i = self.alpha_complex.get_alpha_complex_lines(self.alpha, type='interior')
         return np.unique(array_r + array_s + array_i).tolist()
-
-    @property
-    def region(self):
-        if self.dimension == 3:
-            raise NotImplementedError('Region for 3D data has not yet been implemented.')
-        else:
-            if isinstance(self.hull, MultiPolygon):
-                region_ = RoiRegion.from_shapely(region_type='shapelyMultiPolygon', shapely_obj=self.hull)
-            elif isinstance(self.hull, Polygon):
-                region_ = RoiRegion.from_shapely(region_type='shapelyPolygon', shapely_obj=self.hull)
-            elif self.hull.is_empty:
-                region_ = None
-            else:
-                raise TypeError('self.hull should be either Polygon or MultiPolygon.')
-            return region_

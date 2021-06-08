@@ -2,12 +2,75 @@
 Functions to compute locdata properties.
 """
 from collections import namedtuple
+import warnings
+import logging
 
 import numpy as np
 from scipy.spatial.distance import pdist
+from shapely.geometry import asPoint
+
+from locan.data.region import Region, Region2D, RoiRegion
 
 
-__all__ = ['max_distance', 'compute_inertia_moments']
+__all__ = ['distance_to_region', 'distance_to_region_boundary', 'max_distance', 'compute_inertia_moments']
+
+logger = logging.getLogger(__name__)
+
+
+def distance_to_region(locdata, region):
+    """
+    Determine the distance to the nearest point within `region` for all localizations.
+    Returns zero if localization is within the region.
+
+    Parameters
+    ----------
+    locdata : LocData
+        Localizations for which distances are determined.
+
+    region : Region
+        Region from which the closest point is selected.
+
+    Returns
+    --------
+    numpy.ndarray
+        Distance for each localization.
+    """
+    distances = np.full(len(locdata), 0.)
+    if isinstance(region, (Region2D, RoiRegion)):
+        for i, point in enumerate(locdata.coordinates):
+            distances[i] = asPoint(point).distance(region.shapely_object)
+    else:
+        raise NotImplementedError("Region must be Region2D object.")
+
+    return distances
+
+
+def distance_to_region_boundary(locdata, region):
+    """
+    Determine the distance to the nearest region boundary for all localizations.
+    Returns a positive value regardless of weather the point is within or outside the region.
+
+    Parameters
+    ----------
+    locdata : LocData
+        Localizations for which distances are determined.
+
+    region : Region
+        Region from which the closest point is selected.
+
+    Returns
+    --------
+    numpy.ndarray
+        Distance for each localization.
+    """
+    distances = np.full(len(locdata), 0.)
+    if isinstance(region, (Region2D, RoiRegion)):
+        for i, point in enumerate(locdata.coordinates):
+            distances[i] = asPoint(point).distance(region.shapely_object.boundary)
+    else:
+        raise NotImplementedError("Region must be Region2D object.")
+
+    return distances
 
 
 def max_distance(locdata):
@@ -34,8 +97,9 @@ def compute_inertia_moments(points):
     """
     Return inertia moments (or principal components) and related properties for the given points.
     Inertia moments are represented by eigenvalues (and corresponding eigenvectors) of the covariance matrix.
-    Variance_explained represents the eigenvalues normalilzed to the sum of all eigenvalues.
-    For 2-dimensional data, orientation is the angle (in degrees) between the principal axis with the largest variance and the x-axis.
+    Variance_explained represents the eigenvalues normalized to the sum of all eigenvalues.
+    For 2-dimensional data, orientation is the angle (in degrees) between the principal axis
+    with the largest variance and the x-axis.
     Also for 2-dimensional data, excentricity is computed as e=Sqrt(1-M_min/M_max).
 
     Parameters
@@ -63,6 +127,7 @@ def compute_inertia_moments(points):
             np.arctan2(eigen_vectors[1][index_max_eigen_value], eigen_vectors[0][index_max_eigen_value]))
         excentricity = np.sqrt(1 - np.min(eigen_values) / np.max(eigen_values))
     else:  # todo implement for 3d
+        logger.warning("Orientation and excentricity have not yet been implemented for 3D.")
         orientation = np.nan
         excentricity = np.nan
 

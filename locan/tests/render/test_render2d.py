@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt  # this import is needed for interactive tests
 from locan.constants import RenderEngine  # this import is needed for interactive tests
 from locan.constants import _has_mpl_scatter_density, _has_napari
 if _has_napari: import napari
-from locan.render.render2d import (render_2d_mpl, render_2d_scatter_density, render_2d_napari, scatter_2d_mpl,
-                                   select_by_drawing_napari)
-from locan.render import render_2d, apply_window
+from locan import render_2d_mpl, render_2d_scatter_density, render_2d_napari, scatter_2d_mpl, select_by_drawing_napari
+from locan.render.render2d import _napari_shape_to_region
+from locan import render_2d, apply_window
 from locan import cluster_dbscan
 
 
@@ -95,14 +95,40 @@ def test_render_2d_napari(locdata_blobs_2d):
     # napari.run()
 
 
+def test__napari_shape_to_region():
+    # rectangle
+    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
+    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
+    region = _napari_shape_to_region(vertices, bin_edges, 'rectangle')
+    assert repr(region) == 'Rectangle((0.0, 2.0), 25.0, 3.0999999999999996, 0)'
+
+    # ellipse
+    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
+    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
+    region = _napari_shape_to_region(vertices, bin_edges, 'ellipse')
+    assert repr(region) == 'Ellipse((12.5, 3.55), 25.0, 3.0999999999999996, 0)'
+
+    # polygon
+    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
+    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
+    region = _napari_shape_to_region(vertices, bin_edges, 'polygon')
+    assert repr(region) == 'Polygon([[0.0, 2.0], [25.0, 2.0], [25.0, 5.1], [0.0, 5.1], [0.0, 2.0]])'
+
+
 @pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_select_by_drawing_napari(locdata_blobs_2d):
     viewer = napari.Viewer()
     viewer.add_shapes(data=((1, 1), (5, 10)), shape_type='rectangle')
     rois = select_by_drawing_napari(locdata_blobs_2d, viewer=viewer, bin_size=100, cmap='viridis', gamma=0.1)
-    # napari.run() is called inside test_select_by_drawing_napari.
+    # No need for napari.run() since it is called inside select_by_drawing_napari.
     assert len(rois) == 1
+
+
+@pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
+def test_select_by_drawing_napari_2(locdata_blobs_2d):
+    roi_list = select_by_drawing_napari(locdata_blobs_2d)
+    print(roi_list)
 
 
 def test_scatter_2d_mpl(locdata_2d):

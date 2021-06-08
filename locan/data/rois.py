@@ -15,6 +15,7 @@ from pathlib import Path
 import warnings
 from itertools import product
 from collections import namedtuple
+import logging
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,10 +31,12 @@ from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 import locan.constants
 import locan.io.io_locdata as io
-from locan.data.region import RoiRegion
+from locan.data.region import *
 
 
 __all__ = ['Roi', 'rasterize']
+
+logger = logging.getLogger(__name__)
 
 
 class _MplSelector:  # pragma: no cover
@@ -51,9 +54,9 @@ class _MplSelector:  # pragma: no cover
     Attributes
     ----------
     rois : List of dict
-        A list of rois where each element is a dict with keys `region_specs` and 'region_type'.
+        A list of rois where each element is a dict with keys `region_specs` and 'region'.
         `region_specs` contain a tuple with specifications for the chosen region type (see ``Roi``).
-        The region_type is a string identifier that can be either rectangle, ellipse, or polygon.
+        The region is a string identifier that can be either rectangle, ellipse, or polygon.
     """
 
     def __init__(self, ax, type='rectangle'):
@@ -112,7 +115,7 @@ class _MplSelector:  # pragma: no cover
             print('Roi was added.')
             region_specs = (np.flip(self.selector.geometry[:, 0]), self.selector.extents[1]-self.selector.extents[0],
                             self.selector.extents[3]-self.selector.extents[2], 0.)
-            self.rois.append({'region_specs': region_specs, 'region_type': self.type})
+            self.rois.append({'region_specs': region_specs, 'region': self.type})
             print('rois: {}'.format(self.rois))
 
         elif event.key in ['+'] and self.selector.active and self.type == 'ellipse':
@@ -120,13 +123,13 @@ class _MplSelector:  # pragma: no cover
             region_specs = (self.selector.center, self.selector.extents[1]-self.selector.extents[0],
                             self.selector.extents[3]-self.selector.extents[2], 0.)
 
-            self.rois.append({'region_specs': region_specs, 'region_type': self.type})
+            self.rois.append({'region_specs': region_specs, 'region': self.type})
             print('rois: {}'.format(self.rois))
 
         elif event.key in ['+'] and self.selector.active and self.type == 'polygon':
             print('Roi was added.')
             vertices_ = self.selector.verts.append(self.selector.verts[0])
-            self.rois.append({'region_specs': vertices_, 'region_type': self.type})
+            self.rois.append({'region_specs': vertices_, 'region': self.type})
             print('rois: {}'.format(self.rois))
 
         else:
@@ -134,6 +137,214 @@ class _MplSelector:  # pragma: no cover
 
 
 class Roi:
+    """
+    Class for a region of interest on LocData (roi).
+
+    Roi objects define a region of interest for a referenced LocData object.
+
+    Parameters
+    ----------
+    region : Region
+        Geometrical region of interest.
+    reference : LocData, dict, locan.data.metadata_pb2.Metadata, None
+        Reference to localization data for which the region of interests are defined. It can be a LocData object,
+        a reference to a saved SMLM file, or None for indicating no specific reference.
+        When referencing a saved SMLM file, reference must be a dict or locan.data.metadata_pb2.Metadata with keys `file_path`
+        and `file_type` for a path pointing to a localization file and an integer or string indicating the file type.
+        Integer or string should be according to locan.constants.FileType.
+    loc_properties : tuple of str
+        Localization properties in LocData object on which the region selection will be applied (for instance the
+        coordinate_labels).
+
+
+    Attributes
+    ----------
+    region : Region
+        Geometrical region of interest.
+    reference : LocData, locan.data.metadata_pb2.Metadata, None
+        Reference to localization data for which the region of interests are defined. It can be a LocData object,
+        a reference (locan.data.metadata_pb2.Metadata) to a saved SMLM file, or None for indicating no specific reference.
+        When referencing a saved SMLM file, reference as attributes `file_path`
+        and `file_type` for a path pointing to a localization file and an integer indicating the file type.
+        The integer should be according to locan.data.metadata_pb2.Metadata.file_type.
+    loc_properties : tuple of str
+        Localization properties in LocData object on which the region selection will be applied (for instance the
+        coordinate_labels).
+    """
+
+    def __init__(self, region, reference=None, loc_properties=()):
+        if isinstance(reference, dict):
+            self.reference = metadata_pb2.Metadata()
+            self.reference.file_path = str(reference['file_path'])
+            ft_ = reference['file_type']
+
+            if isinstance(reference['file_type'], int):
+                self.reference.file_type = ft_
+            elif isinstance(reference['file_type'], str):
+                self.reference.file_type = locan.constants.FileType[ft_.upper()].value
+            elif isinstance(reference['file_type'], locan.constants.FileType):
+                self.reference.file_type = ft_
+            elif isinstance(reference['file_type'], metadata_pb2):
+                self.reference.file_type = ft_.file_type
+            else:
+                raise TypeError
+        elif isinstance(reference, metadata_pb2.Metadata):
+            self.reference = metadata_pb2.Metadata()
+            self.reference.MergeFrom(reference)
+        else:
+            self.reference = reference
+
+        self.region = region
+        self.loc_properties = loc_properties
+
+    def __repr__(self):
+        return f'Roi(reference={self.reference}, ' \
+            f'region={repr(self.region)}, ' \
+            f' loc_properties={self.loc_properties})'
+
+    @property
+    def region(self):
+        return self._region
+
+    @region.setter
+    def region(self, region_):
+        if not isinstance(region_, Region):
+            raise TypeError("An instance of locan.Region must be provided.")
+        self._region = region_
+
+
+    def to_yaml(self, path=None):
+        """
+        Save Roi object in yaml format.
+
+        Parameters
+        ----------
+        path : str, os.PathLike, None
+            Path for yaml file. If None a roi file path is generated from the metadata.
+        """
+
+        # prepare path
+        if path is None and isinstance(self.reference, LocData):
+            _file_path = Path(self.reference.meta.file_path)
+            _roi_file = _file_path.stem + '_roi.yaml'
+            _path = _file_path.with_name(_roi_file)
+        elif path is None and isinstance(self.reference, metadata_pb2.Metadata):
+            _file_path = Path(self.reference.file_path)
+            _roi_file = _file_path.stem + '_roi.yaml'
+            _path = _file_path.with_name(_roi_file)
+        else:
+            _path = Path(path)
+
+        # prepare reference for yaml representation - reference to LocData cannot be represented
+        if self.reference is None:
+            reference_for_yaml = None
+        elif isinstance(self.reference, LocData):
+            if self.reference.meta.file_path:
+                meta_ = metadata_pb2.Metadata()
+                meta_.file_path = self.reference.meta.file_path
+                meta_.file_type = self.reference.meta.file_type
+                reference_for_yaml = json_format.MessageToJson(meta_, including_default_value_fields=False)
+            else:
+                warnings.warn('The localization data has to be saved and the file path provided, '
+                              'or the reference is lost.', UserWarning)
+                reference_for_yaml = None
+        else:
+            reference_for_yaml = json_format.MessageToJson(self.reference, including_default_value_fields=False)
+
+        region_for_yaml = repr(self.region)
+        loc_properties_for_yaml = self.loc_properties
+
+        yaml = YAML()
+        output = dict(reference=reference_for_yaml,
+                      region=region_for_yaml,
+                      loc_properties=loc_properties_for_yaml)
+        yaml.dump(output, _path)
+
+    @classmethod
+    def from_yaml(cls, path):
+        """
+        Read Roi object from yaml format.
+
+        Parameters
+        ----------
+        path : str, os.PathLike
+            Path for yaml file.
+        """
+        yaml = YAML(typ='safe')
+        with open(path) as file:
+            yaml_output = yaml.load(file)
+
+        if yaml_output['reference'] is not None:
+            reference_ = metadata_pb2.Metadata()
+            reference_ = json_format.Parse(yaml_output['reference'], reference_)
+        else:
+            reference_ = yaml_output['reference']
+
+        region_ = eval(yaml_output['region'])
+        loc_properties_ = yaml_output['loc_properties']
+
+        return cls(reference=reference_, region=region_, loc_properties=loc_properties_)
+
+    def locdata(self, reduce=True):
+        """
+        Localization data according to roi specifications.
+
+        The ROI is applied on locdata properties as specified in self.loc_properties or by taking the first
+        applicable locdata.coordinate_labels.
+
+        Parameters
+        ----------
+        reduce : Bool
+            Return the reduced LocData object or keep references alive.
+
+        Returns
+        -------
+        LocData
+            A new instance of LocData with all localizations within region of interest.
+        """
+        local_parameter = locals()
+
+        if isinstance(self.reference, LocData):
+            locdata = self.reference
+        elif isinstance(self.reference, metadata_pb2.Metadata):
+            locdata = io.load_locdata(self.reference.file_path, self.reference.file_type)
+        else:
+            raise AttributeError('Valid reference to locdata is missing.')
+
+        if not len(locdata):
+            logger.warning('Locdata in reference is empty.')
+            new_locdata = locdata
+
+        else:
+            if self.loc_properties:
+                pfr = self.loc_properties
+            else:
+                pfr = locdata.coordinate_labels[0:self.region.dimension]
+
+            points = locdata.data[list(pfr)].values
+            indices_inside = self._region.contains(points)
+
+            locdata_indices_to_keep = locdata.data.index[indices_inside]
+            new_locdata = LocData.from_selection(locdata=locdata, indices=locdata_indices_to_keep)
+            if pfr == new_locdata.coordinate_labels:
+                new_locdata.region = self._region
+            else:
+                new_locdata.region = None
+
+        # finish
+        if reduce:
+            new_locdata.reduce()
+
+        # update metadata
+        meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
+                             parameter=local_parameter,
+                             meta=None)
+        new_locdata.meta = meta_
+
+        return new_locdata
+
+
+class RoiLegacy_0:
     """
     Class for a region of interest on LocData (roi).
 
@@ -182,6 +393,10 @@ class Roi:
     properties_for_roi : tuple of str
         Localization properties in LocData object on which the region selection will be applied (for instance the
         coordinate_labels).
+
+    Warnings
+    --------
+    `RoiLegacy` is deprecated and should only be used to read legacy *roi.yaml files. Use :class:`locan.Roi` instead.
     """
 
     def __init__(self, region_type, region_specs, reference=None, properties_for_roi=()):
@@ -212,9 +427,9 @@ class Roi:
 
     def __repr__(self):
         return f'Roi(reference={self.reference}, ' \
-            f'region_type={self._region.region_type}, ' \
+            f'region={self._region.region_type}, ' \
             f'region_specs={self._region.region_specs},' \
-            f' properties_for_roi={self.properties_for_roi})'
+            f' loc_properties={self.properties_for_roi})'
 
     @property
     def region(self):
@@ -234,6 +449,10 @@ class Roi:
         path : str, os.PathLike, None
             Path for yaml file. If None a roi file path is generated from the metadata.
         """
+        warnings.warn(
+            "RoiLegacy.to_yaml is deprecated, use Roi.to_yaml instead",
+            DeprecationWarning
+        )
 
         # prepare path
         if path is None and isinstance(self.reference, LocData):
@@ -312,7 +531,7 @@ class Roi:
         """
         Localization data according to roi specifications.
 
-        The ROI is applied on locdata properties as specified in self.properties_for_roi or by taking the first
+        The ROI is applied on locdata properties as specified in self.loc_properties or by taking the first
         applicable locdata.coordinate_labels.
 
         Parameters
@@ -334,16 +553,25 @@ class Roi:
         else:
             raise AttributeError('Valid reference to locdata is missing.')
 
-        if self.properties_for_roi:
-            pfr = self.properties_for_roi
-        else:
-            pfr = locdata.coordinate_labels[0:self._region.dimension]
+        if not len(locdata):
+            logger.warning('Locdata in reference is empty.')
+            new_locdata = locdata
 
-        points = locdata.data[list(pfr)].values
-        indices_inside = self._region.contains(points)
-        locdata_indices_to_keep = locdata.data.index[indices_inside]
-        new_locdata = LocData.from_selection(locdata=locdata, indices=locdata_indices_to_keep)
-        new_locdata.region = self._region
+        else:
+            if self.properties_for_roi:
+                pfr = self.properties_for_roi
+            else:
+                pfr = locdata.coordinate_labels[0:self._region.dimension]
+
+            points = locdata.data[list(pfr)].values
+            indices_inside = self._region.contains(points)
+
+            locdata_indices_to_keep = locdata.data.index[indices_inside]
+            new_locdata = LocData.from_selection(locdata=locdata, indices=locdata_indices_to_keep)
+            if pfr == new_locdata.coordinate_labels:
+                new_locdata.region = self._region
+            else:
+                new_locdata.region = None
 
         # finish
         if reduce:
@@ -358,8 +586,8 @@ class Roi:
         return new_locdata
 
 
-# todo generalize to take all properties_for_roi
-def rasterize(locdata, support=None, n_regions=(2, 2, 2), properties_for_roi=()):
+# todo generalize to take all loc_properties
+def rasterize(locdata, support=None, n_regions=(2, 2, 2), loc_properties=()):
     """
     Provide regions of interest by dividing the locdata support in equally sized rectangles.
 
@@ -372,7 +600,7 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2), properties_for_roi=())
         For None intervals are taken from the bounding box.
     n_regions : tuple with size 2 or 3.
         Number of regions in each dimension. E.g. `n_regions` = (2, 2) returns 4 rectangular Roi objects.
-    properties_for_roi : tuple of str
+    loc_properties : tuple of str
         Localization properties in LocData object on which the region selection will be applied.
         (Only implemented for coordinates labels)
 
@@ -384,11 +612,11 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2), properties_for_roi=())
     if len(locdata) == 0:
         raise ValueError('Not implemented for empty LocData objects.')
 
-    if not set(properties_for_roi).issubset(locdata.coordinate_labels):
-        raise ValueError('properties_for_roi must be tuple with coordinate labels.')
+    if not set(loc_properties).issubset(locdata.coordinate_labels):
+        raise ValueError('loc_properties must be tuple with coordinate labels.')
 
-    if properties_for_roi:
-        coordinate_labels_indices = [locdata.coordinate_labels.index(pfr) for pfr in properties_for_roi]
+    if loc_properties:
+        coordinate_labels_indices = [locdata.coordinate_labels.index(pfr) for pfr in loc_properties]
     else:
         coordinate_labels_indices = range(len(n_regions))
 
@@ -410,9 +638,7 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2), properties_for_roi=())
 
     # specify regions
     if len(n_regions) == 2:
-        region_type = 'rectangle'
-        RegionSpecs = namedtuple('RegionSpecs', 'corner width height angle')
-        region_specs_list = [RegionSpecs(corner, *widths, 0) for corner in corners]
+        regions = [Rectangle(corner, *widths, 0) for corner in corners]
 
     elif len(n_regions) == 3:
         raise NotImplementedError('Computation for 3D has not been implemented, yet.')
@@ -420,7 +646,6 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2), properties_for_roi=())
     else:
         raise ValueError('The shape of n_regions is incompatible.')
 
-    new_rois = tuple([Roi(reference=locdata, region_specs=region_specs,
-                          region_type=region_type, properties_for_roi=properties_for_roi)
-                      for region_specs in region_specs_list])
+    new_rois = tuple([Roi(reference=locdata, region=reg, loc_properties=loc_properties)
+                      for reg in regions])
     return new_rois

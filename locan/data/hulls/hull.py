@@ -8,9 +8,9 @@ and related properties for LocData objects.
 """
 import numpy as np
 import scipy.spatial as spat
-from shapely.geometry import LineString, MultiPoint
+from shapely.geometry import MultiPoint as shMultiPoint
 
-from locan.data.region import RoiRegion
+from locan.data.region import Rectangle, Polygon
 
 
 __all__ = ['BoundingBox', 'ConvexHull', 'OrientedBoundingBox']
@@ -70,7 +70,8 @@ class BoundingBox:
     @property
     def region(self):
         if self.dimension == 2:
-            region_ = RoiRegion(region_type='rectangle', region_specs=(self.hull[0], self.width[0], self.width[1], 0))
+            region_ = Rectangle(self.hull[0], self.width[0], self.width[1], 0)
+            # region_ = RoiRegion(region_type='rectangle', region_specs=(self.hull[0], self.width[0], self.width[1], 0))
         else:
             raise NotImplementedError
         return region_
@@ -103,8 +104,8 @@ class _ConvexHullScipy:
         hull measure, i.e. area or volume
     subregion_measure : float
         measure of the sub-dimensional region, i.e. circumference or surface
-    region : RoiRegion
-        Convert the hull to a RoiRegion object.
+    region : Region
+        Convert the hull to a Region object.
     """
 
     def __init__(self, points):
@@ -130,9 +131,9 @@ class _ConvexHullScipy:
         if self.dimension > 2:
             raise NotImplementedError('Region for 3D data has not yet been implemented.')
         else:
-            closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
-            region_ = RoiRegion(region_type='polygon', region_specs=closed_vertices)
-            return region_
+            # closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
+            # region_ = RoiRegion(region_type='polygon', region_specs=closed_vertices)
+            return Polygon(self.vertices)
 
 
 class _ConvexHullShapely:
@@ -175,7 +176,7 @@ class _ConvexHullShapely:
         if self.dimension >= 3:
             raise TypeError('ConvexHullShapely only takes 1 or 2-dimensional points as input.')
 
-        self.hull = MultiPoint(points).convex_hull
+        self.hull = shMultiPoint(points).convex_hull
         # todo: set vertex_indices
         # self.vertex_indices = None
         self.points_on_boundary = len(self.hull.exterior.coords)-1  # the first point is repeated in exterior.coords
@@ -192,9 +193,9 @@ class _ConvexHullShapely:
         if self.dimension > 2:
             raise NotImplementedError('Region for 3D data has not yet been implemented.')
         else:
-            closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
-            region_ = RoiRegion(region_type='polygon', region_specs=closed_vertices)
-            return region_
+            #  closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
+            # region_ = RoiRegion(region_type='polygon', region_specs=closed_vertices)
+            return Polygon(self.vertices)
 
 
 class ConvexHull:
@@ -228,8 +229,8 @@ class ConvexHull:
         hull measure, i.e. area or volume
     subregion_measure : float
         measure of the sub-dimensional region, i.e. circumference or surface
-    region : RoiRegion
-        Convert the hull to a RoiRegion object.
+    region : Region
+        Convert the hull to a Region object.
     """
 
     def __init__(self, points, method='scipy'):
@@ -273,8 +274,8 @@ class OrientedBoundingBox:
         hull measure, i.e. area or volume
     subregion_measure : float
         measure of the sub-dimensional region, i.e. circumference or surface
-    region : RoiRegion
-        Convert the hull to a RoiRegion object.
+    region : Region
+        Convert the hull to a Region object.
     angle : float
         Orientation defined as angle (in degrees) between the vector from first to last point and x-axis.
     
@@ -293,7 +294,7 @@ class OrientedBoundingBox:
             self.angle = np.nan
             self.elongation = np.nan
         else:
-            self.hull = MultiPoint(points).minimum_rotated_rectangle
+            self.hull = shMultiPoint(points).minimum_rotated_rectangle
             difference = np.diff(self.vertices[0:3], axis=0)
             self.width = np.array([np.linalg.norm(difference[0]), np.linalg.norm(difference[1])])
             self.region_measure = self.hull.area
@@ -309,8 +310,8 @@ class OrientedBoundingBox:
     @property
     def region(self):
         if self.dimension == 2:
-            region_ = RoiRegion(region_type='rectangle',
-                                region_specs=(self.vertices[0], self.width[0], self.width[1], self.angle))
+            # region_ = RoiRegion(region_type='rectangle',
+            #                     region_specs=(self.vertices[0], self.width[0], self.width[1], self.angle))
+            return Rectangle(self.vertices[0], self.width[0], self.width[1], self.angle)
         else:
             raise NotImplementedError
-        return region_

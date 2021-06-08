@@ -10,16 +10,16 @@ import sys
 
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
-import matplotlib.path as mpath
 
 from locan.data.locdata import LocData
-from locan.constants import N_JOBS
+from locan.constants import N_JOBS, HullType
 from locan.data.metadata_utils import _modify_meta
 from locan.data.rois import Roi
+from locan.data.region import Region, Region2D, RoiRegion
 
 
 __all__ = ['select_by_condition', 'select_by_region', 'select_by_image_mask', 'exclude_sparse_points',
-           'random_subset']
+           'random_subset', 'localizations_in_cluster_regions']
 
 
 def select_by_condition(locdata, condition):
@@ -55,38 +55,59 @@ def select_by_condition(locdata, condition):
     return new_locdata
 
 
-def select_by_region(locdata, region, properties_for_roi=(), reduce=True):
+def select_by_region(locdata, region, loc_properties=None, reduce=True):
     """
-    Select localizations within specified region of interest.
+    Select localizations from `locdata` that are within `region` and return a new LocData object.
+    Selection is with respect to loc_properties or to localization coordinates that correspond to region dimension.
 
     Parameters
     ----------
     locdata : LocData
-        Specifying the localization data from which to select localization data.
-    region : RoiRegion Object, or dict
-        Region of interest as specified by RoiRegion or dictionary with keys `region_specs` and `region_type`.
-        Allowed values for `region_specs` and `region_type` are defined in the docstrings for `Roi` and `RoiRegion`.
-    properties_for_roi : tuple of string
-        Localization properties in LocData object on which the region selection will be applied (for instance the
-        coordinate_labels).
+        Localization data that is tested for being inside the region.
+    region : Region
+        Tested region
+    loc_properties : list of string or None
+        Localization properties to be tested.
     reduce : Bool
         Return the reduced LocData object or keep references alive.
 
     Returns
     -------
     LocData
-        New instance of LocData referring to the specified dataset.
+        A new instance of LocData with all localizations within region of interest.
+
+    Note
+    ----
+    Points on boundary of regions are considered outside if region is a shapely object but inside if region is a
+    matplotlib (which is the case for RoiRegion) object.
     """
-    if isinstance(region, dict):
-        roi = Roi(reference=locdata, region_specs=region['region_specs'], region_type=region['region_type'],
-                  properties_for_roi=properties_for_roi)
+    local_parameter = locals()
+
+    if loc_properties is None:
+        loc_properties_ = locdata.coordinate_labels[0:region.dimension]
     else:
-        roi = Roi(reference=locdata, region_specs=region.region_specs, region_type=region.region_type,
-                  properties_for_roi=properties_for_roi)
+        loc_properties_ = loc_properties
 
-    new_locdata = roi.locdata(reduce=reduce)
+    points = locdata.data[list(loc_properties_)].values
 
-    # meta is updated by roi.locdata() function. No further updates needed.
+    if isinstance(region, (Region2D, RoiRegion)):
+        indices_inside = region.contains(points)
+        locdata_indices_to_keep = locdata.data.index[indices_inside]
+        new_locdata = LocData.from_selection(locdata=locdata, indices=locdata_indices_to_keep)
+        new_locdata.region = region
+    else:
+        raise NotImplementedError("Only Region2D has been implemented.")
+
+    # finish
+    if reduce:
+        new_locdata.reduce()
+
+    # update metadata
+    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
+                         parameter=local_parameter,
+                         meta=None)
+    new_locdata.meta = meta_
+
     return new_locdata
 
 
@@ -117,7 +138,7 @@ def exclude_sparse_points(locdata, other_locdata=None, radius=50, min_samples=5)
 
     A subset of localizations, that exhibit a small local density of localizations from locdata or alternatively from
     other_locdata, is identified as noise and excluded.
-    Noise is identified by using a nearest-neighbor search (sklearn.neighbors.NearestNeighbors) to find all
+    Noise is identified by using a nearest-neighbor search (:class:`sklearn.neighbors.NearestNeighbors`) to find all
     localizations within a circle (sphere) of the given `radius`. If the number of localizations is below the
     threshold value `min_samples`, the localization is considered to be noise.
 
@@ -170,7 +191,7 @@ def exclude_sparse_points(locdata, other_locdata=None, radius=50, min_samples=5)
     return new_locdata
 
 
-def random_subset(locdata, n_points):
+def random_subset(locdata, n_points, replace=True, seed=None):
     """
     Take a random subset of localizations.
 
@@ -180,6 +201,10 @@ def random_subset(locdata, n_points):
         Specifying the localization data from which to select localization data.
     n_points : int
         Number of localizations to randomly choose from locdata.
+    replace : bool
+        Indicate if sampling is with or without replacement
+    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+        Random number generation seed
 
     Returns
     -------
@@ -188,7 +213,9 @@ def random_subset(locdata, n_points):
     """
     local_parameter = locals()
 
-    indices = np.random.choice(locdata.data.index, size=n_points)
+    rng = np.random.default_rng(seed)
+
+    indices = rng.choice(locdata.data.index, size=n_points, replace=replace)
     new_locdata = LocData.from_selection(locdata, indices)
 
     # update metadata
@@ -197,3 +224,46 @@ def random_subset(locdata, n_points):
     new_locdata = LocData.from_selection(locdata, indices, meta=meta_)
 
     return new_locdata
+
+
+def localizations_in_cluster_regions(locdata, collection, hull_type=HullType.CONVEX_HULL):
+    """
+    Identify localizations from `locdata` within the regions of all `collection` elements.
+
+    Parameters
+    ----------
+    locdata : LocData
+        Localization data that is tested for being inside the region
+
+    collection : LocData or list(LocData)
+        A set of Locdata objects collected in a collection or list.
+
+    hull_type : HullType
+        The hull type for each LocData object that is used to define the region.
+
+    Returns
+    --------
+    LocData
+        A collection of LocData objects with all elements of locdata contained by the region.
+    """
+    locdatas = []
+    if isinstance(collection, LocData):
+        if isinstance(collection.references, list):  # this case covers pure collections
+            for ref in collection.references:
+                cregion = getattr(ref, hull_type.value).region
+                locdata_selection = select_by_region(locdata=locdata, region=cregion)
+                locdatas.append(locdata_selection)
+        else:  # this case covers selections of collections
+            for index in collection.indices:
+                cregion = getattr(collection.references.references[index], hull_type.value).region
+                locdata_selection = select_by_region(locdata=locdata, region=cregion)
+                locdatas.append(locdata_selection)
+    else:  # this case covers list of LocData objects
+        for ref in collection:
+            cregion = getattr(ref, hull_type.value).region
+            locdata_selection = select_by_region(locdata=locdata, region=cregion)
+            locdatas.append(locdata_selection)
+
+    new_collection = LocData.from_collection(locdatas)
+
+    return new_collection

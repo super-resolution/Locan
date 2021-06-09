@@ -45,6 +45,7 @@ Tutorials are provided as Jupyter notebooks.
    Example <./notebooks/Analysis_example>
    How to use an analysis class <./notebooks/Analysis_how_to_use_an_analysis_class>
    Analysis pipeline <./notebooks/Analysis_pipeline>
+   Multiprocessing <./notebooks/Multiprocessing_with_ray>
 
 
 .. toctree::

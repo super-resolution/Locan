@@ -605,7 +605,7 @@ def make_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0,
         samples.append(offspring_samples)
         labels += [i] * len(offspring_samples)
 
-    samples = np.concatenate(samples)
+    samples = np.concatenate(samples) if np.size(samples) != 0 else np.array([])
     labels = np.array(labels)
 
     if clip is True:
@@ -762,7 +762,7 @@ def make_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
         samples.append(offspring_samples)
         labels += [i] * len(offspring_samples)
 
-    samples = np.concatenate(samples)
+    samples = np.concatenate(samples) if np.size(samples) != 0 else np.array([])
     labels = np.array(labels)
 
     if clip is True:

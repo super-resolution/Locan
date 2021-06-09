@@ -94,6 +94,9 @@ def test_make_Poisson():
     samples = make_Poisson(intensity=10, region=EmptyRegion(), seed=rng)
     assert np.size(samples) == 0
 
+    samples = make_Poisson(intensity=1e-10, region=(0, 1), seed=rng)
+    assert np.size(samples) == 0
+
     samples = make_Poisson(intensity=10, region=(0, 1), seed=rng)
     assert samples.shape[1] == 1
     assert np.all(0 <= samples[:, 0])
@@ -171,6 +174,9 @@ def test_make_cluster():
     rng = np.random.default_rng(seed=1)
 
     samples, labels, parent_samples, region = make_cluster(centers=10, region=EmptyRegion(), seed=rng)
+    assert np.size(samples) == 0
+
+    samples, labels, parent_samples, region = make_cluster(centers=0, region=(0, 1), seed=rng)
     assert np.size(samples) == 0
 
     samples, labels, parent_samples, region = make_cluster(centers=10, region=(0, 1), expansion_distance=1,
@@ -354,6 +360,9 @@ def test_make_NeymanScott():
     samples, labels, parent_samples, region = make_NeymanScott(parent_intensity=10, region=EmptyRegion(), seed=rng)
     assert np.size(samples) == 0
 
+    samples, labels, parent_samples, region = make_NeymanScott(parent_intensity=1e-10, region=(0, 1), seed=rng)
+    assert np.size(samples) == 0
+
     samples, labels, parent_samples, region = make_NeymanScott(parent_intensity=10, region=(0, 1),
                                                        expansion_distance=1,
                                                        offspring=None,
@@ -521,6 +530,9 @@ def test_make_Matern():
     samples, labels, parent_samples, region = make_Matern(parent_intensity=10, region=EmptyRegion(), seed=rng)
     assert np.size(samples) == 0
 
+    samples, labels, parent_samples, region = make_Matern(parent_intensity=1e-10, region=(0, 10), seed=rng)
+    assert np.size(samples) == 0
+
     samples, labels, parent_samples, region = make_Matern(parent_intensity=10, region=(0, 10),
                                                   cluster_mu=10, radius=1.0,
                                                   clip=False, shuffle=False, seed=rng)
@@ -653,6 +665,9 @@ def test_make_Thomas():
     rng = np.random.default_rng(seed=1)
 
     samples, labels, parent_samples, region = make_Thomas(parent_intensity=10, region=EmptyRegion(), seed=rng)
+    assert np.size(samples) == 0
+
+    samples, labels, parent_samples, region = make_Thomas(parent_intensity=1e-10, region=(0, 10), seed=rng)
     assert np.size(samples) == 0
 
     samples, labels, parent_samples, region = make_Thomas(parent_intensity=10, region=(0, 10),

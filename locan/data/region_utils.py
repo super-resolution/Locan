@@ -6,7 +6,7 @@ See Also
 --------
 :func:`locan.data.filter.select_by_region`
 :func:`locan.data.properties.misc.distance_to_region`
-:func:`locan.data.properties.misc.`distance_to_region_boundary`
+:func:`locan.data.properties.misc.distance_to_region_boundary`
 """
 from shapely.ops import unary_union
 
@@ -76,7 +76,7 @@ def surrounding_region(region, distance=100, support=None, **kwargs):
     Define surrounding region by extending a region and returning the extended region excluding the input region.
     If region contains a list of regions, the unification of all extended regions is returned.
 
-     Parameters
+    Parameters
     ----------
     region : Region
         Original region(s)

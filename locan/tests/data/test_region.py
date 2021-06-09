@@ -87,6 +87,8 @@ def test_EmptyRegion():
 
 def test_Interval():
     region = Interval()
+    assert not (2 in region)
+    assert 0.5 in region
     assert isinstance(region, Region)
     assert repr(region) == 'Interval(0, 1)'
     assert str(region) == 'Interval(0, 1)'
@@ -126,6 +128,8 @@ def test_Interval():
 
 def test_Rectangle():
     region = Rectangle((0, 0), 2, 1, 90)
+    assert not ((10, 1) in region)
+    assert (-0.5, 0.5) in region
     assert isinstance(region, Region)
     assert repr(region) == 'Rectangle((0, 0), 2, 1, 90)'
     assert str(region) == 'Rectangle((0, 0), 2, 1, 90)'
@@ -182,6 +186,8 @@ def test_Rectangle():
 
 def test_Ellipse():
     region = Ellipse((10, 10), 4, 2, 90)
+    assert not ((1, 1) in region)
+    assert (10, 10) in region
     assert isinstance(region, Region)
     assert repr(region) == 'Ellipse((10, 10), 4, 2, 90)'
     assert str(region) == 'Ellipse((10, 10), 4, 2, 90)'
@@ -195,7 +201,7 @@ def test_Ellipse():
     assert region.dimension == 2
     assert region.bounds == pytest.approx((9, 8, 11, 12))
     assert region.extent == pytest.approx((2, 4))
-    assert len(region.points) == 65
+    assert (len(region.points) == 65 or len(region.points) == 66)
     assert region.centroid == (10, 10)
     assert region.max_distance == 4
     assert region.region_measure == pytest.approx(6.283185307179586)
@@ -228,6 +234,8 @@ def test_Ellipse():
 def test_Polygon():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
     region = Polygon(points)
+    assert not ((10, 1) in region)
+    assert (0.5, 0.5) in region
     assert np.array_equal(region.points, points)
     assert repr(region) == 'Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5], [0.0, 0.0]])'
     region = Polygon(points[:-1])
@@ -360,6 +368,8 @@ def test_MultiPolygon():
     holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
     region_1 = Polygon(points, holes)
     region = MultiPolygon([region_0, region_1])
+    assert not ((10, 1) in region)
+    assert (0.2, 0.8) in region
     assert isinstance(region, Region)
     assert repr(region) == 'MultiPolygon([Polygon([[2.0, 2.0], [2.0, 3.0], [3.0, 3.0], [3.0, 2.5], [2.0, 2.0]]), Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5], [0.0, 0.0]], [[[0.2, 0.2], [0.2, 0.3], [0.3, 0.3], [0.3, 0.25]], [[0.4, 0.4], [0.4, 0.5], [0.5, 0.5], [0.5, 0.45]]])])'
     assert str(region) == 'MultiPolygon(<self.polygons>)'
@@ -536,6 +546,8 @@ def test_Polygon_difference():
 
 def test_AxisOrientedCuboid():
     region = AxisOrientedCuboid((1, 1, 1), 9, 19, 29)
+    assert not ((-1, 1, 1) in region)
+    assert (2, 2, 2) in region
     assert isinstance(region, Region)
     assert isinstance(region, Region3D)
     assert repr(region) == 'AxisOrientedCuboid((1, 1, 1), 9, 19, 29)'
@@ -581,7 +593,7 @@ def test_AxisOrientedCuboid():
     assert repr(region) == 'AxisOrientedCuboid((1, 1, 1), 9, 19, 29)'
 
 
-def test_AxisOrientedCuboid():
+def test_Cuboid():
     region = Cuboid((1, 1, 1), 9, 19, 29, 0, 0, 0)
     assert isinstance(region, Region)
     assert isinstance(region, Region3D)
@@ -625,6 +637,8 @@ def test_AxisOrientedCuboid():
 
 def test_AxisOrientedHypercuboid():
     region = AxisOrientedHypercuboid((1, 1, 1), (9, 19, 29))
+    assert not ((-1, 1, 1) in region)
+    assert (2, 2, 2) in region
     assert isinstance(region, Region)
     assert repr(region) == 'AxisOrientedHypercuboid((1, 1, 1), (9, 19, 29))'
     assert str(region) == 'AxisOrientedHypercuboid((1, 1, 1), (9, 19, 29))'

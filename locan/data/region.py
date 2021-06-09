@@ -2,7 +2,7 @@
 
 Regions as support for localization data.
 
-This module provides classes to define regions for localization data.
+This module provides classes to define geometric regions for localization data.
 All region classes inherit from the abstract base class `Region`.
 
 """
@@ -23,26 +23,31 @@ from shapely.prepared import prep
 from shapely.affinity import scale, rotate, translate
 
 
-__all__ = ['Region', 'Region1D', 'Region2D', 'Region3D', 'RegionND', 'EmptyRegion',
-           'Interval',
-           'Rectangle', 'Ellipse', 'Polygon', 'MultiPolygon',
-           'AxisOrientedCuboid', 'Cuboid',
-           'AxisOrientedHypercuboid'
+__all__ = ['Region', 'EmptyRegion',
+           'Region1D', 'Interval',
+           'Region2D', 'Rectangle', 'Ellipse', 'Polygon', 'MultiPolygon',
+           'Region3D', 'AxisOrientedCuboid', 'Cuboid',
+           'RegionND', 'AxisOrientedHypercuboid'
            ]
 
 # __all__ += ['Ellipsoid' 'Polyhedron']
 # __all__ += ['Polytope']
 
-__all__ += ['RoiRegion']
+__all__ += ['RoiRegion']  # legacy code that is only needed for legacy _roi.yml files.
 
 
 class RoiRegion:
     """
-    Region object to specify regions of interest.
+    Deprecated Region object to specify regions of interest.
 
     A region that defines a region of interest with methods for getting a printable representation (that can also be
     saved in a yaml file), for returning a matplotlib patch that can be shown in a graph, for finding points within
     the region.
+
+    Warnings
+    ________
+    This class is to be deprecated and should only be used to deal with legacy _roi.yaml files.
+    Use Region classes instead.
 
     Parameters
     ----------
@@ -184,29 +189,27 @@ class RoiRegion:
 
 class Region(ABC):
     """
-       Region object to specify geometric objects that represent regions of interest.
-
-       Attributes
-       ----------
-       dimension : int
-           Spatial dimension of region
-       points : numpy.ndarray of tuples
-           Array of points for a closed polygon approximating the region of interest in clockwise orientation. The first
-           and last point are identical.
-       centroid : tuple of float
-           Centroid coordinates
-       max_distance : array-like of float
-           Maximum distance between any two points in the region
-       region_measure : float
-           Hull measure, i.e. area or volume
-       subregion_measure : float
-           Measure of the sub-dimensional region, i.e. circumference or surface.
-       """
+       Abstract Region class to define the interface for Region-derived classes that specify geometric objects
+       to represent regions of interest.
+    """
     def __repr__(self):
         return f'{self.__class__.__name__}(...)'
 
     @classmethod
     def from_intervals(cls, intervals):
+        """
+        Constructor for instantiating Region from list of (min, max) bounds.
+        Takes array-like intervals instead of interval to be consistent with `Rectangle.from_intervals`.
+
+        Parameters
+        ----------
+        intervals : array-like of shape (2,)
+            The region bounds for each dimension
+
+        Returns
+        -------
+            Interval
+        """
         if np.shape(intervals) == (2,):
             return Interval.from_intervals(intervals)
         elif np.shape(intervals) == (2, 2):
@@ -221,52 +224,109 @@ class Region(ABC):
     @property
     @abstractmethod
     def dimension(self):
-        """Region dimension"""
-        pass
+        """
+        The region dimension.
 
-    @property
-    @abstractmethod
-    def points(self):
-        """Tuple of point coordinates."""
-        pass
-
-    @property
-    @abstractmethod
-    def centroid(self):
-        """Tuple of coordinates for region centroid."""
-        pass
-
-    @property
-    @abstractmethod
-    def max_distance(self):
-        """The maximum distance between any two points within the region."""
-        pass
-
-    @property
-    @abstractmethod
-    def region_measure(self):
-        pass
-
-    @property
-    @abstractmethod
-    def subregion_measure(self):
+        Returns
+        -------
+        int
+        """
         pass
 
     @property
     @abstractmethod
     def bounds(self):
-        """Tuple of min_x, min_y, ..., max_x, max_y, ..."""
+        """
+        Region bounds min_x, min_y, ..., max_x, max_y, ... for each dimension.
+
+        Returns
+        -------
+        tuple of shape (2 * dimension,)
+        """
         pass
 
     @property
     @abstractmethod
     def extent(self):
-        """Tuple of absolute differences for bounds in each dimension."""
+        """
+        The extent (max_x - min_x), (max_y - min_y), ... for each dimension.
+
+        Returns
+        -------
+        tuple or numpy-array of shape (dimension,)
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def points(self):
+        """
+        Point coordinates.
+
+        Returns
+        -------
+        tuple or numpy-array of shape (n_points, dimension)
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def centroid(self):
+        """
+        Point coordinates for region centroid.
+
+        Returns
+        -------
+        tuple or numpy-array of shape (dimension,)
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def max_distance(self):
+        """
+        The maximum distance between any two points within the region.
+
+        Returns
+        -------
+        float
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def region_measure(self):
+        """
+        Region measure, i.e. area (for 2d) or volume (for 3d).
+
+        Returns
+        -------
+        float
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def subregion_measure(self):
+        """
+        Measure of the sub-dimensional region, i.e. circumference (for 2d) or surface (for 3d).
+
+        Returns
+        -------
+        float
+        """
         pass
 
     @property
     @abstractmethod
     def bounding_box(self):
+        """
+        A region describing the minimum axis-aligned bounding box that encloses the original region.
+
+        Returns
+        -------
+        Region
+        """
         pass
 
     @abstractmethod
@@ -274,6 +334,15 @@ class Region(ABC):
         """
         Returns a region representing the intersection of this region with
         ``other``.
+
+        Parameters
+        ----------
+        other : Region
+            Other region
+
+        Returns
+        -------
+        Region
         """
         raise NotImplementedError
 
@@ -282,6 +351,15 @@ class Region(ABC):
         """
         Returns the union of the two regions minus any areas contained in the
         intersection of the two regions.
+
+        Parameters
+        ----------
+        other : Region
+            Other region
+
+        Returns
+        -------
+        Region
         """
         raise NotImplementedError
 
@@ -289,6 +367,15 @@ class Region(ABC):
     def union(self, other):
         """
         Returns a region representing the union of this region with ``other``.
+
+        Parameters
+        ----------
+        other : Region
+            Other region
+
+        Returns
+        -------
+        Region
         """
         raise NotImplementedError
 
@@ -318,6 +405,35 @@ class Region(ABC):
         """
         pass
 
+    def __contains__(self, item):
+        return True if list(self.contains([item])) == [0] else False
+
+    @abstractmethod
+    def buffer(self, distance):
+        """
+        Extend the region perpendicular by a `distance`.
+
+        Parameters
+        ----------
+        distance : float
+            Distance by which the region is extended.
+
+        Returns
+        -------
+        Polygon
+            The extended region.
+        """
+        pass
+
+
+class Region1D(Region):
+    """
+       Abstract Region class to define the interface for 1-dimensional Region classes.
+    """
+    @property
+    def dimension(self):
+        return 1
+
     @abstractmethod
     def as_artist(self, origin=(0, 0), **kwargs):
         """
@@ -338,51 +454,20 @@ class Region(ABC):
         """
         pass
 
-    @abstractmethod
-    def buffer(self, distance, **kwargs):
-        """
-        Extend the region perpendicular by a distance.
-
-        Parameters
-        ----------
-        distance : float
-            Distance by which the region is extended.
-        kwargs : dict
-            Other parameters passed to :func:`shapely.geometry.buffer` for :class:`Region2D`.
-
-        Returns
-        -------
-        Polygon
-            The extended region.
-        """
-        pass
-
-
-class Region1D(Region):
-
     def intersection(self, other):
-        """
-        Returns a region representing the intersection of this region with
-        ``other``.
-        """
         raise NotImplementedError
 
     def symmetric_difference(self, other):
-        """
-        Returns the union of the two regions minus any areas contained in the
-        intersection of the two regions.
-        """
         raise NotImplementedError
 
     def union(self, other):
-        """
-        Returns a region representing the union of this region with ``other``.
-        """
         raise NotImplementedError
 
 
 class Region2D(Region):
-
+    """
+       Abstract Region class to define the interface for 2-dimensional Region classes.
+    """
     def __getstate__(self):
         state = self.__dict__.copy()
         del state['_shapely_object']
@@ -391,6 +476,10 @@ class Region2D(Region):
     def __setstate__(self, state):
         self.__dict__.update(state)
         self.__dict__['_shapely_object'] = None
+
+    @property
+    def dimension(self):
+        return 2
 
     @property
     def bounds(self):
@@ -410,53 +499,54 @@ class Region2D(Region):
     @property
     @abstractmethod
     def shapely_object(self):
+        """
+        Geometric object as defined in `shapely`.
+
+        Returns
+        -------
+        Shapely object
+        """
         pass
 
     @staticmethod
     def from_shapely(shapely_object):
+        """
+        Constructor for instantiating Region from `shapely` object.
+
+        Parameters
+        ----------
+        shapely_object `shapely`
+            Geometric object to be converted into Region
+
+        Returns
+        -------
+        Region
+        """
         ptype = shapely_object.geom_type
         if ptype == 'Polygon':
             return Polygon.from_shapely(shapely_object)
         elif ptype == 'MultiPolygon':
             return MultiPolygon.from_shapely(shapely_object)
 
-    def intersection(self, other):
+    @abstractmethod
+    def as_artist(self, origin=(0, 0), **kwargs):
         """
-        Returns a region representing the intersection of this region with
-        ``other``.
-        """
-        shapely_obj = self.shapely_object.intersection(other.shapely_object)
-        return Region2D.from_shapely(shapely_obj)
-
-    def symmetric_difference(self, other):
-        """
-        Returns the union of the two regions minus any areas contained in the
-        intersection of the two regions.
-        """
-        shapely_obj = self.shapely_object.symmetric_difference(other.shapely_object)
-        return Region2D.from_shapely(shapely_obj)
-
-    def union(self, other):
-        """
-        Returns a region representing the union of this region with ``other``.
-        """
-        shapely_obj = self.shapely_object.union(other.shapely_object)
-        return Region2D.from_shapely(shapely_obj)
-
-    def buffer(self, distance, **kwargs):
-        """
-        Extend region using the shapely buffer method.
+        Matplotlib patch object for this region (e.g. `matplotlib.patches.Ellipse`).
 
         Parameters
         ----------
-        distance
-        kwargs
+        origin : array_like
+            The (x, y) pixel position of the origin of the displayed image.
+            Default is (0, 0).
+        kwargs : dict
+            Other parameters passed to the `matplotlib.patches` object.
 
         Returns
         -------
-
+        patch : matplotlib.patches
+            Matplotlib patch for the specified region.
         """
-        return Region2D.from_shapely(self.shapely_object.buffer(distance, **kwargs))
+        pass
 
     def plot(self, ax=None, **kwargs):
         """
@@ -485,36 +575,123 @@ class Region2D(Region):
 
         return ax
 
+    def intersection(self, other):
+        shapely_obj = self.shapely_object.intersection(other.shapely_object)
+        return Region2D.from_shapely(shapely_obj)
+
+    def symmetric_difference(self, other):
+        shapely_obj = self.shapely_object.symmetric_difference(other.shapely_object)
+        return Region2D.from_shapely(shapely_obj)
+
+    def union(self, other):
+        shapely_obj = self.shapely_object.union(other.shapely_object)
+        return Region2D.from_shapely(shapely_obj)
+
+    def buffer(self, distance, **kwargs):
+        """
+        Extend the region perpendicular by a `distance`.
+
+        Parameters
+        ----------
+        distance : float
+            Distance by which the region is extended.
+        kwargs : dict
+            Other parameters passed to :func:`shapely.geometry.buffer`.
+
+        Returns
+        -------
+        Polygon
+            The extended region.
+        """
+        return Region2D.from_shapely(self.shapely_object.buffer(distance, **kwargs))
+
 
 class Region3D(Region):
+    """
+       Abstract Region class to define the interface for 3-dimensional Region classes.
+    """
+    @property
+    def dimension(self):
+        return 3
+
+    @abstractmethod
+    def as_artist(self, origin=(0, 0), **kwargs):
+        """
+        Matplotlib patch object for this region (e.g. `matplotlib.patches.Ellipse`).
+
+        Parameters
+        ----------
+        origin : array_like
+            The (x, y) pixel position of the origin of the displayed image.
+            Default is (0, 0).
+        kwargs : dict
+            Other parameters passed to the `matplotlib.patches` object.
+
+        Returns
+        -------
+        patch : matplotlib.patches
+            Matplotlib patch for the specified region.
+        """
+        pass
+
+    def plot(self, ax=None, **kwargs):
+        """
+        Provide plot of region as :class:`matplotlib.axes.Axes` object.
+
+        Parameters
+        ----------
+        ax : :class:`matplotlib.axes.Axes`
+            The axes on which to show the image
+        kwargs : dict
+            Other parameters passed to the `matplotlib.patches` object.
+
+        Returns
+        -------
+        :class:`matplotlib.axes.Axes`
+            Axes object with the plot.
+        """
+        if ax is None:
+            ax = plt.gca()
+
+        if not self:
+            return ax
+
+        artist = self.as_artist(**kwargs)
+        ax.add_artist(artist)
+
+        return ax
 
     def intersection(self, other):
-        """
-        Returns a region representing the intersection of this region with
-        ``other``.
-        """
         raise NotImplementedError
 
     def symmetric_difference(self, other):
-        """
-        Returns the union of the two regions minus any areas contained in the
-        intersection of the two regions.
-        """
         raise NotImplementedError
 
     def union(self, other):
-        """
-        Returns a region representing the union of this region with ``other``.
-        """
         raise NotImplementedError
 
 
 class RegionND(Region):
-    pass
+    """
+       Abstract Region class to define the interface for n-dimensional Region classes.
+    """
+    def as_artist(self):
+        raise NotImplementedError
+
+    def intersection(self, other):
+        raise NotImplementedError
+
+    def symmetric_difference(self, other):
+        raise NotImplementedError
+
+    def union(self, other):
+        raise NotImplementedError
 
 
 class EmptyRegion(Region):
-
+    """
+       Region class to define an empty region that has no dimension.
+    """
     def __init__(self):
         self.shapely_object = shPolygon()
 
@@ -523,12 +700,6 @@ class EmptyRegion(Region):
 
     def __str__(self):
         return f'{self.__class__.__name__}()'
-
-    def __getattr__(self, attr):
-        """All non-adapted calls are passed to the object"""
-        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
-            raise AttributeError
-        return getattr(self.shapely_object, attr)
 
     @property
     def dimension(self):
@@ -567,23 +738,12 @@ class EmptyRegion(Region):
         return None
 
     def intersection(self, other):
-        """
-        Returns a region representing the intersection of this region with
-        ``other``.
-        """
         return EmptyRegion()
 
     def symmetric_difference(self, other):
-        """
-        Returns the union of the two regions minus any areas contained in the
-        intersection of the two regions.
-        """
         return other
 
     def union(self, other):
-        """
-        Returns a region representing the union of this region with ``other``.
-        """
         return other
 
     def contains(self, points):
@@ -593,17 +753,27 @@ class EmptyRegion(Region):
         raise NotImplementedError("EmptyRegion cannot return an artist.")
 
     def buffer(self, distance, **kwargs):
-        raise NotImplementedError("An empty region cannot be extended.")
+        raise NotImplementedError("EmptyRegion cannot be extended.")
 
     @classmethod
     def from_shapely(cls, polygon):
         if polygon.is_empty:
             return cls()
         else:
-            raise TypeError("polygon must be empty.")
+            raise TypeError("Shapely object must be an empty.")
 
 
 class Interval(Region1D):
+    """
+    Region class to define an interval.
+
+    Parameters
+    ----------
+    lower_bound : float
+        The lower bound of the interval.
+    upper_bound : float
+        The upper bound of the interval.
+    """
 
     def __init__(self, lower_bound=0, upper_bound=1):
         self._lower_bound = lower_bound
@@ -615,25 +785,78 @@ class Interval(Region1D):
 
     @classmethod
     def from_intervals(cls, intervals):
-        # using intervals instead of interval to be consistent with Rectangle.from_intervals
+        """
+        Constructor for instantiating Region from list of (min, max) bounds.
+        Takes array-like intervals instead of interval to be consistent with `Rectangle.from_intervals`.
+
+        Parameters
+        ----------
+        intervals : array-like of shape (2,)
+            The region bounds for each dimension
+
+        Returns
+        -------
+        Interval
+        """
         lower_bound, upper_bound = intervals
         return cls(lower_bound, upper_bound)
 
     @property
     def lower_bound(self):
+        """
+        The lower boundary.
+
+        Returns
+        -------
+        float
+        """
         return self._lower_bound
 
     @property
     def upper_bound(self):
+        """
+        The upper boundary.
+
+        Returns
+        -------
+        float
+        """
         return self._upper_bound
 
     @property
-    def region_specs(self):
-        return self._region_specs
+    def bounds(self):
+        return self.lower_bound, self.upper_bound
 
     @property
-    def dimension(self):
-        return 1
+    def extent(self):
+        return abs(self.upper_bound - self.lower_bound)
+
+    @property
+    def intervals(self):
+        """
+        Provide bounds in a tuple (min, max) arrangement.
+
+        Returns
+        -------
+        Tuple of shape(dimension, 2)
+            ((min_x, max_x), ...).
+        """
+        return (self.bounds,)
+
+    @property
+    def region_specs(self):
+        """
+        Legacy interface to serve legacy RoiRegion.
+
+        Warnings
+        --------
+        Do not use - will be deprecated.
+
+        Returns
+        -------
+        dict
+        """
+        return self._region_specs
 
     @property
     def points(self):
@@ -656,18 +879,6 @@ class Interval(Region1D):
         return None
 
     @property
-    def bounds(self):
-        return self.lower_bound, self.upper_bound
-
-    @property
-    def intervals(self):
-        return (self.bounds,)
-
-    @property
-    def extent(self):
-        return abs(self.upper_bound - self.lower_bound)
-
-    @property
     def bounding_box(self):
         return self
 
@@ -687,9 +898,22 @@ class Interval(Region1D):
 
 
 class Rectangle(Region2D):
+    """
+    Region class to define a rectangle.
+
+    Parameters
+    ----------
+    corner : array-like with shape (2,)
+        A point that defines the lower left corner.
+    width : float
+        The length of a vector describing the edge in x-direction.
+    height : float
+        The length of a vector describing the edge in y-direction.
+    angle : float
+        The angle (in degrees) by which the rectangle is rotated counterclockwise around the corner point.
+    """
 
     def __init__(self, corner=(0, 0), width=1, height=1, angle=0):
-        """ rectangle: ((corner_x, corner_y), width, height, angle) with angle in degree"""
         self._corner = corner
         self._width = width
         self._height = height
@@ -700,8 +924,26 @@ class Rectangle(Region2D):
     def __repr__(self):
         return f'{self.__class__.__name__}({tuple(self.corner)}, {self.width}, {self.height}, {self.angle})'
 
+    def __getattr__(self, attr):
+        """All non-adapted calls are passed to shapely object"""
+        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+            raise AttributeError
+        return getattr(self.shapely_object, attr)
+
     @classmethod
     def from_intervals(cls, intervals):
+        """
+        Constructor for instantiating Region from list of (min, max) bounds.
+
+        Parameters
+        ----------
+        intervals : array-like of shape (2, 2)
+            The region bounds for each dimension
+
+        Returns
+        -------
+            Interval
+        """
         min_x, max_x = intervals[0]
         min_y, max_y = intervals[1]
         corner = (min_x, min_y)
@@ -712,40 +954,61 @@ class Rectangle(Region2D):
 
     @property
     def corner(self):
+        """
+        A point that defines the lower left corner.
+
+        Returns
+        -------
+        array-like with shape (2,)
+        """
         return self._corner
 
     @property
     def width(self):
+        """
+        The length of a vector describing the edge in x-direction.
+
+        Returns
+        -------
+        float
+        """
         return self._width
 
     @property
     def height(self):
+        """
+        The length of a vector describing the edge in y-direction.
+
+        Returns
+        -------
+        float
+        """
         return self._height
 
     @property
     def angle(self):
+        """
+        The angle (in degrees) by which the rectangle is rotated counterclockwise around the corner point.
+
+        Returns
+        -------
+        float
+        """
         return self._angle
 
     @property
     def intervals(self):
-        """Tuple of ((min_x, max_x), (min_y, max_y))."""
+        """
+        Provide bounds in a tuple (min, max) arrangement.
+
+        Returns
+        -------
+        Tuple of shape(dimension, 2)
+            ((min_x, max_x), ...).
+        """
         lower_bounds = self.bounds[:self.dimension]
         upper_bounds = self.bounds[self.dimension:]
         return tuple(((lower, upper) for lower, upper in zip(lower_bounds, upper_bounds)))
-
-    @property
-    def region_specs(self):
-        return self._region_specs
-
-    @property
-    def shapely_object(self):
-        if self._shapely_object is None:
-            self._shapely_object = shPolygon(self.points[:-1])
-        return self._shapely_object
-
-    @property
-    def dimension(self):
-        return 2
 
     @property
     def points(self):
@@ -753,6 +1016,27 @@ class Rectangle(Region2D):
                                        fill=False, edgecolor='b', linewidth=1)
         points = rectangle.get_verts()
         return points[::-1]
+
+    @property
+    def region_specs(self):
+        """
+        Legacy interface to serve legacy RoiRegion.
+
+        Warnings
+        --------
+        Do not use - will be deprecated.
+
+        Returns
+        -------
+        dict
+        """
+        return self._region_specs
+
+    @property
+    def shapely_object(self):
+        if self._shapely_object is None:
+            self._shapely_object = shPolygon(self.points[:-1])
+        return self._shapely_object
 
     @property
     def centroid(self):
@@ -784,9 +1068,21 @@ class Rectangle(Region2D):
 
 
 class Ellipse(Region2D):
+    """
+    Region class to define an ellipse.
 
+    Parameters
+    ----------
+    center : array-like with shape (2,)
+        A point that defines the center of the ellipse.
+    width : float
+        The length of a vector describing the principal axis in x-direction (before rotation).
+    height : float
+        The length of a vector describing the principal axis in y-direction (before rotation).
+    angle : float
+        The angle (in degrees) by which the ellipse is rotated counterclockwise around the center point.
+    """
     def __init__(self, center=(0, 0), width=1, height=1, angle=0):
-        """ellipse: ((center_x, center_y), width, height, angle) with angle in degree"""
         self._center = center
         self._width = width
         self._height = height
@@ -797,29 +1093,74 @@ class Ellipse(Region2D):
     def __repr__(self):
         return f'{self.__class__.__name__}({tuple(self.center)}, {self.width}, {self.height}, {self.angle})'
 
+    def __getattr__(self, attr):
+        """All non-adapted calls are passed to shapely object"""
+        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+            raise AttributeError
+        return getattr(self.shapely_object, attr)
+
     @property
     def center(self):
+        """
+        A point that defines the center of the ellipse.
+
+        Returns
+        -------
+        array-like with shape (2,)
+        """
         return self._center
 
     @property
     def width(self):
+        """
+        The length of a vector describing the principal axis in x-direction (before rotation).
+
+        Returns
+        -------
+        float
+        """
         return self._width
 
     @property
     def height(self):
+        """
+        The length of a vector describing the principal axis in y-direction (before rotation).
+
+        Returns
+        -------
+        float
+        """
         return self._height
 
     @property
     def angle(self):
+        """
+        The angle (in degrees) by which the ellipse is rotated counterclockwise around the center point.
+
+        Returns
+        -------
+        float
+        """
         return self._angle
 
     @property
-    def region_specs(self):
-        return self._region_specs
+    def points(self):
+        return np.array(self.shapely_object.exterior.coords)[::-1]
 
     @property
-    def dimension(self):
-        return 2
+    def region_specs(self):
+        """
+        Legacy interface to serve legacy RoiRegion.
+
+        Warnings
+        --------
+        Do not use - will be deprecated.
+
+        Returns
+        -------
+        dict
+        """
+        return self._region_specs
 
     @property
     def shapely_object(self):
@@ -829,10 +1170,6 @@ class Ellipse(Region2D):
             rotated_ellipse = rotate(ellipse, self.angle)
             self._shapely_object = translate(rotated_ellipse, *self.center)
         return self._shapely_object
-
-    @property
-    def points(self):
-        return np.array(self.shapely_object.exterior.coords)[::-1]
 
     @property
     def centroid(self):
@@ -879,11 +1216,19 @@ class Ellipse(Region2D):
 
 
 class Polygon(Region2D):
-    """ closed polygon: ((point1_x, point1_y), (point2_x, point2_y), ..., (point1_x, point1_y)).
+    """
+    Region class to define a polygon.
 
-    points can be closed or will be closed implicitly.
-    polygon is open
-    region_specs is legacy
+    The polygon is constructed from a list of points that can be
+    closed (i.e. the first and last point are identical) or
+    not (in this case the list of points will be closed implicitly).
+
+    Parameters
+    ----------
+    points  : array-like with shape (n_points, 2)
+        Points that define the exterior boundary of a polygon.
+    holes  : array-like with shape (n_holes, n_points, 2)
+        Points that define holes within the polygon.
     """
 
     def __init__(self, points=((0, 0), (0, 1), (1, 1), (1, 0)), holes=None):
@@ -908,21 +1253,55 @@ class Polygon(Region2D):
         return f'{self.__class__.__name__}(<self.points>, <self.holes>)'
 
     def __getattr__(self, attr):
-        """All non-adapted calls are passed to the object"""
+        """All non-adapted calls are passed to shapely object"""
         if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
             raise AttributeError
         return getattr(self.shapely_object, attr)
 
+    @classmethod
+    def from_shapely(cls, polygon):
+        if polygon.is_empty:
+            return EmptyRegion()
+        else:
+            points = np.array(polygon.exterior.coords).tolist()
+            holes = [np.array(interiors.coords).tolist() for interiors in polygon.interiors]
+            return cls(points, holes)
+
     @property
     def points(self):
+        """
+        Exterior polygon points.
+
+        Returns
+        -------
+        numpy.array of shape(n_points, dimension)
+        """
         return self._points
 
     @property
     def holes(self):
+        """
+        Holes where each hole is specified by polygon points.
+
+        Returns
+        -------
+        list of numpy.array of shape(n_holes, n_points, dimension)
+        """
         return self._holes
 
     @property
     def region_specs(self):
+        """
+        Legacy interface to serve legacy RoiRegion.
+
+        Warnings
+        --------
+        Do not use - will be deprecated.
+
+        Returns
+        -------
+        dict
+        """
         return self._region_specs
 
     @property
@@ -930,10 +1309,6 @@ class Polygon(Region2D):
         if self._shapely_object is None:
             self._shapely_object = shPolygon(self.points, self.holes)
         return self._shapely_object
-
-    @property
-    def dimension(self):
-        return 2
 
     @property
     def centroid(self):
@@ -964,18 +1339,16 @@ class Polygon(Region2D):
     def as_artist(self, **kwargs):
         return mPatches.PathPatch(_polygon_path(self.shapely_object), **kwargs)
 
-    @classmethod
-    def from_shapely(cls, polygon):
-        if polygon.is_empty:
-            return EmptyRegion()
-        else:
-            points = np.array(polygon.exterior.coords).tolist()
-            holes = [np.array(interiors.coords).tolist() for interiors in polygon.interiors]
-            return cls(points, holes)
-
 
 class MultiPolygon(Region2D):
+    """
+    Region class to define a region that represents the union of multiple polygons.
 
+    Parameters
+    ----------
+    polygons  : list of Polygon
+        Polygons that define the individual polygons.
+    """
     def __init__(self, polygons):
         self._polygons = polygons
         self._region_specs = None
@@ -988,25 +1361,58 @@ class MultiPolygon(Region2D):
         return f'{self.__class__.__name__}(<self.polygons>)'
 
     def __getattr__(self, attr):
-        """All non-adapted calls are passed to the object"""
+        """All non-adapted calls are passed to shapely object"""
         if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
             raise AttributeError
         return getattr(self.shapely_object, attr)
 
     @property
     def points(self):
+        """
+        Exterior polygon points.
+
+        Returns
+        -------
+        list of numpy.array of shape(n_polygons, n_points, dimension)
+        """
         return [pol.points for pol in self.polygons]
 
     @property
     def holes(self):
+        """
+        Points defining holes.
+
+        Returns
+        -------
+        list
+            list of polygon holes
+        """
         return [pol.holes for pol in self.polygons]
 
     @property
     def polygons(self):
+        """
+        All polygons that make up the MultiPolygon
+
+        Returns
+        -------
+        list of Polygon
+        """
         return self._polygons
 
     @property
     def region_specs(self):
+        """
+        Legacy interface to serve legacy RoiRegion.
+
+        Warnings
+        --------
+        Do not use - will be deprecated.
+
+        Returns
+        -------
+        dict
+        """
         return self._region_specs
 
     @property
@@ -1014,10 +1420,6 @@ class MultiPolygon(Region2D):
         if self._shapely_object is None:
             self._shapely_object = shMultiPolygon([pol.shapely_object for pol in self._polygons])
         return self._shapely_object
-
-    @property
-    def dimension(self):
-        return 2
 
     @property
     def centroid(self):
@@ -1056,8 +1458,22 @@ class MultiPolygon(Region2D):
 
 class AxisOrientedCuboid(Region3D):
     """
-    3-dimensional convex region with rectangular faces and edges that are parallel to coordinate axes.
+    Region class to define an axis-oriented cuboid.
+
+    This is a 3-dimensional convex region with rectangular faces
+    and edges that are parallel to coordinate axes.
     Extension in x-, y-, z-coordinates correspond to length, width, height.
+
+    Parameters
+    ----------
+    corner : array-like with shape (3,)
+        A point that defines the lower left corner.
+    length : float
+        The length of a vector describing the edge in x-direction.
+    width : float
+        The length of a vector describing the edge in y-direction.
+    height : float
+        The length of a vector describing the edge in z-direction.
     """
     def __init__(self, corner=(0, 0, 0), length=1, width=1, height=1):
         self._corner = corner
@@ -1071,6 +1487,18 @@ class AxisOrientedCuboid(Region3D):
 
     @classmethod
     def from_intervals(cls, intervals):
+        """
+        Constructor for instantiating Region from list of (min, max) bounds.
+
+        Parameters
+        ----------
+        intervals : array-like of shape (3, 2)
+            The region bounds for each dimension
+
+        Returns
+        -------
+            Interval
+        """
         min_x, max_x = intervals[0]
         min_y, max_y = intervals[1]
         min_z, max_z = intervals[2]
@@ -1082,23 +1510,47 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def corner(self):
+        """
+        A point that defines the lower left corner.
+
+        Returns
+        -------
+        array-like with shape (2,)
+        """
         return self._corner
 
     @property
     def length(self):
+        """
+        The length of a vector describing the edge in x-direction.
+
+        Returns
+        -------
+        float
+        """
         return self._length
 
     @property
     def width(self):
+        """
+        The length of a vector describing the edge in y-direction.
+
+        Returns
+        -------
+        float
+        """
         return self._width
 
     @property
     def height(self):
-        return self._height
+        """
+        The length of a vector describing the edge in z-direction.
 
-    @property
-    def dimension(self):
-        return 3
+        Returns
+        -------
+        float
+        """
+        return self._height
 
     @property
     def points(self):
@@ -1116,7 +1568,14 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def intervals(self):
-        """Tuple of ((min_x, max_x), ...)."""
+        """
+        Provide bounds in a tuple (min, max) arrangement.
+
+        Returns
+        -------
+        Tuple of shape(dimension, 2)
+            ((min_x, max_x), ...).
+        """
         min_x, min_y, min_z, max_x, max_y, max_z = self.bounds
         return ((min_x, max_x), (min_y, max_y), (min_z, max_z))
 
@@ -1164,9 +1623,26 @@ class AxisOrientedCuboid(Region3D):
 # todo: complete implementation
 class Cuboid(Region3D):
     """
-    3-dimensional convex region with rectangular faces.
+    Region class to define a cuboid.
+
+    This is a 3-dimensional convex region with rectangular faces.
     Extension in x-, y-, z-coordinates correspond to length, width, height.
     Corresponding Euler angles are defined by alpha, beta, gamma.
+
+    Parameters
+    ----------
+    corner : array-like with shape (2,)
+        A point that defines the lower left corner.
+    length : float
+        The length of a vector describing the edge in x-direction.
+    width : float
+        The length of a vector describing the edge in y-direction.
+    alpha : float
+        The first Euler angle (in degrees) by which the cuboid is rotated.
+    beta : float
+        The second Euler angle (in degrees) by which the cuboid is rotated.
+    gamma : float
+        The third Euler angle (in degrees) by which the cuboid is rotated.
     """
     def __init__(self, corner=(0, 0, 0), length=1, width=1, height=1, alpha=0, beta=0, gamma=0):
         self._corner = corner
@@ -1185,42 +1661,83 @@ class Cuboid(Region3D):
 
     @property
     def corner(self):
+        """
+        A point that defines the lower left corner.
+
+        Returns
+        -------
+        array-like with shape (2,)
+        """
         return self._corner
 
     @property
     def length(self):
+        """
+        The length of a vector describing the edge in x-direction.
+
+        Returns
+        -------
+        float
+        """
         return self._length
 
     @property
     def width(self):
+        """
+        The length of a vector describing the edge in y-direction.
+
+        Returns
+        -------
+        float
+        """
         return self._width
 
     @property
     def height(self):
+        """
+        The length of a vector describing the edge in z-direction.
+
+        Returns
+        -------
+        float
+        """
         return self._height
 
     @property
     def alpha(self):
+        """
+        The first Euler angle (in degrees) by which the cuboid is rotated.
+
+        Returns
+        -------
+        float
+        """
         return self._alpha
 
     @property
     def beta(self):
+        """
+        The sescond Euler angle (in degrees) by which the cuboid is rotated.
+
+        Returns
+        -------
+        float
+        """
         return self._beta
 
     @property
     def gamma(self):
+        """
+        The third Euler angle (in degrees) by which the cuboid is rotated.
+
+        Returns
+        -------
+        float
+        """
         return self._gamma
 
     @property
-    def dimension(self):
-        return 3
-
-    @property
     def points(self):
-        raise NotImplementedError
-
-    @property
-    def centroid(self):
         raise NotImplementedError
 
     @property
@@ -1232,8 +1749,8 @@ class Cuboid(Region3D):
         raise NotImplementedError
 
     @property
-    def bounding_box(self):
-        return self
+    def centroid(self):
+        raise NotImplementedError
 
     @property
     def max_distance(self):
@@ -1256,10 +1773,24 @@ class Cuboid(Region3D):
     def buffer(self, distance, **kwargs):
         raise NotImplementedError
 
+    @property
+    def bounding_box(self):
+        return self
 
 class AxisOrientedHypercuboid(RegionND):
     """
-    n-dimensional convex region with edges that are parallel to coordinate axes.
+    Region class to define an axis-oriented n-dimensional hypercuboid.
+
+    This is a n-dimensional convex region with rectangular faces
+    and edges that are parallel to coordinate axes.
+    Extension in x-, y-, z-coordinates correspond to length, width, height.
+
+    Parameters
+    ----------
+    corner : array-like with shape (dimension,)
+        A point that defines the lower left corner.
+    lengths : array-like of shape(dimension,)
+        Array of length values for the 1-dimensional edge vectors.
     """
     def __init__(self, corner=(0, 0, 0), lengths=(1, 1, 1)):
         if not len(corner) == len(lengths):
@@ -1272,6 +1803,18 @@ class AxisOrientedHypercuboid(RegionND):
 
     @classmethod
     def from_intervals(cls, intervals):
+        """
+        Constructor for instantiating Region from list of (min, max) bounds.
+
+        Parameters
+        ----------
+        intervals : array-like of shape (dimension, 2)
+            The region bounds for each dimension
+
+        Returns
+        -------
+            Interval
+        """
         intervals = np.array(intervals)
         corner = intervals[:, 0]
         lengths = np.diff(intervals)[:, 0]
@@ -1279,10 +1822,24 @@ class AxisOrientedHypercuboid(RegionND):
 
     @property
     def corner(self):
+        """
+        A point that defines the lower left corner.
+
+        Returns
+        -------
+        array-like with shape (dimension,)
+        """
         return self._corner
 
     @property
     def lengths(self):
+        """
+        Array of length values for the 1-dimensional edge vectors.
+
+        Returns
+        -------
+        array-like of shape(dimension,)
+        """
         return self._lengths
 
     @property
@@ -1291,16 +1848,19 @@ class AxisOrientedHypercuboid(RegionND):
 
     @property
     def intervals(self):
-        """Tuple of ((min_x, max_x), ...)."""
+        """
+        Provide bounds in a tuple (min, max) arrangement.
+
+        Returns
+        -------
+        Tuple of shape(dimension, 2)
+            ((min_x, max_x), ...).
+        """
         return tuple((lower, upper) for lower, upper in zip(self.bounds[:self.dimension], self.bounds[self.dimension:]))
 
     @property
     def points(self):
         return tuple(it.product(*self.intervals))
-
-    @property
-    def centroid(self):
-        return self.corner + self.lengths / 2
 
     @property
     def bounds(self):
@@ -1311,8 +1871,8 @@ class AxisOrientedHypercuboid(RegionND):
         return np.abs(self.lengths)
 
     @property
-    def bounding_box(self):
-        return self
+    def centroid(self):
+        return self.corner + self.lengths / 2
 
     @property
     def max_distance(self):
@@ -1326,6 +1886,10 @@ class AxisOrientedHypercuboid(RegionND):
     def subregion_measure(self):
         raise NotImplementedError
 
+    @property
+    def bounding_box(self):
+        return self
+
     def contains(self, points):
         points = np.asarray(points)
         if points.size == 0:
@@ -1336,34 +1900,11 @@ class AxisOrientedHypercuboid(RegionND):
         inside_indices = np.nonzero(condition)[0]
         return inside_indices
 
-    def as_artist(self, origin=(0, 0), **kwargs):
-        raise NotImplementedError
-
     def buffer(self, distance):
         mins = self.bounds[:self.dimension] - distance
         maxs = self.bounds[self.dimension:] + distance
         lengths = maxs - mins
         return AxisOrientedHypercuboid(mins, lengths)
-
-    def intersection(self, other):
-        """
-        Returns a region representing the intersection of this region with
-        ``other``.
-        """
-        raise NotImplementedError
-
-    def symmetric_difference(self, other):
-        """
-        Returns the union of the two regions minus any areas contained in the
-        intersection of the two regions.
-        """
-        raise NotImplementedError
-
-    def union(self, other):
-        """
-        Returns a region representing the union of this region with ``other``.
-        """
-        raise NotImplementedError
 
 
 def _polygon_path(polygon):

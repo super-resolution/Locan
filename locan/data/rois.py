@@ -396,7 +396,7 @@ class RoiLegacy_0:
 
     Warnings
     --------
-    `RoiLegacy` is deprecated and should only be used to read legacy *roi.yaml files. Use :class:`locan.Roi` instead.
+    `RoiLegacy` is deprecated and should only be used to read legacy _roi.yaml files. Use :class:`locan.Roi` instead.
     """
 
     def __init__(self, region_type, region_specs, reference=None, properties_for_roi=()):

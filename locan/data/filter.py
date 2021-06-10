@@ -213,6 +213,9 @@ def random_subset(locdata, n_points, replace=True, seed=None):
     """
     local_parameter = locals()
 
+    if not locdata:
+        return locdata
+
     rng = np.random.default_rng(seed)
 
     indices = rng.choice(locdata.data.index, size=n_points, replace=replace)

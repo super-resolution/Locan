@@ -160,7 +160,7 @@ def make_Poisson(intensity, region=(0, 1), seed=None):
 
     n_samples = rng.poisson(lam=intensity*region.region_measure)
 
-    if isinstance(region, EmptyRegion):
+    if isinstance(region, EmptyRegion) or n_samples == 0:
         samples = np.array([])
     elif isinstance(region, (Interval, Rectangle, AxisOrientedCuboid, AxisOrientedHypercuboid)):
         samples = rng.uniform(region.bounds[:region.dimension], region.bounds[region.dimension:],

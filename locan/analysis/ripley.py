@@ -386,17 +386,17 @@ def plot(self, ax=None, **kwargs):
     self.results.plot(ax=ax, **kwargs)
 
     if self.results.columns[0] == 'Ripley_k_data':
-        title = 'Ripley\'s K function'
+        ylabel = 'K-function'
     elif self.results.columns[0] == 'Ripley_l_data':
-        title = 'Ripley\'s L function'
+        ylabel = 'L-function'
     elif self.results.columns[0] == 'Ripley_h_data':
-        title = 'Ripley\'s H function'
+        ylabel = 'H-function'
     else:
-        title = None
+        ylabel = None
 
-    ax.set(title=title,
+    ax.set(title="Ripley's " + ylabel,
            xlabel='radius',
-           ylabel=title
+           ylabel=ylabel
            )
 
     return ax

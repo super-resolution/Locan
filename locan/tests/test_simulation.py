@@ -682,6 +682,12 @@ def test_make_Thomas():
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 10)
 
+    samples, labels, parent_samples, region = make_Thomas(parent_intensity=np.float64(10), region=(0, 10),
+                                                  expansion_factor=np.float64(1),
+                                                  cluster_mu=np.float64(10), cluster_std=np.float64(1),
+                                                  clip=True, shuffle=False, seed=rng)
+    assert len(samples) > 0
+
     samples, labels, parent_samples, region = make_Thomas(parent_intensity=10, region=(0, 10),
                                                   expansion_factor=1,
                                                   cluster_mu=np.linspace(1, 10, 1000), cluster_std=1.0,

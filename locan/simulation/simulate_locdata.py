@@ -752,7 +752,7 @@ def make_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
     except ValueError as e:
         e.args += (f"Too few offspring events for n_cluster: {n_cluster}",)
         raise
-    except TypeError:
+    except (TypeError, IndexError):
         n_offspring_list = rng.poisson(lam=cluster_mu, size=n_cluster)
     samples = []
     labels = []

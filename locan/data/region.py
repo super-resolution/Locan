@@ -131,6 +131,10 @@ class RoiRegion:
         """
         return str(dict(region_type=self.region_type, region_specs=self.region_specs))
 
+    @property
+    def region(self):
+        return self._region
+
     @classmethod
     def from_shapely(cls, region_type, shapely_obj):
         if region_type == 'shapelyPolygon':

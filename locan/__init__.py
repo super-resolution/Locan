@@ -24,7 +24,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 try:
     from locan._version import version as __version__
 except ImportError:
-    __version__ = "0.9-not-installed"
+    __version__ = "0.9.0"
 
 from locan.constants import *  # constants has to be imported before any others due to pyqt5/sidepy2 issues.
 from locan.analysis import *

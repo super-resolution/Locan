@@ -2,7 +2,7 @@
 Changelog
 =======================
 
-0.9 (unreleased)
+0.10 (unreleased)
 ================
 
 
@@ -113,6 +113,25 @@ locan.simulation
 Other Changes and Additions
 ---------------------------
 -
+
+0.9 - 2021-06-12
+================
+
+API Changes
+-----------
+
+locan.data
+^^^^^^^^^^^^^^^
+- Restructured Region management introducing new classes in locan.data.region
+
+locan.simulation
+^^^^^^^^^^^^^^^^^^^
+- Refactored simulation functions to make use of numpy random number generator.
+- Refactored simulation functions to generate Neyman-Scott point processes in expanded regions.
+
+Other Changes and Additions
+---------------------------
+- Added ro modified tutorials on mutiprocessing, regions and simulation.
 
 
 0.8 - 2021-05-06

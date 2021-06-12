@@ -23,7 +23,7 @@ dependencies:
 - pytest
 
 # Scientific python
-- numpy
+- numpy>1.17.0
 - pandas
 - scipy
 - scikit-learn
@@ -47,7 +47,7 @@ dependencies:
 - fast-histogram
 
 # Extra requirements
-- pyside2
+- pyside2>=5.12.3
 - colorcet
 - trackpy
 - open3d!=0.12.0

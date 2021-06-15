@@ -92,11 +92,8 @@ def test_Roi_io(locdata):
         file_path = Path(tmp_directory) / 'roi.yaml'
         #file_path = ROOT_DIR / 'tests/test_data/roi.yaml'
 
-        roi = RoiLegacy_0(region_specs=((0, 0), 2, 1, 10), region_type='rectangle')
-        roi.to_yaml(path=file_path)
-
         roi = RoiLegacy_0(reference=locdata, region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
-        with pytest.warns(UserWarning):
+        with pytest.deprecated_call():
             roi.to_yaml(path=file_path)
 
         roi_new = RoiLegacy_0.from_yaml(path=file_path)
@@ -105,7 +102,8 @@ def test_Roi_io(locdata):
         roi = RoiLegacy_0(reference=dict(file_path=ROOT_DIR / 'tests/test_data/five_blobs.txt', file_type=1),
                   region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
         assert isinstance(roi.reference, (metadata_pb2.Metadata, Path))
-        roi.to_yaml(path=file_path)
+        with pytest.deprecated_call():
+            roi.to_yaml(path=file_path)
 
         roi_new = RoiLegacy_0.from_yaml(path=file_path)
         assert roi_new
@@ -116,7 +114,8 @@ def test_Roi_io(locdata):
                   region_specs=(np.array([0, 0], dtype=float), float(2), float(1), float(10))
                   )
         assert isinstance(roi.reference, metadata_pb2.Metadata)
-        roi.to_yaml(path=file_path)
+        with pytest.deprecated_call():
+            roi.to_yaml(path=file_path)
 
         roi_new = RoiLegacy_0.from_yaml(path=file_path)
         assert roi_new
@@ -127,7 +126,8 @@ def test_Roi_io(locdata):
         roi = RoiLegacy_0(reference=locdata_2,
                   region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
         assert isinstance(roi.reference.meta, metadata_pb2.Metadata)
-        roi.to_yaml(path=file_path)
+        with pytest.deprecated_call():
+            roi.to_yaml(path=file_path)
 
         roi_new = RoiLegacy_0.from_yaml(path=file_path)
         assert roi_new

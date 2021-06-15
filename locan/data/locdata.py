@@ -7,6 +7,7 @@ import time
 import warnings
 from itertools import accumulate
 import copy
+import logging
 
 from google.protobuf import text_format, json_format
 import numpy as np
@@ -24,6 +25,8 @@ from locan.data.properties import compute_inertia_moments
 
 
 __all__ = ['LocData']
+
+logger = logging.getLogger(__name__)
 
 
 class LocData:
@@ -315,7 +318,7 @@ class LocData:
             if region.dimension != self.dimension:
                 raise TypeError("Region dimension and coordinates dimension must be identical.")
             elif len(self) != len(region.contains(self.coordinates)):
-                warnings.warn("Not all coordinates are within region.")
+                logger.warning("Not all coordinates are within region.")
 
         if isinstance(region, (Region, RoiRegion)) or region is None:
             self._region = region
@@ -326,7 +329,7 @@ class LocData:
                 if region_.dimension != self.dimension:
                     raise TypeError("Region dimension and coordinates dimension must be identical.")
                 elif len(self) != len(region_.contains(self.coordinates)):
-                    warnings.warn("Not all coordinates are within region.")
+                    logger.warning("Not all coordinates are within region.")
             self._region = region_
 
         else:
@@ -741,7 +744,7 @@ class LocData:
 
         if self.references is not None:
             self.reduce(reset_index=reset_index)
-            warnings.warn("LocData.reduce() was applied since self.references was not None.")
+            logger.warning("LocData.reduce() was applied since self.references was not None.")
 
         self._time = time.time()
         self.dataframe = dataframe

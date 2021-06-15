@@ -51,7 +51,7 @@ def df_other_simple():
 COMMENT_METADATA = metadata_pb2.Metadata(comment='some user comment')
 
 
-def test_LocData(df_simple):
+def test_LocData(df_simple, caplog):
     dat = LocData(dataframe=df_simple, meta=COMMENT_METADATA)
     assert len(dat) == 5
     assert dat.coordinate_labels == ['position_x', 'position_y']
@@ -72,8 +72,8 @@ def test_LocData(df_simple):
     assert 'region_measure_obb' in dat.properties
     assert 'localization_density_obb' in dat.properties
     assert dat.region is None
-    with pytest.warns(UserWarning):
-        dat.region = Rectangle()
+    dat.region = Rectangle()
+    assert caplog.record_tuples == [('locan.data.locdata', 30, 'Not all coordinates are within region.')]
     dat.region = dat.bounding_box.region
     assert repr(dat.region) == repr(dat.bounding_box.region)
     assert isinstance(dat.update_alpha_shape(alpha=1).alpha_shape, AlphaShape)
@@ -239,7 +239,8 @@ def test_LocData_from_collection(df_simple):
                                      'subregion_measure_bb'}
     # print(col.properties)
 
-    col.update_alpha_shape_in_references(alpha=1)
+    with pytest.warns(UserWarning):
+        col.update_alpha_shape_in_references(alpha=1)
     assert set(col.data.columns) == {'circularity_obb', 'localization_count', 'localization_density_bb',
                                      'localization_density_ch',
                                      'localization_density_obb', 'orientation_obb', 'position_x', 'position_y',
@@ -355,7 +356,7 @@ def test_locdata_reset_empty(
     assert len(new_dat) == expected
 
 
-def test_LocData_update(df_simple):
+def test_LocData_update(df_simple, caplog):
     new_dataframe = pd.DataFrame.from_dict(
         {'position_x': [10, 0, 1, 4],
          'position_y': [10, 1, 3, 4],
@@ -380,16 +381,19 @@ def test_LocData_update(df_simple):
     assert dat.meta.history[-1].name == "LocData.update"
 
     sel = LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
-    with pytest.warns(UserWarning):
-        sel.update(new_dataframe, reset_index=True)
+    sel.update(new_dataframe, reset_index=True)
+    assert caplog.record_tuples.pop() == ('locan.data.locdata', 30,
+                                          'LocData.reduce() was applied since self.references was not None.')
     pd.testing.assert_frame_equal(sel.data, new_dataframe)
     assert sel.properties['position_x'] == 3.75
     assert sel.meta.element_count == 4
     assert sel.meta.history[-1].name == "LocData.update"
 
+
     sel = LocData.from_selection(locdata=dat, indices=[1, 2, 3, 4], meta=COMMENT_METADATA)
-    with pytest.warns(UserWarning):
-        sel.update(new_dataframe, reset_index=True)
+    sel.update(new_dataframe, reset_index=True)
+    assert caplog.record_tuples.pop() == ('locan.data.locdata', 30,
+                                          'LocData.reduce() was applied since self.references was not None.')
     pd.testing.assert_frame_equal(sel.data, new_dataframe)
     assert sel.properties['position_x'] == 3.75
     assert sel.meta.element_count == 4

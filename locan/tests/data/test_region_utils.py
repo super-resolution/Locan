@@ -33,6 +33,8 @@ def test_regions_union_Rectangles():
     ax.add_patch(union.as_artist(fill=True, alpha=0.2, color='Red'))
     # plt.show()
 
+    plt.close('all')
+
 
 def test_extend_Interval():
     region = Interval(0, 1)
@@ -71,6 +73,8 @@ def test_extend_Rectangle():
     ax.add_patch(extended_region_with_support.as_artist(fill=True, alpha=0.2, color='Green'))
     # plt.show()
 
+    plt.close('all')
+
 
 def test_extend_Rectangles():
     region_0 = Rectangle((0, 0), 1, 1, 0)
@@ -98,6 +102,8 @@ def test_extend_Rectangles():
     ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
     # plt.show()
 
+    plt.close('all')
+
 
 def test_extend_Polygon():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
@@ -120,6 +126,8 @@ def test_extend_Polygon():
     ax.add_patch(extended_region_with_support.as_artist(fill=True, alpha=0.2, color='Green'))
     # plt.show()
 
+    plt.close('all')
+
 
 def test_surrounding_region_Rectangles():
     region_0 = Rectangle((0, 0), 1, 1, 0)
@@ -139,6 +147,8 @@ def test_surrounding_region_Rectangles():
     ax.add_patch(region_2.as_artist(fill=True, alpha=0.2, color='Blue'))
     ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
     # plt.show()
+
+    plt.close('all')
 
 
 def test_surrounding_region_Polygon():
@@ -161,6 +171,8 @@ def test_surrounding_region_Polygon():
     ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
     ax.add_patch(extended_region_with_support.as_artist(fill=True, alpha=0.2, color='Green'))
     # plt.show()
+
+    plt.close('all')
 
 
 def test_extend_region_RoiRegion():
@@ -218,6 +230,8 @@ def test_extend_region_RoiRegion():
     #     ax.add_patch(pat)
     # plt.show()
 
+    plt.close('all')
+
 
 def test_surrounding_region():
     rr = RoiRegion(region_type='rectangle', region_specs=((0, 0), 1, 1, 0))
@@ -256,3 +270,5 @@ def test_surrounding_region():
     # for pat in sr_region.as_artist(fill=False):
     #     ax.add_patch(pat)
     # plt.show()
+
+    plt.close('all')

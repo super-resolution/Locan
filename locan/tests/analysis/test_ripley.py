@@ -27,6 +27,8 @@ def test_Ripleys_k_function(locdata_2d):
     assert all(rhf.results.index == radii)
     assert (len(rhf.results) == len(radii))
 
+    plt.close('all')
+
 
 def test_Ripleys_k_function_3d(locdata_3d):
     radii = np.linspace(0, 20, 20)
@@ -42,6 +44,8 @@ def test_Ripleys_k_function_3d(locdata_3d):
     assert all(rhf.results.index == radii)
     assert (len(rhf.results) == len(radii))
 
+    plt.close('all')
+
 
 def test_Ripleys_l_function(locdata_2d):
     radii = np.linspace(0, 20, 20)
@@ -56,6 +60,8 @@ def test_Ripleys_l_function(locdata_2d):
     rhf = RipleysLFunction(radii=radii, region_measure=1).compute(locdata_2d, other_locdata=other_locdata)
     assert all(rhf.results.index == radii)
     assert (len(rhf.results) == len(radii))
+
+    plt.close('all')
 
 
 def test_Ripleys_h_function(locdata_2d):
@@ -78,3 +84,5 @@ def test_Ripleys_h_function(locdata_2d):
     del rhf.Ripley_h_maximum
     assert rhf.Ripley_h_maximum.iloc[0].radius == 0
     assert rhf.Ripley_h_maximum.iloc[0].Ripley_h_maximum == 0
+
+    plt.close('all')

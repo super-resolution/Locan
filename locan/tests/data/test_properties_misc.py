@@ -25,6 +25,8 @@ def test_distance_to_region_RoiRegion(locdata_2d):
     distances = distance_to_region(locdata_2d, regions_union([region, region_2]))
     assert np.array_equal(distances[:-1], np.array([0, 1, 0, 0, 0]))
 
+    plt.close('all')
+
 
 def test_distance_to_region(locdata_2d):
     region = Rectangle((1, 1), 3, 3, 0)
@@ -38,6 +40,8 @@ def test_distance_to_region(locdata_2d):
     region_2 = Rectangle((3, 3), 3, 3, 0)
     distances = distance_to_region(locdata_2d, regions_union([region, region_2]))
     assert np.array_equal(distances[:-1], np.array([0, 1, 0, 0, 0]))
+
+    plt.close('all')
 
 
 def test_distance_to_region_boundary_RoiRegion(locdata_2d):
@@ -53,6 +57,8 @@ def test_distance_to_region_boundary_RoiRegion(locdata_2d):
     distances = distance_to_region(locdata_2d, regions_union([region, region_2]))
     assert np.array_equal(distances[:-1], np.array([0, 1, 0, 0.5, 0]))
 
+    plt.close('all')
+
 
 def test_distance_to_region_boundary(locdata_2d):
     region = Rectangle((1, 1), 3, 3, 0)
@@ -66,6 +72,8 @@ def test_distance_to_region_boundary(locdata_2d):
     region_2 = RoiRegion(region_type='rectangle', region_specs=((3.5, 3.5), 3, 3, 0))
     distances = distance_to_region(locdata_2d, regions_union([region, region_2]))
     assert np.array_equal(distances[:-1], np.array([0, 1, 0, 0.5, 0]))
+
+    plt.close('all')
 
 
 def test_max_distance_2d(locdata_2d):

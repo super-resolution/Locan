@@ -150,6 +150,8 @@ def test_Distribution_fits_1d(locdata_simple_1d):
     assert lp.distribution_statistics.parameter_dict()
     assert lp.distribution_statistics.position_distance_loc == 1
 
+    plt.close('all')
+
 
 def test_Distribution_fits(locdata_simple_2d):
     # print(locdata_simple.data)
@@ -178,6 +180,8 @@ def test_Distribution_fits(locdata_simple_2d):
     assert lp.distribution_statistics.parameters
     assert lp.distribution_statistics.parameter_dict()
     assert lp.distribution_statistics.position_distance_loc == 1
+
+    plt.close('all')
 
 
 def test_Distribution_fits_3d(locdata_simple_3d):
@@ -208,6 +212,8 @@ def test_Distribution_fits_3d(locdata_simple_3d):
     assert lp.distribution_statistics.parameter_dict()
     assert lp.distribution_statistics.position_distance_loc == 1
 
+    plt.close('all')
+
 
 def test_Localization_precision_histogram(locdata_simple_2d):
     lp = LocalizationPrecision().compute(locdata=locdata_simple_2d)
@@ -221,6 +227,8 @@ def test_Localization_precision_histogram(locdata_simple_2d):
     # print(lp.distribution_statistics.parameter_dict())
     assert lp.distribution_statistics.position_delta_x_loc
     assert lp.distribution_statistics.position_delta_x_scale
+
+    plt.close('all')
 
 
 # standard LocData fixtures

@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt  # this import is needed for visual inspection
 
 from locan import LocData
 from locan.constants import ROOT_DIR
@@ -55,6 +56,8 @@ def test_cbc(locdata):
     #
     # plt.show()
 
+    plt.close('all')
+
 
 def test_cbc_nan(locdata_line):
     res = _coordinate_based_colocalization(points=locdata_line.coordinates,
@@ -69,6 +72,8 @@ def test_Coordinate_based_colocalization_empty(caplog):
     cbc.hist()
     assert caplog.record_tuples == [('locan.analysis.cbc', 30, 'Locdata is empty.')]
 
+    plt.close('all')
+
 
 def test_Coordinate_based_colocalization(locdata_line):
     other_locdata = transform_affine(locdata_line)
@@ -78,3 +83,5 @@ def test_Coordinate_based_colocalization(locdata_line):
     assert(cbc.results.columns == f'colocalization_cbc_{other_locdata.meta.identifier}')
 
     cbc.hist()
+
+    plt.close('all')

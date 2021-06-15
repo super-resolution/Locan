@@ -23,6 +23,8 @@ def test_Localization_property_correlations(locdata_rapidSTORM_2d):
     for i in range(2):
         assert lpcorr.results.iloc[i, i] == 1
 
-    # lpcorr.plot()
-    lpcorr.plot(cbar=False, vmin=0)
+    lpcorr.plot()
+    # lpcorr.plot(cbar=False, vmin=0)
     # plt.show()
+
+    plt.close('all')

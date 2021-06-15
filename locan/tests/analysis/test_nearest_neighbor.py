@@ -86,6 +86,8 @@ def test_DistributionFits(locdata_simple):
            {'density': pytest.approx(0.058984374999999166), 'loc': 0, 'scale': 1}
     # plt.show()
 
+    plt.close('all')
+
 
 def test_DistributionFits_k2(locdata_simple):
     nn_1 = NearestNeighborDistances(k=2)
@@ -104,6 +106,8 @@ def test_DistributionFits_k2(locdata_simple):
 
     nn_1.hist(fit=True)
     # plt.show()
+
+    plt.close('all')
 
 
 def test_Nearest_neighbor_distances(locdata_simple, other_locdata_simple):
@@ -139,6 +143,8 @@ def test_NearestNeighborDistances_3d(locdata_3d):
            {'density': pytest.approx(0.007666015624999118), 'loc': 0, 'scale': 1}
     # plt.show()
 
+    plt.close('all')
+
 
 def test_NearestNeighborDistances_1d(caplog, locdata_1d):
     nn_1 = NearestNeighborDistances().compute(locdata_1d)
@@ -160,6 +166,8 @@ def test_NearestNeighborDistances_1d(caplog, locdata_1d):
 
     nn_1.hist(fit=True)
     # plt.show()
+
+    plt.close('all')
 
 
 @pytest.mark.skip('Test for visual inspection.')

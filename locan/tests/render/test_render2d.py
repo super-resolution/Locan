@@ -19,11 +19,15 @@ def test_render_2d_mpl_empty(locdata_empty):
     render_2d_mpl(locdata_empty, bin_size=5)
     # plt.show()
 
+    plt.close('all')
+
 
 def test_render_2d_mpl_single(locdata_single_localization):
     render_2d_mpl(locdata_single_localization, bin_size=5)
     render_2d_mpl(locdata_single_localization, bin_size=0.5)
     # plt.show()
+
+    plt.close('all')
 
 
 def test_render_2d_mpl(locdata_blobs_2d):
@@ -44,10 +48,14 @@ def test_render_2d_mpl(locdata_blobs_2d):
     render_2d_mpl(locdata_blobs_2d, ax=ax[0], colorbar_kws=dict(ax=ax[0]))
     render_2d_mpl(locdata_blobs_2d, bin_range='zero', ax=ax[1])
 
+    plt.close('all')
+
 
 def test_render_2d_mpl_show(locdata_blobs_2d):
     render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale=None)
     # plt.show()
+
+    plt.close('all')
 
 
 @pytest.mark.skipif(not _has_mpl_scatter_density, reason="requires mpl_scatter_density")
@@ -68,6 +76,8 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
 
     # plt.show()
 
+    plt.close('all')
+
 
 @pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
 @pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
@@ -78,6 +88,8 @@ def test_render_2d(locdata_blobs_2d, test_input, expected):
     else:
         render_2d(locdata_blobs_2d, render_engine=test_input)
     # plt.show()
+
+    plt.close('all')
 
 
 @pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
@@ -93,6 +105,8 @@ def test_render_2d_napari(locdata_blobs_2d):
 
     render_2d(locdata_blobs_2d, render_engine=RenderEngine.NAPARI)
     # napari.run()
+
+    plt.close('all')
 
 
 def test__napari_shape_to_region():
@@ -135,6 +149,8 @@ def test_scatter_2d_mpl(locdata_2d):
     scatter_2d_mpl(locdata_2d, text_kwargs=dict(color='r'), color='r')
     # plt.show()
 
+    plt.close('all')
+
 
 @pytest.mark.skip('Visual check repeating previously checked functionality.')
 def test_scatter_2d_mpl_2(locdata_blobs_2d):
@@ -142,6 +158,8 @@ def test_scatter_2d_mpl_2(locdata_blobs_2d):
     render_2d_mpl(locdata_blobs_2d)
     scatter_2d_mpl(collection)
     plt.show()
+
+    plt.close('all')
 
 
 def test_apply_window():

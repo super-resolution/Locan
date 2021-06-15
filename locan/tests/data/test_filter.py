@@ -105,20 +105,7 @@ def test_localizations_in_cluster_regions(locdata_blobs_2d):
     result = localizations_in_cluster_regions(locdata, collection.references)
     assert np.array_equal(result.data.localization_count.values, [0, 0, 1, 0, 0])
 
-
-# def test_localizations_in_region_2(locdata_2d):
-#     # test with shapely MultiPolygon
-#     region = RoiRegion(region='rectangle', region_specs=((1, 1), 2.5, 2.5, 0))
-#     region_2 = RoiRegion(region='rectangle', region_specs=((4, 4), 1.5, 1.5, 0))
-#     # visualize
-#     # ax = scatter_2d_mpl(locdata_2d, index=True, marker='o', color='g')
-#     # ax.add_patch(region.as_artist(fill=False))
-#     # ax.add_patch(region_2.as_artist(fill=False))
-#     # plt.show()
-#
-#     multipol = MultiPolygon([region.to_shapely(), region_2.to_shapely()])
-#     new_locdata = localizations_within_region(locdata_2d, multipol)
-#     assert len(new_locdata) == 2
+    plt.close('all')
 
 
 def test_select_by_region(locdata_2d):
@@ -140,6 +127,8 @@ def test_select_by_region(locdata_2d):
     region = RoiRegion(region_type='rectangle', region_specs=((1, 1), 3.5, 4.5, 0))
     new_locdata = select_by_region(locdata_2d, region, loc_properties=['position_x', 'frame'])
     assert len(new_locdata) == 3
+
+    plt.close('all')
 
 
 def test_exclude_sparse_points(locdata_simple):

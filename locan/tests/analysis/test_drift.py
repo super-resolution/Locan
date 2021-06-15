@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+import matplotlib.pyplot as plt  # this import is needed for visual inspection
 from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, PolynomialModel
 
@@ -22,6 +23,8 @@ def test__LmfitModelFacade():
     model.plot()
     # plt.show()
 
+    plt.close('all')
+
 
 def test__ConstantModelFacade():
     model = _ConstantModelFacade()
@@ -30,6 +33,8 @@ def test__ConstantModelFacade():
     assert len(model.eval([2, 5])) == 2
     model.plot()
     # plt.show()
+
+    plt.close('all')
 
 
 def test__ConstantZeroModelFacade():
@@ -40,6 +45,8 @@ def test__ConstantZeroModelFacade():
     model.plot()
     # plt.show()
 
+    plt.close('all')
+
 
 def test__ConstantOneModelFacade():
     model = _ConstantOneModelFacade()
@@ -48,6 +55,8 @@ def test__ConstantOneModelFacade():
     assert len(model.eval([2, 5])) == 2
     model.plot()
     # plt.show()
+
+    plt.close('all')
 
 
 def test__SplineModelFacade():
@@ -119,6 +128,8 @@ def test_DriftComponent():
     assert drift_component.eval(4) == pytest.approx(2.924242424242425)
     assert len(drift_component.eval([1, 4]) == 2)
     # plt.show()
+
+    plt.close('all')
 
 
 def test_Drift_empty(caplog):
@@ -251,3 +262,5 @@ def test_Drift(locdata_blobs_2d, locdata_rapidSTORM_2d):
     assert isinstance(drift.collection, LocData)
     assert drift.transformations[0]._fields == ('matrix', 'offset')
     assert len(drift.transformations) == 5
+
+    plt.close('all')

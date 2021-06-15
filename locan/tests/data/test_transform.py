@@ -82,6 +82,8 @@ def test_bunwarp_raw_transformation():
     # render_2d(dat_green_transformed, ax=ax, bin_size=500, rescale=True, cmap='Blues', alpha=0.5)
     # plt.show()
 
+    plt.close('all')
+
 
 def test_homogeneous_matrix():
     matrix_out = _homogeneous_matrix()

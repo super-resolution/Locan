@@ -136,6 +136,8 @@ def test_as_artist():
     ax.add_patch(roi_polygon._region.as_artist())
     # plt.show()
 
+    plt.close('all')
+
 
 # to be deprecated
 # @pytest.mark.skip('GUI tests are skipped because they need user interaction.')

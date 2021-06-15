@@ -182,6 +182,7 @@ def test_Rectangle():
     ax.plot(*np.array(region.buffer(1).exterior.coords).T, marker='.', color='Yellow')
     region.plot(color='Green')
     # plt.show()
+    plt.close('all')
 
 
 def test_Ellipse():
@@ -280,6 +281,7 @@ def test_Polygon():
     #ax.add_patch(region.as_artist(origin=(0, 0), fill=True, alpha=0.2))
     # plt.show()
 
+    plt.close('all')
 
 def test_Polygon_with_holes():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
@@ -324,6 +326,7 @@ def test_Polygon_with_holes():
     ax.plot(*region.centroid, '*', color='Green')
     # plt.show()
 
+    plt.close('all')
 
 def test_Polygon_from_shapely():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
@@ -360,6 +363,7 @@ def test_Polygon_from_shapely():
     ax.plot(*region.centroid, '*', color='Green')
     # plt.show()
 
+    plt.close('all')
 
 def test_MultiPolygon():
     points = ((2, 2), (2, 3), (3, 3), (3, 2.5), (2, 2))
@@ -416,6 +420,7 @@ def test_MultiPolygon():
     # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     # plt.show()
 
+    plt.close('all')
 
 def test_Polygon_union():
     points = ((2, 2), (2, 3), (3, 3), (3, 2.5), (2, 2))
@@ -447,6 +452,7 @@ def test_Polygon_union():
     # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     # plt.show()
 
+    plt.close('all')
 
 def test_Polygon_union_ragged():
     points = ((0, 0), (0, 10), (10, 10), (10, 0))
@@ -473,6 +479,7 @@ def test_Polygon_union_ragged():
     # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     # plt.show()
 
+    plt.close('all')
 
 def test_Polygon_intersection():
     points = ((0, 2), (0, 3), (3, 3), (3, 2.5), (2, 2))
@@ -509,6 +516,7 @@ def test_Polygon_intersection():
     # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     # plt.show()
 
+    plt.close('all')
 
 def test_Polygon_difference():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
@@ -543,6 +551,7 @@ def test_Polygon_difference():
     # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     # plt.show()
 
+    plt.close('all')
 
 def test_AxisOrientedCuboid():
     region = AxisOrientedCuboid((1, 1, 1), 9, 19, 29)

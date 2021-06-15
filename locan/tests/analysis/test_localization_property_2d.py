@@ -31,3 +31,5 @@ def test_Localization_property_2d(capfd, locdata_rapidSTORM_2d):
     lprop.plot_deviation_from_mean()
     lprop.plot_deviation_from_median()
     # plt.show()
+
+    plt.close('all')

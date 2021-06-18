@@ -83,7 +83,7 @@ def ranges(locdata: LocData, loc_properties=None, special=None, epsilon=1):
 
     Returns
     -------
-    numpy.ndarray of float with shape (n_dimensions, 2), None
+    numpy.ndarray of float with shape (dimension, 2), None
         The data range (min, max) for each localization property.
     """
     if locdata.data.empty:

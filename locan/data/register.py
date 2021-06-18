@@ -284,7 +284,7 @@ def register_cc(locdata, other_locdata, max_offset=None,
         Maximum possible offset.
     bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
         The bin specification as defined in :class:`Bins`
-    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimensions, n_bin_edges) or None
+    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges) or None
         Array of bin edges for all or each dimension.
     n_bins : int, list, tuple or numpy.ndarray or None
         The number of bins for all or each dimension.
@@ -295,7 +295,7 @@ def register_cc(locdata, other_locdata, max_offset=None,
         5 would describe bin_size of 5 for all bins in all dimensions.
         (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
         To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple or tuple of tuples of float with shape (n_dimensions, 2) or None or 'zero'
+    bin_range : tuple or tuple of tuples of float with shape (dimension, 2) or None or 'zero'
         The data bin_range to be taken into consideration for all or each dimension.
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;

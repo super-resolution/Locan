@@ -667,6 +667,12 @@ def test_make_Thomas():
     samples, labels, parent_samples, region = make_Thomas(parent_intensity=10, region=EmptyRegion(), seed=rng)
     assert np.size(samples) == 0
 
+    samples, labels, parent_samples, region = make_Thomas(parent_intensity=0, region=(0, 10), seed=rng)
+    assert np.size(samples) == 0
+
+    samples, labels, parent_samples, region = make_Thomas(parent_intensity=10, region=(0, 10), cluster_mu=0, seed=rng)
+    assert np.size(samples) == 0
+
     samples, labels, parent_samples, region = make_Thomas(parent_intensity=1e-10, region=(0, 10), seed=rng)
     assert np.size(samples) == 0
 

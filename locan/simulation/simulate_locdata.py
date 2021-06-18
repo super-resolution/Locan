@@ -36,10 +36,12 @@ from locan.data.region import Region, EmptyRegion, Interval, Rectangle, Ellipse,
 from locan.data.region_utils import expand_region
 
 
-__all__ = ['make_uniform', 'make_Poisson', 'make_cluster', 'make_NeymanScott', 'make_Matern', 'make_Thomas',
+__all__ = [
+           'make_uniform', 'make_Poisson', 'make_cluster', 'make_NeymanScott', 'make_Matern', 'make_Thomas',
            'simulate_uniform', 'simulate_Poisson',
            'simulate_cluster', 'simulate_NeymanScott', 'simulate_Matern', 'simulate_Thomas',
-           'simulate_tracks', 'resample', 'simulate_frame_numbers']
+           'simulate_tracks', 'resample', 'simulate_frame_numbers'
+]
 
 
 def make_uniform(n_samples, region=(0, 1), seed=None):
@@ -606,7 +608,7 @@ def make_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0,
         samples.append(offspring_samples)
         labels += [i] * len(offspring_samples)
 
-    samples = np.concatenate(samples) if np.size(samples) != 0 else np.array([])
+    samples = np.concatenate(samples) if len(samples) != 0 else np.array([])
     labels = np.array(labels)
 
     if clip is True:
@@ -714,11 +716,14 @@ def make_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
     """
     rng = np.random.default_rng(seed)
 
-    if isinstance(region, EmptyRegion):
-        samples, labels, parent_samples, region = np.array([]), np.array([]), np.array([]), EmptyRegion()
-        return samples, labels, parent_samples, region
-    elif not isinstance(region, Region):
+    if not isinstance(region, Region):
         region = Region.from_intervals(region)
+
+    if parent_intensity == 0 or \
+            (np.size(cluster_mu) == 0 and cluster_mu == 0) or \
+            isinstance(region, EmptyRegion):
+        samples, labels, parent_samples, region = np.array([]), np.array([]), np.array([]), region
+        return samples, labels, parent_samples, region
 
     # expand region
     expansion_distance = expansion_factor * np.max(cluster_std)
@@ -763,7 +768,7 @@ def make_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
         samples.append(offspring_samples)
         labels += [i] * len(offspring_samples)
 
-    samples = np.concatenate(samples) if np.size(samples) != 0 else np.array([])
+    samples = np.concatenate(samples) if len(samples) != 0 else np.array([])
     labels = np.array(labels)
 
     if clip is True:

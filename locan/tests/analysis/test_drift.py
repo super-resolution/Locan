@@ -10,7 +10,6 @@ from locan import Drift, DriftComponent
 from locan.analysis.drift import _LmfitModelFacade, _ConstantModelFacade, _ConstantZeroModelFacade, \
     _ConstantOneModelFacade, _SplineModelFacade
 
-
 x = np.array([1, 2, 4, 6, 9, 10, 11, 15, 16, 20])
 y = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 
@@ -146,6 +145,9 @@ def test_Drift_empty(caplog):
 
 @pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
 def test_Drift(locdata_blobs_2d, locdata_rapidSTORM_2d):
+    import warnings
+    warnings.simplefilter("error")
+
     drift = Drift(chunk_size=100, target='first').compute(locdata_rapidSTORM_2d)
     assert isinstance(drift.locdata, LocData)
     assert isinstance(drift.collection, LocData)

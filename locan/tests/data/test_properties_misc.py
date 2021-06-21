@@ -8,7 +8,7 @@ from shapely.geometry import MultiPoint
 
 from locan import scatter_2d_mpl
 from locan.simulation import make_uniform, make_cluster
-from locan import distance_to_region, distance_to_region_boundary, max_distance, compute_inertia_moments
+from locan import distance_to_region, distance_to_region_boundary, max_distance, inertia_moments
 from locan import regions_union, RoiRegion, Rectangle, Ellipse
 
 
@@ -97,7 +97,7 @@ def test_compute_inertia_moments_visual():
     for angle in np.linspace(0, 180, 20):
         rotated_points = affinity.rotate(MultiPoint(points), angle, origin=[0, 0], use_radians=False)
         axes[0].scatter(*np.array(rotated_points).T)
-        inertia_moments = compute_inertia_moments(np.array(rotated_points))
+        inertia_moments = inertia_moments(np.array(rotated_points))
         axes[1].scatter(angle, inertia_moments.orientation)
     plt.show()
 
@@ -109,14 +109,14 @@ def test_compute_inertia_moments():
                                 clip=False, seed=rng)
     for angle in np.linspace(0, 180, 5):
         rotated_points = affinity.rotate(MultiPoint(points), angle, origin=[0, 0], use_radians=False)
-        inertia_moments = compute_inertia_moments(np.array(rotated_points))
+        inertia_moments = inertia_moments(np.array(rotated_points))
         assert len(inertia_moments.eigenvalues) == 2
         assert len(inertia_moments.eigenvectors) == 2
         assert len(inertia_moments.variance_explained) == 2
 
         assert (inertia_moments.orientation + 180) % 180 == pytest.approx((angle + 180.000001) % 180, abs=0.01)
         assert (inertia_moments.orientation+180) % 180 == pytest.approx((angle+180.000001) % 180, abs=0.01)
-        assert inertia_moments.excentricity == pytest.approx(0.98, abs=0.1)
+        assert inertia_moments.eccentricity == pytest.approx(0.98, abs=0.1)
 
 
 def test_compute_inertia_moments_3d(caplog):
@@ -125,9 +125,9 @@ def test_compute_inertia_moments_3d(caplog):
     points, _, _, _ = make_cluster(centers=([0, 0, 0], [10, 0, 0]), region=((0, 10), (0, 10), (0, 10)), offspring=offspring,
                                 clip=False, seed=rng)
 
-    inertia_moments = compute_inertia_moments(np.array(points))
+    inertia_moments = inertia_moments(np.array(points))
     assert len(inertia_moments.eigenvalues) == 3
     assert np.isnan(inertia_moments.orientation)
-    assert np.isnan(inertia_moments.excentricity)
+    assert np.isnan(inertia_moments.eccentricity)
     assert caplog.record_tuples == [('locan.data.properties.misc', logging.WARNING,
-                                     'Orientation and excentricity have not yet been implemented for 3D.')]
+                                     'Orientation and eccentricity have not yet been implemented for 3D.')]

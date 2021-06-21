@@ -13,7 +13,7 @@ def test_regions_union_Rectangles():
     region_1 = Rectangle((2, 2), 1, 1, 0)
     regions = [region_0, region_1]
     union = regions_union(regions)
-    assert isinstance(union, Region)
+    assert isinstance(union, MultiPolygon)
     assert union.region_measure == 2
 
     region_0 = Rectangle((0, 0), 1, 1, 0)
@@ -21,8 +21,15 @@ def test_regions_union_Rectangles():
     region_2 = Rectangle((0, 0.5), 1, 1, 0)
     regions = [region_0, region_1, region_2]
     union = regions_union(regions)
-    assert isinstance(union, Region)
+    assert isinstance(union, Polygon)
     assert union.region_measure == 2.5
+
+    region_0 = Polygon([(2, 2), (2, 3), (3, 3), (3, 2.5), (2, 2)])
+    region_1 = Rectangle((10, 10), 1, 1, 0)
+    regions = [region_0, region_1]
+    union = regions_union(regions)
+    assert isinstance(union, MultiPolygon)
+    assert union.region_measure == 1.75
 
     # visualize
     fig, ax = plt.subplots()
@@ -125,6 +132,31 @@ def test_extend_Polygon():
     ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
     ax.add_patch(extended_region_with_support.as_artist(fill=True, alpha=0.2, color='Green'))
     # plt.show()
+
+    plt.close('all')
+
+
+def test_extend_MultiPolygon():
+    points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
+    region_0 = Polygon(points, holes)
+
+    support = Rectangle((0, 0), 1, 1, 0)
+    extended_region = expand_region(region, distance=0.1)
+    extended_region_with_support = expand_region(region, distance=0.1, support=support)
+    assert isinstance(extended_region, Region)
+    assert isinstance(extended_region_with_support, Region)
+    assert region.region_measure == pytest.approx(0.7350000000000001)
+    assert extended_region.region_measure == pytest.approx(1.1431688585174895)
+    assert extended_region_with_support.region_measure == pytest.approx(0.8493033988749895)
+
+    # visualize
+    fig, ax = plt.subplots()
+    ax.scatter(*region.points.T)
+    ax.add_patch(region.as_artist(fill=True, alpha=0.2, color='Blue'))
+    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
+    ax.add_patch(extended_region_with_support.as_artist(fill=True, alpha=0.2, color='Green'))
+    plt.show()
 
     plt.close('all')
 

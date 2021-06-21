@@ -941,7 +941,7 @@ class Rectangle(Region2D):
 
         Parameters
         ----------
-        intervals : array-like of shape (2, 2)
+        intervals : tuple, list, np.ndarray of shape (2, 2)
             The region bounds for each dimension
 
         Returns

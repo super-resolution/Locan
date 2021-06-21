@@ -12,7 +12,7 @@ from shapely.geometry import asPoint
 from locan.data.region import Region, Region2D, RoiRegion
 
 
-__all__ = ['distance_to_region', 'distance_to_region_boundary', 'max_distance', 'compute_inertia_moments']
+__all__ = ['distance_to_region', 'distance_to_region_boundary', 'max_distance', 'inertia_moments']
 
 logger = logging.getLogger(__name__)
 
@@ -93,14 +93,14 @@ def max_distance(locdata):
     return {'max_distance': distance}
 
 
-def compute_inertia_moments(points):
+def inertia_moments(points):
     """
     Return inertia moments (or principal components) and related properties for the given points.
     Inertia moments are represented by eigenvalues (and corresponding eigenvectors) of the covariance matrix.
     Variance_explained represents the eigenvalues normalized to the sum of all eigenvalues.
     For 2-dimensional data, orientation is the angle (in degrees) between the principal axis
     with the largest variance and the x-axis.
-    Also for 2-dimensional data, excentricity is computed as e=Sqrt(1-M_min/M_max).
+    Also for 2-dimensional data, eccentricity is computed as e=Sqrt(1-M_min/M_max).
 
     Parameters
     ----------
@@ -109,8 +109,8 @@ def compute_inertia_moments(points):
 
     Returns
     -------
-    namedtuple(InertiaMoments, 'eigenvalues eigenvectors variance_explained orientation excentricity')
-        A tuple with eigenvalues, eigenvectors, variance_explained, orientation, excentricity
+    namedtuple(InertiaMoments, 'eigenvalues eigenvectors variance_explained orientation eccentricity')
+        A tuple with eigenvalues, eigenvectors, variance_explained, orientation, eccentricity
 
     Note
     ----
@@ -125,13 +125,13 @@ def compute_inertia_moments(points):
     if np.shape(points)[1] == 2:
         orientation = np.degrees(
             np.arctan2(eigen_vectors[1][index_max_eigen_value], eigen_vectors[0][index_max_eigen_value]))
-        excentricity = np.sqrt(1 - np.min(eigen_values) / np.max(eigen_values))
+        eccentricity = np.sqrt(1 - np.min(eigen_values) / np.max(eigen_values))
     else:  # todo implement for 3d
-        logger.warning("Orientation and excentricity have not yet been implemented for 3D.")
+        logger.warning("Orientation and eccentricity have not yet been implemented for 3D.")
         orientation = np.nan
-        excentricity = np.nan
+        eccentricity = np.nan
 
     InertiaMoments = namedtuple('InertiaMoments',
-                                'eigenvalues eigenvectors variance_explained orientation excentricity')
-    inertia_moments = InertiaMoments(eigen_values, eigen_vectors, variance_explained, orientation, excentricity)
+                                'eigenvalues eigenvectors variance_explained orientation eccentricity')
+    inertia_moments = InertiaMoments(eigen_values, eigen_vectors, variance_explained, orientation, eccentricity)
     return inertia_moments

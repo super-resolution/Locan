@@ -21,7 +21,7 @@ import locan.data.hulls
 from locan.data import metadata_pb2
 from locan.data.metadata_utils import _modify_meta
 from locan.utils.format import _time_string
-from locan.data.properties import compute_inertia_moments
+from locan.data.properties import inertia_moments
 
 
 __all__ = ['LocData']
@@ -282,12 +282,12 @@ class LocData:
 
     @property
     def inertia_moments(self):
-        """Inertia moments are returned as computed by :func:`locan.data.properties.compute_inertia_moments`."""
+        """Inertia moments are returned as computed by :func:`locan.data.properties.inertia_moments`."""
         if self._inertia_moments is None:
             try:
-                self._inertia_moments = locan.data.properties.compute_inertia_moments(self.coordinates)
+                self._inertia_moments = locan.data.properties.inertia_moments(self.coordinates)
                 self.properties['orientation_im'] = self._inertia_moments.orientation
-                self.properties['circularity_im'] = self._inertia_moments.excentricity
+                self.properties['circularity_im'] = self._inertia_moments.eccentricity
             except TypeError:
                 warnings.warn('Properties related to inertia_moments could not be computed.', UserWarning)
         return self._inertia_moments

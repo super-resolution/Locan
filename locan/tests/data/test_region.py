@@ -48,13 +48,16 @@ def test_Region2D():
     region = Region2D.from_shapely(shapely_object)
     assert isinstance(region, MultiPolygon)
 
+
 def test_Region3D():
     with pytest.raises(TypeError):
         Region3D()
 
+
 def test_RegionND():
     with pytest.raises(TypeError):
         RegionND()
+
 
 def test_EmptyRegion():
     region = EmptyRegion()
@@ -125,6 +128,7 @@ def test_Interval():
     assert repr(region) == 'Interval(0, 2)'
     region = Interval.from_intervals(np.array([0, 2]))
     assert repr(region) == 'Interval(0, 2)'
+
 
 def test_Rectangle():
     region = Rectangle((0, 0), 2, 1, 90)
@@ -230,7 +234,7 @@ def test_Ellipse():
     ax.plot(*np.array(region.buffer(1).exterior.coords).T, marker='.', color='Yellow')
     ax.plot(*region.centroid, '*', color='Green')
     # plt.show()
-
+    plt.close('all')
 
 def test_Polygon():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
@@ -283,6 +287,7 @@ def test_Polygon():
 
     plt.close('all')
 
+
 def test_Polygon_with_holes():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
     holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
@@ -328,6 +333,7 @@ def test_Polygon_with_holes():
 
     plt.close('all')
 
+
 def test_Polygon_from_shapely():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
     holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
@@ -364,6 +370,7 @@ def test_Polygon_from_shapely():
     # plt.show()
 
     plt.close('all')
+
 
 def test_MultiPolygon():
     points = ((2, 2), (2, 3), (3, 3), (3, 2.5), (2, 2))
@@ -422,6 +429,7 @@ def test_MultiPolygon():
 
     plt.close('all')
 
+
 def test_Polygon_union():
     points = ((2, 2), (2, 3), (3, 3), (3, 2.5), (2, 2))
     region_0 = Polygon(points)
@@ -454,6 +462,7 @@ def test_Polygon_union():
 
     plt.close('all')
 
+
 def test_Polygon_union_ragged():
     points = ((0, 0), (0, 10), (10, 10), (10, 0))
     holes = [((1, 1), (1, 9), (4, 9), (4, 1))]
@@ -480,6 +489,7 @@ def test_Polygon_union_ragged():
     # plt.show()
 
     plt.close('all')
+
 
 def test_Polygon_intersection():
     points = ((0, 2), (0, 3), (3, 3), (3, 2.5), (2, 2))
@@ -518,6 +528,7 @@ def test_Polygon_intersection():
 
     plt.close('all')
 
+
 def test_Polygon_difference():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
     holes = [((0.2, 0.2), (0.2, 0.4), (0.4, 0.4), (0.3, 0.25)), ((0.5, 0.5), (0.5, 0.8), (0.8, 0.8), (0.7, 0.45))]
@@ -552,6 +563,7 @@ def test_Polygon_difference():
     # plt.show()
 
     plt.close('all')
+
 
 def test_AxisOrientedCuboid():
     region = AxisOrientedCuboid((1, 1, 1), 9, 19, 29)
@@ -690,6 +702,7 @@ def test_AxisOrientedHypercuboid():
     assert repr(region) == 'AxisOrientedHypercuboid((1, 1, 1), (9, 19, 29))'
     region = AxisOrientedHypercuboid.from_intervals(np.array([(1, 10), (1, 20), (1, 30)]))
     assert repr(region) == 'AxisOrientedHypercuboid((1, 1, 1), (9, 19, 29))'
+
 
 def test_pickling_Region():
     regions = [EmptyRegion(), Interval(), Rectangle(), Ellipse(), Polygon(((0, 0), (0, 1), (2, 2))),

@@ -74,7 +74,7 @@ class LocalizationsPerFrame(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy.ndarray, pandas.DataFrame
+    results : pandas.Series
         Computed results.
     distribution_statistics : Distribution_fits object, None
         Distribution parameters derived from MLE fitting of results.

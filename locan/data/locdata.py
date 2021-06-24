@@ -736,7 +736,7 @@ class LocData:
 
         Returns
         -------
-        self (LocData)
+        LocData
             The modified object
         """
         local_parameter = locals()

@@ -139,7 +139,7 @@ def test_extend_Polygon():
 def test_extend_MultiPolygon():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
     holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
-    region_0 = Polygon(points, holes)
+    region = Polygon(points, holes)
 
     support = Rectangle((0, 0), 1, 1, 0)
     extended_region = expand_region(region, distance=0.1)
@@ -156,7 +156,7 @@ def test_extend_MultiPolygon():
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color='Blue'))
     ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
     ax.add_patch(extended_region_with_support.as_artist(fill=True, alpha=0.2, color='Green'))
-    plt.show()
+    # plt.show()
 
     plt.close('all')
 

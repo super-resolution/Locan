@@ -109,14 +109,14 @@ def test_compute_inertia_moments():
                                 clip=False, seed=rng)
     for angle in np.linspace(0, 180, 5):
         rotated_points = affinity.rotate(MultiPoint(points), angle, origin=[0, 0], use_radians=False)
-        inertia_moments = inertia_moments(np.array(rotated_points))
-        assert len(inertia_moments.eigenvalues) == 2
-        assert len(inertia_moments.eigenvectors) == 2
-        assert len(inertia_moments.variance_explained) == 2
+        inertia_moments_ = inertia_moments(np.array(rotated_points))
+        assert len(inertia_moments_.eigenvalues) == 2
+        assert len(inertia_moments_.eigenvectors) == 2
+        assert len(inertia_moments_.variance_explained) == 2
 
-        assert (inertia_moments.orientation + 180) % 180 == pytest.approx((angle + 180.000001) % 180, abs=0.01)
-        assert (inertia_moments.orientation+180) % 180 == pytest.approx((angle+180.000001) % 180, abs=0.01)
-        assert inertia_moments.eccentricity == pytest.approx(0.98, abs=0.1)
+        assert (inertia_moments_.orientation + 180) % 180 == pytest.approx((angle + 180.000001) % 180, abs=0.01)
+        assert (inertia_moments_.orientation+180) % 180 == pytest.approx((angle+180.000001) % 180, abs=0.01)
+        assert inertia_moments_.eccentricity == pytest.approx(0.98, abs=0.1)
 
 
 def test_compute_inertia_moments_3d(caplog):
@@ -125,9 +125,9 @@ def test_compute_inertia_moments_3d(caplog):
     points, _, _, _ = make_cluster(centers=([0, 0, 0], [10, 0, 0]), region=((0, 10), (0, 10), (0, 10)), offspring=offspring,
                                 clip=False, seed=rng)
 
-    inertia_moments = inertia_moments(np.array(points))
-    assert len(inertia_moments.eigenvalues) == 3
-    assert np.isnan(inertia_moments.orientation)
-    assert np.isnan(inertia_moments.eccentricity)
+    inertia_moments_ = inertia_moments(np.array(points))
+    assert len(inertia_moments_.eigenvalues) == 3
+    assert np.isnan(inertia_moments_.orientation)
+    assert np.isnan(inertia_moments_.eccentricity)
     assert caplog.record_tuples == [('locan.data.properties.misc', logging.WARNING,
                                      'Orientation and eccentricity have not yet been implemented for 3D.')]

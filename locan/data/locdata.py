@@ -277,7 +277,12 @@ class LocData:
         if isinstance(self.references, list):
             for reference in self.references:
                 reference.update_alpha_shape(alpha=alpha)
-            self.dataframe = pd.DataFrame([reference.properties for reference in self.references])
+            new_df = pd.DataFrame([reference.properties for reference in self.references])
+            new_df.index = self.data.index
+            self.dataframe.update(new_df)
+            new_columns = [column for column in new_df.columns if column in self.dataframe.columns]
+            new_df.drop(columns=new_columns, inplace=True, errors='ignore')
+            self.dataframe = pd.concat([self.dataframe, new_df], axis=1)
         return self
 
     @property
@@ -304,7 +309,12 @@ class LocData:
         if isinstance(self.references, list):
             for reference in self.references:
                 reference.inertia_moments  # request property to update
-            self.dataframe = pd.DataFrame([reference.properties for reference in self.references])
+            new_df = pd.DataFrame([reference.properties for reference in self.references])
+            new_df.index = self.data.index
+            self.dataframe.update(new_df)
+            new_columns = [column for column in new_df.columns if column in self.dataframe.columns]
+            new_df.drop(columns=new_columns, inplace=True, errors='ignore')
+            self.dataframe = pd.concat([self.dataframe, new_df], axis=1)
         return self
 
     @property
@@ -815,7 +825,13 @@ class LocData:
         if isinstance(self.references, list):
             for reference in self.references:
                 reference.convex_hull  # request property to update reference._convex_hull
-            self.dataframe = pd.DataFrame([reference.properties for reference in self.references])
+
+            new_df = pd.DataFrame([reference.properties for reference in self.references])
+            new_df.index = self.data.index
+            self.dataframe.update(new_df)
+            new_columns = [column for column in new_df.columns if column in self.dataframe.columns]
+            new_df.drop(columns=new_columns, inplace=True, errors='ignore')
+            self.dataframe = pd.concat([self.dataframe, new_df], axis=1)
         return self
 
     def update_oriented_bounding_box_in_references(self):
@@ -830,7 +846,12 @@ class LocData:
         if isinstance(self.references, list):
             for reference in self.references:
                 reference.oriented_bounding_box  # request property to update reference._convex_hull
-            self.dataframe = pd.DataFrame([reference.properties for reference in self.references])
+            new_df = pd.DataFrame([reference.properties for reference in self.references])
+            new_df.index = self.data.index
+            self.dataframe.update(new_df)
+            new_columns = [column for column in new_df.columns if column in self.dataframe.columns]
+            new_df.drop(columns=new_columns, inplace=True, errors='ignore')
+            self.dataframe = pd.concat([self.dataframe, new_df], axis=1)
         return self
 
     def print_meta(self):

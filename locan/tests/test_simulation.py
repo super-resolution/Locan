@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt  # needed for visual inspection
 
 from locan import LocData, EmptyRegion, Interval, Rectangle, Ellipse, Polygon
 from locan.simulation import make_uniform, make_Poisson, \
-    make_cluster, make_NeymanScott, make_Matern, make_Thomas
+    make_cluster, make_NeymanScott, make_Matern, make_Thomas, make_dstorm
 from locan.simulation import simulate_uniform, simulate_Poisson, \
-    simulate_cluster, simulate_NeymanScott, simulate_Matern, simulate_Thomas
+    simulate_cluster, simulate_NeymanScott, simulate_Matern, simulate_Thomas, simulate_dstorm
 
 from locan import resample, simulate_tracks, add_drift, simulate_frame_numbers
 from locan.simulation.simulate_drift import _random_walk_drift, _drift
@@ -93,12 +93,19 @@ def test_make_Poisson():
 
     samples = make_Poisson(intensity=10, region=EmptyRegion(), seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 1
 
     samples = make_Poisson(intensity=1e-10, region=(0, 1), seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 2
+
+    samples = make_Poisson(intensity=1e-10, region=((0, 1), (10, 11)), seed=rng)
+    assert np.size(samples) == 0
+    assert samples.ndim == 3
 
     samples = make_Poisson(intensity=10, region=(0, 1), seed=rng)
     assert samples.shape[1] == 1
+    assert samples.ndim == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
 
@@ -111,6 +118,7 @@ def test_make_Poisson():
 
     samples = make_Poisson(intensity=10, region=((0, 1), (10, 11), (100, 101)), seed=rng)
     assert samples.shape[1] == 3
+    assert samples.ndim == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
     assert np.all(10 <= samples[:, 1])
@@ -175,14 +183,17 @@ def test_make_cluster():
 
     samples, labels, parent_samples, region = make_cluster(centers=10, region=EmptyRegion(), seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 1
 
     samples, labels, parent_samples, region = make_cluster(centers=0, region=(0, 1), seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 2
 
     samples, labels, parent_samples, region = make_cluster(centers=10, region=(0, 1), expansion_distance=1,
                                                    offspring=None,
                                                    clip=False, shuffle=False, seed=rng)
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert len(parent_samples) == 10
     assert np.all(-1 <= samples[:, 0])
@@ -192,6 +203,7 @@ def test_make_cluster():
                                                    offspring=None,
                                                    clip=True, shuffle=True, seed=rng)
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert len(parent_samples) == 5
     assert np.all(0 <= samples[:, 0])
@@ -201,8 +213,8 @@ def test_make_cluster():
     samples, labels, parent_samples, region = make_cluster(centers=10, region=(0, 1), expansion_distance=1,
                                                    offspring=offspring,
                                                    clip=True, shuffle=True, seed=rng)
-
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert len(parent_samples) == 10
     assert np.all(0 <= samples[:, 0])
@@ -215,11 +227,12 @@ def test_make_cluster():
                      clip=True, shuffle=True, seed=rng)
 
     samples, labels, parent_samples, region = make_cluster(centers=10, region=((0, 1), (10, 11), (100, 101)),
-                                                   expansion_distance=1,
+                                                   expansion_distance=0.1,
                                                    offspring=None,
                                                    clip=True, shuffle=True, seed=rng)
     assert len(samples) == len(labels)
     assert len(parent_samples) == 10
+    assert samples.ndim == 2
     assert samples.shape[1] == 3
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
@@ -232,33 +245,37 @@ def test_make_cluster():
                                                    offspring=None,
                                                    clip=True, shuffle=True, seed=rng)
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert len(parent_samples) == 10
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
 
-    samples, labels, parent_samples, region = make_cluster(centers=10, region=Rectangle((0, 10), 1, 1, 0), expansion_distance=1,
-                                                   offspring=None,
-                                                   clip=True, shuffle=True, seed=rng)
+    samples, labels, parent_samples, region = make_cluster(centers=10, region=Rectangle((0, 10), 1, 1, 0),
+                                                           expansion_distance=1,
+                                                           offspring=None,
+                                                           clip=True, shuffle=True, seed=rng)
     assert len(samples) == len(labels)
     assert len(parent_samples) == 10
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
     assert np.all(10 <= samples[:, 1])
     assert np.all(samples[:, 1] < 11)
 
-    samples, labels, parent_samples, region = make_cluster(centers=((-0.5, 1), (0.5, 1), (1, 10)),
-                                                   region=Rectangle((0, 10), 1, 1, 0), expansion_distance=1,
-                                                   offspring=None,
-                                                   clip=True, shuffle=True, seed=rng)
+    samples, labels, parent_samples, region = make_cluster(centers=((-0.5, 10), (0.5, 11), (1, 0)),
+                                                           region=Rectangle((0, 10), 1, 1, 0), expansion_distance=1,
+                                                           offspring=None,
+                                                           clip=True, shuffle=True, seed=rng)
     assert len(samples) == len(labels)
     assert len(parent_samples) == 3
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
     assert np.all(10 <= samples[:, 1])
-    assert np.all(samples[:, 1] < 11)
+    assert np.all(samples[:, 1] <= 11)
 
     samples, labels, parent_samples, region = make_cluster(centers=10, region=Polygon(((0, 10), (1, 11), (1, 10))),
                                                    expansion_distance=1,
@@ -266,6 +283,7 @@ def test_make_cluster():
                                                    clip=True, shuffle=True, seed=rng)
     assert len(samples) == len(labels)
     assert len(parent_samples) == 10
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
@@ -283,7 +301,7 @@ def test_make_cluster():
                                                    expansion_distance=1,
                                                    offspring=offspring,
                                                    clip=True, shuffle=True, seed=rng)
-
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
@@ -297,21 +315,45 @@ def test_make_cluster():
                                                    expansion_distance=1,
                                                    offspring=offspring,
                                                    clip=True, shuffle=True, seed=rng)
-
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
 
     offspring = [make_uniform(n_samples=20, region=Ellipse((0, 0), 0.1, 0.1), seed=rng)] * 10
     samples, labels, parent_samples, region = make_cluster(centers=10, region=Polygon(((0, 10), (1, 11), (1, 10))),
-                                                   expansion_distance=1,
+                                                   expansion_distance=0.1,
                                                    offspring=offspring,
                                                    clip=True, shuffle=True, seed=rng)
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
     assert np.all(10 <= samples[:, 1])
     assert np.all(samples[:, 1] < 11)
+
+    offspring = [np.array([[1, 2], [1, 3], [2, 3]]),
+                 np.array([]),
+                 np.array([[1, 2], [1, 3], [2, 3]])
+                 ]
+    samples, labels, parent_samples, region = make_cluster(centers=3, region=((0, 10), (0, 10)),
+                                                   expansion_distance=1,
+                                                   offspring=offspring,
+                                                   clip=True, shuffle=True, seed=rng)
+    assert samples.ndim == 2
+    assert samples.shape[1] == 2
+    assert np.all(0 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 10)
+    assert np.all(0 <= samples[:, 1])
+    assert np.all(samples[:, 1] < 10)
+
+    offspring = [np.array([])] * 20
+    samples, labels, parent_samples, region = make_cluster(centers=3, region=((0, 10), (0, 10)),
+                                                   expansion_distance=1,
+                                                   offspring=offspring,
+                                                   clip=True, shuffle=True, seed=rng)
+    assert len(samples) == 0
+    assert samples.ndim == 2
 
 
 @pytest.mark.skip('Test needs visual inspection.')
@@ -359,9 +401,11 @@ def test_make_NeymanScott():
 
     samples, labels, parent_samples, region = make_NeymanScott(parent_intensity=10, region=EmptyRegion(), seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 1
 
     samples, labels, parent_samples, region = make_NeymanScott(parent_intensity=1e-10, region=(0, 1), seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 2
 
     samples, labels, parent_samples, region = make_NeymanScott(parent_intensity=10, region=(0, 1),
                                                        expansion_distance=1,
@@ -369,6 +413,7 @@ def test_make_NeymanScott():
                                                        clip=False, shuffle=False, seed=rng)
     assert len(samples) > 0
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(-1 <= samples[:, 0])
     assert np.all(samples[:, 0] < 2)
@@ -379,6 +424,7 @@ def test_make_NeymanScott():
                                                        clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
@@ -390,6 +436,7 @@ def test_make_NeymanScott():
                                                        clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(-1 <= samples[:, 0])
     assert np.all(samples[:, 0] < 2)
@@ -401,12 +448,14 @@ def test_make_NeymanScott():
                          offspring=offspring,
                          clip=True, shuffle=True, seed=rng)
 
-    samples, labels, parent_samples, region = make_NeymanScott(parent_intensity=10, region=((0, 1), (10, 11), (100, 101)),
-                                                       expansion_distance=1,
-                                                       offspring=None,
-                                                       clip=True, shuffle=True, seed=rng)
+    samples, labels, parent_samples, region = make_NeymanScott(parent_intensity=10,
+                                                               region=((0, 1), (10, 11), (100, 101)),
+                                                               expansion_distance=1,
+                                                               offspring=None,
+                                                               clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 3
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
@@ -421,6 +470,7 @@ def test_make_NeymanScott():
                                                        clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
@@ -431,6 +481,7 @@ def test_make_NeymanScott():
                                                        clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
@@ -443,6 +494,7 @@ def test_make_NeymanScott():
                                                        clip=False, shuffle=True, seed=rng)
     assert len(samples) > 0
     assert samples.shape[1] == 2
+    assert samples.ndim == 2
     assert np.all(-1 <= samples[:, 0])
     assert np.all(samples[:, 0] < 2)
     assert np.all(9 <= samples[:, 1])
@@ -454,6 +506,7 @@ def test_make_NeymanScott():
                                                        clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
     assert samples.shape[1] == 2
+    assert samples.ndim == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
     assert np.all(10 <= samples[:, 1])
@@ -471,6 +524,7 @@ def test_make_NeymanScott():
                                                        clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
     assert samples.shape[1] == 2
+    assert samples.ndim == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
     assert np.all(10 <= samples[:, 1])
@@ -483,11 +537,33 @@ def test_make_NeymanScott():
                                                        expansion_distance=1,
                                                        offspring=offspring,
                                                        clip=True, shuffle=True, seed=rng)
-
     assert len(samples) > 0
     assert samples.shape[1] == 1
+    assert samples.ndim == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
+
+    offspring = [np.array([[1, 2], [1, 3], [2, 3]]),
+                 np.array([]),
+                 np.array([[1, 2], [1, 3], [2, 3]])
+                 ] * 20
+    samples, labels, parent_samples, region = make_NeymanScott(parent_intensity=0.1, region=((0, 10), (0, 10)),
+                                                       expansion_distance=1,
+                                                       offspring=offspring,
+                                                       clip=True, shuffle=True, seed=rng)
+    assert len(samples) > 0
+    assert samples.shape[1] == 2
+    assert samples.ndim == 2
+    assert np.all(0 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 10)
+
+    offspring = [np.array([])] * 20
+    samples, labels, parent_samples, region = make_NeymanScott(parent_intensity=0.1, region=((0, 10), (0, 10)),
+                                                       expansion_distance=1,
+                                                       offspring=offspring,
+                                                       clip=True, shuffle=True, seed=rng)
+    assert len(samples) == 0
+    assert samples.ndim == 2
 
 
 @pytest.mark.skip('Test needs visual inspection.')
@@ -529,14 +605,30 @@ def test_make_Matern():
 
     samples, labels, parent_samples, region = make_Matern(parent_intensity=10, region=EmptyRegion(), seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 1
 
     samples, labels, parent_samples, region = make_Matern(parent_intensity=1e-10, region=(0, 10), seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 2
+
+    samples, labels, parent_samples, region = make_Matern(parent_intensity=1e-10, region=((0, 1), (10, 11)), seed=rng)
+    assert np.size(samples) == 0
+    assert samples.ndim == 2
 
     samples, labels, parent_samples, region = make_Matern(parent_intensity=10, region=(0, 10),
                                                   cluster_mu=10, radius=1.0,
                                                   clip=False, shuffle=False, seed=rng)
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
+    assert samples.shape[1] == 1
+    assert np.all(-2 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 12)
+
+    samples, labels, parent_samples, region = make_Matern(parent_intensity=10, region=(0, 10),
+                                                  cluster_mu=1, radius=1.0,
+                                                  clip=False, shuffle=False, seed=rng)
+    assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(-2 <= samples[:, 0])
     assert np.all(samples[:, 0] < 12)
@@ -545,6 +637,7 @@ def test_make_Matern():
                                                   cluster_mu=10, radius=np.linspace(1, 2, 200),
                                                   clip=False, shuffle=False, seed=rng)
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(-4 <= samples[:, 0])
     assert np.all(samples[:, 0] < 14)
@@ -553,6 +646,7 @@ def test_make_Matern():
                                                   cluster_mu=10, radius=1.0,
                                                   clip=True, shuffle=True, seed=rng)
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 10)
@@ -560,8 +654,8 @@ def test_make_Matern():
     samples, labels, parent_samples, region = make_Matern(parent_intensity=10, region=((0, 1), (10, 11)),
                                                   cluster_mu=10, radius=1,
                                                   clip=False, shuffle=True, seed=rng)
-    print(len(samples), len(parent_samples))
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(-2 <= samples[:, 0])
     assert np.all(samples[:, 0] < 3)
@@ -572,8 +666,8 @@ def test_make_Matern():
         samples, labels, parent_samples, region = make_Matern(parent_intensity=10, region=((0, 1), (10, 11), (100, 101)),
                                                       cluster_mu=10, radius=1,
                                                       clip=False, shuffle=True, seed=rng)
-        print(len(samples), len(parent_samples))
         assert len(samples) == len(labels)
+        assert samples.ndim == 2
         assert samples.shape[1] == 3
         assert np.all(-1 <= samples[:, 0])
         assert np.all(samples[:, 0] < 2)
@@ -586,6 +680,7 @@ def test_make_Matern():
     samples, labels, parent_samples, region = make_Matern(parent_intensity=10, region=Interval(0, 1),
                                                   cluster_mu=10, radius=1,
                                                   clip=False, shuffle=True, seed=rng)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(-2 <= samples[:, 0])
     assert np.all(samples[:, 0] < 3)
@@ -593,6 +688,7 @@ def test_make_Matern():
     samples, labels, parent_samples, region = make_Matern(parent_intensity=10, region=Rectangle((0, 10), 1, 1, 0),
                                                   cluster_mu=10, radius=1,
                                                   clip=False, shuffle=True, seed=rng)
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(-2 <= samples[:, 0])
     assert np.all(samples[:, 0] < 3)
@@ -602,6 +698,7 @@ def test_make_Matern():
     samples, labels, parent_samples, region = make_Matern(parent_intensity=10, region=Polygon(((0, 10), (1, 11), (1, 10))),
                                                   cluster_mu=10, radius=1,
                                                   clip=False, shuffle=True, seed=rng)
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(-2 <= samples[:, 0])
     assert np.all(samples[:, 0] < 3)
@@ -611,6 +708,7 @@ def test_make_Matern():
     samples, labels, parent_samples, region = make_Matern(parent_intensity=100, region=Polygon(((0, 10), (1, 11), (1, 10))),
                                                   cluster_mu=10, radius=1,
                                                   clip=True, shuffle=True, seed=rng)
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
@@ -666,15 +764,19 @@ def test_make_Thomas():
 
     samples, labels, parent_samples, region = make_Thomas(parent_intensity=10, region=EmptyRegion(), seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 1
 
     samples, labels, parent_samples, region = make_Thomas(parent_intensity=0, region=(0, 10), seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 2
 
     samples, labels, parent_samples, region = make_Thomas(parent_intensity=10, region=(0, 10), cluster_mu=0, seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 2
 
     samples, labels, parent_samples, region = make_Thomas(parent_intensity=1e-10, region=(0, 10), seed=rng)
     assert np.size(samples) == 0
+    assert samples.ndim == 2
 
     samples, labels, parent_samples, region = make_Thomas(parent_intensity=10, region=(0, 10),
                                                   expansion_factor=6,
@@ -682,6 +784,20 @@ def test_make_Thomas():
                                                   clip=True, shuffle=False, seed=rng)
     assert len(samples) > 0
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
+    assert samples.shape[1] == 1
+    assert np.all(-6 <= parent_samples[:, 0])
+    assert np.all(parent_samples[:, 0] < 16)
+    assert np.all(0 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 10)
+
+    samples, labels, parent_samples, region = make_Thomas(parent_intensity=10, region=(0, 10),
+                                                  expansion_factor=0,
+                                                  cluster_mu=0.1, cluster_std=1.0,
+                                                  clip=True, shuffle=False, seed=rng)
+    assert len(samples) > 0
+    assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(-6 <= parent_samples[:, 0])
     assert np.all(parent_samples[:, 0] < 16)
@@ -700,6 +816,7 @@ def test_make_Thomas():
                                                   clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(-6 <= parent_samples[:, 0])
     assert np.all(parent_samples[:, 0] < 16)
@@ -730,6 +847,7 @@ def test_make_Thomas():
                                                   clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(-6 <= parent_samples[:, 0])
     assert np.all(parent_samples[:, 0] < 7)
@@ -746,6 +864,7 @@ def test_make_Thomas():
                                                   clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
     assert len(samples) == len(labels)
+    assert samples.ndim == 2
     assert samples.shape[1] == 3
     assert np.all(-6 <= parent_samples[:, 0])
     assert np.all(parent_samples[:, 0] < 7)
@@ -765,6 +884,7 @@ def test_make_Thomas():
                                                   cluster_mu=10, cluster_std=1.0,
                                                   clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
+    assert samples.ndim == 2
     assert samples.shape[1] == 1
     assert np.all(-6 <= parent_samples[:, 0])
     assert np.all(parent_samples[:, 0] < 7)
@@ -776,6 +896,7 @@ def test_make_Thomas():
                                                   cluster_mu=10, cluster_std=1.0,
                                                   clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(-6 <= parent_samples[:, 0])
     assert np.all(parent_samples[:, 0] < 7)
@@ -791,6 +912,7 @@ def test_make_Thomas():
                                                   cluster_mu=10, cluster_std=1.0,
                                                   clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(-6 <= parent_samples[:, 0])
     assert np.all(parent_samples[:, 0] < 7)
@@ -806,6 +928,7 @@ def test_make_Thomas():
                                                   cluster_mu=np.linspace(10, 20, 200), cluster_std=1.0,
                                                   clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(-6 <= parent_samples[:, 0])
     assert np.all(parent_samples[:, 0] < 7)
@@ -821,6 +944,7 @@ def test_make_Thomas():
                                                   cluster_mu=10, cluster_std=(0.1, 1),
                                                   clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(0 <= parent_samples[:, 0])
     assert np.all(parent_samples[:, 0] < 1)
@@ -836,6 +960,7 @@ def test_make_Thomas():
                                                   cluster_mu=10, cluster_std=np.linspace((0.01, 0.02), (0.1, 0.2), 100),
                                                   clip=True, shuffle=True, seed=rng)
     assert len(samples) > 0
+    assert samples.ndim == 2
     assert samples.shape[1] == 2
     assert np.all(0 <= parent_samples[:, 0])
     assert np.all(parent_samples[:, 0] < 1)
@@ -895,6 +1020,212 @@ def test_simulate_Thomas():
     assert repr(locdata.region) == 'Interval(0, 10)'
     assert 'cluster_label' in locdata.data.columns
 
+
+def test_make_dstorm():
+    rng = np.random.default_rng(seed=1)
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=EmptyRegion(), seed=rng)
+    assert np.size(samples) == 0
+    assert samples.ndim == 1
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=0, region=(0, 10), seed=rng)
+    assert np.size(samples) == 0
+    assert samples.ndim == 2
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=1e-10, region=(0, 10), seed=rng)
+    assert np.size(samples) == 0
+    assert samples.ndim == 2
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=(0, 10),
+                                                  expansion_factor=6,
+                                                  cluster_mu=10, cluster_std=1.0,
+                                                  clip=True, shuffle=False, seed=rng)
+    assert len(samples) > 0
+    assert len(samples) == len(labels)
+    assert samples.ndim == 2
+    assert samples.shape[1] == 1
+    assert np.all(-6 <= parent_samples[:, 0])
+    assert np.all(parent_samples[:, 0] < 16)
+    assert np.all(0 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 10)
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=np.float64(10), region=(0, 10),
+                                                  expansion_factor=np.float64(1),
+                                                  cluster_mu=np.float64(10), cluster_std=np.float64(1),
+                                                  clip=True, shuffle=False, seed=rng)
+    assert len(samples) > 0
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=(0, 10),
+                                                  expansion_factor=1,
+                                                  cluster_mu=np.linspace(1, 10, 1000), cluster_std=1.0,
+                                                  clip=True, shuffle=True, seed=rng)
+    assert len(samples) > 0
+    assert len(samples) == len(labels)
+    assert samples.ndim == 2
+    assert samples.shape[1] == 1
+    assert np.all(-6 <= parent_samples[:, 0])
+    assert np.all(parent_samples[:, 0] < 16)
+    assert np.all(0 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 10)
+
+    with pytest.raises(ValueError):
+        samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=(0, 10),
+                                                      expansion_factor=1,
+                                                      cluster_mu=np.linspace(1, 10, 10), cluster_std=1.0,
+                                                      clip=True, shuffle=True, seed=rng)
+
+    with pytest.raises(TypeError):
+        samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=(0, 10),
+                                                      expansion_factor=6,
+                                                      cluster_mu=10, cluster_std=(1, 2),
+                                                      clip=True, shuffle=True, seed=rng)
+
+    with pytest.raises(TypeError):
+        samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=(0, 10),
+                                                      expansion_factor=6,
+                                                      cluster_mu=10, cluster_std=np.linspace(0.2, 2, 200),
+                                                      clip=True, shuffle=True, seed=rng)
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=((0, 1), (10, 11)),
+                                                  expansion_factor=6,
+                                                  cluster_mu=10, cluster_std=1.0,
+                                                  clip=True, shuffle=True, seed=rng)
+    assert len(samples) > 0
+    assert len(samples) == len(labels)
+    assert samples.ndim == 2
+    assert samples.shape[1] == 2
+    assert np.all(-6 <= parent_samples[:, 0])
+    assert np.all(parent_samples[:, 0] < 7)
+    assert np.all(4 <= parent_samples[:, 1])
+    assert np.all(parent_samples[:, 1] < 17)
+    assert np.all(-2 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 3)
+    assert np.all(8 <= samples[:, 1])
+    assert np.all(samples[:, 1] < 13)
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=((0, 1), (10, 11), (100, 101)),
+                                                  expansion_factor=6,
+                                                  cluster_mu=10, cluster_std=1.0,
+                                                  clip=True, shuffle=True, seed=rng)
+    assert len(samples) > 0
+    assert len(samples) == len(labels)
+    assert samples.ndim == 2
+    assert samples.shape[1] == 3
+    assert np.all(-6 <= parent_samples[:, 0])
+    assert np.all(parent_samples[:, 0] < 7)
+    assert np.all(4 <= parent_samples[:, 1])
+    assert np.all(parent_samples[:, 1] < 17)
+    assert np.all(94 <= parent_samples[:, 2])
+    assert np.all(parent_samples[:, 2] < 107)
+    assert np.all(0 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 1)
+    assert np.all(10 <= samples[:, 1])
+    assert np.all(samples[:, 1] < 11)
+    assert np.all(100 <= samples[:, 2])
+    assert np.all(samples[:, 2] < 101)
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=Interval(0, 1),
+                                                  expansion_factor=6,
+                                                  cluster_mu=10, cluster_std=1.0,
+                                                  clip=True, shuffle=True, seed=rng)
+    assert len(samples) > 0
+    assert samples.ndim == 2
+    assert samples.shape[1] == 1
+    assert np.all(-6 <= parent_samples[:, 0])
+    assert np.all(parent_samples[:, 0] < 7)
+    assert np.all(-2 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 3)
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=Rectangle((0, 10), 1, 1, 0),
+                                                  expansion_factor=6,
+                                                  cluster_mu=10, cluster_std=1.0,
+                                                  clip=True, shuffle=True, seed=rng)
+    assert len(samples) > 0
+    assert samples.ndim == 2
+    assert samples.shape[1] == 2
+    assert np.all(-6 <= parent_samples[:, 0])
+    assert np.all(parent_samples[:, 0] < 7)
+    assert np.all(4 <= parent_samples[:, 1])
+    assert np.all(parent_samples[:, 1] < 17)
+    assert np.all(-2 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 3)
+    assert np.all(8 <= samples[:, 1])
+    assert np.all(samples[:, 1] < 13)
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=Polygon(((0, 10), (1, 11), (1, 10))),
+                                                  expansion_factor=6,
+                                                  cluster_mu=10, cluster_std=1.0,
+                                                  clip=True, shuffle=True, seed=rng)
+    assert len(samples) > 0
+    assert samples.ndim == 2
+    assert samples.shape[1] == 2
+    assert np.all(-6 <= parent_samples[:, 0])
+    assert np.all(parent_samples[:, 0] < 7)
+    assert np.all(4 <= parent_samples[:, 1])
+    assert np.all(parent_samples[:, 1] < 17)
+    assert np.all(-2 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 3)
+    assert np.all(8 <= samples[:, 1])
+    assert np.all(samples[:, 1] < 13)
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=Polygon(((0, 10), (1, 11), (1, 10))),
+                                                  expansion_factor=0,
+                                                  cluster_mu=np.linspace(10, 20, 200), cluster_std=1.0,
+                                                  clip=True, shuffle=True, seed=rng)
+    assert len(samples) > 0
+    assert samples.ndim == 2
+    assert samples.shape[1] == 2
+    assert np.all(-6 <= parent_samples[:, 0])
+    assert np.all(parent_samples[:, 0] < 7)
+    assert np.all(4 <= parent_samples[:, 1])
+    assert np.all(parent_samples[:, 1] < 17)
+    assert np.all(0 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 1)
+    assert np.all(10 <= samples[:, 1])
+    assert np.all(samples[:, 1] < 11)
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=Polygon(((0, 10), (1, 11), (1, 10))),
+                                                  expansion_factor=0,
+                                                  cluster_mu=10, cluster_std=(0.1, 1),
+                                                  clip=True, shuffle=True, seed=rng)
+    assert len(samples) > 0
+    assert samples.ndim == 2
+    assert samples.shape[1] == 2
+    assert np.all(0 <= parent_samples[:, 0])
+    assert np.all(parent_samples[:, 0] < 1)
+    assert np.all(10 <= parent_samples[:, 1])
+    assert np.all(parent_samples[:, 1] < 11)
+    assert np.all(0 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 1)
+    assert np.all(10 <= samples[:, 1])
+    assert np.all(samples[:, 1] < 11)
+
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=Polygon(((0, 10), (1, 11), (1, 10))),
+                                                  expansion_factor=0,
+                                                  cluster_mu=10, cluster_std=np.linspace((0.01, 0.02), (0.1, 0.2), 100),
+                                                  clip=True, shuffle=True, seed=rng)
+    assert len(samples) > 0
+    assert samples.ndim == 2
+    assert samples.shape[1] == 2
+    assert np.all(0 <= parent_samples[:, 0])
+    assert np.all(parent_samples[:, 0] < 1)
+    assert np.all(10 <= parent_samples[:, 1])
+    assert np.all(parent_samples[:, 1] < 11)
+    assert np.all(0 <= samples[:, 0])
+    assert np.all(samples[:, 0] < 1)
+    assert np.all(10 <= samples[:, 1])
+    assert np.all(samples[:, 1] < 11)
+
+
+def test_simulate_dstorm():
+    rng = np.random.default_rng(seed=1)
+    locdata = simulate_dstorm(parent_intensity=10, region=(0, 10),
+                                                  expansion_factor=6,
+                                                  cluster_mu=10, cluster_std=1.0,
+                                                  clip=True, shuffle=False, seed=rng)
+    assert locdata.dimension == 1
+    assert repr(locdata.region) == 'Interval(0, 10)'
+    assert 'cluster_label' in locdata.data.columns
 
 @pytest.fixture()
 def locdata_simple():

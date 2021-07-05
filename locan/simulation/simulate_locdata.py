@@ -883,7 +883,7 @@ def simulate_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
     return locdata
 
 def make_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
-                cluster_mu=1, cluster_std=1.0,
+                cluster_mu=1, min_points=0, cluster_std=1.0,
                 clip=True, shuffle=True, seed=None):
     """
     Generate clustered point data following a Thomas-like random point process.
@@ -905,7 +905,9 @@ def make_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
     expansion_factor : int, float
         Factor by which the cluster_std is multiplied to set the region expansion distance.
     cluster_mu : int, float, sequence of floats
-        The mean number of points for normal-distributed offspring points. Must be >= 1.
+        The mean number of points for normal-distributed offspring points.
+    min_points : int
+        The minimum number of points per cluster.
     cluster_std : float, sequence of floats, sequence of sequence of floats
         The standard deviation for normal-distributed offspring points.
     clip : bool
@@ -962,13 +964,17 @@ def make_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
 
     # replace parents by normal-distributed offspring samples
     try:
-        p_values = [1/mu for mu in cluster_mu[:n_cluster]]  # mean of geometric distribution is 1/p
-        n_offspring_list = rng.geometric(p=p_values, size=n_cluster)
+        p_values = [1 / (mu + 1 - min_points) for mu in cluster_mu[:n_cluster]]
+        # p for a geometric distribution sampling points from min_points to inf is 1 / (mean + 1 - min_points)
+        n_offspring_list = rng.geometric(p=p_values, size=n_cluster) - 1 + min_points
+        # rng.geometric samples points from 1 to inf.
     except ValueError as e:
         e.args += (f"Too few offspring events for n_cluster: {n_cluster}",)
         raise
     except (TypeError, IndexError):
-        n_offspring_list = rng.geometric(p=1/cluster_mu, size=n_cluster)
+        n_offspring_list = rng.geometric(p=1 / (cluster_mu + 1 - min_points),
+                                         size=n_cluster) - 1 + min_points
+
     samples = []
     labels = []
     for i, (parent, std, n_offspring) in enumerate(zip(parent_samples, cluster_std_, n_offspring_list)):
@@ -1001,7 +1007,7 @@ def make_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
 
 
 def simulate_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
-                cluster_mu=1, cluster_std=1.0,
+                cluster_mu=1, min_points=0, cluster_std=1.0,
                 clip=True, shuffle=True, seed=None):
     """
     Generate clustered point data following a Thomas-like random point process.
@@ -1023,7 +1029,9 @@ def simulate_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
     expansion_factor : int, float
         Factor by which the cluster_std is multiplied to set the region expansion distance.
     cluster_mu : int, float, sequence of floats
-        The mean number of points for normal-distributed offspring points. Must be >= 1.
+        The mean number of points for normal-distributed offspring points.
+    min_points : int
+        The minimum number of points per cluster.
     cluster_std : float, sequence of floats, sequence of sequence of floats
         The standard deviation for normal-distributed offspring points.
     clip : bool
@@ -1040,7 +1048,7 @@ def simulate_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
     """
     parameter = locals()
     samples, labels, _, region = make_dstorm(parent_intensity, region, expansion_factor,
-                          cluster_mu, cluster_std,
+                          cluster_mu, min_points, cluster_std,
                           clip, shuffle, seed)
     region_ = region if isinstance(region, Region) else Region.from_intervals(region)
     locdata = LocData.from_coordinates(coordinates=samples)

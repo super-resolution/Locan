@@ -1216,6 +1216,16 @@ def test_make_dstorm():
     assert np.all(10 <= samples[:, 1])
     assert np.all(samples[:, 1] < 11)
 
+    samples, labels, parent_samples, region = make_dstorm(parent_intensity=10, region=(0, 10),
+                                                  expansion_factor=0,
+                                                  cluster_mu=10, min_points=5, cluster_std=0.1,
+                                                  clip=False, shuffle=True, seed=rng)
+    assert len(samples) > 0
+    assert len(samples) == len(labels)
+    assert samples.ndim == 2
+    assert samples.shape[1] == 1
+    assert np.bincount(labels).mean() == pytest.approx(10, rel=0.2)
+
 
 def test_simulate_dstorm():
     rng = np.random.default_rng(seed=1)

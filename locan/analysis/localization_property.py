@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 ##### The algorithms
 
-def _localization_property(locdata, loc_property='Intensity', index=None):
+def _localization_property(locdata, loc_property='intensity', index=None):
     if index is None:
         results = locdata.data[[loc_property]]
     else:
@@ -64,7 +64,7 @@ class LocalizationProperty(_Analysis):
     distribution_statistics : Distribution_stats, None
         Distribution parameters derived from MLE fitting of results.
     """
-    def __init__(self, meta=None, loc_property='Intensity', index=None):
+    def __init__(self, meta=None, loc_property='intensity', index=None):
         super().__init__(meta=meta, loc_property=loc_property, index=index)
         self.results = None
         self.distribution_statistics = None

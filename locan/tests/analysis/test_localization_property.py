@@ -17,7 +17,8 @@ def test_test_LocalizationProperty_empty(caplog):
 
 
 def test_DistributionFits(locdata_rapidSTORM_2d):
-    lprop = LocalizationProperty(loc_property='intensity').compute(locdata=locdata_rapidSTORM_2d)
+    lprop = LocalizationProperty().compute(locdata=locdata_rapidSTORM_2d)
+    assert repr(lprop) == "LocalizationProperty(loc_property=intensity, index=None)"
     ds = _DistributionFits(lprop)
     ds.fit(distribution=stats.expon)
     # print(ds.parameters)

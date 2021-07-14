@@ -27,7 +27,7 @@ def _localizations_per_frame(data, norm=None):
     Parameters
     ----------
     data : pandas.DataFrame
-        DataFrame object that contains a column `Frame` to be grouped.
+        DataFrame object that contains a column `frame` to be grouped.
     norm : int, float, str, None
         Normalization factor that can be None, a number, or another property in `data`.
 

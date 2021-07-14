@@ -1,5 +1,3 @@
-from collections import namedtuple
-
 import pytest
 import numpy as np
 import pandas as pd
@@ -10,43 +8,293 @@ from locan.analysis.blinking import _blink_statistics, _DistributionFits
 from locan.analysis import BlinkStatistics
 
 
-# frame with on and off periods up to three frames and starting with two-frame on-period.
-FramesTest = namedtuple('FramesTest',
-                         ['frames',
-                          'on_periods_expected', 'on_periods_frame_expected',
-                          'off_periods_expected', 'off_periods_frame_expected'])
+def test__blink_statistics_0():
+    # frame with on and off periods up to three frames and starting with one-frame on-period.
+    frames = np.array([0, 4, 6, 7, 8, 12, 13])
 
-@pytest.fixture()
-def frames_1():
-    return FramesTest(
-        frames=np.array([0, 4, 6, 7, 8, 12, 13]),
-        on_periods_expected=[1, 1, 3, 2],
-        on_periods_frame_expected=[0, 4, 6, 12],
-        off_periods_expected=[3, 1, 3],
-        off_periods_frame_expected=[1, 5, 9]
-        )
+    results = _blink_statistics(frames, memory=0, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [1, 1, 3, 2])
+    assert np.array_equal(results['off_periods'], [3, 1, 3])
+    assert np.array_equal(results['on_periods_frame'], [0, 4, 6, 12])
+    assert np.array_equal(results['off_periods_frame'], [1, 5, 9])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0], [1], [2, 3, 4], [5, 6]]
+                                                             )])
 
-# frame with on and off periods up to three frames and starting with two-frame on-period.
-@pytest.fixture()
-def frames_2():
-    return FramesTest(
-        frames=np.array([0, 1, 4, 6, 7, 8, 12, 13]),
-        on_periods_expected=[2, 1, 3, 2],
-        on_periods_frame_expected=[0, 4, 6, 12],
-        off_periods_expected=[2, 1, 3],
-        off_periods_frame_expected=[2, 5, 9]
-        )
+    results = _blink_statistics(frames, memory=1, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [1, 5, 2])
+    assert np.array_equal(results['off_periods'], [3, 3])
+    assert np.array_equal(results['on_periods_frame'], [0, 4, 12])
+    assert np.array_equal(results['off_periods_frame'], [1, 9])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0], [1, 2, 3, 4], [5, 6]]
+                                                             )])
 
-# frame with on and off periods up to three frames and starting with off-period.
-@pytest.fixture()
-def frames_3():
-    return FramesTest(
-        frames=np.array([0, 1, 4, 6, 7, 8, 12, 13]) + 4,
-        on_periods_expected=[2, 1, 3, 2],
-        on_periods_frame_expected=[4, 8, 10, 16],
-        off_periods_expected=[4, 2, 1, 3],
-        off_periods_frame_expected=[0, 6, 9, 13]
-        )
+    results = _blink_statistics(frames, memory=10, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [14])
+    assert np.array_equal(results['off_periods'], [])
+    assert np.array_equal(results['on_periods_frame'], [0])
+    assert np.array_equal(results['off_periods_frame'], [])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2, 3, 4, 5, 6]]
+                                                             )])
+
+
+def test__blink_statistics_1():
+    # frame with on and off periods up to three frames and starting with two-frame on-period.
+    frames = np.array([0, 1, 3, 6, 7, 8, 12, 13])
+
+    results = _blink_statistics(frames, memory=0, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [2, 1, 3, 2])
+    assert np.array_equal(results['off_periods'], [1, 2, 3])
+    assert np.array_equal(results['on_periods_frame'], [0, 3, 6, 12])
+    assert np.array_equal(results['off_periods_frame'], [2, 4, 9])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1], [2], [3, 4, 5], [6, 7]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=1, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [4, 3, 2])
+    assert np.array_equal(results['off_periods'], [2, 3])
+    assert np.array_equal(results['on_periods_frame'], [0, 6, 12])
+    assert np.array_equal(results['off_periods_frame'], [4, 9])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2], [3, 4, 5], [6, 7]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=10, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [14])
+    assert np.array_equal(results['off_periods'], [])
+    assert np.array_equal(results['on_periods_frame'], [0])
+    assert np.array_equal(results['off_periods_frame'], [])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2, 3, 4, 5, 6, 7]]
+                                                             )])
+
+
+def test__blink_statistics_2():
+    # frame with on and off periods up to three frames and starting with two-frame on-period.
+    frames = np.array([0, 1, 3, 6, 7, 8, 12, 13]) + 1
+
+    results = _blink_statistics(frames, memory=0, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [2, 1, 3, 2])
+    assert np.array_equal(results['off_periods'], [1, 1, 2, 3])
+    assert np.array_equal(results['on_periods_frame'], [1, 4, 7, 13])
+    assert np.array_equal(results['off_periods_frame'], [0, 3, 5, 10])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1], [2], [3, 4, 5], [6, 7]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=1, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [5, 3, 2])
+    assert np.array_equal(results['off_periods'], [2, 3])
+    assert np.array_equal(results['on_periods_frame'], [0, 7, 13])
+    assert np.array_equal(results['off_periods_frame'], [5, 10])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2], [3, 4, 5], [6, 7]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=10, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [15])
+    assert np.array_equal(results['off_periods'], [])
+    assert np.array_equal(results['on_periods_frame'], [0])
+    assert np.array_equal(results['off_periods_frame'], [])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2, 3, 4, 5, 6, 7]]
+                                                             )])
+
+
+def test__blink_statistics_3():
+    # frame with on and off periods up to three frames and starting with off-period.
+    frames = np.array([0, 1, 4, 6, 7, 8, 12, 13]) + 4
+
+    results = _blink_statistics(frames, memory=0, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [2, 1, 3, 2])
+    assert np.array_equal(results['off_periods'], [4, 2, 1, 3])
+    assert np.array_equal(results['on_periods_frame'], [4, 8, 10, 16])
+    assert np.array_equal(results['off_periods_frame'], [0, 6, 9, 13])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1], [2], [3, 4, 5], [6, 7]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=0, remove_heading_off_periods=True)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [2, 1, 3, 2])
+    assert np.array_equal(results['off_periods'], [2, 1, 3])
+    assert np.array_equal(results['on_periods_frame'], [4, 8, 10, 16])
+    assert np.array_equal(results['off_periods_frame'], [6, 9, 13])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1], [2], [3, 4, 5], [6, 7]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=2, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [9, 2])
+    assert np.array_equal(results['off_periods'], [4, 3])
+    assert np.array_equal(results['on_periods_frame'], [4, 16])
+    assert np.array_equal(results['off_periods_frame'], [0, 13])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2, 3, 4, 5], [6, 7]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=2, remove_heading_off_periods=True)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [9, 2])
+    assert np.array_equal(results['off_periods'], [3])
+    assert np.array_equal(results['on_periods_frame'], [4, 16])
+    assert np.array_equal(results['off_periods_frame'], [13])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2, 3, 4, 5], [6, 7]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=10, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [18])
+    assert np.array_equal(results['off_periods'], [])
+    assert np.array_equal(results['on_periods_frame'], [0])
+    assert np.array_equal(results['off_periods_frame'], [])
+    assert np.array_equal(results['on_periods_indices'], [[0, 1, 2, 3, 4, 5, 6, 7]])
+
+
+def test__blink_statistics_4():
+    # frame with on and off periods up to three frames and starting with off-period.
+    frames = np.array([0, 1, 4, 6, 12, 13]) + 2
+
+    results = _blink_statistics(frames, memory=0, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [2, 1, 1, 2])
+    assert np.array_equal(results['off_periods'], [2, 2, 1, 5])
+    assert np.array_equal(results['on_periods_frame'], [2, 6, 8, 14])
+    assert np.array_equal(results['off_periods_frame'], [0, 4, 7, 9])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1], [2], [3], [4, 5]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=0, remove_heading_off_periods=True)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [2, 1, 1, 2])
+    assert np.array_equal(results['off_periods'], [2, 1, 5])
+    assert np.array_equal(results['on_periods_frame'], [2, 6, 8, 14])
+    assert np.array_equal(results['off_periods_frame'], [4, 7, 9])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1], [2], [3], [4, 5]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=3, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [9, 2])
+    assert np.array_equal(results['off_periods'], [5])
+    assert np.array_equal(results['on_periods_frame'], [0, 14])
+    assert np.array_equal(results['off_periods_frame'], [9])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2, 3], [4, 5]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=3, remove_heading_off_periods=True)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [7, 2])
+    assert np.array_equal(results['off_periods'], [5])
+    assert np.array_equal(results['on_periods_frame'], [2, 14])
+    assert np.array_equal(results['off_periods_frame'], [9])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2, 3], [4, 5]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=10, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [16])
+    assert np.array_equal(results['off_periods'], [])
+    assert np.array_equal(results['on_periods_frame'], [0])
+    assert np.array_equal(results['off_periods_frame'], [])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2, 3, 4, 5]]
+                                                             )])
+
+
+def test__blink_statistics_5(caplog):
+    # frame with on and off periods including repeated frames.
+    frames = np.array([0, 1, 4, 4, 6, 7, 8, 12, 12, 13]) + 4
+
+    results = _blink_statistics(frames, memory=0, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [2, 1, 3, 2])
+    assert np.array_equal(results['off_periods'], [4, 2, 1, 3])
+    assert np.array_equal(results['on_periods_frame'], [4, 8, 10, 16])
+    assert np.array_equal(results['off_periods_frame'], [0, 6, 9, 13])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1], [2], [3, 4, 5], [6, 7]]
+                                                             )])
+    assert caplog.record_tuples == [('locan.analysis.blinking', 30,
+                                     'There are 2 duplicated frames found that will be ignored.')]
+
+    results = _blink_statistics(frames, memory=10, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [18])
+    assert np.array_equal(results['off_periods'], [])
+    assert np.array_equal(results['on_periods_frame'], [0])
+    assert np.array_equal(results['off_periods_frame'], [])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2, 3, 4, 5, 6, 7]]
+                                                             )])
+
+
+def test__blink_statistics_6():
+    # frame with on and off periods up to three frames and starting with one-frame on-period.
+    frames = np.array([0, 2, 3, 9])
+
+    results = _blink_statistics(frames, memory=0, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [1, 2, 1])
+    assert np.array_equal(results['off_periods'], [1, 5])
+    assert np.array_equal(results['on_periods_frame'], [0, 2, 9])
+    assert np.array_equal(results['off_periods_frame'], [1, 4])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0], [1, 2], [3]]
+                                                             )])
+
+    results = _blink_statistics(frames, memory=10, remove_heading_off_periods=False)
+    assert len(results['on_periods']) == len(results['on_periods_frame'])
+    assert len(results['off_periods']) == len(results['off_periods_frame'])
+    assert np.array_equal(results['on_periods'], [10])
+    assert np.array_equal(results['off_periods'], [])
+    assert np.array_equal(results['on_periods_frame'], [0])
+    assert np.array_equal(results['off_periods_frame'], [])
+    assert all([np.array_equal(one, two) for one, two in zip(results['on_periods_indices'],
+                                                             [[0, 1, 2, 3]]
+                                                             )])
+
 
 @pytest.fixture()
 def locdata_simple():
@@ -83,25 +331,6 @@ def locdata_with_repetitions():
     return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
 
 
-@pytest.mark.parametrize('fixture_name, expected', [
-    ('frames_1', 0),
-    ('frames_2', 0),
-    ('frames_3', 0),
-])
-def test__blink_statistics(frames_1, frames_2, frames_3, fixture_name, expected):
-    frames_ = eval(fixture_name)
-    results = _blink_statistics(frames_.frames, memory=0, remove_heading_off_periods=False)
-    assert len(results['on_periods']) == len(results['on_periods_frame'])
-    assert len(results['off_periods']) == len(results['off_periods_frame'])
-    assert np.array_equal(results['on_periods'], frames_.on_periods_expected)
-    assert np.array_equal(results['off_periods'], frames_.off_periods_expected)
-    assert np.array_equal(results['on_periods_frame'], frames_.on_periods_frame_expected)
-    assert np.array_equal(results['off_periods_frame'], frames_.off_periods_frame_expected)
-    for op, op_indices in zip(results['on_periods'], results['on_periods_indices']):
-        assert len(op_indices) == op
-    assert np.sum([len(op_indices) for op_indices in results['on_periods_indices']]) == len(frames_.frames)
-
-
 def test_blink_statistics(locdata_with_zero_frame, locdata_without_zero_frame):
     bs = _blink_statistics(locdata_with_zero_frame, memory=0, remove_heading_off_periods=False)
     assert all(bs['on_periods'] == [3, 1, 2, 1])
@@ -128,16 +357,16 @@ def test_blink_statistics(locdata_with_zero_frame, locdata_without_zero_frame):
     assert all(bs['off_periods'] == [5, 2])
 
     bs = _blink_statistics(locdata_without_zero_frame, memory=1, remove_heading_off_periods=False)
-    assert all(bs['on_periods'] == [4, 2, 1])
-    assert all(bs['off_periods'] == [1, 5, 2])
+    assert all(bs['on_periods'] == [5, 2, 1])
+    assert all(bs['off_periods'] == [5, 2])
 
     bs = _blink_statistics(locdata_with_zero_frame, memory=2, remove_heading_off_periods=False)
     assert all(bs['on_periods'] == [5, 5])
     assert all(bs['off_periods'] == [5])
 
     bs = _blink_statistics(locdata_without_zero_frame, memory=2, remove_heading_off_periods=False)
-    assert all(bs['on_periods'] == [4, 5])
-    assert all(bs['off_periods'] == [1, 5])
+    assert all(bs['on_periods'] == [5, 5])
+    assert all(bs['off_periods'] == [5])
 
 
 def test_blink_statistics__with_repetitions(locdata_with_repetitions):

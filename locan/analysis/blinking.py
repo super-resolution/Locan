@@ -42,6 +42,8 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
     -------
     dict with numpy.ndarray as values
         'on_periods' and 'off_periods' in units of frame numbers.
+        'on_periods_frame' and 'off_periods_frame' with the first frame in each on/off-period.
+        'on_periods_indices' are groups of indices to the input frames or more precise np.unique(frames)
     """
     if isinstance(locdata, LocData):
         frames = locdata.data.frame.values
@@ -56,48 +58,54 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
         logger.warning(f'There are {sum(counts_larger_one) - len(counts_larger_one)} '
                        f'duplicated frames found that will be ignored.')
 
-    # transform to a zero first frame.
+    # shift frames and add first frame if no zero frame present to account for initial off_period
     first_frame = frames[0]
-    if first_frame != 0:
-        frames = frames - first_frame
+    frames_ = np.insert(frames + 1, 0, 0)
 
-    differences = np.diff(frames)
+    differences = np.insert(np.diff(frames_), 0, 1)  # first frame should be one since zero frame now is always on.
 
-    # determine first frame in on_periods
-    indices_in_sequence = np.nonzero(differences <= memory + 1)[0] + 1  # +1 since difference drops first frame
-    on_periods_frame = np.delete(frames, indices_in_sequence)
-    if first_frame != 0:
-        on_periods_frame = on_periods_frame + first_frame
+    # on_ and off_periods
+    mask = np.where(differences > memory + 1, True, False)
+    off_periods = differences[mask] - 1
+    on_periods_frame = np.insert(frames_[mask], 0, 0)
+    off_periods_frame = frames_[mask] - off_periods
 
-    # determine first frame in off_periods
-    indices_off = np.nonzero(differences > memory + 1)[0]
-    off_periods_frame = frames[indices_off] + 1  # plus one to start with undetected frame
-    if first_frame != 0:
-        off_periods_frame = off_periods_frame + first_frame
-        off_periods_frame = np.insert(off_periods_frame, 0, 0)
+    indices_on = np.nonzero(mask)[0]
+    groups = np.split(differences, indices_on)
 
-    # on-times
-    groups = np.split(differences, indices_off)
-
-    # the sum is taken to include memory>0.
+    # the sum is taken to include memory > 0.
     # one is added since a single localization is considered to be on for one frame.
-    on_periods = np.array([np.sum(group[1:]) + 1 for group in groups[1:]])
-    on_periods = np.insert(on_periods, 0, np.sum(groups[0]) + 1)
-
-    # off-times
-    # if the first on-period is one frame the first group is empty
-    if groups[0].size == 0:
-        groups = groups[1:]
-
-    off_periods = np.array([group[0] - 1 for group in groups])
-    if off_periods[0] == 0:
-        off_periods = off_periods[1:]
-    if first_frame != 0 and not remove_heading_off_periods:
-        off_periods = np.insert(off_periods, 0, first_frame)
+    on_periods = np.array([np.sum(group[1:]) + 1 for group in groups])
 
     # grouped indices to all localizations in each on-period
-    indices = range(len(frames))
-    on_periods_indices = np.split(indices, indices_off+1)
+    indices = np.arange(-1, len(frames_) - 1)
+    on_periods_indices = np.split(indices, indices_on)
+
+    # clean up initial shift and insert
+    if first_frame == 0:  # the first frame is on
+        on_periods[0] = on_periods[0] - 1
+        on_periods_frame[0] = on_periods_frame[0] + 1
+        on_periods_indices[0] = on_periods_indices[0][1:]
+
+    elif first_frame > memory:  # there is an initial off_period
+        on_periods = on_periods[1:]
+        on_periods_frame = on_periods_frame[1:]
+        if remove_heading_off_periods:
+            off_periods = off_periods[1:]
+            off_periods_frame = off_periods_frame[1:]
+        on_periods_indices= on_periods_indices[1:]
+
+    elif first_frame <= memory:  # there is an initial off_period integrated in the first on_period
+        if remove_heading_off_periods:
+            on_periods[0] = on_periods[0] - first_frame - 1
+            on_periods_frame[0] = first_frame + 1
+        else:
+            on_periods[0] = on_periods[0] - 1
+            on_periods_frame[0] = on_periods_frame[0] + 1
+        on_periods_indices[0] = on_periods_indices[0][1:]
+
+    on_periods_frame = on_periods_frame - 1
+    off_periods_frame = off_periods_frame - 1
 
     return dict(on_periods=on_periods, on_periods_frame=on_periods_frame,
                 off_periods=off_periods, off_periods_frame=off_periods_frame,
@@ -137,8 +145,10 @@ class BlinkStatistics(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : tuple of numpy.ndarrays
-        Two arrays with on- and off-periods in units of frame numbers.
+    results : dict with numpy.ndarray as values
+        'on_periods' and 'off_periods' in units of frame numbers.
+        'on_periods_frame' and 'off_periods_frame' with the first frame in each on/off-period.
+        'on_periods_indices' are groups of indices to the input frames or more precise np.unique(frames)
     """
     count = 0
 

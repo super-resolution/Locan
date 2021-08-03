@@ -95,8 +95,11 @@ def test_render_2d(locdata_blobs_2d, test_input, expected):
 @pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_render_2d_napari(locdata_blobs_2d):
+    render_2d_mpl(locdata_blobs_2d, bin_size=100, cmap='viridis')
+    plt.show()
+
     render_2d_napari(locdata_blobs_2d, bin_size=100, cmap='viridis', gamma=0.1)
-    # napari.run()
+    napari.run()
 
     viewer, _ = render_2d_napari(locdata_blobs_2d, bin_size=50, cmap='magenta', gamma=0.1)
     render_2d_napari(locdata_blobs_2d, viewer=viewer, bin_size=100, cmap='cyan', gamma=0.1, scale=(2, 2),

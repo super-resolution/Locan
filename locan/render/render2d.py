@@ -311,7 +311,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
                      bins, n_bins, bin_size, bin_edges, bin_range,
                      rescale)
 
-    viewer.add_image(hist.data, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
+    viewer.add_image(hist.data.T, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
     return viewer, hist
 
 

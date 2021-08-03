@@ -32,6 +32,7 @@ def _localization_property(locdata, loc_property='intensity', index=None):
         results = locdata.data[[loc_property]]
     else:
         results = locdata.data[[loc_property, index]].set_index(index)
+        results = results.sort_index()
 
     return results
 
@@ -138,7 +139,6 @@ class LocalizationProperty(_Analysis):
             return ax
 
         self.results.rolling(window=window, center=True).mean().plot(ax=ax, **dict(dict(legend=False), **kwargs))
-        # todo: check rolling on arbitrary index
         ax.set(title=f"{self.parameter['loc_property']}({self.parameter['index']})\n (window={window})",
                xlabel=self.parameter['index'],
                ylabel=self.parameter['loc_property']

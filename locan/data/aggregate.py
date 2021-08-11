@@ -936,7 +936,6 @@ def histogram(locdata, loc_properties=None, other_property=None,
             img = fast_histogram.histogram1d(data, range=bins.bin_range[0], bins=bins.n_bins[0])
         elif data.shape[0] == 2:
             img = fast_histogram.histogram2d(*data, range=bins.bin_range, bins=bins.n_bins)
-            img = img.T  # to show image in the same format as scatter plot
         elif data.shape[0] == 3:
             raise NotImplementedError
         else:
@@ -950,7 +949,6 @@ def histogram(locdata, loc_properties=None, other_property=None,
         elif data.shape[0] == 2:
             values = locdata.data[other_property].values
             img = _fast_histo_mean(*data, values, range=bins.bin_range, bins=bins.n_bins)
-            img = img.T  # to show image in the same format as scatter plot
         elif data.shape[0] == 3:
             raise NotImplementedError
         else:

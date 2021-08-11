@@ -51,9 +51,13 @@ def test_render_2d_mpl(locdata_blobs_2d):
     plt.close('all')
 
 
+@pytest.mark.skip('Test for visual inspection.')
+# this is to check overlay of rendered image and single localization points
 def test_render_2d_mpl_show(locdata_blobs_2d):
-    render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale=None)
-    # plt.show()
+    print(locdata_blobs_2d.coordinates)
+    render_2d_mpl(locdata_blobs_2d, bin_size=10, bin_range=None, rescale=None)
+    plt.plot(locdata_blobs_2d.coordinates[:, 0], locdata_blobs_2d.coordinates[:, 1], 'o')
+    plt.show()
 
     plt.close('all')
 
@@ -92,6 +96,23 @@ def test_render_2d(locdata_blobs_2d, test_input, expected):
     plt.close('all')
 
 
+@pytest.mark.skip('Test for visual inspection.')
+# this is to check overlay of rendered image and single localization points
+@pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
+def test_render_2d_napari_coordinates(locdata_blobs_2d):
+    render_2d_mpl(locdata_blobs_2d, bin_size=10, cmap='viridis')
+    plt.show()
+
+    viewer, histogram = render_2d_napari(locdata_blobs_2d, bin_size=10, cmap='viridis', gamma=0.1)
+    viewer.add_points((locdata_blobs_2d.coordinates - np.array(histogram.bins.bin_range)[:, 0]) / 10 )
+    napari.run()
+
+    vertices = viewer.layers['Shapes'].data
+    print(vertices)
+
+    plt.close('all')
+
+
 @pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_render_2d_napari(locdata_blobs_2d):
@@ -117,29 +138,32 @@ def test__napari_shape_to_region():
     vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
     bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
     region = _napari_shape_to_region(vertices, bin_edges, 'rectangle')
-    assert repr(region) == 'Rectangle((0.0, 2.0), 25.0, 3.0999999999999996, 0)'
+    assert repr(region) == 'Rectangle((0.0, 2.0), 31.0, 2.5, 0)'
 
     # ellipse
     vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
     bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
     region = _napari_shape_to_region(vertices, bin_edges, 'ellipse')
-    assert repr(region) == 'Ellipse((12.5, 3.55), 25.0, 3.0999999999999996, 0)'
+    assert repr(region) == 'Ellipse((15.5, 3.25), 31.0, 2.5, 0)'
 
     # polygon
     vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
     bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
     region = _napari_shape_to_region(vertices, bin_edges, 'polygon')
-    assert repr(region) == 'Polygon([[0.0, 2.0], [25.0, 2.0], [25.0, 5.1], [0.0, 5.1], [0.0, 2.0]])'
+    assert repr(region) == 'Polygon([[0.0, 2.0], [0.0, 4.5], [31.0, 4.5], [31.0, 2.0], [0.0, 2.0]])'
 
 
 @pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_select_by_drawing_napari(locdata_blobs_2d):
     viewer = napari.Viewer()
-    viewer.add_shapes(data=((1, 1), (5, 10)), shape_type='rectangle')
-    rois = select_by_drawing_napari(locdata_blobs_2d, viewer=viewer, bin_size=100, cmap='viridis', gamma=0.1)
+    viewer.add_shapes(data=((1, 10), (10, 20)), shape_type='rectangle')
+
+    rois = select_by_drawing_napari(locdata_blobs_2d, viewer=viewer, bin_size=10, cmap='viridis', gamma=0.1)
     # No need for napari.run() since it is called inside select_by_drawing_napari.
+    print(rois)
     assert len(rois) == 1
+    assert repr(rois[0].region) == 'Rectangle((122.0, 565.0), 90.0, 100.0, 0)'
 
 
 @pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')

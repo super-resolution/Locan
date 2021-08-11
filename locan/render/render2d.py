@@ -107,7 +107,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
                                               bins, n_bins, bin_size, bin_edges, bin_range,
                                               rescale)
 
-    mappable = ax.imshow(hist.data, origin='lower', extent=[*hist.bins.bin_range[0], *hist.bins.bin_range[1]],
+    mappable = ax.imshow(hist.data.T, origin='lower', extent=[*hist.bins.bin_range[0], *hist.bins.bin_range[1]],
                          cmap=cmap, interpolation=interpolation, **kwargs)
 
     ax.set(
@@ -311,7 +311,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
                      bins, n_bins, bin_size, bin_edges, bin_range,
                      rescale)
 
-    viewer.add_image(hist.data.T, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
+    viewer.add_image(hist.data, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
     return viewer, hist
 
 
@@ -451,9 +451,6 @@ def _napari_shape_to_region(vertices, bin_edges, region_type):
     # at this point there are only equally-sized bins used.
     bin_sizes = [bedges[1] - bedges[0] for bedges in bin_edges]
 
-    # flip since napari returns vertices with first component representing the horizontal axis
-    vertices = np.flip(vertices, axis=1)
-
     vertices = np.array([bedges[0] + vert * bin_size
                          for vert, bedges, bin_size in zip(vertices.T, bin_edges, bin_sizes)]
                         ).T
@@ -551,6 +548,8 @@ def _napari_shape_to_RoiRegion(vertices, bin_edges, region_type):
 def select_by_drawing_napari(locdata, **kwargs):
     """
     Select region of interest from rendered image by drawing rois in napari.
+
+    Rois will be created from shapes in napari.viewer.layers['Shapes'].
 
     Parameters
     ----------

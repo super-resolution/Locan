@@ -263,7 +263,7 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
         xc -= np.floor(X / 2)
         yc -= np.floor(Y / 2)
 
-    return -xc, -yc
+    return -yc, -xc
 
 def register_cc(locdata, other_locdata, max_offset=None,
                 bins=None, n_bins=None, bin_size=None, bin_edges=None, bin_range=None,

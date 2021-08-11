@@ -665,11 +665,11 @@ def test_histogram(locdata_blobs_2d):
 
     hist = histogram(locdata_blobs_2d, bin_size=10, loc_properties=['position_x', 'position_y'])
     assert 'counts' in hist.labels
-    assert hist.data.shape == (55, 89)
+    assert hist.data.shape == (89, 55)
 
     hist = histogram(locdata_blobs_2d, bin_size=10, other_property='position_y')
     assert 'position_y' in hist.labels
-    assert hist.data.shape == (55, 89)
+    assert hist.data.shape == (89, 55)
 
 
 def test_histogram_empty(locdata_empty):

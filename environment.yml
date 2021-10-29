@@ -19,7 +19,6 @@ dependencies:
 - tqdm
 
 # Python tests
-- pytest-runner
 - pytest
 
 # Scientific python

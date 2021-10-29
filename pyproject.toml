@@ -2,9 +2,21 @@
 requires = [
     "setuptools>=42",
     "wheel",
-    "setuptools_scm[toml]>=3.4"]
+    "setuptools_scm[toml]>=3.4"
+    ]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 write_to = "locan/_version.py"
 fallback_version = "0.9-fallback"
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
+    # "ignore::DeprecationWarning",
+]
+addopts = "-m 'not gui and not visual'"
+markers = [
+    "gui: marks tests that require user interaction (skipped by default)",
+    "visual: marks tests that require visual inspection (skipped by default)",
+]

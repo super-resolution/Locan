@@ -9,6 +9,7 @@ from locan.constants import ROOT_DIR
 from locan.scripts.script_napari import sc_napari
 
 
+@pytest.mark.gui
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_napari():
     viewer = napari.Viewer(show=False)

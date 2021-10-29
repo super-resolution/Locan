@@ -1,8 +1,3 @@
-"""
-
-This module contains tests that need gui interactions and should therefore not be run automatically.
-
-"""
 import pytest
 from locan.scripts import script_show_versions
 

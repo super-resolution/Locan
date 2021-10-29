@@ -84,7 +84,7 @@ def main(args=None):
 
         elif returned_args.command == "test":
             from .scripts.script_test import sc_test
-            sc_test()
+            sc_test(args=returned_args.pytest_args)
 
     else:
         print("This is the command line entry point for locan. Get more information with 'locan -h'.")

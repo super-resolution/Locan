@@ -25,12 +25,14 @@ def test(args=None):
     except ImportError:
         raise ImportError("Need pytest to run tests.")
 
+    extra_args = ["-m not gui and not visual"]
+
     if args is None:
-        extra_args = []
-    elif not isinstance(args, list):
-        extra_args = [args]
+        pass  # extra_args = []
+    elif isinstance(args, list):
+        extra_args.extend(args)  # extra_args = args
     else:
-        extra_args = args
+        extra_args.append(args)  # extra_args = [args]
 
     test_directory = ROOT_DIR.joinpath('tests').as_posix()
     extra_args.append(test_directory)

@@ -7,7 +7,7 @@ import logging
 
 import numpy as np
 from scipy.spatial.distance import pdist
-from shapely.geometry import asPoint
+from shapely.geometry import Point
 
 from locan.data.region import Region, Region2D, RoiRegion
 
@@ -38,7 +38,7 @@ def distance_to_region(locdata, region):
     distances = np.full(len(locdata), 0.)
     if isinstance(region, (Region2D, RoiRegion)):
         for i, point in enumerate(locdata.coordinates):
-            distances[i] = asPoint(point).distance(region.shapely_object)
+            distances[i] = Point(point).distance(region.shapely_object)
     else:
         raise NotImplementedError("Region must be Region2D object.")
 
@@ -66,7 +66,7 @@ def distance_to_region_boundary(locdata, region):
     distances = np.full(len(locdata), 0.)
     if isinstance(region, (Region2D, RoiRegion)):
         for i, point in enumerate(locdata.coordinates):
-            distances[i] = asPoint(point).distance(region.shapely_object.boundary)
+            distances[i] = Point(point).distance(region.shapely_object.boundary)
     else:
         raise NotImplementedError("Region must be Region2D object.")
 

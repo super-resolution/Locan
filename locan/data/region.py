@@ -13,10 +13,11 @@ import itertools as it
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.path as mPath
-import matplotlib.patches as mPatches
+import matplotlib.path as mpl_path
+import matplotlib.patches as mpl_patches
 from scipy.spatial.distance import pdist
-from shapely.geometry import asPoint, asMultiPoint
+from shapely.geometry import Point as shPoint
+from shapely.geometry import MultiPoint as shMultiPoint
 from shapely.geometry import Polygon as shPolygon
 from shapely.geometry import MultiPolygon as shMultiPolygon
 from shapely.prepared import prep
@@ -1016,8 +1017,8 @@ class Rectangle(Region2D):
 
     @property
     def points(self):
-        rectangle = mPatches.Rectangle(self.corner, self.width, self.height, angle=self.angle,
-                                       fill=False, edgecolor='b', linewidth=1)
+        rectangle = mpl_patches.Rectangle(self.corner, self.width, self.height, angle=self.angle,
+                                          fill=False, edgecolor='b', linewidth=1)
         points = rectangle.get_verts()
         return points[::-1]
 
@@ -1061,14 +1062,14 @@ class Rectangle(Region2D):
     def contains(self, points):
         if np.asarray(points).size == 0:
             return np.array([])
-        polygon_path = mPath.Path(self.points, closed=True)
+        polygon_path = mpl_path.Path(self.points, closed=True)
         mask = polygon_path.contains_points(points)
         inside_indices = np.nonzero(mask)[0]
         return inside_indices
 
     def as_artist(self, origin=(0, 0), **kwargs):
         xy = self.corner[0] - origin[0], self.corner[1] - origin[1]
-        return mPatches.Rectangle(xy=xy, width=self.width, height=self.height, angle=self.angle, **kwargs)
+        return mpl_patches.Rectangle(xy=xy, width=self.width, height=self.height, angle=self.angle, **kwargs)
 
 
 class Ellipse(Region2D):
@@ -1169,7 +1170,7 @@ class Ellipse(Region2D):
     @property
     def shapely_object(self):
         if self._shapely_object is None:
-            circle = asPoint((0, 0)).buffer(1)
+            circle = shPoint((0, 0)).buffer(1)
             ellipse = scale(circle, self.width / 2, self.height / 2)
             rotated_ellipse = rotate(ellipse, self.angle)
             self._shapely_object = translate(rotated_ellipse, *self.center)
@@ -1216,7 +1217,7 @@ class Ellipse(Region2D):
 
     def as_artist(self, origin=(0, 0), **kwargs):
         xy = self.center[0] - origin[0], self.center[1] - origin[1]
-        return mPatches.Ellipse(xy=xy, width=self.width, height=self.height, angle=self.angle, **kwargs)
+        return mpl_patches.Ellipse(xy=xy, width=self.width, height=self.height, angle=self.angle, **kwargs)
 
 
 class Polygon(Region2D):
@@ -1334,14 +1335,14 @@ class Polygon(Region2D):
     def contains(self, points):
         if np.asarray(points).size == 0:
             return np.array([])
-        points_ = asMultiPoint(points)
+        points_ = shMultiPoint(points)
         prepared_polygon = prep(self.shapely_object)
         mask = list(map(prepared_polygon.contains, points_))
         inside_indices = np.nonzero(mask)[0]
         return inside_indices
 
     def as_artist(self, **kwargs):
-        return mPatches.PathPatch(_polygon_path(self.shapely_object), **kwargs)
+        return mpl_patches.PathPatch(_polygon_path(self.shapely_object), **kwargs)
 
 
 class MultiPolygon(Region2D):
@@ -1445,7 +1446,7 @@ class MultiPolygon(Region2D):
     def contains(self, points):
         if np.asarray(points).size == 0:
             return np.array([])
-        points_ = asMultiPoint(points)
+        points_ = shMultiPoint(points)
         prepared_polygon = prep(self.shapely_object)
         mask = list(map(prepared_polygon.contains, points_))
         inside_indices = np.nonzero(mask)[0]
@@ -1453,7 +1454,7 @@ class MultiPolygon(Region2D):
 
     def as_artist(self, **kwargs):
         polygon = shMultiPolygon([pol.shapely_object for pol in self.polygons])
-        return mPatches.PathPatch(_polygon_path(polygon), **kwargs)
+        return mpl_patches.PathPatch(_polygon_path(polygon), **kwargs)
 
     @classmethod
     def from_shapely(cls, multipolygon):
@@ -1920,8 +1921,8 @@ def _polygon_path(polygon):
         # The codes will be all "LINETO" commands, except for "MOVETO"s at the
         # beginning of each subpath
         n = len(getattr(ob, 'coords', None) or ob)
-        vals = np.ones(n, dtype=mPath.Path.code_type) * mPath.Path.LINETO
-        vals[0] = mPath.Path.MOVETO
+        vals = np.ones(n, dtype=mpl_path.Path.code_type) * mpl_path.Path.LINETO
+        vals[0] = mpl_path.Path.MOVETO
         return vals
 
     ptype = polygon.geom_type
@@ -1941,4 +1942,4 @@ def _polygon_path(polygon):
         np.concatenate([coding(t.exterior)] +
                     [coding(r) for r in t.interiors]) for t in polygon])
 
-    return mPath.Path(vertices, codes)
+    return mpl_path.Path(vertices, codes)

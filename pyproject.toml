@@ -13,7 +13,7 @@ fallback_version = "0.9-fallback"
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
-    # "ignore::DeprecationWarning",
+    "ignore::DeprecationWarning:hdbscan",
 ]
 addopts = "-m 'not gui and not visual and not requires_datasets'"
 markers = [

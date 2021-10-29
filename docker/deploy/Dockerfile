@@ -93,11 +93,16 @@ WORKDIR $HOME/locan
 
 # create new environment
 RUN conda init bash && \
-    conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION && \
-    conda env update -n $ENVIRONMENT_NAME --file environment.yml && \
+    # conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION -c conda-forge && \
+    # conda env update -n $ENVIRONMENT_NAME --file environment.yml && \
+    # conda activate $ENVIRONMENT_NAME && \
+    # alternatively: use mamba to speed up installation
+    conda install mamba -c conda-forge && \
+    mamba create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION -c conda-forge && \
+    mamba env update -n $ENVIRONMENT_NAME --file environment.yml && \
     conda activate $ENVIRONMENT_NAME && \
     # install locan
-    python setup.py install && \
+    pip install . && \
     # clean up
 	echo "conda activate $ENVIRONMENT_NAME" >> ~/.bashrc && \
 	rm -rf $HOME/locan/* && \

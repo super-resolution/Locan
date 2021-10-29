@@ -34,10 +34,14 @@ WORKDIR /locan
 # Update conda & Create environment from environment.yml & Install the project
 RUN conda init bash && \
     conda update -n base -c defaults conda && \
-    conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION -c conda-forge && \
-    conda env update -n $ENVIRONMENT_NAME --file environment.yml && \
+    # conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION -c conda-forge && \
+    # conda env update -n $ENVIRONMENT_NAME --file environment.yml && \
+    # alternatively: use mamba to speed up installation
+    conda install mamba -c conda-forge && \
+    mamba create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION -c conda-forge && \
+    mamba env update -n $ENVIRONMENT_NAME --file environment.yml && \
     conda activate $ENVIRONMENT_NAME && \
-    python setup.py install && \
+    pip install . && \
     conda clean -afy
 
 # Volume for data

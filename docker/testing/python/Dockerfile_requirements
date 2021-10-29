@@ -38,7 +38,7 @@ ENV PATH "$VIRTUAL_ENV/bin:$PATH"
 # Update and install any needed packages and the project
 RUN pip install pip setuptools --trusted-host pypi.org --upgrade --no-cache-dir && \
     pip install -r requirements.txt --trusted-host pypi.org --trusted-host pypi.python.org --no-cache-dir && \
-    python setup.py install
+    pip install .
 
 # Volume for data
 VOLUME ["/shared"]

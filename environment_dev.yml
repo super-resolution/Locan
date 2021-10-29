@@ -17,6 +17,7 @@ dependencies:
 - pytest
 
 # Development
+- build
 - twine
 - sphinx
 - ipython

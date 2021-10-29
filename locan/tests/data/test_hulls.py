@@ -106,7 +106,7 @@ def test_ConvexHull(locdata_empty, locdata_single_localization,
         ConvexHull(locdata.coordinates, method='shapely')
 
 
-@pytest.mark.skip('Test needs visual inspection.')
+@pytest.mark.visual
 def test_OrientedBoundingBox_2d_points_visual():
     points = np.array([[0, 0], [0, 2], [1, 2], [1, 0], [0, 0]])
 

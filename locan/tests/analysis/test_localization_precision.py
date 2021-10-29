@@ -113,7 +113,7 @@ def test_Localization_precision(locdata_simple_2d):
         assert(prop in lp.results.columns)
 
 
-@pytest.mark.skip('Test for visual inspection.')
+@pytest.mark.visual
 def test_Localization_precision_plot(locdata_rapidSTORM_2d):
     lp = LocalizationPrecision().compute(locdata=locdata_rapidSTORM_2d)
     lp.plot(window=10)

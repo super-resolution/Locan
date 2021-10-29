@@ -26,8 +26,12 @@ if QT_BINDINGS == QtBindings.NONE:
 
 # register pytest markers - should be in sync with pyproject.toml
 def pytest_configure(config):
-    config.addinivalue_line("markers", "gui: marks tests that require user interaction (skipped by default)")
-    config.addinivalue_line("markers", "visual: marks tests that require visual inspection (skipped by default)")
+    config.addinivalue_line(
+        "markers", "gui: marks tests that require user interaction (skipped by default)")
+    config.addinivalue_line(
+        "markers", "visual: marks tests that require visual inspection (skipped by default)")
+    config.addinivalue_line(
+        "markers", "requires_datasets: marks tests that require data in locan_datasets directory (skipped by default)")
 
 
 # fixtures for random points

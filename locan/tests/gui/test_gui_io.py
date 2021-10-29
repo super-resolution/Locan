@@ -7,7 +7,7 @@ import pytest
 from locan.constants import ROOT_DIR, QT_BINDINGS
 from locan.gui.io import file_dialog
 
-pytestmark = pytest.mark.skip('GUI tests are skipped because they would need user interaction.')
+pytestmark = pytest.mark.gui
 
 
 def test_file_dialog():

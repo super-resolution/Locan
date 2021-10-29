@@ -15,8 +15,9 @@ filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
     # "ignore::DeprecationWarning",
 ]
-addopts = "-m 'not gui and not visual'"
+addopts = "-m 'not gui and not visual and not requires_datasets'"
 markers = [
     "gui: marks tests that require user interaction (skipped by default)",
     "visual: marks tests that require visual inspection (skipped by default)",
+    "requires_datasets: marks tests that require data in locan_datasets directory (skipped by default)",
 ]

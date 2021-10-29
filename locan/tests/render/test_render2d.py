@@ -11,10 +11,6 @@ from locan import render_2d, apply_window
 from locan import cluster_dbscan
 
 
-# flag to skip some of the following tests
-skip_tests = True
-
-
 def test_render_2d_mpl_empty(locdata_empty):
     render_2d_mpl(locdata_empty, bin_size=5)
     # plt.show()
@@ -51,7 +47,7 @@ def test_render_2d_mpl(locdata_blobs_2d):
     plt.close('all')
 
 
-@pytest.mark.skip('Test for visual inspection.')
+@pytest.mark.visual
 # this is to check overlay of rendered image and single localization points
 def test_render_2d_mpl_show(locdata_blobs_2d):
     print(locdata_blobs_2d.coordinates)
@@ -83,7 +79,7 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
     plt.close('all')
 
 
-@pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
+@pytest.mark.gui
 @pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
 def test_render_2d(locdata_blobs_2d, test_input, expected):
     if _has_napari and test_input == RenderEngine.NAPARI:
@@ -96,7 +92,7 @@ def test_render_2d(locdata_blobs_2d, test_input, expected):
     plt.close('all')
 
 
-@pytest.mark.skip('Test for visual inspection.')
+@pytest.mark.visual
 # this is to check overlay of rendered image and single localization points
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_render_2d_napari_coordinates(locdata_blobs_2d):
@@ -113,7 +109,7 @@ def test_render_2d_napari_coordinates(locdata_blobs_2d):
     plt.close('all')
 
 
-@pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
+@pytest.mark.gui
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_render_2d_napari(locdata_blobs_2d):
     render_2d_mpl(locdata_blobs_2d, bin_size=100, cmap='viridis')
@@ -153,7 +149,7 @@ def test__napari_shape_to_region():
     assert repr(region) == 'Polygon([[0.0, 2.0], [0.0, 4.5], [31.0, 4.5], [31.0, 2.0], [0.0, 2.0]])'
 
 
-@pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
+@pytest.mark.gui
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_select_by_drawing_napari(locdata_blobs_2d):
     viewer = napari.Viewer()
@@ -166,7 +162,7 @@ def test_select_by_drawing_napari(locdata_blobs_2d):
     assert repr(rois[0].region) == 'Rectangle((122.0, 565.0), 90.0, 100.0, 0)'
 
 
-@pytest.mark.skipif(skip_tests, reason='GUI tests are skipped because they would need user interaction.')
+@pytest.mark.gui
 def test_select_by_drawing_napari_2(locdata_blobs_2d):
     roi_list = select_by_drawing_napari(locdata_blobs_2d)
     print(roi_list)
@@ -179,7 +175,7 @@ def test_scatter_2d_mpl(locdata_2d):
     plt.close('all')
 
 
-@pytest.mark.skip('Visual check repeating previously checked functionality.')
+@pytest.mark.visual  # Visual check repeating previously checked functionality
 def test_scatter_2d_mpl_2(locdata_blobs_2d):
     _, collection = cluster_dbscan(locdata_blobs_2d, eps=20, min_samples=3, noise=True)
     render_2d_mpl(locdata_blobs_2d)

@@ -16,7 +16,7 @@ def test_napari():
     assert viewer
 
 
-@pytest.mark.skip('GUI tests are skipped because they need user interaction.')
+@pytest.mark.gui
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_script_napari():
     path = Path(ROOT_DIR / 'tests/test_data/five_blobs.txt')
@@ -24,7 +24,7 @@ def test_script_napari():
     sc_napari(file_path=str(path), file_type=1, bin_size=20, rescale=None)
 
 
-@pytest.mark.skip('GUI tests are skipped because they need user interaction.')
+@pytest.mark.gui
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_script_napari_from_sys():
     path = Path(ROOT_DIR / 'tests/test_data/five_blobs.txt')

@@ -25,7 +25,7 @@ def test(args=None):
     except ImportError:
         raise ImportError("Need pytest to run tests.")
 
-    extra_args = ["-m not gui and not visual"]
+    extra_args = ["-m not gui and not visual and not requires_datasets"]
 
     if args is None:
         pass  # extra_args = []

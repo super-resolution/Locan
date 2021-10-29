@@ -86,7 +86,7 @@ def test_max_distance_3d(locdata_3d):
     assert (mdist == {'max_distance': 6.164414002968976})
 
 
-@pytest.mark.skip('Test needs visual inspection.')
+@pytest.mark.visual
 def test_compute_inertia_moments_visual():
     rng = np.random.default_rng(seed=1)
     offspring = [make_uniform(n_samples=10, region=Ellipse((0, 0), 1, 1), seed=rng)] * 2

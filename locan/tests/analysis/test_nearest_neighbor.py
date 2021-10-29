@@ -170,7 +170,7 @@ def test_NearestNeighborDistances_1d(caplog, locdata_1d):
     plt.close('all')
 
 
-@pytest.mark.skip('Test for visual inspection.')
+@pytest.mark.visual
 def test_NearestNeighborDistances_2d_random():
     locdata = simulate_uniform(n_samples=10_000, region=((0, 1), (0, 1)))
     nn_1 = NearestNeighborDistances().compute(locdata)
@@ -180,7 +180,7 @@ def test_NearestNeighborDistances_2d_random():
     plt.show()
 
 
-@pytest.mark.skip('Test for visual inspection.')
+@pytest.mark.visual
 def test_NearestNeighborDistances_3d_random():
     locdata = simulate_uniform(n_samples=10_000, region=((0, 1), (0, 1), (0, 1)))
     nn_1 = NearestNeighborDistances().compute(locdata)

@@ -9,7 +9,7 @@ import networkx as nx
 from locan import AlphaShape, AlphaComplex, RoiRegion, EmptyRegion, Region2D
 
 
-@pytest.mark.skip('Requires visual inspection.')
+@pytest.mark.visual
 def test_AlphaComplex_visual(locdata_2d):
     points = locdata_2d.coordinates
     alpha_complex = AlphaComplex(points)
@@ -37,7 +37,7 @@ def test_AlphaComplex_visual(locdata_2d):
     plt.show()
 
 
-@pytest.mark.skip('Requires visual inspection.')
+@pytest.mark.visual
 def test_AlphaComplex_1_visual():
     points = np.array([[10, 10], [10, 14], [11, 11], [12, 11], [13, 10], [13, 13], [15, 14], [17, 16],
                        [10, 24]])
@@ -90,7 +90,7 @@ def test_AlphaComplex_1_visual():
     plt.show()
 
 
-@pytest.mark.skip('Requires visual inspection.')
+@pytest.mark.visual
 def test_AlphaComplex_2_visual():
     points = np.array([[10, 10], [10, 14], [11, 11], [12, 11], [13, 10], [13, 13], [15, 14], [17, 16],
                        [20, 20], [20, 24], [21, 21], [22, 21], [23, 20], [23, 23], [25, 24],
@@ -144,7 +144,7 @@ def test_AlphaComplex_2_visual():
     plt.show()
 
 
-@pytest.mark.skip('Requires visual inspection.')
+@pytest.mark.visual
 def test_AlphaComplex_3_visual():
     points = np.array([[10, 10], [10, 20], [20, 20], [20, 10], [10, 15], [15, 20], [20, 15], [15, 10],
                        [10, 12], [10, 18], [20, 18], [20, 12], [17, 20], [12, 10], [17, 10], [12, 20],

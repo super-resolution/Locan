@@ -159,7 +159,7 @@ def test_make_Poisson():
     assert np.all(samples[:, 1] < 11)
 
 
-@pytest.mark.skip('Test needs visual inspection.')
+@pytest.mark.visual
 def test_make_Poisson_visual():
     rng = np.random.default_rng(seed=1)
 
@@ -356,7 +356,7 @@ def test_make_cluster():
     assert samples.ndim == 2
 
 
-@pytest.mark.skip('Test needs visual inspection.')
+@pytest.mark.visual
 def test_make_cluster_visual():
     rng = np.random.default_rng(seed=1)
 
@@ -566,7 +566,7 @@ def test_make_NeymanScott():
     assert samples.ndim == 2
 
 
-@pytest.mark.skip('Test needs visual inspection.')
+@pytest.mark.visual
 def test_make_NeymanScott_visual():
     rng = np.random.default_rng(seed=1)
 
@@ -716,7 +716,7 @@ def test_make_Matern():
     assert np.all(samples[:, 1] < 11)
 
 
-@pytest.mark.skip('Test needs visual inspection.')
+@pytest.mark.visual
 def test_make_Matern_visual():
     rng = np.random.default_rng(seed=1)
 
@@ -972,7 +972,7 @@ def test_make_Thomas():
     assert np.all(samples[:, 1] < 11)
 
 
-@pytest.mark.skip('Test needs visual inspection.')
+@pytest.mark.visual
 def test_make_Thomas_visual():
     rng = np.random.default_rng(seed=1)
 
@@ -1291,7 +1291,7 @@ def test_simulate_drift(locdata_2d):
     # print(new_locdata.meta)
 
 
-@pytest.mark.skip('Test needs visual inspection.')
+@pytest.mark.visual
 def test_visual__drift():
     frames = np.arange(0, 1_000_000, dtype=int)
     print(frames.shape)
@@ -1306,7 +1306,7 @@ def test_visual__drift():
     plt.show()
 
 
-@pytest.mark.skip('Test needs visual inspection.')
+@pytest.mark.visual
 def test_visual_add_drift(locdata_2d):
     # new_locdata = add_drift(locdata_2d, diffusion_constant=(1, 10), velocity=(10, 10), seed=1)
     new_locdata = add_drift(locdata_2d, diffusion_constant=None, velocity=(1, 1), seed=1)

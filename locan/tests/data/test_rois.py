@@ -140,7 +140,7 @@ def test_as_artist():
 
 
 # to be deprecated
-# @pytest.mark.skip('GUI tests are skipped because they need user interaction.')
+# @pytest.mark.gui
 # def test_select_by_drawing_mpl():
 #     dat = load_txt_file(path=ROOT_DIR / 'tests/test_data/five_blobs.txt')
 #     select_by_drawing_mpl(dat, region_type='rectangle')

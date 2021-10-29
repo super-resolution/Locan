@@ -9,7 +9,7 @@ from locan.constants import ROOT_DIR
 from locan.scripts.script_rois import sc_draw_roi_napari
 
 
-@pytest.mark.skip('GUI tests are skipped because they need user interaction.')
+@pytest.mark.gui
 @pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
 def test_script_rois(capfd):
     path = Path(ROOT_DIR / 'tests/test_data/five_blobs.txt')

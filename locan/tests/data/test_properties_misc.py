@@ -96,9 +96,10 @@ def test_compute_inertia_moments_visual():
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))
     for angle in np.linspace(0, 180, 20):
         rotated_points = affinity.rotate(MultiPoint(points), angle, origin=[0, 0], use_radians=False)
-        axes[0].scatter(*np.array(rotated_points).T)
-        inertia_moments = inertia_moments(np.array(rotated_points))
-        axes[1].scatter(angle, inertia_moments.orientation)
+        rotated_points = np.array([rpts.coords[0] for rpts in rotated_points.geoms])
+        axes[0].scatter(*rotated_points.T)
+        inertia_moments_ = inertia_moments(rotated_points)
+        axes[1].scatter(angle, inertia_moments_.orientation)
     plt.show()
 
 
@@ -109,7 +110,8 @@ def test_compute_inertia_moments():
                                 clip=False, seed=rng)
     for angle in np.linspace(0, 180, 5):
         rotated_points = affinity.rotate(MultiPoint(points), angle, origin=[0, 0], use_radians=False)
-        inertia_moments_ = inertia_moments(np.array(rotated_points))
+        rotated_points = np.array([rpts.coords[0] for rpts in rotated_points.geoms])
+        inertia_moments_ = inertia_moments(rotated_points)
         assert len(inertia_moments_.eigenvalues) == 2
         assert len(inertia_moments_.eigenvectors) == 2
         assert len(inertia_moments_.variance_explained) == 2

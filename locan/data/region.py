@@ -1337,7 +1337,7 @@ class Polygon(Region2D):
             return np.array([])
         points_ = shMultiPoint(points)
         prepared_polygon = prep(self.shapely_object)
-        mask = list(map(prepared_polygon.contains, points_))
+        mask = list(map(prepared_polygon.contains, points_.geoms))
         inside_indices = np.nonzero(mask)[0]
         return inside_indices
 
@@ -1448,7 +1448,7 @@ class MultiPolygon(Region2D):
             return np.array([])
         points_ = shMultiPoint(points)
         prepared_polygon = prep(self.shapely_object)
-        mask = list(map(prepared_polygon.contains, points_))
+        mask = list(map(prepared_polygon.contains, points_.geoms))
         inside_indices = np.nonzero(mask)[0]
         return inside_indices
 
@@ -1929,14 +1929,14 @@ def _polygon_path(polygon):
     if ptype == 'Polygon':
         polygon = [polygon]
     elif ptype == 'MultiPolygon':
-        polygon = [shPolygon(p) for p in polygon]
+        polygon = [shPolygon(p) for p in polygon.geoms]
     else:
         raise ValueError(
             "A polygon or multi-polygon representation is required")
 
     vertices = np.concatenate([
-        np.concatenate([np.asarray(t.exterior)[:, :2]] +
-                    [np.asarray(r)[:, :2] for r in t.interiors])
+        np.concatenate([np.asarray(t.exterior.coords)[:, :2]] +
+                    [np.asarray(r.coords)[:, :2] for r in t.interiors])
         for t in polygon])
     codes = np.concatenate([
         np.concatenate([coding(t.exterior)] +

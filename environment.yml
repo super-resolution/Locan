@@ -46,16 +46,12 @@ dependencies:
 - fast-histogram
 
 # Extra requirements
-- pyside2>=5.12.3
+# - pyside2>=5.12.3
 - colorcet
 - trackpy
 - open3d!=0.12.0
-- napari<0.4.6
+- napari
 - mpl-scatter-density
 
 # Various issues
 - pydantic!=1.8.0
-
-# additions for open3d
-- addict
-- plyfile

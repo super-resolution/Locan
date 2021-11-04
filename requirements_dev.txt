@@ -9,6 +9,7 @@ cython
 pytest
 
 # Development
+build
 twine
 sphinx
 ipython

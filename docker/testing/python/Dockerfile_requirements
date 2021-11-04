@@ -36,7 +36,9 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH "$VIRTUAL_ENV/bin:$PATH"
 
 # Update and install any needed packages and the project
-RUN pip install pip setuptools --trusted-host pypi.org --upgrade --no-cache-dir && \
+RUN pip install pip "setuptools !=58.5.*, !=58.6.*" --trusted-host pypi.org --upgrade --no-cache-dir && \
+    # numba requires numpy<1.21 which must be installed for hdbscan
+    pip install cython numba hdbscan pytest --trusted-host pypi.org --no-cache-dir && \
     pip install -r requirements.txt --trusted-host pypi.org --trusted-host pypi.python.org --no-cache-dir && \
     pip install .
 

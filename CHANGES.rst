@@ -114,25 +114,36 @@ Other Changes and Additions
 ---------------------------
 -
 
-0.9 - 2021-06-12
+0.9 - 2021-11-11
 ================
 
 API Changes
 -----------
 
+locan.analysis
+^^^^^^^^^^^^^^^
+- Refactor computation of blinking_statistics
+
 locan.data
 ^^^^^^^^^^^^^^^
 - Restructured Region management introducing new classes in locan.data.region
+- Rename function to computer inertia moments
+
+locan.render
+^^^^^^^^^^^^^^^
+- Change image orientation in render_2d_napari to be consistent with points coordinates.
 
 locan.simulation
 ^^^^^^^^^^^^^^^^^^^
 - Refactored simulation functions to make use of numpy random number generator.
 - Refactored simulation functions to generate Neyman-Scott point processes in expanded regions.
+- Add function to simulate dSTORM data as localization clusters
+with normal-distributed coordinates and geometric-distributed number of localizations.
 
 Other Changes and Additions
 ---------------------------
-- Added ro modified tutorials on mutiprocessing, regions and simulation.
-
+- Added or modified tutorials on mutiprocessing, regions and simulation.
+- Introduce pytest markers for test functions that are excluded from test run per default.
 
 0.8 - 2021-05-06
 ================

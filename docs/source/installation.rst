@@ -22,20 +22,20 @@ Download distribution or wheel archive and install with pip::
 Install from source directory
 ------------------------------
 
-Use setuptools to install from sources (without extra requirements)::
+Install from sources without extra requirements::
 
-    python setup.py install
+    pip install <locan_directory>
 
-Alternatively, use pip to install from sources with extra requirements::
+Install from sources with extra requirements::
 
-    pip install .[all]
+    pip install <locan_directory>[all]
 
 Run tests
 -----------------------
 
-Use setuptools (which is configured for running pytest) to run the tests::
+Use pytest to run the tests from the source directory::
 
-    python setup.py test
+    pytest
 
 Or run a locan script from any directory::
 

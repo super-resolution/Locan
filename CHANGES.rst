@@ -26,7 +26,7 @@ locan.simulation
 - Refactored simulation functions to make use of numpy random number generator.
 - Refactored simulation functions to generate Neyman-Scott point processes in expanded regions.
 - Add function to simulate dSTORM data as localization clusters
-with normal-distributed coordinates and geometric-distributed number of localizations.
+  with normal-distributed coordinates and geometric-distributed number of localizations.
 
 Other Changes and Additions
 ---------------------------

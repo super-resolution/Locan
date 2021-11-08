@@ -15,6 +15,7 @@ dependencies:
 
 # Python tests
 - pytest
+- coverage
 
 # Development
 - build

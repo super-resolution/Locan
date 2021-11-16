@@ -163,6 +163,7 @@ class FileType(Enum):
     THUNDERSTORM = 4
     ASDF = 5
     NANOIMAGER = 6
+    RAPIDSTORMTRACK = 7
 
 
 # Render engines

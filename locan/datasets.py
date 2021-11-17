@@ -1,5 +1,5 @@
 """
-Utility functions to deal with examplary datasets.
+Utility functions to deal with exemplary datasets.
 
 The data is located in a separate directory `Locan_datasets`.
 The path to the datasets directory can be set by the `locan.constants.DATASETS_DIR` variable.

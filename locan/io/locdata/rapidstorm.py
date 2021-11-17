@@ -1,3 +1,8 @@
+"""
+
+File input/output for localization data in rapidSTORM files.
+
+"""
 import logging
 
 import numpy as np

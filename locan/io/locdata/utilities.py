@@ -1,3 +1,8 @@
+"""
+
+Utility functions for file input/output of localization data.
+
+"""
 import io
 from contextlib import closing
 

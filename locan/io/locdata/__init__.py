@@ -12,7 +12,7 @@ There are functions for reading the following file structures
 * asdf file format (ASDF) [3]_
 * Nanoimager file format (NANOIMAGER)
 * rapidSTORM track file format (RAPIDSTORMTRACK) [1]_
-* SMLM file format (SMLM) [4]_ [5]_
+* smlm file format (SMLM) [4]_, [5]_
 
 References
 ----------
@@ -33,6 +33,19 @@ References
    Nat. Biotechnol. 2018, doi:10.1038/nbt.4106.
 
 .. [5] https://github.com/imodpasteur/smlm-file-format
+
+
+Submodules:
+-----------
+
+.. autosummary::
+   :toctree: ./
+
+   io_locdata
+   utilities
+   rapidstorm
+   smlm_file
+
 """
 from .io_locdata import *
 from .utilities import *

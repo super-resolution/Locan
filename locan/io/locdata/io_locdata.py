@@ -1,3 +1,8 @@
+"""
+
+File input/output for localization data.
+
+"""
 import io
 import logging
 from enum import Enum

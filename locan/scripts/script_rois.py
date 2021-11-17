@@ -29,7 +29,7 @@ if _has_napari: import napari
 
 from locan.constants import FileType
 from locan.gui.io import file_dialog
-import locan.io.io_locdata as io
+import locan.io.locdata.io_locdata as io
 from locan.render.render2d import select_by_drawing_napari
 
 

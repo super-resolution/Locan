@@ -1,10 +1,8 @@
 import pytest
-import numpy as np
-import pandas as pd
 
 from locan import LocData
 import locan.constants
-import locan.io.io_locdata as io
+import locan.io.locdata.io_locdata as io
 from locan.analysis import AccumulationClusterCheck
 from locan.analysis.accumulation_analysis import _accumulation_cluster_check, \
     _accumulation_cluster_check_for_single_dataset

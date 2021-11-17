@@ -29,6 +29,8 @@ enum File_type {
     THUNDERSTORM = 4;
     ASDF = 5;
     NANOIMAGER = 6;
+    RAPIDSTORMTRACK = 7;
+    SMLM = 8;
 }
 
 message Operation {

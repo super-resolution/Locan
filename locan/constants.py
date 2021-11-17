@@ -164,6 +164,7 @@ class FileType(Enum):
     ASDF = 5
     NANOIMAGER = 6
     RAPIDSTORMTRACK = 7
+    SMLM = 8
 
 
 # Render engines
@@ -255,6 +256,29 @@ NANOIMAGER_KEYS = {
     'Z (nm)': 'position_z',
     'Photons': 'intensity',
     'Background': 'local_background'
+}
+
+
+#: Mapping column names in SMLM files to LocData property keys
+SMLM_KEYS = {
+    'id': 'original_index',
+    'frame': 'frame',
+    'time': 'frame',
+    'x': 'position_x',
+    'y': 'position_y',
+    'z': 'position_z',
+    'x_position': 'position_x',
+    'y_position': 'position_y',
+    'z_precision': 'position_z',
+
+    'uncertainty [nm]': 'uncertainty',
+    'uncertainty_xy [nm]': 'uncertainty_x',
+    'uncertainty_z [nm]': 'uncertainty_z',
+    'intensity': 'intensity',
+    'Amplitude-0-0': 'intensity',
+    'background': 'local_background',
+    'LocalBackground_0_0': 'local_background',
+    'FitResidues_0_0': 'chi_square',
 }
 
 

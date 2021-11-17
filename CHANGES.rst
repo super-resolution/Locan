@@ -28,7 +28,8 @@ locan.gui
 
 locan.io
 ^^^^^^^^^^^^^^^
--
+- Add function to load rapidSTORM file with tracked data.
+- Add function to load SMLM file.
 
 locan.render
 ^^^^^^^^^^^^^^^

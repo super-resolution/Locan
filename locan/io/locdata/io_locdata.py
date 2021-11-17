@@ -1,42 +1,8 @@
-"""
-
-File input/output for localization data.
-
-There are functions for reading the following file structures
-(with an indicator string in parenthesis - see also `locan.constants.FileType`):
-
-* custom text file (CUSTOM)
-* rapidSTORM file format (RAPIDSTORM) [1]_
-* Elyra file format (ELYRA)
-* Thunderstorm file format (THUNDERSTORM) [2]_
-* asdf file format (ASDF) [3]_
-* Nanoimager file format (NANOIMAGER)
-* rapidSTORM track file format (RAPIDSTORMTRACK) [1]_
-
-References
-----------
-.. [1] Wolter S, Löschberger A, Holm T, Aufmkolk S, Dabauvalle MC, van de Linde S, Sauer M.,
-   rapidSTORM: accurate, fast open-source software for localization microscopy.
-   Nat Methods 9(11):1040-1, 2012, doi: 10.1038/nmeth.2224
-
-.. [2] M. Ovesný, P. Křížek, J. Borkovec, Z. Švindrych, G. M. Hagen.
-   ThunderSTORM: a comprehensive ImageJ plugin for PALM and STORM data analysis and super-resolution imaging.
-   Bioinformatics 30(16):2389-2390, 2014.
-
-.. [3] Greenfield, P., Droettboom, M., & Bray, E.,
-   ASDF: A new data format for astronomy.
-   Astronomy and Computing, 12: 240-251, 2015, doi:10.1016/j.ascom.2015.06.004
-"""
-import time
 import io
-import warnings
 import logging
 from enum import Enum
-from contextlib import closing
 
-import numpy as np
 import pandas as pd
-import xml.etree.ElementTree as etree
 from asdf import AsdfFile
 from asdf import open as asdf_open
 from google.protobuf import json_format
@@ -44,81 +10,16 @@ from google.protobuf import json_format
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
+from locan.io.locdata.utilities import convert_property_types, open_path_or_file_like
+from locan.io.locdata.rapidstorm import load_rapidSTORM_file, load_rapidSTORM_track_file
+from locan.io.locdata.smlm_file import load_SMLM_file
 
 
-__all__ = ['convert_property_types', 'save_asdf', 'save_thunderstorm_csv',
-           'load_txt_file', 'load_rapidSTORM_file', 'load_Elyra_file', 'load_asdf_file', 'load_thunderstorm_file',
+__all__ = ['save_asdf', 'save_thunderstorm_csv',
+           'load_txt_file', 'load_Elyra_file', 'load_asdf_file', 'load_thunderstorm_file',
            'load_Nanoimager_file', 'load_locdata']
 
 logger = logging.getLogger(__name__)
-
-
-def convert_property_types(dataframe, types, loc_properties=None):
-    """
-    Convert data types according to the column-type mapping in types.
-    If the target type is one of 'integer', 'signed', 'unsigned', 'float'
-    then :func:`pandas.to_numeric` will be applied.
-    Otherwise, if the target type is any type object like `int`, `str`, `np.float64` or similar
-    then :func:`pandas.astype` will be applied.
-
-    Parameters
-    ----------
-    dataframe : pandas.DataFrame
-        Data to be converted
-    types : dict
-        Mapping of loc_properties to types
-    loc_properties : list(str), None
-        The columns in dataframe to be converted. If None all columns will be converted according to types.
-
-    Returns
-    -------
-    pandas.DataFrame
-        A copy of dataframe with converted types
-    """
-    new_df = dataframe.copy()
-    if loc_properties is None:
-        loc_properties = dataframe.columns
-    else:
-        loc_properties = [key for key in loc_properties if key in dataframe.columns]
-    selected_property_keys = {key: types[key] for key in loc_properties if key in types}
-
-    for key, value in selected_property_keys.items():
-        if isinstance(value, str):
-            new_df[key] = pd.to_numeric(dataframe[key], downcast=value, errors='coerce')
-        else:
-            new_df[key] = dataframe[key].astype(value)
-
-    return new_df
-
-
-def open_path_or_file_like(path_or_file_like, mode='r', encoding=None):
-    """
-    Provide open-file context from `path_or_file_like` input.
-
-    Parameters
-    ----------
-    path_or_file_like : str, os.PathLike, file-like
-        Identifier for file
-    mode
-        same as in `open()`
-    encoding
-        same as in `open()`
-
-    Returns
-    -------
-    context for file object
-    """
-    try:
-        all(getattr(path_or_file_like, attr) for attr in ('seek', 'read', 'close'))
-        file = path_or_file_like
-    except (AttributeError, io.UnsupportedOperation):
-        try:
-            # if hasattr(path_or_file_like, "__fspath__")
-            # or isinstance(path_or_file_like, (str, bytes)):
-            file = open(path_or_file_like, mode=mode, encoding=encoding)
-        except TypeError:
-            raise TypeError("path_or_file_like must be str, bytes, os.PathLike or file-like.")
-    return closing(file)
 
 
 def save_asdf(locdata, path):
@@ -230,108 +131,6 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
     del dat.meta.history[:]
     dat.meta.history.add(name='load_txt_file',
                          parameter='path={}, sep={}, columns={}, nrows={}'.format(path, sep, columns, nrows))
-
-    return dat
-
-
-def read_rapidSTORM_header(file):
-    """
-    Read xml header from a rapidSTORM single-molecule localization file and identify column names.
-
-    Parameters
-    ----------
-    file : file-like
-        A rapidSTORM file to load.
-
-    Returns
-    -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
-    """
-    # read xml part in header
-    header = file.readline()
-    header = header[2:]
-
-    # get iteratible
-    parsed = etree.XML(header)
-
-    # list identifiers
-    identifiers = []
-    for elem in parsed:
-        for name, value in sorted(elem.attrib.items()):
-            if name == 'identifier':
-                identifiers.append(value)
-
-    # turn identifiers into valuable LocData keys
-    column_keys = []
-    for i in identifiers:
-        if i in locan.constants.RAPIDSTORM_KEYS:
-            column_keys.append(locan.constants.RAPIDSTORM_KEYS[i])
-        else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
-            column_keys.append(i)
-    return column_keys
-
-
-def load_rapidSTORM_header(path):
-    """
-    Load xml header from a rapidSTORM single-molecule localization file and identify column names.
-
-    Parameters
-    ----------
-    path : str, os.PathLike, file-like
-        File path for a rapidSTORM file to load.
-
-    Returns
-    -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
-    """
-
-    # read xml part in header
-    with open_path_or_file_like(path) as file:
-        return read_rapidSTORM_header(file)
-
-
-def load_rapidSTORM_file(path, nrows=None, convert=True, **kwargs):
-    """
-    Load data from a rapidSTORM single-molecule localization file.
-
-    Parameters
-    ----------
-    path : str, os.PathLike, file-like
-        File path for a rapidSTORM file to load.
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded.
-    convert : bool
-        If True convert types by applying type specifications in locan.constants.PROPERTY_KEYS.
-    kwargs : dict
-        Other parameters passed to `pandas.read_csv()`.
-
-    Returns
-    -------
-    LocData
-        A new instance of LocData with all localizations.
-    """
-    with open_path_or_file_like(path) as file:
-        columns = read_rapidSTORM_header(file)
-        dataframe = pd.read_csv(file, sep=" ", skiprows=0, nrows=nrows, names=columns, **kwargs)
-
-    if convert:
-        dataframe = convert_property_types(dataframe, types=locan.constants.PROPERTY_KEYS)
-
-    dat = LocData.from_dataframe(dataframe=dataframe)
-
-    dat.meta.source = metadata_pb2.EXPERIMENT
-    dat.meta.state = metadata_pb2.RAW
-    dat.meta.file_type = metadata_pb2.RAPIDSTORM
-    dat.meta.file_path = str(path)
-
-    for property in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        dat.meta.unit.add(property=property, unit='nm')
-
-    del dat.meta.history[:]
-    dat.meta.history.add(name='load_rapidSTORM_file', parameter='path={}, nrows={}'.format(path, nrows))
 
     return dat
 
@@ -543,8 +342,8 @@ def load_thunderstorm_file(path, nrows=None, convert=True, **kwargs):
     dat.meta.file_type = metadata_pb2.THUNDERSTORM
     dat.meta.file_path = str(path)
 
-    for property in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        dat.meta.unit.add(property=property, unit='nm')
+    for property_ in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
+        dat.meta.unit.add(property=property_, unit='nm')
 
     del dat.meta.history[:]
     dat.meta.history.add(name='load_thundestorm_file', parameter='path={}, nrows={}'.format(path, nrows))
@@ -635,170 +434,13 @@ def load_Nanoimager_file(path, nrows=None, convert=True, **kwargs):
     dat.meta.file_type = metadata_pb2.NANOIMAGER
     dat.meta.file_path = str(path)
 
-    for property in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        dat.meta.unit.add(property=property, unit='nm')
+    for property_ in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
+        dat.meta.unit.add(property=property_, unit='nm')
 
     del dat.meta.history[:]
     dat.meta.history.add(name='load_Nanoimager_file', parameter='path={}, nrows={}'.format(path, nrows))
 
     return dat
-
-
-def read_rapidSTORM_track_header(file):
-    """
-    Read xml header from a rapidSTORM (track) single-molecule localization file and identify column names.
-
-    Parameters
-    ----------
-    file : file-like
-        A rapidSTORM file to load.
-
-    Returns
-    -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
-    """
-    # read xml part in header
-    header = file.readline()
-    header = header[2:]
-
-    parsed = etree.XML(header)
-
-    # list identifiers
-    identifiers = []
-    for field in parsed.findall('field'):
-        identifiers.append(field.get('identifier'))
-
-    # turn identifiers into valuable LocData keys
-    column_keys = []
-    for i in identifiers:
-        if i in locan.constants.RAPIDSTORM_KEYS:
-            column_keys.append(locan.constants.RAPIDSTORM_KEYS[i])
-        else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
-            column_keys.append(i)
-
-    # list child identifiers
-    child_identifiers = []
-    for field in parsed.findall('localizations'):
-        for field_ in field.findall('field'):
-            child_identifiers.append(field_.get('identifier'))
-
-    # turn child identifiers into valuable LocData keys
-    column_keys_tracks = []
-    for i in child_identifiers:
-        if i in locan.constants.RAPIDSTORM_KEYS:
-            column_keys_tracks.append(locan.constants.RAPIDSTORM_KEYS[i])
-        else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
-            column_keys_tracks.append(i)
-
-    return column_keys, column_keys_tracks
-
-
-def load_rapidSTORM_track_header(path):
-    """
-    Load xml header from a rapidSTORM (track) single-molecule localization file and identify column names.
-
-    Parameters
-    ----------
-    path : str, os.PathLike, file-like
-        File path for a rapidSTORM file to load.
-
-    Returns
-    -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
-    """
-
-    # read xml part in header
-    with open_path_or_file_like(path) as file:
-        return read_rapidSTORM_track_header(file)
-
-
-def load_rapidSTORM_track_file(path, nrows=None, convert=True, collection=True, min_localization_count=1, **kwargs):
-    """
-    Load data from a rapidSTORM single-molecule localization file with tracked localizations.
-
-    Parameters
-    ----------
-    path : str, os.PathLike, file-like
-        File path for a rapidSTORM file to load.
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded.
-    convert : bool
-        If True convert types by applying type specifications in locan.constants.PROPERTY_KEYS.
-    collection : bool
-        If True a collection of all tracks is returned. If False LocData with center positions is returned.
-    min_localization_count : int
-        If collection is True, only clusters with at least `min_localization_count` localizations are loaded.
-    kwargs : dict
-        Other parameters passed to `pandas.read_csv()`.
-
-    Returns
-    -------
-    LocData
-        A new instance of LocData with all localizations/tracks as a collection.
-    """
-    with open_path_or_file_like(path) as file:
-        columns, columns_track = read_rapidSTORM_track_header(file)
-        lines = pd.read_csv(file, sep='\n', nrows=nrows, skiprows=1, header=None, **kwargs)
-
-    lines = lines[0].str.split(" ", expand=False)
-
-    if collection:
-        # prepare dataframes with tracked localizations
-        tracks = [np.array(line[len(columns) + 1:]).reshape(-1, len(columns_track)) for line in lines
-                  if int(line[len(columns)]) >= min_localization_count]
-        # +1 to account for the column with number of locs in track
-        track_list = []
-        for track in tracks:
-            dataframe = pd.DataFrame(track, columns=columns_track)
-            if convert:
-                dataframe = convert_property_types(dataframe, types=locan.constants.PROPERTY_KEYS)
-            else:
-                dataframe = dataframe.convert_dtypes()
-            dat = LocData.from_dataframe(dataframe=dataframe)
-            track_list.append(dat)
-
-        collection = LocData.from_collection(track_list)
-
-        collection.meta.source = metadata_pb2.RAPIDSTORM
-        collection.meta.state = metadata_pb2.RAW
-        collection.meta.file_type = metadata_pb2.RAPIDSTORM
-        collection.meta.file_path = str(path)
-
-        for property in sorted(list(set(columns_track).intersection({'position_x', 'position_y', 'position_z'}))):
-            collection.meta.unit.add(property=property, unit='nm')
-
-        del collection.meta.history[:]
-        collection.meta.history.add(name='load_rapidSTORM_track_file',
-                                    parameter='path={}, nrows={}'.format(path, nrows))
-
-        return collection
-
-    else:
-        # prepare dataframe with center track positions
-        dataframe = pd.DataFrame([line[:len(columns)] for line in lines], columns=columns)
-        if convert:
-            dataframe = convert_property_types(dataframe, types=locan.constants.PROPERTY_KEYS)
-        else:
-            dataframe = dataframe.convert_dtypes()
-
-        locdata = LocData.from_dataframe(dataframe=dataframe)
-
-        locdata.meta.source = metadata_pb2.EXPERIMENT
-        locdata.meta.state = metadata_pb2.RAW
-        locdata.meta.file_type = metadata_pb2.RAPIDSTORM
-        locdata.meta.file_path = str(path)
-
-        for property in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-            locdata.meta.unit.add(property=property, unit='nm')
-
-        del locdata.meta.history[:]
-        locdata.meta.history.add(name='load_rapidSTORM_track_file', parameter='path={}, nrows={}'.format(path, nrows))
-
-        return locdata
 
 
 def _map_file_type_to_load_function(file_type):
@@ -823,6 +465,7 @@ def _map_file_type_to_load_function(file_type):
         load_asdf_file=load_asdf_file,
         load_Nanoimager_file=load_Nanoimager_file,
         load_rapidSTORM_track_file=load_rapidSTORM_track_file,
+        load_SMLM_file=load_SMLM_file,
     )
 
     class LoadFunction(Enum):
@@ -833,6 +476,7 @@ def _map_file_type_to_load_function(file_type):
         load_asdf_file = 5
         load_Nanoimager_file = 6
         load_rapidSTORM_track_file = 7
+        load_SMLM_file = 8
 
     try:
         if isinstance(file_type, int):

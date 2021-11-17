@@ -10,10 +10,10 @@ Submodules:
 .. autosummary::
    :toctree: ./
 
-   io_locdata
+   locdata
 
 """
-from .io_locdata import *
+from .locdata import *
 
 __all__ = []
-__all__.extend(io_locdata.__all__)
+__all__.extend(locdata.__all__)

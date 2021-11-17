@@ -11,7 +11,7 @@ Available datasets:
 """
 from pathlib import Path
 
-from locan.io.io_locdata import load_rapidSTORM_file
+from locan.io.locdata.io_locdata import load_rapidSTORM_file
 from locan.constants import DATASETS_DIR
 
 

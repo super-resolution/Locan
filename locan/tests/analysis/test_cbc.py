@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt  # this import is needed for visual inspection
 
 from locan import LocData
 from locan.constants import ROOT_DIR
-from locan.io.io_locdata import load_txt_file
+from locan.io.locdata.io_locdata import load_txt_file
 from locan.data.transform import transform_affine
 from locan.analysis.cbc import _coordinate_based_colocalization
 from locan.analysis import CoordinateBasedColocalization

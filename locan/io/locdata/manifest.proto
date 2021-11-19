@@ -1,0 +1,98 @@
+// This is a protobuf file. Pass it through the protobuf compiler to generate
+// Python code:
+//
+// Run protobuf compiler from Locan root directory:
+// protoc --proto_path="." --proto_path="./locan/io/locdata" --python_out="." "./locan/io/locdata/manifest.proto"
+
+// protoc --proto_path="." --proto_path="./locan/io/locdata" --python_out="." "./locan/data/metadata.proto" "./locan/io/locdata/manifest.proto"
+syntax = "proto2";
+
+package locan.io.locdata;
+
+import "locan/data/metadata.proto";
+
+
+enum Type {
+    TABLE = 0;
+    IMAGE = 1;
+}
+
+
+enum Mode {
+    BINARY = 0;
+    TEXT = 1;
+}
+
+
+enum Dtype {
+    INT8 = 1;
+    UINT8 = 2;
+    INT16 = 3;
+    UINT16 = 4;
+    INT32 = 5;
+    UINT32 = 6;
+    FLOAT32 = 7;
+    FLOAT64 = 8;
+}
+
+
+// Next id: 10
+message Format {
+  // required
+  optional string name = 1;
+  optional Type type = 2;
+  optional Mode mode = 3;
+  optional int64 columns = 4;
+  repeated string headers = 5;
+  repeated Dtype dtype = 6;
+  repeated int64 shape = 7;
+  repeated string units = 8;
+
+  // optional
+  optional string description = 9;
+}
+
+
+// Next id: 8
+message FileInfo {
+  // required
+  optional string name = 1;
+  optional Type type = 2;
+  optional string format = 3;
+  optional string channel = 4;
+  optional int64 rows = 5;
+  map<string, int32> offset = 6;
+  // specify offsets for column(s), if need. set to {} if no offset needed.
+
+  //
+  map<string, float> min = 7;
+  map<string, float> max = 8;
+  optional float exposure = 9;
+}
+
+
+// Next id: 16
+message Manifest {
+  // required
+  optional string format_version = 1;
+  map<string, Format> formats = 2;
+  repeated FileInfo files = 3;
+
+  // recommended
+  optional string name = 4;
+  optional string description = 5;
+  repeated string tags = 6;
+  optional string thumbnail = 7;
+  optional string sample = 8;
+  optional string labeling = 9;
+  optional string date = 10;
+  // Localtime in "%Y-%m-%d %H:%M:%S %z"
+
+  // optional
+  optional string author = 11;
+  optional string citation = 12;
+  optional string email = 13;
+  map<string, string> map = 14;
+  // from locan.data.Metadata
+  optional locan.data.Metadata locdata_meta = 15;
+}

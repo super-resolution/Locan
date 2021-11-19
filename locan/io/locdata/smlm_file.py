@@ -7,25 +7,213 @@ File specifications are provided at https://github.com/imodpasteur/smlm-file-for
 Code is adapted from https://github.com/imodpasteur/smlm-file-format/blob/master/implementations/Python/smlm_file.py.
 (MIT license)
 """
+import time
 import logging
 import zipfile
+import zlib
 import json
 
 import numpy as np
 import pandas as pd
+from google.protobuf import json_format
 
+from locan.io.locdata import manifest_pb2
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
 from locan.io.locdata.io_locdata import convert_property_types
+from locan.utils.format import _time_string
 
-__all__ = ['load_SMLM_file']
+__all__ = ['manifest_format_from_locdata', 'manifest_file_info_from_locdata', 'manifest_from_locdata',
+           'save_SMLM', 'load_SMLM_manifest', 'load_SMLM_header', 'load_SMLM_file']
 
 logger = logging.getLogger(__name__)
 
 
-dtype2struct = {'uint8': 'B', 'uint32': 'I', 'float64': 'd', 'float32': 'f'}
-dtype2length = {'uint8': 1, 'uint32': 4, 'float64': 8, 'float32': 4}
+dtype2length = {'int8': 1, 'uint8': 1, 'int16': 2, 'uint16': 2, 'int32': 4, 'uint32': 4, 'float32': 4, 'float64': 8}
+
+
+def manifest_format_from_locdata(locdata):
+    """
+    Prepare a manifest["format"] protobuf from locdata.
+    The manifest holds metadata for smlm files.
+
+    Parameters
+    ----------
+    locdata : LocData
+        The LocData object.
+
+    Returns
+    -------
+    locan.io.locdata.manifest_pb2.Format
+        The manifest format
+    """
+    format = manifest_pb2.Format()
+
+    # required by
+    format.name = "smlm-table(binary)-0"
+    format.type = manifest_pb2.Type.TABLE
+    format.mode = manifest_pb2.Mode.BINARY
+    format.columns = len(locdata.data.columns)
+    format.headers.extend(locdata.data.columns)
+    format.dtype.extend(
+        [manifest_pb2.Dtype.Value(str(dt).upper())
+         for dt in locdata.data.dtypes.values]
+    )
+    format.shape.extend([1] * len(locdata.data.columns))
+    format.units.extend([""] * len(locdata.data.columns))  # todo: add correct units
+
+    # optional by specifications
+    format.description = "localization table generated from locan.LocData"
+
+    return format
+
+
+def manifest_file_info_from_locdata(locdata):
+    """
+    Prepare a manifest["file_info"] protobuf from locdata.
+    The manifest holds metadata for smlm files.
+
+    Parameters
+    ----------
+    locdata : LocData
+        The LocData object.
+
+    Returns
+    -------
+    locan.io.locdata.manifest_pb2.FileInfo
+        The manifest file information
+    """
+    file_info = manifest_pb2.FileInfo()
+
+    # required by specifications
+    file_info.name = "table-0.bin"
+    file_info.type = manifest_pb2.TABLE
+    file_info.format = "smlm-table(binary)-0"
+    file_info.channel = "default"
+    file_info.rows = len(locdata)
+    for column in locdata.data.columns:
+        file_info.offset[column] = 0
+
+    # optional by specifications
+    for column in locdata.data.columns:
+        file_info.min[column] = locdata.data[column].min()
+    for column in locdata.data.columns:
+        file_info.max[column] = locdata.data[column].max()
+    # file_info.exposure = 20
+
+    return file_info
+
+
+def manifest_from_locdata(locdata, return_json_string=False):
+    """
+    Prepare a manifest protobuf from locdata.
+    The manifest holds metadata for smlm files.
+
+    Parameters
+    ----------
+    locdata : LocData
+        The LocData object.
+    return_json_string : bool
+        Flag for returning json string
+
+    Returns
+    -------
+    locan.io.locdata.manifest_pb2.Manifest, str
+        The manifest
+    """
+    manifest = manifest_pb2.Manifest()
+    format = manifest_format_from_locdata(locdata)
+    file_info = manifest_file_info_from_locdata(locdata)
+
+    # required by specifications
+    manifest.format_version = "0.2"
+    manifest.formats["smlm-table(binary)-0"].CopyFrom(format)
+    manifest.files.append(file_info)
+
+    # recommended by specifications
+    manifest.name = locdata.meta.identifier
+    manifest.description = locdata.meta.comment
+    manifest.tags.append("SMLM")
+    manifest.thumbnail = ""
+    manifest.sample = ""
+    manifest.labeling = ""
+    manifest.date = _time_string(time.time())
+
+    # optional by specifications
+    manifest.author = ""
+    manifest.citation = ""
+    manifest.email = ""
+    manifest.locdata_meta.CopyFrom(locdata.meta)
+
+    if return_json_string:
+        json_string = json_format.MessageToJson(manifest,
+                                                preserving_proto_field_name=True,
+                                                including_default_value_fields=False)
+        json_string = _change_upper_to_lower_keys(json_string)
+        return json_string
+    else:
+        return manifest
+
+
+def _change_upper_to_lower_keys(json_string: str) -> str:
+    """ Switch selected key words in json_string from upper to lower letters."""
+    json_string = json_string.replace("BINARY", "binary")
+    json_string = json_string.replace("TEXT", "text")
+    json_string = json_string.replace("TABLE", "table")
+    json_string = json_string.replace("IMAGE", "image")
+    json_string = json_string.replace("INT", "int")
+    json_string = json_string.replace("UINT", "uint")
+    json_string = json_string.replace("FLOAT", "float")
+    return json_string
+
+
+def save_SMLM(locdata, path, manifest=None):
+    """
+    Save LocData attributes in a SMLM single-molecule
+    localization (zip) file with manifest.json (version 0.2).
+
+    In the smlm file format we store metadata as a human-
+    readable manifest. The data is stored as byte string.
+
+    Note
+    ----
+    Only selected LocData attributes are saved.
+    These are: 'data', 'columns', 'meta'.
+
+    Parameters
+    ----------
+    locdata : LocData
+        The LocData object to be saved.
+    path : str, os.PathLike, file-like
+        File path including file name to save to.
+    manifest : locan.io.locdata.manifest_pb2.Manifest
+        Protobuf with manifest to use instead of an autogenerated manifest.
+    """
+    if manifest is None:
+        manifest_json = manifest_from_locdata(locdata, return_json_string=True)
+    elif isinstance(manifest, str):
+        manifest_json = manifest
+    elif isinstance(manifest, manifest_pb2.Manifest):
+        manifest_json = json_format.MessageToJson(manifest,
+                                                  preserving_proto_field_name=True,
+                                                  including_default_value_fields=False
+                                                  )
+        manifest_json = _change_upper_to_lower_keys(manifest_json)
+    else:
+        raise TypeError("Type of manifest is not correct.")
+
+    byte_string = b"".join([locdata.data[column][i].tobytes()
+                            for i in range(len(locdata))
+                            for column in locdata.data.columns
+                            ])
+
+    # save zip file
+    with zipfile.ZipFile(path, 'w', compression=zipfile.ZIP_DEFLATED, allowZip64=True) as zf:
+        # write manifest
+        zf.writestr("manifest.json", manifest_json)
+        # write files
+        zf.writestr("table-0.bin", byte_string)
 
 
 def load_SMLM_manifest(path):
@@ -62,8 +250,8 @@ def load_SMLM_header(path):
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the SMLM identifiers.
+    list(str)
+        A list of dataset property keys as derived from the SMLM identifiers.
     """
     zf = zipfile.ZipFile(path, 'r')
     file_names = zf.namelist()
@@ -117,7 +305,7 @@ def load_SMLM_file(path, nrows=None, convert=True):
     Returns
     -------
     LocData, list(LocData)
-        A new instance of LocData with all localizations, possibly for multiple tables.
+        A new instance of LocData with all localizations. Returns a list of LocData if multiple tables are found.
     """
     zf = zipfile.ZipFile(path, 'r')
     file_names = zf.namelist()
@@ -149,7 +337,7 @@ def load_SMLM_file(path, nrows=None, convert=True):
                     dtype = file_format['dtype']
                     shape = file_format['shape']
                     cols = len(headers)
-                    rows = nrows if nrows is not None else file_info['rows']
+                    rows = nrows if nrows is not None else int(file_info['rows'])
 
                     logger.debug('columns: %s', headers)
                     logger.debug('rows: %s, columns: %s', rows, cols)
@@ -182,6 +370,7 @@ def load_SMLM_file(path, nrows=None, convert=True):
 
                     locdata = LocData.from_dataframe(dataframe=dataframe)
 
+                    # todo: check on taking correct metadata
                     locdata.meta.source = metadata_pb2.EXPERIMENT
                     locdata.meta.state = metadata_pb2.RAW
                     locdata.meta.file_type = metadata_pb2.SMLM

@@ -2,15 +2,17 @@
 // Python code:
 //
 // protoc --python_out=. metadata_analysis.proto
-// protoc -I=./locan --python_out=./locan  ./locan/analysis/metadata_analysis.proto
-// Locan> protoc --proto_path=./locan --python_out=./locan ./locan/analysis/metadata_analysis.proto
+
+// Alternatively, run protobuf compiler from from Locan root directory:
+// protoc --proto_path="." --python_out="."  "./locan/analysis/metadata_analysis.proto
+//
+// Update all *.proto files from Locan root directory:
+// protoc --proto_path="." --proto_path="./locan/io/locdata" --python_out="." "./locan/data/metadata.proto" "./locan/analysis/metadata_analysis.proto" "./locan/io/locdata/manifest.proto"
 syntax = "proto2";
 
-package locan;
+package locan.analysis;
 
-//add locan to protobuf search path
-// this is not working - please help!
-// import "data/metadata.proto";
+import "locan/data/metadata.proto";
 
 
 message Analysis_routine {

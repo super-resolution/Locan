@@ -241,7 +241,7 @@ def load_rapidSTORM_track_file(path, nrows=None, convert=True, collection=True, 
 
         collection = LocData.from_collection(track_list)
 
-        collection.meta.source = metadata_pb2.RAPIDSTORMTRACK
+        collection.meta.source = metadata_pb2.EXPERIMENT
         collection.meta.state = metadata_pb2.RAW
         collection.meta.file_type = metadata_pb2.RAPIDSTORMTRACK
         collection.meta.file_path = str(path)

@@ -1,11 +1,17 @@
 // This is a protobuf file. Pass it through the protobuf compiler to generate
 // Python code:
 //
+// Run protobuf compiler from Locan/locan/data:
 // protoc --python_out=. metadata.proto
-// protoc -I=./locan --python_out=./locan  ./locan/data/metadata.proto
+//
+// Alternatively, run protobuf compiler from from Locan root directory:
+// protoc --proto_path="." --python_out="."  "./locan/data/metadata.proto"
+//
+// Update all *.proto files from Locan root directory:
+// protoc --proto_path="." --proto_path="./locan/io/locdata" --python_out="." "./locan/data/metadata.proto" "./locan/io/locdata/manifest.proto"
 syntax = "proto2";
 
-package locan;
+package locan.data;
 
 enum Source {
     UNKNOWN_SOURCE = 0;

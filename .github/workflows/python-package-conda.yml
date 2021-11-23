@@ -1,6 +1,9 @@
-name: Test Python Package using Conda
+name: Test using Conda
 
 on: [workflow_dispatch]
+
+env:
+  ENVIRONMENT_NAME: locan_env
 
 jobs:
   build-linux:
@@ -18,9 +21,12 @@ jobs:
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install dependencies
+    - name: Create environment and install dependencies
       run: |
-        conda env update --file environment.yml --name base
+        conda install mamba -c conda-forge
+        mamba create -n env.ENVIRONMENT_NAME -c conda-forge
+        mamba env update --file environment.yml --name env.ENVIRONMENT_NAME
+        conda activate env.ENVIRONMENT_NAME
     - name: Install locan
       run: |
         pip install .

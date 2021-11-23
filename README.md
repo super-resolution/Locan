@@ -1,6 +1,7 @@
 ![logo](./docs/_static/logo.png) Welcome to Locan
 ==================================================
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5722472.svg)](https://doi.org/10.5281/zenodo.5722472)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/super-resolution/locan)](https://github.com/super-resolution/Locan)
 [![GitHub last commit](https://img.shields.io/github/last-commit/super-resolution/locan)](https://github.com/super-resolution/Locan/commits/master)
 ![PyPI](https://img.shields.io/pypi/v/locan)

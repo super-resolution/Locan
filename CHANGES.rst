@@ -2,7 +2,7 @@
 Changelog
 =======================
 
-0.10 (unreleased)
+0.11 (unreleased)
 =================
 
 
@@ -28,8 +28,7 @@ locan.gui
 
 locan.io
 ^^^^^^^^^^^^^^^
-- Add function to load rapidSTORM file with tracked data.
-- Add function to load and save SMLM file.
+-
 
 locan.render
 ^^^^^^^^^^^^^^^

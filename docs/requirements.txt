@@ -1,9 +1,6 @@
 #
 # Tools for locan documentation
 #
-
-# Python
-python>=3.8
 sphinx
 ipython
 myst-nb

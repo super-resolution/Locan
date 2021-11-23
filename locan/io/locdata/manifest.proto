@@ -31,8 +31,10 @@ enum Dtype {
     UINT16 = 4;
     INT32 = 5;
     UINT32 = 6;
-    FLOAT32 = 7;
-    FLOAT64 = 8;
+    INT64 = 7;
+    UINT64 = 8;
+    FLOAT32 = 9;
+    FLOAT64 = 10;
 }
 
 

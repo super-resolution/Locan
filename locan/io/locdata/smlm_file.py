@@ -30,7 +30,9 @@ __all__ = ['manifest_format_from_locdata', 'manifest_file_info_from_locdata', 'm
 logger = logging.getLogger(__name__)
 
 
-dtype2length = {'int8': 1, 'uint8': 1, 'int16': 2, 'uint16': 2, 'int32': 4, 'uint32': 4, 'float32': 4, 'float64': 8}
+dtype2length = {'int8': 1, 'uint8': 1, 'int16': 2, 'uint16': 2,
+                'int32': 4, 'uint32': 4, 'int64': 8, 'uint64': 8,
+                'float32': 4, 'float64': 8}
 
 
 def manifest_format_from_locdata(locdata):

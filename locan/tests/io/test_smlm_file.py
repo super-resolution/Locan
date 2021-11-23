@@ -73,7 +73,10 @@ def test_loading_SMLM_file():
 
 def test_save_and_load_smlm(locdata_2d):
     # introduce different dtypes in data
-    locdata_2d.data["position_x"] = locdata_2d.data["position_x"].astype('float')
+    locdata_2d.data["position_x"] = locdata_2d.data["position_x"].astype('float64')
+    locdata_2d.data["position_y"] = locdata_2d.data["position_y"].astype('int32')
+    locdata_2d.data["frame"] = locdata_2d.data["frame"].astype('int32')
+    locdata_2d.data["intensity"] = locdata_2d.data["intensity"].astype('int32')
     assert all(locdata_2d.data.dtypes.values == ["float64", "int32", "int32", "int32"])
     # print(locdata_2d.data)
     # print(locdata_2d.data.dtypes)

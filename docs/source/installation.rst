@@ -12,6 +12,11 @@ Dependencies
 
 A list with all requirements is given in `setup.cfg`, `environment.yml` and `requirements.txt`.
 
+Install from pypi
+------------------------------
+
+    pip install locan
+
 Install from distribution
 ------------------------------
 
@@ -50,6 +55,7 @@ Using Conda to set up a dedicated environment:
 
 	conda env create --file "./environment.yml"
 
+3) Install locan using pip
 
 Jupyter
 -----------------------

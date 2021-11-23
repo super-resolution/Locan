@@ -1,9 +1,12 @@
 ![logo](./docs/_static/logo.png) Welcome to Locan
 ==================================================
 
-[![GitHub](https://img.shields.io/github/license/super-resolution/locan)](https://github.com/super-resolution/Locan/blob/master/LICENSE.md)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/super-resolution/locan)](https://github.com/super-resolution/Locan)
 [![GitHub last commit](https://img.shields.io/github/last-commit/super-resolution/locan)](https://github.com/super-resolution/Locan/commits/master)
+![PyPI](https://img.shields.io/pypi/v/locan)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/locan)
+[![Documentation Status](https://readthedocs.org/projects/locan/badge/?version=stable)](https://locan.readthedocs.io/en/stable/?badge=stable)
+
 
 Locan is a python-based library with code for analyzing fluoresence super-resolution
 microscopy data.
@@ -11,11 +14,13 @@ microscopy data.
 Getting Started
 ----------------
 
-To install the package please read the [instructions](docs/source/installation.rst).
+To install the package please read the [instructions](locan.readthedocs.io/source/installation.html) or:
 
-For details on usage and development please read the [documentation](docs/index.rst).
+    pip install locan
 
-[Tutorials](docs/tutorials/tutorials.rst) are provided as Jupyter notebooks.
+For details on usage and development please read the [documentation](https://locan.readthedocs.io).
+
+[Tutorials](locan.readthedocs.io/tutorials/tutorials.html) are provided as Jupyter notebooks.
 
 You can use the package in a docker container as described in [docker/README.md](docker/README.md).
 
@@ -24,12 +29,12 @@ Contributing
 
 Development takes place on the [Locan Github page](https://github.com/super-resolution/Locan).
 
-Please read [development.rst](docs/source/development.rst) for details on how to help develop this project further.
+Please read [development.rst](locan.readthedocs.io/source/development.html) for details on how to help develop this project further.
 
 Developers
 ----------
 
-See the list of [contributors](docs/source/contributions.rst) who participated in this project.
+See the list of [contributors](locan.readthedocs.io/source/contributions.html) who participated in this project.
 
 License
 -------

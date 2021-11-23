@@ -14,13 +14,13 @@ microscopy data.
 Getting Started
 ----------------
 
-To install the package please read the [instructions](locan.readthedocs.io/source/installation.html) or:
+To install the package please read the [instructions](https://locan.readthedocs.io/en/latest/source/installation.html) or:
 
     pip install locan
 
 For details on usage and development please read the [documentation](https://locan.readthedocs.io).
 
-[Tutorials](locan.readthedocs.io/tutorials/tutorials.html) are provided as Jupyter notebooks.
+[Tutorials](https://locan.readthedocs.io/en/latest/tutorials/tutorials.html) are provided as Jupyter notebooks.
 
 You can use the package in a docker container as described in [docker/README.md](docker/README.md).
 
@@ -29,12 +29,12 @@ Contributing
 
 Development takes place on the [Locan Github page](https://github.com/super-resolution/Locan).
 
-Please read [development.rst](locan.readthedocs.io/source/development.html) for details on how to help develop this project further.
+Please read [development.rst](https://locan.readthedocs.io/en/latest/source/development.html) for details on how to help develop this project further.
 
 Developers
 ----------
 
-See the list of [contributors](locan.readthedocs.io/source/contributions.html) who participated in this project.
+See the list of [contributors](https://locan.readthedocs.io/en/latest/source/contributions.html) who participated in this project.
 
 License
 -------

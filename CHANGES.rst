@@ -115,6 +115,24 @@ Other Changes and Additions
 ---------------------------
 -
 
+0.10 - 2021-11-23
+=================
+
+New Features
+------------
+
+locan.io
+^^^^^^^^^^^^^^^
+- Add function to load rapidSTORM file with tracked data.
+- Add function to load and save SMLM file.
+
+Other Changes and Additions
+---------------------------
+- Locan went public.
+- Readthedocs was set up.
+- Zenodo DOI was generated.
+
+
 0.9 - 2021-11-11
 ================
 

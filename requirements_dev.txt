@@ -12,9 +12,4 @@ coverage
 # Development
 build
 twine
-sphinx
-ipython
-myst-nb
-sphinx-copybutton
-sphinx_rtd_theme
-furo
+-r docs/requirements

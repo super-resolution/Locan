@@ -45,3 +45,5 @@ jobs:
           files: coverage.xml
           flags: unittests
           name: "CodeCov_report_locan"
+          path_to_write_report: codecov_report.txt
+          verbose: true

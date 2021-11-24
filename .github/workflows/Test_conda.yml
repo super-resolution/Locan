@@ -1,0 +1,26 @@
+name: Tests with ubuntu, py38, Mambaforge
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test-on-mambaforge:
+    name: "Run (ubuntu, py38, Mambaforge)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          environment-file: environment.yml
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          python-version: "3.8"
+          use-mamba: true
+      - name: "Run locan"
+        run: |
+          pip install .
+          pytest

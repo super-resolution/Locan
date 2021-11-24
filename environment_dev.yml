@@ -20,6 +20,8 @@ dependencies:
 # Development
 - build
 - twine
+
+# Documentation
 - sphinx
 - ipython
 - myst-nb

@@ -1,15 +1,8 @@
 #
 # Tools for locan development
 #
-
-# Python
-cython
-
-# Python tests
-pytest
+-r ./requirements
 coverage
-
-# Development
 build
 twine
 -r docs/requirements

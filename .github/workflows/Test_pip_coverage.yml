@@ -44,12 +44,4 @@ jobs:
           fail_ci_if_error: true
           files: coverage.xml
           flags: unittests
-          name: "CodeCov_report"
-          path_to_write_report: codecov_report.txt
-          verbose: true
-
-      - name: "Upload codecov_report report"
-        uses: actions/upload-artifact@v2
-        with:
-          name: "CodeCov report"
-          path: codecov_report.txt
+          name: "CodeCov_report_locan"

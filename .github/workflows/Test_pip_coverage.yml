@@ -44,5 +44,6 @@ jobs:
           fail_ci_if_error: true
           files: coverage.xml
           flags: unittests
-          name: "CodeCov_report_locan"
+          name: "CodeCov report for locan"
+          path_to_write_report: codecov_report.txt
           verbose: true

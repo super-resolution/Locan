@@ -2,11 +2,12 @@
 ==================================================
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5722472.svg)](https://doi.org/10.5281/zenodo.5722472)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/super-resolution/locan)](https://github.com/super-resolution/Locan)
-[![GitHub last commit](https://img.shields.io/github/last-commit/super-resolution/locan)](https://github.com/super-resolution/Locan/commits/main)
-![Codecov](https://img.shields.io/codecov/c/github/super-resolution/locan)
 ![PyPI](https://img.shields.io/pypi/v/locan)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/locan)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/super-resolution/locan)](https://github.com/super-resolution/Locan)
+[![GitHub last commit](https://img.shields.io/github/last-commit/super-resolution/locan)](https://github.com/super-resolution/Locan/commits/main)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/super-resolution/locan/Tests%20with%20matrix,%20pip)
+![Codecov](https://img.shields.io/codecov/c/github/super-resolution/locan)
 [![Documentation Status](https://readthedocs.org/projects/locan/badge/?version=stable)](https://locan.readthedocs.io/en/stable/?badge=stable)
 
 
@@ -48,7 +49,7 @@ Citing
 
 If you want to acknowledge locan please cite this repository using the DOI provided by zenodo:
 
-    to be added
+[doi.org/10.5281/zenodo.5722472](https://doi.org/10.5281/zenodo.5722472)
 
 Note this DOI will resolve to all versions of locan. 
 To cite a specific version please find the DOI of that version on the zenodo page. 

@@ -33,9 +33,3 @@
     Install locan[all] on OS- and python-matrix, and run tests.
     Includes fixes for current dependency problems.
     Scheduled: once a week
-
-**4) Test_matrix_pip_all_original**
-
-    Install locan[all] on OS- and python-matrix, and run tests.
-    Has on fixes for current dependency problems.
-    Scheduled: workflow_dispatch

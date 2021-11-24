@@ -19,7 +19,8 @@
 
 **1) Test_pip**
     
-    Install locan without extra dependencies with recommended python on ubuntu, and run tests.
+    Install locan without extra dependencies with recommended python on ubuntu, 
+    run tests and report coverage
     Scheduled: on push, pull-request
 
 **2) Test_matrix_pip**

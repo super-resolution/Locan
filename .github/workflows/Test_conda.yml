@@ -11,13 +11,12 @@ defaults:
   run:
     shell: bash -l {0}
 
-env:
-  PYTHON_VERSION: 3.8
-
 jobs:
   test-on-mambaforge:
     name: "Run (ubuntu, ${{ env.PYTHON_VERSION }}, Mambaforge)"
     runs-on: ubuntu-latest
+    env:
+      PYTHON_VERSION: 3.8
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2

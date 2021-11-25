@@ -5,6 +5,10 @@ on:
     - cron: "47 4 * * 4"
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash -l {0}
+
 jobs:
   matrix-test-on-mambaforge:
     name: "Run (${{ matrix.os }}, ${{ matrix.python-version }}, Mambaforge)"
@@ -25,8 +29,8 @@ jobs:
           miniforge-version: latest
           python-version: ${{ matrix.python-version }}
           use-mamba: true
-      - name: "Run locan"
-        shell: bash -l {0}
+      - name: "Install locan"
         run: |
           pip install .
-          pytest
+      - name: "Run tests"
+        run: pytest

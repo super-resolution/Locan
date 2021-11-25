@@ -7,9 +7,16 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  PYTHON_VERSION: 3.8
+
+defaults:
+  run:
+    shell: bash -l {0}
+
 jobs:
   test-on-mambaforge:
-    name: "Run (ubuntu, py38, Mambaforge)"
+    name: "Run (ubuntu, ${{ env.PYTHON_VERSION }}, Mambaforge)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,10 +27,10 @@ jobs:
           environment-file: environment.yml
           miniforge-variant: Mambaforge
           miniforge-version: latest
-          python-version: "3.8"
-          use-mamba: true
-      - name: "Run locan"
-        shell: bash -l {0}
+          python-version: ${{ env.PYTHON_VERSION }}
+          use-mamba:
+      - name: "Install locan"
         run: |
           pip install .
-          pytest
+      - name: "Run tests"
+        run: pytest

@@ -16,7 +16,7 @@ defaults:
 
 jobs:
   test-on-mambaforge:
-    name: Run (ubuntu, ${{ env.PYTHON_VERSION }}, Mambaforge)
+    name: Run (ubuntu, ${PYTHON_VERSION}, Mambaforge)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +27,7 @@ jobs:
           environment-file: environment.yml
           miniforge-variant: Mambaforge
           miniforge-version: latest
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${PYTHON_VERSION}
           use-mamba: true
       - name: "Install locan"
         run: |

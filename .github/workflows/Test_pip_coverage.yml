@@ -12,13 +12,13 @@ env:
 
 jobs:
   test-on-python:
-    name: Run (ubuntu, ${{ env.PYTHON_VERSION }}, pip)
+    name: Run (ubuntu, ${PYTHON_VERSION}, pip)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${PYTHON_VERSION}
 
       - name: "Install Coverage.py"
         run: |
@@ -31,13 +31,13 @@ jobs:
           pip install .[all]
 
       - name: "Run tests"
-        run: coverage run -m pytest --junitxml=junit/test-results-${{ env.PYTHON_VERSION }}.xml
+        run: coverage run -m pytest --junitxml=junit/test-results-${PYTHON_VERSION}.xml
 
       - name: "Upload test results"
         uses: actions/upload-artifact@v2
         with:
-          name: test-results-${{ env.PYTHON_VERSION }}
-          path: test-results-${{ env.PYTHON_VERSION }}.xml
+          name: test-results-${PYTHON_VERSION}
+          path: test-results-${PYTHON_VERSION}.xml
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
 

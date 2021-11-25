@@ -19,10 +19,11 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: "Install and upgrade"
         run: python -m pip install --upgrade pip
       - name: "Install locan"
         run: |
           pip install cython numba hdbscan
           pip install .[test]
       - name: "Run tests"
-          pytest
+        run: pytest

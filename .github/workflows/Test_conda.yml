@@ -1,4 +1,4 @@
-name: Tests with ubuntu, py38, Mambaforge
+name: Tests with ubuntu, ${{ env.PYTHON_VERSION }}, Mambaforge
 
 on:
   push:
@@ -16,7 +16,7 @@ env:
 
 jobs:
   test-on-mambaforge:
-    name: "Run (ubuntu, ${{ env.PYTHON_VERSION }}, Mambaforge)"
+    name: "Tests with conda"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

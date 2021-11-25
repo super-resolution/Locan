@@ -1,4 +1,4 @@
-name:  Tests with ubuntu, py38, pip and coverage
+name:  Tests with ubuntu, ${{ env.PYTHON_VERSION }}, pip and coverage
 
 on:
   push:
@@ -12,7 +12,7 @@ env:
 
 jobs:
   test-on-python:
-    # name: "Run (ubuntu, ${{ env.PYTHON_VERSION }}, pip)"
+    name: "Tests with pip"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

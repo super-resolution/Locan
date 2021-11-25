@@ -1,4 +1,4 @@
-name:  Tests with ubuntu, ${{ env.PYTHON_VERSION }}, pip and coverage
+name:  Tests with ubuntu, current python, pip and coverage
 
 on:
   push:

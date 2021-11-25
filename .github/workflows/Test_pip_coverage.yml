@@ -31,7 +31,7 @@ jobs:
           pip install .[all]
 
       - name: "Run tests"
-        run: coverage run -m pytest --junitxml=junit/test-results-${{ env.PYTHON_VERSION }}.xml
+        run: coverage run -m pytest --junitxml=./test-results-${{ env.PYTHON_VERSION }}.xml
 
       - name: "Upload test results"
         uses: actions/upload-artifact@v2
@@ -62,5 +62,4 @@ jobs:
           files: coverage.xml
           flags: unittests
           name: "CodeCov report"
-          path_to_write_report: codecov_report.txt
           verbose: true

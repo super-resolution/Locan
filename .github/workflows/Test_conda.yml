@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: 3.8
+  PYTHON_VERSION: "3.8"
 
 defaults:
   run:
@@ -16,7 +16,7 @@ defaults:
 
 jobs:
   test-on-mambaforge:
-    name: "Run (ubuntu, ${{ env.PYTHON_VERSION }}, Mambaforge)"
+    name: Run (ubuntu, ${{ env.PYTHON_VERSION }}, Mambaforge)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

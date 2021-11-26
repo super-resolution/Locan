@@ -7,3 +7,9 @@ myst-nb
 sphinx-copybutton
 sphinx_rtd_theme
 furo
+
+# requirements for running all tutorial notebooks
+cython
+numba
+hdbscan
+ray-all

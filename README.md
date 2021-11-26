@@ -30,9 +30,12 @@ You can use the package in a docker container as described in [docker/README.md]
 Contributing
 ------------
 
-Development takes place on the [Locan Github page](https://github.com/super-resolution/Locan).
+Development takes place on the [Locan GitHub page](https://github.com/super-resolution/Locan).
 
-Please read [development.rst](https://locan.readthedocs.io/en/latest/source/development.html) for details on how to help develop this project further.
+Please use [GitHub issues](https://github.com/super-resolution/Locan/issues) to report bugs and feature requests. 
+Use [GitHub discussions](https://github.com/super-resolution/Locan/discussions) for Q&A.
+
+Please read [documentation on development](https://locan.readthedocs.io/en/latest/source/development.html) for details on how to help develop this project further.
 
 Developers
 ----------

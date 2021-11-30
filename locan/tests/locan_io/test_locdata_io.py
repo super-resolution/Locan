@@ -10,15 +10,15 @@ import numpy as np
 from pandas.testing import assert_frame_equal
 import locan.constants
 from locan.data import metadata_pb2
-from locan.io import convert_property_types, save_asdf, load_asdf_file, load_txt_file, load_thunderstorm_file,\
+from locan.locan_io import convert_property_types, save_asdf, load_asdf_file, load_txt_file, load_thunderstorm_file,\
     load_Elyra_file, load_Nanoimager_file, \
     load_locdata
 
-from locan.io.locdata.io_locdata import _map_file_type_to_load_function
-from locan.io.locdata.io_locdata import load_Elyra_header
-from locan.io.locdata.io_locdata import load_thunderstorm_header
-from locan.io.locdata.io_locdata import load_Nanoimager_header
-from locan.io.locdata.utilities import open_path_or_file_like
+from locan.locan_io.locdata.io_locdata import _map_file_type_to_load_function
+from locan.locan_io.locdata.io_locdata import load_Elyra_header
+from locan.locan_io.locdata.io_locdata import load_thunderstorm_header
+from locan.locan_io.locdata.io_locdata import load_Nanoimager_header
+from locan.locan_io.locdata.utilities import open_path_or_file_like
 
 
 def test_convert_property_types(locdata_2d):
@@ -173,7 +173,7 @@ def test_loading_txt_file(caplog):
 
     dat = load_txt_file(path=locan.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt',
                            columns=['c1'], nrows=10)
-    assert caplog.record_tuples == [('locan.io.locdata.io_locdata', logging.WARNING,
+    assert caplog.record_tuples == [('locan.locan_io.locdata.io_locdata', logging.WARNING,
                                      'Column c1 is not a Locan property standard.')]
     # print(dat.data)
     assert (len(dat) == 10)

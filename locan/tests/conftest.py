@@ -7,7 +7,7 @@ import pandas as pd
 
 from locan import LocData
 from locan.constants import ROOT_DIR, QtBindings, QT_BINDINGS
-from locan.io.locdata.io_locdata import load_txt_file, load_rapidSTORM_file
+from locan.locan_io.locdata.io_locdata import load_txt_file, load_rapidSTORM_file
 from locan.constants import _has_open3d, _has_napari, _has_mpl_scatter_density, \
     _has_colorcet, _has_cupy, _has_trackpy
 

@@ -17,11 +17,11 @@ import numpy as np
 import pandas as pd
 from google.protobuf import json_format
 
-from locan.io.locdata import manifest_pb2
+from locan.locan_io.locdata import manifest_pb2
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.io.locdata.io_locdata import convert_property_types
+from locan.locan_io.locdata.io_locdata import convert_property_types
 from locan.utils.format import _time_string
 
 __all__ = ['manifest_format_from_locdata', 'manifest_file_info_from_locdata', 'manifest_from_locdata',

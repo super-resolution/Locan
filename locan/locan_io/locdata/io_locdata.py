@@ -15,9 +15,9 @@ from google.protobuf import json_format
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.io.locdata.utilities import convert_property_types, open_path_or_file_like
-from locan.io.locdata.rapidstorm import load_rapidSTORM_file, load_rapidSTORM_track_file
-from locan.io.locdata.smlm_file import load_SMLM_file
+from locan.locan_io.locdata.utilities import convert_property_types, open_path_or_file_like
+from locan.locan_io.locdata.rapidstorm import load_rapidSTORM_file, load_rapidSTORM_track_file
+from locan.locan_io.locdata.smlm_file import load_SMLM_file
 
 
 __all__ = ['save_asdf', 'save_thunderstorm_csv',

@@ -7,7 +7,7 @@
 // protoc --proto_path="." --proto_path="./locan/io/locdata" --python_out="." "./locan/data/metadata.proto" "./locan/io/locdata/manifest.proto"
 syntax = "proto2";
 
-package locan.io.locdata;
+package locan.locan_io.locdata;
 
 import "locan/data/metadata.proto";
 

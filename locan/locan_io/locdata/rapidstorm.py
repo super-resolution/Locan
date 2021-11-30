@@ -12,7 +12,7 @@ import xml.etree.ElementTree as etree
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.io.locdata.utilities import convert_property_types, open_path_or_file_like
+from locan.locan_io.locdata.utilities import convert_property_types, open_path_or_file_like
 
 
 __all__ = ['load_rapidSTORM_file', 'load_rapidSTORM_track_file']

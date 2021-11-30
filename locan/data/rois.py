@@ -29,7 +29,7 @@ from locan.data import metadata_pb2
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 import locan.constants
-import locan.io.locdata.io_locdata as io
+import locan.locan_io.locdata.io_locdata as io
 from locan.data.region import *
 
 

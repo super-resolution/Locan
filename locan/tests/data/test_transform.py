@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import locan.constants
 from locan.constants import _has_open3d
 from locan.data.region import Polygon
-from locan.io.locdata.io_locdata import load_rapidSTORM_file
+from locan.locan_io.locdata.io_locdata import load_rapidSTORM_file
 from locan.data.transform import randomize, transform_affine
 from locan.data.transform.transformation import _homogeneous_matrix
 from locan.data.transform.bunwarpj import _read_matrix, _unwarp, bunwarp

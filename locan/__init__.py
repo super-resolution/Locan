@@ -11,7 +11,7 @@ Locan consists of the following modules:
    data
    datasets
    gui
-   io
+   locan_io
    render
    scripts
    simulation
@@ -31,7 +31,7 @@ from locan.analysis import *
 from locan.data import *
 from locan.datasets import *
 from locan.gui import *
-from locan.io import *
+from locan.locan_io import *
 from locan.render import *
 from locan.simulation import *
 from locan.utils import *
@@ -44,7 +44,7 @@ __all__.extend(analysis.__all__)
 __all__.extend(data.__all__)
 __all__.extend(datasets.__all__)
 __all__.extend(gui.__all__)
-__all__.extend(io.__all__)
+__all__.extend(locan_io.__all__)
 __all__.extend(render.__all__)
 __all__.extend(simulation.__all__)
 __all__.extend(utils.__all__)

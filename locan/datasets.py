@@ -1,17 +1,15 @@
 """
 Utility functions to deal with exemplary datasets.
 
-The data is located in a separate directory `Locan_datasets`.
-The path to the datasets directory can be set by the `locan.constants.DATASETS_DIR` variable.
+The data is located in a separate repository `https://github.com/super-resolution/LocanDatasets`.
 
-Available datasets:
-
-1) npc: localization data of nuclear pore complexes imaged by dSTORM.
-2) tubulin: localization data of microtubules in COS-7 cells imaged by dSTORM.
+When calling a function the datasets are expected to reside in a directory specified by the
+`locan.constants.DATASETS_DIR` variable.
+If the directory does not exist the exemplary files are downloaded from GitHub.
 """
 from pathlib import Path
 
-from locan.locan_io.locdata.io_locdata import load_rapidSTORM_file
+from locan.locan_io.locdata.io_locdata import load_asdf_file
 from locan.constants import DATASETS_DIR
 
 
@@ -35,14 +33,23 @@ def load_npc(**kwargs):
     Parameters
     ----------
     kwargs : dict
-        Parameters passed to `locan.load_rapidSTORM_file()`.
+        Parameters passed to `locan.load_asdf_file()`.
 
     Returns
     -------
     LocData
     """
-    path = Path(DATASETS_DIR) / 'smlm_data/npc_gp210.txt'
-    locdata = load_rapidSTORM_file(path, **kwargs)
+    path = Path(DATASETS_DIR) / 'npc_gp210.asdf'
+    if not path.exists():
+        import requests
+        DATASETS_DIR.mkdir(exist_ok=True)
+        url = "https://raw.github.com/super-resolution/LocanDatasets/main/smlm_data/npc_gp210.asdf"
+        response = requests.get(url)
+        assert response.status_code == requests.codes.ok
+        with open(path, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=128):
+                file.write(chunk)
+    locdata = load_asdf_file(path, **kwargs)
     return locdata
 
 
@@ -70,6 +77,15 @@ def load_tubulin(**kwargs):
     -------
     LocData
     """
-    path = Path(DATASETS_DIR) / 'smlm_data/tubulin_cos7.txt'
-    locdata = load_rapidSTORM_file(path, **kwargs)
+    path = Path(DATASETS_DIR) / 'tubulin_cos7.asdf'
+    if not path.exists():
+        import requests
+        DATASETS_DIR.mkdir(exist_ok=True)
+        url = "https://raw.github.com/super-resolution/LocanDatasets/main/smlm_data/tubulin_cos7.asdf"
+        response = requests.get(url)
+        assert response.status_code == requests.codes.ok
+        with open(path, 'wb') as file:
+            for chunk in response.iter_content(chunk_size=128):
+                file.write(chunk)
+    locdata = load_asdf_file(path, **kwargs)
     return locdata

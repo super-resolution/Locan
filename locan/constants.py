@@ -115,7 +115,7 @@ ROOT_DIR = Path(__file__).parent
 
 
 #: Standard directory for example datasets.
-DATASETS_DIR = ROOT_DIR.parent.parent / 'Locan_datasets'
+DATASETS_DIR = Path.home() / 'LocanDatasets'
 
 
 #: Keys for the most common LocData properties.

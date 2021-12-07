@@ -15,7 +15,7 @@ import struct
 import os
 import locale
 
-from locan.constants import INSTALL_REQUIRES, EXTRAS_REQUIRE
+from locan.dependencies import INSTALL_REQUIRES, EXTRAS_REQUIRE
 from locan import __version__ as locan_version
 
 
@@ -81,9 +81,7 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
     deps = INSTALL_REQUIRES
 
     if extra_dependencies:
-        extra_deps = [value for key, value in EXTRAS_REQUIRE.items()]
-        for ed in extra_deps:
-            deps.extend(ed)
+        deps.extend(EXTRAS_REQUIRE)
 
     if other_dependencies:
         deps.extend(other_dependencies)

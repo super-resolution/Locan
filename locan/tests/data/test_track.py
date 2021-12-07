@@ -3,14 +3,14 @@ import numpy as np
 import pandas as pd
 
 from locan import LocData
-from locan.constants import _has_trackpy
-if _has_trackpy:
+from locan.dependencies import HAS_DEPENDENCY
+if HAS_DEPENDENCY["trackpy"]:
     from locan.data.tracking import link_locdata, track
     from trackpy import quiet as tp_quiet
 
-pytestmark = pytest.mark.skipif(not _has_trackpy, reason="requires trackpy")
+pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["trackpy"], reason="requires trackpy")
 
-if _has_trackpy:
+if HAS_DEPENDENCY["trackpy"]:
     tp_quiet()  # same as: trackpy.logger.setLevel(logging.WARN)
 
 

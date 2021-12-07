@@ -24,8 +24,8 @@ import re
 import argparse
 from pathlib import Path
 
-from locan.constants import _has_napari
-if _has_napari: import napari
+from locan.dependencies import HAS_DEPENDENCY
+if HAS_DEPENDENCY["napari"]: import napari
 
 from locan.constants import FileType
 from locan.gui.io import file_dialog

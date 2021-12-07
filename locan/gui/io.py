@@ -3,7 +3,7 @@
 Functions for user interaction with paths and file names.
 
 """
-from locan.constants import QT_BINDINGS, QtBindings
+from locan.dependencies import QT_BINDINGS, QtBindings
 
 if QT_BINDINGS == QtBindings.PYSIDE2:
     from PySide2.QtWidgets import QApplication, QFileDialog

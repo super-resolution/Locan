@@ -1,12 +1,12 @@
 import pytest
 import numpy as np
 
-from locan.constants import _has_open3d
+from locan.dependencies import HAS_DEPENDENCY
 from locan.data.transform import transform_affine
 from locan.data.register import register_icp, register_cc
 
 
-@pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
+@pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
 def test_register_icp_2d(locdata_blobs_2d):
     locdata_2d_transformed = transform_affine(locdata_blobs_2d, offset=(100, 100))
     offset_target = np.array([100., 100.])
@@ -22,7 +22,7 @@ def test_register_icp_2d(locdata_blobs_2d):
     assert np.allclose(matrix, matrix_target)
 
 
-@pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
+@pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
 def test_register_icp_3d(locdata_blobs_3d):
     locdata_3d_transformed = transform_affine(locdata_blobs_3d, offset=(100, 100, 100))
     offset_target = np.array([100., 100., 100.])

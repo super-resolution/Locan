@@ -14,13 +14,14 @@ import numpy as np
 import pandas as pd
 
 from locan.data.locdata import LocData
-from locan.constants import _has_trackpy
-if _has_trackpy: from trackpy import link_df
+from locan.dependencies import HAS_DEPENDENCY, needs_package
+if HAS_DEPENDENCY["trackpy"]: from trackpy import link_df
 
 
 __all__ = ['link_locdata', 'track']
 
 
+@needs_package("trackpy")
 def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     """
     Track localizations, i.e. cluster localizations in time when nearby in successive frames.
@@ -49,9 +50,6 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs):
     In order to switch off the printout from :func:`trackpy.link` and increase performance use
     :func:`trackpy.quiet()` to silence the logging outputs.
     """
-    if not _has_trackpy:
-        raise ImportError("trackpy is required.")
-
     df = link_df(locdata.data, search_range=search_range, memory=memory, pos_columns=locdata.coordinate_labels,
                     t_column='frame', **kwargs)
     return_series = df['particle']

@@ -15,9 +15,8 @@ from typing import Union, Tuple
 import numpy as np
 import fast_histogram
 from skimage import exposure
+import boost_histogram as bh
 
-from locan.constants import _has_boost_histogram
-if _has_boost_histogram: import boost_histogram as bh
 from locan.data.properties.locdata_statistics import ranges
 
 
@@ -358,7 +357,7 @@ class _BinsFromBoostHistogramAxis:
     """
 
     def __init__(self, bins):
-        if _has_boost_histogram and isinstance(bins, bh.axis.Axis):
+        if isinstance(bins, bh.axis.Axis):
             self._bins = bins
             self.dimension = 1
             self.n_bins = (self._bins.size,)
@@ -367,7 +366,7 @@ class _BinsFromBoostHistogramAxis:
             self.bin_range = ((self._bins.edges[0], self._bins.edges[-1]),)
             self.bin_centers = (self._bins.centers,)
 
-        elif _has_boost_histogram and isinstance(bins, bh.axis.AxesTuple):
+        elif isinstance(bins, bh.axis.AxesTuple):
             self._bins = bins
             self.dimension = len(self._bins)
             self.n_bins = self._bins.size
@@ -675,7 +674,7 @@ class Bins:
                 raise ValueError("The parameter `bin_range` is derived from bins class and must be None.")
             if isinstance(bins, Bins):
                 self._bins = bins
-            if _has_boost_histogram and isinstance(bins, (bh.axis.Axis, bh.axis.AxesTuple)):
+            if isinstance(bins, (bh.axis.Axis, bh.axis.AxesTuple)):
                 self._bins = _BinsFromBoostHistogramAxis(bins)
         elif n_bins is not None:
             self._bins = _BinsFromNumber(n_bins, bin_range)

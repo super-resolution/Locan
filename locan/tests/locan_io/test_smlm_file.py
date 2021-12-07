@@ -48,20 +48,20 @@ def test_manifest_from_locdata(locdata_2d):
 
 
 def test_get_correct_column_names_from_SMLM_header():
-    columns = load_SMLM_header(path=locan.constants.ROOT_DIR / 'tests/test_data/SMLM_dstorm_data.smlm')
+    columns = load_SMLM_header(path=locan.ROOT_DIR / 'tests/test_data/SMLM_dstorm_data.smlm')
     assert columns == ['original_index', 'position_x', 'local_background', 'chi_square',
                        'intensity', 'frame', 'position_y']
 
 
 def test_load_SMLM_manifest():
-    manifest = load_SMLM_manifest(path=locan.constants.ROOT_DIR / 'tests/test_data/SMLM_dstorm_data.smlm')
+    manifest = load_SMLM_manifest(path=locan.ROOT_DIR / 'tests/test_data/SMLM_dstorm_data.smlm')
     for key in ['format_version', 'formats', 'files']:
         assert key in manifest.keys()
 
 
 def test_loading_SMLM_file():
     locdata = load_SMLM_file(
-        path=locan.constants.ROOT_DIR / 'tests/test_data/SMLM_dstorm_data.smlm',
+        path=locan.ROOT_DIR / 'tests/test_data/SMLM_dstorm_data.smlm',
         nrows=10)
     assert np.array_equal(locdata.data.columns,
                           ['original_index', 'position_x', 'local_background', 'chi_square',

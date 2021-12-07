@@ -2,9 +2,9 @@ import pytest
 import numpy as np
 import matplotlib.pyplot as plt  # this import is needed for interactive tests
 
-from locan.constants import RenderEngine  # this import is needed for interactive tests
-from locan.constants import _has_mpl_scatter_density, _has_napari
-if _has_napari: import napari
+from locan import RenderEngine  # this import is needed for interactive tests
+from locan.dependencies import HAS_DEPENDENCY
+if HAS_DEPENDENCY["napari"]: import napari
 from locan import render_2d_mpl, render_2d_scatter_density, render_2d_napari, scatter_2d_mpl, select_by_drawing_napari
 from locan.render.render2d import _napari_shape_to_region
 from locan import render_2d, apply_window
@@ -58,7 +58,7 @@ def test_render_2d_mpl_show(locdata_blobs_2d):
     plt.close('all')
 
 
-@pytest.mark.skipif(not _has_mpl_scatter_density, reason="requires mpl_scatter_density")
+@pytest.mark.skipif(not HAS_DEPENDENCY["mpl_scatter_density"], reason="requires mpl_scatter_density")
 def test_render_2d_scatter_density(locdata_blobs_2d):
     render_2d_scatter_density(locdata_blobs_2d)
     # render_2d_scatter_density(locdata_blobs_2d, bin_range=[[500, 1000], [500, 1000]], cbar=False)
@@ -82,7 +82,7 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
 @pytest.mark.gui
 @pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
 def test_render_2d(locdata_blobs_2d, test_input, expected):
-    if _has_napari and test_input == RenderEngine.NAPARI:
+    if HAS_DEPENDENCY["napari"] and test_input == RenderEngine.NAPARI:
         render_2d(locdata_blobs_2d, render_engine=test_input)
         # napari.run()
     else:
@@ -94,7 +94,7 @@ def test_render_2d(locdata_blobs_2d, test_input, expected):
 
 @pytest.mark.visual
 # this is to check overlay of rendered image and single localization points
-@pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_render_2d_napari_coordinates(locdata_blobs_2d):
     render_2d_mpl(locdata_blobs_2d, bin_size=10, cmap='viridis')
     plt.show()
@@ -110,7 +110,7 @@ def test_render_2d_napari_coordinates(locdata_blobs_2d):
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_render_2d_napari(locdata_blobs_2d):
     render_2d_mpl(locdata_blobs_2d, bin_size=100, cmap='viridis')
     plt.show()
@@ -150,7 +150,7 @@ def test__napari_shape_to_region():
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_select_by_drawing_napari(locdata_blobs_2d):
     viewer = napari.Viewer()
     viewer.add_shapes(data=((1, 10), (10, 20)), shape_type='rectangle')

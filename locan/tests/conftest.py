@@ -5,20 +5,16 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from locan import LocData
-from locan.constants import ROOT_DIR, QtBindings, QT_BINDINGS
+from locan import ROOT_DIR, LocData
 from locan.locan_io.locdata.io_locdata import load_txt_file, load_rapidSTORM_file
-from locan.constants import _has_open3d, _has_napari, _has_mpl_scatter_density, \
-    _has_colorcet, _has_cupy, _has_trackpy
+from locan.dependencies import HAS_DEPENDENCY, QtBindings, QT_BINDINGS
 
 
 logger = logging.getLogger(__name__)
 
-for package_string, package_flag in zip(
-        ['open3d', 'napari', 'mpl-scatter-density', 'colorcet', 'cupy', 'trackpy'],
-        [_has_open3d, _has_napari, _has_mpl_scatter_density, _has_colorcet, _has_cupy, _has_trackpy]):
-    if not package_flag:
-        logger.info(f'Extra dependency {package_string} is not available.')
+for key, value in HAS_DEPENDENCY.items():
+    if not value:
+        logger.info(f'Extra dependency {key} is not available.')
 
 if QT_BINDINGS == QtBindings.NONE:
     logger.warning(f'Extra dependency for Qt bindings (pyside2 or pyqt5) is not available.')

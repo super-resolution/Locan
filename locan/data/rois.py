@@ -22,9 +22,6 @@ from matplotlib.widgets import RectangleSelector, PolygonSelector, EllipseSelect
 from ruamel.yaml import YAML
 from google.protobuf import json_format
 
-from locan.constants import _has_napari
-if _has_napari: pass
-
 from locan.data import metadata_pb2
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
@@ -69,7 +66,6 @@ class _MplSelector:  # pragma: no cover
         elif type == 'ellipse':
             self.selector = EllipseSelector(self.ax, self.selector_callback)
             self.type = type
-
 
         elif type == 'polygon':
             raise NotImplementedError ('The polygon selection is not working correctly. Use napari.')

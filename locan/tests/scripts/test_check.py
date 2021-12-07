@@ -3,16 +3,16 @@ from pathlib import Path
 import tifffile as tif
 
 import pytest
-from locan.constants import _has_napari
-if _has_napari: import napari
+from locan.dependencies import HAS_DEPENDENCY
+if HAS_DEPENDENCY["napari"]: import napari
 
-from locan.constants import ROOT_DIR
+from locan import ROOT_DIR
 from locan import load_locdata
 from locan.scripts.script_check import render_locs_per_frame_napari, sc_check
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_render_locs_per_frame_napari(locdata_2d):
     images_path = Path(ROOT_DIR / 'tests/test_data/images.tif')
     assert images_path.exists()
@@ -30,7 +30,7 @@ def test_render_locs_per_frame_napari(locdata_2d):
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_script_check():
     images_path = Path(ROOT_DIR / 'tests/test_data/images.tif')
     assert images_path.exists()
@@ -40,7 +40,7 @@ def test_script_check():
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_script_check_from_sys(capfd):
     images_path = Path(ROOT_DIR / 'tests/test_data/images.tif')
     assert images_path.exists()

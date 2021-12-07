@@ -5,8 +5,8 @@ User interfaces.
 This module provides functions and classes for using graphical user interfaces (GUI).
 Functions provide a GUI based on QT if the QT backend and appropriate python bindings are available.
 
-The constant `locan.constants.QT_BINDINGS` declares which python binding to use.
-Depending on the situation it is set to one of the values specified in the enum class `locan.constants.QtBindings`.
+The constant `locan.QT_BINDINGS` declares which python binding to use.
+Depending on the situation it is set to one of the values specified in the enum class `locan.QtBindings`.
 
 1) `QtBindings.NONE` if no QT backend with python bindings is installed.
 

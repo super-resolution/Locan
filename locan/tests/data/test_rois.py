@@ -7,7 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from locan import LocData, Rectangle, Ellipse, Polygon
-from locan.constants import ROOT_DIR
+from locan import ROOT_DIR
 from locan import Roi, rasterize
 from locan.data import metadata_pb2
 

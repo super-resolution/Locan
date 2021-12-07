@@ -1,8 +1,7 @@
 import pytest
 import numpy as np
 
-from locan.constants import _has_boost_histogram
-if _has_boost_histogram: import boost_histogram as bh
+import boost_histogram as bh
 from locan.data.aggregate import _is_scalar, _is_single_element, \
     _is_1d_array_of_scalar, _is_1d_array_of_two_scalar,\
     _is_2d_homogeneous_array, _is_2d_inhomogeneous_array, _is_2d_inhomogeneous_array_of_1d_array_of_scalar, \
@@ -278,7 +277,6 @@ def test__indices_to_bin_centers():
     assert np.array_equal(bin_centers, expected)
 
 
-@pytest.mark.skipif(not _has_boost_histogram, reason="Test requires boost_histogram.")
 def test__BinsFromBoostHistogramAxis():
     bhaxis = bh.axis.Regular(5, 0, 10)
     bins = _BinsFromBoostHistogramAxis(bins=bhaxis)
@@ -569,7 +567,6 @@ def test_Bins():
         Bins(n_bins=5, bin_range=(0, 10), labels=["position_x", "position_y"])
 
 
-@pytest.mark.skipif(not _has_boost_histogram, reason="Test requires boost_histogram.")
 def test_Bins_with_boost_histogram():
     bhaxis = bh.axis.Regular(5, 0, 10)
     bins = Bins(bins=bhaxis)

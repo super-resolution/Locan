@@ -5,9 +5,7 @@ Constants to be used throughout the project.
 .. autosummary::
    :toctree: ./
 
-   ROOT_DIR
    DATASETS_DIR
-   QT_BINDINGS
    RENDER_ENGINE
    PROPERTY_KEYS
    RAPIDSTORM_KEYS
@@ -18,100 +16,21 @@ Constants to be used throughout the project.
    COLORMAP_CONTINUOUS
    COLORMAP_DIVERGING
    COLORMAP_CATEGORICAL
-
+   TQDM_LEAVE
+   TQDM_DISABLE
 """
 from enum import Enum
 from pathlib import Path
-import os
-import warnings
-import importlib.util
+from locan.dependencies import HAS_DEPENDENCY
+if HAS_DEPENDENCY["colorcet"]: from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
 
 
-__all__ = ['ROOT_DIR', 'DATASETS_DIR', 'PROPERTY_KEYS', 'HullType',
-           'QtBindings', 'QT_BINDINGS', 'FileType', 'RenderEngine', 'RENDER_ENGINE',
+__all__ = ['DATASETS_DIR', 'PROPERTY_KEYS', 'HullType',
+           'FileType', 'RenderEngine', 'RENDER_ENGINE',
            'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
-           'N_JOBS', 'LOCDATA_ID',
+           'N_JOBS', 'LOCDATA_ID', 'TQDM_LEAVE', 'TQDM_DISABLE',
            'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING', 'COLORMAP_CATEGORICAL'
            ]
-
-
-# Provide list of dependencies with corresponding module names for import in python.
-# Should reflect the dependencies specified in setup.cfg.
-# Some package names (as recommended for pip install) are different from the names for import.
-INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast_histogram', 'boost_histogram', 'hdbscan', 'lmfit',
-                    'google.protobuf',
-                    'shapely', 'networkx', 'sklearn', 'skimage', 'matplotlib', 'scipy', 'pandas', 'numpy', 'tqdm',
-                    'numba', 'cython']
-
-EXTRAS_REQUIRE = {'Colormaps': ["colorcet"], 'Track': ["trackpy"], 'Register': ["open3d"],
-                  'Render': ["napari", "mpl_scatter_density"], 'QT': ["PySide2"],
-                  'Dev': ['twine', 'sphinx', 'ipython', 'myst-nb', 'sphinx-copybutton', 'sphinx_rtd_theme', 'furo']
-                  }
-
-
-# Possible python bindings to interact with QT
-class QtBindings(Enum):
-    """
-    Python bindings used to interact with Qt.
-    """
-    NONE = 'none'
-    PYSIDE2 = 'pyside2'
-    PYQT5 = 'pyqt5'
-
-
-# Force python binding - only for testing purposes:
-# os.environ['QT_API'] = QtBindings.PYQT5.value
-
-
-# Determine Python bindings for QT interaction.
-if 'QT_API' in os.environ:  # this is the case that QT_API has been set.
-    try:
-        QT_BINDINGS = QtBindings(os.environ['QT_API'])
-    except KeyError:
-        warnings.warn(f'The requested QT_API {os.environ["QT_API"]} cannot be imported. Will continue without QT.')
-        QT_BINDINGS = QtBindings.NONE
-
-    if QT_BINDINGS == QtBindings.PYSIDE2:
-        if importlib.util.find_spec("PySide2") is None:
-            warnings.warn(f'The requested QT_API {QT_BINDINGS.value} cannot be imported. Will continue without QT.')
-            QT_BINDINGS = QtBindings.NONE
-
-    elif QT_BINDINGS == QtBindings.PYQT5:
-        if importlib.util.find_spec("PyQt5") is None:
-            warnings.warn(f'The requested QT_API {QT_BINDINGS.value} cannot be imported. Will continue without QT.')
-            QT_BINDINGS = QtBindings.NONE
-
-else:  # this is the case that QT_API has not been set.
-    if importlib.util.find_spec("PySide2") is not None:
-        QT_BINDINGS = QtBindings.PYSIDE2
-    elif importlib.util.find_spec("PyQt5") is not None:
-        QT_BINDINGS = QtBindings.PYQT5
-    else:
-        QT_BINDINGS = QtBindings.NONE  # this is the case that no qt bindings are available.
-
-# In order to force napari and other QT-using libraries to import with the correct Qt bindings
-# the environment variable QT_API has to be set.
-# See use of qtpy in napari which default to pyqt5 if both bindings are installed.
-if QT_BINDINGS != QtBindings.NONE:
-    os.environ['QT_API'] = QT_BINDINGS.value
-
-
-# Optional imports
-_has_cupy = importlib.util.find_spec("cupy") is not None
-_has_mpl_scatter_density = importlib.util.find_spec("mpl_scatter_density") is not None
-_has_napari = importlib.util.find_spec("napari") is not None
-_has_open3d = importlib.util.find_spec("open3d") is not None
-_has_trackpy = importlib.util.find_spec("trackpy") is not None
-_has_boost_histogram = importlib.util.find_spec("boost_histogram") is not None
-
-try:
-    from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
-    _has_colorcet = True
-except ImportError:
-    _has_colorcet = False
-
-#: Root directory for path operations.
-ROOT_DIR = Path(__file__).parent
 
 
 #: Standard directory for example datasets.
@@ -174,9 +93,9 @@ class RenderEngine(Enum):
 
     Each engine represents a library to be used as backend for rendering and plotting.
     """
-    if not _has_mpl_scatter_density:
+    if not HAS_DEPENDENCY["mpl_scatter_density"]:
         _ignore_ = 'MPL_SCATTER_DENSITY'
-    if not _has_napari:
+    if not HAS_DEPENDENCY["napari"]:
         _ignore_ = 'NAPARI'
     MPL = 0
     """matplotlib"""
@@ -301,7 +220,7 @@ LOCDATA_ID = 0
 #: Default colormaps for plotting
 #: Default colormaps for continuous, diverging and categorical scales are set to colorcet colormaps if imported or
 #: matplotlib if not. We chose fire, coolwarm and glasbey_dark (colorcet) or viridis, coolwarm adn tab20 (matplotlib).
-if _has_colorcet:
+if HAS_DEPENDENCY["colorcet"]:
     COLORMAP_CONTINUOUS = m_fire
     COLORMAP_DIVERGING = m_coolwarm
     COLORMAP_CATEGORICAL = m_glasbey_dark

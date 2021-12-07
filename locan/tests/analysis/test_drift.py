@@ -5,7 +5,7 @@ from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, PolynomialModel
 
 from locan import LocData
-from locan.constants import _has_open3d
+from locan.dependencies import HAS_DEPENDENCY
 from locan import Drift, DriftComponent
 from locan.analysis.drift import _LmfitModelFacade, _ConstantModelFacade, _ConstantZeroModelFacade, \
     _ConstantOneModelFacade, _SplineModelFacade
@@ -143,7 +143,7 @@ def test_Drift_empty(caplog):
                                     ('locan.analysis.drift', 30, 'No transformations available to be fitted.')]
 
 
-@pytest.mark.skipif(not _has_open3d, reason="Test requires open3d.")
+@pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
 def test_Drift(locdata_blobs_2d, locdata_rapidSTORM_2d):
     import warnings
     warnings.simplefilter("error")

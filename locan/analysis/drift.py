@@ -53,8 +53,8 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import splev, splrep
 from lmfit.models import ConstantModel, LinearModel, PolynomialModel
 
-from locan.constants import _has_open3d
-if _has_open3d: import open3d as o3d
+from locan.dependencies import HAS_DEPENDENCY, needs_package
+if HAS_DEPENDENCY["open3d"]: import open3d as o3d
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 from locan.data.locdata import LocData
 from locan.data.register import _register_icp_open3d, register_cc
@@ -69,6 +69,7 @@ logger = logging.getLogger(__name__)
 
 ##### The algorithms
 
+@needs_package("open3d")
 def _estimate_drift_icp(locdata, chunk_size=1000, target='first', kwargs_chunk=None, kwargs_register=None):
     """
     Estimate drift from localization coordinates by registering points in successive time-chunks of localization
@@ -96,9 +97,6 @@ def _estimate_drift_icp(locdata, chunk_size=1000, target='first', kwargs_chunk=N
         kwargs_chunk = {}
     if kwargs_register is None:
         kwargs_register = {}
-
-    if not _has_open3d:
-        raise ImportError("open3d is required.")
 
     # split in chunks
     collection = LocData.from_chunks(locdata, chunk_size=chunk_size, **kwargs_chunk)
@@ -448,11 +446,11 @@ class Drift(_Analysis):
             return self
 
         if self.parameter['method'] == 'icp':
-            collection, transformations = _estimate_drift_icp(locdata=locdata, chunk_size=self.parameter['chunk_size'],
+            collection, transformations = _estimate_drift_icp(locdata, chunk_size=self.parameter['chunk_size'],
                                                               kwargs_chunk=self.parameter['kwargs_chunk'],
                                                               kwargs_register=self.parameter['kwargs_register'])
         elif self.parameter['method'] == 'cc':
-            collection, transformations = _estimate_drift_cc(locdata=locdata, chunk_size=self.parameter['chunk_size'],
+            collection, transformations = _estimate_drift_cc(locdata, chunk_size=self.parameter['chunk_size'],
                                                              kwargs_chunk=self.parameter['kwargs_chunk'],
                                                              kwargs_register=self.parameter['kwargs_register'])
         else:

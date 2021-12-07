@@ -6,7 +6,7 @@ This module includes unit tests for all modules within the locan package.
 The tests are organized following the subpackage structure of locan.
 
 """
-from locan.constants import ROOT_DIR
+from locan import ROOT_DIR
 
 __all__ = ['test']
 

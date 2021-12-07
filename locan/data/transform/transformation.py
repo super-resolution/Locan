@@ -15,8 +15,8 @@ import locan.data.hulls
 from locan.data.region import Region
 from locan.simulation import simulate_uniform
 from locan.data.metadata_utils import _modify_meta
-from locan.constants import _has_open3d
-if _has_open3d: import open3d as o3d
+from locan.dependencies import HAS_DEPENDENCY
+if HAS_DEPENDENCY["open3d"]: import open3d as o3d
 
 
 __all__ = ['transform_affine', 'randomize']
@@ -116,7 +116,7 @@ def _transform_affine_open3d(points, matrix=None, offset=None, pre_translation=N
     numpy.ndarray
         Transformed coordinates.
     """
-    if not _has_open3d:
+    if not HAS_DEPENDENCY["open3d"]:
         raise ImportError("open3d is required.")
 
     points_ = np.asarray(points)

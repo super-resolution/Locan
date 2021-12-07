@@ -18,13 +18,14 @@ from locan.data.locdata import LocData
 from locan.data.properties.locdata_statistics import range_from_collection
 from locan.data.transform.transformation import _homogeneous_matrix
 from locan.data.aggregate import histogram
-from locan.constants import _has_open3d
-if _has_open3d: import open3d as o3d
+from locan.dependencies import HAS_DEPENDENCY, needs_package
+if HAS_DEPENDENCY["open3d"]: import open3d as o3d
 
 
 __all__ = ['register_icp', 'register_cc']
 
 
+@needs_package("open3d")
 def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_translation=None,
                          max_correspondence_distance=1_000, max_iteration=10_000, with_scaling=True, verbose=True):
     """
@@ -56,9 +57,6 @@ def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_tra
     namedtuple('Transformation', 'matrix offset')
         Matrix and offset representing the optimized transformation.
     """
-    if not _has_open3d:
-        raise ImportError("open3d is required.")
-
     points_ = np.asarray(points)
     other_points_ = np.asarray(other_points)
 
@@ -170,6 +168,7 @@ def register_icp(locdata, other_locdata, matrix=None, offset=None, pre_translati
                                                   verbose=True)
     return transformation
 
+
 def _xcorr(imageA, imageB):
     """
     This function is adapted from picasso/imageprocess by Joerg Schnitzbauer, MPI of Biochemistry
@@ -181,6 +180,7 @@ def _xcorr(imageA, imageB):
     return np.fft.fftshift(
         np.real(np.fft.ifft2((FimageA * CFimageB)))
         ) / np.sqrt(imageA.size)
+
 
 def _get_image_shift(imageA, imageB, box, roi=None, display=False):
     """
@@ -264,6 +264,7 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
         yc -= np.floor(Y / 2)
 
     return -yc, -xc
+
 
 def register_cc(locdata, other_locdata, max_offset=None,
                 bins=None, n_bins=None, bin_size=None, bin_edges=None, bin_range=None,

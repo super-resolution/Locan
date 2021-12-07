@@ -1,6 +1,4 @@
-# from locan.constants import (ROOT_DIR, PROPERTY_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
-#                               N_JOBS, FileType, LOCDATA_ID)
-
+from locan import ROOT_DIR
 from locan.constants import *
 
 for sc in (ROOT_DIR, PROPERTY_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,

@@ -8,7 +8,7 @@ from locan.locan_io.locdata.rapidstorm import load_rapidSTORM_header, load_rapid
 
 
 def test_get_correct_column_names_from_rapidSTORM_header():
-    columns = load_rapidSTORM_header(path=locan.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt')
+    columns = load_rapidSTORM_header(path=locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt')
     assert columns == ['position_x', 'position_y', 'frame', 'intensity', 'chi_square', 'local_background']
 
     file_like = StringIO('# <localizations insequence="true" repetitions="variable"><field identifier="Position-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="position in sample space in X" unit="nanometer" min="0 m" max="3.27165e-005 m" /><field identifier="Position-1-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="position in sample space in Y" unit="nanometer" min="0 m" max="3.27165e-005 m" /><field identifier="ImageNumber-0-0" syntax="integer" semantic="frame number" unit="frame" min="0 fr" /><field identifier="Amplitude-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="emission strength" unit="A/D count" /><field identifier="FitResidues-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="fit residue chi square value" unit="dimensionless" /><field identifier="LocalBackground-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="local background" unit="A/D count" /></localizations>\n'
@@ -18,7 +18,7 @@ def test_get_correct_column_names_from_rapidSTORM_header():
 
 
 def test_loading_rapidSTORM_file():
-    dat = load_rapidSTORM_file(path=locan.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
+    dat = load_rapidSTORM_file(path=locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
                                   nrows=10)
     # print(dat.data.head())
     # dat.print_meta()
@@ -32,7 +32,7 @@ def test_loading_rapidSTORM_file():
 
 def test_get_correct_column_names_from_rapidSTORM_track_header():
     columns = load_rapidSTORM_track_header(
-        path=locan.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_track_data.txt')
+        path=locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_track_data.txt')
     assert columns == (
         ['position_x', 'position_y', 'frame', 'intensity'],
         ['position_x', 'uncertainty_x', 'position_y', 'uncertainty_y',
@@ -52,7 +52,7 @@ def test_get_correct_column_names_from_rapidSTORM_track_header():
 
 def test_loading_rapidSTORM_track_file():
     dat = load_rapidSTORM_track_file(
-        path=locan.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_track_data.txt',
+        path=locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_track_data.txt',
         min_localization_count=2,
         nrows=10)
     # print(dat.data.head())
@@ -65,7 +65,7 @@ def test_loading_rapidSTORM_track_file():
     assert (len(dat) == 9)  # len(dat) is 9 and not 10 since one row is filtered out y min_localization_count=2
 
     dat = load_rapidSTORM_track_file(
-        path=locan.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_track_data.txt',
+        path=locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_track_data.txt',
         collection=False,
         nrows=10)
     assert np.array_equal(dat.data.columns,

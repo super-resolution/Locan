@@ -2,15 +2,15 @@ import os
 from pathlib import Path
 
 import pytest
-from locan.constants import _has_napari
-if _has_napari: import napari
+from locan.dependencies import HAS_DEPENDENCY
+if HAS_DEPENDENCY["napari"]: import napari
 
-from locan.constants import ROOT_DIR
+from locan import ROOT_DIR
 from locan.scripts.script_rois import sc_draw_roi_napari
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not _has_napari, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_script_rois(capfd):
     path = Path(ROOT_DIR / 'tests/test_data/five_blobs.txt')
     assert path.exists()

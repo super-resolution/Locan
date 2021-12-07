@@ -4,7 +4,7 @@ This module contains tests that need gui interactions and should therefore not b
 
 """
 import pytest
-from locan.constants import ROOT_DIR, QT_BINDINGS
+from locan import ROOT_DIR, QT_BINDINGS
 from locan.gui.io import file_dialog
 
 pytestmark = pytest.mark.gui

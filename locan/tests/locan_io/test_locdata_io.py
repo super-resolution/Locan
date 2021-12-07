@@ -32,20 +32,20 @@ def test_convert_property_types(locdata_2d):
 def test_open_path_or_file_like():
     if system() == 'Linux':
         inputs = [
-            str(locan.constants.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
-            locan.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
+            str(locan.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+            locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
         ]
     elif system() == 'Windows':
         inputs = [
-            str(locan.constants.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
-            str(locan.constants.ROOT_DIR) + r'\tests\test_data\rapidSTORM_dstorm_data.txt',
-            locan.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
-            locan.constants.ROOT_DIR / r'tests\test_data\rapidSTORM_dstorm_data.txt'
+            str(locan.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+            str(locan.ROOT_DIR) + r'\tests\test_data\rapidSTORM_dstorm_data.txt',
+            locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
+            locan.ROOT_DIR / r'tests\test_data\rapidSTORM_dstorm_data.txt'
         ]
     else:
         inputs = [
-            str(locan.constants.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
-            locan.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
+            str(locan.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
+            locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
         ]
 
     for pfl in inputs:
@@ -72,14 +72,14 @@ def test_open_path_or_file_like():
         assert not data.closed
     assert data.closed
 
-    pfl = locan.constants.ROOT_DIR / 'tests/test_data/some_file_that_does_not_exits.txt'
+    pfl = locan.ROOT_DIR / 'tests/test_data/some_file_that_does_not_exits.txt'
     with pytest.raises(FileNotFoundError):
         with open_path_or_file_like(path_or_file_like=pfl):
             pass
 
 
 def test_get_correct_column_names_from_Elyra_header():
-    columns = load_Elyra_header(path=locan.constants.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt')
+    columns = load_Elyra_header(path=locan.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt')
     assert (columns == ['original_index', 'frame', 'frames_number', 'frames_missing', 'position_x', 'position_y',
                         'uncertainty', 'intensity', 'local_background_sigma', 'chi_square', 'psf_half_width', 'channel',
                         'slice_z'])
@@ -91,7 +91,7 @@ def test_get_correct_column_names_from_Elyra_header():
 
 
 def test_loading_Elyra_file():
-    dat = load_Elyra_file(path=locan.constants.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt')
+    dat = load_Elyra_file(path=locan.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt')
     # loading is not limited by nrows=10 to ensure correct treatment of file appendix and NUL character.
     assert (len(dat) == 999)
 
@@ -104,7 +104,7 @@ def test_loading_Elyra_file():
 
 def test_get_correct_column_names_from_Thunderstorm_header():
     columns = load_thunderstorm_header(
-        path=locan.constants.ROOT_DIR / 'tests/test_data/Thunderstorm_dstorm_data.csv')
+        path=locan.ROOT_DIR / 'tests/test_data/Thunderstorm_dstorm_data.csv')
     assert (columns == ['original_index', 'frame', 'position_x', 'position_y', 'psf_sigma', 'intensity',
                         'local_background', 'local_background_sigma', 'chi_square', 'uncertainty'])
 
@@ -115,7 +115,7 @@ def test_get_correct_column_names_from_Thunderstorm_header():
 
 
 def test_loading_Thunderstorm_file():
-    dat = load_thunderstorm_file(path=locan.constants.ROOT_DIR / 'tests/test_data/Thunderstorm_dstorm_data.csv',
+    dat = load_thunderstorm_file(path=locan.ROOT_DIR / 'tests/test_data/Thunderstorm_dstorm_data.csv',
                                     nrows=10)
     # print(dat.data.columns)
     assert (len(dat) == 10)
@@ -128,7 +128,7 @@ def test_loading_Thunderstorm_file():
 
 def test_get_correct_column_names_from_Nanoimager_header():
     columns = load_Nanoimager_header(
-        path=locan.constants.ROOT_DIR / 'tests/test_data/Nanoimager_dstorm_data.csv')
+        path=locan.ROOT_DIR / 'tests/test_data/Nanoimager_dstorm_data.csv')
     assert (columns == ['channel', 'frame', 'position_x', 'position_y', 'position_z', 'intensity',
                         'local_background'])
 
@@ -140,7 +140,7 @@ def test_get_correct_column_names_from_Nanoimager_header():
 
 
 def test_loading_Nanoimager_file():
-    dat = load_Nanoimager_file(path=locan.constants.ROOT_DIR / 'tests/test_data/Nanoimager_dstorm_data.csv',
+    dat = load_Nanoimager_file(path=locan.ROOT_DIR / 'tests/test_data/Nanoimager_dstorm_data.csv',
                                   nrows=10)
     #print(dat.data.columns)
     assert (len(dat) == 10)
@@ -156,11 +156,11 @@ def test_loading_Nanoimager_file():
 
 
 def test_loading_txt_file(caplog):
-    dat = load_txt_file(path=locan.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt', nrows=10)
+    dat = load_txt_file(path=locan.ROOT_DIR / 'tests/test_data/five_blobs.txt', nrows=10)
     # print(dat.data)
     assert (len(dat) == 10)
 
-    dat = load_txt_file(path=locan.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt',
+    dat = load_txt_file(path=locan.ROOT_DIR / 'tests/test_data/five_blobs.txt',
                            columns=['index', 'position_x', 'position_y', 'cluster_label'], nrows=10)
     # print(dat.data)
     assert (len(dat) == 10)
@@ -171,7 +171,7 @@ def test_loading_txt_file(caplog):
                            columns=['index', 'position_x', 'position_y', 'cluster_label'], nrows=1)
     assert (len(dat) == 1)
 
-    dat = load_txt_file(path=locan.constants.ROOT_DIR / 'tests/test_data/five_blobs.txt',
+    dat = load_txt_file(path=locan.ROOT_DIR / 'tests/test_data/five_blobs.txt',
                            columns=['c1'], nrows=10)
     assert caplog.record_tuples == [('locan.locan_io.locdata.io_locdata', logging.WARNING,
                                      'Column c1 is not a Locan property standard.')]
@@ -181,7 +181,7 @@ def test_loading_txt_file(caplog):
 
 def test_save_and_load_asdf(locdata_2d):
     # for visual inspection use:
-    # io.save_asdf(locdata_2d, path=locan.constants.ROOT_DIR / 'tests/test_data/locdata.asdf')
+    # io.save_asdf(locdata_2d, path=locan.ROOT_DIR / 'tests/test_data/locdata.asdf')
     with tempfile.TemporaryDirectory() as tmp_directory:
         file_path = Path(tmp_directory) / 'locdata.asdf'
         save_asdf(locdata_2d, path=file_path)
@@ -210,37 +210,37 @@ def test__map_file_type_to_load_function():
 
 
 def test_load_locdata():
-    dat = load_locdata(path=locan.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
+    dat = load_locdata(path=locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
                        file_type='RAPIDSTORM',
                        nrows=10)
     assert (len(dat) == 10)
 
-    dat = load_locdata(path=locan.constants.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt',
+    dat = load_locdata(path=locan.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt',
                        file_type='ELYRA',
                        nrows=10)
     assert (len(dat) == 10)
 
-    dat = load_locdata(path=locan.constants.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt',
+    dat = load_locdata(path=locan.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt',
                        file_type='elyra',
                        nrows=10)
     assert (len(dat) == 10)
 
-    dat = load_locdata(path=locan.constants.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt',
+    dat = load_locdata(path=locan.ROOT_DIR / 'tests/test_data/Elyra_dstorm_data.txt',
                        file_type=3,
                        nrows=10)
     assert (len(dat) == 10)
 
-    dat = load_locdata(path=locan.constants.ROOT_DIR / 'tests/test_data/Nanoimager_dstorm_data.csv',
+    dat = load_locdata(path=locan.ROOT_DIR / 'tests/test_data/Nanoimager_dstorm_data.csv',
                        file_type='NANOIMAGER',
                        nrows=10)
     assert (len(dat) == 10)
 
-    dat = load_locdata(path=locan.constants.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_track_data.txt',
+    dat = load_locdata(path=locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_track_data.txt',
                        file_type='RAPIDSTORMTRACK',
                        nrows=10)
     assert (len(dat) == 10)
 
-    dat = load_locdata(path=locan.constants.ROOT_DIR / 'tests/test_data/SMLM_dstorm_data.smlm',
+    dat = load_locdata(path=locan.ROOT_DIR / 'tests/test_data/SMLM_dstorm_data.smlm',
                        file_type='SMLM',
                        nrows=10)
     assert (len(dat) == 10)

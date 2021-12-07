@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 import locan
 from locan import LocData
-from locan.constants import ROOT_DIR
+from locan import ROOT_DIR
 from locan.locan_io.locdata.io_locdata import load_txt_file
 from locan.data.rois import RoiLegacy_0
 from locan.render.render2d import _napari_shape_to_RoiRegion

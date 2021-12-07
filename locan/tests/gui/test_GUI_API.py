@@ -1,6 +1,6 @@
 import os
 
-from locan.constants import QT_BINDINGS
+from locan import QT_BINDINGS
 
 
 def test_QT_API():

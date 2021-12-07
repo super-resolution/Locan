@@ -18,13 +18,13 @@ import scipy.signal.windows
 from locan.data.rois import Roi
 from locan.data.region import Rectangle, Ellipse, Polygon, RoiRegion
 from locan.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
-from locan.constants import _has_mpl_scatter_density, _has_napari
+from locan.dependencies import HAS_DEPENDENCY
 from locan.data.rois import _MplSelector
 from locan.data.aggregate import histogram
 from locan.data.properties.locdata_statistics import ranges
 
-if _has_mpl_scatter_density: import mpl_scatter_density
-if _has_napari: import napari
+if HAS_DEPENDENCY["mpl_scatter_density"]: import mpl_scatter_density
+if HAS_DEPENDENCY["napari"]: import napari
 
 
 __all__ = ['render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari', 'scatter_2d_mpl',
@@ -165,7 +165,7 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     :class:`matplotlib.axes.Axes`
         Axes object with the image.
     """
-    if not _has_mpl_scatter_density:
+    if not HAS_DEPENDENCY["mpl_scatter_density"]:
         raise ImportError('mpl-scatter-density is required.')
 
     # todo: plot empty image if ranges are provided.
@@ -296,7 +296,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
     napari Viewer object, namedtuple('Histogram', "data bins labels"): (numpy.ndarray, `Bins`, list)
         viewer, histogram
     """
-    if not _has_napari:
+    if not HAS_DEPENDENCY["napari"]:
         raise ImportError('Function requires napari.')
 
     # todo: plot empty image if ranges are provided.
@@ -322,9 +322,9 @@ def render_2d(locdata, render_engine=RENDER_ENGINE, **kwargs):
     """
     if render_engine == RenderEngine.MPL:
         return render_2d_mpl(locdata, **kwargs)
-    elif _has_mpl_scatter_density and render_engine == RenderEngine.MPL_SCATTER_DENSITY:
+    elif HAS_DEPENDENCY["mpl_scatter_density"] and render_engine == RenderEngine.MPL_SCATTER_DENSITY:
         return render_2d_scatter_density(locdata, **kwargs)
-    elif _has_napari and render_engine == RenderEngine.NAPARI:
+    elif HAS_DEPENDENCY["napari"] and render_engine == RenderEngine.NAPARI:
         return render_2d_napari(locdata, **kwargs)
 
 

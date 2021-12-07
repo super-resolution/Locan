@@ -18,8 +18,8 @@ from pathlib import Path
 import numpy as np
 import tifffile as tif
 
-from locan.constants import _has_napari
-if _has_napari: import napari
+from locan.dependencies import HAS_DEPENDENCY
+if HAS_DEPENDENCY["napari"]: import napari
 
 import locan as lc
 

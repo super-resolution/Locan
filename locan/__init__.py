@@ -10,6 +10,7 @@ Locan consists of the following modules:
    constants
    data
    datasets
+   dependencies
    gui
    locan_io
    render
@@ -18,6 +19,7 @@ Locan consists of the following modules:
    utils
    tests
 """
+from pathlib import Path
 import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -26,7 +28,13 @@ try:
 except ImportError:
     __version__ = "0.10-not-installed"
 
-from locan.constants import *  # constants has to be imported before any others due to pyqt5/sidepy2 issues.
+
+#: Root directory for path operations.
+ROOT_DIR = Path(__file__).parent
+
+
+from locan.dependencies import *  # has to be imported before any others due to pyqt5/sidepy2 issues.
+from locan.constants import *
 from locan.analysis import *
 from locan.data import *
 from locan.datasets import *
@@ -38,7 +46,8 @@ from locan.utils import *
 from locan.tests import *
 
 
-__all__ = ['__version__']
+__all__ = ['__version__', 'ROOT_DIR']
+__all__.extend(dependencies.__all__)
 __all__.extend(constants.__all__)
 __all__.extend(analysis.__all__)
 __all__.extend(data.__all__)

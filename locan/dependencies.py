@@ -15,9 +15,9 @@ CONSTANTS
 .. autosummary::
    :toctree: ./
 
-   IMPORT_NAMES
    INSTALL_REQUIRES
    EXTRAS_REQUIRE
+   IMPORT_NAMES
    HAS_DEPENDENCY
    QT_BINDINGS
 """
@@ -35,40 +35,6 @@ from locan import ROOT_DIR
 
 __all__ = ["needs_package", "IMPORT_NAMES", "INSTALL_REQUIRES", "EXTRAS_REQUIRE", "HAS_DEPENDENCY",
            "QtBindings", "QT_BINDINGS"]
-
-
-def _get_dependencies_from_setup_cfg(path: Optional[Union[str, os.PathLike]] = None):
-    """
-    Get a list of dependencies (i.e. requirements) from specifications in setup.cfg - sections
-    ["options"]["install_requires"] and ["options.extras_require"].
-
-    Parameters
-    ----------
-    path : Path for setup.cfg
-
-    Returns
-    -------
-    tuple(list, list)
-        Two lists with required and extra dependencies.
-
-    """
-    if path is None:
-        path = ROOT_DIR.parent / "setup.cfg"
-    assert path.exists()
-    config = configparser.ConfigParser()
-    config.read(path)
-
-    regex = re.compile(r"[a-zA-Z][\w-]+\b")
-
-    install_requires = [re.search(regex, element).group()
-                             for element in config["options"]["install_requires"].split("\n") if element != ""]
-
-    extras_require = set()
-    extras_require_list = [re.findall(regex, value) for key, value in config["options.extras_require"].items()]
-    for element in extras_require_list:
-        extras_require.update(element)
-
-    return install_requires, extras_require
 
 
 def _has_dependency_factory(
@@ -120,6 +86,26 @@ def needs_package(package, import_names=None, has_dependency=None):
     return decorator
 
 
+#: List of required dependencies (PyPi package names)
+# Should reflect the dependencies specified in setup.cfg.
+# Some package names are different from the names for import.
+INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast-histogram', 'boost-histogram', 'hdbscan', 'lmfit',
+                    'protobuf', 'shapely', 'networkx', 'scikit-learn', 'scikit-image', 'matplotlib', 'scipy',
+                    'pandas', 'numpy', 'tqdm', 'numba', 'cython']
+
+#: List of optional dependencies (PyPi package names)
+EXTRAS_REQUIRE = {
+    "pytest",
+    "colorcet",
+    "trackpy",
+    "open3d",
+    "PySide2", "napari", "mpl_scatter_density",
+    "requests",
+    "cupy",
+    "sphinx", "ipython", "myst-nb", "sphinx-copybutton", "sphinx_rtd_theme", "furo",
+    "coverage", "build", "twine"
+}
+
 #: A dictionary mapping PyPi package names to import names if they are different
 IMPORT_NAMES = dict()
 IMPORT_NAMES["ruamel"] = "ruamel.yaml"
@@ -128,11 +114,6 @@ IMPORT_NAMES["boost-histogram"] = "boost_histogram"
 IMPORT_NAMES["protobuf"] = "google.protobuf"
 IMPORT_NAMES["scikit-image"] = "skimage"
 IMPORT_NAMES["scikit-learn"] = "sklearn"
-
-
-#: All available depedencies.
-INSTALL_REQUIRES, EXTRAS_REQUIRE = _get_dependencies_from_setup_cfg()
-
 
 #: A dictionary indicating if dependency is available.
 HAS_DEPENDENCY = _has_dependency_factory(packages=EXTRAS_REQUIRE)

@@ -9,6 +9,9 @@ If the directory does not exist the exemplary files are downloaded from GitHub.
 """
 from pathlib import Path
 
+from locan.dependencies import HAS_DEPENDENCY, needs_package
+if HAS_DEPENDENCY["requests"]: import requests
+
 from locan.locan_io.locdata.io_locdata import load_asdf_file
 from locan.constants import DATASETS_DIR
 
@@ -16,6 +19,7 @@ from locan.constants import DATASETS_DIR
 __all__ = ['load_npc', 'load_tubulin']
 
 
+@needs_package("requests")
 def load_npc(**kwargs):
     """
     Locdata representing nuclear pore complexes.
@@ -41,7 +45,6 @@ def load_npc(**kwargs):
     """
     path = Path(DATASETS_DIR) / 'npc_gp210.asdf'
     if not path.exists():
-        import requests
         DATASETS_DIR.mkdir(exist_ok=True)
         url = "https://raw.github.com/super-resolution/LocanDatasets/main/smlm_data/npc_gp210.asdf"
         response = requests.get(url)
@@ -53,6 +56,7 @@ def load_npc(**kwargs):
     return locdata
 
 
+@needs_package("requests")
 def load_tubulin(**kwargs):
     """
     Locdata representing microtubules.
@@ -79,7 +83,6 @@ def load_tubulin(**kwargs):
     """
     path = Path(DATASETS_DIR) / 'tubulin_cos7.asdf'
     if not path.exists():
-        import requests
         DATASETS_DIR.mkdir(exist_ok=True)
         url = "https://raw.github.com/super-resolution/LocanDatasets/main/smlm_data/tubulin_cos7.asdf"
         response = requests.get(url)

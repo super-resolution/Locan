@@ -1,5 +1,5 @@
 import pytest
-from dependencies import *
+from locan.dependencies import *
 
 
 def test_IMPORT_NAMES():

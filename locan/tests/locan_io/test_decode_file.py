@@ -1,12 +1,17 @@
 import numpy as np
+import pytest
 
-import locan
+import locan as lc
+from locan.dependencies import HAS_DEPENDENCY
 from locan import load_decode_header, load_decode_file
-#from locan.locan_io.locdata.decode_file import load_decode_header, load_decode_file
+# from locan.locan_io.locdata.decode_file import load_decode_header, load_decode_file
+
+
+pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["h5py"], reason="requires h5py.")
 
 
 def test_load_DECODE_header():
-    columns, meta, decode = load_decode_header(path=locan.ROOT_DIR / 'tests/test_data/decode_dstorm_data.h5')
+    columns, meta, decode = load_decode_header(path=lc.ROOT_DIR / 'tests/test_data/decode_dstorm_data.h5')
     # print(columns, meta, decode)
     assert list(meta.keys()) == ['px_size', 'xy_unit']
     assert list(decode.keys()) == ['version']
@@ -34,14 +39,14 @@ def test_load_DECODE_header():
 
 def test_loading_DECODE_file_empty_file():
     locdata = load_decode_file(
-        path=locan.ROOT_DIR / 'tests/test_data/decode_dstorm_data_empty.h5',
+        path=lc.ROOT_DIR / 'tests/test_data/decode_dstorm_data_empty.h5',
         nrows=10)
     assert len(locdata) == 0
 
 
 def test_loading_DECODE_file():
     locdata = load_decode_file(
-        path=locan.ROOT_DIR / 'tests/test_data/decode_dstorm_data.h5',
+        path=lc.ROOT_DIR / 'tests/test_data/decode_dstorm_data.h5',
         nrows=10)
     # print(locdata.data)
     assert len(locdata) == 10

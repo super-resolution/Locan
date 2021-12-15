@@ -59,6 +59,7 @@ def read_decode_header(file):
     return column_keys, meta_data, meta_decode
 
 
+@needs_package("h5py")
 def load_decode_header(path):
     """
     Load header from a DECODE single-molecule localization file and identify column names.

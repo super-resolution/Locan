@@ -37,6 +37,7 @@ enum File_type {
     NANOIMAGER = 6;
     RAPIDSTORMTRACK = 7;
     SMLM = 8;
+    DECODE = 9;
 }
 
 message Operation {

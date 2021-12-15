@@ -13,6 +13,7 @@ There are functions for reading the following file structures
 * Nanoimager file format (NANOIMAGER)
 * rapidSTORM track file format (RAPIDSTORMTRACK) [1]_
 * smlm file format (SMLM) [4]_, [5]_
+* decode file (DECODE) [6]_
 
 References
 ----------
@@ -34,6 +35,11 @@ References
 
 .. [5] https://github.com/imodpasteur/smlm-file-format
 
+.. [6] Artur Speiser, Lucas-Raphael Müller, Philipp Hoess, Ulf Matti, Christopher J. Obara, Wesley R. Legant,
+   Anna Kreshuk, Jakob H. Macke, Jonas Ries, and Srinivas C. Turaga,
+   Deep learning enables fast and dense single-molecule localization with high accuracy.
+   Nat Methods 18: 1082–1090, 2021, doi:10.1038/s41592-021-01236-x
+
 
 Submodules:
 -----------
@@ -45,15 +51,18 @@ Submodules:
    utilities
    rapidstorm
    smlm_file
+   decode
 
 """
 from .io_locdata import *
 from .utilities import *
 from .rapidstorm import *
 from .smlm_file import *
+from .decode_file import *
 
 __all__ = []
 __all__.extend(io_locdata.__all__)
 __all__.extend(utilities.__all__)
 __all__.extend(rapidstorm.__all__)
 __all__.extend(smlm_file.__all__)
+__all__.extend(decode_file.__all__)

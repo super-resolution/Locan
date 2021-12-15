@@ -51,7 +51,7 @@ Submodules:
    utilities
    rapidstorm
    smlm_file
-   decode
+   decode_file
 
 """
 from .io_locdata import *

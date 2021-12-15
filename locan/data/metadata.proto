@@ -8,7 +8,7 @@
 // protoc --proto_path="." --python_out="."  "./locan/data/metadata.proto"
 //
 // Update all *.proto files from Locan root directory:
-// protoc --proto_path="." --proto_path="./locan/io/locdata" --python_out="." "./locan/data/metadata.proto" "./locan/io/locdata/manifest.proto"
+// protoc --proto_path="." --proto_path="./locan/locan_io/locdata" --python_out="." "./locan/data/metadata.proto" "./locan/io/locdata/manifest.proto"
 syntax = "proto2";
 
 package locan.data;
@@ -37,6 +37,7 @@ enum File_type {
     NANOIMAGER = 6;
     RAPIDSTORMTRACK = 7;
     SMLM = 8;
+    DECODE = 9;
 }
 
 message Operation {

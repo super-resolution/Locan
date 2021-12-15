@@ -100,7 +100,7 @@ EXTRAS_REQUIRE = {
     "trackpy",
     "open3d",
     "PySide2", "napari", "mpl_scatter_density",
-    "requests",
+    "requests", "h5py",
     "cupy",
     "sphinx", "ipython", "myst-nb", "sphinx-copybutton", "sphinx_rtd_theme", "furo",
     "coverage", "build", "twine"

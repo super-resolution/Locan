@@ -84,6 +84,7 @@ class FileType(Enum):
     NANOIMAGER = 6
     RAPIDSTORMTRACK = 7
     SMLM = 8
+    DECODE = 9
 
 
 # Render engines
@@ -197,6 +198,17 @@ SMLM_KEYS = {
     'background': 'local_background',
     'LocalBackground_0_0': 'local_background',
     'FitResidues_0_0': 'chi_square',
+}
+
+#: Mapping column names in DECODE files to LocData property keys
+DECODE_KEYS = {
+    'id': 'original_index',
+    'frame_ix': 'frame',
+    'x': 'position_x',
+    'y': 'position_y',
+    'z': 'position_z',
+    'bg': 'local_background',
+    'phot': 'intensity',
 }
 
 

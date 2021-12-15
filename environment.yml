@@ -53,6 +53,7 @@ dependencies:
 - napari
 - mpl-scatter-density
 - requests
+- h5py
 
 # Various issues
 - pydantic!=1.8.0

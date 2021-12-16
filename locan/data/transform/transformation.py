@@ -16,6 +16,7 @@ from locan.data.region import Region
 from locan.simulation import simulate_uniform
 from locan.data.metadata_utils import _modify_meta
 from locan.dependencies import HAS_DEPENDENCY
+
 if HAS_DEPENDENCY["open3d"]: import open3d as o3d
 
 

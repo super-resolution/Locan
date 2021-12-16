@@ -6,12 +6,13 @@ import matplotlib.pyplot as plt  # this import is needed for interactive tests
 
 from locan import RenderEngine  # this import is needed for interactive tests
 from locan.dependencies import HAS_DEPENDENCY
-if HAS_DEPENDENCY["napari"]: import napari
 from locan import render_2d_mpl, render_2d_scatter_density, render_2d_napari, scatter_2d_mpl, \
     select_by_drawing_napari, render_2d_rgb_mpl
 from locan.render.render2d import _napari_shape_to_region
 from locan import render_2d, apply_window
 from locan import cluster_dbscan, transform_affine
+
+if HAS_DEPENDENCY["napari"]: import napari
 
 
 def test_render_2d_mpl_empty(locdata_empty):

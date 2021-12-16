@@ -10,10 +10,10 @@ If the directory does not exist the exemplary files are downloaded from GitHub.
 from pathlib import Path
 
 from locan.dependencies import HAS_DEPENDENCY, needs_package
-if HAS_DEPENDENCY["requests"]: import requests
-
 from locan.locan_io.locdata.io_locdata import load_asdf_file
 from locan.constants import DATASETS_DIR
+
+if HAS_DEPENDENCY["requests"]: import requests
 
 
 __all__ = ['load_npc', 'load_tubulin']

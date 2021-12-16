@@ -2,11 +2,12 @@ import os
 from pathlib import Path
 
 import pytest
-from locan.dependencies import HAS_DEPENDENCY
-if HAS_DEPENDENCY["napari"]: import napari
 
+from locan.dependencies import HAS_DEPENDENCY
 from locan import ROOT_DIR
 from locan.scripts.script_rois import sc_draw_roi_napari
+
+if HAS_DEPENDENCY["napari"]: import napari
 
 
 @pytest.mark.gui

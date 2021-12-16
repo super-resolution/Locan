@@ -23,12 +23,12 @@ import argparse
 from pathlib import Path
 
 from locan.dependencies import HAS_DEPENDENCY
-if HAS_DEPENDENCY["napari"]: import napari
-
 from locan.constants import FileType
 from locan.gui.io import file_dialog
 import locan.locan_io.locdata.io_locdata as io
 from locan.render.render2d import render_2d_napari
+
+if HAS_DEPENDENCY["napari"]: import napari
 
 
 def sc_napari(file_path=None, file_type=FileType.CUSTOM, **kwargs):

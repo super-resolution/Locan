@@ -25,12 +25,12 @@ import argparse
 from pathlib import Path
 
 from locan.dependencies import HAS_DEPENDENCY
-if HAS_DEPENDENCY["napari"]: import napari
-
 from locan.constants import FileType
 from locan.gui.io import file_dialog
 import locan.locan_io.locdata.io_locdata as io
 from locan.render.render2d import select_by_drawing_napari
+
+if HAS_DEPENDENCY["napari"]: import napari
 
 
 def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indicator='_roi', **kwargs):

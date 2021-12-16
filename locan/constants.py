@@ -211,6 +211,20 @@ DECODE_KEYS = {
     'phot': 'intensity',
 }
 
+#: Mapping column names in SMAP files to LocData property keys
+SMAP_KEYS = {
+    'frame': 'frame',
+    'xnm': 'position_x',
+    'ynm': 'position_y',
+    'znm': 'position_z',
+    'bg': 'local_background',
+    'phot': 'intensity',
+    'channel': 'channel',
+    'xnmerr': 'uncertainty_x',
+    'ynmerr': 'uncertainty_y',
+    'znmerr': 'uncertainty_z',
+}
+
 
 #: The number of cores that are used in parallel for some algorithms.
 #: Following the scikit convention: n_jobs is the number of parallel jobs to run.

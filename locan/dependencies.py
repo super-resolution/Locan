@@ -89,7 +89,7 @@ def needs_package(package, import_names=None, has_dependency=None):
 #: List of required dependencies (PyPi package names)
 # Should reflect the dependencies specified in setup.cfg.
 # Some package names are different from the names for import.
-INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast-histogram', 'boost-histogram', 'hdbscan', 'lmfit',
+INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast-histogram', 'boost-histogram', 'lmfit',
                     'protobuf', 'shapely', 'networkx', 'scikit-learn', 'scikit-image', 'matplotlib', 'scipy',
                     'pandas', 'numpy', 'tqdm', 'numba', 'cython']
 
@@ -100,7 +100,7 @@ EXTRAS_REQUIRE = {
     "trackpy",
     "open3d",
     "PySide2", "napari", "mpl_scatter_density",
-    "requests", "h5py",
+    "requests", "h5py", 'hdbscan',
     "cupy",
     "sphinx", "ipython", "myst-nb", "sphinx-copybutton", "sphinx_rtd_theme", "furo",
     "coverage", "build", "twine"

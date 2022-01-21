@@ -1,9 +1,9 @@
 # Use an official image for a Python runtime that is based on debian
-ARG PYTHON_VERSION=3.8
+ARG PYTHON_VERSION=3.9
 FROM python:${PYTHON_VERSION}-slim-buster
 
 ARG PYTHON_VERSION
-ARG ENVIRONMENT_NAME="locan_python_py38"
+ARG ENVIRONMENT_NAME="locan_python_py39"
 
 ENV PYTHON_VERSION=${PYTHON_VERSION} \
     ENVIRONMENT_NAME=${ENVIRONMENT_NAME}
@@ -37,13 +37,7 @@ ENV PATH "$VIRTUAL_ENV/bin:$PATH"
 	
 # Update and install any needed packages and the project
 RUN pip install pip setuptools --trusted-host pypi.org --upgrade --no-cache-dir && \
-    # cython needs to be installed before hdbscan to build hdbscan correctly
-    # numba requires numpy<1.21 which must be installed for hdbscan
-    pip install cython numba hdbscan pytest --trusted-host pypi.org --no-cache-dir && \
-    # install project with setuptools
-    pip install .
-# alternatively install project with pip including only specified extra requirements
-#    pip install .[all]
+    pip install .[test]
 
 # Volume for data
 VOLUME ["/shared"]

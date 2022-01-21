@@ -3,12 +3,13 @@ from copy import deepcopy
 import pytest
 import numpy as np
 
+from locan.dependencies import HAS_DEPENDENCY
 from locan.data.cluster.clustering import cluster_hdbscan, cluster_dbscan
 from locan.data.cluster.utils import serial_clustering
 
 
 # tests hdbscan
-
+@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 def test_cluster_hdbscan_2d(locdata_two_cluster_2d):
     noise, clust = cluster_hdbscan(locdata_two_cluster_2d, min_cluster_size=2, allow_single_cluster=False)
     assert noise is None
@@ -29,6 +30,7 @@ def test_cluster_hdbscan_2d(locdata_two_cluster_2d):
     assert all(clust.references[0].data.cluster_label == 1)
 
 
+@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 def test_cluster_hdbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
     noise, clust = cluster_hdbscan(locdata_two_cluster_with_noise_2d, min_cluster_size=2, allow_single_cluster=False)
     assert len(noise) == 1
@@ -43,6 +45,7 @@ def test_cluster_hdbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
     assert all(np.in1d(clust.references[0].data.cluster_label, [1, 2]))
 
 
+@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 def test_cluster_hdbscan_with_shuffled_index(locdata_two_cluster_with_noise_2d):
     locdata = deepcopy(locdata_two_cluster_with_noise_2d)
     new_index = list(locdata.data.index)
@@ -54,6 +57,8 @@ def test_cluster_hdbscan_with_shuffled_index(locdata_two_cluster_with_noise_2d):
     assert all(clust.data.localization_count == [3, 3])
     assert all(clust.references[0].data.cluster_label == 1)
 
+
+@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 @pytest.mark.parametrize('fixture_name, expected', [
     ('locdata_empty', (0, 0)),
     ('locdata_single_localization', (1, 0))

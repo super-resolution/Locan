@@ -1,8 +1,8 @@
 # Use an official image for miniconda3 that is based on debian
 FROM continuumio/miniconda3
 
-ARG PYTHON_VERSION=3.8
-ARG ENVIRONMENT_NAME="locan_conda_py38"
+ARG PYTHON_VERSION=3.9
+ARG ENVIRONMENT_NAME="locan_conda_py39"
 
 ENV PYTHON_VERSION=${PYTHON_VERSION} \
     ENVIRONMENT_NAME=${ENVIRONMENT_NAME}

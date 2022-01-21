@@ -36,11 +36,12 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH "$VIRTUAL_ENV/bin:$PATH"
 	
 # Update and install any needed packages and the project
-RUN pip install pip setuptools --trusted-host pypi.org --upgrade --no-cache-dir && \
-    # cython needs to be installed before hdbscan to build hdbscan correctly
-    # numba requires numpy<1.21 which must be installed for hdbscan
-    pip install cython numba hdbscan pytest --trusted-host pypi.org --no-cache-dir && \
-    # install project with setuptools
+RUN pip install pip setuptools wheel --trusted-host pypi.org --upgrade --no-cache-dir && \
+    # wheel, cython and numpy needs to be installed before hdbscan to build hdbscan correctly
+    # numba usually requires numpy with older version which must be installed before building hdbscan
+    pip install cython numba pytest --trusted-host pypi.org --no-cache-dir && \
+    # --no-build-isolation is required to ensure that hdbscan is build with the installed numpy version.
+    pip install hdbscan --no-build-isolation --trusted-host pypi.org --no-cache-dir && \
     pip install .
 # alternatively install project with pip including only specified extra requirements
 #    pip install .[all]

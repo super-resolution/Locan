@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: 3.8
+  PYTHON_VERSION: 3.9
 
 jobs:
   test-on-python:
@@ -27,7 +27,8 @@ jobs:
 
       - name: "Install locan with extra requirements"
         run: |
-          pip install cython numba hdbscan
+          pip install cython numba
+          pip install hdbscan --no-build-isolation
           pip install .[all]
 
       - name: "Run tests"

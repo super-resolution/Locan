@@ -30,7 +30,6 @@ tifffile
 asdf
 
 # Data analysis tools
-hdbscan
 boost-histogram
 fast-histogram
 
@@ -43,6 +42,7 @@ mpl_scatter_density
 napari
 requests
 h5py
+hdbscan
 
 # Various issues
 pydantic!=1.8.0

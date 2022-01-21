@@ -1,9 +1,9 @@
 # Use an official image for a Python runtime that is based on debian
-ARG PYTHON_VERSION=3.8
+ARG PYTHON_VERSION=3.9
 FROM python:${PYTHON_VERSION}-slim-buster
 
 ARG PYTHON_VERSION
-ARG ENVIRONMENT_NAME="locan_python_py38"
+ARG ENVIRONMENT_NAME="locan_python_py39"
 
 ENV PYTHON_VERSION=${PYTHON_VERSION} \
     ENVIRONMENT_NAME=${ENVIRONMENT_NAME}

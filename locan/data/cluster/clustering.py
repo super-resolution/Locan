@@ -12,8 +12,10 @@ import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from scipy import stats
 
-from hdbscan import HDBSCAN
 from sklearn.cluster import DBSCAN
+
+from locan import HAS_DEPENDENCY, needs_package
+if HAS_DEPENDENCY["hdbscan"]: from hdbscan import HDBSCAN
 
 from locan.data.locdata import LocData
 from locan.constants import N_JOBS
@@ -22,6 +24,7 @@ from locan.constants import N_JOBS
 __all__ = ['cluster_hdbscan', 'cluster_dbscan']
 
 
+@needs_package("hdbscan")
 def cluster_hdbscan(locdata, min_cluster_size=5, loc_properties=None, allow_single_cluster=False, **kwargs):
     """
     Cluster localizations in locdata using the hdbscan clustering algorithm.

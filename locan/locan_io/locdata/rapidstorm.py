@@ -220,7 +220,7 @@ def load_rapidSTORM_track_file(path, nrows=None, convert=True, collection=True, 
     """
     with open_path_or_file_like(path) as file:
         columns, columns_track = read_rapidSTORM_track_header(file)
-        lines = pd.read_csv(file, sep='\n', nrows=nrows, skiprows=1, header=None, **kwargs)
+        lines = pd.read_csv(file, lineterminator='\n', nrows=nrows, skiprows=1, header=None, **kwargs)
 
     lines = lines[0].str.split(" ", expand=False)
 

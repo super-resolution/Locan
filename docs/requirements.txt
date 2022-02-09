@@ -11,5 +11,4 @@ furo
 # requirements for running all tutorial notebooks
 cython
 numba
-# hdbscan
 ray

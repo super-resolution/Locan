@@ -10,12 +10,18 @@ Dependencies
 * python 3
 * standard scipy and other open source libraries
 
-A list with all requirements is given in `setup.cfg`, `environment.yml` and `requirements.txt`.
+A list with all hard and optional dependencies is given in `setup.cfg`, `environment.yml` and `requirements.txt`.
 
 Install from pypi
 ------------------------------
 
+Install locan directly from the Python Package Index::
+
     pip install locan
+
+Extra dependencies can be included::
+
+    pip install locan[all]
 
 Install from distribution
 ------------------------------
@@ -74,6 +80,48 @@ Make sure to add the appropriate lab extensions::
                                  @pyviz/jupyterlab_pyviz \
                                  jupyter-matplotlib
 
-You may need to install node.js for rebuilding jupyter-lab::
+You may need to install node.js for rebuilding jupyter lab::
 
     conda install -c conda-forge nodejs
+
+Various installation issues
+-----------------------------
+
+1) Numba requires specific numpy version:
+
+    Numba might not be compatible with the latest numpy version.
+
+    Solution: Install numba first.
+
+
+2) Building a wheel for hdbscan raises error:
+
+    Building a wheel for hdbscan during installation might cause the following error:
+
+    "ValueError: numpy.ndarray size changed, may indicate binary incompatibility. "
+
+    This error arises from version incompatibility between the numpy version installed in the current environment
+    and the one used for building the wheel.
+
+    Solution: Install wheel, cython, and numpy (or numba) first, then build hdbscan using the installed versions
+    (and not in isolation as done by default), and finally install locan::
+
+        pip install wheel cython numba
+        pip install hdbscan --no-build-isolation
+        pip install locan[all]
+
+3) Running "locan napari" in conda environment raises error:
+
+    Starting napari in a conda environment with python>=3.8 and pyside2 causes the following error:
+
+    "RuntimeError: PySide2 rcc binary not found in..."
+
+    Seems like napari>0.4.5 does not work with pyside2<5.14 due to the replacement of
+    pyside2-uic/pyside2-rcc.
+
+    Solution: Set up an environment with python 3.7.
+    Or set up an environment with only pyqt5 instead of pyside2.
+    Or, if both pyqt5 and pyside2 are installed, set the environment variable "QT_API"::
+
+        import os
+        os.environ["QT_API"] = "pyqt5"

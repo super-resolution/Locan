@@ -2,13 +2,14 @@ import pytest
 import numpy as np
 import matplotlib.pyplot as plt
 
+from locan import bunwarp, render_2d_mpl
 import locan.constants
 from locan.dependencies import HAS_DEPENDENCY
 from locan.data.region import Polygon
 from locan.locan_io.locdata.io_locdata import load_rapidSTORM_file
 from locan.data.transform import randomize, transform_affine
 from locan.data.transform.transformation import _homogeneous_matrix
-from locan.data.transform.bunwarpj import _read_matrix, _unwarp, bunwarp
+from locan.data.transform.bunwarpj import _read_matrix, _unwarp
 
 
 def test_randomize_2d(locdata_2d):
@@ -61,10 +62,10 @@ def test_bunwarp_raw_transformation():
     dat_green = load_rapidSTORM_file(path=locan.ROOT_DIR /
                                      'tests/test_data/transform/rapidSTORM_beads_green.txt')
 
-    matrix_size, matrix_x, matrix_y = _read_matrix(path=matrix_path)
-    assert np.array_equal(matrix_size, [130, 130])
+    matrix_x, matrix_y = _read_matrix(path=matrix_path)
+    assert np.array_equal(matrix_x.shape, [130, 130])
 
-    new_points = _unwarp(dat_green.coordinates, matrix_x, matrix_y, pixel_size=(10, 10), matrix_size=matrix_size)
+    new_points = _unwarp(dat_green.coordinates, matrix_x, matrix_y, pixel_size=(10, 10))
     assert len(new_points) == len(dat_green)
 
     dat_green_transformed = bunwarp(locdata=dat_green, matrix_path=matrix_path, pixel_size=(10, 10))
@@ -72,13 +73,14 @@ def test_bunwarp_raw_transformation():
     assert dat_green_transformed.meta.history[-1].name == 'bunwarp'
 
     # for visual inspection
-    # dat_red = load_rapidSTORM_file(path=locan.ROOT_DIR /
-    #                                     'tests/test_data/transform/rapidSTORM_beads_red.txt')
-    # fig, ax = plt.subplots(1, 1, figsize=(16, 8))
-    # render_2d(dat_red, ax=ax, bin_size=500, rescale=True, cmap='Reds')
-    # render_2d(dat_green, ax=ax, bin_size=500, rescale=True, cmap='Greens', alpha=0.5)
-    # render_2d(dat_green_transformed, ax=ax, bin_size=500, rescale=True, cmap='Blues', alpha=0.5)
-    # plt.show()
+    dat_red = load_rapidSTORM_file(path=locan.ROOT_DIR /
+                                        'tests/test_data/transform/rapidSTORM_beads_red.txt')
+    print(dat_green_transformed.meta)
+    fig, ax = plt.subplots(1, 1, figsize=(16, 8))
+    render_2d_mpl(dat_red, ax=ax, bin_size=500, rescale=True, cmap='Reds')
+    render_2d_mpl(dat_green, ax=ax, bin_size=500, rescale=True, cmap='Greens', alpha=0.5)
+    render_2d_mpl(dat_green_transformed, ax=ax, bin_size=500, rescale=True, cmap='Blues', alpha=0.5)
+    plt.show()
 
     plt.close('all')
 

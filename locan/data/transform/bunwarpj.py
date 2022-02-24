@@ -30,12 +30,13 @@ from numba import jit
 
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
+from locan.data.transform.transformation import transform_affine
 
 
 __all__ = ['bunwarp']
 
 
-def _unwarp(points, matrix_x, matrix_y, pixel_size, matrix_size):
+def _unwarp(points, matrix_x, matrix_y, pixel_size):
     """
     Transform points with raw matrix from BunwarpJ.
 
@@ -47,8 +48,6 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size, matrix_size):
         Transformation matrix for x and y coordinates
     pixel_size : tuple (2,)
         Pixel size for x and y component as used in ImageJ for registration
-    matrix_size : tuple (2,)
-        Number of matrix entries in each dimension
 
     Returns
     -------
@@ -58,15 +57,20 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size, matrix_size):
     points_ = np.asarray(points)
     point_indices = np.divide(points_, pixel_size)
 
+    matrix_size = matrix_x.shape
+    assert matrix_size == matrix_y.shape
+
     x = np.arange(matrix_size[0])
     y = np.arange(matrix_size[1])
-    z_x = matrix_x
+    z_x = matrix_x.T
     f_x = interpolate.interp2d(x, y, z_x, kind='linear')
-    z_y = matrix_y
+    z_y = matrix_y.T
     f_y = interpolate.interp2d(x, y, z_y, kind='linear')
 
     new_points = np.array(
-        [point - np.concatenate((f_x(*pind), f_y(*pind))) for pind, point in zip(point_indices, points_)])
+        [np.concatenate((f_x(*pind), f_y(*pind))) for pind in point_indices]
+    )
+    new_points = np.multiply(new_points, pixel_size)
     return new_points
 
 
@@ -81,11 +85,9 @@ def _read_matrix(path):
 
     Returns
     -------
-    tuple
-        matrix width and height
-    array
+    numpy.ndarray
         x transformation array
-    array
+    numpy.ndarray
         y transformation array
     """
     with open(path) as file:
@@ -101,10 +103,10 @@ def _read_matrix(path):
     matrix_y = pd.read_csv(path, skiprows=(6 + matrix_size[1]), header=None,
                                  delim_whitespace=True).values.T      # transform values to get array[x, y]
 
-    return matrix_size, matrix_x, matrix_y
+    return matrix_x, matrix_y
 
 
-def bunwarp(locdata, matrix_path, pixel_size):
+def bunwarp(locdata, matrix_path, pixel_size, flip=False):
     """
     Transform coordinates by applying a B-spline transformation
     as represented by a raw transformation matrix from BunwarpJ.
@@ -117,6 +119,8 @@ def bunwarp(locdata, matrix_path, pixel_size):
         Path to file with a raw matrix from BunwarpJ.
     pixel_size : tuple
         Pixel sizes used to determine transition matrix in ImageJ
+    flip : bool
+        Flip locdata along x-axis before transformation
 
     Returns
     -------
@@ -125,15 +129,28 @@ def bunwarp(locdata, matrix_path, pixel_size):
     """
     local_parameter = locals()
 
-    matrix_size, matrix_x, matrix_y = _read_matrix(matrix_path)
-    new_points = _unwarp(locdata.coordinates, matrix_x, matrix_y, pixel_size, matrix_size)
+    matrix_x, matrix_y = _read_matrix(matrix_path)
 
-    df = pd.DataFrame({'position_x': new_points[:, 0], 'position_y': new_points[:, 1]})
-    new_locdata = LocData.from_dataframe(df)
+    if flip:
+        image_size = np.multiply(matrix_x.shape, pixel_size)
+        locdata = transform_affine(locdata,
+                                   matrix=[[-1, 0], [0, 1]],
+                                   offset=[image_size[0], 0]
+                                   )
+
+    new_points = _unwarp(locdata.coordinates, matrix_x, matrix_y, pixel_size)
+
+    # new LocData object
+    new_dataframe = locdata.data.copy()
+    df = pd.DataFrame({'position_x': new_points[:, 0], 'position_y': new_points[:, 1]},
+                      index=locdata.data.index)
+    new_dataframe.update(df)
+    new_locdata = LocData.from_dataframe(new_dataframe)
 
     # update metadata
     meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
-                         parameter=local_parameter, meta=None)
+                         parameter=local_parameter,
+                         meta=None)
     new_locdata.meta = meta_
 
     return new_locdata

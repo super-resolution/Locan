@@ -193,6 +193,11 @@ def test_load_locdata():
                        nrows=10)
     assert (len(dat) == 10)
 
+    dat = load_locdata(path=locan.ROOT_DIR / 'tests/test_data/smap_dstorm_data.mat',
+                       file_type='SMAP',
+                       nrows=10)
+    assert (len(dat) == 10)
+
 
 def test_pickling_locdata(locdata_2d):
     with tempfile.TemporaryDirectory() as tmp_directory:

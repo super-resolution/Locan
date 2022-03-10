@@ -85,6 +85,7 @@ class FileType(Enum):
     RAPIDSTORMTRACK = 7
     SMLM = 8
     DECODE = 9
+    SMAP = 10
 
 
 # Render engines

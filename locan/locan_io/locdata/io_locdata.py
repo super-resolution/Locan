@@ -19,6 +19,7 @@ from locan.locan_io.locdata.utilities import convert_property_types, open_path_o
 from locan.locan_io.locdata.rapidstorm import load_rapidSTORM_file, load_rapidSTORM_track_file
 from locan.locan_io.locdata.smlm_file import load_SMLM_file
 from locan.locan_io.locdata.decode_file import load_decode_file
+from locan.locan_io.locdata.smap_file import load_SMAP_file
 
 
 __all__ = ['save_asdf', 'save_thunderstorm_csv',
@@ -473,6 +474,7 @@ def _map_file_type_to_load_function(file_type):
         load_rapidSTORM_track_file=load_rapidSTORM_track_file,
         load_SMLM_file=load_SMLM_file,
         load_decode_file=load_decode_file,
+        load_SMAP_file=load_SMAP_file,
     )
 
     class LoadFunction(Enum):
@@ -485,6 +487,7 @@ def _map_file_type_to_load_function(file_type):
         load_rapidSTORM_track_file = 7
         load_SMLM_file = 8
         load_decode_file = 9
+        load_SMAP_file = 10
 
     try:
         if isinstance(file_type, int):

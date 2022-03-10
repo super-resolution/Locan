@@ -1,16 +1,13 @@
-from platform import system
 from pathlib import Path
 import tempfile
 import pickle
-from io import StringIO, BytesIO, TextIOWrapper
+from io import StringIO
 import logging
 
-import pytest
-import numpy as np
 from pandas.testing import assert_frame_equal
 import locan.constants
 from locan.data import metadata_pb2
-from locan.locan_io import convert_property_types, save_asdf, load_asdf_file, load_txt_file, load_thunderstorm_file,\
+from locan.locan_io import save_asdf, load_asdf_file, load_txt_file, load_thunderstorm_file,\
     load_Elyra_file, load_Nanoimager_file, \
     load_locdata
 
@@ -18,64 +15,6 @@ from locan.locan_io.locdata.io_locdata import _map_file_type_to_load_function
 from locan.locan_io.locdata.io_locdata import load_Elyra_header
 from locan.locan_io.locdata.io_locdata import load_thunderstorm_header
 from locan.locan_io.locdata.io_locdata import load_Nanoimager_header
-from locan.locan_io.locdata.utilities import open_path_or_file_like
-
-
-def test_convert_property_types(locdata_2d):
-    df = locdata_2d.data.copy()
-    types_mapping = {'position_x': 'float', 'position_y': str, 'frame': np.int64, 'not_in_there': 'float'}
-    converted_df = convert_property_types(dataframe=df, loc_properties=None, types=types_mapping)
-    assert all(converted_df.dtypes == [np.float32, object, np.int64, int])
-    assert isinstance(converted_df['position_y'].iloc[0], str)
-
-
-def test_open_path_or_file_like():
-    if system() == 'Linux':
-        inputs = [
-            str(locan.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
-            locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
-        ]
-    elif system() == 'Windows':
-        inputs = [
-            str(locan.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
-            str(locan.ROOT_DIR) + r'\tests\test_data\rapidSTORM_dstorm_data.txt',
-            locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
-            locan.ROOT_DIR / r'tests\test_data\rapidSTORM_dstorm_data.txt'
-        ]
-    else:
-        inputs = [
-            str(locan.ROOT_DIR) + '/tests/test_data/rapidSTORM_dstorm_data.txt',
-            locan.ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt',
-        ]
-
-    for pfl in inputs:
-        with open_path_or_file_like(path_or_file_like=pfl) as data:
-            assert isinstance(data, TextIOWrapper)
-            out = data.read(10)
-            assert out and isinstance(out, str)
-            assert not data.closed
-        assert data.closed
-
-    pfl = StringIO("This is a file-like object to be read.")
-    with open_path_or_file_like(path_or_file_like=pfl) as data:
-        assert isinstance(data, StringIO)
-        out = data.read(10)
-        assert out and isinstance(out, str)
-        assert not data.closed
-    assert data.closed
-
-    pfl = BytesIO(b"This is a file-like object to be read.")
-    with open_path_or_file_like(path_or_file_like=pfl) as data:
-        assert isinstance(data, BytesIO)
-        out = data.read(10)
-        assert out and isinstance(out, bytes)
-        assert not data.closed
-    assert data.closed
-
-    pfl = locan.ROOT_DIR / 'tests/test_data/some_file_that_does_not_exits.txt'
-    with pytest.raises(FileNotFoundError):
-        with open_path_or_file_like(path_or_file_like=pfl):
-            pass
 
 
 def test_get_correct_column_names_from_Elyra_header():
@@ -173,10 +112,14 @@ def test_loading_txt_file(caplog):
 
     dat = load_txt_file(path=locan.ROOT_DIR / 'tests/test_data/five_blobs.txt',
                            columns=['c1'], nrows=10)
-    assert caplog.record_tuples == [('locan.locan_io.locdata.io_locdata', logging.WARNING,
+    assert caplog.record_tuples == [('locan.locan_io.locdata.utilities', logging.WARNING,
                                      'Column c1 is not a Locan property standard.')]
     # print(dat.data)
     assert (len(dat) == 10)
+
+    dat = load_txt_file(path=locan.ROOT_DIR / 'tests/test_data/five_blobs.txt',
+                           columns=['c1'], nrows=10, property_mapping={'c1': 'something'})
+    assert list(dat.data.columns) == ['something']
 
 
 def test_save_and_load_asdf(locdata_2d):
@@ -242,6 +185,11 @@ def test_load_locdata():
 
     dat = load_locdata(path=locan.ROOT_DIR / 'tests/test_data/SMLM_dstorm_data.smlm',
                        file_type='SMLM',
+                       nrows=10)
+    assert (len(dat) == 10)
+
+    dat = load_locdata(path=locan.ROOT_DIR / 'tests/test_data/decode_dstorm_data.h5',
+                       file_type='DECODE',
                        nrows=10)
     assert (len(dat) == 10)
 

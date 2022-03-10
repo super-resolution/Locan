@@ -5,10 +5,16 @@ Utility functions for file input/output of localization data.
 """
 import io
 from contextlib import closing
+import logging
 
 import pandas as pd
 
-__all__ = ['convert_property_types']
+from locan.constants import PROPERTY_KEYS
+
+
+__all__ = ['convert_property_types', 'convert_property_names']
+
+logger = logging.getLogger(__name__)
 
 
 def convert_property_types(dataframe, types, loc_properties=None):
@@ -77,3 +83,51 @@ def open_path_or_file_like(path_or_file_like, mode='r', encoding=None):
         except TypeError:
             raise TypeError("path_or_file_like must be str, bytes, os.PathLike or file-like.")
     return closing(file)
+
+
+def convert_property_names(properties, property_mapping=None):
+    """
+    Convert property names to standard locan property names if a mapping is provided.
+    Otherwise leave the property name a is and throw a warning.
+
+    Parameters
+    ----------
+    properties : list[str], tuple[str]
+        Properties to be converted
+    property_mapping : dict[str: str] or list[dict]
+        Mappings between other property names and locan property names
+
+    Returns
+    -------
+    list[str]
+        Converted property names
+    """
+    if property_mapping is None:
+        property_mapping_ = {}
+    elif isinstance(property_mapping, (list, tuple)):
+        property_mapping_ = {}
+        for mapping in property_mapping:
+            property_mapping_.update(mapping)
+    else:
+        property_mapping_ = property_mapping
+
+    column_keys = []
+    for i in properties:
+        if i in PROPERTY_KEYS.keys():
+            column_keys.append(i)
+
+        elif i == "xyz":
+            column_keys.extend(["position_x", "position_y", "position_z"])
+        elif i == "xyz_cr":
+            column_keys.extend(["x_cr", "y_cr", "z_cr"])
+        elif i == "xyz_sig":
+            column_keys.extend(["x_sig", "y_sig", "z_sig"])
+
+        elif i in property_mapping_:
+            column_keys.append(property_mapping_[i])
+
+        else:
+            logger.warning(f'Column {i} is not a Locan property standard.')
+            column_keys.append(i)
+
+    return column_keys

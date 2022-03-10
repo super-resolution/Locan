@@ -15,9 +15,10 @@ from google.protobuf import json_format
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.locan_io.locdata.utilities import convert_property_types, open_path_or_file_like
+from locan.locan_io.locdata.utilities import convert_property_types, open_path_or_file_like, convert_property_names
 from locan.locan_io.locdata.rapidstorm import load_rapidSTORM_file, load_rapidSTORM_track_file
 from locan.locan_io.locdata.smlm_file import load_SMLM_file
+from locan.locan_io.locdata.decode_file import load_decode_file
 
 
 __all__ = ['save_asdf', 'save_thunderstorm_csv',
@@ -88,7 +89,7 @@ def save_thunderstorm_csv(locdata, path):
     dataframe.to_csv(path, float_format='%.10g', index=False)
 
 
-def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
+def load_txt_file(path, sep=',', columns=None, nrows=None, property_mapping=None, **kwargs):
     """
     Load localization data from a txt file.
 
@@ -104,6 +105,8 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
         Locan column names. If None the first line is interpreted as header (Default: None).
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded (Default: None).
+    property_mapping : dict[str: str] or list[dict]
+        Mappings between column names and locan property names
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -114,17 +117,15 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, **kwargs):
     """
     # define columns
     if columns is None:
-        dataframe = pd.read_csv(path, sep=sep, skiprows=0, nrows=nrows, **kwargs)
+        dataframe = pd.read_csv(path, sep=sep, nrows=nrows,
+                                **dict(dict(skiprows=0), **kwargs))
 
-        for c in dataframe.columns:
-            if c not in locan.constants.PROPERTY_KEYS:
-                logger.warning(f'Column {c} is not a Locan property standard.')
+        column_keys = convert_property_names(dataframe.columns, property_mapping=property_mapping)
+        dataframe.columns = column_keys
     else:
-        for c in columns:
-            if c not in locan.constants.PROPERTY_KEYS:
-                logger.warning(f'Column {c} is not a Locan property standard.')
-
-        dataframe = pd.read_csv(path, sep=sep, skiprows=1, nrows=nrows, names=columns)
+        column_keys = convert_property_names(columns, property_mapping=property_mapping)
+        dataframe = pd.read_csv(path, sep=sep, nrows=nrows,
+                                **dict(dict(skiprows=1, names=column_keys), **kwargs))
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
@@ -471,6 +472,7 @@ def _map_file_type_to_load_function(file_type):
         load_Nanoimager_file=load_Nanoimager_file,
         load_rapidSTORM_track_file=load_rapidSTORM_track_file,
         load_SMLM_file=load_SMLM_file,
+        load_decode_file=load_decode_file,
     )
 
     class LoadFunction(Enum):
@@ -482,6 +484,7 @@ def _map_file_type_to_load_function(file_type):
         load_Nanoimager_file = 6
         load_rapidSTORM_track_file = 7
         load_SMLM_file = 8
+        load_decode_file = 9
 
     try:
         if isinstance(file_type, int):

@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import matplotlib.pyplot as plt
 
-from locan import bunwarp, render_2d_mpl
+from locan import bunwarp, render_2d_mpl, render_2d_rgb_mpl
 import locan.constants
 from locan.dependencies import HAS_DEPENDENCY
 from locan.data.region import Polygon
@@ -86,7 +86,11 @@ def test_bunwarp_raw_transformation_():
     render_2d_mpl(dat_green, ax=ax, bin_size=5, bin_range=((0, 1000), (0, 1400)), rescale=True, cmap='Greens')
     render_2d_mpl(dat_green_transformed, ax=ax, bin_size=5, bin_range=((0, 1000), (0, 1400)),
                   rescale=True, cmap='Blues', alpha=0.5)
-    #plt.show()
+    plt.show()
+
+    render_2d_rgb_mpl([dat_red, dat_green_transformed], bin_size=5, bin_range=((0, 1000), (0, 1400)))
+
+    plt.show()
 
     plt.close('all')
 

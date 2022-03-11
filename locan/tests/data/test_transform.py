@@ -6,7 +6,7 @@ from locan import bunwarp, render_2d_mpl
 import locan.constants
 from locan.dependencies import HAS_DEPENDENCY
 from locan.data.region import Polygon
-from locan.locan_io.locdata.io_locdata import load_rapidSTORM_file
+from locan.locan_io.locdata.io_locdata import load_rapidSTORM_file, load_asdf_file
 from locan.data.transform import randomize, transform_affine
 from locan.data.transform.transformation import _homogeneous_matrix
 from locan.data.transform.bunwarpj import _read_matrix, _unwarp
@@ -57,30 +57,36 @@ def test_randomize_locdata_objects(
     assert len(locdata_randomized) == expected
 
 
-def test_bunwarp_raw_transformation():
+def test_bunwarp_raw_transformation_():
     matrix_path = locan.ROOT_DIR / 'tests/test_data/transform/BunwarpJ_transformation_raw_green.txt'
-    dat_green = load_rapidSTORM_file(path=locan.ROOT_DIR /
-                                     'tests/test_data/transform/rapidSTORM_beads_green.txt')
+    dat_green = load_asdf_file(path=locan.ROOT_DIR /
+                                     'tests/test_data/transform/rapidSTORM_beads_green.asdf')
 
     matrix_x, matrix_y = _read_matrix(path=matrix_path)
-    assert np.array_equal(matrix_x.shape, [130, 130])
+    assert np.array_equal(matrix_x.shape, [140, 140])
 
-    new_points = _unwarp(dat_green.coordinates, matrix_x, matrix_y, pixel_size=(10, 10))
+    dat_green_flipped = transform_affine(dat_green,
+                               matrix=[[-1, 0], [0, 1]],
+                               offset=[1400, 0]
+                               )
+    new_points = _unwarp(dat_green_flipped.coordinates, matrix_x, matrix_y, pixel_size=(10, 10))
     assert len(new_points) == len(dat_green)
 
-    dat_green_transformed = bunwarp(locdata=dat_green, matrix_path=matrix_path, pixel_size=(10, 10))
+    dat_green_transformed = bunwarp(locdata=dat_green, matrix_path=matrix_path, pixel_size=(10, 10), flip=True)
     assert len(dat_green_transformed) == len(dat_green)
+    assert np.array_equal(dat_green_transformed.coordinates, new_points)
     assert dat_green_transformed.meta.history[-1].name == 'bunwarp'
 
     # for visual inspection
-    dat_red = load_rapidSTORM_file(path=locan.ROOT_DIR /
-                                        'tests/test_data/transform/rapidSTORM_beads_red.txt')
-    print(dat_green_transformed.meta)
+    dat_red = load_asdf_file(path=locan.ROOT_DIR /
+                                        'tests/test_data/transform/rapidSTORM_beads_red.asdf')
+
     fig, ax = plt.subplots(1, 1, figsize=(16, 8))
-    render_2d_mpl(dat_red, ax=ax, bin_size=500, rescale=True, cmap='Reds')
-    render_2d_mpl(dat_green, ax=ax, bin_size=500, rescale=True, cmap='Greens', alpha=0.5)
-    render_2d_mpl(dat_green_transformed, ax=ax, bin_size=500, rescale=True, cmap='Blues', alpha=0.5)
-    plt.show()
+    render_2d_mpl(dat_red, ax=ax, bin_size=5, bin_range=((0, 1000), (0, 1400)), rescale=True, cmap='Reds')
+    render_2d_mpl(dat_green, ax=ax, bin_size=5, bin_range=((0, 1000), (0, 1400)), rescale=True, cmap='Greens')
+    render_2d_mpl(dat_green_transformed, ax=ax, bin_size=5, bin_range=((0, 1000), (0, 1400)),
+                  rescale=True, cmap='Blues', alpha=0.5)
+    #plt.show()
 
     plt.close('all')
 

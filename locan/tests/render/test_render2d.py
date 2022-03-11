@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt  # this import is needed for interactive tests
@@ -5,10 +7,11 @@ import matplotlib.pyplot as plt  # this import is needed for interactive tests
 from locan import RenderEngine  # this import is needed for interactive tests
 from locan.dependencies import HAS_DEPENDENCY
 if HAS_DEPENDENCY["napari"]: import napari
-from locan import render_2d_mpl, render_2d_scatter_density, render_2d_napari, scatter_2d_mpl, select_by_drawing_napari
+from locan import render_2d_mpl, render_2d_scatter_density, render_2d_napari, scatter_2d_mpl, \
+    select_by_drawing_napari, render_2d_rgb_mpl
 from locan.render.render2d import _napari_shape_to_region
 from locan import render_2d, apply_window
-from locan import cluster_dbscan
+from locan import cluster_dbscan, transform_affine
 
 
 def test_render_2d_mpl_empty(locdata_empty):
@@ -18,9 +21,9 @@ def test_render_2d_mpl_empty(locdata_empty):
     plt.close('all')
 
 
-def test_render_2d_mpl_single(locdata_single_localization):
-    render_2d_mpl(locdata_single_localization, bin_size=5)
+def test_render_2d_mpl_single(locdata_single_localization, caplog):
     render_2d_mpl(locdata_single_localization, bin_size=0.5)
+    assert caplog.record_tuples == [('locan.render.render2d', 30, 'Locdata carries a single localization.')]
     # plt.show()
 
     plt.close('all')
@@ -190,3 +193,35 @@ def test_apply_window():
     img_filtered = apply_window(image=img, window_function='tukey', alpha=0.4)
     assert np.array_equal(img_filtered[0, :], np.zeros(10))
     assert np.array_equal(img_filtered[:, 0], np.zeros(10))
+
+
+def test_render_2d_rgb_mpl_empty(locdata_empty):
+    render_2d_rgb_mpl([locdata_empty, locdata_empty], bin_size=1)
+    # plt.show()
+
+    plt.close('all')
+
+
+def test_render_2d_rgb_mpl_single(locdata_empty, locdata_single_localization, caplog):
+    render_2d_rgb_mpl([locdata_empty, locdata_single_localization], bin_size=1)
+    assert caplog.record_tuples == [('locan.render.render2d', 30, 'Locdata carries a single localization.')]
+    # plt.show()
+
+    plt.close('all')
+
+
+def test_render_2d_rgb_mpl(locdata_2d):
+    render_2d_rgb_mpl([locdata_2d, locdata_2d], bin_size=1)
+    # plt.show()
+
+    plt.close('all')
+
+
+@pytest.mark.visual  # Visual check repeating previously checked functionality
+def test_render_2d_rgb_mpl_2(locdata_blobs_2d):
+    locdata_0 = locdata_blobs_2d
+    locdata_1 = transform_affine(locdata_blobs_2d, offset=(20, 0))
+    render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=20)
+    plt.show()
+
+    plt.close('all')

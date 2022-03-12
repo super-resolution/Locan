@@ -4,8 +4,11 @@ import pickle
 from io import StringIO
 import logging
 
+import pytest
 from pandas.testing import assert_frame_equal
+
 import locan.constants
+from locan.dependencies import HAS_DEPENDENCY
 from locan.data import metadata_pb2
 from locan.locan_io import save_asdf, load_asdf_file, load_txt_file, load_thunderstorm_file,\
     load_Elyra_file, load_Nanoimager_file, \
@@ -188,6 +191,9 @@ def test_load_locdata():
                        nrows=10)
     assert (len(dat) == 10)
 
+
+@pytest.mark.skipif(not HAS_DEPENDENCY["h5py"], reason="requires h5py.")
+def test_load_locdata_2():
     dat = load_locdata(path=locan.ROOT_DIR / 'tests/test_data/decode_dstorm_data.h5',
                        file_type='DECODE',
                        nrows=10)

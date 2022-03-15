@@ -107,7 +107,8 @@ def _localization_property2d(locdata, loc_properties=None, other_property=None,
     xx, yy = np.meshgrid(bins_.bin_edges[0][1:], bins_.bin_edges[1][1:])
 
     # eliminate image zeros
-    positions = np.nonzero(img)
+    # positions = np.nonzero(img)
+    positions = np.nonzero(~np.isnan(img))
 
     data_0 = xx[positions].flatten()
     data_1 = yy[positions].flatten()

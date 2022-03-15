@@ -11,7 +11,7 @@ from locan import LocData
 from locan import ROOT_DIR
 from locan.locan_io.locdata.io_locdata import load_txt_file
 from locan.data.rois import RoiLegacy_0
-from locan.render.render2d import _napari_shape_to_RoiRegion
+from locan.render.utilities import _napari_shape_to_RoiRegion
 from locan.data import metadata_pb2
 
 

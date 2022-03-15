@@ -630,7 +630,7 @@ def test_adjust_contrast():
 
 def test_histogram(locdata_blobs_2d):
     hist = histogram(locdata_blobs_2d, n_bins=10)
-    assert 'counts' in hist.labels
+    assert hist.labels == ['position_x', 'position_y', 'counts']
     assert hist.data.dtype == 'float64'
     assert hist.data.ndim == 2
     assert np.max(hist.data) == 7
@@ -638,35 +638,94 @@ def test_histogram(locdata_blobs_2d):
     hist = histogram(locdata_blobs_2d, n_bins=10, bin_range=((500, 1000), (500, 1000)))
     assert hist.data.ndim == 2
     assert np.max(hist.data) == 5
+    assert hist.data.shape == (10, 10)
 
-    # todo: fix the following
-    # hist = histogram(locdata_blobs_2d, n_bins=10, bin_range=(500, 1000))
+    hist = histogram(locdata_blobs_2d, bin_size=10, loc_properties='position_x')
+    assert hist.labels == ['position_x', 'counts']
+    assert hist.data.shape == (89,)
+
+    with pytest.raises(ValueError):
+        histogram(locdata_blobs_2d, bin_size=10, loc_properties='position_x', bin_range=((500, 1000), (500, 1000)))
+
+    hist = histogram(locdata_blobs_2d, bin_size=10, loc_properties=['position_x'])
+    assert hist.labels == ['position_x', 'counts']
+    assert hist.data.shape == (89,)
+
+    hist = histogram(locdata_blobs_2d, bin_size=10, loc_properties=['position_x', 'position_y'])
+    assert hist.labels == ['position_x', 'position_y', 'counts']
+    assert hist.data.shape == (89, 55)
+
+    hist = histogram(locdata_blobs_2d, bin_size=10, loc_properties=['position_x', 'cluster_label'])
+    assert hist.labels == ['position_x', 'cluster_label', 'counts']
+    assert hist.data.shape == (89, 1)
+
+    with pytest.raises(ValueError):
+        histogram(locdata_blobs_2d, bin_size=10, loc_properties='position_z')
+
+    with pytest.raises(ValueError):
+        histogram(locdata_blobs_2d, bin_size=10, loc_properties=['position_z'])
+
+    with pytest.raises(ValueError):
+        histogram(locdata_blobs_2d, bin_size=10, loc_properties=['position_x', 'position_z'])
 
     hist = histogram(locdata_blobs_2d, bin_edges=((500, 600, 700, 800, 900, 1000), (500, 600, 700, 800, 900, 1000)))
     assert hist.data.ndim == 2
     assert np.max(hist.data) == 7
 
-    # todo: fix the following
-    # hist = histogram(locdata_blobs_2d, bin_edges=(500, 600, 700, 800, 900, 1000))
-
     hist = histogram(locdata_blobs_2d, bin_size=10, bin_range='zero', rescale=True)
     assert np.max(hist.data) == 1
     assert 'counts' in hist.labels
 
-    hist = histogram(locdata_blobs_2d, bin_size=10, loc_properties='position_x')
-    assert 'counts' in hist.labels
-    assert hist.data.shape == (89,)
-
-    with pytest.raises(TypeError):
-        histogram(locdata_blobs_2d, bin_size=10, loc_properties=['position_x'])
-
-    hist = histogram(locdata_blobs_2d, bin_size=10, loc_properties=['position_x', 'position_y'])
-    assert 'counts' in hist.labels
-    assert hist.data.shape == (89, 55)
-
     hist = histogram(locdata_blobs_2d, bin_size=10, other_property='position_y')
-    assert 'position_y' in hist.labels
+    assert hist.labels == ['position_x', 'position_y', 'position_y']
     assert hist.data.shape == (89, 55)
+
+
+def test_histogram_1d(locdata_1d):
+    hist = histogram(locdata_1d, n_bins=10)
+    assert hist.labels == ['position_x', 'counts']
+    assert hist.data.dtype == 'float64'
+    assert hist.data.ndim == 1
+    assert np.max(hist.data) == 2
+    assert hist.data.shape == (10,)
+
+    hist = histogram(locdata_1d, n_bins=5, bin_range=(5, 10))
+    assert np.max(hist.data) == 1
+    assert hist.data.shape == (5,)
+
+    hist = histogram(locdata_1d,
+                     bin_edges=(5, 6, 7, 8, 9, 10))
+    assert hist.data.shape == (5,)
+
+    hist = histogram(locdata_1d, n_bins=10, other_property='intensity')
+    assert hist.labels == ['position_x', 'intensity']
+    assert hist.data.shape == (10,)
+    assert np.nanmax(hist.data) == 125
+
+
+def test_histogram_3d(locdata_blobs_3d):
+    hist = histogram(locdata_blobs_3d, n_bins=10)
+    assert hist.labels == ['position_x', 'position_y', 'position_z', 'counts']
+    assert hist.data.dtype == 'float64'
+    assert hist.data.ndim == 3
+    assert np.max(hist.data) == 6
+    assert hist.data.shape == (10, 10, 10)
+
+    hist = histogram(locdata_blobs_3d, n_bins=10, bin_range=((500, 1000), (500, 1000), (500, 1000)))
+    assert np.max(hist.data) == 4
+    assert hist.data.shape == (10, 10, 10)
+
+    hist = histogram(locdata_blobs_3d,
+                     bin_edges=((500, 600, 700, 800, 900, 1000),
+                                (500, 600, 700, 800, 900, 1000),
+                                (500, 600, 700, 800, 900, 1000)
+                                ))
+    assert hist.data.shape == (5, 5, 5)
+
+    hist = histogram(locdata_blobs_3d, n_bins=10, other_property='position_y')
+    assert hist.labels == ['position_x', 'position_y', 'position_z', 'position_y']
+    assert hist.data.shape == (10, 10, 10)
+    assert np.nanmax(hist.data) == 787
 
 
 def test_histogram_empty(locdata_empty):
@@ -674,15 +733,15 @@ def test_histogram_empty(locdata_empty):
         hist = histogram(locdata_empty, n_bins=10)
 
 
-def test_histogram_single_value(locdata_single_localization):
-    hist = histogram(locdata_single_localization, n_bins=3)
-    assert hist.data.shape == (3, 3)
-    assert np.array_equal(hist.bins.bin_range, [[1, 2], [1, 2]])
+def test_histogram_single_value(locdata_single_localization_3d):
+    hist = histogram(locdata_single_localization_3d, n_bins=3)
+    assert hist.data.shape == (3, 3, 3)
+    assert np.array_equal(hist.bins.bin_range, [[1, 2], [1, 2], [1, 2]])
 
-    hist = histogram(locdata_single_localization, bin_size=0.2)
-    assert hist.data.shape == (5, 5)
-    assert np.array_equal(hist.bins.bin_range, [[1, pytest.approx(2)], [1, pytest.approx(2)]])
+    hist = histogram(locdata_single_localization_3d, bin_size=0.2)
+    assert hist.data.shape == (5, 5, 5)
+    assert np.array_equal(hist.bins.bin_range, [[1, pytest.approx(2)], [1, pytest.approx(2)], [1, pytest.approx(2)]])
 
-    hist = histogram(locdata_single_localization, bin_size=2)
-    assert hist.data.shape == (1, 1)
-    assert np.array_equal(hist.bins.bin_range, [[1, 2], [1, 2]])
+    hist = histogram(locdata_single_localization_3d, bin_size=2)
+    assert hist.data.shape == (1, 1, 1)
+    assert np.array_equal(hist.bins.bin_range, [[1, 2], [1, 2], [1, 2]])

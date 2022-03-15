@@ -1,35 +1,30 @@
 """
 
-This module provides functions for rendering locdata objects.
+This module provides functions for rendering locdata objects in 2D.
 
 """
-import warnings
 import logging
-from math import isclose
-from collections import namedtuple
 
 import numpy as np
-import matplotlib.pyplot as plt
-import fast_histogram
 from matplotlib import pyplot as plt
 from skimage import exposure
 import scipy.signal.windows
 
 from locan.data import LocData
 from locan.data.rois import Roi
-from locan.data.region import Rectangle, Ellipse, Polygon, RoiRegion
 from locan.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
 from locan.dependencies import HAS_DEPENDENCY
 from locan.data.rois import _MplSelector
-from locan.data.aggregate import histogram, Bins
+from locan.data.aggregate import histogram, Bins, _check_loc_properties
 from locan.data.properties.locdata_statistics import ranges
+from locan.render.utilities import _napari_shape_to_region
 
 if HAS_DEPENDENCY["mpl_scatter_density"]: import mpl_scatter_density
 if HAS_DEPENDENCY["napari"]: import napari
 
 
 __all__ = ['render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari', 'scatter_2d_mpl',
-           'apply_window', 'select_by_drawing_napari', 'render_2d_rgb_mpl']
+           'apply_window', 'select_by_drawing_napari', 'render_2d_rgb_mpl', 'render_2d_rgb_napari']
 
 logger = logging.getLogger(__name__)
 
@@ -327,6 +322,8 @@ def render_2d(locdata, render_engine=RENDER_ENGINE, **kwargs):
         return render_2d_scatter_density(locdata, **kwargs)
     elif HAS_DEPENDENCY["napari"] and render_engine == RenderEngine.NAPARI:
         return render_2d_napari(locdata, **kwargs)
+    else:
+        raise NotImplementedError(f"render_2d is not implemented for {render_engine}.")
 
 
 def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
@@ -365,7 +362,7 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
         return ax
 
     coordinates = locdata.coordinates
-    sc = ax.scatter(*coordinates.T, **dict({'marker': '+', 'color': 'grey'}, **kwargs))
+    ax.scatter(*coordinates.T, **dict({'marker': '+', 'color': 'grey'}, **kwargs))
 
     # plot element number
     if index:
@@ -434,120 +431,6 @@ def select_by_drawing_mpl(locdata, region_type='rectangle', **kwargs):
     roi_list = [Roi(reference=locdata, region_specs=roi['region_specs'],
                     region=roi['region']) for roi in selector.rois]
     return roi_list
-
-
-def _napari_shape_to_region(vertices, bin_edges, region_type):
-    """
-    Convert napari shape to `locan.Region`.
-
-    Parameters
-    ----------
-    vertices : numpy.ndarray of float
-        Sequence of point coordinates as returned by napari.
-    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimension, n_bin_edges)
-        Array of bin edges for each dimension. At this point there are only equally-sized bins allowed.
-    region_type : str
-        String specifying the selector widget that can be either rectangle, ellipse, or polygon.
-
-    Returns
-    -------
-    Region
-    """
-    # at this point there are only equally-sized bins used.
-    bin_sizes = [bedges[1] - bedges[0] for bedges in bin_edges]
-
-    vertices = np.array([bedges[0] + vert * bin_size
-                         for vert, bedges, bin_size in zip(vertices.T, bin_edges, bin_sizes)]
-                        ).T
-
-    if region_type == 'rectangle':
-        if len(set(vertices[:, 0].astype(int))) != 2:
-            raise NotImplementedError('Rotated rectangles are not implemented.')
-        mins = vertices.min(axis=0)
-        maxs = vertices.max(axis=0)
-        corner_x, corner_y = mins
-        width, height = maxs - mins
-        angle = 0
-        region = Rectangle((corner_x, corner_y), width, height, angle)
-
-    elif region_type == 'ellipse':
-        if len(set(vertices[:, 0].astype(int))) != 2:
-            raise NotImplementedError('Rotated ellipses are not implemented.')
-        mins = vertices.min(axis=0)
-        maxs = vertices.max(axis=0)
-        width, height = maxs - mins
-        center_x, center_y = mins[0] + width/2, mins[1] + height/2
-        angle = 0
-        region = Ellipse((center_x, center_y), width, height, angle)
-
-    elif region_type == 'polygon':
-        region = Polygon(np.concatenate([vertices, [vertices[0]]], axis=0))
-
-    else:
-        raise TypeError(f' Type {region_type} is not defined.')
-
-    return region
-
-
-def _napari_shape_to_RoiRegion(vertices, bin_edges, region_type):
-    """
-    Convert napari shape to locan RoiRegion
-
-    Parameters
-    ----------
-    vertices : numpy.ndarray of float
-        Sequence of point coordinates as returned by napari
-    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimension, n_bin_edges)
-        Array of bin edges for each dimension. At this point there are only equally-sized bins allowed.
-    region_type : str
-        String specifying the selector widget that can be either rectangle, ellipse, or polygon.
-
-    Returns
-    -------
-    RoiRegion
-
-    Warnings
-    --------
-    This function is only used by :class:`locan.RoiLegacy_0` and will be deprecated.
-    Use :func:`locan.render.render2d._napari_shape_to_region` instead.
-    """
-    # at this point there are only equally-sized bins used.
-    bin_sizes = [bedges[1] - bedges[0] for bedges in bin_edges]
-
-    # flip since napari returns vertices with first component representing the horizontal axis
-    vertices = np.flip(vertices, axis=1)
-
-    vertices = np.array([bedges[0] + vert * bin_size
-                         for vert, bedges, bin_size in zip(vertices.T, bin_edges, bin_sizes)]
-                        ).T
-
-    if region_type == 'rectangle':
-        if len(set(vertices[:, 0].astype(int))) != 2:
-            raise NotImplementedError('Rotated rectangles are not implemented.')
-        mins = vertices.min(axis=0)
-        maxs = vertices.max(axis=0)
-        corner_x, corner_y = mins
-        width, height = maxs - mins
-        angle = 0
-        region_specs = ((corner_x, corner_y), width, height, angle)
-
-    elif region_type == 'ellipse':
-        if len(set(vertices[:, 0].astype(int))) != 2:
-            raise NotImplementedError('Rotated ellipses are not implemented.')
-        mins = vertices.min(axis=0)
-        maxs = vertices.max(axis=0)
-        width, height = maxs - mins
-        center_x, center_y = mins[0] + width/2, mins[1] + height/2
-        angle = 0
-        region_specs = ((center_x, center_y), width, height, angle)
-
-    elif region_type == 'polygon':
-        region_specs = np.concatenate([vertices, [vertices[0]]], axis=0)
-
-    else:
-        raise TypeError(f' Type {region_type} is not defined in locan.')
-
-    return RoiRegion(region_specs=region_specs, region_type=region_type)
 
 
 def select_by_drawing_napari(locdata, **kwargs):
@@ -657,7 +540,8 @@ def render_2d_rgb_mpl(locdatas, loc_properties=None, other_property=None,
                                        bins, n_bins, bin_size, bin_edges, bin_range,
                                        rescale=None)
     else:
-        bins = Bins(bin_edges=bin_edges)
+        labels = _check_loc_properties(locdata_temp, loc_properties)
+        bins = Bins(bin_edges=bin_edges, labels=labels)
 
     imgs = [histogram(locdata, loc_properties, other_property, bin_edges=bins.bin_edges,
                       rescale=None).data
@@ -692,3 +576,107 @@ def render_2d_rgb_mpl(locdatas, loc_properties=None, other_property=None,
     )
 
     return ax
+
+
+def render_2d_rgb_napari(locdatas, loc_properties=None, other_property=None,
+                      bins=None, n_bins=None, bin_size=10, bin_edges=None, bin_range=None,
+                      rescale=None,
+                      viewer=None,
+                      **kwargs):
+    """
+    Render localization data into a 2D RGB image by binning x,y-coordinates into regular bins.
+
+    Parameters
+    ----------
+    locdatas : list of LocData
+        Localization data.
+    loc_properties : list, None
+        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
+    other_property : str, None
+        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
+        shown.
+    bins : int, sequence, Bins, boost_histogram.axis.Axis, None
+        The bin specification as defined in :class:`Bins`
+    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges), None
+        Array of bin edges for all or each dimension.
+    n_bins : int, list, tuple, numpy.ndarray, None
+        The number of bins for all or each dimension.
+        5 yields 5 bins in all dimensions.
+        (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
+    bin_size : float, list, tuple, numpy.ndarray, None
+        The size of bins in units of locdata coordinate units for all or each dimension.
+        5 would describe bin_size of 5 for all bins in all dimensions.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
+        To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
+    bin_range : tuple, tuple of tuples of float with shape (dimension, 2), None, 'zero'
+        The data bin_range to be taken into consideration for all or each dimension.
+        ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
+        for None (min, max) bin_range are determined from data;
+        for 'zero' (0, max) bin_range with max determined from data.
+    rescale : True, tuple, False, None, 'equal', 'unity.
+        Rescale intensity values to be within percentile of max and min intensities
+        (tuple with upper and lower bounds provided in percent).
+        For True intensity values are rescaled to the min and max possible values of the given representation.
+        For 'equal' intensity values are rescaled by histogram equalization.
+        For 'unity' intensity values are rescaled to (0, 1).
+        For None or False no rescaling occurs.
+    viewer : napari viewer
+        The viewer object on which to add the image
+    kwargs : dict
+        Other parameters passed to napari.Viewer().add_image().
+
+    Returns
+    -------
+    napari Viewer object
+        viewer
+    """
+    if not HAS_DEPENDENCY["napari"]:
+        raise ImportError('Function requires napari.')
+
+    # Provide napari viewer if not provided
+    if viewer is None:
+        viewer = napari.Viewer()
+
+    locdata_temp = LocData.concat(locdatas)
+
+    # return viewer if no or single point in locdata
+    if len(locdata_temp) < 2:
+        if len(locdata_temp) == 1:
+            logger.warning('Locdata carries a single localization.')
+        return viewer
+
+    if bin_edges is None:
+        _, bins, labels = histogram(locdata_temp, loc_properties, other_property,
+                                       bins, n_bins, bin_size, bin_edges, bin_range,
+                                       rescale=None)
+    else:
+        labels = _check_loc_properties(locdata_temp, loc_properties)
+        bins = Bins(bin_edges=bin_edges, labels=labels)
+
+    imgs = [histogram(locdata, loc_properties, other_property, bin_edges=bins.bin_edges,
+                      rescale=None).data
+            for locdata in locdatas
+            ]
+
+    # todo: fix rescaling
+    # rgb data must either be uint8, corresponding to values between 0 and 255, or float and between 0 and 1.
+    # If the values are float and outside the 0 to 1 range they will be clipped.
+    if rescale == 'equal':
+        for i, img in enumerate(imgs):
+            mask = np.where(img > 0, 1, 0)
+            img = exposure.equalize_hist(img, mask=img > 0)
+            imgs[i] = np.multiply(img, mask)
+    elif rescale is None:
+        pass
+    else:
+        raise NotImplementedError
+
+    new = np.zeros_like(imgs[0])
+    rgb_stack = np.stack([new] * 3, axis=2)
+
+    for i, img in enumerate(imgs):
+        rgb_stack[:, :, i] = img
+
+    rgb_stack = np.transpose(rgb_stack, axes=(1, 0, 2))
+    viewer.add_image(rgb_stack, name=f'LocData {LOCDATA_ID}', rgb=True, **kwargs)
+    return viewer

@@ -178,6 +178,20 @@ def test_scatter_2d_mpl(locdata_2d):
 
     plt.close('all')
 
+def test_scatter_2d_mpl_empty(locdata_empty):
+    scatter_2d_mpl(locdata_empty)
+    # plt.show()
+
+    plt.close('all')
+
+
+def test_scatter_2d_mpl_single(locdata_single_localization, caplog):
+    scatter_2d_mpl(locdata_single_localization)
+    assert caplog.record_tuples == [('locan.render.render2d', 30, 'Locdata carries a single localization.')]
+    # plt.show()
+
+    plt.close('all')
+
 
 @pytest.mark.visual  # Visual check repeating previously checked functionality
 def test_scatter_2d_mpl_2(locdata_blobs_2d):

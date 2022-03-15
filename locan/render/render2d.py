@@ -353,12 +353,16 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
     """
     if text_kwargs is None:
         text_kwargs = {}
-    if not len(locdata):
-        raise ValueError('Locdata does not contain any data points.')
 
     # Provide matplotlib.axes.Axes if not provided
     if ax is None:
         ax = plt.gca()
+
+    # return ax if no or single point in locdata
+    if len(locdata) < 2:
+        if len(locdata) == 1:
+            logger.warning('Locdata carries a single localization.')
+        return ax
 
     coordinates = locdata.coordinates
     sc = ax.scatter(*coordinates.T, **dict({'marker': '+', 'color': 'grey'}, **kwargs))

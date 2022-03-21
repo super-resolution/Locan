@@ -19,9 +19,9 @@ import numpy as np
 import tifffile as tif
 
 from locan.dependencies import HAS_DEPENDENCY
-if HAS_DEPENDENCY["napari"]: import napari
-
 import locan as lc
+
+if HAS_DEPENDENCY["napari"]: import napari
 
 
 def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, transpose=True,

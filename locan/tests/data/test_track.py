@@ -8,6 +8,7 @@ if HAS_DEPENDENCY["trackpy"]:
     from locan.data.tracking import link_locdata, track
     from trackpy import quiet as tp_quiet
 
+
 pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["trackpy"], reason="requires trackpy")
 
 if HAS_DEPENDENCY["trackpy"]:

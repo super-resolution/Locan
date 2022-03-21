@@ -1333,13 +1333,23 @@ class Polygon(Region2D):
         return self.shapely_object.length
 
     def contains(self, points):
-        if np.asarray(points).size == 0:
-            return np.array([])
-        points_ = shMultiPoint(points)
+        _points = np.asarray(points)
+        if _points.size == 0:
+            return np.array([], dtype=bool)
+
+        # preselect points inside the polygons bounding box to increase performance.
+        preselected_points_indices = self.bounding_box.contains(_points)
+        if len(preselected_points_indices) == 0:
+            return np.array([], dtype=bool)
+
+        points_ = shMultiPoint(_points[preselected_points_indices])
         prepared_polygon = prep(self.shapely_object)
         mask = list(map(prepared_polygon.contains, points_.geoms))
         inside_indices = np.nonzero(mask)[0]
-        return inside_indices
+        if len(inside_indices) == 0:
+            return np.array([], dtype=bool)
+        else:
+            return preselected_points_indices[inside_indices]
 
     def as_artist(self, **kwargs):
         return mpl_patches.PathPatch(_polygon_path(self.shapely_object), **kwargs)

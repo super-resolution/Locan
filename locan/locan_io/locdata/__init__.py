@@ -14,6 +14,8 @@ There are functions for reading the following file structures
 * rapidSTORM track file format (RAPIDSTORMTRACK) [1]_
 * smlm file format (SMLM) [4]_, [5]_
 * decode file (DECODE) [6]_
+* smap file format (SMAP) [7_]
+
 
 References
 ----------
@@ -40,6 +42,10 @@ References
    Deep learning enables fast and dense single-molecule localization with high accuracy.
    Nat Methods 18: 1082–1090, 2021, doi:10.1038/s41592-021-01236-x
 
+.. [7] Ries, J.,
+   SMAP: a modular super-resolution microscopy analysis platform for SMLM data.
+   Nat Methods 17: 870–872, 2020, doi.org/10.1038/s41592-020-0938-1
+
 
 Submodules:
 -----------
@@ -52,6 +58,7 @@ Submodules:
    rapidstorm
    smlm_file
    decode_file
+   smap_file
 
 """
 from .io_locdata import *
@@ -59,6 +66,7 @@ from .utilities import *
 from .rapidstorm import *
 from .smlm_file import *
 from .decode_file import *
+from .smap_file import *
 
 __all__ = []
 __all__.extend(io_locdata.__all__)
@@ -66,3 +74,4 @@ __all__.extend(utilities.__all__)
 __all__.extend(rapidstorm.__all__)
 __all__.extend(smlm_file.__all__)
 __all__.extend(decode_file.__all__)
+__all__.extend(smap_file.__all__)

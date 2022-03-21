@@ -1,17 +1,17 @@
-import logging
-
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt  # this import is needed for interactive tests
+import matplotlib.colors as mcolors
 
+import locan
 from locan import RenderEngine  # this import is needed for interactive tests
 from locan.dependencies import HAS_DEPENDENCY
-if HAS_DEPENDENCY["napari"]: import napari
 from locan import render_2d_mpl, render_2d_scatter_density, render_2d_napari, scatter_2d_mpl, \
-    select_by_drawing_napari, render_2d_rgb_mpl
-from locan.render.render2d import _napari_shape_to_region
+    select_by_drawing_napari, render_2d_rgb_mpl, render_2d_rgb_napari
 from locan import render_2d, apply_window
 from locan import cluster_dbscan, transform_affine
+
+if HAS_DEPENDENCY["napari"]: import napari
 
 
 def test_render_2d_mpl_empty(locdata_empty):
@@ -53,9 +53,9 @@ def test_render_2d_mpl(locdata_blobs_2d):
 @pytest.mark.visual
 # this is to check overlay of rendered image and single localization points
 def test_render_2d_mpl_show(locdata_blobs_2d):
-    print(locdata_blobs_2d.coordinates)
-    render_2d_mpl(locdata_blobs_2d, bin_size=10, bin_range=None, rescale=None)
-    plt.plot(locdata_blobs_2d.coordinates[:, 0], locdata_blobs_2d.coordinates[:, 1], 'o')
+    # print(locdata_blobs_2d.coordinates)
+    render_2d_mpl(locdata_blobs_2d, bin_size=10, bin_range=None, rescale=None, other_property='position_y')
+    # plt.plot(locdata_blobs_2d.coordinates[:, 0], locdata_blobs_2d.coordinates[:, 1], 'o')
     plt.show()
 
     plt.close('all')
@@ -82,6 +82,21 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
     plt.close('all')
 
 
+@pytest.mark.skipif(not HAS_DEPENDENCY["mpl_scatter_density"], reason="requires mpl_scatter_density")
+def test_render_2d_scatter_density_empty(locdata_empty):
+    render_2d_scatter_density(locdata_empty)
+    # plt.show()
+
+    plt.close('all')
+
+
+@pytest.mark.skipif(not HAS_DEPENDENCY["mpl_scatter_density"], reason="requires mpl_scatter_density")
+def test_render_2d_scatter_density_single(locdata_single_localization, caplog):
+    render_2d_scatter_density(locdata_single_localization)
+    assert caplog.record_tuples == [('locan.render.render2d', 30, 'Locdata carries a single localization.')]
+    # plt.show()
+
+
 @pytest.mark.gui
 @pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
 def test_render_2d(locdata_blobs_2d, test_input, expected):
@@ -106,9 +121,6 @@ def test_render_2d_napari_coordinates(locdata_blobs_2d):
     viewer.add_points((locdata_blobs_2d.coordinates - np.array(histogram.bins.bin_range)[:, 0]) / 10 )
     napari.run()
 
-    vertices = viewer.layers['Shapes'].data
-    print(vertices)
-
     plt.close('all')
 
 
@@ -132,24 +144,19 @@ def test_render_2d_napari(locdata_blobs_2d):
     plt.close('all')
 
 
-def test__napari_shape_to_region():
-    # rectangle
-    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
-    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
-    region = _napari_shape_to_region(vertices, bin_edges, 'rectangle')
-    assert repr(region) == 'Rectangle((0.0, 2.0), 31.0, 2.5, 0)'
+@pytest.mark.gui
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
+def test_render_2d_napari_empty(locdata_empty):
+    render_2d_napari(locdata_empty, bin_size=100, cmap='viridis', gamma=0.1)
+    napari.run()
 
-    # ellipse
-    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
-    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
-    region = _napari_shape_to_region(vertices, bin_edges, 'ellipse')
-    assert repr(region) == 'Ellipse((15.5, 3.25), 31.0, 2.5, 0)'
 
-    # polygon
-    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
-    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
-    region = _napari_shape_to_region(vertices, bin_edges, 'polygon')
-    assert repr(region) == 'Polygon([[0.0, 2.0], [0.0, 4.5], [31.0, 4.5], [31.0, 2.0], [0.0, 2.0]])'
+@pytest.mark.gui
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
+def test_render_2d_napari_single(locdata_single_localization, caplog):
+    render_2d_napari(locdata_single_localization, bin_size=100, cmap='viridis', gamma=0.1)
+    assert caplog.record_tuples[1] == ('locan.render.render2d', 30, 'Locdata carries a single localization.')
+    napari.run()
 
 
 @pytest.mark.gui
@@ -173,6 +180,20 @@ def test_select_by_drawing_napari_2(locdata_blobs_2d):
 
 def test_scatter_2d_mpl(locdata_2d):
     scatter_2d_mpl(locdata_2d, text_kwargs=dict(color='r'), color='r')
+    # plt.show()
+
+    plt.close('all')
+
+def test_scatter_2d_mpl_empty(locdata_empty):
+    scatter_2d_mpl(locdata_empty)
+    # plt.show()
+
+    plt.close('all')
+
+
+def test_scatter_2d_mpl_single(locdata_single_localization, caplog):
+    scatter_2d_mpl(locdata_single_localization)
+    assert caplog.record_tuples == [('locan.render.render2d', 30, 'Locdata carries a single localization.')]
     # plt.show()
 
     plt.close('all')
@@ -225,3 +246,34 @@ def test_render_2d_rgb_mpl_2(locdata_blobs_2d):
     plt.show()
 
     plt.close('all')
+
+
+@pytest.mark.visual  # Visual check repeating previously checked functionality
+def test_render_2d_rgb_mpl_3(locdata_blobs_2d):
+    """Check intensity normalization."""
+    locdata_0 = locdata_blobs_2d
+    locdata_1 = transform_affine(locdata_blobs_2d, offset=(20, 0))
+
+    render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=20)
+    plt.show()
+    render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=20, rescale=False)
+    plt.show()
+
+    render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=100)
+    plt.show()
+    render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=100, rescale=True)
+    plt.show()
+    render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=100, rescale=False)
+    plt.show()
+
+    plt.close('all')
+
+
+@pytest.mark.gui
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
+def test_render_2d_rgb_napari(locdata_blobs_2d):
+    locdata_0 = locdata_blobs_2d
+    locdata_1 = transform_affine(locdata_blobs_2d, offset=(20, 0))
+    render_2d_rgb_napari([locdata_0, locdata_1], bin_size=20)
+
+    napari.run()

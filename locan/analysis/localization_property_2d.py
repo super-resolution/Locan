@@ -107,7 +107,8 @@ def _localization_property2d(locdata, loc_properties=None, other_property=None,
     xx, yy = np.meshgrid(bins_.bin_edges[0][1:], bins_.bin_edges[1][1:])
 
     # eliminate image zeros
-    positions = np.nonzero(img)
+    # positions = np.nonzero(img)
+    positions = np.nonzero(~np.isnan(img))
 
     data_0 = xx[positions].flatten()
     data_1 = yy[positions].flatten()
@@ -157,13 +158,13 @@ class LocalizationProperty2d(_Analysis):
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : True, tuple, False, None, 'equal', 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
-        For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
+    rescale : int, str, locan.constants.Trafo, callable, bool, None
+        Transformation as defined in Trafo or by transformation function.
         For None or False no rescaling occurs.
+        Legacy behavior:
+        For tuple with upper and lower bounds provided in percent,
+        rescale intensity values to be within percentile of max and min intensities
+        For 'equal' intensity values are rescaled by histogram equalization.
 
     Attributes
     ----------

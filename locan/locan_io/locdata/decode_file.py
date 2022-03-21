@@ -8,12 +8,13 @@ import logging
 import pandas as pd
 
 from locan.dependencies import HAS_DEPENDENCY, needs_package
-if HAS_DEPENDENCY["h5py"]: import h5py
-
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
 from locan.locan_io.locdata.io_locdata import convert_property_types
+
+if HAS_DEPENDENCY["h5py"]: import h5py
+
 
 __all__ = ['read_decode_header', 'load_decode_header', 'load_decode_file']
 

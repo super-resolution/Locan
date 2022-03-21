@@ -7,20 +7,21 @@ This module provides functions to bin LocData objects to form a histogram or ima
 Specify bins through one of the parameters (`bins`, `bin_edges`, `n_bins`, `bin_size`, `bin_range`, `labels`)
 as further outlined in the documentation for :class:`Bins`.
 """
+from typing import Union
+from collections.abc import Iterable
 import warnings
 from math import isclose
 from collections import namedtuple
-from typing import Union, Tuple
 
 import numpy as np
 import fast_histogram
-from skimage import exposure
 import boost_histogram as bh
 
 from locan.data.properties.locdata_statistics import ranges
+from locan.data.locdata import LocData
 
 
-__all__ = ['Bins', 'adjust_contrast', 'histogram']
+__all__ = ['Bins', 'histogram']
 
 
 def is_array_like(anything) -> bool:
@@ -775,86 +776,141 @@ class Bins:
         return Bins(bin_size=new_bin_size, bin_range=self.bin_range, extend_range=None)
 
 
-def adjust_contrast(image, rescale=True, **kwargs):
-    """
-    Adjust contrast of image by equalization or rescaling all values.
-
-    Parameters
-    ----------
-    image : array-like
-        Values to be adjusted
-    rescale : True, tuple, False or None, 'equal', or 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
-        For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
-        For None or False no rescaling occurs.
-    kwargs : dict
-        Other parameters that
-        for 'rescale' = True kwargs are passed to :func:`skimage.exposure.rescale_intensity` and
-        for 'rescale' = 'equal' kwargs are passed to :func:`skimage.exposure.equalize_hist`.
-
-    Returns
-    -------
-    numpy.ndarray
-    """
-    if rescale is None or rescale is False:
-        pass
-    elif rescale is True:
-        image = exposure.rescale_intensity(image, **kwargs)  # scaling to min/max of image intensities
-    elif rescale == 'equal':
-        image = exposure.equalize_hist(image, **kwargs)
-    elif rescale == 'unity':
-        image = exposure.rescale_intensity(image * 1., **kwargs)
-    elif isinstance(rescale, tuple):
-        p_low, p_high = np.ptp(image) * np.asarray(rescale) / 100 + image.min()
-        image = exposure.rescale_intensity(image, in_range=(p_low, p_high))
-    else:
-        raise TypeError('Set rescale to tuple, None or "equal".')
-
-    return image
-
-
-def _fast_histo_mean(x, y, values, bins, range):
+def _histogram_fast_histogram(data, bins) -> np.ndarray:
     """
     Provide histogram with averaged values for all counts in each bin.
 
     Parameters
     ----------
-    x : array-like
-        first coordinate values
-    y : array-like
-        second coordinate values
-    values : int or float
-        property to be averaged
-    bins : sequence or int or None
-        The bin specification as defined in fast_histogram_histogram2d:
-            A sequence of arrays describing the monotonically increasing bin edges along each dimension.
-            The number of bins for each dimension (nx, ny, … =bins)
-    range : tuple with shape (dimension, 2) or None
-        bin_range as requested by fast_histogram_histogram2d
+    data : array-like
+        Coordinate values with shape (dimensions, n_points) to be binned
+    bins : Bins
+        The bin specification
 
     Returns
     -------
     numpy.ndarray
     """
-    hist_1 = fast_histogram.histogram2d(x, y, range=range, bins=bins)
-    hist_w = fast_histogram.histogram2d(x, y, range=range, bins=bins, weights=values)
+    if data.shape[0] == 1:
+        img = fast_histogram.histogram1d(data, range=bins.bin_range[0], bins=bins.n_bins[0])
+    elif data.shape[0] == 2:
+        img = fast_histogram.histogram2d(*data, range=bins.bin_range, bins=bins.n_bins)
+    else:
+        raise TypeError('Dimension of data must be 1 or 2.')
+    return img
+
+
+def _histogram_boost_histogram(data, bins) -> np.ndarray:
+    """
+    Provide histogram with averaged values for all counts in each bin.
+
+    Parameters
+    ----------
+    data : array-like
+        Coordinate values with shape (n_dimensions, n_points) to be binned
+    bins : Bins
+        The bin specification
+
+    Returns
+    -------
+    numpy.ndarray
+    """
+    hist_axes = [bh.axis.Variable(bins.bin_edges[i], metadata=bins.labels[i]) for i in range(bins.dimension)]
+    hist = bh.Histogram(*hist_axes).fill(*data)
+    img = hist.view()
+    return img
+
+
+def _histogram_mean_fast_histogram(data, bins, values):
+    """
+    Provide histogram with averaged values for all counts in each bin.
+
+    Parameters
+    ----------
+    data : array-like
+        Coordinate values with shape (n_dimensions, n_points) to be binned
+    bins : Bins
+        The bin specification
+    values : array-like
+        Values with shape (n_points,) to be averaged in each bin
+
+    Returns
+    -------
+    numpy.ndarray
+    """
+    if data.shape[0] == 1:
+        hist = fast_histogram.histogram1d(data, range=bins.bin_range[0], bins=bins.n_bins[0])
+        hist_w = fast_histogram.histogram1d(data, range=bins.bin_range[0], bins=bins.n_bins[0], weights=values)
+    elif data.shape[0] == 2:
+        hist = fast_histogram.histogram2d(*data, range=bins.bin_range, bins=bins.n_bins)
+        hist_w = fast_histogram.histogram2d(*data, range=bins.bin_range, bins=bins.n_bins, weights=values)
+    else:
+        raise TypeError('Dimension of data must be 1 or 2.')
 
     with np.errstate(divide='ignore', invalid='ignore'):
-        hist_mean = np.true_divide(hist_w, hist_1)
-        hist_mean[hist_mean == np.inf] = 0
-        hist_mean = np.nan_to_num(hist_mean)
+        hist = np.true_divide(hist_w, hist)
+        hist[hist == np.inf] = 0
+        # hist = np.nan_to_num(hist)
+    return hist
 
-    return hist_mean
+
+def _histogram_mean_boost_histogram(data, bins, values) -> np.ndarray:
+    """
+    Provide histogram with averaged values for all counts in each bin.
+
+    Parameters
+    ----------
+    data : array-like
+        Coordinate values with shape (n_dimensions, n_points) to be binned
+    bins : Bins
+        The bin specification
+
+    Returns
+    -------
+    numpy.ndarray
+    """
+    hist_axes = [bh.axis.Variable(bins.bin_edges[i], metadata=bins.labels[i]) for i in range(bins.dimension)]
+    hist = bh.Histogram(*hist_axes).fill(*data)
+    hist_w = bh.Histogram(*hist_axes).fill(*data, weight=values)
+    hist = hist_w / hist
+    return hist.view()
 
 
-# todo: implement use of boost_histogram to deal with 3d images and variable bin sizes.
+def _check_loc_properties(locdata:LocData, loc_properties:Union[str, Iterable[str]]):
+    """
+    Check that loc_properties are valid properties in locdata.
+
+    Parameters
+    ----------
+    locdata
+        Localization data
+    loc_properties
+        LocData property names
+
+    Returns
+    -------
+    list[str]
+        Valid localization property names
+    """
+    if loc_properties is None:  # use coordinate_labels
+        labels = locdata.coordinate_labels.copy()
+    elif isinstance(loc_properties, str):
+        if loc_properties not in locdata.data.columns:
+            raise ValueError(f'{loc_properties} is not a valid property in locdata.data.')
+        labels = [loc_properties]
+    elif isinstance(loc_properties, (tuple, list)):
+        labels = list(loc_properties)
+        for loc_property in loc_properties:
+            if loc_property not in locdata.data.columns:
+                raise ValueError(f'{loc_property} is not a valid property in locdata.data.')
+    else:
+        raise ValueError(f'{loc_properties} is not a valid property in locdata.data.')
+    return labels
+
+
 def histogram(locdata, loc_properties=None, other_property=None,
               bins=None, n_bins=None, bin_size=None, bin_edges=None, bin_range=None,
-              rescale=None,
-              **kwargs):
+              ):
     """
     Make histogram of loc_properties (columns in locdata.data) by binning all localizations
     or averaging other_property within each bin.
@@ -886,78 +942,47 @@ def histogram(locdata, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : True, tuple, False or None, 'equal', or 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
-        For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
-        For None or False no rescaling occurs.
-    kwargs : dict
-        For 'rescale' = True kwargs are passed to :func:`skimage.exposure.rescale_intensity`.
-        For 'rescale' = 'equal' kwargs are passed to :func:`skimage.exposure.equalize_hist`.
 
     Returns
     -------
     namedtuple('Histogram', "data bins labels"): (numpy.ndarray, `Bins`, list)
     """
-    if loc_properties is None:  # use coordinate_labels
-        labels_ = locdata.coordinate_labels.copy()
-        data = locdata.coordinates.T
-    elif isinstance(loc_properties, str):
-        if loc_properties not in locdata.data.columns:
-            raise ValueError(f'{loc_properties} is not a valid property in locdata.data.')
-        labels_ = [loc_properties]
-        data = locdata.data[loc_properties].values.T
-    elif isinstance(loc_properties, (tuple, list)):
-        labels_ = list(loc_properties)
-        if all(loc_property not in locdata.data.columns for loc_property in loc_properties):
-            raise ValueError(f'{loc_properties} is not a valid property in locdata.data.')
-        data = locdata.data[labels_].values.T
-    else:
-        raise ValueError(f'{loc_properties} is not a valid property in locdata.data.')
+    labels_ = _check_loc_properties(locdata, loc_properties)
+    data = locdata.data[labels_].values.T
 
     if (bin_range is None or isinstance(bin_range, str)) and bin_edges is None:
         bin_range_ = ranges(locdata, loc_properties=labels_, special=bin_range)
     else:
         bin_range_ = bin_range
 
-    bins = Bins(bins, n_bins, bin_size, bin_edges, bin_range_, labels=labels_)
-    if bins.dimension != len(labels_):
-        raise TypeError("Shape of `bin_range` and `loc_properties` is incompatible.")
-
-    if not all(bins.is_equally_sized):
-        raise ValueError("Only equally sized bins can be forwarded to fast_histogram.")
+    try:
+        bins = Bins(bins, n_bins, bin_size, bin_edges, bin_range_, labels=labels_)
+    except ValueError:
+        raise ValueError("Bin dimension and len of `loc_properties` is incompatible.")
 
     if other_property is None:
         # histogram data by counting points
-        if np.ndim(data) == 1:
-            img = fast_histogram.histogram1d(data, range=bins.bin_range[0], bins=bins.n_bins[0])
-        elif data.shape[0] == 2:
-            img = fast_histogram.histogram2d(*data, range=bins.bin_range, bins=bins.n_bins)
-        elif data.shape[0] == 3:
-            raise NotImplementedError
+        if data.shape[0] == 2:
+            # we are using fast-histogram for 2D since it is even faster than boost_histogram
+            img = _histogram_fast_histogram(data, bins)
+        elif data.shape[0] == 1 or data.shape[0] == 3:
+            img = _histogram_boost_histogram(data, bins)
         else:
-            raise TypeError('loc_properties must contain a string or a list with 2 or 3 elements.')
+            raise TypeError('loc_properties must contain a string or a list with 1, 2 or 3 elements.')
         labels_.append('counts')
 
     elif other_property in locdata.data.columns:
         # histogram data by averaging values
-        if np.ndim(data) == 1:
-            raise NotImplementedError
-        elif data.shape[0] == 2:
-            values = locdata.data[other_property].values
-            img = _fast_histo_mean(*data, values, range=bins.bin_range, bins=bins.n_bins)
-        elif data.shape[0] == 3:
-            raise NotImplementedError
+        values = locdata.data[other_property].values
+        if data.shape[0] == 2:
+            img = _histogram_mean_fast_histogram(data, bins, values)
+        elif data.shape[0] == 1 or data.shape[0] == 3:
+            img = _histogram_mean_boost_histogram(data, bins, values)
         else:
             raise TypeError('No more than 3 elements in loc_properties are allowed.')
         labels_.append(other_property)
     else:
         raise TypeError(f'Parameter for `other_property` {other_property} is not a valid property name.')
-
-    if rescale:
-        img = adjust_contrast(img, rescale, **kwargs)
 
     Histogram = namedtuple('Histogram', "data bins labels")
     return Histogram(img, bins, labels_)

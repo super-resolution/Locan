@@ -85,6 +85,7 @@ class FileType(Enum):
     RAPIDSTORMTRACK = 7
     SMLM = 8
     DECODE = 9
+    SMAP = 10
 
 
 # Render engines
@@ -209,6 +210,20 @@ DECODE_KEYS = {
     'z': 'position_z',
     'bg': 'local_background',
     'phot': 'intensity',
+}
+
+#: Mapping column names in SMAP files to LocData property keys
+SMAP_KEYS = {
+    'frame': 'frame',
+    'xnm': 'position_x',
+    'ynm': 'position_y',
+    'znm': 'position_z',
+    'bg': 'local_background',
+    'phot': 'intensity',
+    'channel': 'channel',
+    'xnmerr': 'uncertainty_x',
+    'ynmerr': 'uncertainty_y',
+    'znmerr': 'uncertainty_z',
 }
 
 

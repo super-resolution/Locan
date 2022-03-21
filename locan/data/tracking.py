@@ -15,6 +15,7 @@ import pandas as pd
 
 from locan.data.locdata import LocData
 from locan.dependencies import HAS_DEPENDENCY, needs_package
+
 if HAS_DEPENDENCY["trackpy"]: from trackpy import link_df
 
 

@@ -60,6 +60,19 @@ def locdata_single_localization():
 
 
 @pytest.fixture(scope='session')
+def locdata_single_localization_3d():
+    locdata_dict = {
+        'position_x': np.array([1]),
+        'position_y': np.array([1]),
+        'position_z': np.array([1]),
+        'frame': np.array([1]),
+        'intensity': np.array([1]),
+    }
+    df = pd.DataFrame(locdata_dict)
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+
+
+@pytest.fixture(scope='session')
 def locdata_1d():
     locdata_dict = {
         'position_x': np.array([1, 1, 2, 3, 4, 5]),
@@ -75,6 +88,18 @@ def locdata_2d():
     locdata_dict = {
         'position_x': np.array([1, 1, 2, 3, 4, 5]),
         'position_y': np.array([1, 5, 3, 6, 2, 5]),
+        'frame': np.array([1, 2, 2, 4, 5, 6]),
+        'intensity': np.array([100, 150, 110, 80, 105, 95]),
+    }
+    df = pd.DataFrame(locdata_dict)
+    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+
+
+@pytest.fixture(scope='session')
+def locdata_2d_negative():
+    locdata_dict = {
+        'position_x': np.array([1, -1, 2, 3, 4, 5]),
+        'position_y': np.array([1, 5, 3, 6, -2, 5]),
         'frame': np.array([1, 2, 2, 4, 5, 6]),
         'intensity': np.array([100, 150, 110, 80, 105, 95]),
     }

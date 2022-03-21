@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,6 +15,8 @@ from locan.data.transform.bunwarpj import _read_matrix, _unwarp
 
 
 def test_randomize_2d(locdata_2d):
+    locdata_2d = deepcopy(locdata_2d)
+
     locdata_randomized = randomize(locdata_2d, hull_region='bb')
     # locdata_randomized.print_meta()
     assert len(locdata_randomized) == 6
@@ -20,6 +24,13 @@ def test_randomize_2d(locdata_2d):
     assert locdata_randomized.meta.history[-1].name == 'randomize'
 
     locdata_randomized = randomize(locdata_2d, hull_region='ch')
+    assert len(locdata_randomized) == 6
+
+    locdata_randomized = randomize(locdata_2d, hull_region='obb')
+    assert len(locdata_randomized) == 6
+
+    locdata_2d.update_alpha_shape(alpha=10)
+    locdata_randomized = randomize(locdata_2d, hull_region='as')
     assert len(locdata_randomized) == 6
 
     region = Polygon(((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))

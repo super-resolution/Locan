@@ -250,35 +250,19 @@ def randomize(locdata, hull_region='bb', seed=None):
     rng = np.random.default_rng(seed)
 
     if hull_region == 'bb':
-        try:
-            ranges = locdata.bounding_box.hull.T
-        except AttributeError:
-            locdata.bounding_box = locan.data.hulls.BoundingBox(locdata.coordinates)
-            ranges = locdata.bounding_box.hull.T
-
-        new_locdata = simulate_uniform(n_samples=len(locdata), region=ranges, seed=rng)
-
+        region_ = locdata.bounding_box.hull.T
     elif hull_region == 'ch':
-        try:
-            region_ = locdata.convex_hull.region
-        except AttributeError:
-            region_ = locan.data.hulls.ConvexHull(locdata.coordinates).region
-
-        new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
-
-    # todo: implement on as hull regions
+        region_ = locdata.convex_hull.region
     elif hull_region == 'as':
-        raise NotImplementedError
-
-    # todo: implement on hull regions
+        region_ = locdata.alpha_shape.region
     elif hull_region == 'obb':
-        raise NotImplementedError
-
+        region_ = locdata.oriented_bounding_box.region
     elif isinstance(hull_region, Region):
-        new_locdata = simulate_uniform(n_samples=len(locdata), region=hull_region, seed=rng)
-
+        region_ = hull_region
     else:
         raise NotImplementedError
+
+    new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
 
     # update metadata
     meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,

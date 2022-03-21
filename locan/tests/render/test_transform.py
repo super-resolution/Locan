@@ -93,15 +93,15 @@ def test_transform_new():
 
     # 1) standardize: rescale (min, max) to (0, 1)
     new_img = adjust_contrast(img, rescale=1)
-    assert new_img.dtype == np.float
+    assert new_img.dtype == float
     assert (new_img.min(), new_img.max()) == (0, 1)
 
     new_img = adjust_contrast(img, rescale=Trafo.STANDARDIZE)
-    assert new_img.dtype == np.float
+    assert new_img.dtype == float
     assert (new_img.min(), new_img.max()) == (0, 1)
 
     new_img = adjust_contrast(img, rescale="standardize")
-    assert new_img.dtype == np.float
+    assert new_img.dtype == float
     assert (new_img.min(), new_img.max()) == (0, 1)
 
     # 2) standardize_uint8: rescale (min, max) to (0, 255)

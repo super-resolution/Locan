@@ -50,7 +50,12 @@ This project is licensed under the BSD-3 License - see the [LICENSE](LICENSE.md)
 Citing
 -------
 
-If you want to acknowledge locan please cite this repository using the DOI provided by zenodo:
+If you want to acknowledge locan please cite the following publication:
+
+Sören Doose, LOCAN: a python library for analyzing single-molecule localization microscopy data, Bioinformatics, 2022,
+https://doi.org/10.1093/bioinformatics/btac160
+
+Or cite this repository using the DOI provided by zenodo:
 
 [doi.org/10.5281/zenodo.5722472](https://doi.org/10.5281/zenodo.5722472)
 

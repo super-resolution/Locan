@@ -30,11 +30,17 @@ We try to follow standard docstrings as illustrated here::
         """
         Short title.
 
-        Long description with some reference [1]_.
+        Long description about parameter `par` with some literature reference [1]_.
+
+        This paragraph might describe some ``code`` and include an equation:
+
+        .. math::
+
+            \\f(x) = \\frac{a}{(b + c)}
 
         Parameters
         ----------
-        par : None, other type
+        par : None, other type, UserClass
             Description
         kwargs : dict
             Parameters passed to some other documented function :func:`function_name`
@@ -52,8 +58,8 @@ We try to follow standard docstrings as illustrated here::
         --------
         :func:`locan.tests.test`
 
-        Notes
-        -----
+        Note
+        ----
         Whatever there is to note.
 
         References

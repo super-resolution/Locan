@@ -1,6 +1,6 @@
 """
 
-This module provides functions for rendering locdata objects in 3D.
+This module provides functions for rendering `LocData` objects in 3D.
 
 """
 import logging
@@ -8,7 +8,6 @@ import logging
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.colors as mcolors
-from skimage import exposure
 
 from locan.data import LocData
 from locan.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
@@ -35,47 +34,46 @@ def render_3d_napari(locdata, loc_properties=None, other_property=None,
     ----------
     locdata : LocData
         Localization data.
-    loc_properties : list or None
-        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
-    other_property : str or None
-        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
-        shown.
-    bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
+    loc_properties : list, None
+        Localization properties to be grouped into bins. If None The coordinate_values of `locdata` are used.
+    other_property : str, None
+        Localization property (columns in `locdata.data`) that is averaged in each pixel.
+        If None, localization counts are shown.
+    bins : int, sequence, Bins, boost_histogram.axis.Axis, None
         The bin specification as defined in :class:`Bins`
-    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges) or None
+    bin_edges : tuple, list, numpy.ndarray[float] with shape (dimension, n_bin_edges), None
         Array of bin edges for all or each dimension.
-    n_bins : int, list, tuple or numpy.ndarray or None
+    n_bins : int, list, tuple, numpy.ndarray, None
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float, list, tuple or numpy.ndarray or None
-        The size of bins in units of locdata coordinate units for all or each dimension.
+    bin_size : float, list, tuple, numpy.ndarray, None
+        The size of bins in units of `locdata` coordinate units for all or each dimension.
         5 would describe bin_size of 5 for all bins in all dimensions.
         (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
         To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple or tuple of tuples of float with shape (dimension, 2) or None or 'zero'
+    bin_range : tuple, tuple[tuples[float]] with shape (dimension, 2), str, None
         The data bin_range to be taken into consideration for all or each dimension.
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : int, str, locan.constants.Trafo, callable, bool, None
-        Transformation as defined in Trafo or by transformation function.
+    rescale : int, str, Trafo, callable, bool, None
+        Transformation as defined in :class:`locan.constants.Trafo` or by transformation function.
         For False no rescaling occurs.
         Legacy behavior:
         For tuple with upper and lower bounds provided in percent,
         rescale intensity values to be within percentile of max and min intensities
         For 'equal' intensity values are rescaled by histogram equalization.
-    viewer : napari viewer
+    viewer : napari.Viewer
         The viewer object on which to add the image
-    cmap : str or Colormap instance
-        The colormap used to map normalized data values to RGBA colors.
+    cmap : str, Colormap
+        The Colormap object used to map normalized data values to RGBA colors.
     kwargs : dict
-        Other parameters passed to napari.Viewer().add_image().
+        Other parameters passed to :func:`napari.Viewer.add_image`.
 
     Returns
     -------
-    napari Viewer object, namedtuple('Histogram', "data bins labels"): (numpy.ndarray, `Bins`, list)
-        viewer, histogram
+    napari.Viewer
     """
     if not HAS_DEPENDENCY["napari"]:
         raise ImportError('Function requires napari.')
@@ -117,7 +115,7 @@ def scatter_3d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
     ----------
     locdata : LocData
        Localization data.
-    ax : :class:`matplotlib.axes.Axes3D`
+    ax : matplotlib.axes.Axes3D
        The axes on which to show the plot
     index : bool
        Flag indicating if element indices are shown.
@@ -128,7 +126,7 @@ def scatter_3d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
 
     Returns
     -------
-    :class:`matplotlib.axes.Axes`
+    matplotlib.axes.Axes
        Axes object with the image.
     """
     if text_kwargs is None:
@@ -178,16 +176,16 @@ def render_3d_rgb_napari(locdatas, loc_properties=None, other_property=None,
 
     Parameters
     ----------
-    locdatas : list of LocData
+    locdatas : list[LocData]
         Localization data.
     loc_properties : list, None
-        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
+        Localization properties to be grouped into bins. If None The coordinate_values of `locdata` are used.
     other_property : str, None
-        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
-        shown.
+        Localization property (columns in `locdata.data`) that is averaged in each pixel.
+        If None localization counts are shown.
     bins : int, sequence, Bins, boost_histogram.axis.Axis, None
         The bin specification as defined in :class:`Bins`
-    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges), None
+    bin_edges : tuple, list, numpy.ndarray[float] with shape (dimension, n_bin_edges), None
         Array of bin edges for all or each dimension.
     n_bins : int, list, tuple, numpy.ndarray, None
         The number of bins for all or each dimension.
@@ -198,27 +196,26 @@ def render_3d_rgb_napari(locdatas, loc_properties=None, other_property=None,
         5 would describe bin_size of 5 for all bins in all dimensions.
         (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
         To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple, tuple of tuples of float with shape (dimension, 2), None, 'zero'
+    bin_range : tuple, tuple of tuples of float with shape (dimension, 2), str, None
         The data bin_range to be taken into consideration for all or each dimension.
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : int, str, locan.constants.Trafo, callable, bool, None
-        Transformation as defined in Trafo or by transformation function.
+    rescale : int, str, Trafo, callable, bool, None
+        Transformation as defined in :class:`locan.constants.Trafo` or by transformation function.
         For None or False no rescaling occurs.
         Legacy behavior:
         For tuple with upper and lower bounds provided in percent,
         rescale intensity values to be within percentile of max and min intensities
         For 'equal' intensity values are rescaled by histogram equalization.
-    viewer : napari viewer
+    viewer : napari.Viewer
         The viewer object on which to add the image
     kwargs : dict
-        Other parameters passed to napari.Viewer().add_image().
+        Other parameters passed to :func:`napari.Viewer.add_image`.
 
     Returns
     -------
-    napari Viewer object
-        viewer
+    napari.Viewer
     """
     if not HAS_DEPENDENCY["napari"]:
         raise ImportError('Function requires napari.')

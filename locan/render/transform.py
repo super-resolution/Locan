@@ -5,7 +5,10 @@ This module provides functions and classes to rescale intensity values.
 In addition to the presented functions, rescaling can further be performed by third-party modules like:
 1) matplotlib.colors
 2) skimage.exposure
-3) astropy.visualization
+3) astropy.visualization.
+
+Callable transformation classes that inherit from :class:`matplotlib.colors.Normalize` and specify an inverse transformation
+can be passed to the `norm` parameter.
 
 """
 
@@ -25,30 +28,31 @@ class Trafo(Enum):
     Standard definitions for intensity transformation.
     """
     NONE = 0
+    """no transformation"""
     STANDARDIZE = 1
     """rescale (min, max) to (0, 1)"""
     STANDARDIZE_UINT8 = 2
     """rescale (min, max) to (0, 255)"""
     ZERO = 3
-    """(0, max) to (0, 1)"""
+    """rescale (0, max) to (0, 1)"""
     ZERO_UINT8 = 4
-    """(0, max) to (0, 255)"""
+    """rescale (0, max) to (0, 255)"""
     EQUALIZE = 5
-    """equalize histogram for all values > 0"""
+    """equalize histogram from all values > 0"""
     EQUALIZE_UINT8 = 6
-    """equalize histogram for all values > 0 to (0, 255)"""
+    """equalize histogram from all values > 0 onto (0, 255)"""
     EQUALIZE_ALL = 7
     """equalize histogram"""
     EQUALIZE_ALL_UINT8 = 8
-    """equalize histogram to (0, 255)"""
+    """equalize histogram onto (0, 255)"""
     EQUALIZE_0P3 = 9
-    """equalize histogram with power = 0.3 for all values > 0"""
+    """equalize histogram with power = 0.3 from all values > 0"""
     EQUALIZE_0P3_UINT8 = 10
-    """equalize histogram with power = 0.3 for all values > 0 to (0, 255)"""
+    """equalize histogram with power = 0.3 from all values > 0 onto (0, 255)"""
     EQUALIZE_0P3_ALL = 11
     """equalize histogram with power = 0.3"""
     EQUALIZE_0P3_ALL_UINT8 = 12
-    """equalize histogram with power = 0.3 to (0, 255)"""
+    """equalize histogram with power = 0.3 onto (0, 255)"""
 
 
 class Transform(ABC):
@@ -104,8 +108,10 @@ class HistogramEqualization(mcolors.Normalize, Transform):
     """
     Histogram equalization with power intensification as described in [1]_.
 
-    The transformation function is f(a, p) according to:
+    The transformation function is :math:`f(a, p)` according to:
+
     .. math::
+
        \\frac{f(a) - f(a_min)} {f(a_max) - f(a_min)} =
        \\frac{\\int_{a_min}^{a}{h^p(a') da'}} {\\int_{a_min}^{a_max}{h^p(a') da'}}
 
@@ -121,7 +127,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
     reference : array-like
         The data values to define the transformation function. If None values in call are used.
     power : float
-        The ``power`` parameter used in the above formula.
+        The `power` intensification parameter.
     n_bins : int
         Number of bins used to compute the intensity histogram.
     mask : array-like[bool]
@@ -181,8 +187,8 @@ def adjust_contrast(image, rescale=True, **kwargs):
     ----------
     image : array-like
         Values to be adjusted
-    rescale : int, str, locan.constants.Trafo, callable, bool, None
-        Transformation as defined in Trafo or by transformation function.
+    rescale : int, str, Trafo, callable, bool, None
+        Transformation as defined in :class:`locan.constants.Trafo` or by transformation function.
         For None or False no rescaling occurs.
         Legacy behavior:
         For tuple with upper and lower bounds provided in percent,

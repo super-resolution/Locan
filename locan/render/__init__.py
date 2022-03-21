@@ -3,7 +3,7 @@
 Render localization data.
 
 This module provides functions to render and present localization data.
-It mostly makes use of the matplotlib environment.
+It mostly makes use of matplotlib and napari.
 
 Submodules:
 -----------

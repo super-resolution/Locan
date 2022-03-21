@@ -25,13 +25,28 @@ def test_render_3d_napari(locdata_blobs_3d):
     render_3d_napari(locdata_blobs_3d, bin_size=100, cmap='viridis', gamma=0.1)
     # napari.run()
 
-    viewer, _ = render_3d_napari(locdata_blobs_3d, bin_size=50, cmap='magenta', gamma=0.1)
+    viewer = render_3d_napari(locdata_blobs_3d, bin_size=50, cmap='magenta', gamma=0.1)
     render_3d_napari(locdata_blobs_3d, viewer=viewer, bin_size=100, cmap='cyan', gamma=0.1, scale=(2, 2),
                      blending='additive')
     # napari.run()
 
     render_3d(locdata_blobs_3d, render_engine=RenderEngine.NAPARI)
     # napari.run()
+
+
+@pytest.mark.gui
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
+def test_render_3d_napari_empty(locdata_empty):
+    render_3d_napari(locdata_empty, bin_size=100, cmap='viridis', gamma=0.1)
+    napari.run()
+
+
+@pytest.mark.gui
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
+def test_render_3d_napari_single(locdata_single_localization, caplog):
+    render_3d_napari(locdata_single_localization, bin_size=100, cmap='viridis', gamma=0.1)
+    assert caplog.record_tuples[1] == ('locan.render.render3d', 30, 'Locdata carries a single localization.')
+    napari.run()
 
 
 def test_scatter_3d_mpl(locdata_3d):
@@ -64,7 +79,7 @@ def test_scatter_3d_mpl_single(locdata_single_localization, caplog):
 
 @pytest.mark.gui
 @pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
-def test_render_2d(locdata_blobs_3d, test_input, expected):
+def test_render_3d(locdata_blobs_3d, test_input, expected):
     if HAS_DEPENDENCY["napari"] and test_input == RenderEngine.NAPARI:
         render_3d(locdata_blobs_3d, render_engine=test_input)
         # napari.run()

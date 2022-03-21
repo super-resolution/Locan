@@ -7,6 +7,7 @@ import logging
 
 import numpy as np
 from matplotlib import pyplot as plt
+import matplotlib.colors as mcolors
 from skimage import exposure
 import scipy.signal.windows
 
@@ -18,6 +19,7 @@ from locan.data.rois import _MplSelector
 from locan.data.aggregate import histogram, Bins, _check_loc_properties
 from locan.data.properties.locdata_statistics import ranges
 from locan.render.utilities import _napari_shape_to_region
+from locan.render.transform import adjust_contrast
 
 if HAS_DEPENDENCY["mpl_scatter_density"]: import mpl_scatter_density
 if HAS_DEPENDENCY["napari"]: import napari
@@ -64,13 +66,13 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : True, tuple, False, None, 'equal', 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
-        For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
+    rescale : int, str, locan.constants.Trafo, callable, bool, None
+        Transformation as defined in Trafo or by transformation function.
         For None or False no rescaling occurs.
+        Legacy behavior:
+        For tuple with upper and lower bounds provided in percent,
+        rescale intensity values to be within percentile of max and min intensities
+        For 'equal' intensity values are rescaled by histogram equalization.
     ax : :class:`matplotlib.axes.Axes`
         The axes on which to show the image
     cmap : str or Colormap instance
@@ -99,17 +101,18 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
             logger.warning('Locdata carries a single localization.')
         return ax
 
-    hist = histogram(locdata, loc_properties, other_property,
-                                              bins, n_bins, bin_size, bin_edges, bin_range,
-                                              rescale)
+    data, bins, labels = histogram(locdata, loc_properties, other_property,
+                                   bins, n_bins, bin_size, bin_edges, bin_range
+                                   )
+    data = adjust_contrast(data, rescale)
 
-    mappable = ax.imshow(hist.data.T, origin='lower', extent=[*hist.bins.bin_range[0], *hist.bins.bin_range[1]],
+    mappable = ax.imshow(data.T, origin='lower', extent=[*bins.bin_range[0], *bins.bin_range[1]],
                          cmap=cmap, interpolation=interpolation, **kwargs)
 
     ax.set(
-        title=hist.labels[-1],
-        xlabel=hist.labels[0],
-        ylabel=hist.labels[1]
+        title=labels[-1],
+        xlabel=labels[0],
+        ylabel=labels[1]
         )
 
     if cbar:
@@ -163,10 +166,6 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     """
     if not HAS_DEPENDENCY["mpl_scatter_density"]:
         raise ImportError('mpl-scatter-density is required.')
-
-    # todo: plot empty image if ranges are provided.
-    if not len(locdata):
-        raise ValueError('Locdata does not contain any data points.')
 
     # Provide matplotlib.axes.Axes if not provided
     if ax is None:
@@ -273,13 +272,13 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : True, tuple, False or None, 'equal', or 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
-        For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
+    rescale : int, str, locan.constants.Trafo, callable, bool, None
+        Transformation as defined in Trafo or by transformation function.
         For None or False no rescaling occurs.
+        Legacy behavior:
+        For tuple with upper and lower bounds provided in percent,
+        rescale intensity values to be within percentile of max and min intensities
+        For 'equal' intensity values are rescaled by histogram equalization.
     viewer : napari viewer
         The viewer object on which to add the image
     cmap : str or Colormap instance
@@ -295,20 +294,23 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
     if not HAS_DEPENDENCY["napari"]:
         raise ImportError('Function requires napari.')
 
-    # todo: plot empty image if ranges are provided.
-    if not len(locdata):
-        raise ValueError('Locdata does not contain any data points.')
-
     # Provide napari viewer if not provided
     if viewer is None:
         viewer = napari.Viewer()
 
-    hist = histogram(locdata, loc_properties, other_property,
-                     bins, n_bins, bin_size, bin_edges, bin_range,
-                     rescale)
+    # return ax if no or single point in locdata
+    if len(locdata) < 2:
+        if len(locdata) == 1:
+            logger.warning('Locdata carries a single localization.')
+        return viewer
 
-    viewer.add_image(hist.data, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
-    return viewer, hist
+    data, bins, labels = histogram(locdata, loc_properties, other_property,
+                                   bins, n_bins, bin_size, bin_edges, bin_range
+                                   )
+    data = adjust_contrast(data, rescale)
+
+    viewer.add_image(data, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
+    return viewer
 
 
 def render_2d(locdata, render_engine=RENDER_ENGINE, **kwargs):
@@ -477,6 +479,13 @@ def render_2d_rgb_mpl(locdatas, loc_properties=None, other_property=None,
     """
     Render localization data into a 2D RGB image by binning x,y-coordinates into regular bins.
 
+    Note
+    ----
+    For rescale=False no normalization is carried out image intensities are clipped to (0, 1) for float value
+    or (0, 255) for integer values according to the matplotlib.imshow behavior.
+    For rescale=None we apply a normalization to (min, max) of all intensity values.
+    For all other rescale options the normalization is applied to each individual image.
+
     Parameters
     ----------
     locdatas : list of LocData
@@ -504,13 +513,13 @@ def render_2d_rgb_mpl(locdatas, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : True, tuple, False, None, 'equal', 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
+    rescale : int, str, locan.constants.Trafo, callable, bool, None
+        Transformation as defined in Trafo or by transformation function.
+        For False no rescaling occurs.
+        Legacy behavior:
+        For tuple with upper and lower bounds provided in percent,
+        rescale intensity values to be within percentile of max and min intensities
         For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
-        For None or False no rescaling occurs.
     ax : :class:`matplotlib.axes.Axes`
         The axes on which to show the image
     interpolation : str
@@ -537,27 +546,22 @@ def render_2d_rgb_mpl(locdatas, loc_properties=None, other_property=None,
 
     if bin_edges is None:
         _, bins, labels = histogram(locdata_temp, loc_properties, other_property,
-                                       bins, n_bins, bin_size, bin_edges, bin_range,
-                                       rescale=None)
+                                    bins, n_bins, bin_size, bin_edges, bin_range
+                                    )
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
         bins = Bins(bin_edges=bin_edges, labels=labels)
 
-    imgs = [histogram(locdata, loc_properties, other_property, bin_edges=bins.bin_edges,
-                      rescale=None).data
+    imgs = [histogram(locdata, loc_properties, other_property, bin_edges=bins.bin_edges
+                      ).data
             for locdata in locdatas
             ]
 
-    # todo: fix rescaling
-    if rescale == 'equal':
-        for i, img in enumerate(imgs):
-            mask = np.where(img > 0, 1, 0)
-            img = exposure.equalize_hist(img, mask=img > 0)
-            imgs[i] = np.multiply(img, mask)
-    elif rescale is None:
-        pass
+    if rescale is None:
+        norm = mcolors.Normalize(vmin=np.min(imgs), vmax=np.max(imgs))
     else:
-        raise NotImplementedError
+        norm = rescale
+    imgs = [adjust_contrast(img, rescale=norm) for img in imgs]
 
     new = np.zeros_like(imgs[0])
     rgb_stack = np.stack([new] * 3, axis=2)
@@ -586,6 +590,13 @@ def render_2d_rgb_napari(locdatas, loc_properties=None, other_property=None,
     """
     Render localization data into a 2D RGB image by binning x,y-coordinates into regular bins.
 
+    Note
+    ----
+    For rescale=False no normalization is carried out image intensities are clipped to (0, 1) for float value
+    or (0, 255) for integer values according to the matplotlib.imshow behavior.
+    For rescale=None we apply a normalization to (min, max) of all intensity values.
+    For all other rescale options the normalization is applied to each individual image.
+
     Parameters
     ----------
     locdatas : list of LocData
@@ -613,13 +624,13 @@ def render_2d_rgb_napari(locdatas, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : True, tuple, False, None, 'equal', 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
-        For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
+    rescale : int, str, locan.constants.Trafo, callable, bool, None
+        Transformation as defined in Trafo or by transformation function.
         For None or False no rescaling occurs.
+        Legacy behavior:
+        For tuple with upper and lower bounds provided in percent,
+        rescale intensity values to be within percentile of max and min intensities
+        For 'equal' intensity values are rescaled by histogram equalization.
     viewer : napari viewer
         The viewer object on which to add the image
     kwargs : dict
@@ -647,29 +658,22 @@ def render_2d_rgb_napari(locdatas, loc_properties=None, other_property=None,
 
     if bin_edges is None:
         _, bins, labels = histogram(locdata_temp, loc_properties, other_property,
-                                       bins, n_bins, bin_size, bin_edges, bin_range,
-                                       rescale=None)
+                                    bins, n_bins, bin_size, bin_edges, bin_range
+                                    )
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
         bins = Bins(bin_edges=bin_edges, labels=labels)
 
-    imgs = [histogram(locdata, loc_properties, other_property, bin_edges=bins.bin_edges,
-                      rescale=None).data
+    imgs = [histogram(locdata, loc_properties, other_property, bin_edges=bins.bin_edges
+                      ).data
             for locdata in locdatas
             ]
 
-    # todo: fix rescaling
-    # rgb data must either be uint8, corresponding to values between 0 and 255, or float and between 0 and 1.
-    # If the values are float and outside the 0 to 1 range they will be clipped.
-    if rescale == 'equal':
-        for i, img in enumerate(imgs):
-            mask = np.where(img > 0, 1, 0)
-            img = exposure.equalize_hist(img, mask=img > 0)
-            imgs[i] = np.multiply(img, mask)
-    elif rescale is None:
-        pass
+    if rescale is None:
+        norm = mcolors.Normalize(vmin=np.min(imgs), vmax=np.max(imgs))
     else:
-        raise NotImplementedError
+        norm = rescale
+    imgs = [adjust_contrast(img, rescale=norm) for img in imgs]
 
     new = np.zeros_like(imgs[0])
     rgb_stack = np.stack([new] * 3, axis=2)

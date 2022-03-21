@@ -7,12 +7,14 @@ import logging
 
 import numpy as np
 from matplotlib import pyplot as plt
+import matplotlib.colors as mcolors
 from skimage import exposure
 
 from locan.data import LocData
 from locan.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
 from locan.dependencies import HAS_DEPENDENCY
 from locan.data.aggregate import histogram, Bins, _check_loc_properties
+from locan.render.transform import adjust_contrast
 
 if HAS_DEPENDENCY["napari"]: import napari
 
@@ -56,13 +58,13 @@ def render_3d_napari(locdata, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : True, tuple, False or None, 'equal', or 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
+    rescale : int, str, locan.constants.Trafo, callable, bool, None
+        Transformation as defined in Trafo or by transformation function.
+        For False no rescaling occurs.
+        Legacy behavior:
+        For tuple with upper and lower bounds provided in percent,
+        rescale intensity values to be within percentile of max and min intensities
         For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
-        For None or False no rescaling occurs.
     viewer : napari viewer
         The viewer object on which to add the image
     cmap : str or Colormap instance
@@ -78,20 +80,22 @@ def render_3d_napari(locdata, loc_properties=None, other_property=None,
     if not HAS_DEPENDENCY["napari"]:
         raise ImportError('Function requires napari.')
 
-    # todo: plot empty image if ranges are provided.
-    if not len(locdata):
-        raise ValueError('Locdata does not contain any data points.')
-
     # Provide napari viewer if not provided
     if viewer is None:
         viewer = napari.Viewer()
 
+    # return ax if no or single point in locdata
+    if len(locdata) < 2:
+        if len(locdata) == 1:
+            logger.warning('Locdata carries a single localization.')
+        return viewer
+
     hist = histogram(locdata, loc_properties, other_property,
                      bins, n_bins, bin_size, bin_edges, bin_range,
-                     rescale)
+                     )
 
     viewer.add_image(hist.data, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
-    return viewer, hist
+    return viewer
 
 
 def render_3d(locdata, render_engine=RENDER_ENGINE, **kwargs):
@@ -165,6 +169,13 @@ def render_3d_rgb_napari(locdatas, loc_properties=None, other_property=None,
     """
     Render localization data into a 3D RGB image by binning x,y,z-coordinates into regular bins.
 
+    Note
+    ----
+    For rescale=False no normalization is carried out image intensities are clipped to (0, 1) for float value
+    or (0, 255) for integer values according to the matplotlib.imshow behavior.
+    For rescale=None we apply a normalization to (min, max) of all intensity values.
+    For all other rescale options the normalization is applied to each individual image.
+
     Parameters
     ----------
     locdatas : list of LocData
@@ -192,13 +203,13 @@ def render_3d_rgb_napari(locdatas, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : True, tuple, False, None, 'equal', 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
-        For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
+    rescale : int, str, locan.constants.Trafo, callable, bool, None
+        Transformation as defined in Trafo or by transformation function.
         For None or False no rescaling occurs.
+        Legacy behavior:
+        For tuple with upper and lower bounds provided in percent,
+        rescale intensity values to be within percentile of max and min intensities
+        For 'equal' intensity values are rescaled by histogram equalization.
     viewer : napari viewer
         The viewer object on which to add the image
     kwargs : dict
@@ -226,27 +237,21 @@ def render_3d_rgb_napari(locdatas, loc_properties=None, other_property=None,
 
     if bin_edges is None:
         _, bins, labels = histogram(locdata_temp, loc_properties, other_property,
-                                       bins, n_bins, bin_size, bin_edges, bin_range,
-                                       rescale=None)
+                                       bins, n_bins, bin_size, bin_edges, bin_range)
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
         bins = Bins(bin_edges=bin_edges, labels=labels)
 
-    imgs = [histogram(locdata, loc_properties, other_property, bin_edges=bins.bin_edges,
-                      rescale=None).data
+    imgs = [histogram(locdata, loc_properties, other_property, bin_edges=bins.bin_edges
+                      ).data
             for locdata in locdatas
             ]
 
-    # todo: fix rescaling
-    if rescale == 'equal':
-        for i, img in enumerate(imgs):
-            mask = np.where(img > 0, 1, 0)
-            img = exposure.equalize_hist(img, mask=img > 0)
-            imgs[i] = np.multiply(img, mask)
-    elif rescale is None:
-        pass
+    if rescale is None:
+        norm = mcolors.Normalize(vmin=np.min(imgs), vmax=np.max(imgs))
     else:
-        raise NotImplementedError
+        norm = rescale
+    imgs = [adjust_contrast(img, rescale=norm) for img in imgs]
 
     new = np.zeros_like(imgs[0])
     rgb_stack = np.stack([new] * 3, axis=3)

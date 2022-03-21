@@ -304,8 +304,6 @@ def register_cc(locdata, other_locdata, max_offset=None,
         for 'zero' (0, max) bin_range with max determined from data.
     verbose : bool
         Flag indicating if transformation results are printed out.
-    kwargs : dict
-        Other parameters passed to :func:`locan.render.render2d.histogram`.
 
     Returns
     -------
@@ -319,9 +317,9 @@ def register_cc(locdata, other_locdata, max_offset=None,
             bin_range_ = bin_range
 
         image, bins_, labels_ = histogram(locdata, bins=bins, n_bins=n_bins, bin_size=bin_size, bin_edges=bin_edges,
-                                        bin_range=bin_range_, **kwargs)
+                                        bin_range=bin_range_)
         other_image, _, _ = histogram(other_locdata, bins=bins, n_bins=n_bins, bin_size=bin_size, bin_edges=bin_edges,
-                                      bin_range=bin_range_, **kwargs)
+                                      bin_range=bin_range_)
 
     else:
         image = np.asarray(locdata)

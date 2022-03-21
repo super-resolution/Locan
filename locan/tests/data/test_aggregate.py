@@ -10,8 +10,7 @@ from locan.data.aggregate import _is_scalar, _is_single_element, \
     _bin_edges_to_bin_size_one_dimension, _bin_edges_to_bin_size, \
     _bin_edges_to_bin_centers, _indices_to_bin_centers, \
     _BinsFromBoostHistogramAxis, _BinsFromEdges, _BinsFromNumber, _BinsFromSize
-from locan import adjust_contrast, histogram, Bins
-
+from locan import histogram, Bins
 
 data_scalars = {
     '1': 1,
@@ -597,37 +596,6 @@ def test_Bins_methods():
     assert bins.is_equally_sized == (True,)
 
 
-def test_adjust_contrast():
-    img = np.array((1, 2, 3, 9), dtype=np.float64)
-    new_img = adjust_contrast(img, rescale=(50, 100))
-    assert np.array_equal(new_img, np.array((0, 0, 0, 1)))
-
-    img = np.array((1, 2, 3, 9), dtype=np.uint8)
-    new_img = adjust_contrast(img, rescale=None)
-    assert np.array_equal(img, new_img)
-
-    new_img = adjust_contrast(img, rescale=False)
-    assert np.array_equal(img, new_img)
-
-    new_img = adjust_contrast(img, rescale='equal')
-    assert max(new_img) == 1
-
-    new_img = adjust_contrast(img, rescale=True)
-    assert np.array_equal(new_img, np.array((0, 31, 63, 255)))
-
-    new_img = adjust_contrast(img, rescale=(0, 50))
-    assert np.array_equal(new_img, np.array((0, 63, 127, 255)))
-
-    new_img = adjust_contrast(img, out_range=(0, 10))
-    assert np.array_equal(new_img, np.array((0, 1.25, 2.5, 10)))
-
-    new_img = adjust_contrast(img * 1., rescale=True)
-    assert np.array_equal(new_img, np.array((0, 0.125, 0.25, 1.)))
-
-    new_img = adjust_contrast(img, rescale='unity')
-    assert np.array_equal(new_img, np.array((0, 0.125, 0.25, 1.)))
-
-
 def test_histogram(locdata_blobs_2d):
     hist = histogram(locdata_blobs_2d, n_bins=10)
     assert hist.labels == ['position_x', 'position_y', 'counts']
@@ -671,10 +639,6 @@ def test_histogram(locdata_blobs_2d):
     hist = histogram(locdata_blobs_2d, bin_edges=((500, 600, 700, 800, 900, 1000), (500, 600, 700, 800, 900, 1000)))
     assert hist.data.ndim == 2
     assert np.max(hist.data) == 7
-
-    hist = histogram(locdata_blobs_2d, bin_size=10, bin_range='zero', rescale=True)
-    assert np.max(hist.data) == 1
-    assert 'counts' in hist.labels
 
     hist = histogram(locdata_blobs_2d, bin_size=10, other_property='position_y')
     assert hist.labels == ['position_x', 'position_y', 'position_y']
@@ -745,3 +709,9 @@ def test_histogram_single_value(locdata_single_localization_3d):
     hist = histogram(locdata_single_localization_3d, bin_size=2)
     assert hist.data.shape == (1, 1, 1)
     assert np.array_equal(hist.bins.bin_range, [[1, 2], [1, 2], [1, 2]])
+
+
+def test_histogram_2d_negative_values(locdata_2d_negative):
+    hist = histogram(locdata_2d_negative, n_bins=10)
+    assert hist.labels == ['position_x', 'position_y', 'counts']
+    assert hist.data.shape == (10, 10)

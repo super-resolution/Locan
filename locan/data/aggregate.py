@@ -15,14 +15,13 @@ from collections import namedtuple
 
 import numpy as np
 import fast_histogram
-from skimage import exposure
 import boost_histogram as bh
 
 from locan.data.properties.locdata_statistics import ranges
 from locan.data.locdata import LocData
 
 
-__all__ = ['Bins', 'adjust_contrast', 'histogram']
+__all__ = ['Bins', 'histogram']
 
 
 def is_array_like(anything) -> bool:
@@ -777,47 +776,6 @@ class Bins:
         return Bins(bin_size=new_bin_size, bin_range=self.bin_range, extend_range=None)
 
 
-def adjust_contrast(image, rescale=True, **kwargs):
-    """
-    Adjust contrast of image by equalization or rescaling all values.
-
-    Parameters
-    ----------
-    image : array-like
-        Values to be adjusted
-    rescale : True, tuple, False or None, 'equal', or 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
-        For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
-        For None or False no rescaling occurs.
-    kwargs : dict
-        Other parameters that
-        for 'rescale' = True kwargs are passed to :func:`skimage.exposure.rescale_intensity` and
-        for 'rescale' = 'equal' kwargs are passed to :func:`skimage.exposure.equalize_hist`.
-
-    Returns
-    -------
-    numpy.ndarray
-    """
-    if rescale is None or rescale is False:
-        pass
-    elif rescale is True:
-        image = exposure.rescale_intensity(image, **kwargs)  # scaling to min/max of image intensities
-    elif rescale == 'equal':
-        image = exposure.equalize_hist(image, **kwargs)
-    elif rescale == 'unity':
-        image = exposure.rescale_intensity(image * 1., **kwargs)
-    elif isinstance(rescale, tuple):
-        p_low, p_high = np.ptp(image) * np.asarray(rescale) / 100 + image.min()
-        image = exposure.rescale_intensity(image, in_range=(p_low, p_high))
-    else:
-        raise TypeError('Set rescale to tuple, None or "equal".')
-
-    return image
-
-
 def _histogram_fast_histogram(data, bins) -> np.ndarray:
     """
     Provide histogram with averaged values for all counts in each bin.
@@ -952,8 +910,7 @@ def _check_loc_properties(locdata:LocData, loc_properties:Union[str, Iterable[st
 
 def histogram(locdata, loc_properties=None, other_property=None,
               bins=None, n_bins=None, bin_size=None, bin_edges=None, bin_range=None,
-              rescale=None,
-              **kwargs):
+              ):
     """
     Make histogram of loc_properties (columns in locdata.data) by binning all localizations
     or averaging other_property within each bin.
@@ -985,16 +942,6 @@ def histogram(locdata, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : True, tuple, False or None, 'equal', or 'unity.
-        Rescale intensity values to be within percentile of max and min intensities
-        (tuple with upper and lower bounds provided in percent).
-        For True intensity values are rescaled to the min and max possible values of the given representation.
-        For 'equal' intensity values are rescaled by histogram equalization.
-        For 'unity' intensity values are rescaled to (0, 1).
-        For None or False no rescaling occurs.
-    kwargs : dict
-        For 'rescale' = True kwargs are passed to :func:`skimage.exposure.rescale_intensity`.
-        For 'rescale' = 'equal' kwargs are passed to :func:`skimage.exposure.equalize_hist`.
 
     Returns
     -------
@@ -1036,9 +983,6 @@ def histogram(locdata, loc_properties=None, other_property=None,
         labels_.append(other_property)
     else:
         raise TypeError(f'Parameter for `other_property` {other_property} is not a valid property name.')
-
-    if rescale:
-        img = adjust_contrast(img, rescale, **kwargs)
 
     Histogram = namedtuple('Histogram', "data bins labels")
     return Histogram(img, bins, labels_)

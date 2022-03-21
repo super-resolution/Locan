@@ -1,7 +1,9 @@
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt  # this import is needed for interactive tests
+import matplotlib.colors as mcolors
 
+import locan
 from locan import RenderEngine  # this import is needed for interactive tests
 from locan.dependencies import HAS_DEPENDENCY
 from locan import render_2d_mpl, render_2d_scatter_density, render_2d_napari, scatter_2d_mpl, \
@@ -80,6 +82,21 @@ def test_render_2d_scatter_density(locdata_blobs_2d):
     plt.close('all')
 
 
+@pytest.mark.skipif(not HAS_DEPENDENCY["mpl_scatter_density"], reason="requires mpl_scatter_density")
+def test_render_2d_scatter_density_empty(locdata_empty):
+    render_2d_scatter_density(locdata_empty)
+    # plt.show()
+
+    plt.close('all')
+
+
+@pytest.mark.skipif(not HAS_DEPENDENCY["mpl_scatter_density"], reason="requires mpl_scatter_density")
+def test_render_2d_scatter_density_single(locdata_single_localization, caplog):
+    render_2d_scatter_density(locdata_single_localization)
+    assert caplog.record_tuples == [('locan.render.render2d', 30, 'Locdata carries a single localization.')]
+    # plt.show()
+
+
 @pytest.mark.gui
 @pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
 def test_render_2d(locdata_blobs_2d, test_input, expected):
@@ -125,6 +142,21 @@ def test_render_2d_napari(locdata_blobs_2d):
     # napari.run()
 
     plt.close('all')
+
+
+@pytest.mark.gui
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
+def test_render_2d_napari_empty(locdata_empty):
+    render_2d_napari(locdata_empty, bin_size=100, cmap='viridis', gamma=0.1)
+    napari.run()
+
+
+@pytest.mark.gui
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
+def test_render_2d_napari_single(locdata_single_localization, caplog):
+    render_2d_napari(locdata_single_localization, bin_size=100, cmap='viridis', gamma=0.1)
+    assert caplog.record_tuples[1] == ('locan.render.render2d', 30, 'Locdata carries a single localization.')
+    napari.run()
 
 
 @pytest.mark.gui
@@ -211,6 +243,27 @@ def test_render_2d_rgb_mpl_2(locdata_blobs_2d):
     locdata_0 = locdata_blobs_2d
     locdata_1 = transform_affine(locdata_blobs_2d, offset=(20, 0))
     render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=20)
+    plt.show()
+
+    plt.close('all')
+
+
+@pytest.mark.visual  # Visual check repeating previously checked functionality
+def test_render_2d_rgb_mpl_3(locdata_blobs_2d):
+    """Check intensity normalization."""
+    locdata_0 = locdata_blobs_2d
+    locdata_1 = transform_affine(locdata_blobs_2d, offset=(20, 0))
+
+    render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=20)
+    plt.show()
+    render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=20, rescale=False)
+    plt.show()
+
+    render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=100)
+    plt.show()
+    render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=100, rescale=True)
+    plt.show()
+    render_2d_rgb_mpl([locdata_0, locdata_1], bin_size=100, rescale=False)
     plt.show()
 
     plt.close('all')

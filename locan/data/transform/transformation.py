@@ -266,11 +266,11 @@ def randomize(locdata, hull_region='bb', seed=None):
 
         new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
 
-    # todo: implement on as and obb hull regions
+    # todo: implement on as hull regions
     elif hull_region == 'as':
         raise NotImplementedError
 
-    # todo: implement on as and obb hull regions
+    # todo: implement on hull regions
     elif hull_region == 'obb':
         raise NotImplementedError
 

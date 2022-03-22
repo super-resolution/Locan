@@ -2,7 +2,7 @@
 Changelog
 =======================
 
-0.11 (unreleased)
+0.12 (unreleased)
 =================
 
 
@@ -16,8 +16,7 @@ locan.analysis
 
 locan.data
 ^^^^^^^^^^^^^^^
-- Modified Polygon.contains function to increase performance.
-- Implemented randomize function for all hull types.
+-
 
 locan.datasets
 ^^^^^^^^^^^^^^^
@@ -29,12 +28,11 @@ locan.gui
 
 locan.io
 ^^^^^^^^^^^^^^^
-- Added methods to load DECODE and SMAP files.
+-
 
 locan.render
 ^^^^^^^^^^^^^^^
-- Added rendering functions for 3D
-- Added rendering functions for RGB image (multi-color overlay)
+-
 
 locan.scripts
 ^^^^^^^^^^^^^^^
@@ -66,11 +64,11 @@ locan.gui
 
 locan.io
 ^^^^^^^^^^^^^^^
-- Extended load_txt_files to convert property names to locan standard property names.
+-
 
 locan.render
 ^^^^^^^^^^^^^^^
-- Refactored intensity rescaling by introducing standard normalization procedures.
+-
 
 locan.scripts
 ^^^^^^^^^^^^^^^
@@ -89,7 +87,7 @@ locan.analysis
 
 locan.data
 ^^^^^^^^^^^^^^^
-- Fixed bunwarp transformation
+-
 
 locan.gui
 ^^^^^^^^^^^^^^^
@@ -97,7 +95,7 @@ locan.gui
 
 locan.io
 ^^^^^^^^^^^^^^^
-- Fixed lineterminator in load_rapidstorm_track_file
+-
 
 locan.render
 ^^^^^^^^^^^^^^^
@@ -111,6 +109,53 @@ locan.simulation
 ^^^^^^^^^^^^^^^^^
 -
 
+
+Other Changes and Additions
+---------------------------
+-
+
+
+0.11 - 2022-03-22
+=================
+
+New Features
+------------
+
+locan.data
+^^^^^^^^^^^^^^^
+- Modified Polygon.contains function to increase performance.
+- Implemented randomize function for all hull types.
+
+locan.io
+^^^^^^^^^^^^^^^
+- Added methods to load DECODE and SMAP files.
+
+locan.render
+^^^^^^^^^^^^^^^
+- Added rendering functions for 3D
+- Added rendering functions for RGB image (multi-color overlay)
+
+API Changes
+-----------
+
+locan.io
+^^^^^^^^^^^^^^^
+- Extended load_txt_files to convert property names to locan standard property names.
+
+locan.render
+^^^^^^^^^^^^^^^
+- Refactored intensity rescaling by introducing standard normalization procedures.
+
+Bug Fixes
+---------
+
+locan.data
+^^^^^^^^^^^^^^^
+- Fixed bunwarp transformation
+
+locan.io
+^^^^^^^^^^^^^^^
+- Fixed lineterminator in load_rapidstorm_track_file
 
 Other Changes and Additions
 ---------------------------

@@ -16,7 +16,8 @@ locan.analysis
 
 locan.data
 ^^^^^^^^^^^^^^^
--
+- Modified Polygon.contains function to increase performance.
+- Implemented randomize function for all hull types.
 
 locan.datasets
 ^^^^^^^^^^^^^^^
@@ -28,11 +29,12 @@ locan.gui
 
 locan.io
 ^^^^^^^^^^^^^^^
--
+- Added methods to load DECODE and SMAP files.
 
 locan.render
 ^^^^^^^^^^^^^^^
--
+- Added rendering functions for 3D
+- Added rendering functions for RGB image (multi-color overlay)
 
 locan.scripts
 ^^^^^^^^^^^^^^^
@@ -40,7 +42,7 @@ locan.scripts
 
 locan.simulation
 ^^^^^^^^^^^^^^^^^
--
+
 
 
 API Changes
@@ -64,11 +66,11 @@ locan.gui
 
 locan.io
 ^^^^^^^^^^^^^^^
--
+- Extended load_txt_files to convert property names to locan standard property names.
 
 locan.render
 ^^^^^^^^^^^^^^^
--
+- Refactored intensity rescaling by introducing standard normalization procedures.
 
 locan.scripts
 ^^^^^^^^^^^^^^^
@@ -87,7 +89,7 @@ locan.analysis
 
 locan.data
 ^^^^^^^^^^^^^^^
--
+- Fixed bunwarp transformation
 
 locan.gui
 ^^^^^^^^^^^^^^^
@@ -95,7 +97,7 @@ locan.gui
 
 locan.io
 ^^^^^^^^^^^^^^^
--
+- Fixed lineterminator in load_rapidstorm_track_file
 
 locan.render
 ^^^^^^^^^^^^^^^
@@ -112,7 +114,9 @@ locan.simulation
 
 Other Changes and Additions
 ---------------------------
--
+- Ensured support of locan and all optional dependencies for Python 3.9
+- Ensured support of locan (without optional dependencies) for Python 3.10
+- Turned hdbscan into optional dependency
 
 0.10 - 2021-11-23
 =================

@@ -178,13 +178,16 @@ def test_Rectangle():
     region = Rectangle.from_intervals(np.array([(0, 2), (0, 1)]))
     assert repr(region) == 'Rectangle((0, 0), 2, 1, 0)'
 
+
+def test_Rectangle_visual():
+    region = Rectangle((0, 0), 2, 1, 90)
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*region.points.T, marker='o', color='Blue')
     ax.add_patch(region.as_artist(origin=(0, 0), fill=True, alpha=0.2))
     ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker='.', color='Red')
     ax.plot(*region.centroid, '*', color='Green')
     ax.plot(*np.array(region.buffer(1).exterior.coords).T, marker='.', color='Yellow')
-    region.plot(color='Green')
+    region.plot(color='Green', alpha=0.2)
     # plt.show()
     plt.close('all')
 
@@ -227,14 +230,19 @@ def test_Ellipse():
     assert region.bounding_box.width == pytest.approx(2)
     assert region.bounding_box.height == pytest.approx(4)
 
+
+def test_Ellipse_visual():
+    region = Ellipse((10, 10), 4, 2, 90)
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*region.points.T, marker='o', color='Blue')
     ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker='.', color='Red')
     ax.add_patch(region.as_artist(origin=(0, 0), fill=True, alpha=0.2))
     ax.plot(*np.array(region.buffer(1).exterior.coords).T, marker='.', color='Yellow')
     ax.plot(*region.centroid, '*', color='Green')
+    region.plot(color='Green', alpha=0.2)
     # plt.show()
     plt.close('all')
+
 
 def test_Polygon():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
@@ -268,21 +276,26 @@ def test_Polygon():
     assert region.bounding_box.width == pytest.approx(1)
     assert region.bounding_box.height == pytest.approx(1)
 
+
+def test_Polygon_visual():
+    points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    region = Polygon(points)
     fig, ax = plt.subplots(nrows=1, ncols=1)
-    ax.plot(*region.points.T, marker='o', color='Blue')
+    ax.plot(*region.points.T, marker='.', color='Blue')
     ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker='.', color='Red')
     ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     ax.plot(*np.array(region.buffer(1).exterior.coords).T, marker='.', color='Yellow')
     ax.plot(*region.centroid, '*', color='Green')
-    #plt.show()
+    region.plot(color='Green', alpha=0.2)
+    # plt.show()
 
     # visualize points inside
-    #points = np.random.default_rng().random(size=(10, 2))
-    #points_inside = points[region.contains(points)]
-    #fig, ax = plt.subplots(nrows=1, ncols=1)
-    #ax.plot(*points_inside.T, marker='o', color='Blue')
-    #ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker='.', color='Red')
-    #ax.add_patch(region.as_artist(origin=(0, 0), fill=True, alpha=0.2))
+    # points = np.random.default_rng().random(size=(10, 2))
+    # points_inside = points[region.contains(points)]
+    # fig, ax = plt.subplots(nrows=1, ncols=1)
+    # ax.scatter(*points_inside.T, marker='.', color='Blue')
+    # ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker='.', color='Red')
+    # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     # plt.show()
 
     plt.close('all')
@@ -323,13 +336,19 @@ def test_Polygon_with_holes():
     assert region.bounding_box.width == pytest.approx(1)
     assert region.bounding_box.height == pytest.approx(1)
 
+
+def test_Polygon_with_holes_visual():
+    points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
+    region = Polygon(points, holes)
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*region.points.T, marker='o', color='Blue')
     ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker='.', color='Red')
     ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     ax.plot(*np.array(region.buffer(0.01).exterior.coords).T, marker='.', color='Yellow')
     ax.plot(*region.centroid, '*', color='Green')
-    # plt.show()
+    region.plot(color='Green', alpha=0.2)
+    #plt.show()
 
     plt.close('all')
 
@@ -361,13 +380,22 @@ def test_Polygon_from_shapely():
     assert region.region_measure == pytest.approx(region.shapely_object.area, rel=10e-3)
     assert isinstance(region.buffer(1), Polygon)
 
+
+@pytest.mark.visual
+def test_Polygon_from_shapely_visual():
+    points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
+    shapely_polygon = shPolygon(points, holes)
+    region = Polygon.from_shapely(shapely_polygon)
+
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*region.points.T, marker='o', color='Blue')
     ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker='.', color='Red')
     ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     ax.plot(*np.array(region.buffer(0.01).exterior.coords).T, marker='.', color='Yellow')
     ax.plot(*region.centroid, '*', color='Green')
-    # plt.show()
+    region.plot(color='Green', alpha=0.2)
+    plt.show()
 
     plt.close('all')
 
@@ -408,6 +436,15 @@ def test_MultiPolygon():
     assert region.bounding_box.width == pytest.approx(3)
     assert region.bounding_box.height == pytest.approx(3)
 
+
+def test_MultiPolygon_visual():
+    points = ((2, 2), (2, 3), (3, 3), (3, 2.5), (2, 2))
+    region_0 = Polygon(points)
+    points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
+    region_1 = Polygon(points, holes)
+    region = MultiPolygon([region_0, region_1])
+
     fig, ax = plt.subplots(nrows=1, ncols=1)
     for polygon in region.polygons:
         ax.plot(*polygon.points.T, marker='o', color='Blue')
@@ -415,13 +452,15 @@ def test_MultiPolygon():
     ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     ax.plot(*np.array(region.buffer(1).exterior.coords).T, marker='.', color='Yellow')
     ax.plot(*region.centroid, '*', color='Green')
+    region.plot(color='Green', alpha=0.2)
     # plt.show()
 
     # visualize points inside
-    # points = np.random.default_rng().random(size=(100, 2)) * 10
+    # points = np.random.default_rng().random(size=(100, 2)) * 5
     # points_inside = points[region.contains(points)]
     # fig, ax = plt.subplots(nrows=1, ncols=1)
-    # ax.plot(*points_inside.T, 'o', markersize=0.1, color='Blue')
+    # ax.plot(*points.T, '.', markersize=1, color='Gray')
+    # ax.plot(*points_inside.T, 'o', markersize=1, color='Blue')
     # for polygon in region.polygons:
     #     ax.plot(*np.array(polygon.shapely_object.exterior.coords).T, marker='.', color='Red')
     # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
@@ -445,20 +484,31 @@ def test_Polygon_union():
     assert len(region.points) == 2
     assert len(region.holes) == 2
 
+
+@pytest.mark.visual
+def test_Polygon_union_visual():
+    points = ((2, 2), (2, 3), (3, 3), (3, 2.5), (2, 2))
+    region_0 = Polygon(points)
+    points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
+    region_1 = Polygon(points, holes)
+    region = region_0.union(region_1)
+
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color='Red'))
     ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color='Green'))
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color='Blue'))
     ax.plot(*region.centroid, '*', color='Green')
-    # plt.show()
+    region.plot(color='Green', alpha=0.2)
+    plt.show()
 
     # visualize points inside
-    # points = np.random.default_rng().random(size=(100_000, 2)) * 10
-    # points_inside = points[region.contains(points)]
-    # fig, ax = plt.subplots(nrows=1, ncols=1)
-    # ax.plot(*points_inside.T, '.', markersize=1, color='Blue')
-    # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
-    # plt.show()
+    points = np.random.default_rng().random(size=(1_000, 2)) * 10
+    points_inside = points[region.contains(points)]
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    ax.plot(*points_inside.T, '.', markersize=1, color='Blue')
+    ax.add_patch(region.as_artist(fill=True, alpha=0.2))
+    plt.show()
 
     plt.close('all')
 
@@ -473,20 +523,32 @@ def test_Polygon_union_ragged():
     region = region_0.union(region_1)
     assert region.region_measure == pytest.approx(region_0.region_measure + region_1.region_measure)
 
+
+@pytest.mark.visual
+def test_Polygon_union_ragged_visual():
+    points = ((0, 0), (0, 10), (10, 10), (10, 0))
+    holes = [((1, 1), (1, 9), (4, 9), (4, 1))]
+    region_0 = Polygon(points, holes)
+    points = ((2, 2), (2, 5), (3, 5), (3, 2))
+    holes = [((2.5, 2.5), (2.5, 4), (2.6, 4), (2.6, 2.5))]
+    region_1 = Polygon(points, holes)
+    region = region_0.union(region_1)
+
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color='Red'))
     ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color='Green'))
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color='Blue'))
     ax.plot(*region.centroid, '*', color='Green')
-    # plt.show()
+    region.plot(color='Green', alpha=0.2)
+    plt.show()
 
     # visualize points inside
-    # points = np.random.default_rng().random(size=(100_000, 2)) * 10
-    # points_inside = points[region.contains(points)]
-    # fig, ax = plt.subplots(nrows=1, ncols=1)
-    # ax.plot(*points_inside.T, '.', markersize=1, color='Blue')
-    # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
-    # plt.show()
+    points = np.random.default_rng().random(size=(1_000, 2)) * 10
+    points_inside = points[region.contains(points)]
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    ax.plot(*points_inside.T, '.', markersize=1, color='Blue')
+    ax.add_patch(region.as_artist(fill=True, alpha=0.2))
+    plt.show()
 
     plt.close('all')
 
@@ -511,20 +573,31 @@ def test_Polygon_intersection():
     assert len(region.points) == 5
     assert len(region.holes) == 2
 
+
+@pytest.mark.visual
+def test_Polygon_intersection_visual():
+    points = ((0, 0), (0, 3), (3, 3), (3, 2), (2, 1.5))
+    region_0 = Polygon(points)
+    points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
+    region_1 = Polygon(points, holes)
+    region = region_0.intersection(region_1)
+
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color='Red'))
     ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color='Green'))
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color='Blue'))
     ax.plot(*region.centroid, '*', color='Green')
-    # plt.show()
+    region.plot(color='Green', alpha=0.2)
+    plt.show()
 
     # visualize points inside
-    # points = np.random.default_rng().random(size=(100_000, 2)) * 10
-    # points_inside = points[region.contains(points)]
-    # fig, ax = plt.subplots(nrows=1, ncols=1)
-    # ax.plot(*points_inside.T, '.', markersize=1, color='Blue')
-    # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
-    # plt.show()
+    points = np.random.default_rng().random(size=(100_000, 2)) * 10
+    points_inside = points[region.contains(points)]
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    ax.plot(*points_inside.T, '.', markersize=1, color='Blue')
+    ax.add_patch(region.as_artist(fill=True, alpha=0.2))
+    plt.show()
 
     plt.close('all')
 
@@ -547,20 +620,31 @@ def test_Polygon_difference():
     assert region.dimension == 2
     assert len(region.polygons) == 4
 
+
+@pytest.mark.visual
+def test_Polygon_difference_visual():
+    points = ((0, 0), (0, 3), (3, 3), (3, 2), (2, 1.5))
+    region_0 = Polygon(points)
+    points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
+    other_region = Polygon(points, holes)
+    region = region_0.symmetric_difference(other_region)
+
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color='Red'))
     ax.add_patch(other_region.as_artist(fill=True, alpha=0.2, color='Green'))
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color='Blue'))
     ax.plot(*region.centroid, '*', color='Green')
-    # plt.show()
+    region.plot(color='Green', alpha=0.2)
+    plt.show()
 
     # visualize points inside
-    # points = np.random.default_rng().random(size=(100_000, 2)) * 10
-    # points_inside = points[region.contains(points)]
-    # fig, ax = plt.subplots(nrows=1, ncols=1)
-    # ax.plot(*points_inside.T, '.', markersize=1, color='Blue')
-    # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
-    # plt.show()
+    points = np.random.default_rng().random(size=(100_000, 2)) * 10
+    points_inside = points[region.contains(points)]
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    ax.plot(*points_inside.T, '.', markersize=1, color='Blue')
+    ax.add_patch(region.as_artist(fill=True, alpha=0.2))
+    plt.show()
 
     plt.close('all')
 

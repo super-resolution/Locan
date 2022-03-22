@@ -16,7 +16,7 @@ from locan.locan_io.locdata.io_locdata import convert_property_types
 if HAS_DEPENDENCY["h5py"]: import h5py
 
 
-__all__ = ['read_SMAP_header', 'load_SMAP_header', 'load_SMAP_file']
+__all__ = ['read_SMAP_header', 'load_SMAP_header', 'load_SMAP_file', 'save_SMAP_csv']
 
 logger = logging.getLogger(__name__)
 
@@ -123,3 +123,30 @@ def load_SMAP_file(path, nrows=None, convert=True):
     locdata.meta.history.add(name='load_SMAP_file', parameter='path={}, nrows={}'.format(path, nrows))
 
     return locdata
+
+
+def save_SMAP_csv(locdata, path):
+    """
+    Save LocData to SMAP-readable csv-file.
+
+    In the csv-file file format we store only localization data with SMAP-readable column names.
+
+    Parameters
+    ----------
+    locdata : LocData
+        The LocData object to be saved.
+    path : str, os.PathLike, file-like
+        File path including file name to save to.
+    """
+    # get data from locdata object
+    dataframe = locdata.data
+
+    # create reverse mapping to columns
+    inv_map = {v: k for k, v in locan.constants.SMAP_KEYS.items()}
+
+    # rename columns
+    dataframe = dataframe.rename(index=str, columns=inv_map, inplace=False)
+    valid_smap_columns = [key for key in dataframe.columns if key in locan.constants.SMAP_KEYS]
+
+    # write to csv
+    dataframe[valid_smap_columns].to_csv(path, float_format='%.10g', index=False)

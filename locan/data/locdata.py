@@ -12,7 +12,10 @@ import logging
 from google.protobuf import text_format, json_format
 import numpy as np
 import pandas as pd
-from scipy.spatial import QhullError
+try:
+    from scipy.spatial import QhullError
+except ImportError:
+    from scipy.spatial.qhull import QhullError # needed for Python 3.7
 
 from locan.constants import LOCDATA_ID  # is required to use LOCDATA_ID as global variable
 from locan import PROPERTY_KEYS

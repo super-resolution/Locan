@@ -876,7 +876,7 @@ def _histogram_mean_boost_histogram(data, bins, values) -> np.ndarray:
     return hist.view()
 
 
-def _check_loc_properties(locdata:LocData, loc_properties:Union[str, Iterable[str]]):
+def _check_loc_properties(locdata:LocData, loc_properties:Union[str, Iterable]):
     """
     Check that loc_properties are valid properties in locdata.
 

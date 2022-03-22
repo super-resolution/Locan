@@ -2,30 +2,17 @@
 Changelog
 =======================
 
-0.11 (unreleased)
+0.11 - 2022-03-22
 =================
 
 
 New Features
 ------------
--
-
-locan.analysis
-^^^^^^^^^^^^^^^
--
 
 locan.data
 ^^^^^^^^^^^^^^^
 - Modified Polygon.contains function to increase performance.
 - Implemented randomize function for all hull types.
-
-locan.datasets
-^^^^^^^^^^^^^^^
--
-
-locan.gui
-^^^^^^^^^^^^^^^
--
 
 locan.io
 ^^^^^^^^^^^^^^^
@@ -36,33 +23,8 @@ locan.render
 - Added rendering functions for 3D
 - Added rendering functions for RGB image (multi-color overlay)
 
-locan.scripts
-^^^^^^^^^^^^^^^
--
-
-locan.simulation
-^^^^^^^^^^^^^^^^^
-
-
-
 API Changes
 -----------
-
-locan.analysis
-^^^^^^^^^^^^^^^
--
-
-locan.data
-^^^^^^^^^^^^^^^
--
-
-locan.datasets
-^^^^^^^^^^^^^^^
--
-
-locan.gui
-^^^^^^^^^^^^^^^
--
 
 locan.io
 ^^^^^^^^^^^^^^^
@@ -72,45 +34,16 @@ locan.render
 ^^^^^^^^^^^^^^^
 - Refactored intensity rescaling by introducing standard normalization procedures.
 
-locan.scripts
-^^^^^^^^^^^^^^^
--
-
-locan.simulation
-^^^^^^^^^^^^^^^^^^^
--
-
 Bug Fixes
 ---------
-
-locan.analysis
-^^^^^^^^^^^^^^^
--
 
 locan.data
 ^^^^^^^^^^^^^^^
 - Fixed bunwarp transformation
 
-locan.gui
-^^^^^^^^^^^^^^^
--
-
 locan.io
 ^^^^^^^^^^^^^^^
 - Fixed lineterminator in load_rapidstorm_track_file
-
-locan.render
-^^^^^^^^^^^^^^^
--
-
-locan.scripts
-^^^^^^^^^^^^^^^
--
-
-locan.simulation
-^^^^^^^^^^^^^^^^^
--
-
 
 Other Changes and Additions
 ---------------------------

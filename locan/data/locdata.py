@@ -619,7 +619,7 @@ class LocData:
         return cls(references=references, dataframe=dataframe, meta=meta_)
 
     @classmethod
-    def from_chunks(cls, locdata, chunk_size=None, n_chunks=None, order='successive', drop=False, meta=None):
+    def from_chunks(cls, locdata, chunks=None, chunk_size=None, n_chunks=None, order='successive', drop=False, meta=None):
         """
         Divide locdata in chunks of localization elements.
 
@@ -627,6 +627,8 @@ class LocData:
         ----------
         locdatas : list of LocData
             Locdata objects to concatenate.
+        chunks : list[tuples]
+            Localization chunks as defined by a list of index-tuples
         chunk_size : int, None
             Number of localizations per chunk. One of `chunk_size` or `n_chunks` must be different from None.
         n_chunks : int, None
@@ -643,38 +645,41 @@ class LocData:
         LocData
             A new LocData instance with references and dataframe elements representing the individual chunks.
         """
-        if chunk_size is None and n_chunks is None:
-            raise ValueError("One of `chunk_size` or `n_chunks` must be different from None.")
-        elif chunk_size is not None and n_chunks is not None:
-            raise ValueError("One of `chunk_size` or `n_chunks` must be None.")
-        elif chunk_size is not None:
-            if (len(locdata) % chunk_size) == 0:
-                n_chunks = len(locdata) // chunk_size
-            else:
-                n_chunks = len(locdata) // chunk_size + 1
-        else:  # if n_chunks is not None
-            if (len(locdata) % n_chunks) == 0:
-                chunk_size = len(locdata) // n_chunks
-            else:
-                chunk_size = len(locdata) // (n_chunks-1)
+        n_nones = sum(element is None for element in [chunks, chunk_size, n_chunks])
 
-        if order == 'successive':
-            if (len(locdata) % chunk_size) == 0:
-                chunk_sizes = [chunk_size] * n_chunks
-            else:
-                chunk_sizes = [chunk_size] * (n_chunks-1) + [(len(locdata) % chunk_size)]
-            cum_chunk_sizes = list(accumulate(chunk_sizes))
-            cum_chunk_sizes.insert(0, 0)
-            index_lists = [locdata.data.index[slice(lower, upper)]
-                           for lower, upper in zip(cum_chunk_sizes[:-1], cum_chunk_sizes[1:])]
-
-        elif order == 'alternating':
-            index_lists = [locdata.data.index[slice(i_chunk, None, n_chunks)] for i_chunk in range(n_chunks)]
-
+        if n_nones != 2:
+            raise ValueError("One and only one of `chunks`, `chunk_size` or `n_chunks` must be different from None.")
+        elif chunks is not None:
+            index_lists = list(chunks)
         else:
-            raise ValueError(f"The order {order} is not implemented.")
+            if chunk_size is not None:
+                if (len(locdata) % chunk_size) == 0:
+                    n_chunks = len(locdata) // chunk_size
+                else:
+                    n_chunks = len(locdata) // chunk_size + 1
+            else:  # if n_chunks is not None
+                if (len(locdata) % n_chunks) == 0:
+                    chunk_size = len(locdata) // n_chunks
+                else:
+                    chunk_size = len(locdata) // (n_chunks-1)
 
-        if drop:
+            if order == 'successive':
+                if (len(locdata) % chunk_size) == 0:
+                    chunk_sizes = [chunk_size] * n_chunks
+                else:
+                    chunk_sizes = [chunk_size] * (n_chunks-1) + [(len(locdata) % chunk_size)]
+                cum_chunk_sizes = list(accumulate(chunk_sizes))
+                cum_chunk_sizes.insert(0, 0)
+                index_lists = [locdata.data.index[slice(lower, upper)]
+                               for lower, upper in zip(cum_chunk_sizes[:-1], cum_chunk_sizes[1:])]
+
+            elif order == 'alternating':
+                index_lists = [locdata.data.index[slice(i_chunk, None, n_chunks)] for i_chunk in range(n_chunks)]
+
+            else:
+                raise ValueError(f"The order {order} is not implemented.")
+
+        if drop and len(index_lists) > 1 and len(index_lists[-1]) < len(index_lists[0]):
             index_lists = index_lists[:-1]
 
         references = [LocData.from_selection(locdata=locdata, indices=index_list) for index_list in index_lists]

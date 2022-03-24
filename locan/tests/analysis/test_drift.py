@@ -1,3 +1,4 @@
+import locan
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt  # this import is needed for visual inspection
@@ -8,8 +9,10 @@ from locan import LocData
 from locan.dependencies import HAS_DEPENDENCY
 from locan import Drift, DriftComponent
 from locan.analysis.drift import _LmfitModelFacade, _ConstantModelFacade, _ConstantZeroModelFacade, \
-    _ConstantOneModelFacade, _SplineModelFacade
+    _ConstantOneModelFacade, _SplineModelFacade, _estimate_drift_cc, _estimate_drift_icp
 
+
+# data to evaluate fitting
 x = np.array([1, 2, 4, 6, 9, 10, 11, 15, 16, 20])
 y = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 
@@ -143,16 +146,84 @@ def test_Drift_empty(caplog):
                                     ('locan.analysis.drift', 30, 'No transformations available to be fitted.')]
 
 
-@pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
-def test_Drift(locdata_blobs_2d, locdata_rapidSTORM_2d):
-    import warnings
-    warnings.simplefilter("error")
 
-    drift = Drift(chunk_size=100, target='first').compute(locdata_rapidSTORM_2d)
+
+def test__estimate_drift_cc(locdata_blobs_2d):
+    # locan.render_2d_mpl(locdata_blobs_2d, bin_size=10, rescale=locan.Trafo.EQUALIZE)
+    # plt.show()
+
+    collection, transformations = _estimate_drift_cc(locdata_blobs_2d,
+                                                     chunks=None, chunk_size=25,
+                                                     target='first', bin_size=10,
+                                                     kwargs_chunk=None, kwargs_register=None)
+    assert len(collection) == 2
+    assert isinstance(collection, LocData)
+    assert len(transformations) == 2
+    assert len(transformations[0].matrix) == 2
+    assert len(transformations[0].offset) == 2
+
+    index_groups = (range(0, 25), range(25, 50))
+    collection, transformations = _estimate_drift_cc(locdata_blobs_2d,
+                                                     chunks=index_groups, chunk_size=None,
+                                                     target='first', bin_size=10,
+                                                     kwargs_chunk=None, kwargs_register=None)
+    assert len(collection) == 2
+    assert isinstance(collection, LocData)
+    assert len(transformations) == 2
+    assert len(transformations[0].matrix) == 2
+    assert len(transformations[0].offset) == 2
+
+    collection, transformations = _estimate_drift_cc(locdata_blobs_2d,
+                                                     chunks=None, chunk_size=25,
+                                                     target='previous', bin_size=10,
+                                                     kwargs_chunk=None, kwargs_register=None)
+    assert len(collection) == 2
+    assert isinstance(collection, LocData)
+    assert len(transformations) == 2
+    assert len(transformations[0].matrix) == 2
+    assert len(transformations[0].offset) == 2
+
+
+@pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
+def test__estimate_drift_icp(locdata_blobs_2d):
+    collection, transformations = _estimate_drift_icp(locdata_blobs_2d,
+                                                     chunks=None, chunk_size=25,
+                                                     target='first',
+                                                     kwargs_chunk=None, kwargs_register=None)
+    assert len(collection) == 2
+    assert isinstance(collection, LocData)
+    assert len(transformations) == 2
+    assert len(transformations[0].matrix) == 2
+    assert len(transformations[0].offset) == 2
+
+    index_groups = (range(0, 25), range(25, 50))
+    collection, transformations = _estimate_drift_icp(locdata_blobs_2d,
+                                                     chunks=index_groups, chunk_size=None,
+                                                     target='first',
+                                                     kwargs_chunk=None, kwargs_register=None)
+    assert len(collection) == 2
+    assert isinstance(collection, LocData)
+    assert len(transformations) == 2
+    assert len(transformations[0].matrix) == 2
+    assert len(transformations[0].offset) == 2
+
+    collection, transformations = _estimate_drift_icp(locdata_blobs_2d,
+                                                     chunks=None, chunk_size=25,
+                                                     target='previous',
+                                                     kwargs_chunk=None, kwargs_register=None)
+    assert len(collection) == 2
+    assert isinstance(collection, LocData)
+    assert len(transformations) == 2
+    assert len(transformations[0].matrix) == 2
+    assert len(transformations[0].offset) == 2
+
+
+def test_Drift(locdata_blobs_2d):
+    drift = Drift(chunk_size=15, target='first', method='cc').compute(locdata_blobs_2d)
     assert isinstance(drift.locdata, LocData)
     assert isinstance(drift.collection, LocData)
     assert drift.transformations[0]._fields == ('matrix', 'offset')
-    assert len(drift.transformations) == 10
+    assert len(drift.transformations) == 4
     assert drift.transformation_models['matrix'] is None
     assert drift.transformation_models['offset'] is None
 
@@ -194,12 +265,9 @@ def test_Drift(locdata_blobs_2d, locdata_rapidSTORM_2d):
     assert drift.transformation_models['offset'][0].type == 'spline'
     assert drift.transformation_models['offset'][1].type == 'spline'
 
-    assert drift.transformation_models['offset'][0].eval(3) == pytest.approx(-6.228, abs=1e-3)
-    assert drift.transformation_models['offset'][1].eval(3) == pytest.approx(-2.893, abs=1e-3)
-
     assert drift.locdata_corrected is None
     new_locdata = drift._apply_correction_on_chunks()
-    assert len(new_locdata) == len(locdata_rapidSTORM_2d)
+    assert len(new_locdata) == len(locdata_blobs_2d)
 
     drift.transformation_models['matrix'] = None
     drift.transformation_models['offset'] = None
@@ -225,7 +293,7 @@ def test_Drift(locdata_blobs_2d, locdata_rapidSTORM_2d):
                               offset_models=['linear'] * 2,
                               verbose=False)
     transformed_points = drift._apply_correction_from_model(drift.locdata)
-    assert len(transformed_points) == len(locdata_rapidSTORM_2d)
+    assert len(transformed_points) == len(locdata_blobs_2d)
 
     drift.apply_correction(from_model=True)
     assert isinstance(drift.locdata_corrected, LocData)
@@ -235,10 +303,11 @@ def test_Drift(locdata_blobs_2d, locdata_rapidSTORM_2d):
     assert isinstance(drift.locdata_corrected, LocData)
     assert len(drift.locdata_corrected) == len(drift.collection.references[0])
 
-    drift = Drift(chunk_size=200, target='previous').compute(locdata_rapidSTORM_2d)
+    # change target and fit_transformations
+    drift = Drift(chunk_size=25, target='previous').compute(locdata_blobs_2d)
     assert isinstance(drift.collection, LocData)
     assert drift.transformations[0]._fields == ('matrix', 'offset')
-    assert len(drift.transformations) == 5
+    assert len(drift.transformations) == 2
 
     drift.plot(transformation_component='matrix', element=None)
     drift.plot(transformation_component='matrix', element=3)
@@ -252,10 +321,14 @@ def test_Drift(locdata_blobs_2d, locdata_rapidSTORM_2d):
                                   offset_models=['linear'] * 2,
                                   verbose=False)
 
+    plt.close('all')
+
+
+def test_Drift_chain(locdata_blobs_2d):
     # apply chained functions
-    drift = Drift(chunk_size=200, target='first', method='cc').\
-        compute(locdata_rapidSTORM_2d).\
-        fit_transformations(slice_data=slice(0, 3),
+    drift = Drift(chunk_size=25, target='first', method='cc').\
+        compute(locdata_blobs_2d).\
+        fit_transformations(slice_data=slice(0, 2),
                             matrix_models=None,
                             offset_models=(None, LinearModel())).\
         apply_correction()
@@ -263,6 +336,29 @@ def test_Drift(locdata_blobs_2d, locdata_rapidSTORM_2d):
     assert isinstance(drift.locdata, LocData)
     assert isinstance(drift.collection, LocData)
     assert drift.transformations[0]._fields == ('matrix', 'offset')
-    assert len(drift.transformations) == 5
+    assert len(drift.transformations) == 2
 
-    plt.close('all')
+
+@pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
+def test_Drift_with_icp(locdata_blobs_2d):
+    drift = Drift(chunk_size=15, target='first', method='icp').compute(locdata_blobs_2d)
+    assert isinstance(drift.locdata, LocData)
+    assert isinstance(drift.collection, LocData)
+    assert drift.transformations[0]._fields == ('matrix', 'offset')
+    assert len(drift.transformations) == 4
+    assert drift.transformation_models['matrix'] is None
+    assert drift.transformation_models['offset'] is None
+
+    assert drift.transformation_models['matrix'] is None
+    drift.fit_transformation(slice_data=slice(None), transformation_component='matrix', element=1,
+                             drift_model='linear', verbose=False)
+    assert isinstance(drift.transformation_models['matrix'][0], DriftComponent)
+    assert drift.transformation_models['matrix'][0].type == 'one'
+    assert drift.transformation_models['matrix'][1].type == 'linear'
+    assert drift.transformation_models['matrix'][2].type == 'zero'
+
+    assert drift.transformation_models['offset'] is None
+    drift.fit_transformation(slice_data=slice(None), transformation_component='offset', element=1,
+                             drift_model='linear', verbose=False)
+    assert drift.transformation_models['offset'][0].type == 'zero'
+    assert drift.transformation_models['offset'][1].type == 'linear'

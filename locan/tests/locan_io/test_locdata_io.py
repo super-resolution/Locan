@@ -103,7 +103,7 @@ def test_loading_txt_file(caplog):
     assert (len(dat) == 10)
 
     dat = load_txt_file(path=locan.ROOT_DIR / 'tests/test_data/five_blobs.txt',
-                           columns=['index', 'position_x', 'position_y', 'cluster_label'], nrows=10)
+                           columns=['index', 'position_x', 'position_y', 'cluster_label', 'frame'], nrows=10)
     # print(dat.data)
     assert (len(dat) == 10)
 
@@ -115,9 +115,10 @@ def test_loading_txt_file(caplog):
 
     dat = load_txt_file(path=locan.ROOT_DIR / 'tests/test_data/five_blobs.txt',
                            columns=['c1'], nrows=10)
+    # print(dat.data)
     assert caplog.record_tuples == [('locan.locan_io.locdata.utilities', logging.WARNING,
                                      'Column c1 is not a Locan property standard.')]
-    # print(dat.data)
+
     assert (len(dat) == 10)
 
     dat = load_txt_file(path=locan.ROOT_DIR / 'tests/test_data/five_blobs.txt',

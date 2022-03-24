@@ -537,6 +537,12 @@ def test_locdata_from_selection_(
 
 
 def test_locdata_from_chunks_(locdata_non_standard_index):
+    with pytest.raises(ValueError):
+        chunk_collection = LocData.from_chunks(locdata=locdata_non_standard_index)
+
+    chunk_collection = LocData.from_chunks(locdata=locdata_non_standard_index, chunks=((2, 1), (0, 3)))
+    assert all(chunk_collection.references[0].data.index == [2, 1])
+
     chunk_collection = LocData.from_chunks(locdata=locdata_non_standard_index, chunk_size=2)
     assert all(chunk_collection.references[0].data.index == [2, 1])
 
@@ -549,7 +555,7 @@ def test_locdata_from_chunks_(locdata_non_standard_index):
 
 @pytest.mark.parametrize('fixture_name, expected', [
     ('locdata_empty', (0, (0,), 0, (0,))),
-    ('locdata_single_localization', (1, (1,), 0, (0,))),
+    ('locdata_single_localization', (1, (1,), 1, (1,))),
     ('locdata_2d', (3, (2, 2, 2), 1, (4,))),
     ('locdata_non_standard_index', (3, (2, 2, 2), 1, (4,)))
 ])

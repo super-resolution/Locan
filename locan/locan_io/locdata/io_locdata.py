@@ -90,7 +90,7 @@ def save_thunderstorm_csv(locdata, path):
     dataframe.to_csv(path, float_format='%.10g', index=False)
 
 
-def load_txt_file(path, sep=',', columns=None, nrows=None, property_mapping=None, **kwargs):
+def load_txt_file(path, sep=',', columns=None, nrows=None, property_mapping=None, convert=True, **kwargs):
     """
     Load localization data from a txt file.
 
@@ -108,6 +108,8 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, property_mapping=None
         The number of localizations to load from file. None means that all available rows are loaded (Default: None).
     property_mapping : dict[str: str] or list[dict]
         Mappings between column names and locan property names
+    convert : bool
+        If True convert types by applying type specifications in locan.constants.PROPERTY_KEYS.
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -127,6 +129,9 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, property_mapping=None
         column_keys = convert_property_names(columns, property_mapping=property_mapping)
         dataframe = pd.read_csv(path, sep=sep, nrows=nrows,
                                 **dict(dict(skiprows=1, names=column_keys), **kwargs))
+
+    if convert:
+        dataframe = convert_property_types(dataframe, types=locan.constants.PROPERTY_KEYS)
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 

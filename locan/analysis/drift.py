@@ -71,7 +71,7 @@ logger = logging.getLogger(__name__)
 ##### The algorithms
 
 @needs_package("open3d")
-def _estimate_drift_icp(locdata, chunk_size=1000, target='first', kwargs_chunk=None, kwargs_register=None):
+def _estimate_drift_icp(locdata, chunks=None, chunk_size=None, target='first', kwargs_chunk=None, kwargs_register=None):
     """
     Estimate drift from localization coordinates by registering points in successive time-chunks of localization
     data using an "Iterative Closest Point" algorithm.
@@ -80,6 +80,8 @@ def _estimate_drift_icp(locdata, chunk_size=1000, target='first', kwargs_chunk=N
     ----------
     locdata : LocData
        Localization data with properties for coordinates and frame.
+    chunks : list[tuples]
+        Localization chunks as defined by a list of index-tuples
     chunk_size : int
        Number of consecutive localizations to form a single chunk of data.
     target : str
@@ -100,7 +102,7 @@ def _estimate_drift_icp(locdata, chunk_size=1000, target='first', kwargs_chunk=N
         kwargs_register = {}
 
     # split in chunks
-    collection = LocData.from_chunks(locdata, chunk_size=chunk_size, **kwargs_chunk)
+    collection = LocData.from_chunks(locdata, chunks=chunks, chunk_size=chunk_size, **kwargs_chunk)
 
     # register locdatas
     # initialize with identity transformation for chunk zero.
@@ -126,7 +128,8 @@ def _estimate_drift_icp(locdata, chunk_size=1000, target='first', kwargs_chunk=N
     return collection, transformations
 
 
-def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, kwargs_chunk=None, kwargs_register=None):
+def _estimate_drift_cc(locdata, chunks=None, chunk_size=None, target='first', bin_size=10,
+                       kwargs_chunk=None, kwargs_register=None):
     """
     Estimate drift from localization coordinates by registering points in successive time-chunks of localization
     data using a cross-correlation algorithm.
@@ -135,6 +138,8 @@ def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, kw
     ----------
     locdata : LocData
        Localization data with properties for coordinates and frame.
+    chunks : list[tuples]
+        Localization chunks as defined by a list of index-tuples
     chunk_size : int
        Number of consecutive localizations to form a single chunk of data.
     target : str
@@ -157,7 +162,7 @@ def _estimate_drift_cc(locdata, chunk_size=1000, target='first', bin_size=10, kw
         kwargs_register = {}
 
     # split in chunks
-    collection = LocData.from_chunks(locdata, chunk_size=chunk_size, **kwargs_chunk)
+    collection = LocData.from_chunks(locdata, chunks=chunks, chunk_size=chunk_size, **kwargs_chunk)
     ranges = locdata.bounding_box.hull.T
 
     # register images
@@ -373,6 +378,8 @@ class Drift(_Analysis):
     ----------
     locdata : LocData
         Localization data representing the source on which to perform the manipulation.
+    chunks : list[tuples]
+        Localization chunks as defined by a list of index-tuples
     chunk_size : int
         Number of consecutive localizations to form a single chunk of data.
     target : str
@@ -412,9 +419,9 @@ class Drift(_Analysis):
     """
     count = 0
 
-    def __init__(self, meta=None, chunk_size=1000, target='first', method='icp',
+    def __init__(self, meta=None, chunks=None, chunk_size=None, target='first', method='icp',
                  kwargs_chunk=None, kwargs_register=None):
-        super().__init__(meta, chunk_size=chunk_size, target=target, method=method,
+        super().__init__(meta, chunks=chunks, chunk_size=chunk_size, target=target, method=method,
                          kwargs_chunk=kwargs_chunk, kwargs_register=kwargs_register)
         self.locdata = None
         self.collection = None
@@ -447,11 +454,15 @@ class Drift(_Analysis):
             return self
 
         if self.parameter['method'] == 'icp':
-            collection, transformations = _estimate_drift_icp(locdata, chunk_size=self.parameter['chunk_size'],
+            collection, transformations = _estimate_drift_icp(locdata,
+                                                              chunks=self.parameter['chunks'],
+                                                              chunk_size=self.parameter['chunk_size'],
                                                               kwargs_chunk=self.parameter['kwargs_chunk'],
                                                               kwargs_register=self.parameter['kwargs_register'])
         elif self.parameter['method'] == 'cc':
-            collection, transformations = _estimate_drift_cc(locdata, chunk_size=self.parameter['chunk_size'],
+            collection, transformations = _estimate_drift_cc(locdata,
+                                                             chunks=self.parameter['chunks'],
+                                                             chunk_size=self.parameter['chunk_size'],
                                                              kwargs_chunk=self.parameter['kwargs_chunk'],
                                                              kwargs_register=self.parameter['kwargs_register'])
         else:

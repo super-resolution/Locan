@@ -110,11 +110,11 @@ def load_rapidSTORM_file(path, nrows=None, convert=True, **kwargs):
 
     dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
-    dat.meta.file_type = metadata_pb2.RAPIDSTORM
-    dat.meta.file_path = str(path)
+    dat.meta.file.type = metadata_pb2.RAPIDSTORM
+    dat.meta.file.path = str(path)
 
     for property in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        dat.meta.unit.add(property=property, unit='nm')
+        dat.meta.units[property] = 'nm'
 
     del dat.meta.history[:]
     dat.meta.history.add(name='load_rapidSTORM_file', parameter='path={}, nrows={}'.format(path, nrows))
@@ -243,11 +243,11 @@ def load_rapidSTORM_track_file(path, nrows=None, convert=True, collection=True, 
 
         collection.meta.source = metadata_pb2.EXPERIMENT
         collection.meta.state = metadata_pb2.RAW
-        collection.meta.file_type = metadata_pb2.RAPIDSTORMTRACK
-        collection.meta.file_path = str(path)
+        collection.meta.file.type = metadata_pb2.RAPIDSTORMTRACK
+        collection.meta.file.path = str(path)
 
         for property in sorted(list(set(columns_track).intersection({'position_x', 'position_y', 'position_z'}))):
-            collection.meta.unit.add(property=property, unit='nm')
+            collection.meta.units[property] = 'nm'
 
         del collection.meta.history[:]
         collection.meta.history.add(name='load_rapidSTORM_track_file',
@@ -267,11 +267,11 @@ def load_rapidSTORM_track_file(path, nrows=None, convert=True, collection=True, 
 
         locdata.meta.source = metadata_pb2.EXPERIMENT
         locdata.meta.state = metadata_pb2.RAW
-        locdata.meta.file_type = metadata_pb2.RAPIDSTORM
-        locdata.meta.file_path = str(path)
+        locdata.meta.file.type = metadata_pb2.RAPIDSTORM
+        locdata.meta.file.path = str(path)
 
         for property in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-            locdata.meta.unit.add(property=property, unit='nm')
+            locdata.meta.units[property] = 'nm'
 
         del locdata.meta.history[:]
         locdata.meta.history.add(name='load_rapidSTORM_track_file', parameter='path={}, nrows={}'.format(path, nrows))

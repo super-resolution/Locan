@@ -1,0 +1,81 @@
+// This is a protobuf file. Pass it through the protobuf compiler to generate
+// Python code:
+//
+// Run protobuf compiler from Locan/locan/data:
+// protoc --python_out=. metadata.proto
+//
+// Alternatively, run protobuf compiler from from Locan root directory:
+// protoc --proto_path="." --python_out="."  "./locan/data/metadata.proto"
+//
+// Update all *.proto files from Locan root directory:
+// protoc --proto_path="." --proto_path="./locan/locan_io/locdata" --python_out="." "./locan/data/metadata.proto" "./locan/locan_io/locdata/manifest.proto"
+syntax = "proto2";
+
+package locan.data;
+
+enum Source {
+    UNKNOWN_SOURCE = 0;
+    DESIGN = 1;
+    EXPERIMENT = 2;
+    SIMULATION = 3;
+    IMPORT = 4;
+}
+
+enum State {
+    UNKNOWN_STATE = 0;
+    RAW = 1;
+    MODIFIED = 2;
+}
+
+enum File_type {
+    UNKNOWN_FILE_TYPE = 0;
+    CUSTOM = 1;
+    RAPIDSTORM = 2;
+    ELYRA = 3;
+    THUNDERSTORM = 4;
+    ASDF = 5;
+    NANOIMAGER = 6;
+    RAPIDSTORMTRACK = 7;
+    SMLM = 8;
+    DECODE = 9;
+    SMAP = 10;
+}
+
+message Operation {
+    optional string name = 1;
+    optional string parameter = 2;
+}
+
+message Unit {
+    optional string property = 1;
+    optional string unit = 2;
+}
+
+// Next id: 18
+message Metadata {
+  optional string identifier = 1;
+  optional string comment = 2;
+  // Localtime in "%Y-%m-%d %H:%M:%S %z"
+  optional string creation_date = 3;
+  // Localtime in "%Y-%m-%d %H:%M:%S %z"
+  optional string modification_date = 4;
+  // Localtime in "%Y-%m-%d %H:%M:%S %z"
+  optional string production_date = 5;
+
+  optional Source source = 6;
+  optional State state = 7;
+  repeated Operation history = 8;
+  repeated string ancestor_identifiers = 9;
+
+  repeated Unit unit = 10;
+  optional int64 element_count = 11;
+  optional int64 frame_count = 12;
+
+  optional File_type file_type = 13;
+  optional string file_path = 14;
+
+  map<string, string> experimental_setup = 15;
+  map<string, string> experimental_sample = 16;
+
+  map<string, string> map = 17;
+}

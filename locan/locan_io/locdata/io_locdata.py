@@ -137,8 +137,8 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, property_mapping=None
 
     dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
-    dat.meta.file_type = metadata_pb2.CUSTOM
-    dat.meta.file_path = str(path)
+    dat.meta.file.type = metadata_pb2.CUSTOM
+    dat.meta.file.path = str(path)
 
     del dat.meta.history[:]
     dat.meta.history.add(name='load_txt_file',
@@ -239,8 +239,8 @@ def load_Elyra_file(path, nrows=None, convert=True, **kwargs):
 
     dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
-    dat.meta.file_type = metadata_pb2.ELYRA
-    dat.meta.file_path = str(path)
+    dat.meta.file.type = metadata_pb2.ELYRA
+    dat.meta.file.path = str(path)
 
     del dat.meta.history[:]
     dat.meta.history.add(name='load_Elyra_file', parameter='path={}, nrows={}'.format(path, nrows))
@@ -267,7 +267,7 @@ def load_asdf_file(path, nrows=None):
     with asdf_open(path) as af:
         new_df = pd.DataFrame({k: af.tree['data'][slice(nrows), n] for n, k in enumerate(af.tree['columns'])})
         locdata = LocData(dataframe=new_df)
-        locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta)
+        locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta, ignore_unknown_fields=True)
     return locdata
 
 
@@ -351,11 +351,11 @@ def load_thunderstorm_file(path, nrows=None, convert=True, **kwargs):
 
     dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
-    dat.meta.file_type = metadata_pb2.THUNDERSTORM
-    dat.meta.file_path = str(path)
+    dat.meta.file.type = metadata_pb2.THUNDERSTORM
+    dat.meta.file.path = str(path)
 
     for property_ in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        dat.meta.unit.add(property=property_, unit='nm')
+        dat.meta.units[property_] = 'nm'
 
     del dat.meta.history[:]
     dat.meta.history.add(name='load_thundestorm_file', parameter='path={}, nrows={}'.format(path, nrows))
@@ -443,11 +443,11 @@ def load_Nanoimager_file(path, nrows=None, convert=True, **kwargs):
 
     dat.meta.source = metadata_pb2.EXPERIMENT
     dat.meta.state = metadata_pb2.RAW
-    dat.meta.file_type = metadata_pb2.NANOIMAGER
-    dat.meta.file_path = str(path)
+    dat.meta.file.type = metadata_pb2.NANOIMAGER
+    dat.meta.file.path = str(path)
 
     for property_ in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        dat.meta.unit.add(property=property_, unit='nm')
+        dat.meta.units[property_] = 'nm'
 
     del dat.meta.history[:]
     dat.meta.history.add(name='load_Nanoimager_file', parameter='path={}, nrows={}'.format(path, nrows))

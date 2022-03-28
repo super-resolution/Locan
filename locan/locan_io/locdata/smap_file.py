@@ -113,11 +113,11 @@ def load_SMAP_file(path, nrows=None, convert=True):
 
     locdata.meta.source = metadata_pb2.EXPERIMENT
     locdata.meta.state = metadata_pb2.RAW
-    locdata.meta.file_type = metadata_pb2.SMAP
-    locdata.meta.file_path = str(path)
+    locdata.meta.file.type = metadata_pb2.SMAP
+    locdata.meta.file.path = str(path)
 
     for property_ in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        locdata.meta.unit.add(property=property_, unit='nm')
+        locdata.meta.units[property_] = 'nm'
 
     del locdata.meta.history[:]
     locdata.meta.history.add(name='load_SMAP_file', parameter='path={}, nrows={}'.format(path, nrows))

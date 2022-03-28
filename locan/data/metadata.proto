@@ -13,6 +13,8 @@ syntax = "proto2";
 
 package locan.data;
 
+
+// Next id: 5
 enum Source {
     UNKNOWN_SOURCE = 0;
     DESIGN = 1;
@@ -21,12 +23,14 @@ enum Source {
     IMPORT = 4;
 }
 
+// Next id: 3
 enum State {
     UNKNOWN_STATE = 0;
     RAW = 1;
     MODIFIED = 2;
 }
 
+// Next id: 11
 enum File_type {
     UNKNOWN_FILE_TYPE = 0;
     CUSTOM = 1;
@@ -41,41 +45,196 @@ enum File_type {
     SMAP = 10;
 }
 
+// Next id: 3
 message Operation {
     optional string name = 1;
     optional string parameter = 2;
 }
 
-message Unit {
-    optional string property = 1;
-    optional string unit = 2;
+// Next id: 5
+message File {
+    optional string identifier = 1;
+    optional string comment = 2;
+    optional File_type type = 3;
+    optional string path = 4;
+    repeated string groups = 5;
 }
 
-// Next id: 18
+// Next id: 5
+message Address {
+  repeated string address_lines = 1;
+  optional string city = 2;
+  optional string city_code = 3;
+  optional string country = 4;
+}
+
+// Next id: 4
+message Affiliation {
+    optional string institute = 1;
+    optional string department = 2;
+    optional Address address = 3;
+}
+
+// Next id: 10
+message Person {
+    optional string identifier = 1;
+    optional string comment = 2;
+    optional string first_name = 3;
+    optional string last_name = 4;
+    optional string title = 5;
+    repeated Affiliation affiliations = 6;
+    optional Address address = 7;
+    repeated string emails = 8;
+    repeated string roles = 9;
+}
+
+// Next id: 7
+message ExperimentalSample {
+    optional string identifier = 1;
+    optional string comment = 2;
+    repeated string targets = 3;
+    repeated string fluorophores = 4;
+    repeated string buffers = 5;
+    map<string, string> map = 6;
+}
+
+// Next id: 5
+message ExperimentalSetup {
+    optional string identifier = 1;
+    optional string comment = 2;
+    repeated OpticalUnit optical_units = 3;
+    map<string, string> map = 4;
+}
+
+// Next id: 7
+message OpticalUnit {
+    optional string identifier = 1;
+    optional string comment = 2;
+    optional Illumination illumination = 3;
+    optional Detection detection = 4;
+    optional Acquisition acquisition = 5;
+    optional Lightsheet lightsheet = 6;
+}
+
+// Next id: 9
+message Illumination {
+    optional string identifier = 1;
+    optional string comment = 2;
+    optional string lightsource = 3;
+    optional float power = 4;
+    optional float area = 5;
+    optional float power_density = 6;
+    optional float wavelength = 7;
+    map<string, string> map = 8;
+}
+
+// Next id: 5
+message Detection {
+    optional string identifier = 1;
+    optional string comment = 2;
+    optional Camera camera = 3;
+    map<string, string> map = 4;
+}
+
+// Next id: 14
+message Camera {
+    optional string identifier = 1;
+    optional string comment = 2;
+	optional string name = 3;
+    optional string model = 4;
+    optional float gain = 5;
+    optional float electrons_per_count = 6;
+    optional float integration_time = 7;
+    optional int32 pixel_count_x = 8;
+    optional int32 pixel_count_y = 9;
+    optional float pixel_size_x = 10;
+    optional float pixel_size_y = 11;
+    optional bool flipped = 12;
+    map<string, string> map = 13;
+}
+
+// Next id: 12
+message Acquisition {
+    optional string identifier = 1;
+    optional string comment = 2;
+    optional int32 frame_count = 3;
+    optional int32 frame_of_interest_first = 4;
+    optional int32 frame_of_interest_last = 5;
+    optional float time_start = 6;
+    optional float time_end = 7;
+    optional int32 stack_count = 8;
+    optional int32 stack_step_count = 9;
+    optional float stack_step_size = 10;
+    map<string, string> map = 11;
+}
+
+// Next id: 7
+message Lightsheet {
+    optional string identifier = 1;
+    optional string comment = 2;
+    optional float angle_x = 3;
+    optional float angle_y = 4;
+    optional float angle_z = 5;
+    map<string, string> map = 6;
+}
+
+// Next id: 7
+message Experiment {
+    optional string identifier = 1;
+    optional string comment = 2;
+    repeated Person experimenters = 3;
+    repeated ExperimentalSample samples = 4;
+    repeated ExperimentalSetup setups = 5;
+    map<string, string> map = 6;
+}
+
+// Next id: 8
+message Localizer {
+    optional string identifier = 1;
+    optional string comment = 2;
+    optional string software = 3;
+    optional float intensity_threshold = 4;
+    optional bool psf_fixed = 5;
+    optional float psf_size = 6;
+    map<string, string> map = 7;
+}
+
+// Next id: 5
+message Relation {
+    optional string identifier = 1;
+    optional string comment = 2;
+    optional File file = 3;
+    map<string, string> map = 4;
+}
+
+// Next id: 24
 message Metadata {
-  optional string identifier = 1;
-  optional string comment = 2;
-  // Localtime in "%Y-%m-%d %H:%M:%S %z"
-  optional string creation_date = 3;
-  // Localtime in "%Y-%m-%d %H:%M:%S %z"
-  optional string modification_date = 4;
-  // Localtime in "%Y-%m-%d %H:%M:%S %z"
-  optional string production_date = 5;
-
-  optional Source source = 6;
-  optional State state = 7;
-  repeated Operation history = 8;
-  repeated string ancestor_identifiers = 9;
-
-  repeated Unit unit = 10;
-  optional int64 element_count = 11;
-  optional int64 frame_count = 12;
-
-  optional File_type file_type = 13;
-  optional string file_path = 14;
-
-  map<string, string> experimental_setup = 15;
-  map<string, string> experimental_sample = 16;
-
-  map<string, string> map = 17;
+    optional string identifier = 1;
+    optional string comment = 2;
+    // Localtime in "%Y-%m-%d %H:%M:%S %z"
+    optional string creation_date = 3;
+    // Localtime in "%Y-%m-%d %H:%M:%S %z"
+    optional string modification_date = 4;
+    // Localtime in "%Y-%m-%d %H:%M:%S %z"
+    optional string production_date = 5;
+    optional Source source = 6;
+    optional State state = 7;
+    repeated Operation history = 8;
+    repeated string ancestor_identifiers = 9;
+    // deleted: repeated Unit unit = 10;
+    repeated string properties = 18;
+    map<string, string> units = 19;
+    optional int64 element_count = 11;
+    optional int64 frame_count = 12;
+    // to be deprecated - use file.File.type instead
+    optional File_type file_type = 13;
+    // to be deprecated - use file.File.path instead
+    optional string file_path = 14;
+    // deleted: map<string, string> experimental_setup = 15;
+    // deleted: map<string, string> experimental_sample = 16;
+    optional File file = 20;
+    repeated Relation relations = 21;
+    optional Experiment experiment = 22;
+    optional Localizer localizer = 23;
+    map<string, string> map = 17;
 }

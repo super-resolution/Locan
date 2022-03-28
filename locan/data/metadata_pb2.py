@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x19locan/data/metadata.proto\x12\nlocan.data\",\n\tOperation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tparameter\x18\x02 \x01(\t\"&\n\x04Unit\x12\x10\n\x08property\x18\x01 \x01(\t\x12\x0c\n\x04unit\x18\x02 \x01(\t\"\xf0\x05\n\x08Metadata\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x15\n\rcreation_date\x18\x03 \x01(\t\x12\x19\n\x11modification_date\x18\x04 \x01(\t\x12\x17\n\x0fproduction_date\x18\x05 \x01(\t\x12\"\n\x06source\x18\x06 \x01(\x0e\x32\x12.locan.data.Source\x12 \n\x05state\x18\x07 \x01(\x0e\x32\x11.locan.data.State\x12&\n\x07history\x18\x08 \x03(\x0b\x32\x15.locan.data.Operation\x12\x1c\n\x14\x61ncestor_identifiers\x18\t \x03(\t\x12\x1e\n\x04unit\x18\n \x03(\x0b\x32\x10.locan.data.Unit\x12\x15\n\relement_count\x18\x0b \x01(\x03\x12\x13\n\x0b\x66rame_count\x18\x0c \x01(\x03\x12(\n\tfile_type\x18\r \x01(\x0e\x32\x15.locan.data.File_type\x12\x11\n\tfile_path\x18\x0e \x01(\t\x12G\n\x12\x65xperimental_setup\x18\x0f \x03(\x0b\x32+.locan.data.Metadata.ExperimentalSetupEntry\x12I\n\x13\x65xperimental_sample\x18\x10 \x03(\x0b\x32,.locan.data.Metadata.ExperimentalSampleEntry\x12*\n\x03map\x18\x11 \x03(\x0b\x32\x1d.locan.data.Metadata.MapEntry\x1a\x38\n\x16\x45xperimentalSetupEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a\x39\n\x17\x45xperimentalSampleEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*T\n\x06Source\x12\x12\n\x0eUNKNOWN_SOURCE\x10\x00\x12\n\n\x06\x44\x45SIGN\x10\x01\x12\x0e\n\nEXPERIMENT\x10\x02\x12\x0e\n\nSIMULATION\x10\x03\x12\n\n\x06IMPORT\x10\x04*1\n\x05State\x12\x11\n\rUNKNOWN_STATE\x10\x00\x12\x07\n\x03RAW\x10\x01\x12\x0c\n\x08MODIFIED\x10\x02*\xaa\x01\n\tFile_type\x12\x15\n\x11UNKNOWN_FILE_TYPE\x10\x00\x12\n\n\x06\x43USTOM\x10\x01\x12\x0e\n\nRAPIDSTORM\x10\x02\x12\t\n\x05\x45LYRA\x10\x03\x12\x10\n\x0cTHUNDERSTORM\x10\x04\x12\x08\n\x04\x41SDF\x10\x05\x12\x0e\n\nNANOIMAGER\x10\x06\x12\x13\n\x0fRAPIDSTORMTRACK\x10\x07\x12\x08\n\x04SMLM\x10\x08\x12\n\n\x06\x44\x45\x43ODE\x10\t\x12\x08\n\x04SMAP\x10\n'
+  serialized_pb=b'\n\x19locan/data/metadata.proto\x12\nlocan.data\",\n\tOperation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tparameter\x18\x02 \x01(\t\"n\n\x04\x46ile\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12#\n\x04type\x18\x03 \x01(\x0e\x32\x15.locan.data.File_type\x12\x0c\n\x04path\x18\x04 \x01(\t\x12\x0e\n\x06groups\x18\x05 \x03(\t\"R\n\x07\x41\x64\x64ress\x12\x15\n\raddress_lines\x18\x01 \x03(\t\x12\x0c\n\x04\x63ity\x18\x02 \x01(\t\x12\x11\n\tcity_code\x18\x03 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x04 \x01(\t\"Z\n\x0b\x41\x66\x66iliation\x12\x11\n\tinstitute\x18\x01 \x01(\t\x12\x12\n\ndepartment\x18\x02 \x01(\t\x12$\n\x07\x61\x64\x64ress\x18\x03 \x01(\x0b\x32\x13.locan.data.Address\"\xd7\x01\n\x06Person\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x12\n\nfirst_name\x18\x03 \x01(\t\x12\x11\n\tlast_name\x18\x04 \x01(\t\x12\r\n\x05title\x18\x05 \x01(\t\x12-\n\x0c\x61\x66\x66iliations\x18\x06 \x03(\x0b\x32\x17.locan.data.Affiliation\x12$\n\x07\x61\x64\x64ress\x18\x07 \x01(\x0b\x32\x13.locan.data.Address\x12\x0e\n\x06\x65mails\x18\x08 \x03(\t\x12\r\n\x05roles\x18\t \x03(\t\"\xd3\x01\n\x12\x45xperimentalSample\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x0f\n\x07targets\x18\x03 \x03(\t\x12\x14\n\x0c\x66luorophores\x18\x04 \x03(\t\x12\x0f\n\x07\x62uffers\x18\x05 \x03(\t\x12\x34\n\x03map\x18\x06 \x03(\x0b\x32\'.locan.data.ExperimentalSample.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc9\x01\n\x11\x45xperimentalSetup\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12.\n\roptical_units\x18\x03 \x03(\x0b\x32\x17.locan.data.OpticalUnit\x12\x33\n\x03map\x18\x04 \x03(\x0b\x32&.locan.data.ExperimentalSetup.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe6\x01\n\x0bOpticalUnit\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12.\n\x0cillumination\x18\x03 \x01(\x0b\x32\x18.locan.data.Illumination\x12(\n\tdetection\x18\x04 \x01(\x0b\x32\x15.locan.data.Detection\x12,\n\x0b\x61\x63quisition\x18\x05 \x01(\x0b\x32\x17.locan.data.Acquisition\x12*\n\nlightsheet\x18\x06 \x01(\x0b\x32\x16.locan.data.Lightsheet\"\xec\x01\n\x0cIllumination\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x13\n\x0blightsource\x18\x03 \x01(\t\x12\r\n\x05power\x18\x04 \x01(\x02\x12\x0c\n\x04\x61rea\x18\x05 \x01(\x02\x12\x15\n\rpower_density\x18\x06 \x01(\x02\x12\x12\n\nwavelength\x18\x07 \x01(\x02\x12.\n\x03map\x18\x08 \x03(\x0b\x32!.locan.data.Illumination.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xad\x01\n\tDetection\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\"\n\x06\x63\x61mera\x18\x03 \x01(\x0b\x32\x12.locan.data.Camera\x12+\n\x03map\x18\x04 \x03(\x0b\x32\x1e.locan.data.Detection.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd0\x02\n\x06\x43\x61mera\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\r\n\x05model\x18\x04 \x01(\t\x12\x0c\n\x04gain\x18\x05 \x01(\x02\x12\x1b\n\x13\x65lectrons_per_count\x18\x06 \x01(\x02\x12\x18\n\x10integration_time\x18\x07 \x01(\x02\x12\x15\n\rpixel_count_x\x18\x08 \x01(\x05\x12\x15\n\rpixel_count_y\x18\t \x01(\x05\x12\x14\n\x0cpixel_size_x\x18\n \x01(\x02\x12\x14\n\x0cpixel_size_y\x18\x0b \x01(\x02\x12\x0f\n\x07\x66lipped\x18\x0c \x01(\x08\x12(\n\x03map\x18\r \x03(\x0b\x32\x1b.locan.data.Camera.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd1\x02\n\x0b\x41\x63quisition\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x13\n\x0b\x66rame_count\x18\x03 \x01(\x05\x12\x1f\n\x17\x66rame_of_interest_first\x18\x04 \x01(\x05\x12\x1e\n\x16\x66rame_of_interest_last\x18\x05 \x01(\x05\x12\x12\n\ntime_start\x18\x06 \x01(\x02\x12\x10\n\x08time_end\x18\x07 \x01(\x02\x12\x13\n\x0bstack_count\x18\x08 \x01(\x05\x12\x18\n\x10stack_step_count\x18\t \x01(\x05\x12\x17\n\x0fstack_step_size\x18\n \x01(\x02\x12-\n\x03map\x18\x0b \x03(\x0b\x32 .locan.data.Acquisition.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xbe\x01\n\nLightsheet\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x0f\n\x07\x61ngle_x\x18\x03 \x01(\x02\x12\x0f\n\x07\x61ngle_y\x18\x04 \x01(\x02\x12\x0f\n\x07\x61ngle_z\x18\x05 \x01(\x02\x12,\n\x03map\x18\x06 \x03(\x0b\x32\x1f.locan.data.Lightsheet.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x96\x02\n\nExperiment\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12)\n\rexperimenters\x18\x03 \x03(\x0b\x32\x12.locan.data.Person\x12/\n\x07samples\x18\x04 \x03(\x0b\x32\x1e.locan.data.ExperimentalSample\x12-\n\x06setups\x18\x05 \x03(\x0b\x32\x1d.locan.data.ExperimentalSetup\x12,\n\x03map\x18\x06 \x03(\x0b\x32\x1f.locan.data.Experiment.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xdd\x01\n\tLocalizer\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x10\n\x08software\x18\x03 \x01(\t\x12\x1b\n\x13intensity_threshold\x18\x04 \x01(\x02\x12\x11\n\tpsf_fixed\x18\x05 \x01(\x08\x12\x10\n\x08psf_size\x18\x06 \x01(\x02\x12+\n\x03map\x18\x07 \x03(\x0b\x32\x1e.locan.data.Localizer.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa7\x01\n\x08Relation\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x1e\n\x04\x66ile\x18\x03 \x01(\x0b\x32\x10.locan.data.File\x12*\n\x03map\x18\x04 \x03(\x0b\x32\x1d.locan.data.Relation.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd8\x05\n\x08Metadata\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x15\n\rcreation_date\x18\x03 \x01(\t\x12\x19\n\x11modification_date\x18\x04 \x01(\t\x12\x17\n\x0fproduction_date\x18\x05 \x01(\t\x12\"\n\x06source\x18\x06 \x01(\x0e\x32\x12.locan.data.Source\x12 \n\x05state\x18\x07 \x01(\x0e\x32\x11.locan.data.State\x12&\n\x07history\x18\x08 \x03(\x0b\x32\x15.locan.data.Operation\x12\x1c\n\x14\x61ncestor_identifiers\x18\t \x03(\t\x12\x12\n\nproperties\x18\x12 \x03(\t\x12.\n\x05units\x18\x13 \x03(\x0b\x32\x1f.locan.data.Metadata.UnitsEntry\x12\x15\n\relement_count\x18\x0b \x01(\x03\x12\x13\n\x0b\x66rame_count\x18\x0c \x01(\x03\x12(\n\tfile_type\x18\r \x01(\x0e\x32\x15.locan.data.File_type\x12\x11\n\tfile_path\x18\x0e \x01(\t\x12\x1e\n\x04\x66ile\x18\x14 \x01(\x0b\x32\x10.locan.data.File\x12\'\n\trelations\x18\x15 \x03(\x0b\x32\x14.locan.data.Relation\x12*\n\nexperiment\x18\x16 \x01(\x0b\x32\x16.locan.data.Experiment\x12(\n\tlocalizer\x18\x17 \x01(\x0b\x32\x15.locan.data.Localizer\x12*\n\x03map\x18\x11 \x03(\x0b\x32\x1d.locan.data.Metadata.MapEntry\x1a,\n\nUnitsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*T\n\x06Source\x12\x12\n\x0eUNKNOWN_SOURCE\x10\x00\x12\n\n\x06\x44\x45SIGN\x10\x01\x12\x0e\n\nEXPERIMENT\x10\x02\x12\x0e\n\nSIMULATION\x10\x03\x12\n\n\x06IMPORT\x10\x04*1\n\x05State\x12\x11\n\rUNKNOWN_STATE\x10\x00\x12\x07\n\x03RAW\x10\x01\x12\x0c\n\x08MODIFIED\x10\x02*\xaa\x01\n\tFile_type\x12\x15\n\x11UNKNOWN_FILE_TYPE\x10\x00\x12\n\n\x06\x43USTOM\x10\x01\x12\x0e\n\nRAPIDSTORM\x10\x02\x12\t\n\x05\x45LYRA\x10\x03\x12\x10\n\x0cTHUNDERSTORM\x10\x04\x12\x08\n\x04\x41SDF\x10\x05\x12\x0e\n\nNANOIMAGER\x10\x06\x12\x13\n\x0fRAPIDSTORMTRACK\x10\x07\x12\x08\n\x04SMLM\x10\x08\x12\n\n\x06\x44\x45\x43ODE\x10\t\x12\x08\n\x04SMAP\x10\n'
 )
 
 _SOURCE = _descriptor.EnumDescriptor(
@@ -58,8 +58,8 @@ _SOURCE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=882,
-  serialized_end=966,
+  serialized_start=3937,
+  serialized_end=4021,
 )
 _sym_db.RegisterEnumDescriptor(_SOURCE)
 
@@ -89,8 +89,8 @@ _STATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=968,
-  serialized_end=1017,
+  serialized_start=4023,
+  serialized_end=4072,
 )
 _sym_db.RegisterEnumDescriptor(_STATE)
 
@@ -160,8 +160,8 @@ _FILE_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1020,
-  serialized_end=1190,
+  serialized_start=4075,
+  serialized_end=4245,
 )
 _sym_db.RegisterEnumDescriptor(_FILE_TYPE)
 
@@ -227,25 +227,46 @@ _OPERATION = _descriptor.Descriptor(
 )
 
 
-_UNIT = _descriptor.Descriptor(
-  name='Unit',
-  full_name='locan.data.Unit',
+_FILE = _descriptor.Descriptor(
+  name='File',
+  full_name='locan.data.File',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='property', full_name='locan.data.Unit.property', index=0,
+      name='identifier', full_name='locan.data.File.identifier', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='unit', full_name='locan.data.Unit.unit', index=1,
+      name='comment', full_name='locan.data.File.comment', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='type', full_name='locan.data.File.type', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='path', full_name='locan.data.File.path', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='groups', full_name='locan.data.File.groups', index=4,
+      number=5, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -262,27 +283,214 @@ _UNIT = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=87,
-  serialized_end=125,
+  serialized_end=197,
 )
 
 
-_METADATA_EXPERIMENTALSETUPENTRY = _descriptor.Descriptor(
-  name='ExperimentalSetupEntry',
-  full_name='locan.data.Metadata.ExperimentalSetupEntry',
+_ADDRESS = _descriptor.Descriptor(
+  name='Address',
+  full_name='locan.data.Address',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='locan.data.Metadata.ExperimentalSetupEntry.key', index=0,
+      name='address_lines', full_name='locan.data.Address.address_lines', index=0,
+      number=1, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='city', full_name='locan.data.Address.city', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='city_code', full_name='locan.data.Address.city_code', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='country', full_name='locan.data.Address.country', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=199,
+  serialized_end=281,
+)
+
+
+_AFFILIATION = _descriptor.Descriptor(
+  name='Affiliation',
+  full_name='locan.data.Affiliation',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='institute', full_name='locan.data.Affiliation.institute', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='value', full_name='locan.data.Metadata.ExperimentalSetupEntry.value', index=1,
+      name='department', full_name='locan.data.Affiliation.department', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='address', full_name='locan.data.Affiliation.address', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=283,
+  serialized_end=373,
+)
+
+
+_PERSON = _descriptor.Descriptor(
+  name='Person',
+  full_name='locan.data.Person',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.Person.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.Person.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='first_name', full_name='locan.data.Person.first_name', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='last_name', full_name='locan.data.Person.last_name', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='title', full_name='locan.data.Person.title', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='affiliations', full_name='locan.data.Person.affiliations', index=5,
+      number=6, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='address', full_name='locan.data.Person.address', index=6,
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='emails', full_name='locan.data.Person.emails', index=7,
+      number=8, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='roles', full_name='locan.data.Person.roles', index=8,
+      number=9, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=376,
+  serialized_end=591,
+)
+
+
+_EXPERIMENTALSAMPLE_MAPENTRY = _descriptor.Descriptor(
+  name='MapEntry',
+  full_name='locan.data.ExperimentalSample.MapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='locan.data.ExperimentalSample.MapEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='locan.data.ExperimentalSample.MapEntry.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -300,27 +508,94 @@ _METADATA_EXPERIMENTALSETUPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=721,
-  serialized_end=777,
+  serialized_start=763,
+  serialized_end=805,
 )
 
-_METADATA_EXPERIMENTALSAMPLEENTRY = _descriptor.Descriptor(
-  name='ExperimentalSampleEntry',
-  full_name='locan.data.Metadata.ExperimentalSampleEntry',
+_EXPERIMENTALSAMPLE = _descriptor.Descriptor(
+  name='ExperimentalSample',
+  full_name='locan.data.ExperimentalSample',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='locan.data.Metadata.ExperimentalSampleEntry.key', index=0,
+      name='identifier', full_name='locan.data.ExperimentalSample.identifier', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='value', full_name='locan.data.Metadata.ExperimentalSampleEntry.value', index=1,
+      name='comment', full_name='locan.data.ExperimentalSample.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='targets', full_name='locan.data.ExperimentalSample.targets', index=2,
+      number=3, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='fluorophores', full_name='locan.data.ExperimentalSample.fluorophores', index=3,
+      number=4, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='buffers', full_name='locan.data.ExperimentalSample.buffers', index=4,
+      number=5, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.ExperimentalSample.map', index=5,
+      number=6, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_EXPERIMENTALSAMPLE_MAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=594,
+  serialized_end=805,
+)
+
+
+_EXPERIMENTALSETUP_MAPENTRY = _descriptor.Descriptor(
+  name='MapEntry',
+  full_name='locan.data.ExperimentalSetup.MapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='locan.data.ExperimentalSetup.MapEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='locan.data.ExperimentalSetup.MapEntry.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -338,8 +613,1083 @@ _METADATA_EXPERIMENTALSAMPLEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=779,
-  serialized_end=836,
+  serialized_start=763,
+  serialized_end=805,
+)
+
+_EXPERIMENTALSETUP = _descriptor.Descriptor(
+  name='ExperimentalSetup',
+  full_name='locan.data.ExperimentalSetup',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.ExperimentalSetup.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.ExperimentalSetup.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='optical_units', full_name='locan.data.ExperimentalSetup.optical_units', index=2,
+      number=3, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.ExperimentalSetup.map', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_EXPERIMENTALSETUP_MAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=808,
+  serialized_end=1009,
+)
+
+
+_OPTICALUNIT = _descriptor.Descriptor(
+  name='OpticalUnit',
+  full_name='locan.data.OpticalUnit',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.OpticalUnit.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.OpticalUnit.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='illumination', full_name='locan.data.OpticalUnit.illumination', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='detection', full_name='locan.data.OpticalUnit.detection', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='acquisition', full_name='locan.data.OpticalUnit.acquisition', index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='lightsheet', full_name='locan.data.OpticalUnit.lightsheet', index=5,
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1012,
+  serialized_end=1242,
+)
+
+
+_ILLUMINATION_MAPENTRY = _descriptor.Descriptor(
+  name='MapEntry',
+  full_name='locan.data.Illumination.MapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='locan.data.Illumination.MapEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='locan.data.Illumination.MapEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=763,
+  serialized_end=805,
+)
+
+_ILLUMINATION = _descriptor.Descriptor(
+  name='Illumination',
+  full_name='locan.data.Illumination',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.Illumination.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.Illumination.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='lightsource', full_name='locan.data.Illumination.lightsource', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='power', full_name='locan.data.Illumination.power', index=3,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='area', full_name='locan.data.Illumination.area', index=4,
+      number=5, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='power_density', full_name='locan.data.Illumination.power_density', index=5,
+      number=6, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='wavelength', full_name='locan.data.Illumination.wavelength', index=6,
+      number=7, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.Illumination.map', index=7,
+      number=8, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_ILLUMINATION_MAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1245,
+  serialized_end=1481,
+)
+
+
+_DETECTION_MAPENTRY = _descriptor.Descriptor(
+  name='MapEntry',
+  full_name='locan.data.Detection.MapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='locan.data.Detection.MapEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='locan.data.Detection.MapEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=763,
+  serialized_end=805,
+)
+
+_DETECTION = _descriptor.Descriptor(
+  name='Detection',
+  full_name='locan.data.Detection',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.Detection.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.Detection.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='camera', full_name='locan.data.Detection.camera', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.Detection.map', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_DETECTION_MAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1484,
+  serialized_end=1657,
+)
+
+
+_CAMERA_MAPENTRY = _descriptor.Descriptor(
+  name='MapEntry',
+  full_name='locan.data.Camera.MapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='locan.data.Camera.MapEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='locan.data.Camera.MapEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=763,
+  serialized_end=805,
+)
+
+_CAMERA = _descriptor.Descriptor(
+  name='Camera',
+  full_name='locan.data.Camera',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.Camera.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.Camera.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='locan.data.Camera.name', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='model', full_name='locan.data.Camera.model', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='gain', full_name='locan.data.Camera.gain', index=4,
+      number=5, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='electrons_per_count', full_name='locan.data.Camera.electrons_per_count', index=5,
+      number=6, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='integration_time', full_name='locan.data.Camera.integration_time', index=6,
+      number=7, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='pixel_count_x', full_name='locan.data.Camera.pixel_count_x', index=7,
+      number=8, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='pixel_count_y', full_name='locan.data.Camera.pixel_count_y', index=8,
+      number=9, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='pixel_size_x', full_name='locan.data.Camera.pixel_size_x', index=9,
+      number=10, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='pixel_size_y', full_name='locan.data.Camera.pixel_size_y', index=10,
+      number=11, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='flipped', full_name='locan.data.Camera.flipped', index=11,
+      number=12, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.Camera.map', index=12,
+      number=13, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_CAMERA_MAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1660,
+  serialized_end=1996,
+)
+
+
+_ACQUISITION_MAPENTRY = _descriptor.Descriptor(
+  name='MapEntry',
+  full_name='locan.data.Acquisition.MapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='locan.data.Acquisition.MapEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='locan.data.Acquisition.MapEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=763,
+  serialized_end=805,
+)
+
+_ACQUISITION = _descriptor.Descriptor(
+  name='Acquisition',
+  full_name='locan.data.Acquisition',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.Acquisition.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.Acquisition.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='frame_count', full_name='locan.data.Acquisition.frame_count', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='frame_of_interest_first', full_name='locan.data.Acquisition.frame_of_interest_first', index=3,
+      number=4, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='frame_of_interest_last', full_name='locan.data.Acquisition.frame_of_interest_last', index=4,
+      number=5, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='time_start', full_name='locan.data.Acquisition.time_start', index=5,
+      number=6, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='time_end', full_name='locan.data.Acquisition.time_end', index=6,
+      number=7, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='stack_count', full_name='locan.data.Acquisition.stack_count', index=7,
+      number=8, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='stack_step_count', full_name='locan.data.Acquisition.stack_step_count', index=8,
+      number=9, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='stack_step_size', full_name='locan.data.Acquisition.stack_step_size', index=9,
+      number=10, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.Acquisition.map', index=10,
+      number=11, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_ACQUISITION_MAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1999,
+  serialized_end=2336,
+)
+
+
+_LIGHTSHEET_MAPENTRY = _descriptor.Descriptor(
+  name='MapEntry',
+  full_name='locan.data.Lightsheet.MapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='locan.data.Lightsheet.MapEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='locan.data.Lightsheet.MapEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=763,
+  serialized_end=805,
+)
+
+_LIGHTSHEET = _descriptor.Descriptor(
+  name='Lightsheet',
+  full_name='locan.data.Lightsheet',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.Lightsheet.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.Lightsheet.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='angle_x', full_name='locan.data.Lightsheet.angle_x', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='angle_y', full_name='locan.data.Lightsheet.angle_y', index=3,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='angle_z', full_name='locan.data.Lightsheet.angle_z', index=4,
+      number=5, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.Lightsheet.map', index=5,
+      number=6, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_LIGHTSHEET_MAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2339,
+  serialized_end=2529,
+)
+
+
+_EXPERIMENT_MAPENTRY = _descriptor.Descriptor(
+  name='MapEntry',
+  full_name='locan.data.Experiment.MapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='locan.data.Experiment.MapEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='locan.data.Experiment.MapEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=763,
+  serialized_end=805,
+)
+
+_EXPERIMENT = _descriptor.Descriptor(
+  name='Experiment',
+  full_name='locan.data.Experiment',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.Experiment.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.Experiment.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='experimenters', full_name='locan.data.Experiment.experimenters', index=2,
+      number=3, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='samples', full_name='locan.data.Experiment.samples', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='setups', full_name='locan.data.Experiment.setups', index=4,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.Experiment.map', index=5,
+      number=6, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_EXPERIMENT_MAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2532,
+  serialized_end=2810,
+)
+
+
+_LOCALIZER_MAPENTRY = _descriptor.Descriptor(
+  name='MapEntry',
+  full_name='locan.data.Localizer.MapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='locan.data.Localizer.MapEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='locan.data.Localizer.MapEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=763,
+  serialized_end=805,
+)
+
+_LOCALIZER = _descriptor.Descriptor(
+  name='Localizer',
+  full_name='locan.data.Localizer',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.Localizer.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.Localizer.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='software', full_name='locan.data.Localizer.software', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='intensity_threshold', full_name='locan.data.Localizer.intensity_threshold', index=3,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='psf_fixed', full_name='locan.data.Localizer.psf_fixed', index=4,
+      number=5, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='psf_size', full_name='locan.data.Localizer.psf_size', index=5,
+      number=6, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.Localizer.map', index=6,
+      number=7, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_LOCALIZER_MAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2813,
+  serialized_end=3034,
+)
+
+
+_RELATION_MAPENTRY = _descriptor.Descriptor(
+  name='MapEntry',
+  full_name='locan.data.Relation.MapEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='locan.data.Relation.MapEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='locan.data.Relation.MapEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=763,
+  serialized_end=805,
+)
+
+_RELATION = _descriptor.Descriptor(
+  name='Relation',
+  full_name='locan.data.Relation',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.Relation.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.Relation.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='file', full_name='locan.data.Relation.file', index=2,
+      number=3, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.Relation.map', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_RELATION_MAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=3037,
+  serialized_end=3204,
+)
+
+
+_METADATA_UNITSENTRY = _descriptor.Descriptor(
+  name='UnitsEntry',
+  full_name='locan.data.Metadata.UnitsEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='locan.data.Metadata.UnitsEntry.key', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='locan.data.Metadata.UnitsEntry.value', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=b'8\001',
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=3847,
+  serialized_end=3891,
 )
 
 _METADATA_MAPENTRY = _descriptor.Descriptor(
@@ -376,8 +1726,8 @@ _METADATA_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=838,
-  serialized_end=880,
+  serialized_start=763,
+  serialized_end=805,
 )
 
 _METADATA = _descriptor.Descriptor(
@@ -452,56 +1802,77 @@ _METADATA = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='unit', full_name='locan.data.Metadata.unit', index=9,
-      number=10, type=11, cpp_type=10, label=3,
+      name='properties', full_name='locan.data.Metadata.properties', index=9,
+      number=18, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='element_count', full_name='locan.data.Metadata.element_count', index=10,
+      name='units', full_name='locan.data.Metadata.units', index=10,
+      number=19, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='element_count', full_name='locan.data.Metadata.element_count', index=11,
       number=11, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='frame_count', full_name='locan.data.Metadata.frame_count', index=11,
+      name='frame_count', full_name='locan.data.Metadata.frame_count', index=12,
       number=12, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='file_type', full_name='locan.data.Metadata.file_type', index=12,
+      name='file_type', full_name='locan.data.Metadata.file_type', index=13,
       number=13, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='file_path', full_name='locan.data.Metadata.file_path', index=13,
+      name='file_path', full_name='locan.data.Metadata.file_path', index=14,
       number=14, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='experimental_setup', full_name='locan.data.Metadata.experimental_setup', index=14,
-      number=15, type=11, cpp_type=10, label=3,
+      name='file', full_name='locan.data.Metadata.file', index=15,
+      number=20, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='relations', full_name='locan.data.Metadata.relations', index=16,
+      number=21, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='experimental_sample', full_name='locan.data.Metadata.experimental_sample', index=15,
-      number=16, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
+      name='experiment', full_name='locan.data.Metadata.experiment', index=17,
+      number=22, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='map', full_name='locan.data.Metadata.map', index=16,
+      name='localizer', full_name='locan.data.Metadata.localizer', index=18,
+      number=23, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.Metadata.map', index=19,
       number=17, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -510,7 +1881,7 @@ _METADATA = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_METADATA_EXPERIMENTALSETUPENTRY, _METADATA_EXPERIMENTALSAMPLEENTRY, _METADATA_MAPENTRY, ],
+  nested_types=[_METADATA_UNITSENTRY, _METADATA_MAPENTRY, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -519,23 +1890,72 @@ _METADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=128,
-  serialized_end=880,
+  serialized_start=3207,
+  serialized_end=3935,
 )
 
-_METADATA_EXPERIMENTALSETUPENTRY.containing_type = _METADATA
-_METADATA_EXPERIMENTALSAMPLEENTRY.containing_type = _METADATA
+_FILE.fields_by_name['type'].enum_type = _FILE_TYPE
+_AFFILIATION.fields_by_name['address'].message_type = _ADDRESS
+_PERSON.fields_by_name['affiliations'].message_type = _AFFILIATION
+_PERSON.fields_by_name['address'].message_type = _ADDRESS
+_EXPERIMENTALSAMPLE_MAPENTRY.containing_type = _EXPERIMENTALSAMPLE
+_EXPERIMENTALSAMPLE.fields_by_name['map'].message_type = _EXPERIMENTALSAMPLE_MAPENTRY
+_EXPERIMENTALSETUP_MAPENTRY.containing_type = _EXPERIMENTALSETUP
+_EXPERIMENTALSETUP.fields_by_name['optical_units'].message_type = _OPTICALUNIT
+_EXPERIMENTALSETUP.fields_by_name['map'].message_type = _EXPERIMENTALSETUP_MAPENTRY
+_OPTICALUNIT.fields_by_name['illumination'].message_type = _ILLUMINATION
+_OPTICALUNIT.fields_by_name['detection'].message_type = _DETECTION
+_OPTICALUNIT.fields_by_name['acquisition'].message_type = _ACQUISITION
+_OPTICALUNIT.fields_by_name['lightsheet'].message_type = _LIGHTSHEET
+_ILLUMINATION_MAPENTRY.containing_type = _ILLUMINATION
+_ILLUMINATION.fields_by_name['map'].message_type = _ILLUMINATION_MAPENTRY
+_DETECTION_MAPENTRY.containing_type = _DETECTION
+_DETECTION.fields_by_name['camera'].message_type = _CAMERA
+_DETECTION.fields_by_name['map'].message_type = _DETECTION_MAPENTRY
+_CAMERA_MAPENTRY.containing_type = _CAMERA
+_CAMERA.fields_by_name['map'].message_type = _CAMERA_MAPENTRY
+_ACQUISITION_MAPENTRY.containing_type = _ACQUISITION
+_ACQUISITION.fields_by_name['map'].message_type = _ACQUISITION_MAPENTRY
+_LIGHTSHEET_MAPENTRY.containing_type = _LIGHTSHEET
+_LIGHTSHEET.fields_by_name['map'].message_type = _LIGHTSHEET_MAPENTRY
+_EXPERIMENT_MAPENTRY.containing_type = _EXPERIMENT
+_EXPERIMENT.fields_by_name['experimenters'].message_type = _PERSON
+_EXPERIMENT.fields_by_name['samples'].message_type = _EXPERIMENTALSAMPLE
+_EXPERIMENT.fields_by_name['setups'].message_type = _EXPERIMENTALSETUP
+_EXPERIMENT.fields_by_name['map'].message_type = _EXPERIMENT_MAPENTRY
+_LOCALIZER_MAPENTRY.containing_type = _LOCALIZER
+_LOCALIZER.fields_by_name['map'].message_type = _LOCALIZER_MAPENTRY
+_RELATION_MAPENTRY.containing_type = _RELATION
+_RELATION.fields_by_name['file'].message_type = _FILE
+_RELATION.fields_by_name['map'].message_type = _RELATION_MAPENTRY
+_METADATA_UNITSENTRY.containing_type = _METADATA
 _METADATA_MAPENTRY.containing_type = _METADATA
 _METADATA.fields_by_name['source'].enum_type = _SOURCE
 _METADATA.fields_by_name['state'].enum_type = _STATE
 _METADATA.fields_by_name['history'].message_type = _OPERATION
-_METADATA.fields_by_name['unit'].message_type = _UNIT
+_METADATA.fields_by_name['units'].message_type = _METADATA_UNITSENTRY
 _METADATA.fields_by_name['file_type'].enum_type = _FILE_TYPE
-_METADATA.fields_by_name['experimental_setup'].message_type = _METADATA_EXPERIMENTALSETUPENTRY
-_METADATA.fields_by_name['experimental_sample'].message_type = _METADATA_EXPERIMENTALSAMPLEENTRY
+_METADATA.fields_by_name['file'].message_type = _FILE
+_METADATA.fields_by_name['relations'].message_type = _RELATION
+_METADATA.fields_by_name['experiment'].message_type = _EXPERIMENT
+_METADATA.fields_by_name['localizer'].message_type = _LOCALIZER
 _METADATA.fields_by_name['map'].message_type = _METADATA_MAPENTRY
 DESCRIPTOR.message_types_by_name['Operation'] = _OPERATION
-DESCRIPTOR.message_types_by_name['Unit'] = _UNIT
+DESCRIPTOR.message_types_by_name['File'] = _FILE
+DESCRIPTOR.message_types_by_name['Address'] = _ADDRESS
+DESCRIPTOR.message_types_by_name['Affiliation'] = _AFFILIATION
+DESCRIPTOR.message_types_by_name['Person'] = _PERSON
+DESCRIPTOR.message_types_by_name['ExperimentalSample'] = _EXPERIMENTALSAMPLE
+DESCRIPTOR.message_types_by_name['ExperimentalSetup'] = _EXPERIMENTALSETUP
+DESCRIPTOR.message_types_by_name['OpticalUnit'] = _OPTICALUNIT
+DESCRIPTOR.message_types_by_name['Illumination'] = _ILLUMINATION
+DESCRIPTOR.message_types_by_name['Detection'] = _DETECTION
+DESCRIPTOR.message_types_by_name['Camera'] = _CAMERA
+DESCRIPTOR.message_types_by_name['Acquisition'] = _ACQUISITION
+DESCRIPTOR.message_types_by_name['Lightsheet'] = _LIGHTSHEET
+DESCRIPTOR.message_types_by_name['Experiment'] = _EXPERIMENT
+DESCRIPTOR.message_types_by_name['Localizer'] = _LOCALIZER
+DESCRIPTOR.message_types_by_name['Relation'] = _RELATION
 DESCRIPTOR.message_types_by_name['Metadata'] = _METADATA
 DESCRIPTOR.enum_types_by_name['Source'] = _SOURCE
 DESCRIPTOR.enum_types_by_name['State'] = _STATE
@@ -549,26 +1969,197 @@ Operation = _reflection.GeneratedProtocolMessageType('Operation', (_message.Mess
   })
 _sym_db.RegisterMessage(Operation)
 
-Unit = _reflection.GeneratedProtocolMessageType('Unit', (_message.Message,), {
-  'DESCRIPTOR' : _UNIT,
+File = _reflection.GeneratedProtocolMessageType('File', (_message.Message,), {
+  'DESCRIPTOR' : _FILE,
   '__module__' : 'locan.data.metadata_pb2'
-  # @@protoc_insertion_point(class_scope:locan.data.Unit)
+  # @@protoc_insertion_point(class_scope:locan.data.File)
   })
-_sym_db.RegisterMessage(Unit)
+_sym_db.RegisterMessage(File)
+
+Address = _reflection.GeneratedProtocolMessageType('Address', (_message.Message,), {
+  'DESCRIPTOR' : _ADDRESS,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Address)
+  })
+_sym_db.RegisterMessage(Address)
+
+Affiliation = _reflection.GeneratedProtocolMessageType('Affiliation', (_message.Message,), {
+  'DESCRIPTOR' : _AFFILIATION,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Affiliation)
+  })
+_sym_db.RegisterMessage(Affiliation)
+
+Person = _reflection.GeneratedProtocolMessageType('Person', (_message.Message,), {
+  'DESCRIPTOR' : _PERSON,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Person)
+  })
+_sym_db.RegisterMessage(Person)
+
+ExperimentalSample = _reflection.GeneratedProtocolMessageType('ExperimentalSample', (_message.Message,), {
+
+  'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _EXPERIMENTALSAMPLE_MAPENTRY,
+    '__module__' : 'locan.data.metadata_pb2'
+    # @@protoc_insertion_point(class_scope:locan.data.ExperimentalSample.MapEntry)
+    })
+  ,
+  'DESCRIPTOR' : _EXPERIMENTALSAMPLE,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.ExperimentalSample)
+  })
+_sym_db.RegisterMessage(ExperimentalSample)
+_sym_db.RegisterMessage(ExperimentalSample.MapEntry)
+
+ExperimentalSetup = _reflection.GeneratedProtocolMessageType('ExperimentalSetup', (_message.Message,), {
+
+  'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _EXPERIMENTALSETUP_MAPENTRY,
+    '__module__' : 'locan.data.metadata_pb2'
+    # @@protoc_insertion_point(class_scope:locan.data.ExperimentalSetup.MapEntry)
+    })
+  ,
+  'DESCRIPTOR' : _EXPERIMENTALSETUP,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.ExperimentalSetup)
+  })
+_sym_db.RegisterMessage(ExperimentalSetup)
+_sym_db.RegisterMessage(ExperimentalSetup.MapEntry)
+
+OpticalUnit = _reflection.GeneratedProtocolMessageType('OpticalUnit', (_message.Message,), {
+  'DESCRIPTOR' : _OPTICALUNIT,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.OpticalUnit)
+  })
+_sym_db.RegisterMessage(OpticalUnit)
+
+Illumination = _reflection.GeneratedProtocolMessageType('Illumination', (_message.Message,), {
+
+  'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _ILLUMINATION_MAPENTRY,
+    '__module__' : 'locan.data.metadata_pb2'
+    # @@protoc_insertion_point(class_scope:locan.data.Illumination.MapEntry)
+    })
+  ,
+  'DESCRIPTOR' : _ILLUMINATION,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Illumination)
+  })
+_sym_db.RegisterMessage(Illumination)
+_sym_db.RegisterMessage(Illumination.MapEntry)
+
+Detection = _reflection.GeneratedProtocolMessageType('Detection', (_message.Message,), {
+
+  'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _DETECTION_MAPENTRY,
+    '__module__' : 'locan.data.metadata_pb2'
+    # @@protoc_insertion_point(class_scope:locan.data.Detection.MapEntry)
+    })
+  ,
+  'DESCRIPTOR' : _DETECTION,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Detection)
+  })
+_sym_db.RegisterMessage(Detection)
+_sym_db.RegisterMessage(Detection.MapEntry)
+
+Camera = _reflection.GeneratedProtocolMessageType('Camera', (_message.Message,), {
+
+  'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _CAMERA_MAPENTRY,
+    '__module__' : 'locan.data.metadata_pb2'
+    # @@protoc_insertion_point(class_scope:locan.data.Camera.MapEntry)
+    })
+  ,
+  'DESCRIPTOR' : _CAMERA,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Camera)
+  })
+_sym_db.RegisterMessage(Camera)
+_sym_db.RegisterMessage(Camera.MapEntry)
+
+Acquisition = _reflection.GeneratedProtocolMessageType('Acquisition', (_message.Message,), {
+
+  'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _ACQUISITION_MAPENTRY,
+    '__module__' : 'locan.data.metadata_pb2'
+    # @@protoc_insertion_point(class_scope:locan.data.Acquisition.MapEntry)
+    })
+  ,
+  'DESCRIPTOR' : _ACQUISITION,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Acquisition)
+  })
+_sym_db.RegisterMessage(Acquisition)
+_sym_db.RegisterMessage(Acquisition.MapEntry)
+
+Lightsheet = _reflection.GeneratedProtocolMessageType('Lightsheet', (_message.Message,), {
+
+  'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _LIGHTSHEET_MAPENTRY,
+    '__module__' : 'locan.data.metadata_pb2'
+    # @@protoc_insertion_point(class_scope:locan.data.Lightsheet.MapEntry)
+    })
+  ,
+  'DESCRIPTOR' : _LIGHTSHEET,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Lightsheet)
+  })
+_sym_db.RegisterMessage(Lightsheet)
+_sym_db.RegisterMessage(Lightsheet.MapEntry)
+
+Experiment = _reflection.GeneratedProtocolMessageType('Experiment', (_message.Message,), {
+
+  'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _EXPERIMENT_MAPENTRY,
+    '__module__' : 'locan.data.metadata_pb2'
+    # @@protoc_insertion_point(class_scope:locan.data.Experiment.MapEntry)
+    })
+  ,
+  'DESCRIPTOR' : _EXPERIMENT,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Experiment)
+  })
+_sym_db.RegisterMessage(Experiment)
+_sym_db.RegisterMessage(Experiment.MapEntry)
+
+Localizer = _reflection.GeneratedProtocolMessageType('Localizer', (_message.Message,), {
+
+  'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _LOCALIZER_MAPENTRY,
+    '__module__' : 'locan.data.metadata_pb2'
+    # @@protoc_insertion_point(class_scope:locan.data.Localizer.MapEntry)
+    })
+  ,
+  'DESCRIPTOR' : _LOCALIZER,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Localizer)
+  })
+_sym_db.RegisterMessage(Localizer)
+_sym_db.RegisterMessage(Localizer.MapEntry)
+
+Relation = _reflection.GeneratedProtocolMessageType('Relation', (_message.Message,), {
+
+  'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _RELATION_MAPENTRY,
+    '__module__' : 'locan.data.metadata_pb2'
+    # @@protoc_insertion_point(class_scope:locan.data.Relation.MapEntry)
+    })
+  ,
+  'DESCRIPTOR' : _RELATION,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Relation)
+  })
+_sym_db.RegisterMessage(Relation)
+_sym_db.RegisterMessage(Relation.MapEntry)
 
 Metadata = _reflection.GeneratedProtocolMessageType('Metadata', (_message.Message,), {
 
-  'ExperimentalSetupEntry' : _reflection.GeneratedProtocolMessageType('ExperimentalSetupEntry', (_message.Message,), {
-    'DESCRIPTOR' : _METADATA_EXPERIMENTALSETUPENTRY,
+  'UnitsEntry' : _reflection.GeneratedProtocolMessageType('UnitsEntry', (_message.Message,), {
+    'DESCRIPTOR' : _METADATA_UNITSENTRY,
     '__module__' : 'locan.data.metadata_pb2'
-    # @@protoc_insertion_point(class_scope:locan.data.Metadata.ExperimentalSetupEntry)
-    })
-  ,
-
-  'ExperimentalSampleEntry' : _reflection.GeneratedProtocolMessageType('ExperimentalSampleEntry', (_message.Message,), {
-    'DESCRIPTOR' : _METADATA_EXPERIMENTALSAMPLEENTRY,
-    '__module__' : 'locan.data.metadata_pb2'
-    # @@protoc_insertion_point(class_scope:locan.data.Metadata.ExperimentalSampleEntry)
+    # @@protoc_insertion_point(class_scope:locan.data.Metadata.UnitsEntry)
     })
   ,
 
@@ -583,12 +2174,20 @@ Metadata = _reflection.GeneratedProtocolMessageType('Metadata', (_message.Messag
   # @@protoc_insertion_point(class_scope:locan.data.Metadata)
   })
 _sym_db.RegisterMessage(Metadata)
-_sym_db.RegisterMessage(Metadata.ExperimentalSetupEntry)
-_sym_db.RegisterMessage(Metadata.ExperimentalSampleEntry)
+_sym_db.RegisterMessage(Metadata.UnitsEntry)
 _sym_db.RegisterMessage(Metadata.MapEntry)
 
 
-_METADATA_EXPERIMENTALSETUPENTRY._options = None
-_METADATA_EXPERIMENTALSAMPLEENTRY._options = None
+_EXPERIMENTALSAMPLE_MAPENTRY._options = None
+_EXPERIMENTALSETUP_MAPENTRY._options = None
+_ILLUMINATION_MAPENTRY._options = None
+_DETECTION_MAPENTRY._options = None
+_CAMERA_MAPENTRY._options = None
+_ACQUISITION_MAPENTRY._options = None
+_LIGHTSHEET_MAPENTRY._options = None
+_EXPERIMENT_MAPENTRY._options = None
+_LOCALIZER_MAPENTRY._options = None
+_RELATION_MAPENTRY._options = None
+_METADATA_UNITSENTRY._options = None
 _METADATA_MAPENTRY._options = None
 # @@protoc_insertion_point(module_scope)

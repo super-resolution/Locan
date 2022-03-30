@@ -1,4 +1,4 @@
-name: Tests with matrix, pip
+name: Tests with matrix, pip, py3.10
 
 on:
   schedule:

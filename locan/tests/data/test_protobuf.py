@@ -123,8 +123,8 @@ def metadata_pb2_Metadata_v0p12():
     illumination.comment = "comment"
     illumination.lightsource = "lightsource"
     illumination.power = 1.1
-    illumination.area = 1.1;
-    illumination.power_density = 1.1;
+    illumination.area = 1.1
+    illumination.power_density = 1.1
     illumination.wavelength = 1.1
     illumination.map["test_key"] = "map_value"
 

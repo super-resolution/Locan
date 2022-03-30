@@ -4,6 +4,8 @@ Compute localizations per frame.
 
 """
 import logging
+from dataclasses import dataclass
+import re
 
 import numpy as np
 import pandas as pd
@@ -20,16 +22,24 @@ logger = logging.getLogger(__name__)
 
 #### The algorithms
 
-def _localizations_per_frame(data, norm=None):
+def _localizations_per_frame(locdata, norm=None, time_delta="integration_time", resample=None, **kwargs):
     """
     Compute localizations per frame.
 
     Parameters
     ----------
-    data : pandas.DataFrame
-        DataFrame object that contains a column `frame` to be grouped.
+    locdata : LocData or array-like
+       Points in time: either localization data that contains a column `frame` or an array with time points.
     norm : int, float, str, None
-        Normalization factor that can be None, a number, or another property in `data`.
+        Normalization factor that can be None, a number, or another property in `locdata`.
+    time_delta : int, float, str, None
+        Time per frame or "integration_time" for which the time is taken from
+        locdata.meta.experiment.setups[0].optical_units[0].detection.camera.integration_time
+    resample : DateOffset, Timedelta or str
+        Parameter for :func:`pandas.Series.resample`: The offset string or object representing target conversion.
+    kwargs : dict
+        Other parameters passed to :func:`pandas.Series.resample`.
+
 
     Returns:
     --------
@@ -40,7 +50,7 @@ def _localizations_per_frame(data, norm=None):
         normalization_factor = 1
         series_name = 'n_localizations'
     elif isinstance(norm, str):
-        normalization_factor = data.properties[norm]
+        normalization_factor = locdata.properties[norm]
         series_name = f'n_localizations / ' + norm
     elif isinstance(norm, (int, float)):
         normalization_factor = norm
@@ -48,10 +58,37 @@ def _localizations_per_frame(data, norm=None):
     else:
         raise TypeError('normalization should be None, a number or a valid property name.')
 
-    series = data.data.groupby('frame').size() / normalization_factor
-    series.name = series_name
-    return series
+    try:
+        frames_ = locdata.data.frame.astype(int)
+    except AttributeError:
+        frames_ = np.asarray(locdata)
 
+    frames, frame_counts = np.unique(frames_, return_counts=True)
+    series = pd.Series(frame_counts, index=frames, dtype=float) / normalization_factor
+    series.index.name = 'frame'
+    series.name = series_name
+
+    if time_delta is None:
+        pass
+    elif isinstance(time_delta, (int, float)):
+        series.index = pd.to_timedelta(frames * time_delta, unit="s")
+        series.index.name = 'time'
+        series.name = series.name + " / s"
+    elif time_delta == "integration_time":
+        try:
+            time_delta = locdata.meta.experiment.setups[0].optical_units[0].detection.camera.integration_time
+            series.index = pd.to_timedelta(frames * time_delta, unit="s")
+            series.index.name = 'time'
+            series.name = series.name + " / s"
+        except (IndexError, AttributeError):
+            logger.warning("integration_time not available in locdata.meta - frames used instead.")
+    else:
+        raise ValueError("The input for time_delta is not implemented.")
+
+    if resample is not None:
+        series = series.resample(resample, **kwargs).sum()
+
+    return series
 
 # The specific analysis classes
 
@@ -64,7 +101,14 @@ class LocalizationsPerFrame(_Analysis):
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     norm : int, float, str, None
-        Normalization factor that can be None, a number, or another property in `data`.
+        Normalization factor that can be None, a number, or another property in `locdata`.
+    time_delta : int, float, str, None
+        Time per frame or "integration_time" for which the time is taken from
+        locdata.meta.experiment.setups[0].optical_units[0].detection.camera.integration_time
+    resample : DateOffset, Timedelta or str
+        Parameter for :func:`pandas.Series.resample`: The offset string or object representing target conversion.
+    kwargs : dict
+        Other parameters passed to :func:`pandas.Series.resample`.
 
     Attributes
     ----------
@@ -81,8 +125,8 @@ class LocalizationsPerFrame(_Analysis):
     """
     count = 0
 
-    def __init__(self, meta=None, norm=None):
-        super().__init__(meta=meta, norm=norm)
+    def __init__(self, meta=None, norm=None, time_delta="integration_time", resample=None, **kwargs):
+        super().__init__(meta=meta, norm=norm, time_delta=time_delta, resample=resample, **kwargs)
         self.results = None
         self.distribution_statistics = None
 
@@ -92,8 +136,8 @@ class LocalizationsPerFrame(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData
-           Localization data.
+        locdata : LocData or array-like
+           Points in time: either localization data that contains a column `frame` or an array with time points.
 
         Returns
         -------
@@ -102,10 +146,18 @@ class LocalizationsPerFrame(_Analysis):
         """
         if not len(locdata):
             logger.warning('Locdata is empty.')
+            self.distribution_statistics = None
+            self.results = None
             return self
 
-        self.results = _localizations_per_frame(data=locdata, **self.parameter)
+        self.distribution_statistics = None
+        self.results = _localizations_per_frame(locdata=locdata, **self.parameter)
         return self
+
+    def accumulation_time(self, fraction=0.5) -> int:
+        _normalized_cumulative_time_trace = self.results.cumsum() / self.results.sum()
+        _accumulation_time = _normalized_cumulative_time_trace.gt(fraction).idxmax()
+        return _accumulation_time
 
     def fit_distributions(self, **kwargs):
         """
@@ -123,7 +175,7 @@ class LocalizationsPerFrame(_Analysis):
         else:
             logger.warning('No results available to fit.')
 
-    def plot(self, ax=None, window=1, **kwargs):
+    def plot(self, ax=None, window=1, cumulative=False, normalize=False, **kwargs):
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the running average of results over window size.
 
@@ -133,6 +185,10 @@ class LocalizationsPerFrame(_Analysis):
             The axes on which to show the image
         window: int
             Window for running average that is applied before plotting.
+        cumulative : bool
+            Plot the cumulated results if true.
+        normalize : bool
+            Normalize cumulative plot to the last value
         kwargs : dict
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
@@ -148,11 +204,20 @@ class LocalizationsPerFrame(_Analysis):
             return ax
 
         # prepare plot
-        self.results.rolling(window=window, center=True).mean().plot(ax=ax, **kwargs)
+        if cumulative and normalize:
+            _results = self.results.cumsum() / self.results.sum()
+        elif cumulative and not normalize:
+            _results = self.results.cumsum()
+        elif not cumulative:
+            _results = self.results
+        else:
+            return ax
+
+        _results.rolling(window=window, center=True).mean().plot(ax=ax, **kwargs)
 
         ax.set(title=f'Localizations per Frame\n (window={window})',
-               xlabel = 'frame',
-               ylabel = self.results.name
+               xlabel=self.results.index.name,
+               ylabel=f'{self.results.name} (cumulative)' if cumulative else self.results.name
                )
 
         return ax

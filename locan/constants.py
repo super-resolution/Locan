@@ -44,6 +44,7 @@ DATASETS_DIR = Path.home() / 'LocanDatasets'
 PROPERTY_KEYS = {'index': 'integer', 'original_index': 'integer',
                  'position_x': 'float', 'position_y': 'float', 'position_z': 'float',
                  'frame': 'integer', 'frames_number': 'integer', 'frames_missing': 'integer',
+                 'time': 'float',
                  'intensity': 'float',
                  'local_background': 'float', 'local_background_sigma': 'float',
                  'signal_noise_ratio': 'float', 'signal_background_ratio': 'float',

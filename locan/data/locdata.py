@@ -862,6 +862,41 @@ class LocData:
             self.dataframe = pd.concat([self.dataframe, new_df], axis=1)
         return self
 
+    def projection(self, coordinate_labels):
+        """
+        Reduce dimensions by projecting all localization coordinates onto selected coordinates.
+
+        Parameters
+        ----------
+        coordinate_labels : str, list
+            The coordinate labels to project onto.
+
+        Returns
+        -------
+            LocData
+        """
+        local_parameter = locals()
+
+        if isinstance(coordinate_labels, str):
+            coordinate_labels = [coordinate_labels]
+
+        new_locdata = copy.deepcopy(self)
+
+        # reduce coordinate dimensions
+        coordinate_labels_to_drop = [label for label in self.coordinate_labels if label not in coordinate_labels]
+        columns = self.data.columns
+        new_columns = [column for column in columns if column not in coordinate_labels_to_drop]
+        dataframe = new_locdata.data[new_columns]
+
+        # update
+        _meta = metadata_pb2.Metadata()
+        _meta.history.add(name='LocData.projection', parameter=str(local_parameter))
+        # other updates are done in the coming update call.
+
+        new_locdata = new_locdata.update(dataframe=dataframe, meta=_meta)
+
+        return new_locdata
+
     def print_meta(self):
         """
         Print Locdata.metadata.
@@ -873,8 +908,8 @@ class LocData:
         Print a summary containing the most common metadata keys.
         """
         meta_ = metadata_pb2.Metadata()
-        meta_.file_path = self.meta.file_path
-        meta_.file_type = self.meta.file_type
+        meta_.file_path = self.meta.file.path
+        meta_.file_type = self.meta.file.type
         meta_.identifier = self.meta.identifier
         meta_.comment = self.meta.comment
         meta_.creation_date = self.meta.creation_date

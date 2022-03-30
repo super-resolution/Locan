@@ -400,6 +400,26 @@ def test_LocData_update(df_simple, caplog):
     assert sel.meta.history[-1].name == "LocData.update"
 
 
+def test_LocData_projection(locdata_3d):
+    locdata = copy.deepcopy(locdata_3d)
+
+    # test with single coordinate_label
+    new_coordinate_labels = 'position_x'
+    new_locdata = locdata.projection(coordinate_labels=new_coordinate_labels)
+
+    assert all(label in new_coordinate_labels for label in new_locdata.coordinate_labels)
+    assert new_locdata.dimension == 1
+    assert len(new_locdata) == len(locdata)
+
+    # test with multiple coordinate_labels
+    new_coordinate_labels = ['position_x', 'position_y']
+    new_locdata = locdata.projection(coordinate_labels=new_coordinate_labels)
+
+    assert all(label in new_coordinate_labels for label in new_locdata.coordinate_labels)
+    assert new_locdata.dimension == len(new_coordinate_labels)
+    assert len(new_locdata) == len(locdata)
+
+
 # locdata with added columns
 
 def test_LocData_add_column_to_dataframe(df_simple):

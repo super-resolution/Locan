@@ -5,7 +5,6 @@ Compute localizations per frame.
 """
 import logging
 from dataclasses import dataclass
-import re
 
 import numpy as np
 import pandas as pd
@@ -90,7 +89,18 @@ def _localizations_per_frame(locdata, norm=None, time_delta="integration_time", 
 
     return series
 
+
 # The specific analysis classes
+
+@dataclass(repr=False)
+class _Results:
+    time_series: pd.Series
+
+    def accumulation_time(self, fraction=0.5) -> int:
+        normalized_cumulative_time_trace = self.time_series.cumsum() / self.time_series.sum()
+        accumulation_time = normalized_cumulative_time_trace.gt(fraction).idxmax()
+        return accumulation_time
+
 
 class LocalizationsPerFrame(_Analysis):
     """
@@ -151,13 +161,10 @@ class LocalizationsPerFrame(_Analysis):
             return self
 
         self.distribution_statistics = None
-        self.results = _localizations_per_frame(locdata=locdata, **self.parameter)
+        self.results = _Results(
+            time_series=_localizations_per_frame(locdata=locdata, **self.parameter)
+        )
         return self
-
-    def accumulation_time(self, fraction=0.5) -> int:
-        _normalized_cumulative_time_trace = self.results.cumsum() / self.results.sum()
-        _accumulation_time = _normalized_cumulative_time_trace.gt(fraction).idxmax()
-        return _accumulation_time
 
     def fit_distributions(self, **kwargs):
         """
@@ -203,21 +210,23 @@ class LocalizationsPerFrame(_Analysis):
         if not self:
             return ax
 
+        series = self.results.time_series
+
         # prepare plot
         if cumulative and normalize:
-            _results = self.results.cumsum() / self.results.sum()
+            _results = series.cumsum() / series.sum()
         elif cumulative and not normalize:
-            _results = self.results.cumsum()
+            _results = series.cumsum()
         elif not cumulative:
-            _results = self.results
+            _results = series
         else:
             return ax
 
         _results.rolling(window=window, center=True).mean().plot(ax=ax, **kwargs)
 
         ax.set(title=f'Localizations per Frame\n (window={window})',
-               xlabel=self.results.index.name,
-               ylabel=f'{self.results.name} (cumulative)' if cumulative else self.results.name
+               xlabel=series.index.name,
+               ylabel=f'{series.name} (cumulative)' if cumulative else series.name
                )
 
         return ax
@@ -248,9 +257,11 @@ class LocalizationsPerFrame(_Analysis):
         if not self:
             return ax
 
-        ax.hist(self.results.values, bins=bins, **dict(dict(density=True, log=False), **kwargs))
+        series = self.results.time_series
+
+        ax.hist(series.values, bins=bins, **dict(dict(density=True, log=False), **kwargs))
         ax.set(title = 'Localizations per Frame',
-               xlabel = self.results.name,
+               xlabel = series.name,
                ylabel = 'PDF'
                )
 
@@ -290,7 +301,7 @@ class _DistributionFits:
     """
     def __init__(self, analysis_class):
         self.analysis_class = analysis_class
-        self.loc_property = self.analysis_class.results.name
+        self.loc_property = self.analysis_class.results.time_series.name
         self.distribution = None
         self.parameters = []
 
@@ -308,9 +319,12 @@ class _DistributionFits:
         kwargs : dict
             Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """
+        if self.analysis_class.results is None:
+            return
+
         self.distribution = distribution
 
-        loc, scale = self.distribution.fit(self.analysis_class.results.values, **kwargs)
+        loc, scale = self.distribution.fit(self.analysis_class.results.time_series.values, **kwargs)
         self.parameters.extend([self.loc_property + '_center', self.loc_property + '_sigma'])
         setattr(self, self.loc_property + '_center', loc)
         setattr(self, self.loc_property + '_sigma', scale)

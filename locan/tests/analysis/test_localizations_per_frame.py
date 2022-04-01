@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from locan import LocData, LocalizationsPerFrame
-from locan.analysis.localizations_per_frame import _localizations_per_frame, _DistributionFits
+from locan.analysis.localizations_per_frame import _Results, _localizations_per_frame, _DistributionFits
 
 
 def test__localizations_per_frame(caplog, locdata_rapidSTORM_2d):
@@ -58,83 +58,113 @@ def test__localizations_per_frame(caplog, locdata_rapidSTORM_2d):
                                     ]
 
 
-def test_Localizations_per_frame_empty(caplog):
-    lpf = LocalizationsPerFrame().compute(LocData())
-    lpf.fit_distributions()
-    lpf.plot()
-    lpf.hist()
-    assert caplog.record_tuples == [('locan.analysis.localizations_per_frame', 30, 'Locdata is empty.'),
-                                    ('locan.analysis.localizations_per_frame', 30, 'No results available to fit.')]
+class TestLocalizationsPerFrame:
 
+    def test_init(self, locdata_rapidSTORM_2d):
+        lpf = LocalizationsPerFrame(meta={'comment': 'this is an example'})
+        assert str(lpf) == "LocalizationsPerFrame(norm=None, time_delta=integration_time, resample=None)"
+        assert lpf.results is None
+        assert lpf.meta.comment == 'this is an example'
 
-def test_Localizations_per_frame(locdata_rapidSTORM_2d):
-    lpf = LocalizationsPerFrame(meta={'comment': 'this is an example'}).compute(locdata=locdata_rapidSTORM_2d)
-    # print(lpf.results.head())
-    assert(isinstance(lpf.results, pd.Series))
-    assert len(lpf.results) == 48
-    assert lpf.results.iloc[0] == 22
-    assert lpf.results.index[-1] == 47
-    assert(lpf.meta.comment == 'this is an example')
+    def test_empty_locdata(self, caplog):
+        lpf = LocalizationsPerFrame().compute(LocData())
+        lpf.fit_distributions()
+        lpf.plot()
+        lpf.hist()
+        # plt.show()
 
-    assert lpf.accumulation_time() == 22
-    assert lpf.accumulation_time(fraction=0.8) == 38
+        assert caplog.record_tuples == [('locan.analysis.localizations_per_frame', 30, 'Locdata is empty.'),
+                                        ('locan.analysis.localizations_per_frame', 30, 'No results available to fit.')]
 
-    lpf.plot()
-    lpf.plot(window=10)
-    lpf.hist()
-    # plt.show()
+        plt.close('all')
 
-    lpf = LocalizationsPerFrame(norm='localization_density_bb', time_delta=1, resample="2s")\
-        .compute(locdata=locdata_rapidSTORM_2d)
-    assert(lpf.results.name == 'n_localizations / localization_density_bb / s')
+    def test_compute(self, locdata_rapidSTORM_2d):
+        lpf = LocalizationsPerFrame().compute(locdata=locdata_rapidSTORM_2d)
+        assert (isinstance(lpf.results, _Results))
+        assert(isinstance(lpf.results.time_series, pd.Series))
 
-    lpf.plot()
-    lpf.plot(window=10)
-    lpf.hist()
-    # plt.show()
+        # print(lpf.results.time_series.head())
+        assert len(lpf.results.time_series) == 48
+        assert lpf.results.time_series.iloc[0] == 22
+        assert lpf.results.time_series.index[-1] == 47
 
-    lpf.fit_distributions(floc=0)
-    assert(0 in lpf.distribution_statistics.parameter_dict().values())
+        assert lpf.results.accumulation_time() == 22
+        assert lpf.results.accumulation_time(fraction=0.8) == 38
 
-    lpf = LocalizationsPerFrame(norm=5).compute(locdata=locdata_rapidSTORM_2d)
-    assert(lpf.results.name == 'n_localizations / 5')
+        lpf.plot()
+        lpf.plot(window=10)
+        lpf.hist()
+        # plt.show()
 
-    locdata_rapidSTORM_2d_ = deepcopy(locdata_rapidSTORM_2d)
-    locdata_rapidSTORM_2d_.meta.experiment.setups.add().optical_units.add().detection.camera.integration_time = 10E-3
-    lpf = LocalizationsPerFrame(norm=None).compute(locdata=locdata_rapidSTORM_2d_)
-    assert(lpf.results.name == 'n_localizations / s')
+        lpf.fit_distributions(floc=0)
+        assert(0 in lpf.distribution_statistics.parameter_dict().values())
 
-    plt.close('all')
+        plt.close('all')
 
+    def test_resample(self, locdata_rapidSTORM_2d):
+        lpf = LocalizationsPerFrame(norm='localization_density_bb', time_delta=1, resample="2s")\
+            .compute(locdata=locdata_rapidSTORM_2d)
+        assert(lpf.results.time_series.name == 'n_localizations / localization_density_bb / s')
 
-def test_Distribution_fits(locdata_rapidSTORM_2d):
-    lpf = LocalizationsPerFrame().compute(locdata=locdata_rapidSTORM_2d)
-    distribution_statistics = _DistributionFits(lpf)
-    assert distribution_statistics.parameter_dict() == {}
-    # print(distribution_statistics)
-    distribution_statistics.fit()
-    assert(list(distribution_statistics.parameter_dict().keys()) ==
-           ['n_localizations_center', 'n_localizations_sigma'])
-    distribution_statistics.plot()
+        lpf.plot()
+        lpf.plot(window=10)
+        lpf.hist()
+        # plt.show()
+
+        plt.close('all')
+
+    def test_norm(self, locdata_rapidSTORM_2d):
+        lpf = LocalizationsPerFrame(norm=5).compute(locdata=locdata_rapidSTORM_2d)
+        assert(lpf.results.time_series.name == 'n_localizations / 5')
+
+        locdata_rapidSTORM_2d_ = deepcopy(locdata_rapidSTORM_2d)
+        locdata_rapidSTORM_2d_.meta.experiment.setups.add().optical_units.add().detection.camera.integration_time = 10E-3
+        lpf = LocalizationsPerFrame(norm=None).compute(locdata=locdata_rapidSTORM_2d_)
+        assert(lpf.results.time_series.name == 'n_localizations / s')
 
 
 @pytest.mark.visual
-def test_Localizations_per_frame_cumulative(locdata_rapidSTORM_2d):
-    lpf = LocalizationsPerFrame().compute(locdata=locdata_rapidSTORM_2d)
+class TestLocalizationsPerFrameVisual:
 
-    lpf.plot()
-    plt.show()
+    @pytest.fixture()
+    def lpf(self, locdata_rapidSTORM_2d):
+     return LocalizationsPerFrame().compute(locdata=locdata_rapidSTORM_2d)
 
-    lpf.plot(cumulative=True)
-    plt.show()
+    def test_plot(self, lpf):
+        lpf.plot()
+        plt.show()
 
-    lpf.plot(cumulative=True, normalize=True)
-    plt.show()
+        lpf.plot(cumulative=True)
+        plt.show()
 
-    lpf.hist(density=False)
-    plt.show()
+        lpf.plot(cumulative=True, normalize=True)
+        plt.show()
 
-    lpf.hist(density=True, cumulative=True)
-    plt.show()
+        plt.close('all')
 
-    plt.close('all')
+    def test_hist(self, lpf):
+        lpf.hist(density=False)
+        plt.show()
+
+        lpf.hist(density=True, cumulative=True)
+        plt.show()
+
+        plt.close('all')
+
+
+class TestDistributionFits:
+
+    def test_fit(self, locdata_rapidSTORM_2d):
+        lpf = LocalizationsPerFrame().compute(locdata=locdata_rapidSTORM_2d)
+        distribution_statistics = _DistributionFits(lpf)
+        # print(distribution_statistics)
+        assert distribution_statistics.parameter_dict() == {}
+
+        distribution_statistics.fit()
+        assert(list(distribution_statistics.parameter_dict().keys()) ==
+               ['n_localizations_center', 'n_localizations_sigma'])
+
+        distribution_statistics.plot()
+        # plt.show()
+
+        plt.close('all')

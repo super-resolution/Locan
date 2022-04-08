@@ -117,8 +117,8 @@ def test_render_2d_napari_coordinates(locdata_blobs_2d):
     render_2d_mpl(locdata_blobs_2d, bin_size=10, cmap='viridis')
     plt.show()
 
-    viewer, histogram = render_2d_napari(locdata_blobs_2d, bin_size=10, cmap='viridis', gamma=0.1)
-    viewer.add_points((locdata_blobs_2d.coordinates - np.array(histogram.bins.bin_range)[:, 0]) / 10 )
+    viewer, bins = render_2d_napari(locdata_blobs_2d, bin_size=10, cmap='viridis', gamma=0.1)
+    viewer.add_points((locdata_blobs_2d.coordinates - np.array(bins.bin_range)[:, 0]) / 10 )
     napari.run()
 
     plt.close('all')
@@ -163,11 +163,12 @@ def test_render_2d_napari_single(locdata_single_localization, caplog):
 @pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_select_by_drawing_napari(locdata_blobs_2d):
     viewer = napari.Viewer()
-    viewer.add_shapes(data=((1, 10), (10, 20)), shape_type='rectangle')
+    viewer.add_shapes(data=np.array([(1, 10), (10, 20)]), shape_type='rectangle')
 
     rois = select_by_drawing_napari(locdata_blobs_2d, viewer=viewer, bin_size=10, cmap='viridis', gamma=0.1)
     # No need for napari.run() since it is called inside select_by_drawing_napari.
     print(rois)
+    print(viewer.layers['Shapes'].data)
     assert len(rois) == 1
     assert repr(rois[0].region) == 'Rectangle((122.0, 565.0), 90.0, 100.0, 0)'
 
@@ -201,7 +202,7 @@ def test_scatter_2d_mpl_single(locdata_single_localization, caplog):
 
 @pytest.mark.visual  # Visual check repeating previously checked functionality
 def test_scatter_2d_mpl_2(locdata_blobs_2d):
-    _, collection = cluster_dbscan(locdata_blobs_2d, eps=20, min_samples=3, noise=True)
+    _, collection = cluster_dbscan(locdata_blobs_2d, eps=20, min_samples=3)
     render_2d_mpl(locdata_blobs_2d)
     scatter_2d_mpl(collection)
     plt.show()

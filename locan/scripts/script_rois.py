@@ -101,7 +101,7 @@ def _add_arguments(parser):
                              '(with further extension .yaml).')
     parser.add_argument('--bin_size', dest='bin_size', type=float, default=50,
                         help='Keyword passed to render function.')
-    parser.add_argument('--rescale', dest='rescale', type=type_converter_rescale, default='equal',
+    parser.add_argument('--rescale', dest='rescale', type=type_converter_rescale, default='EQUALIZE',
                         help='Rescale intensity values. Keyword passed to render_2d_napari function.')
 
 

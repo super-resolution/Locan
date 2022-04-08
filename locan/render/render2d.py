@@ -288,7 +288,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
 
     Returns
     -------
-    napari.Viewer
+    napari.Viewer, Bins
     """
     if not HAS_DEPENDENCY["napari"]:
         raise ImportError('Function requires napari.')
@@ -309,7 +309,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
     data = adjust_contrast(data, rescale)
 
     viewer.add_image(data, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
-    return viewer
+    return viewer, bins
 
 
 def render_2d(locdata, render_engine=RENDER_ENGINE, **kwargs):
@@ -455,7 +455,7 @@ def select_by_drawing_napari(locdata, **kwargs):
     :func:`locan.scripts.rois` : script for drawing rois
     """
     # select roi
-    viewer, hist = render_2d_napari(locdata, **kwargs)
+    viewer, bins = render_2d_napari(locdata, **kwargs)
     napari.run()
 
     vertices = viewer.layers['Shapes'].data
@@ -463,7 +463,7 @@ def select_by_drawing_napari(locdata, **kwargs):
 
     regions = []
     for verts, typ in zip(vertices, types):
-        regions.append(_napari_shape_to_region(verts, hist.bins.bin_edges, typ))
+        regions.append(_napari_shape_to_region(verts, bins.bin_edges, typ))
 
     roi_list = [Roi(reference=locdata, region=reg) for reg in regions]
     return roi_list
@@ -644,7 +644,7 @@ def render_2d_rgb_napari(locdatas, loc_properties=None, other_property=None,
 
     Returns
     -------
-    napari.Viewer
+    napari.Viewer, Bins
     """
     if not HAS_DEPENDENCY["napari"]:
         raise ImportError('Function requires napari.')

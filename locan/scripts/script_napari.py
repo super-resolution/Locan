@@ -86,7 +86,7 @@ def _add_arguments(parser):
     parser.add_argument('--bin_size', dest='bin_size', type=float, default=10,
                         help='The size of bins in units of locdata coordinate units. '
                              'Keyword passed to render_2d_napari function.')
-    parser.add_argument('--rescale', dest='rescale', type=type_converter_rescale, default='equal',
+    parser.add_argument('--rescale', dest='rescale', type=type_converter_rescale, default='EQUALIZE',
                         help='Rescale intensity values. Keyword passed to render_2d_napari function.')
 
 

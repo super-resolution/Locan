@@ -114,6 +114,16 @@ Other Changes and Additions
 ---------------------------
 -
 
+0.11.1 - 2022-04-08
+=================
+
+Bug Fixes
+---------
+
+locan.scripts
+^^^^^^^^^^^^^^^
+- Fix a bug introduced in 0.11 in napari and rois script.
+
 
 0.11 - 2022-03-22
 =================

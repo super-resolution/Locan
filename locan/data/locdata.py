@@ -163,6 +163,7 @@ class LocData:
                               self.dataframe,
                               self.indices,
                               meta=None)
+        new_locdata._region = self._region
         # meta
         meta_ = _modify_meta(self, new_locdata, function_name='LocData.copy',
                              parameter=None, meta=None)
@@ -181,6 +182,7 @@ class LocData:
                               copy.deepcopy(self.dataframe, memodict),
                               copy.deepcopy(self.indices, memodict),
                               meta=None)
+        new_locdata._region = self._region
         # meta
         meta_ = _modify_meta(self, new_locdata, function_name='LocData.deepcopy',
                              parameter=None, meta=None)

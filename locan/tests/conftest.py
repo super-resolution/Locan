@@ -166,7 +166,9 @@ def locdata_two_cluster_2d():
         'cluster_label': np.array([1, 1, 1, 2, 2, 2])
     }
     df = pd.DataFrame(locdata_dict)
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    locdata = LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    locdata.region = locdata.bounding_box.region
+    return locdata
 
 
 @pytest.fixture(scope='session')
@@ -178,4 +180,6 @@ def locdata_two_cluster_with_noise_2d():
         'cluster_label': np.array([1, 1, 1, 2, 2, 2, -1])
     }
     df = pd.DataFrame(locdata_dict)
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    locdata = LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    locdata.region = locdata.bounding_box.region
+    return locdata

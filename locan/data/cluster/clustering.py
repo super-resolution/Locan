@@ -88,7 +88,8 @@ def cluster_hdbscan(locdata, min_cluster_size=5, loc_properties=None, allow_sing
     # set regions
     if locdata_noise:
         locdata_noise.region = locdata.region
-    collection.region = locdata.region
+    if collection:
+        collection.region = locdata.region
 
     # metadata
     if locdata_noise:
@@ -157,7 +158,8 @@ def cluster_dbscan(locdata, eps=20, min_samples=5, loc_properties=None, **kwargs
     # set regions
     if locdata_noise:
         locdata_noise.region = locdata.region
-    collection.region = locdata.region
+    if collection:
+        collection.region = locdata.region
 
     # metadata
     if locdata_noise:

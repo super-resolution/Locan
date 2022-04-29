@@ -475,7 +475,8 @@ def test_AlphaShape_1():
     assert alpha_shape.vertices_connected_components_indices == []
 
 
-def test_AlphaShape_2():
+@pytest.mark.visual
+def test_AlphaShape_2_visual():
     points = np.array([[10, 10], [10, 14], [11, 11], [12, 11], [13, 10], [13, 13], [15, 14], [17, 16],
                        [20, 20], [20, 24], [21, 21], [22, 21], [23, 20], [23, 23], [25, 24],
                        [10, 24]])
@@ -487,7 +488,19 @@ def test_AlphaShape_2():
     assert isinstance(H, nx.Graph)
     # visualization
     nx.draw_networkx(H, points, with_labels=True)
-    # plt.show()
+    plt.show()
+
+
+def test_AlphaShape_2():
+    points = np.array([[10, 10], [10, 14], [11, 11], [12, 11], [13, 10], [13, 13], [15, 14], [17, 16],
+                       [20, 20], [20, 24], [21, 21], [22, 21], [23, 20], [23, 23], [25, 24],
+                       [10, 24]])
+    assert len(points) == 16
+
+    alpha = 2.2
+    alpha_shape = AlphaShape(alpha, points=points)
+    H = alpha_shape.alpha_complex.graph_from_lines(alpha, type='regular')
+    assert isinstance(H, nx.Graph)
 
     assert len(alpha_shape.alpha_shape) == 25
     assert isinstance(alpha_shape.alpha_shape, list)

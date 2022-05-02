@@ -42,7 +42,7 @@ RUN apt-get update --fix-missing && \
     # install GL library (including GLX and DRI)
     apt-get install -qqy libgl1-mesa-dev && \
     # install libraries for napari
-    # && apt-get install -qqy libxi6 libglib2.0-0 fontconfig libfontconfig1 libxrender1 libdbus-1-3 \
+    # apt-get install -qqy libxi6 libglib2.0-0 fontconfig libfontconfig1 libxrender1 libdbus-1-3 && \
     apt-get install -qqy libxi6 fontconfig libfontconfig1 libdbus-1-3 && \
     # install git for setuptools_scm to deal with locan source distribution versioning
     apt-get install -qqy git && \

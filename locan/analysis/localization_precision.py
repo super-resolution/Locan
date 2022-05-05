@@ -80,7 +80,7 @@ def _localization_precision(locdata, radius=50):
                                                 'position_z': 'position_delta_z'})
                         df = df.assign(position_distance=min_distance)
                         df = df.assign(frame=i)
-                        results = results.append(df)
+                        results = pd.concat([results, df])
         except KeyError:
             pass
 

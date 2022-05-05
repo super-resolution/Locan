@@ -304,7 +304,7 @@ def test_Drift(locdata_blobs_2d):
     assert len(drift.locdata_corrected) == len(drift.collection.references[0])
 
     # change target and fit_transformations
-    drift = Drift(chunk_size=25, target='previous').compute(locdata_blobs_2d)
+    drift = Drift(chunk_size=25, target='previous', method='cc').compute(locdata_blobs_2d)
     assert isinstance(drift.collection, LocData)
     assert drift.transformations[0]._fields == ('matrix', 'offset')
     assert len(drift.transformations) == 2

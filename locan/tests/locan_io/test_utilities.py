@@ -76,23 +76,23 @@ def test_convert_property_names(caplog):
                                             property_mapping=None)
     assert new_properties == ['position_x']
 
-    properties = ['position_x', 'y', 'z', 'frame_ix', 'xyz_cr', 'something']
+    properties = ['position_x', 'y', 'z', 'frame_ix', 'something']
     new_properties = convert_property_names(properties=properties,
                                             property_mapping=None)
-    assert new_properties == ['position_x', 'y', 'z', 'frame_ix', 'x_cr', 'y_cr', 'z_cr', 'something']
+    assert new_properties == ['position_x', 'y', 'z', 'frame_ix', 'something']
     assert caplog.record_tuples[0] == ('locan.locan_io.locdata.utilities', logging.WARNING,
                                        'Column y is not a Locan property standard.')
 
     new_properties = convert_property_names(properties=properties,
                                             property_mapping=DECODE_KEYS)
-    assert new_properties == ['position_x', 'position_y', 'position_z', 'frame', 'x_cr', 'y_cr', 'z_cr', 'something']
+    assert new_properties == ['position_x', 'position_y', 'position_z', 'frame', 'something']
     assert caplog.record_tuples[4] == ('locan.locan_io.locdata.utilities', logging.WARNING,
                                        'Column something is not a Locan property standard.')
 
-    properties = ['position_x', 'y', 'z', 'frame_ix', 'xyz_cr', 'something', 'sigma [nm]']
+    properties = ['position_x', 'y', 'z', 'frame_ix', 'something', 'sigma [nm]']
     new_properties = convert_property_names(properties=properties,
                                             property_mapping=[DECODE_KEYS, THUNDERSTORM_KEYS])
-    assert new_properties == ['position_x', 'position_y', 'position_z', 'frame', 'x_cr', 'y_cr', 'z_cr', 'something',
+    assert new_properties == ['position_x', 'position_y', 'position_z', 'frame', 'something',
                               'psf_sigma']
     assert caplog.record_tuples[4] == ('locan.locan_io.locdata.utilities', logging.WARNING,
                                        'Column something is not a Locan property standard.')

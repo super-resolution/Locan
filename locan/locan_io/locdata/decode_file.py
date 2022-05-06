@@ -11,7 +11,7 @@ from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.locan_io.locdata.io_locdata import convert_property_types
+from locan.locan_io.locdata.utilities import convert_property_types, convert_property_names
 
 if HAS_DEPENDENCY["h5py"]: import h5py
 
@@ -51,11 +51,10 @@ def read_decode_header(file):
             column_keys.extend(["x_cr", "y_cr", "z_cr"])
         elif i == "xyz_sig":
             column_keys.extend(["x_sig", "y_sig", "z_sig"])
-        elif i in locan.constants.DECODE_KEYS:
-            column_keys.append(locan.constants.DECODE_KEYS[i])
         else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
             column_keys.append(i)
+
+    column_keys = convert_property_names(properties=column_keys, property_mapping=locan.constants.DECODE_KEYS)
 
     return column_keys, meta_data, meta_decode
 

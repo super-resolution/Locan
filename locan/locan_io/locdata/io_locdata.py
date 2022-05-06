@@ -166,15 +166,7 @@ def read_Elyra_header(file):
     # list identifiers
     identifiers = header.split("\t")
 
-    # turn identifiers into valuable LocData keys
-    column_keys = []
-
-    for i in identifiers:
-        if i in locan.constants.ELYRA_KEYS:
-            column_keys.append(locan.constants.ELYRA_KEYS[i])
-        else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
-            column_keys.append(i)
+    column_keys = convert_property_names(properties=identifiers, property_mapping=locan.constants.ELYRA_KEYS)
 
     return column_keys
 
@@ -266,6 +258,11 @@ def load_asdf_file(path, nrows=None):
     """
     with asdf_open(path) as af:
         new_df = pd.DataFrame({k: af.tree['data'][slice(nrows), n] for n, k in enumerate(af.tree['columns'])})
+
+        column_keys = convert_property_names(properties=new_df.columns.tolist(), property_mapping=None)
+        mapper = {key: value for key, value in zip(new_df.columns, column_keys)}
+        new_df = new_df.rename(columns=mapper)
+
         locdata = LocData(dataframe=new_df)
         locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta, ignore_unknown_fields=True)
     return locdata
@@ -291,13 +288,7 @@ def read_thunderstorm_header(file):
     # list identifiers
     identifiers = [x.strip('"') for x in header.split(',')]
 
-    column_keys = []
-    for i in identifiers:
-        if i in locan.constants.THUNDERSTORM_KEYS:
-            column_keys.append(locan.constants.THUNDERSTORM_KEYS[i])
-        else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
-            column_keys.append(i)
+    column_keys = convert_property_names(properties=identifiers, property_mapping=locan.constants.THUNDERSTORM_KEYS)
     return column_keys
 
 
@@ -383,13 +374,7 @@ def read_Nanoimager_header(file):
     # list identifiers
     identifiers = [x.strip('"') for x in header.split(',')]
 
-    column_keys = []
-    for i in identifiers:
-        if i in locan.constants.NANOIMAGER_KEYS:
-            column_keys.append(locan.constants.NANOIMAGER_KEYS[i])
-        else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
-            column_keys.append(i)
+    column_keys = convert_property_names(properties=identifiers, property_mapping=locan.constants.NANOIMAGER_KEYS)
     return column_keys
 
 

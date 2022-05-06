@@ -24,7 +24,7 @@ def test_load_SMAP_header(caplog):
                            'intensity', 'photerr', 'position_x', 'uncertainty_x', 'xpix', 'xpixerr', 'position_y',
                            'uncertainty_y', 'ypix', 'ypixerr', 'zerr', 'position_z']
                           )
-    assert caplog.record_tuples[0] == ('locan.locan_io.locdata.smap_file', 30,
+    assert caplog.record_tuples[0] == ('locan.locan_io.locdata.utilities', 30,
                                        'Column LLrel is not a Locan property standard.')
 
 
@@ -47,7 +47,7 @@ def test_loading_SMAP_file(caplog):
                            'intensity', 'photerr', 'position_x', 'uncertainty_x', 'xpix', 'xpixerr', 'position_y',
                            'uncertainty_y', 'ypix', 'ypixerr', 'zerr', 'position_z']
                           )
-    assert caplog.record_tuples[0] == ('locan.locan_io.locdata.smap_file', 30,
+    assert caplog.record_tuples[0] == ('locan.locan_io.locdata.utilities', 30,
                                        'Column LLrel is not a Locan property standard.')
 
 

@@ -12,7 +12,7 @@ import xml.etree.ElementTree as etree
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.locan_io.locdata.utilities import convert_property_types, open_path_or_file_like
+from locan.locan_io.locdata.utilities import convert_property_types, open_path_or_file_like, convert_property_names
 
 
 __all__ = ['load_rapidSTORM_file', 'load_rapidSTORM_track_file']
@@ -49,13 +49,7 @@ def read_rapidSTORM_header(file):
                 identifiers.append(value)
 
     # turn identifiers into valuable LocData keys
-    column_keys = []
-    for i in identifiers:
-        if i in locan.constants.RAPIDSTORM_KEYS:
-            column_keys.append(locan.constants.RAPIDSTORM_KEYS[i])
-        else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
-            column_keys.append(i)
+    column_keys = convert_property_names(properties=identifiers, property_mapping=locan.constants.RAPIDSTORM_KEYS)
     return column_keys
 
 
@@ -148,13 +142,7 @@ def read_rapidSTORM_track_header(file):
         identifiers.append(field.get('identifier'))
 
     # turn identifiers into valuable LocData keys
-    column_keys = []
-    for i in identifiers:
-        if i in locan.constants.RAPIDSTORM_KEYS:
-            column_keys.append(locan.constants.RAPIDSTORM_KEYS[i])
-        else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
-            column_keys.append(i)
+    column_keys = convert_property_names(properties=identifiers, property_mapping=locan.constants.RAPIDSTORM_KEYS)
 
     # list child identifiers
     child_identifiers = []
@@ -163,13 +151,8 @@ def read_rapidSTORM_track_header(file):
             child_identifiers.append(field_.get('identifier'))
 
     # turn child identifiers into valuable LocData keys
-    column_keys_tracks = []
-    for i in child_identifiers:
-        if i in locan.constants.RAPIDSTORM_KEYS:
-            column_keys_tracks.append(locan.constants.RAPIDSTORM_KEYS[i])
-        else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
-            column_keys_tracks.append(i)
+    column_keys_tracks = convert_property_names(properties=child_identifiers,
+                                                property_mapping=locan.constants.RAPIDSTORM_KEYS)
 
     return column_keys, column_keys_tracks
 

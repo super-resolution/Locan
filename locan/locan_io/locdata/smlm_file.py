@@ -21,7 +21,7 @@ from locan.locan_io.locdata import manifest_pb2
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.locan_io.locdata.io_locdata import convert_property_types
+from locan.locan_io.locdata.utilities import convert_property_types, convert_property_names
 from locan.utils.format import _time_string
 
 __all__ = ['manifest_format_from_locdata', 'manifest_file_info_from_locdata', 'manifest_from_locdata',
@@ -276,13 +276,7 @@ def load_SMLM_header(path):
             else:
                 headers = file_format['headers']
 
-                column_keys = []
-                for header in headers:
-                    if header in locan.constants.SMLM_KEYS:
-                        column_keys.append(locan.constants.SMLM_KEYS[header])
-                    else:
-                        logger.warning(f'Column {header} is not a Locan property standard.')
-                        column_keys.append(header)
+                column_keys = convert_property_names(properties=headers, property_mapping=locan.constants.SMLM_KEYS)
                 locdata_columns_list.append(column_keys)
 
     if len(locdata_columns_list) == 1:

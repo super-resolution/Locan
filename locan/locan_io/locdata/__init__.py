@@ -75,3 +75,5 @@ __all__.extend(rapidstorm.__all__)
 __all__.extend(smlm_file.__all__)
 __all__.extend(decode_file.__all__)
 __all__.extend(smap_file.__all__)
+
+# todo: make read_something functions private: _read_something) ?

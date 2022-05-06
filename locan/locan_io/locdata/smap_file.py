@@ -11,7 +11,7 @@ from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.locan_io.locdata.io_locdata import convert_property_types
+from locan.locan_io.locdata.utilities import convert_property_types, convert_property_names
 
 if HAS_DEPENDENCY["h5py"]: import h5py
 
@@ -38,15 +38,7 @@ def read_SMAP_header(file):
     """
     # list identifiers
     identifiers = list(file["saveloc"]["loc"].keys())
-
-    column_keys = []
-    for i in identifiers:
-        if i in locan.constants.SMAP_KEYS:
-            column_keys.append(locan.constants.SMAP_KEYS[i])
-        else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
-            column_keys.append(i)
-
+    column_keys = convert_property_names(properties=identifiers, property_mapping=locan.constants.SMAP_KEYS)
     return column_keys
 
 

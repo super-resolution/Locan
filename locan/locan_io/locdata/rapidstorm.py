@@ -59,7 +59,7 @@ def load_rapidSTORM_header(path):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a rapidSTORM file to load.
 
     Returns
@@ -79,7 +79,7 @@ def load_rapidSTORM_file(path, nrows=None, convert=True, **kwargs):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a rapidSTORM file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
@@ -163,7 +163,7 @@ def load_rapidSTORM_track_header(path):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a rapidSTORM file to load.
 
     Returns
@@ -183,7 +183,7 @@ def load_rapidSTORM_track_file(path, nrows=None, convert=True, collection=True, 
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a rapidSTORM file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.

@@ -3,6 +3,7 @@
 File input/output for localization data.
 
 """
+from __future__ import annotations
 import io
 import logging
 from enum import Enum
@@ -45,7 +46,7 @@ def save_asdf(locdata, path):
     ----------
     locdata : LocData
         The LocData object to be saved.
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path including file name to save to.
     """
     # Prepare tree
@@ -74,7 +75,7 @@ def save_thunderstorm_csv(locdata, path):
     ----------
     locdata : LocData
         The LocData object to be saved.
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path including file name to save to.
     """
     # get data from locdata object
@@ -98,7 +99,7 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, property_mapping=None
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a localization file to load.
     sep : str
         separator between column values (Default: ',')
@@ -177,7 +178,7 @@ def load_Elyra_header(path):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a rapidSTORM file to load.
 
     Returns
@@ -196,7 +197,7 @@ def load_Elyra_file(path, nrows=None, convert=True, **kwargs):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a rapidSTORM file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
@@ -246,7 +247,7 @@ def load_asdf_file(path, nrows=None):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a rapidSTORM file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
@@ -298,7 +299,7 @@ def load_thunderstorm_header(path):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a Thunderstorm file to load.
 
     Returns
@@ -317,7 +318,7 @@ def load_thunderstorm_file(path, nrows=None, convert=True, **kwargs):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a Thunderstorm file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
@@ -384,7 +385,7 @@ def load_Nanoimager_header(path):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a Nanoimager file to load.
 
     Returns
@@ -403,7 +404,7 @@ def load_Nanoimager_file(path, nrows=None, convert=True, **kwargs):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a Nanoimager file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
@@ -503,7 +504,7 @@ def load_locdata(path, file_type=1, nrows=None, **kwargs):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a localization data file to load.
     file_type : int, str, locan.constants.FileType, locan.data.metadata_pb2.Metadata
         Indicator for the file type.

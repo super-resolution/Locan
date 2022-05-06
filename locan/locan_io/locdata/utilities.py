@@ -61,7 +61,7 @@ def open_path_or_file_like(path_or_file_like, mode='r', encoding=None):
 
     Parameters
     ----------
-    path_or_file_like : str, os.PathLike, file-like
+    path_or_file_like : str, bytes, os.PathLike, file-like
         Identifier for file
     mode
         same as in `open()`

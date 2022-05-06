@@ -68,7 +68,7 @@ def load_decode_header(path):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a DECODE file to load.
 
     Returns
@@ -88,7 +88,7 @@ def load_decode_file(path, nrows=None, convert=True):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a Thunderstorm file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.

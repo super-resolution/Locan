@@ -49,7 +49,7 @@ def load_SMAP_header(path):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a file to load.
 
     Returns
@@ -68,7 +68,7 @@ def load_SMAP_file(path, nrows=None, convert=True):
 
     Parameters
     ----------
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path for a Thunderstorm file to load.
     nrows : int, None
         The number of localizations to load from file. None means that all available rows are loaded.
@@ -127,7 +127,7 @@ def save_SMAP_csv(locdata, path):
     ----------
     locdata : LocData
         The LocData object to be saved.
-    path : str, os.PathLike, file-like
+    path : str, bytes, os.PathLike, file-like
         File path including file name to save to.
     """
     # get data from locdata object

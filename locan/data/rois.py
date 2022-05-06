@@ -214,7 +214,7 @@ class Roi:
 
         Parameters
         ----------
-        path : str, os.PathLike, None
+        path : str, bytes, os.PathLike, None
             Path for yaml file. If None a roi file path is generated from the metadata.
         """
 
@@ -262,7 +262,7 @@ class Roi:
 
         Parameters
         ----------
-        path : str, os.PathLike
+        path : str, bytes, os.PathLike
             Path for yaml file.
         """
         yaml = YAML(typ='safe')
@@ -441,7 +441,7 @@ class RoiLegacy_0:
 
         Parameters
         ----------
-        path : str, os.PathLike, None
+        path : str, bytes, os.PathLike, None
             Path for yaml file. If None a roi file path is generated from the metadata.
         """
         warnings.warn(
@@ -502,7 +502,7 @@ class RoiLegacy_0:
 
         Parameters
         ----------
-        path : str, os.PathLike
+        path : str, bytes, os.PathLike
             Path for yaml file.
         """
         yaml = YAML(typ='safe')

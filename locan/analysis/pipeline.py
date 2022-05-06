@@ -93,7 +93,7 @@ class Pipeline(_Analysis):
 
         Parameters
         ----------
-        path : str, os.PathLike
+        path : str, bytes, os.PathLike
             Path and file name for saving the text file.
         """
         with open(path, 'w') as handle:

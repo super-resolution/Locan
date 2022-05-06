@@ -92,9 +92,9 @@ def sc_check(pixel_size, file_images=None, file_locdata=None, file_type=lc.FileT
     ---------
     pixel_size : float or tuple of float with shape (2,)
         Pixel size for images (in locdata units).
-    file_images : str, os.PathLike
+    file_images : str, bytes, os.PathLike
         File path for stack of raw data as recorded by camera.
-    file_locdata : str, os.PathLike
+    file_locdata : str, bytes, os.PathLike
         File path for localization data that corresponds to `images` raw data.
     file_type : int, str, locan.constants.FileType, locan.data.metadata_pb2.Metadata
         Indicator for the file type.

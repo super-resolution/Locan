@@ -39,7 +39,7 @@ def sc_draw_roi_napari(file_path=None, file_type=FileType.CUSTOM, roi_file_indic
 
     Parameters
     ----------
-    file_path : str, os.PathLike
+    file_path : str, bytes, os.PathLike
         File path to localization data.
     file_type : int, str, locan.constants.FileType, metadata_pb2
         Indicator for the file type.

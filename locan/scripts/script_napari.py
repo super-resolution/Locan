@@ -37,7 +37,7 @@ def sc_napari(file_path=None, file_type=FileType.CUSTOM, **kwargs):
 
     Parameters
     ----------
-    file_path : str, os.PathLike
+    file_path : str, bytes, os.PathLike
         File path to localization data.
     file_type : int, str, locan.constants.FileType, locan.data.metadata_pb2.Metadata
         Indicator for the file type.

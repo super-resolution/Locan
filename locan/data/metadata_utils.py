@@ -74,14 +74,25 @@ def _modify_meta(locdata, new_locdata, function_name=None, parameter=None, meta=
     return meta_
 
 
-def metadata_to_formatted_string(message) -> str:
+def metadata_to_formatted_string(message, **kwargs) -> str:
     """
     Get formatted string to print Locdata.metadata.
+
+    Parameters
+    ----------
+    message : locan.data.metadata_pb2.Metadata
+        protobuf message
+    kwargs : dict
+        Other kwargs that are passed to :class:`google.protobuf.text_format.MessageToString`.
+
+    Returns
+    -------
+    Formatted metadata string.
     """
-    def message_formatter(message, indent=None, as_one_line=None):
+    def message_formatter(message, indent, as_one_line):
         if message.DESCRIPTOR.name in ["Timestamp", "Duration"]:
             return message.ToJsonString()
         else:
             return None
 
-    return text_format.MessageToString(message, message_formatter=message_formatter)
+    return text_format.MessageToString(message, message_formatter=message_formatter, **kwargs)

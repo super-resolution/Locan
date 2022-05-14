@@ -22,6 +22,7 @@ Submodules:
    transform
    cluster
    tracking
+   metadata_utils
 
 """
 from locan.data.aggregate import *
@@ -36,6 +37,7 @@ from locan.data.region_utils import *
 from locan.data.register import *
 from locan.data.rois import *
 from locan.data.tracking import *
+from locan.data.metadata_utils import *
 
 
 __all__ = []
@@ -51,3 +53,4 @@ __all__.extend(region_utils.__all__)
 __all__.extend(register.__all__)
 __all__.extend(rois.__all__)
 __all__.extend(tracking.__all__)
+__all__.extend(metadata_utils.__all__)

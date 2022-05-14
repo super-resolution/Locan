@@ -44,9 +44,9 @@ def metadata_pb2_Metadata_v0p11_latest():
 
     metadata.identifier = "111"
     metadata.comment = "comment"
-    metadata.creation_date = "1111-11-11 11:11:11 +0100"
-    metadata.modification_date = "1111-11-11 11:11:11 +0100"
-    metadata.production_date = "1111-11-11 11:11:11 +0100"
+    # metadata.creation_date = "1111-11-11 11:11:11 +0100"
+    # metadata.modification_date = "1111-11-11 11:11:11 +0100"
+    # metadata.production_date = "1111-11-11 11:11:11 +0100"
     metadata.source = 0
     metadata.state = 0
     metadata.history.add(name="function_name", parameter="parameters")
@@ -55,8 +55,8 @@ def metadata_pb2_Metadata_v0p11_latest():
     # metadata.unit.add(property="name_2", unit="m")
     metadata.element_count = 111
     metadata.frame_count = 111
-    metadata.file_type = 0
-    metadata.file_path = "file_path"
+    # metadata.file_type = 0
+    # metadata.file_path = "file_path"
     # metadata.experimental_setup["test_key"] = "setup"
     # metadata.experimental_sample["test_key"] = "sample"
     metadata.map["test_key"] = "map_value"
@@ -136,7 +136,7 @@ def metadata_pb2_Metadata_v0p12():
     camera.model = "model"
     camera.gain = 1.1
     camera.electrons_per_count = 1.1
-    camera.integration_time = 1.1
+    camera.integration_time.FromMilliseconds(10)
     camera.pixel_count_x = 1
     camera.pixel_count_y = 1
     camera.pixel_size_x = 1.1
@@ -158,8 +158,8 @@ def metadata_pb2_Metadata_v0p12():
     acquisition.frame_count = 1
     acquisition.frame_of_interest_first = 1
     acquisition.frame_of_interest_last = 2
-    acquisition.time_start = 1.1
-    acquisition.time_end = 2.1
+    acquisition.time_start.FromJsonString("1970-01-01T00:00:00Z")
+    acquisition.time_end.FromJsonString("1970-01-01T00:01:00Z")
     acquisition.stack_count = 1
     acquisition.stack_step_count = 1
     acquisition.stack_step_size = 1.1
@@ -220,17 +220,17 @@ def metadata_pb2_Metadata_v0p12():
 
     metadata.identifier = "111"
     metadata.comment = "comment"
-    metadata.creation_date = "1111-11-11 11:11:11 +0100"
-    metadata.modification_date = "1111-11-11 11:11:11 +0100"
-    metadata.production_date = "1111-11-11 11:11:11 +0100"
+    metadata.creation_time.FromJsonString("1111-11-11T11:11:11+01:00")
+    metadata.modification_time.FromJsonString("1111-11-11T11:11:11+01:00")
+    metadata.production_time.FromJsonString("1111-11-11T11:11:11+01:00")
     metadata.source = 0
     metadata.state = 0
     metadata.history.append(operation)
     metadata.ancestor_identifiers.append("110")
     metadata.element_count = 1
     metadata.frame_count = 1
-    metadata.properties.append("property")
-    metadata.units["property"] = "unit"
+    metadata.properties.add(name='position_x', unit='nm', type='float')
+    metadata.localization_properties.add(name='position_x', unit='nm', type='float')
     metadata.file.CopyFrom(file)
     metadata.relations.append(relation)
     metadata.experiment.CopyFrom(experiment)
@@ -252,7 +252,7 @@ def test_save_proto_message_locdata_metadata(metadata_pb2_Metadata_v0p12):
 
     print(metadata)
 
-    path = ROOT_DIR / "tests/test_data/protobuf_message_metadata_pb2.Metadata_v0pnext"
+    path = ROOT_DIR / "tests/test_data/protobuf_message_metadata_pb2.Metadata_v0px"
     with open(path, "wb") as file:
         file.write(metadata.SerializeToString())
 

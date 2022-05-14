@@ -93,7 +93,7 @@ class _Analysis:
 def _init_meta(self):
     meta_ = metadata_analysis_pb2.AMetadata()
     meta_.identifier = str(self.__class__.count)
-    meta_.creation_date = _time_string(time.time())
+    meta_.creation_time.GetCurrentTime()
     meta_.method.name = str(self.__class__.__name__)
     meta_.method.parameter = str(self.parameter)
     return meta_

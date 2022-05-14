@@ -7,7 +7,12 @@ Functions to modify metadata in LocData objects.
 """
 import time
 
+from google.protobuf import text_format
+
 from locan.data import metadata_pb2
+
+
+__all__ = ['metadata_to_formatted_string']
 
 
 def _modify_meta(locdata, new_locdata, function_name=None, parameter=None, meta=None):
@@ -52,7 +57,7 @@ def _modify_meta(locdata, new_locdata, function_name=None, parameter=None, meta=
     meta_.identifier = new_locdata.meta.identifier
     meta_.element_count = new_locdata.meta.element_count
     meta_.frame_count = new_locdata.meta.frame_count
-    meta_.modification_date = new_locdata.meta.creation_date
+    meta_.modification_time.CopyFrom(new_locdata.meta.creation_time)
 
     meta_.state = metadata_pb2.MODIFIED
     meta_.ancestor_identifiers.append(locdata.meta.identifier)
@@ -67,3 +72,16 @@ def _modify_meta(locdata, new_locdata, function_name=None, parameter=None, meta=
         meta_.MergeFrom(meta)
 
     return meta_
+
+
+def metadata_to_formatted_string(message) -> str:
+    """
+    Get formatted string to print Locdata.metadata.
+    """
+    def message_formatter(message, indent=None, as_one_line=None):
+        if message.DESCRIPTOR.name in ["Timestamp", "Duration"]:
+            return message.ToJsonString()
+        else:
+            return None
+
+    return text_format.MessageToString(message, message_formatter=message_formatter)

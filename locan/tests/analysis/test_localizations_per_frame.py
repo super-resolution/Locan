@@ -118,7 +118,8 @@ class TestLocalizationsPerFrame:
         assert(lpf.results.time_series.name == 'n_localizations / 5')
 
         locdata_rapidSTORM_2d_ = deepcopy(locdata_rapidSTORM_2d)
-        locdata_rapidSTORM_2d_.meta.experiment.setups.add().optical_units.add().detection.camera.integration_time = 10E-3
+        od = locdata_rapidSTORM_2d_.meta.experiment.setups.add().optical_units.add()
+        od.detection.camera.integration_time.FromMilliseconds(10)
         lpf = LocalizationsPerFrame(norm=None).compute(locdata=locdata_rapidSTORM_2d_)
         assert(lpf.results.time_series.name == 'n_localizations / s')
 

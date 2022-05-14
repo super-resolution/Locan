@@ -11,7 +11,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-from locan.data import metadata_pb2 as locan_dot_data_dot_metadata__pb2
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -20,9 +20,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n&locan/analysis/metadata_analysis.proto\x12\x0elocan.analysis\x1a\x19locan/data/metadata.proto\"3\n\x10\x41nalysis_routine\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tparameter\x18\x02 \x01(\t\"\xf1\x01\n\tAMetadata\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x15\n\rcreation_date\x18\x03 \x01(\t\x12\x19\n\x11modification_date\x18\x04 \x01(\t\x12\x30\n\x06method\x18\x05 \x01(\x0b\x32 .locan.analysis.Analysis_routine\x12/\n\x03map\x18\x07 \x03(\x0b\x32\".locan.analysis.AMetadata.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01'
+  serialized_pb=b'\n&locan/analysis/metadata_analysis.proto\x12\x0elocan.analysis\x1a\x1fgoogle/protobuf/timestamp.proto\"3\n\x10\x41nalysis_routine\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tparameter\x18\x02 \x01(\t\"\xd7\x02\n\tAMetadata\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x30\n\x06method\x18\x05 \x01(\x0b\x32 .locan.analysis.Analysis_routine\x12/\n\x03map\x18\x07 \x03(\x0b\x32\".locan.analysis.AMetadata.MapEntry\x12\x31\n\rcreation_time\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x35\n\x11modification_time\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01J\x04\x08\x03\x10\x04J\x04\x08\x04\x10\x05R\rcreation_dateR\x11modification_date'
   ,
-  dependencies=[locan_dot_data_dot_metadata__pb2.DESCRIPTOR,])
+  dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
 
 
@@ -61,8 +61,8 @@ _ANALYSIS_ROUTINE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=85,
-  serialized_end=136,
+  serialized_start=91,
+  serialized_end=142,
 )
 
 
@@ -100,8 +100,8 @@ _AMETADATA_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=338,
-  serialized_end=380,
+  serialized_start=400,
+  serialized_end=442,
 )
 
 _AMETADATA = _descriptor.Descriptor(
@@ -127,30 +127,30 @@ _AMETADATA = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='creation_date', full_name='locan.analysis.AMetadata.creation_date', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='modification_date', full_name='locan.analysis.AMetadata.modification_date', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='method', full_name='locan.analysis.AMetadata.method', index=4,
+      name='method', full_name='locan.analysis.AMetadata.method', index=2,
       number=5, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='map', full_name='locan.analysis.AMetadata.map', index=5,
+      name='map', full_name='locan.analysis.AMetadata.map', index=3,
       number=7, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='creation_time', full_name='locan.analysis.AMetadata.creation_time', index=4,
+      number=8, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='modification_time', full_name='locan.analysis.AMetadata.modification_time', index=5,
+      number=9, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -166,13 +166,15 @@ _AMETADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=139,
-  serialized_end=380,
+  serialized_start=145,
+  serialized_end=488,
 )
 
 _AMETADATA_MAPENTRY.containing_type = _AMETADATA
 _AMETADATA.fields_by_name['method'].message_type = _ANALYSIS_ROUTINE
 _AMETADATA.fields_by_name['map'].message_type = _AMETADATA_MAPENTRY
+_AMETADATA.fields_by_name['creation_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_AMETADATA.fields_by_name['modification_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 DESCRIPTOR.message_types_by_name['Analysis_routine'] = _ANALYSIS_ROUTINE
 DESCRIPTOR.message_types_by_name['AMetadata'] = _AMETADATA
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)

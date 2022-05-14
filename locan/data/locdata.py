@@ -22,7 +22,7 @@ from locan import PROPERTY_KEYS
 from locan.data.region import Region, RoiRegion
 import locan.data.hulls
 from locan.data import metadata_pb2
-from locan.data.metadata_utils import _modify_meta
+from locan.data.metadata_utils import _modify_meta, metadata_to_formatted_string
 from locan.utils.format import _time_string
 from locan.data.properties import inertia_moments
 
@@ -75,7 +75,6 @@ class LocData:
     def __init__(self, references=None, dataframe=pd.DataFrame(), indices=None,
                  meta=None):
         self.__class__.count += 1
-        self._time = time.time()
 
         self.references = references
         self.dataframe = dataframe
@@ -104,7 +103,7 @@ class LocData:
         LOCDATA_ID += 1
         self.meta.identifier = str(LOCDATA_ID)
 
-        self.meta.creation_date = _time_string(self._time)
+        self.meta.creation_time.GetCurrentTime()
         self.meta.source = metadata_pb2.DESIGN
         self.meta.state = metadata_pb2.RAW
 
@@ -157,7 +156,7 @@ class LocData:
         """
         Create a shallow copy of locdata (keeping all references) with the following exceptions:
         (i) The class variable `count` is increased for the copied LocData object.
-        (ii) Metadata keeps the original meta.creation_date while meta.modification_date and meta.history is updated.
+        (ii) Metadata keeps the original meta.creation_time while meta.modification_time and meta.history is updated.
         """
         new_locdata = LocData(self.references,
                               self.dataframe,
@@ -174,7 +173,7 @@ class LocData:
         """
         Create a deep copy of locdata (including all references) with the following exceptions:
         (i) The class variable `count` is increased for all deepcopied LocData objects.
-        (ii) Metadata keeps the original meta.creation_date while meta.modification_date and meta.history is updated.
+        (ii) Metadata keeps the original meta.creation_time while meta.modification_time and meta.history is updated.
         """
         if memodict is None:
             memodict = {}
@@ -516,7 +515,7 @@ class LocData:
         except ValueError:
             pass
 
-        meta_.modification_date = _time_string(time.time())
+        meta_.modification_time.GetCurrentTime()
         meta_.state = metadata_pb2.MODIFIED
         meta_.ancestor_identifiers.append(locdata.meta.identifier)
         meta_.history.add(name='LocData.from_selection')
@@ -604,7 +603,7 @@ class LocData:
 
         meta_ = metadata_pb2.Metadata()
 
-        meta_.creation_date = _time_string(time.time())
+        meta_.creation_time.GetCurrentTime()
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.MODIFIED
         meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdatas]
@@ -689,7 +688,7 @@ class LocData:
 
         meta_ = metadata_pb2.Metadata()
 
-        meta_.creation_date = _time_string(time.time())
+        meta_.creation_time.GetCurrentTime()
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.RAW
         meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
@@ -766,7 +765,6 @@ class LocData:
             self.reduce(reset_index=reset_index)
             logger.warning("LocData.reduce() was applied since self.references was not None.")
 
-        self._time = time.time()
         self.dataframe = dataframe
         self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'position_x',
                                                                                   'position_y',
@@ -775,7 +773,7 @@ class LocData:
         self.reset(reset_index=reset_index)  # update hulls and properties
 
         # update meta
-        self.meta.modification_date = _time_string(self._time)
+        self.meta.modification_time.GetCurrentTime()
         self.meta.state = metadata_pb2.MODIFIED
         self.meta.history.add(name='LocData.update', parameter=str(local_parameter))
 
@@ -903,22 +901,21 @@ class LocData:
         """
         Print Locdata.metadata.
         """
-        print(text_format.MessageToString(self.meta))
+        print(metadata_to_formatted_string(self.meta))
 
     def print_summary(self):
         """
         Print a summary containing the most common metadata keys.
         """
         meta_ = metadata_pb2.Metadata()
-        meta_.file_path = self.meta.file.path
-        meta_.file_type = self.meta.file.type
+        meta_.file.CopyFrom(self.meta.file)
         meta_.identifier = self.meta.identifier
         meta_.comment = self.meta.comment
-        meta_.creation_date = self.meta.creation_date
-        meta_.modification_date = self.meta.modification_date
+        meta_.creation_time.CopyFrom(self.meta.creation_time)
+        meta_.modification_time.CopyFrom(self.meta.modification_time)
         meta_.source = self.meta.source
         meta_.state = self.meta.state
         meta_.element_count = self.meta.element_count
         meta_.frame_count = self.meta.frame_count
 
-        print(text_format.MessageToString(meta_))
+        print(metadata_to_formatted_string(meta_))

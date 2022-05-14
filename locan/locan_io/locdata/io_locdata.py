@@ -347,7 +347,7 @@ def load_thunderstorm_file(path, nrows=None, convert=True, **kwargs):
     dat.meta.file.path = str(path)
 
     for property_ in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        dat.meta.units[property_] = 'nm'
+        dat.meta.localization_properties.add(name=property_, unit="nm", type="float")
 
     del dat.meta.history[:]
     dat.meta.history.add(name='load_thundestorm_file', parameter='path={}, nrows={}'.format(path, nrows))
@@ -433,7 +433,7 @@ def load_Nanoimager_file(path, nrows=None, convert=True, **kwargs):
     dat.meta.file.path = str(path)
 
     for property_ in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        dat.meta.units[property_] = 'nm'
+        dat.meta.localization_properties.add(name=property_, unit="nm", type="float")
 
     del dat.meta.history[:]
     dat.meta.history.add(name='load_Nanoimager_file', parameter='path={}, nrows={}'.format(path, nrows))

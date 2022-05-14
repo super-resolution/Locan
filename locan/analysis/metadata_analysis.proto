@@ -12,7 +12,8 @@ syntax = "proto2";
 
 package locan.analysis;
 
-import "locan/data/metadata.proto";
+import "google/protobuf/timestamp.proto";
+// import "locan/data/metadata.proto";
 
 
 message Analysis_routine {
@@ -23,13 +24,17 @@ message Analysis_routine {
 
 // Next id: 8
 message AMetadata {
-  optional string identifier = 1;
-  optional string comment = 2;
-  // Localtime in "%Y-%m-%d %H:%M:%S %z"
-  optional string creation_date = 3;
-  // Localtime in "%Y-%m-%d %H:%M:%S %z"
-  optional string modification_date = 4;
-  optional Analysis_routine method = 5;
-  // optional Metadata locdata_meta = 6;
-  map<string, string> map = 7;
+    reserved 3, 4;
+    reserved "creation_date", "modification_date";
+    optional string identifier = 1;
+    optional string comment = 2;
+    // Localtime in "%Y-%m-%d %H:%M:%S %z"
+    // deleted: optional string creation_date = 3;
+    // Localtime in "%Y-%m-%d %H:%M:%S %z"
+    // deleted: optional string modification_date = 4;
+    optional Analysis_routine method = 5;
+    // optional Metadata locdata_meta = 6;
+    map<string, string> map = 7;
+    optional google.protobuf.Timestamp creation_time = 8;
+    optional google.protobuf.Timestamp modification_time = 9;
 }

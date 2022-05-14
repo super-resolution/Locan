@@ -2,6 +2,8 @@ import pytest
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt  # needed for visual inspection
+
+import locan.data.metadata_pb2
 from locan import render_2d_mpl  # needed for visual inspection
 from locan import LocData, scatter_2d_mpl, transform_affine, cluster_dbscan, HullType
 from locan import Rectangle, RoiRegion
@@ -28,7 +30,9 @@ def locdata_simple():
     }
     df = pd.DataFrame(locdata_dict)
     df.index = [2, 0, 1, 3, 4, 5, 6, 7]
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    meta_ = locan.data.metadata_pb2.Metadata()
+    meta_.creation_time.FromSeconds(1)
+    return LocData.from_dataframe(dataframe=df, meta=meta_)
 
 
 def test_select_by_condition(locdata_simple):

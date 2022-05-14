@@ -108,7 +108,7 @@ def load_rapidSTORM_file(path, nrows=None, convert=True, **kwargs):
     dat.meta.file.path = str(path)
 
     for property in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        dat.meta.units[property] = 'nm'
+        dat.meta.localization_properties.add(name=property, unit="nm", type="float")
 
     del dat.meta.history[:]
     dat.meta.history.add(name='load_rapidSTORM_file', parameter='path={}, nrows={}'.format(path, nrows))
@@ -230,7 +230,7 @@ def load_rapidSTORM_track_file(path, nrows=None, convert=True, collection=True, 
         collection.meta.file.path = str(path)
 
         for property in sorted(list(set(columns_track).intersection({'position_x', 'position_y', 'position_z'}))):
-            collection.meta.units[property] = 'nm'
+            collection.meta.localization_properties.add(name=property, unit="nm", type="float")
 
         del collection.meta.history[:]
         collection.meta.history.add(name='load_rapidSTORM_track_file',
@@ -254,7 +254,7 @@ def load_rapidSTORM_track_file(path, nrows=None, convert=True, collection=True, 
         locdata.meta.file.path = str(path)
 
         for property in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-            locdata.meta.units[property] = 'nm'
+            locdata.meta.localization_properties.add(name=property, unit="nm", type="float")
 
         del locdata.meta.history[:]
         locdata.meta.history.add(name='load_rapidSTORM_track_file', parameter='path={}, nrows={}'.format(path, nrows))

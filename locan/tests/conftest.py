@@ -5,6 +5,7 @@ import pytest
 import numpy as np
 import pandas as pd
 
+import locan.data.metadata_pb2
 from locan import ROOT_DIR, LocData
 from locan.locan_io.locdata.io_locdata import load_txt_file, load_rapidSTORM_file
 from locan.dependencies import HAS_DEPENDENCY, QtBindings, QT_BINDINGS
@@ -44,7 +45,9 @@ def few_random_points():
 @pytest.fixture(scope='session')
 def locdata_empty():
     df = pd.DataFrame()
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    meta_ = locan.data.metadata_pb2.Metadata()
+    meta_.creation_time.seconds = 1
+    return LocData.from_dataframe(dataframe=df, meta=meta_)
 
 
 @pytest.fixture(scope='session')
@@ -56,7 +59,9 @@ def locdata_single_localization():
         'intensity': np.array([1]),
     }
     df = pd.DataFrame(locdata_dict)
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    meta_ = locan.data.metadata_pb2.Metadata()
+    meta_.creation_time.seconds = 1
+    return LocData.from_dataframe(dataframe=df, meta=meta_)
 
 
 @pytest.fixture(scope='session')
@@ -69,7 +74,9 @@ def locdata_single_localization_3d():
         'intensity': np.array([1]),
     }
     df = pd.DataFrame(locdata_dict)
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    meta_ = locan.data.metadata_pb2.Metadata()
+    meta_.creation_time.seconds = 1
+    return LocData.from_dataframe(dataframe=df, meta=meta_)
 
 
 @pytest.fixture(scope='session')
@@ -80,7 +87,9 @@ def locdata_1d():
         'intensity': np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(locdata_dict)
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    meta_ = locan.data.metadata_pb2.Metadata()
+    meta_.creation_time.seconds = 1
+    return LocData.from_dataframe(dataframe=df, meta=meta_)
 
 
 @pytest.fixture(scope='session')
@@ -92,7 +101,9 @@ def locdata_2d():
         'intensity': np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(locdata_dict)
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    meta_ = locan.data.metadata_pb2.Metadata()
+    meta_.creation_time.seconds = 1
+    return LocData.from_dataframe(dataframe=df, meta=meta_)
 
 
 @pytest.fixture(scope='session')
@@ -104,7 +115,9 @@ def locdata_2d_negative():
         'intensity': np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(locdata_dict)
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    meta_ = locan.data.metadata_pb2.Metadata()
+    meta_.creation_time.seconds = 1
+    return LocData.from_dataframe(dataframe=df, meta=meta_)
 
 
 @pytest.fixture(scope='session')
@@ -117,7 +130,9 @@ def locdata_3d():
         'intensity': np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(locdata_dict)
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    meta_ = locan.data.metadata_pb2.Metadata()
+    meta_.creation_time.seconds = 1
+    return LocData.from_dataframe(dataframe=df, meta=meta_)
 
 
 @pytest.fixture(scope='session')
@@ -130,14 +145,16 @@ def locdata_non_standard_index():
     }
     df = pd.DataFrame(locdata_dict)
     df.index = [2, 1, 5, 10, 100, 200]
-    return LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    meta_ = locan.data.metadata_pb2.Metadata()
+    meta_.creation_time.seconds = 1
+    return LocData.from_dataframe(dataframe=df, meta=meta_)
 
 
 @pytest.fixture(scope='session')
 def locdata_rapidSTORM_2d():
     path = Path(ROOT_DIR / 'tests/test_data/rapidSTORM_dstorm_data.txt')
     dat = load_rapidSTORM_file(path)
-    dat.meta.creation_date = "1111-11-11 11:11:11 +0100"
+    dat.meta.creation_time.FromSeconds(1)
     return dat
 
 
@@ -145,7 +162,7 @@ def locdata_rapidSTORM_2d():
 def locdata_blobs_2d():
     path = Path(ROOT_DIR / 'tests/test_data/five_blobs.txt')
     dat = load_txt_file(path)
-    dat.meta.creation_date = "1111-11-11 11:11:11 +0100"
+    dat.meta.creation_time.FromSeconds(1)
     return dat
 
 
@@ -153,7 +170,7 @@ def locdata_blobs_2d():
 def locdata_blobs_3d():
     path = Path(ROOT_DIR / 'tests/test_data/five_blobs_3D.txt')
     dat = load_txt_file(path)
-    dat.meta.creation_date = "1111-11-11 11:11:11 +0100"
+    dat.meta.creation_time.FromSeconds(1)
     return dat
 
 
@@ -166,7 +183,9 @@ def locdata_two_cluster_2d():
         'cluster_label': np.array([1, 1, 1, 2, 2, 2])
     }
     df = pd.DataFrame(locdata_dict)
-    locdata = LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    meta_ = locan.data.metadata_pb2.Metadata()
+    meta_.creation_time.seconds = 1
+    locdata = LocData.from_dataframe(dataframe=df, meta=meta_)
     locdata.region = locdata.bounding_box.region
     return locdata
 
@@ -180,6 +199,8 @@ def locdata_two_cluster_with_noise_2d():
         'cluster_label': np.array([1, 1, 1, 2, 2, 2, -1])
     }
     df = pd.DataFrame(locdata_dict)
-    locdata = LocData.from_dataframe(dataframe=df, meta={'creation_date': "1111-11-11 11:11:11 +0100"})
+    meta_ = locan.data.metadata_pb2.Metadata()
+    meta_.creation_time.seconds = 1
+    locdata = LocData.from_dataframe(dataframe=df, meta=meta_)
     locdata.region = locdata.bounding_box.region
     return locdata

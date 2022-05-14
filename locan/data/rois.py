@@ -144,8 +144,9 @@ class Roi:
     reference : LocData, dict, locan.data.metadata_pb2.Metadata, None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
         a reference to a saved SMLM file, or None for indicating no specific reference.
-        When referencing a saved SMLM file, reference must be a dict or locan.data.metadata_pb2.Metadata with keys `file_path`
-        and `file_type` for a path pointing to a localization file and an integer or string indicating the file type.
+        When referencing a saved SMLM file, reference must be a dict or locan.data.metadata_pb2.Metadata with keys
+        `file.path` and `file.type` for a path pointing to a localization file and an integer or string
+        indicating the file type.
         Integer or string should be according to locan.constants.FileType.
     loc_properties : tuple of str
         Localization properties in LocData object on which the region selection will be applied (for instance the
@@ -159,9 +160,9 @@ class Roi:
     reference : LocData, locan.data.metadata_pb2.Metadata, None
         Reference to localization data for which the region of interests are defined. It can be a LocData object,
         a reference (locan.data.metadata_pb2.Metadata) to a saved SMLM file, or None for indicating no specific reference.
-        When referencing a saved SMLM file, reference as attributes `file_path`
-        and `file_type` for a path pointing to a localization file and an integer indicating the file type.
-        The integer should be according to locan.data.metadata_pb2.Metadata.file_type.
+        When referencing a saved SMLM file, reference as attributes `file.path`
+        and `file.type` for a path pointing to a localization file and an integer indicating the file type.
+        The integer should be according to locan.data.metadata_pb2.Metadata.file.type.
     loc_properties : tuple of str
         Localization properties in LocData object on which the region selection will be applied (for instance the
         coordinate_labels).
@@ -170,17 +171,17 @@ class Roi:
     def __init__(self, region, reference=None, loc_properties=()):
         if isinstance(reference, dict):
             self.reference = metadata_pb2.Metadata()
-            self.reference.file_path = str(reference['file_path'])
+            self.reference.file.path = str(reference['file_path'])
             ft_ = reference['file_type']
 
             if isinstance(reference['file_type'], int):
-                self.reference.file_type = ft_
+                self.reference.file.type = ft_
             elif isinstance(reference['file_type'], str):
-                self.reference.file_type = locan.constants.FileType[ft_.upper()].value
+                self.reference.file.type = locan.constants.FileType[ft_.upper()].value
             elif isinstance(reference['file_type'], locan.constants.FileType):
-                self.reference.file_type = ft_
+                self.reference.file.type = ft_
             elif isinstance(reference['file_type'], metadata_pb2):
-                self.reference.file_type = ft_.file_type
+                self.reference.file.type = ft_.file.type
             else:
                 raise TypeError
         elif isinstance(reference, metadata_pb2.Metadata):
@@ -220,11 +221,11 @@ class Roi:
 
         # prepare path
         if path is None and isinstance(self.reference, LocData):
-            _file_path = Path(self.reference.meta.file_path)
+            _file_path = Path(self.reference.meta.file.path)
             _roi_file = _file_path.stem + '_roi.yaml'
             _path = _file_path.with_name(_roi_file)
         elif path is None and isinstance(self.reference, metadata_pb2.Metadata):
-            _file_path = Path(self.reference.file_path)
+            _file_path = Path(self.reference.file.path)
             _roi_file = _file_path.stem + '_roi.yaml'
             _path = _file_path.with_name(_roi_file)
         else:
@@ -234,10 +235,10 @@ class Roi:
         if self.reference is None:
             reference_for_yaml = None
         elif isinstance(self.reference, LocData):
-            if self.reference.meta.file_path:
+            if self.reference.meta.file.path:
                 meta_ = metadata_pb2.Metadata()
-                meta_.file_path = self.reference.meta.file_path
-                meta_.file_type = self.reference.meta.file_type
+                meta_.file.path = self.reference.meta.file.path
+                meta_.file.type = self.reference.meta.file.type
                 reference_for_yaml = json_format.MessageToJson(meta_, including_default_value_fields=False)
             else:
                 warnings.warn('The localization data has to be saved and the file path provided, '
@@ -302,7 +303,7 @@ class Roi:
         if isinstance(self.reference, LocData):
             locdata = self.reference
         elif isinstance(self.reference, metadata_pb2.Metadata):
-            locdata = io.load_locdata(self.reference.file_path, self.reference.file_type)
+            locdata = io.load_locdata(self.reference.file.path, self.reference.file.type)
         else:
             raise AttributeError('Valid reference to locdata is missing.')
 
@@ -397,17 +398,17 @@ class RoiLegacy_0:
     def __init__(self, region_type, region_specs, reference=None, properties_for_roi=()):
         if isinstance(reference, dict):
             self.reference = metadata_pb2.Metadata()
-            self.reference.file_path = str(reference['file_path'])
+            self.reference.file.path = str(reference['file_path'])
             ft_ = reference['file_type']
 
             if isinstance(reference['file_type'], int):
-                self.reference.file_type = ft_
+                self.reference.file.type = ft_
             elif isinstance(reference['file_type'], str):
-                self.reference.file_type = locan.constants.FileType[ft_.upper()].value
+                self.reference.file.type = locan.constants.FileType[ft_.upper()].value
             elif isinstance(reference['file_type'], locan.constants.FileType):
-                self.reference.file_type = ft_
+                self.reference.file.type = ft_
             elif isinstance(reference['file_type'], metadata_pb2):
-                self.reference.file_type = ft_.file_type
+                self.reference.file.type = ft_.file.type
             else:
                 raise TypeError
 
@@ -451,11 +452,11 @@ class RoiLegacy_0:
 
         # prepare path
         if path is None and isinstance(self.reference, LocData):
-            _file_path = Path(self.reference.meta.file_path)
+            _file_path = Path(self.reference.meta.file.path)
             _roi_file = _file_path.stem + '_roi.yaml'
             _path = _file_path.with_name(_roi_file)
         elif path is None and isinstance(self.reference, metadata_pb2.Metadata):
-            _file_path = Path(self.reference.file_path)
+            _file_path = Path(self.reference.file.path)
             _roi_file = _file_path.stem + '_roi.yaml'
             _path = _file_path.with_name(_roi_file)
         else:
@@ -465,10 +466,10 @@ class RoiLegacy_0:
         if self.reference is None:
             reference_for_yaml = None
         elif isinstance(self.reference, LocData):
-            if self.reference.meta.file_path:
+            if self.reference.meta.file.path:
                 meta_ = metadata_pb2.Metadata()
-                meta_.file_path = self.reference.meta.file_path
-                meta_.file_type = self.reference.meta.file_type
+                meta_.file.path = self.reference.meta.file.path
+                meta_.file.type = self.reference.meta.file.type
                 reference_for_yaml = json_format.MessageToJson(meta_, including_default_value_fields=False)
             else:
                 warnings.warn('The localization data has to be saved and the file path provided, '

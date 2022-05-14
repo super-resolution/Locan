@@ -7,6 +7,7 @@ File specifications are provided at https://github.com/imodpasteur/smlm-file-for
 Code is adapted from https://github.com/imodpasteur/smlm-file-format/blob/master/implementations/Python/smlm_file.py.
 (MIT license)
 """
+
 import time
 import logging
 import zipfile
@@ -374,7 +375,7 @@ def load_SMLM_file(path, nrows=None, convert=True):
 
                     for property_ in sorted(list(set(dataframe.columns).intersection(
                             {'position_x', 'position_y', 'position_z'}))):
-                        locdata.meta.units[property_] = 'nm'
+                        locdata.meta.localization_properties.add(name=property_, unit="nm", type="float")
 
                     del locdata.meta.history[:]
                     locdata.meta.history.add(name='load_SMLM_file', parameter=f'path={path}, nrows={nrows}')

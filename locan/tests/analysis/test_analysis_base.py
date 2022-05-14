@@ -19,7 +19,7 @@ def test_Analysis():
     #print(dir(metadata_analysis_pb2))
     assert isinstance(ae.meta, metadata_analysis_pb2.AMetadata)
     assert ae.meta.identifier
-    assert ae.meta.creation_date
+    assert ae.meta.creation_time
     assert ae.meta.method.name == "_Analysis"
     assert ae.meta.comment == 'this is an example'
 

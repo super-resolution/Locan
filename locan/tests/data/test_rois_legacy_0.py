@@ -120,9 +120,10 @@ def test_Roi_io(locdata):
         roi_new = RoiLegacy_0.from_yaml(path=file_path)
         assert roi_new
 
-        locdata_2 = LocData.from_selection(locdata,
-                                           meta=dict(file_path=str(file_path),
-                                                     file_type=1))
+        meta_ = metadata_pb2.Metadata()
+        meta_.file.path = str(file_path)
+        meta_.file.type = 1
+        locdata_2 = LocData.from_selection(locdata, meta=meta_)
         roi = RoiLegacy_0(reference=locdata_2,
                   region_type='rectangle', region_specs=((0, 0), 2, 1, 10))
         assert isinstance(roi.reference.meta, metadata_pb2.Metadata)

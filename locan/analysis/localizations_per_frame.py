@@ -75,7 +75,7 @@ def _localizations_per_frame(locdata, norm=None, time_delta="integration_time", 
         series.name = series.name + " / s"
     elif time_delta == "integration_time":
         try:
-            time_delta = locdata.meta.experiment.setups[0].optical_units[0].detection.camera.integration_time
+            time_delta = locdata.meta.experiment.setups[0].optical_units[0].detection.camera.integration_time.ToSeconds()
             series.index = pd.to_timedelta(frames * time_delta, unit="s")
             series.index.name = 'time'
             series.name = series.name + " / s"

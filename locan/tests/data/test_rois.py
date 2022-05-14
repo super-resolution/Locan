@@ -103,9 +103,10 @@ def test_Roi_io(locdata_2d):
         roi_new = Roi.from_yaml(path=file_path)
         assert roi_new
 
-        locdata_2 = LocData.from_selection(locdata_2d,
-                                           meta=dict(file_path=str(file_path),
-                                                     file_type=1))
+        meta_ = metadata_pb2.Metadata()
+        meta_.file.path = str(file_path)
+        meta_.file.type = 1
+        locdata_2 = LocData.from_selection(locdata_2d, meta=meta_)
         roi = Roi(reference=locdata_2, region=Rectangle((0, 0), 2, 1, 0))
         assert isinstance(roi.reference.meta, metadata_pb2.Metadata)
         roi.to_yaml(path=file_path)

@@ -463,7 +463,7 @@ def test_LocData_handling_metadata(df_simple):
     # print(dat.meta)
     # print(dir(metadata_pb2))
     assert dat.meta.identifier
-    assert dat.meta.creation_date
+    assert dat.meta.creation_time
     assert dat.meta.source == metadata_pb2.DESIGN
     assert dat.meta.state == metadata_pb2.RAW
     assert dat.meta.history[0].name == "LocData.from_dataframe"
@@ -624,7 +624,7 @@ def test_copy():
     assert new_locdata.meta != selection.meta
     assert int(new_locdata.references.meta.identifier) == int(selection.meta.identifier) - 1
     assert int(new_locdata.meta.identifier) == int(selection.meta.identifier) + 1
-    assert new_locdata.meta.creation_date == selection.meta.creation_date
+    assert new_locdata.meta.creation_time == selection.meta.creation_time
 
 
 def test_deepcopy():
@@ -644,18 +644,18 @@ def test_deepcopy():
     assert new_locdata.meta != selection.meta
     assert int(new_locdata.references.meta.identifier) == int(selection.meta.identifier) + 1
     assert int(new_locdata.meta.identifier) == int(selection.meta.identifier) + 2
-    assert new_locdata.meta.creation_date == selection.meta.creation_date
+    assert new_locdata.meta.creation_time == selection.meta.creation_time
 
 
 def test_locdata_print_summary(capfd, locdata_2d):
     locdata_2d.print_summary()
     captured = capfd.readouterr()
-    for element in ['identifier', 'creation_date', 'source', 'state', 'element_count']:
+    for element in ['identifier', 'creation_time', 'source', 'state', 'element_count']:
         assert element in captured.out
 
 
 def test_locdata_print_meta(capfd, locdata_2d):
     locdata_2d.print_meta()
     captured = capfd.readouterr()
-    for element in ['identifier', 'creation_date', 'source', 'state', 'element_count']:
+    for element in ['identifier', 'creation_time', 'source', 'state', 'element_count']:
         assert element in captured.out

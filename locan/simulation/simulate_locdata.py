@@ -1230,7 +1230,7 @@ def resample(locdata, n_samples=10, seed=None):
     except ValueError:
         pass
 
-    meta_.modification_date = _time_string(time.time())
+    meta_.modification_time.GetCurrentTime()
     meta_.state = metadata_pb2.MODIFIED
     meta_.ancestor_identifiers.append(locdata.meta.identifier)
     meta_.history.add(name='resample',

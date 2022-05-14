@@ -12,6 +12,8 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
+from google.protobuf import duration_pb2 as google_dot_protobuf_dot_duration__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -20,8 +22,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto2',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x19locan/data/metadata.proto\x12\nlocan.data\",\n\tOperation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tparameter\x18\x02 \x01(\t\"n\n\x04\x46ile\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12#\n\x04type\x18\x03 \x01(\x0e\x32\x15.locan.data.File_type\x12\x0c\n\x04path\x18\x04 \x01(\t\x12\x0e\n\x06groups\x18\x05 \x03(\t\"R\n\x07\x41\x64\x64ress\x12\x15\n\raddress_lines\x18\x01 \x03(\t\x12\x0c\n\x04\x63ity\x18\x02 \x01(\t\x12\x11\n\tcity_code\x18\x03 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x04 \x01(\t\"Z\n\x0b\x41\x66\x66iliation\x12\x11\n\tinstitute\x18\x01 \x01(\t\x12\x12\n\ndepartment\x18\x02 \x01(\t\x12$\n\x07\x61\x64\x64ress\x18\x03 \x01(\x0b\x32\x13.locan.data.Address\"\xd7\x01\n\x06Person\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x12\n\nfirst_name\x18\x03 \x01(\t\x12\x11\n\tlast_name\x18\x04 \x01(\t\x12\r\n\x05title\x18\x05 \x01(\t\x12-\n\x0c\x61\x66\x66iliations\x18\x06 \x03(\x0b\x32\x17.locan.data.Affiliation\x12$\n\x07\x61\x64\x64ress\x18\x07 \x01(\x0b\x32\x13.locan.data.Address\x12\x0e\n\x06\x65mails\x18\x08 \x03(\t\x12\r\n\x05roles\x18\t \x03(\t\"\xd3\x01\n\x12\x45xperimentalSample\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x0f\n\x07targets\x18\x03 \x03(\t\x12\x14\n\x0c\x66luorophores\x18\x04 \x03(\t\x12\x0f\n\x07\x62uffers\x18\x05 \x03(\t\x12\x34\n\x03map\x18\x06 \x03(\x0b\x32\'.locan.data.ExperimentalSample.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc9\x01\n\x11\x45xperimentalSetup\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12.\n\roptical_units\x18\x03 \x03(\x0b\x32\x17.locan.data.OpticalUnit\x12\x33\n\x03map\x18\x04 \x03(\x0b\x32&.locan.data.ExperimentalSetup.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe6\x01\n\x0bOpticalUnit\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12.\n\x0cillumination\x18\x03 \x01(\x0b\x32\x18.locan.data.Illumination\x12(\n\tdetection\x18\x04 \x01(\x0b\x32\x15.locan.data.Detection\x12,\n\x0b\x61\x63quisition\x18\x05 \x01(\x0b\x32\x17.locan.data.Acquisition\x12*\n\nlightsheet\x18\x06 \x01(\x0b\x32\x16.locan.data.Lightsheet\"\xec\x01\n\x0cIllumination\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x13\n\x0blightsource\x18\x03 \x01(\t\x12\r\n\x05power\x18\x04 \x01(\x02\x12\x0c\n\x04\x61rea\x18\x05 \x01(\x02\x12\x15\n\rpower_density\x18\x06 \x01(\x02\x12\x12\n\nwavelength\x18\x07 \x01(\x02\x12.\n\x03map\x18\x08 \x03(\x0b\x32!.locan.data.Illumination.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xad\x01\n\tDetection\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\"\n\x06\x63\x61mera\x18\x03 \x01(\x0b\x32\x12.locan.data.Camera\x12+\n\x03map\x18\x04 \x03(\x0b\x32\x1e.locan.data.Detection.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd0\x02\n\x06\x43\x61mera\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\r\n\x05model\x18\x04 \x01(\t\x12\x0c\n\x04gain\x18\x05 \x01(\x02\x12\x1b\n\x13\x65lectrons_per_count\x18\x06 \x01(\x02\x12\x18\n\x10integration_time\x18\x07 \x01(\x02\x12\x15\n\rpixel_count_x\x18\x08 \x01(\x05\x12\x15\n\rpixel_count_y\x18\t \x01(\x05\x12\x14\n\x0cpixel_size_x\x18\n \x01(\x02\x12\x14\n\x0cpixel_size_y\x18\x0b \x01(\x02\x12\x0f\n\x07\x66lipped\x18\x0c \x01(\x08\x12(\n\x03map\x18\r \x03(\x0b\x32\x1b.locan.data.Camera.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd1\x02\n\x0b\x41\x63quisition\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x13\n\x0b\x66rame_count\x18\x03 \x01(\x05\x12\x1f\n\x17\x66rame_of_interest_first\x18\x04 \x01(\x05\x12\x1e\n\x16\x66rame_of_interest_last\x18\x05 \x01(\x05\x12\x12\n\ntime_start\x18\x06 \x01(\x02\x12\x10\n\x08time_end\x18\x07 \x01(\x02\x12\x13\n\x0bstack_count\x18\x08 \x01(\x05\x12\x18\n\x10stack_step_count\x18\t \x01(\x05\x12\x17\n\x0fstack_step_size\x18\n \x01(\x02\x12-\n\x03map\x18\x0b \x03(\x0b\x32 .locan.data.Acquisition.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xbe\x01\n\nLightsheet\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x0f\n\x07\x61ngle_x\x18\x03 \x01(\x02\x12\x0f\n\x07\x61ngle_y\x18\x04 \x01(\x02\x12\x0f\n\x07\x61ngle_z\x18\x05 \x01(\x02\x12,\n\x03map\x18\x06 \x03(\x0b\x32\x1f.locan.data.Lightsheet.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x96\x02\n\nExperiment\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12)\n\rexperimenters\x18\x03 \x03(\x0b\x32\x12.locan.data.Person\x12/\n\x07samples\x18\x04 \x03(\x0b\x32\x1e.locan.data.ExperimentalSample\x12-\n\x06setups\x18\x05 \x03(\x0b\x32\x1d.locan.data.ExperimentalSetup\x12,\n\x03map\x18\x06 \x03(\x0b\x32\x1f.locan.data.Experiment.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xdd\x01\n\tLocalizer\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x10\n\x08software\x18\x03 \x01(\t\x12\x1b\n\x13intensity_threshold\x18\x04 \x01(\x02\x12\x11\n\tpsf_fixed\x18\x05 \x01(\x08\x12\x10\n\x08psf_size\x18\x06 \x01(\x02\x12+\n\x03map\x18\x07 \x03(\x0b\x32\x1e.locan.data.Localizer.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa7\x01\n\x08Relation\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x1e\n\x04\x66ile\x18\x03 \x01(\x0b\x32\x10.locan.data.File\x12*\n\x03map\x18\x04 \x03(\x0b\x32\x1d.locan.data.Relation.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd8\x05\n\x08Metadata\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x15\n\rcreation_date\x18\x03 \x01(\t\x12\x19\n\x11modification_date\x18\x04 \x01(\t\x12\x17\n\x0fproduction_date\x18\x05 \x01(\t\x12\"\n\x06source\x18\x06 \x01(\x0e\x32\x12.locan.data.Source\x12 \n\x05state\x18\x07 \x01(\x0e\x32\x11.locan.data.State\x12&\n\x07history\x18\x08 \x03(\x0b\x32\x15.locan.data.Operation\x12\x1c\n\x14\x61ncestor_identifiers\x18\t \x03(\t\x12\x12\n\nproperties\x18\x12 \x03(\t\x12.\n\x05units\x18\x13 \x03(\x0b\x32\x1f.locan.data.Metadata.UnitsEntry\x12\x15\n\relement_count\x18\x0b \x01(\x03\x12\x13\n\x0b\x66rame_count\x18\x0c \x01(\x03\x12(\n\tfile_type\x18\r \x01(\x0e\x32\x15.locan.data.File_type\x12\x11\n\tfile_path\x18\x0e \x01(\t\x12\x1e\n\x04\x66ile\x18\x14 \x01(\x0b\x32\x10.locan.data.File\x12\'\n\trelations\x18\x15 \x03(\x0b\x32\x14.locan.data.Relation\x12*\n\nexperiment\x18\x16 \x01(\x0b\x32\x16.locan.data.Experiment\x12(\n\tlocalizer\x18\x17 \x01(\x0b\x32\x15.locan.data.Localizer\x12*\n\x03map\x18\x11 \x03(\x0b\x32\x1d.locan.data.Metadata.MapEntry\x1a,\n\nUnitsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*T\n\x06Source\x12\x12\n\x0eUNKNOWN_SOURCE\x10\x00\x12\n\n\x06\x44\x45SIGN\x10\x01\x12\x0e\n\nEXPERIMENT\x10\x02\x12\x0e\n\nSIMULATION\x10\x03\x12\n\n\x06IMPORT\x10\x04*1\n\x05State\x12\x11\n\rUNKNOWN_STATE\x10\x00\x12\x07\n\x03RAW\x10\x01\x12\x0c\n\x08MODIFIED\x10\x02*\xaa\x01\n\tFile_type\x12\x15\n\x11UNKNOWN_FILE_TYPE\x10\x00\x12\n\n\x06\x43USTOM\x10\x01\x12\x0e\n\nRAPIDSTORM\x10\x02\x12\t\n\x05\x45LYRA\x10\x03\x12\x10\n\x0cTHUNDERSTORM\x10\x04\x12\x08\n\x04\x41SDF\x10\x05\x12\x0e\n\nNANOIMAGER\x10\x06\x12\x13\n\x0fRAPIDSTORMTRACK\x10\x07\x12\x08\n\x04SMLM\x10\x08\x12\n\n\x06\x44\x45\x43ODE\x10\t\x12\x08\n\x04SMAP\x10\n'
-)
+  serialized_pb=b'\n\x19locan/data/metadata.proto\x12\nlocan.data\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\",\n\tOperation\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\tparameter\x18\x02 \x01(\t\"n\n\x04\x46ile\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12#\n\x04type\x18\x03 \x01(\x0e\x32\x15.locan.data.File_type\x12\x0c\n\x04path\x18\x04 \x01(\t\x12\x0e\n\x06groups\x18\x05 \x03(\t\"R\n\x07\x41\x64\x64ress\x12\x15\n\raddress_lines\x18\x01 \x03(\t\x12\x0c\n\x04\x63ity\x18\x02 \x01(\t\x12\x11\n\tcity_code\x18\x03 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x04 \x01(\t\"Z\n\x0b\x41\x66\x66iliation\x12\x11\n\tinstitute\x18\x01 \x01(\t\x12\x12\n\ndepartment\x18\x02 \x01(\t\x12$\n\x07\x61\x64\x64ress\x18\x03 \x01(\x0b\x32\x13.locan.data.Address\"\xd7\x01\n\x06Person\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x12\n\nfirst_name\x18\x03 \x01(\t\x12\x11\n\tlast_name\x18\x04 \x01(\t\x12\r\n\x05title\x18\x05 \x01(\t\x12-\n\x0c\x61\x66\x66iliations\x18\x06 \x03(\x0b\x32\x17.locan.data.Affiliation\x12$\n\x07\x61\x64\x64ress\x18\x07 \x01(\x0b\x32\x13.locan.data.Address\x12\x0e\n\x06\x65mails\x18\x08 \x03(\t\x12\r\n\x05roles\x18\t \x03(\t\"\xd3\x01\n\x12\x45xperimentalSample\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x0f\n\x07targets\x18\x03 \x03(\t\x12\x14\n\x0c\x66luorophores\x18\x04 \x03(\t\x12\x0f\n\x07\x62uffers\x18\x05 \x03(\t\x12\x34\n\x03map\x18\x06 \x03(\x0b\x32\'.locan.data.ExperimentalSample.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xc9\x01\n\x11\x45xperimentalSetup\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12.\n\roptical_units\x18\x03 \x03(\x0b\x32\x17.locan.data.OpticalUnit\x12\x33\n\x03map\x18\x04 \x03(\x0b\x32&.locan.data.ExperimentalSetup.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xe6\x01\n\x0bOpticalUnit\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12.\n\x0cillumination\x18\x03 \x01(\x0b\x32\x18.locan.data.Illumination\x12(\n\tdetection\x18\x04 \x01(\x0b\x32\x15.locan.data.Detection\x12,\n\x0b\x61\x63quisition\x18\x05 \x01(\x0b\x32\x17.locan.data.Acquisition\x12*\n\nlightsheet\x18\x06 \x01(\x0b\x32\x16.locan.data.Lightsheet\"\xec\x01\n\x0cIllumination\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x13\n\x0blightsource\x18\x03 \x01(\t\x12\r\n\x05power\x18\x04 \x01(\x02\x12\x0c\n\x04\x61rea\x18\x05 \x01(\x02\x12\x15\n\rpower_density\x18\x06 \x01(\x02\x12\x12\n\nwavelength\x18\x07 \x01(\x02\x12.\n\x03map\x18\x08 \x03(\x0b\x32!.locan.data.Illumination.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xad\x01\n\tDetection\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\"\n\x06\x63\x61mera\x18\x03 \x01(\x0b\x32\x12.locan.data.Camera\x12+\n\x03map\x18\x04 \x03(\x0b\x32\x1e.locan.data.Detection.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x92\x03\n\x06\x43\x61mera\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\r\n\x05model\x18\x04 \x01(\t\x12\x0c\n\x04gain\x18\x05 \x01(\x02\x12\x1b\n\x13\x65lectrons_per_count\x18\x06 \x01(\x02\x12\x33\n\x10integration_time\x18\x07 \x01(\x0b\x32\x19.google.protobuf.Duration\x12\x15\n\rpixel_count_x\x18\x08 \x01(\x05\x12\x15\n\rpixel_count_y\x18\t \x01(\x05\x12\x14\n\x0cpixel_size_x\x18\n \x01(\x02\x12\x14\n\x0cpixel_size_y\x18\x0b \x01(\x02\x12\x0f\n\x07\x66lipped\x18\x0c \x01(\x08\x12(\n\x03map\x18\r \x03(\x0b\x32\x1b.locan.data.Camera.MapEntry\x12\x0e\n\x06offset\x18\x0e \x01(\x02\x12\x15\n\rserial_number\x18\x0f \x01(\t\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x89\x03\n\x0b\x41\x63quisition\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x13\n\x0b\x66rame_count\x18\x03 \x01(\x05\x12\x1f\n\x17\x66rame_of_interest_first\x18\x04 \x01(\x05\x12\x1e\n\x16\x66rame_of_interest_last\x18\x05 \x01(\x05\x12.\n\ntime_start\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12,\n\x08time_end\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0bstack_count\x18\x08 \x01(\x05\x12\x18\n\x10stack_step_count\x18\t \x01(\x05\x12\x17\n\x0fstack_step_size\x18\n \x01(\x02\x12-\n\x03map\x18\x0b \x03(\x0b\x32 .locan.data.Acquisition.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xbe\x01\n\nLightsheet\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x0f\n\x07\x61ngle_x\x18\x03 \x01(\x02\x12\x0f\n\x07\x61ngle_y\x18\x04 \x01(\x02\x12\x0f\n\x07\x61ngle_z\x18\x05 \x01(\x02\x12,\n\x03map\x18\x06 \x03(\x0b\x32\x1f.locan.data.Lightsheet.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x96\x02\n\nExperiment\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12)\n\rexperimenters\x18\x03 \x03(\x0b\x32\x12.locan.data.Person\x12/\n\x07samples\x18\x04 \x03(\x0b\x32\x1e.locan.data.ExperimentalSample\x12-\n\x06setups\x18\x05 \x03(\x0b\x32\x1d.locan.data.ExperimentalSetup\x12,\n\x03map\x18\x06 \x03(\x0b\x32\x1f.locan.data.Experiment.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xdd\x01\n\tLocalizer\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x10\n\x08software\x18\x03 \x01(\t\x12\x1b\n\x13intensity_threshold\x18\x04 \x01(\x02\x12\x11\n\tpsf_fixed\x18\x05 \x01(\x08\x12\x10\n\x08psf_size\x18\x06 \x01(\x02\x12+\n\x03map\x18\x07 \x03(\x0b\x32\x1e.locan.data.Localizer.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xa7\x01\n\x08Relation\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x1e\n\x04\x66ile\x18\x03 \x01(\x0b\x32\x10.locan.data.File\x12*\n\x03map\x18\x04 \x03(\x0b\x32\x1d.locan.data.Relation.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xb1\x01\n\x08Property\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0c\n\x04unit\x18\x04 \x01(\t\x12\x0c\n\x04type\x18\x05 \x01(\t\x12*\n\x03map\x18\x06 \x03(\x0b\x32\x1d.locan.data.Property.MapEntry\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xf5\x06\n\x08Metadata\x12\x12\n\nidentifier\x18\x01 \x01(\t\x12\x0f\n\x07\x63omment\x18\x02 \x01(\t\x12\"\n\x06source\x18\x06 \x01(\x0e\x32\x12.locan.data.Source\x12 \n\x05state\x18\x07 \x01(\x0e\x32\x11.locan.data.State\x12&\n\x07history\x18\x08 \x03(\x0b\x32\x15.locan.data.Operation\x12\x1c\n\x14\x61ncestor_identifiers\x18\t \x03(\t\x12(\n\nproperties\x18\x12 \x03(\x0b\x32\x14.locan.data.Property\x12\x35\n\x17localization_properties\x18\x18 \x03(\x0b\x32\x14.locan.data.Property\x12\x15\n\relement_count\x18\x0b \x01(\x03\x12\x13\n\x0b\x66rame_count\x18\x0c \x01(\x03\x12\x1e\n\x04\x66ile\x18\x14 \x01(\x0b\x32\x10.locan.data.File\x12\'\n\trelations\x18\x15 \x03(\x0b\x32\x14.locan.data.Relation\x12*\n\nexperiment\x18\x16 \x01(\x0b\x32\x16.locan.data.Experiment\x12(\n\tlocalizer\x18\x17 \x01(\x0b\x32\x15.locan.data.Localizer\x12*\n\x03map\x18\x11 \x03(\x0b\x32\x1d.locan.data.Metadata.MapEntry\x12\x31\n\rcreation_time\x18\x19 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x35\n\x11modification_time\x18\x1a \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x33\n\x0fproduction_time\x18\x1b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1a*\n\x08MapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01J\x04\x08\x03\x10\x06J\x04\x08\n\x10\x0bJ\x04\x08\r\x10\x11J\x04\x08\x13\x10\x14R\x04unitR\tfile_typeR\tfile_pathR\x12\x65xperimental_setupR\x13\x65xperimental_sampleR\x05unitsR\rcreation_dateR\x11modification_dateR\x0fproduction_date*T\n\x06Source\x12\x12\n\x0eUNKNOWN_SOURCE\x10\x00\x12\n\n\x06\x44\x45SIGN\x10\x01\x12\x0e\n\nEXPERIMENT\x10\x02\x12\x0e\n\nSIMULATION\x10\x03\x12\n\n\x06IMPORT\x10\x04*1\n\x05State\x12\x11\n\rUNKNOWN_STATE\x10\x00\x12\x07\n\x03RAW\x10\x01\x12\x0c\n\x08MODIFIED\x10\x02*\xaa\x01\n\tFile_type\x12\x15\n\x11UNKNOWN_FILE_TYPE\x10\x00\x12\n\n\x06\x43USTOM\x10\x01\x12\x0e\n\nRAPIDSTORM\x10\x02\x12\t\n\x05\x45LYRA\x10\x03\x12\x10\n\x0cTHUNDERSTORM\x10\x04\x12\x08\n\x04\x41SDF\x10\x05\x12\x0e\n\nNANOIMAGER\x10\x06\x12\x13\n\x0fRAPIDSTORMTRACK\x10\x07\x12\x08\n\x04SMLM\x10\x08\x12\n\n\x06\x44\x45\x43ODE\x10\t\x12\x08\n\x04SMAP\x10\n'
+  ,
+  dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,google_dot_protobuf_dot_duration__pb2.DESCRIPTOR,])
 
 _SOURCE = _descriptor.EnumDescriptor(
   name='Source',
@@ -58,8 +61,8 @@ _SOURCE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3937,
-  serialized_end=4021,
+  serialized_start=4461,
+  serialized_end=4545,
 )
 _sym_db.RegisterEnumDescriptor(_SOURCE)
 
@@ -89,8 +92,8 @@ _STATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4023,
-  serialized_end=4072,
+  serialized_start=4547,
+  serialized_end=4596,
 )
 _sym_db.RegisterEnumDescriptor(_STATE)
 
@@ -160,8 +163,8 @@ _FILE_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=4075,
-  serialized_end=4245,
+  serialized_start=4599,
+  serialized_end=4769,
 )
 _sym_db.RegisterEnumDescriptor(_FILE_TYPE)
 
@@ -222,8 +225,8 @@ _OPERATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=41,
-  serialized_end=85,
+  serialized_start=106,
+  serialized_end=150,
 )
 
 
@@ -282,8 +285,8 @@ _FILE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=87,
-  serialized_end=197,
+  serialized_start=152,
+  serialized_end=262,
 )
 
 
@@ -335,8 +338,8 @@ _ADDRESS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=199,
-  serialized_end=281,
+  serialized_start=264,
+  serialized_end=346,
 )
 
 
@@ -381,8 +384,8 @@ _AFFILIATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=283,
-  serialized_end=373,
+  serialized_start=348,
+  serialized_end=438,
 )
 
 
@@ -469,8 +472,8 @@ _PERSON = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=376,
-  serialized_end=591,
+  serialized_start=441,
+  serialized_end=656,
 )
 
 
@@ -508,8 +511,8 @@ _EXPERIMENTALSAMPLE_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=805,
+  serialized_start=828,
+  serialized_end=870,
 )
 
 _EXPERIMENTALSAMPLE = _descriptor.Descriptor(
@@ -574,8 +577,8 @@ _EXPERIMENTALSAMPLE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=594,
-  serialized_end=805,
+  serialized_start=659,
+  serialized_end=870,
 )
 
 
@@ -613,8 +616,8 @@ _EXPERIMENTALSETUP_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=805,
+  serialized_start=828,
+  serialized_end=870,
 )
 
 _EXPERIMENTALSETUP = _descriptor.Descriptor(
@@ -665,8 +668,8 @@ _EXPERIMENTALSETUP = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=808,
-  serialized_end=1009,
+  serialized_start=873,
+  serialized_end=1074,
 )
 
 
@@ -732,8 +735,8 @@ _OPTICALUNIT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1012,
-  serialized_end=1242,
+  serialized_start=1077,
+  serialized_end=1307,
 )
 
 
@@ -771,8 +774,8 @@ _ILLUMINATION_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=805,
+  serialized_start=828,
+  serialized_end=870,
 )
 
 _ILLUMINATION = _descriptor.Descriptor(
@@ -851,8 +854,8 @@ _ILLUMINATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1245,
-  serialized_end=1481,
+  serialized_start=1310,
+  serialized_end=1546,
 )
 
 
@@ -890,8 +893,8 @@ _DETECTION_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=805,
+  serialized_start=828,
+  serialized_end=870,
 )
 
 _DETECTION = _descriptor.Descriptor(
@@ -942,8 +945,8 @@ _DETECTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1484,
-  serialized_end=1657,
+  serialized_start=1549,
+  serialized_end=1722,
 )
 
 
@@ -981,8 +984,8 @@ _CAMERA_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=805,
+  serialized_start=828,
+  serialized_end=870,
 )
 
 _CAMERA = _descriptor.Descriptor(
@@ -1037,8 +1040,8 @@ _CAMERA = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='integration_time', full_name='locan.data.Camera.integration_time', index=6,
-      number=7, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -1084,6 +1087,20 @@ _CAMERA = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='offset', full_name='locan.data.Camera.offset', index=13,
+      number=14, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='serial_number', full_name='locan.data.Camera.serial_number', index=14,
+      number=15, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -1096,8 +1113,8 @@ _CAMERA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1660,
-  serialized_end=1996,
+  serialized_start=1725,
+  serialized_end=2127,
 )
 
 
@@ -1135,8 +1152,8 @@ _ACQUISITION_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=805,
+  serialized_start=828,
+  serialized_end=870,
 )
 
 _ACQUISITION = _descriptor.Descriptor(
@@ -1184,15 +1201,15 @@ _ACQUISITION = _descriptor.Descriptor(
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='time_start', full_name='locan.data.Acquisition.time_start', index=5,
-      number=6, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
+      number=6, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
       name='time_end', full_name='locan.data.Acquisition.time_end', index=6,
-      number=7, type=2, cpp_type=6, label=1,
-      has_default_value=False, default_value=float(0),
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -1236,8 +1253,8 @@ _ACQUISITION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1999,
-  serialized_end=2336,
+  serialized_start=2130,
+  serialized_end=2523,
 )
 
 
@@ -1275,8 +1292,8 @@ _LIGHTSHEET_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=805,
+  serialized_start=828,
+  serialized_end=870,
 )
 
 _LIGHTSHEET = _descriptor.Descriptor(
@@ -1341,8 +1358,8 @@ _LIGHTSHEET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2339,
-  serialized_end=2529,
+  serialized_start=2526,
+  serialized_end=2716,
 )
 
 
@@ -1380,8 +1397,8 @@ _EXPERIMENT_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=805,
+  serialized_start=828,
+  serialized_end=870,
 )
 
 _EXPERIMENT = _descriptor.Descriptor(
@@ -1446,8 +1463,8 @@ _EXPERIMENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2532,
-  serialized_end=2810,
+  serialized_start=2719,
+  serialized_end=2997,
 )
 
 
@@ -1485,8 +1502,8 @@ _LOCALIZER_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=805,
+  serialized_start=828,
+  serialized_end=870,
 )
 
 _LOCALIZER = _descriptor.Descriptor(
@@ -1558,8 +1575,8 @@ _LOCALIZER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2813,
-  serialized_end=3034,
+  serialized_start=3000,
+  serialized_end=3221,
 )
 
 
@@ -1597,8 +1614,8 @@ _RELATION_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=805,
+  serialized_start=828,
+  serialized_end=870,
 )
 
 _RELATION = _descriptor.Descriptor(
@@ -1649,28 +1666,28 @@ _RELATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3037,
-  serialized_end=3204,
+  serialized_start=3224,
+  serialized_end=3391,
 )
 
 
-_METADATA_UNITSENTRY = _descriptor.Descriptor(
-  name='UnitsEntry',
-  full_name='locan.data.Metadata.UnitsEntry',
+_PROPERTY_MAPENTRY = _descriptor.Descriptor(
+  name='MapEntry',
+  full_name='locan.data.Property.MapEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='locan.data.Metadata.UnitsEntry.key', index=0,
+      name='key', full_name='locan.data.Property.MapEntry.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='value', full_name='locan.data.Metadata.UnitsEntry.value', index=1,
+      name='value', full_name='locan.data.Property.MapEntry.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -1688,9 +1705,76 @@ _METADATA_UNITSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3847,
-  serialized_end=3891,
+  serialized_start=828,
+  serialized_end=870,
 )
+
+_PROPERTY = _descriptor.Descriptor(
+  name='Property',
+  full_name='locan.data.Property',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='identifier', full_name='locan.data.Property.identifier', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='comment', full_name='locan.data.Property.comment', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='locan.data.Property.name', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='unit', full_name='locan.data.Property.unit', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='type', full_name='locan.data.Property.type', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='map', full_name='locan.data.Property.map', index=5,
+      number=6, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[_PROPERTY_MAPENTRY, ],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=3394,
+  serialized_end=3571,
+)
+
 
 _METADATA_MAPENTRY = _descriptor.Descriptor(
   name='MapEntry',
@@ -1726,8 +1810,8 @@ _METADATA_MAPENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=763,
-  serialized_end=805,
+  serialized_start=828,
+  serialized_end=870,
 )
 
 _METADATA = _descriptor.Descriptor(
@@ -1753,135 +1837,121 @@ _METADATA = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='creation_date', full_name='locan.data.Metadata.creation_date', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='modification_date', full_name='locan.data.Metadata.modification_date', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='production_date', full_name='locan.data.Metadata.production_date', index=4,
-      number=5, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='source', full_name='locan.data.Metadata.source', index=5,
+      name='source', full_name='locan.data.Metadata.source', index=2,
       number=6, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='state', full_name='locan.data.Metadata.state', index=6,
+      name='state', full_name='locan.data.Metadata.state', index=3,
       number=7, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='history', full_name='locan.data.Metadata.history', index=7,
+      name='history', full_name='locan.data.Metadata.history', index=4,
       number=8, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='ancestor_identifiers', full_name='locan.data.Metadata.ancestor_identifiers', index=8,
+      name='ancestor_identifiers', full_name='locan.data.Metadata.ancestor_identifiers', index=5,
       number=9, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='properties', full_name='locan.data.Metadata.properties', index=9,
-      number=18, type=9, cpp_type=9, label=3,
+      name='properties', full_name='locan.data.Metadata.properties', index=6,
+      number=18, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='units', full_name='locan.data.Metadata.units', index=10,
-      number=19, type=11, cpp_type=10, label=3,
+      name='localization_properties', full_name='locan.data.Metadata.localization_properties', index=7,
+      number=24, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='element_count', full_name='locan.data.Metadata.element_count', index=11,
+      name='element_count', full_name='locan.data.Metadata.element_count', index=8,
       number=11, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='frame_count', full_name='locan.data.Metadata.frame_count', index=12,
+      name='frame_count', full_name='locan.data.Metadata.frame_count', index=9,
       number=12, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='file_type', full_name='locan.data.Metadata.file_type', index=13,
-      number=13, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='file_path', full_name='locan.data.Metadata.file_path', index=14,
-      number=14, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='file', full_name='locan.data.Metadata.file', index=15,
+      name='file', full_name='locan.data.Metadata.file', index=10,
       number=20, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='relations', full_name='locan.data.Metadata.relations', index=16,
+      name='relations', full_name='locan.data.Metadata.relations', index=11,
       number=21, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='experiment', full_name='locan.data.Metadata.experiment', index=17,
+      name='experiment', full_name='locan.data.Metadata.experiment', index=12,
       number=22, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='localizer', full_name='locan.data.Metadata.localizer', index=18,
+      name='localizer', full_name='locan.data.Metadata.localizer', index=13,
       number=23, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='map', full_name='locan.data.Metadata.map', index=19,
+      name='map', full_name='locan.data.Metadata.map', index=14,
       number=17, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='creation_time', full_name='locan.data.Metadata.creation_time', index=15,
+      number=25, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='modification_time', full_name='locan.data.Metadata.modification_time', index=16,
+      number=26, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='production_time', full_name='locan.data.Metadata.production_time', index=17,
+      number=27, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
-  nested_types=[_METADATA_UNITSENTRY, _METADATA_MAPENTRY, ],
+  nested_types=[_METADATA_MAPENTRY, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -1890,8 +1960,8 @@ _METADATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3207,
-  serialized_end=3935,
+  serialized_start=3574,
+  serialized_end=4459,
 )
 
 _FILE.fields_by_name['type'].enum_type = _FILE_TYPE
@@ -1913,8 +1983,11 @@ _DETECTION_MAPENTRY.containing_type = _DETECTION
 _DETECTION.fields_by_name['camera'].message_type = _CAMERA
 _DETECTION.fields_by_name['map'].message_type = _DETECTION_MAPENTRY
 _CAMERA_MAPENTRY.containing_type = _CAMERA
+_CAMERA.fields_by_name['integration_time'].message_type = google_dot_protobuf_dot_duration__pb2._DURATION
 _CAMERA.fields_by_name['map'].message_type = _CAMERA_MAPENTRY
 _ACQUISITION_MAPENTRY.containing_type = _ACQUISITION
+_ACQUISITION.fields_by_name['time_start'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_ACQUISITION.fields_by_name['time_end'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _ACQUISITION.fields_by_name['map'].message_type = _ACQUISITION_MAPENTRY
 _LIGHTSHEET_MAPENTRY.containing_type = _LIGHTSHEET
 _LIGHTSHEET.fields_by_name['map'].message_type = _LIGHTSHEET_MAPENTRY
@@ -1928,18 +2001,22 @@ _LOCALIZER.fields_by_name['map'].message_type = _LOCALIZER_MAPENTRY
 _RELATION_MAPENTRY.containing_type = _RELATION
 _RELATION.fields_by_name['file'].message_type = _FILE
 _RELATION.fields_by_name['map'].message_type = _RELATION_MAPENTRY
-_METADATA_UNITSENTRY.containing_type = _METADATA
+_PROPERTY_MAPENTRY.containing_type = _PROPERTY
+_PROPERTY.fields_by_name['map'].message_type = _PROPERTY_MAPENTRY
 _METADATA_MAPENTRY.containing_type = _METADATA
 _METADATA.fields_by_name['source'].enum_type = _SOURCE
 _METADATA.fields_by_name['state'].enum_type = _STATE
 _METADATA.fields_by_name['history'].message_type = _OPERATION
-_METADATA.fields_by_name['units'].message_type = _METADATA_UNITSENTRY
-_METADATA.fields_by_name['file_type'].enum_type = _FILE_TYPE
+_METADATA.fields_by_name['properties'].message_type = _PROPERTY
+_METADATA.fields_by_name['localization_properties'].message_type = _PROPERTY
 _METADATA.fields_by_name['file'].message_type = _FILE
 _METADATA.fields_by_name['relations'].message_type = _RELATION
 _METADATA.fields_by_name['experiment'].message_type = _EXPERIMENT
 _METADATA.fields_by_name['localizer'].message_type = _LOCALIZER
 _METADATA.fields_by_name['map'].message_type = _METADATA_MAPENTRY
+_METADATA.fields_by_name['creation_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_METADATA.fields_by_name['modification_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
+_METADATA.fields_by_name['production_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 DESCRIPTOR.message_types_by_name['Operation'] = _OPERATION
 DESCRIPTOR.message_types_by_name['File'] = _FILE
 DESCRIPTOR.message_types_by_name['Address'] = _ADDRESS
@@ -1956,6 +2033,7 @@ DESCRIPTOR.message_types_by_name['Lightsheet'] = _LIGHTSHEET
 DESCRIPTOR.message_types_by_name['Experiment'] = _EXPERIMENT
 DESCRIPTOR.message_types_by_name['Localizer'] = _LOCALIZER
 DESCRIPTOR.message_types_by_name['Relation'] = _RELATION
+DESCRIPTOR.message_types_by_name['Property'] = _PROPERTY
 DESCRIPTOR.message_types_by_name['Metadata'] = _METADATA
 DESCRIPTOR.enum_types_by_name['Source'] = _SOURCE
 DESCRIPTOR.enum_types_by_name['State'] = _STATE
@@ -2154,14 +2232,22 @@ Relation = _reflection.GeneratedProtocolMessageType('Relation', (_message.Messag
 _sym_db.RegisterMessage(Relation)
 _sym_db.RegisterMessage(Relation.MapEntry)
 
-Metadata = _reflection.GeneratedProtocolMessageType('Metadata', (_message.Message,), {
+Property = _reflection.GeneratedProtocolMessageType('Property', (_message.Message,), {
 
-  'UnitsEntry' : _reflection.GeneratedProtocolMessageType('UnitsEntry', (_message.Message,), {
-    'DESCRIPTOR' : _METADATA_UNITSENTRY,
+  'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
+    'DESCRIPTOR' : _PROPERTY_MAPENTRY,
     '__module__' : 'locan.data.metadata_pb2'
-    # @@protoc_insertion_point(class_scope:locan.data.Metadata.UnitsEntry)
+    # @@protoc_insertion_point(class_scope:locan.data.Property.MapEntry)
     })
   ,
+  'DESCRIPTOR' : _PROPERTY,
+  '__module__' : 'locan.data.metadata_pb2'
+  # @@protoc_insertion_point(class_scope:locan.data.Property)
+  })
+_sym_db.RegisterMessage(Property)
+_sym_db.RegisterMessage(Property.MapEntry)
+
+Metadata = _reflection.GeneratedProtocolMessageType('Metadata', (_message.Message,), {
 
   'MapEntry' : _reflection.GeneratedProtocolMessageType('MapEntry', (_message.Message,), {
     'DESCRIPTOR' : _METADATA_MAPENTRY,
@@ -2174,7 +2260,6 @@ Metadata = _reflection.GeneratedProtocolMessageType('Metadata', (_message.Messag
   # @@protoc_insertion_point(class_scope:locan.data.Metadata)
   })
 _sym_db.RegisterMessage(Metadata)
-_sym_db.RegisterMessage(Metadata.UnitsEntry)
 _sym_db.RegisterMessage(Metadata.MapEntry)
 
 
@@ -2188,6 +2273,6 @@ _LIGHTSHEET_MAPENTRY._options = None
 _EXPERIMENT_MAPENTRY._options = None
 _LOCALIZER_MAPENTRY._options = None
 _RELATION_MAPENTRY._options = None
-_METADATA_UNITSENTRY._options = None
+_PROPERTY_MAPENTRY._options = None
 _METADATA_MAPENTRY._options = None
 # @@protoc_insertion_point(module_scope)

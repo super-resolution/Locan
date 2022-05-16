@@ -1,10 +1,13 @@
 """
 Miscellaneous functions without a home.
 """
+from collections.abc import Generator
+
 
 __all__ = ['iterate_2d_array']
 
-def iterate_2d_array(n_elements=5, n_cols=2):
+
+def iterate_2d_array(n_elements=5, n_cols=2) -> Generator[tuple[int, int]]:
     """
     Iterator for 2-dimensional array iterating first over columns then over rows.
 
@@ -17,7 +20,7 @@ def iterate_2d_array(n_elements=5, n_cols=2):
 
     Returns
     -------
-    tuple with shape (2,)
+    Generator[tuple[int, int]]
         Indices for (row, column) in each iteration.
     """
     n_rows = -(-n_elements // n_cols)

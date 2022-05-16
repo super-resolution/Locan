@@ -5,14 +5,22 @@ Deal with metadata in LocData objects.
 Functions to modify metadata in LocData objects.
 
 """
-import time
+from __future__ import annotations
 
+from copy import deepcopy
+import importlib
+import tomli
+import logging
+
+from google.protobuf.message import Message
 from google.protobuf import text_format
 
 from locan.data import metadata_pb2
 
 
-__all__ = ['metadata_to_formatted_string']
+__all__ = ['metadata_to_formatted_string', 'metadata_from_toml']
+
+logger = logging.getLogger(__name__)
 
 
 def _modify_meta(locdata, new_locdata, function_name=None, parameter=None, meta=None):
@@ -74,25 +82,103 @@ def _modify_meta(locdata, new_locdata, function_name=None, parameter=None, meta=
     return meta_
 
 
-def metadata_to_formatted_string(message, **kwargs) -> str:
+def _dict_to_protobuf(dictionary: dict, message: Message, inplace: bool = False) -> Message | None:
     """
-    Get formatted string to print Locdata.metadata.
+    Parse dictionary with message attributes and their values in message.
+    """
+    if inplace is False:
+        message_ = message.__class__()
+        message_.CopyFrom(message)
+        message = message_
+
+    for key, value in dictionary.items():
+        try:
+            attr_ = getattr(message, key)
+        except AttributeError as e:
+            logging.warning(f"AttributeError while parsing: {e}")
+            break
+
+        if isinstance(value, dict):
+            _dict_to_protobuf(dictionary=value, message=attr_, inplace=True)
+        elif isinstance(value, list):
+            try:
+                attr_.extend(value)
+            except TypeError:
+                for element in value:
+                    submessage = attr_.add()
+                    _dict_to_protobuf(dictionary=element, message=submessage, inplace=True)
+        else:
+            try:
+                setattr(message, key, value)
+            except AttributeError:
+                if attr_.DESCRIPTOR.name == "Timestamp":
+                    attr_.FromJsonString(value)
+                elif attr_.DESCRIPTOR.name == "Duration":
+                    attr_.FromNanoseconds(value)
+
+    if inplace:
+        return None
+    else:
+        return message
+
+
+def metadata_to_formatted_string(message, **kwargs):
+    """
+    Get formatted string from Locdata.metadata.
 
     Parameters
     ----------
-    message : locan.data.metadata_pb2.Metadata
-        protobuf message
+    message : google.protobuf.message.Message
+        Message like locan.data.metadata_pb2.Metadata
+
     kwargs : dict
-        Other kwargs that are passed to :class:`google.protobuf.text_format.MessageToString`.
+        Other kwargs that are passed to :func:`google.protobuf.text_format.MessageToString`.
 
     Returns
     -------
-    Formatted metadata string.
+    str
+        Formatted metadata string.
     """
-    def message_formatter(message, indent, as_one_line):
+    def message_formatter(message, indent: int, as_one_line: bool) -> str | None:
         if message.DESCRIPTOR.name in ["Timestamp", "Duration"]:
             return message.ToJsonString()
         else:
             return None
 
     return text_format.MessageToString(message, message_formatter=message_formatter, **kwargs)
+
+
+def metadata_from_toml(file):
+    """
+    Turn toml file into protobuf message instances.
+
+    Note
+    -----
+    Parses Timestamp elements from string '2022-05-14T06:58:00Z'.
+    Parses Duration elements from int in nanoseconds.
+
+    Parameters
+    ----------
+    file : str
+        TOML file-like to load from.
+
+    Returns
+    -------
+    dict[str, google.protobuf.message.Message]
+        Message instances with name as declared in toml file.
+    """
+    # load toml file
+    toml_dict = tomli.loads(file)
+
+    # instantiate messages
+    instances = {}
+    for message in toml_dict.pop("messages"):
+        module = importlib.import_module(message["module"])
+        class_ = getattr(module, message["class_name"])
+        instances[message["name"]] = class_()
+
+    # parse values
+    for message_name, dictionary in toml_dict.items():
+        _dict_to_protobuf(dictionary=dictionary, message=instances[message_name], inplace=True)
+
+    return instances

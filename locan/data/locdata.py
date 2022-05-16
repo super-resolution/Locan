@@ -908,11 +908,13 @@ class LocData:
         Print a summary containing the most common metadata keys.
         """
         meta_ = metadata_pb2.Metadata()
-        meta_.file.CopyFrom(self.meta.file)
+        if self.meta.HasField("file"):
+            meta_.file.CopyFrom(self.meta.file)
         meta_.identifier = self.meta.identifier
         meta_.comment = self.meta.comment
         meta_.creation_time.CopyFrom(self.meta.creation_time)
-        meta_.modification_time.CopyFrom(self.meta.modification_time)
+        if self.meta.HasField("modification_time"):
+            meta_.modification_time.CopyFrom(self.meta.modification_time)
         meta_.source = self.meta.source
         meta_.state = self.meta.state
         meta_.element_count = self.meta.element_count

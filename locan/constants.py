@@ -19,13 +19,18 @@ Constants to be used throughout the project.
    TQDM_LEAVE
    TQDM_DISABLE
 """
-from enum import Enum
+from __future__ import annotations
+
+from enum import Enum, unique
 from pathlib import Path
+from dataclasses import dataclass
+
 from locan.dependencies import HAS_DEPENDENCY
 if HAS_DEPENDENCY["colorcet"]: from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
 
 
-__all__ = ['DATASETS_DIR', 'PROPERTY_KEYS', 'HullType',
+__all__ = ['DATASETS_DIR', 'PROPERTY_KEYS', 'PropertyKey', 'PropertyDescription',
+           'HullType',
            'FileType', 'RenderEngine', 'RENDER_ENGINE',
            'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
            'N_JOBS', 'LOCDATA_ID', 'TQDM_LEAVE', 'TQDM_DISABLE',
@@ -37,11 +42,188 @@ __all__ = ['DATASETS_DIR', 'PROPERTY_KEYS', 'HullType',
 DATASETS_DIR = Path.home() / 'LocanDatasets'
 
 
+@dataclass
+class PropertyDescription:
+    """
+    A property of a localization or group of localizations
+    representing column names in LocData.data and LocData.properties.
+    """
+    name: str
+    type: str
+    unit_SI: str | None = None
+    unit: str | None = None
+    description: str = ""
+
+
+@unique
+class PropertyKey(Enum):
+    """
+    Standard properties for `locan.LocData`.
+    """
+    index = PropertyDescription(
+        'index',
+        'integer',
+        description="a positive integer identifying the localization")
+    original_index = PropertyDescription(
+        'original_index',
+        'integer')
+    position_x = PropertyDescription(
+        'position_x',
+        'float',
+        unit_SI='m',
+        description="spatial coordinate.")
+    position_y = PropertyDescription(
+        'position_y',
+        'float',
+        unit_SI='m',
+        description="spatial coordinate.")
+    position_z = PropertyDescription(
+        'position_z',
+        'float',
+        unit_SI='m',
+        description="spatial coordinate.")
+    frame = PropertyDescription(
+        'frame',
+        'integer',
+        description="frame  number in which the localization occurs")
+    frames_number = PropertyDescription(
+        'frames_number',
+        'integer',
+        description="number of frames that contribute to a merged localization")
+    frames_missing = PropertyDescription(
+        'frames_missing',
+        'integer',
+        description="number of frames that occurred between two successive localizations")
+    time = PropertyDescription(
+        'time',
+        'float',
+        unit_SI="s")
+    intensity = PropertyDescription(
+        'intensity',
+        'float',
+        description="intensity or emission strength as estimated by the fitter")
+    local_background = PropertyDescription(
+        'local_background',
+        'float',
+        description="background in the neighborhood of localization as estimated by the fitter")
+    local_background_sigma = PropertyDescription(
+        'local_background_sigma',
+        'float',
+        description="variation of local background in terms of standard deviation")
+    signal_noise_ratio = PropertyDescription(
+        'signal_noise_ratio',
+        'float',
+        description="ratio between mean intensity (i.e. intensity for a single localization) "
+                    "and the standard deviation of local_background "
+                    "(i.e. local_background_sigma for a single localization)")
+    signal_background_ratio = PropertyDescription(
+        'signal_background_ratio',
+        'float',
+        description="ratio between mean intensity (i.e. intensity for a single localization) and the local_background")
+    chi_square = PropertyDescription(
+        'chi_square',
+        'float',
+        description="chi-square value of the fitting procedure as estimated by the fitter")
+    two_kernel_improvement = PropertyDescription(
+        'two_kernel_improvement',
+        'float',
+        description="a rapidSTORM parameter describing the improvement from two kernel fitting")
+    psf_amplitude = PropertyDescription('psf_amplitude', 'float')
+    psf_width = PropertyDescription(
+        'psf_width',
+        'float',
+        description="full-width-half-max of the fitted Gauss-function - "
+                    "being isotropic or representing the root-mean-square of psf_width_c for all dimensions")
+    psf_width_x = PropertyDescription(
+        'psf_width_x',
+        'float',
+        description="full-width-half-max of the fitted Gauss-function in x-dimension as estimated by the fitter")
+    psf_width_y = PropertyDescription(
+        'psf_width_y',
+        'float',
+        description="full-width-half-max of the fitted Gauss-function in y-dimension as estimated by the fitter")
+    psf_width_z = PropertyDescription(
+        'psf_width_z',
+        'float',
+        description="full-width-half-max of the fitted Gauss-function in z-dimension as estimated by the fitter")
+    psf_half_width = PropertyDescription('psf_half_width', 'float')
+    psf_half_width_x = PropertyDescription('psf_half_width_x', 'float')
+    psf_half_width_y = PropertyDescription('psf_half_width_y', 'float')
+    psf_half_width_z = PropertyDescription('psf_half_width_z', 'float')
+    psf_sigma = PropertyDescription(
+        'psf_sigma',
+        'float',
+        description="sigma of the fitted Gauss-function - "
+                    "being isotropic or representing the root-mean-square of psf_sigma_c for all dimensions")
+    psf_sigma_x = PropertyDescription(
+        'psf_sigma_x',
+        'float',
+        description="sigma of the fitted Gauss-function in x-dimension as estimated by the fitter")
+    psf_sigma_y = PropertyDescription(
+        'psf_sigma_y',
+        'float',
+        description="sigma of the fitted Gauss-function in y-dimension as estimated by the fitter")
+    psf_sigma_z = PropertyDescription(
+        'psf_sigma_z',
+        'float',
+        description="sigma of the fitted Gauss-function in z-dimension as estimated by the fitter")
+    uncertainty = PropertyDescription(
+        'uncertainty',
+        'float',
+        description="localization error for all dimensions or representing a value proportional to "
+                    "psf_sigma / sqrt(intensity) or "
+                    "representing the root-mean-square of uncertainty_c for all dimensions.")
+    uncertainty_x = PropertyDescription(
+        'uncertainty_x',
+        'float',
+        description="localization error in x-dimension estimated by a fitter "
+                    "or representing a value proportional to psf_sigma_x / sqrt(intensity)")
+    uncertainty_y = PropertyDescription(
+        'uncertainty_y',
+        'float',
+        description="localization error in y-dimension estimated by a fitter "
+                    "or representing a value proportional to psf_sigma_y / sqrt(intensity)")
+    uncertainty_z = PropertyDescription(
+        'uncertainty_z',
+        'float',
+        description="localization error in z-dimension estimated by a fitter "
+                    "or representing a value proportional to psf_sigma_z / sqrt(intensity)")
+    channel = PropertyDescription(
+        'channel',
+        'integer',
+        description="identifier for an imaging channel")
+    slice_z = PropertyDescription(
+        'slice_z',
+        'float',
+        description="identifier for an imaging slice")
+    plane = PropertyDescription(
+        'plane',
+        'integer',
+        description="identifier for an imaging plane")
+    cluster_label = PropertyDescription(
+        'cluster_label',
+        'integer',
+        description="identifier for a localization cluster")
+
+    @classmethod
+    def coordinate_labels(cls) -> list[PropertyKey]:
+        return [cls.position_x, cls.position_y, cls.position_z]
+
+    @classmethod
+    def summary(cls) -> str:
+        lines = []
+        for element in cls:
+            lines.append(f"{element.value.name}")
+            lines.append(f"type: {element.value.type}, unit_SI: {element.value.unit_SI}, unit: {element.value.unit}")
+            lines.append(f"{element.value.description}\n")
+        return '\n'.join(lines)
+
+
 #: Keys for the most common LocData properties.
 #: Values suggest a type for conversion.
 #: If 'integer', 'signed', 'unsigned', 'float' :func:`pandas.to_numeric` can be applied.
 #: Otherwise :func:`pandas.astype` can be applied.
-PROPERTY_KEYS = {
+PROPERTY_KEYS_deprecated = {
     'index': 'integer', 'original_index': 'integer',
     'position_x': 'float', 'position_y': 'float', 'position_z': 'float',
     'frame': 'integer', 'frames_number': 'integer', 'frames_missing': 'integer',
@@ -60,6 +242,8 @@ PROPERTY_KEYS = {
     'plane': 'integer',
     'cluster_label': 'integer',
 }
+
+PROPERTY_KEYS = {item.name: item.value.type for item in PropertyKey if item.value.type is not None}
 
 
 class HullType(Enum):

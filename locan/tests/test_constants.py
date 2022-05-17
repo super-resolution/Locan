@@ -1,4 +1,5 @@
 from locan import ROOT_DIR
+from locan import PropertyDescription, PropertyKey
 from locan.constants import *
 
 for sc in (ROOT_DIR, PROPERTY_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
@@ -38,3 +39,28 @@ def test_root_directory():
     # print(ROOT_DIR.joinpath('tests/'))
     # print(type(ROOT_DIR))
     assert ROOT_DIR.joinpath('tests/').is_dir()
+
+
+def test_PropertyDescription():
+    prop = PropertyDescription(name="prop_name", type='integer', unit_SI="m", unit="nm", description="something")
+    assert repr(prop) == "PropertyDescription(name='prop_name', type='integer', unit_SI='m', unit='nm', " \
+                         "description='something')"
+    assert prop.name == "prop_name"
+
+
+def test_PropertyKey():
+    for element in PropertyKey:
+        assert element.name == element.value.name
+
+    assert all(key in PropertyKey.coordinate_labels()
+               for key in [PropertyKey.position_x, PropertyKey.position_y, PropertyKey.position_z])
+
+    PropertyKey.position_x.value.unit = "nm"
+    assert PropertyKey.position_x.value.unit == "nm"
+
+    string_ = PropertyKey.summary()
+    # print(string_)
+    assert string_[:5] == "index"
+
+    from locan.constants import PROPERTY_KEYS_deprecated
+    assert PROPERTY_KEYS_deprecated == PROPERTY_KEYS

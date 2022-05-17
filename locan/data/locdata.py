@@ -18,7 +18,7 @@ except ImportError:
     from scipy.spatial.qhull import QhullError # needed for Python 3.7
 
 from locan.constants import LOCDATA_ID  # is required to use LOCDATA_ID as global variable
-from locan import PROPERTY_KEYS
+from locan import PROPERTY_KEYS, PropertyKey
 from locan.data.region import Region, RoiRegion
 import locan.data.hulls
 from locan.data import metadata_pb2

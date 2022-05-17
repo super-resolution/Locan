@@ -17,7 +17,9 @@ The datatype for all keys is `string`. We stick to the following conventions:
 * use reverse notation in the sense that coordinate identifiers or identifiers of statistical functions are added
   in the end (``position_x_mean_mean``)
 
-A list of well defined property keys used throughout locan is given by the constant: `locan/constants/PROPERTY_KEYS`.
+A list of well defined property keys used throughout locan is given by the constant:
+:class:`locan/constants/PropertyKey`. An up-to-date description can be inspected by
+`locan/constants/PropertyKey.index.value.description`.
 
 
 Localization properties:
@@ -67,7 +69,7 @@ We will use the following keys (where `c` stands for the coordinate `x`, `y` or 
     * `two_kernel_improvement`
         a rapidSTORM parameter describing the improvement from two kernel fitting
     * `frames_number`
-        number of frames that contributed to a merged localization
+        number of frames that contribute to a merged localization
     * `frames_missing`
         number of frames that occurred between two successive localizations
 

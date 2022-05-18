@@ -8,6 +8,7 @@ Locan consists of the following modules:
 
    analysis
    constants
+   configuration
    data
    datasets
    dependencies
@@ -38,6 +39,7 @@ locdata_id = 0
 
 from locan.dependencies import *  # has to be imported before any others due to pyqt5/sidepy2 issues.
 from locan.constants import *
+from locan.configuration import *
 from locan.analysis import *
 from locan.data import *
 from locan.datasets import *
@@ -52,6 +54,7 @@ from locan.tests import *
 __all__ = ['__version__', 'ROOT_DIR']
 __all__.extend(dependencies.__all__)
 __all__.extend(constants.__all__)
+__all__.extend(configuration.__all__)
 __all__.extend(analysis.__all__)
 __all__.extend(data.__all__)
 __all__.extend(datasets.__all__)

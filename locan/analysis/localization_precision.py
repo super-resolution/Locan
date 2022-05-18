@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt
 from sklearn.neighbors import NearestNeighbors
 from scipy import stats
 
-from locan.constants import N_JOBS, TQDM_DISABLE, TQDM_LEAVE
+from locan.configuration import N_JOBS, TQDM_DISABLE, TQDM_LEAVE
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 
 

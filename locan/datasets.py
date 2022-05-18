@@ -11,7 +11,7 @@ from pathlib import Path
 
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.locan_io.locdata.io_locdata import load_asdf_file
-from locan.constants import DATASETS_DIR
+from locan.configuration import DATASETS_DIR
 
 if HAS_DEPENDENCY["requests"]: import requests
 

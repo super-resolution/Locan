@@ -1,51 +1,55 @@
 """
 
-Constants to be used throughout the project.
+Constants used throughout the project.
 
 .. autosummary::
    :toctree: ./
 
-   DATASETS_DIR
-   RENDER_ENGINE
    PROPERTY_KEYS
    RAPIDSTORM_KEYS
    ELYRA_KEYS
    THUNDERSTORM_KEYS
-   N_JOBS
-   COLORMAP_CONTINUOUS
-   COLORMAP_DIVERGING
-   COLORMAP_CATEGORICAL
-   TQDM_LEAVE
-   TQDM_DISABLE
+   NANOIMAGER_KEYS
+   SMLM_KEYS
+   DECODE_KEYS
+   SMAP_KEYS
 """
 from __future__ import annotations
 
 from enum import Enum, unique
-from pathlib import Path
 from dataclasses import dataclass
 
 from locan.dependencies import HAS_DEPENDENCY
 if HAS_DEPENDENCY["colorcet"]: from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
 
+import matplotlib.colors as mcolors
 
-__all__ = ['DATASETS_DIR', 'PROPERTY_KEYS', 'PropertyKey', 'PropertyDescription',
-           'HullType',
-           'FileType', 'RenderEngine', 'RENDER_ENGINE',
-           'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
-           'N_JOBS', 'TQDM_LEAVE', 'TQDM_DISABLE',
-           'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING', 'COLORMAP_CATEGORICAL'
+
+__all__ = ['PROPERTY_KEYS', 'PropertyKey', 'PropertyDescription',
+           'HullType', 'FileType', 'RenderEngine', 'ColorMaps',
+           'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS', 'NANOIMAGER_KEYS', 'SMLM_KEYS', 'DECODE_KEYS',
+           'SMAP_KEYS'
            ]
-
-
-#: Standard directory for example datasets.
-DATASETS_DIR = Path.home() / 'LocanDatasets'
 
 
 @dataclass
 class PropertyDescription:
     """
     A property of a localization or group of localizations
-    representing column names in LocData.data and LocData.properties.
+    representing column names in `LocData.data` and `LocData.properties`.
+
+    Attributes
+    ----------
+    name:
+        property name
+    type:
+        property type
+    unit_SI:
+        SI unit that is appropriate for property
+    unit:
+        The actual unit currently used
+    description:
+        Explanation what the property represents
     """
     name: str
     type: str
@@ -57,7 +61,7 @@ class PropertyDescription:
 @unique
 class PropertyKey(Enum):
     """
-    Property descriptions for standard properties in `locan.LocData`.
+    Property descriptions for standard properties used in `locan.LocData` and throughout locan.
     """
     index = PropertyDescription(
         'index',
@@ -229,7 +233,7 @@ PROPERTY_KEYS = {item.name: item.value.type for item in PropertyKey if item.valu
 
 class HullType(Enum):
     """
-    Hull definitions that are supported for LocData objects.
+    Hull definitions that are supported for `LocData` objects.
     """
     BOUNDING_BOX = 'bounding_box'
     CONVEX_HULL = 'convex_hull'
@@ -259,7 +263,6 @@ class FileType(Enum):
     SMAP = 10
 
 
-# Render engines
 class RenderEngine(Enum):
     """
     Engine to be use for rendering and displaying localization data as 2d or 3d images.
@@ -278,11 +281,22 @@ class RenderEngine(Enum):
     """napari"""
 
 
-#: Render engine.
-RENDER_ENGINE = RenderEngine.MPL
+class ColorMaps(Enum):
+    """
+    Preferred colormaps to be used for visualization.
+    """
+    if HAS_DEPENDENCY["colorcet"]:
+        COLORMAP_CONTINUOUS = m_fire
+        COLORMAP_CONTINUOUS_GRAY = m_gray
+        COLORMAP_DIVERGING = m_coolwarm
+        COLORMAP_CATEGORICAL = m_glasbey_dark
+    else:
+        COLORMAP_CONTINUOUS = mcolors.Colormap('viridis')
+        COLORMAP_DIVERGING = mcolors.Colormap('coolwarm')
+        COLORMAP_CATEGORICAL = mcolors.Colormap('tab20')
 
 
-#: Mapping column names in RapidSTORM files to LocData property keys
+#: Mapping column names in RapidSTORM files to `LocData` property keys
 RAPIDSTORM_KEYS = {
     'Position-0-0': 'position_x',
     'Position-1-0': 'position_y',
@@ -298,7 +312,7 @@ RAPIDSTORM_KEYS = {
 }
 
 
-#: Mapping column names in Zeiss Elyra files to LocData property keys
+#: Mapping column names in Zeiss Elyra files to `LocData` property keys
 ELYRA_KEYS = {
     'Index': 'original_index',
     'First Frame': 'frame',
@@ -318,7 +332,7 @@ ELYRA_KEYS = {
 }
 
 
-#: Mapping column names in Thunderstorm files to LocData property keys
+#: Mapping column names in Thunderstorm files to `LocData` property keys
 THUNDERSTORM_KEYS = {
     'id': 'original_index',
     'frame': 'frame',
@@ -339,7 +353,7 @@ THUNDERSTORM_KEYS = {
 }
 
 
-#: Mapping column names in Nanoimager files to LocData property keys
+#: Mapping column names in Nanoimager files to `LocData` property keys
 NANOIMAGER_KEYS = {
     'Channel': 'channel',
     'Frame': 'frame',
@@ -351,7 +365,7 @@ NANOIMAGER_KEYS = {
 }
 
 
-#: Mapping column names in SMLM files to LocData property keys
+#: Mapping column names in SMLM files to `LocData` property keys
 SMLM_KEYS = {
     'id': 'original_index',
     'frame': 'frame',
@@ -372,7 +386,7 @@ SMLM_KEYS = {
     'FitResidues_0_0': 'chi_square',
 }
 
-#: Mapping column names in DECODE files to LocData property keys
+#: Mapping column names in DECODE files to `LocData` property keys
 DECODE_KEYS = {
     'id': 'original_index',
     'frame_ix': 'frame',
@@ -383,7 +397,7 @@ DECODE_KEYS = {
     'phot': 'intensity',
 }
 
-#: Mapping column names in SMAP files to LocData property keys
+#: Mapping column names in SMAP files to `LocData` property keys
 SMAP_KEYS = {
     'frame': 'frame',
     'xnm': 'position_x',
@@ -396,29 +410,3 @@ SMAP_KEYS = {
     'ynmerr': 'uncertainty_y',
     'znmerr': 'uncertainty_z',
 }
-
-
-#: The number of cores that are used in parallel for some algorithms.
-#: Following the scikit convention: n_jobs is the number of parallel jobs to run.
-#: If -1, then the number of jobs is set to the number of CPU cores.
-N_JOBS = 1
-
-#: Leave tqdm progress bars after finishing the iteration.
-#: Flag to leave tqdm progress bars.
-TQDM_LEAVE = True
-
-#: Disable tqdm progress bars.
-#: Flag to disable all tqdm progress bars.
-TQDM_DISABLE = False
-
-#: Default colormaps for plotting
-#: Default colormaps for continuous, diverging and categorical scales are set to colorcet colormaps if imported or
-#: matplotlib if not. We chose fire, coolwarm and glasbey_dark (colorcet) or viridis, coolwarm adn tab20 (matplotlib).
-if HAS_DEPENDENCY["colorcet"]:
-    COLORMAP_CONTINUOUS = m_fire
-    COLORMAP_DIVERGING = m_coolwarm
-    COLORMAP_CATEGORICAL = m_glasbey_dark
-else:
-    COLORMAP_CONTINUOUS = 'viridis'
-    COLORMAP_DIVERGING = 'coolwarm'
-    COLORMAP_CATEGORICAL = 'tab20'

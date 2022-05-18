@@ -38,7 +38,7 @@ from scipy import stats
 import matplotlib.pyplot as plt
 
 from locan.analysis.analysis_base import _Analysis, _list_parameters
-from locan.constants import N_JOBS
+from locan.configuration import N_JOBS
 
 
 __all__ = ['NearestNeighborDistances']

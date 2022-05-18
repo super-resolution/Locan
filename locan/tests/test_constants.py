@@ -1,41 +1,8 @@
-from locan import FileType, HullType, RenderEngine, PropertyDescription, PropertyKey, PROPERTY_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS
-from locan.constants import N_JOBS
+import matplotlib.colors as mcolors
 
-for sc in (PROPERTY_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
-                              N_JOBS):
-    assert sc
-
-hulls = HullType
-assert hulls
-assert hulls.CONVEX_HULL.value == 'convex_hull'
-
-
-def test_FileType():
-    from locan.data.metadata_pb2 import File_type
-    for ft_enum, ft_pb in zip(FileType, File_type.items()):
-        assert ft_enum.name == ft_pb[0]
-        assert ft_enum.value == ft_pb[1]
-
-
-ren_eng = RenderEngine
-assert ren_eng
-
-assert N_JOBS == 1
-
-
-def test_rapidstorm_keys_are_mapped_on_valid_property_keys():
-    for item in RAPIDSTORM_KEYS.values():
-        assert (True if item in PROPERTY_KEYS else False)
-
-
-def test_elyra_keys_are_mapped_on_valid_property_keys():
-    for item in ELYRA_KEYS.values():
-        assert (True if item in PROPERTY_KEYS else False)
-
-
-def test_thunderstorm_keys_are_mapped_on_valid_property_keys():
-    for item in THUNDERSTORM_KEYS.values():
-        assert (True if item in PROPERTY_KEYS else False)
+from locan import PropertyDescription, PropertyKey, PROPERTY_KEYS, \
+    FileType, HullType, RenderEngine, ColorMaps, \
+    RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS, NANOIMAGER_KEYS, SMLM_KEYS, DECODE_KEYS, SMAP_KEYS
 
 
 def test_PropertyDescription():
@@ -61,3 +28,35 @@ def test_PropertyKey():
     assert string_[:5] == "index"
 
 
+def test_PROPERTY_KEYS():
+    assert all(key in PropertyKey._member_names_ for key in PROPERTY_KEYS.keys())
+
+
+def test_HullType():
+    values = [item.value for item in HullType]
+    assert all(value in values for value in ['bounding_box', 'convex_hull', 'oriented_bounding_box', 'alpha_shape'])
+
+
+def test_FileType():
+    from locan.data.metadata_pb2 import File_type
+    for ft_enum, ft_pb in zip(FileType, File_type.items()):
+        assert ft_enum.name == ft_pb[0]
+        assert ft_enum.value == ft_pb[1]
+
+
+def test_RenderEngine():
+    assert all(key in RenderEngine._member_names_ for key in ['MPL', 'NAPARI'])
+
+
+def test_ColorMaps():
+    assert all([isinstance(item.value, mcolors.Colormap) for item in ColorMaps])
+
+
+def test_keys_are_mapped_on_valid_property_keys():
+    assert all(PropertyKey[value] for value in RAPIDSTORM_KEYS.values())
+    assert all(PropertyKey[value] for value in ELYRA_KEYS.values())
+    assert all(PropertyKey[value] for value in THUNDERSTORM_KEYS.values())
+    assert all(PropertyKey[value] for value in NANOIMAGER_KEYS.values())
+    assert all(PropertyKey[value] for value in SMLM_KEYS.values())
+    assert all(PropertyKey[value] for value in DECODE_KEYS.values())
+    assert all(PropertyKey[value] for value in SMAP_KEYS.values())

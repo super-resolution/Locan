@@ -18,7 +18,7 @@ from locan import HAS_DEPENDENCY, needs_package
 if HAS_DEPENDENCY["hdbscan"]: from hdbscan import HDBSCAN
 
 from locan.data.locdata import LocData
-from locan.constants import N_JOBS
+from locan.configuration import N_JOBS
 
 
 __all__ = ['cluster_hdbscan', 'cluster_dbscan']

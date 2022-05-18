@@ -14,7 +14,8 @@ import scipy.signal.windows
 from locan import locdata_id
 from locan.data import LocData
 from locan.data.rois import Roi
-from locan.constants import COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
+from locan.constants import RenderEngine
+from locan.configuration import COLORMAP_CONTINUOUS, RENDER_ENGINE
 from locan.dependencies import HAS_DEPENDENCY
 from locan.data.rois import _MplSelector
 from locan.data.aggregate import histogram, Bins, _check_loc_properties

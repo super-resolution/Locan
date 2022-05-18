@@ -12,7 +12,8 @@ import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
 from locan.data.locdata import LocData
-from locan.constants import N_JOBS, HullType
+from locan.constants import HullType
+from locan.configuration import N_JOBS
 from locan.data.metadata_utils import _modify_meta
 from locan.data.rois import Roi
 from locan.data.region import Region, Region2D, RoiRegion

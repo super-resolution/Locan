@@ -12,7 +12,6 @@ Constants to be used throughout the project.
    ELYRA_KEYS
    THUNDERSTORM_KEYS
    N_JOBS
-   LOCDATA_ID
    COLORMAP_CONTINUOUS
    COLORMAP_DIVERGING
    COLORMAP_CATEGORICAL
@@ -33,7 +32,7 @@ __all__ = ['DATASETS_DIR', 'PROPERTY_KEYS', 'PropertyKey', 'PropertyDescription'
            'HullType',
            'FileType', 'RenderEngine', 'RENDER_ENGINE',
            'RAPIDSTORM_KEYS', 'ELYRA_KEYS', 'THUNDERSTORM_KEYS',
-           'N_JOBS', 'LOCDATA_ID', 'TQDM_LEAVE', 'TQDM_DISABLE',
+           'N_JOBS', 'TQDM_LEAVE', 'TQDM_DISABLE',
            'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING', 'COLORMAP_CATEGORICAL'
            ]
 
@@ -58,7 +57,7 @@ class PropertyDescription:
 @unique
 class PropertyKey(Enum):
     """
-    Standard properties for `locan.LocData`.
+    Property descriptions for standard properties in `locan.LocData`.
     """
     index = PropertyDescription(
         'index',
@@ -207,10 +206,12 @@ class PropertyKey(Enum):
 
     @classmethod
     def coordinate_labels(cls) -> list[PropertyKey]:
+        """Property descriptions for properties representing spatial coordinates"""
         return [cls.position_x, cls.position_y, cls.position_z]
 
     @classmethod
     def summary(cls) -> str:
+        """A formatted string representation of PropertyKey showing all elements with attributes."""
         lines = []
         for element in cls:
             lines.append(f"{element.value.name}")
@@ -223,26 +224,6 @@ class PropertyKey(Enum):
 #: Values suggest a type for conversion.
 #: If 'integer', 'signed', 'unsigned', 'float' :func:`pandas.to_numeric` can be applied.
 #: Otherwise :func:`pandas.astype` can be applied.
-PROPERTY_KEYS_deprecated = {
-    'index': 'integer', 'original_index': 'integer',
-    'position_x': 'float', 'position_y': 'float', 'position_z': 'float',
-    'frame': 'integer', 'frames_number': 'integer', 'frames_missing': 'integer',
-    'time': 'float',
-    'intensity': 'float',
-    'local_background': 'float', 'local_background_sigma': 'float',
-    'signal_noise_ratio': 'float', 'signal_background_ratio': 'float',
-    'chi_square': 'float', 'two_kernel_improvement': 'float',
-    'psf_amplitude': 'float',
-    'psf_width': 'float', 'psf_width_x': 'float', 'psf_width_y': 'float', 'psf_width_z': 'float',
-    'psf_half_width': 'float', 'psf_half_width_x': 'float', 'psf_half_width_y': 'float', 'psf_half_width_z': 'float',
-    'psf_sigma': 'float', 'psf_sigma_x': 'float', 'psf_sigma_y': 'float', 'psf_sigma_z': 'float',
-    'uncertainty': 'float', 'uncertainty_x': 'float', 'uncertainty_y': 'float', 'uncertainty_z': 'float',
-    'channel': 'integer',
-    'slice_z': 'float',
-    'plane': 'integer',
-    'cluster_label': 'integer',
-}
-
 PROPERTY_KEYS = {item.name: item.value.type for item in PropertyKey if item.value.type is not None}
 
 
@@ -429,10 +410,6 @@ TQDM_LEAVE = True
 #: Disable tqdm progress bars.
 #: Flag to disable all tqdm progress bars.
 TQDM_DISABLE = False
-
-#: LocData identifier
-#: Identifier for LocData objects that is reset for each locan session and incremented with each LocData instantiation.
-LOCDATA_ID = 0
 
 #: Default colormaps for plotting
 #: Default colormaps for continuous, diverging and categorical scales are set to colorcet colormaps if imported or

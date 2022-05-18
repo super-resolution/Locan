@@ -17,8 +17,8 @@ try:
 except ImportError:
     from scipy.spatial.qhull import QhullError # needed for Python 3.7
 
-from locan.constants import LOCDATA_ID  # is required to use LOCDATA_ID as global variable
-from locan import PROPERTY_KEYS, PropertyKey
+from locan import locdata_id  # is required to use locdata_id as global variable
+from locan.constants import PROPERTY_KEYS, PropertyKey
 from locan.data.region import Region, RoiRegion
 import locan.data.hulls
 from locan.data import metadata_pb2
@@ -99,9 +99,9 @@ class LocData:
         self._update_properties()
 
         # meta
-        global LOCDATA_ID
-        LOCDATA_ID += 1
-        self.meta.identifier = str(LOCDATA_ID)
+        global locdata_id
+        locdata_id += 1
+        self.meta.identifier = str(locdata_id)
 
         self.meta.creation_time.GetCurrentTime()
         self.meta.source = metadata_pb2.DESIGN

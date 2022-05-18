@@ -76,7 +76,7 @@ def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, trans
         viewer = napari.Viewer()
 
     viewer.add_image(images_, name=f'Raw data', **kwargs_image, scale=pixel_size_)
-    viewer.add_points(data=points, name=f'LocData {lc.LOCDATA_ID}',
+    viewer.add_points(data=points, name=f'LocData {lc.locdata_id}',
                       symbol='disc', size=500, face_color='r', edge_color='r', opacity=0.3,
                       **kwargs_points)
 

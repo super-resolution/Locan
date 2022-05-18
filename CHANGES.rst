@@ -505,7 +505,7 @@ locan.analysis
 
 locan.data
 ^^^^^^^^^^^^^^^
-- Introduced global variable LOCDATA_ID that serves as standard running ID for LocData objects.
+- Introduced global variable locdata_id that serves as standard running ID for LocData objects.
 - Added function update_convex_hulls_in_collection
 
 

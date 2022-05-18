@@ -29,8 +29,11 @@ except ImportError:
     __version__ = "0.12-not-installed"
 
 
-#: Root directory for path operations.
+# Root directory for path operations.
 ROOT_DIR = Path(__file__).parent
+
+# Identifier for LocData objects that is reset for each locan session and incremented with each LocData instantiation.
+locdata_id = 0
 
 
 from locan.dependencies import *  # has to be imported before any others due to pyqt5/sidepy2 issues.

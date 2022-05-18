@@ -9,8 +9,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.colors as mcolors
 
+from locan import locdata_id
 from locan.data import LocData
-from locan.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
+from locan.constants import COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
 from locan.dependencies import HAS_DEPENDENCY
 from locan.data.aggregate import histogram, Bins, _check_loc_properties
 from locan.render.transform import adjust_contrast
@@ -92,7 +93,7 @@ def render_3d_napari(locdata, loc_properties=None, other_property=None,
                      bins, n_bins, bin_size, bin_edges, bin_range,
                      )
 
-    viewer.add_image(hist.data, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
+    viewer.add_image(hist.data, name=f'LocData {locdata_id}', colormap=cmap, **kwargs)
     return viewer
 
 
@@ -256,5 +257,5 @@ def render_3d_rgb_napari(locdatas, loc_properties=None, other_property=None,
         rgb_stack[:, :, :, i] = img
     rgb_stack = np.transpose(rgb_stack, axes=(2, 1, 0, 3))
 
-    viewer.add_image(rgb_stack, name=f'LocData {LOCDATA_ID}', rgb=True, **kwargs)
+    viewer.add_image(rgb_stack, name=f'LocData {locdata_id}', rgb=True, **kwargs)
     return viewer

@@ -11,9 +11,10 @@ import matplotlib.colors as mcolors
 from skimage import exposure
 import scipy.signal.windows
 
+from locan import locdata_id
 from locan.data import LocData
 from locan.data.rois import Roi
-from locan.constants import LOCDATA_ID, COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
+from locan.constants import COLORMAP_CONTINUOUS, RenderEngine, RENDER_ENGINE
 from locan.dependencies import HAS_DEPENDENCY
 from locan.data.rois import _MplSelector
 from locan.data.aggregate import histogram, Bins, _check_loc_properties
@@ -308,7 +309,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
                                    )
     data = adjust_contrast(data, rescale)
 
-    viewer.add_image(data, name=f'LocData {LOCDATA_ID}', colormap=cmap, **kwargs)
+    viewer.add_image(data, name=f'LocData {locdata_id}', colormap=cmap, **kwargs)
     return viewer, bins
 
 
@@ -687,5 +688,5 @@ def render_2d_rgb_napari(locdatas, loc_properties=None, other_property=None,
         rgb_stack[:, :, i] = img
 
     rgb_stack = np.transpose(rgb_stack, axes=(1, 0, 2))
-    viewer.add_image(rgb_stack, name=f'LocData {LOCDATA_ID}', rgb=True, **kwargs)
+    viewer.add_image(rgb_stack, name=f'LocData {locdata_id}', rgb=True, **kwargs)
     return viewer

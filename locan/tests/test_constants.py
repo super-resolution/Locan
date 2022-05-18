@@ -1,8 +1,7 @@
-from locan import ROOT_DIR
-from locan import PropertyDescription, PropertyKey
-from locan.constants import *
+from locan import FileType, HullType, RenderEngine, PropertyDescription, PropertyKey, PROPERTY_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS
+from locan.constants import N_JOBS
 
-for sc in (ROOT_DIR, PROPERTY_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
+for sc in (PROPERTY_KEYS, RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS,
                               N_JOBS):
     assert sc
 
@@ -10,8 +9,13 @@ hulls = HullType
 assert hulls
 assert hulls.CONVEX_HULL.value == 'convex_hull'
 
-ft = FileType
-assert ft
+
+def test_FileType():
+    from locan.data.metadata_pb2 import File_type
+    for ft_enum, ft_pb in zip(FileType, File_type.items()):
+        assert ft_enum.name == ft_pb[0]
+        assert ft_enum.value == ft_pb[1]
+
 
 ren_eng = RenderEngine
 assert ren_eng
@@ -34,13 +38,6 @@ def test_thunderstorm_keys_are_mapped_on_valid_property_keys():
         assert (True if item in PROPERTY_KEYS else False)
 
 
-def test_root_directory():
-    assert ROOT_DIR.is_dir()
-    # print(ROOT_DIR.joinpath('tests/'))
-    # print(type(ROOT_DIR))
-    assert ROOT_DIR.joinpath('tests/').is_dir()
-
-
 def test_PropertyDescription():
     prop = PropertyDescription(name="prop_name", type='integer', unit_SI="m", unit="nm", description="something")
     assert repr(prop) == "PropertyDescription(name='prop_name', type='integer', unit_SI='m', unit='nm', " \
@@ -49,6 +46,7 @@ def test_PropertyDescription():
 
 
 def test_PropertyKey():
+    assert "index" in PropertyKey.__members__
     for element in PropertyKey:
         assert element.name == element.value.name
 
@@ -62,5 +60,4 @@ def test_PropertyKey():
     # print(string_)
     assert string_[:5] == "index"
 
-    from locan.constants import PROPERTY_KEYS_deprecated
-    assert PROPERTY_KEYS_deprecated == PROPERTY_KEYS
+

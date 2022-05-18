@@ -124,7 +124,7 @@ def test_render_2d_napari_coordinates(locdata_blobs_2d):
     plt.close('all')
 
 
-@pytest.mark.gui
+#@pytest.mark.gui
 @pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_render_2d_napari(locdata_blobs_2d):
     render_2d_mpl(locdata_blobs_2d, bin_size=100, cmap='viridis')

@@ -68,7 +68,7 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : int, str, locan.constants.Trafo, callable, bool, None
+    rescale : int, str, locan.Trafo, callable, bool, None
         Transformation as defined in Trafo or by transformation function.
         For None or False no rescaling occurs.
         Legacy behavior:
@@ -274,8 +274,8 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : int, str, Trafo, callable, bool, None
-        Transformation as defined in :class:`locan.constants.Trafo` or by transformation function.
+    rescale : int, str, locan.Trafo, callable, bool, None
+        Transformation as defined in :class:`locan.Trafo` or by transformation function.
         For None or False no rescaling occurs.
         Legacy behavior:
         For tuple with upper and lower bounds provided in percent,
@@ -513,8 +513,8 @@ def render_2d_rgb_mpl(locdatas, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : int, str, Trafo, callable, bool, None
-        Transformation as defined in :class:`locan.constants.Trafo` or by transformation function.
+    rescale : int, str, locan.Trafo, callable, bool, None
+        Transformation as defined in :class:`locan.Trafo` or by transformation function.
         For False no rescaling occurs.
         Legacy behavior:
         For tuple with upper and lower bounds provided in percent,
@@ -630,8 +630,8 @@ def render_2d_rgb_napari(locdatas, loc_properties=None, other_property=None,
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    rescale : int, str, Trafo, callable, bool, None
-        Transformation as defined in :class:`locan.constants.Trafo` or by transformation function.
+    rescale : int, str, locan.Trafo, callable, bool, None
+        Transformation as defined in :class:`locan.Trafo` or by transformation function.
         For False no rescaling occurs.
         Legacy behavior:
         For tuple with upper and lower bounds provided in percent,

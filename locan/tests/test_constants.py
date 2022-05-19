@@ -1,5 +1,6 @@
 import matplotlib.colors as mcolors
 
+from locan.dependencies import HAS_DEPENDENCY
 from locan import PropertyDescription, PropertyKey, PROPERTY_KEYS, \
     FileType, HullType, RenderEngine, ColorMaps, \
     RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS, NANOIMAGER_KEYS, SMLM_KEYS, DECODE_KEYS, SMAP_KEYS
@@ -45,7 +46,10 @@ def test_FileType():
 
 
 def test_RenderEngine():
-    assert all(key in RenderEngine._member_names_ for key in ['MPL', 'NAPARI'])
+    if not HAS_DEPENDENCY["napari"]:
+        assert all(key in RenderEngine._member_names_ for key in ['MPL'])
+    else:
+        assert all(key in RenderEngine._member_names_ for key in ['MPL', 'NAPARI'])
 
 
 def test_ColorMaps():

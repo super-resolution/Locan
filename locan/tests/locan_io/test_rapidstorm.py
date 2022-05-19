@@ -4,7 +4,7 @@ import numpy as np
 import locan.constants
 from locan.locan_io import load_rapidSTORM_file, load_rapidSTORM_track_file
 
-from locan.locan_io.locdata.rapidstorm import load_rapidSTORM_header, load_rapidSTORM_track_header
+from locan.locan_io.locdata.rapidstorm_io import load_rapidSTORM_header, load_rapidSTORM_track_header
 
 
 def test_get_correct_column_names_from_rapidSTORM_header():

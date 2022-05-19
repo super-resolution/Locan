@@ -11,7 +11,6 @@ Code is adapted from https://github.com/imodpasteur/smlm-file-format/blob/master
 import time
 import logging
 import zipfile
-import zlib
 import json
 
 import numpy as np

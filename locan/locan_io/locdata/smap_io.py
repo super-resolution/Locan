@@ -16,13 +16,13 @@ from locan.locan_io.locdata.utilities import convert_property_types, convert_pro
 if HAS_DEPENDENCY["h5py"]: import h5py
 
 
-__all__ = ['read_SMAP_header', 'load_SMAP_header', 'load_SMAP_file', 'save_SMAP_csv']
+__all__ = ['load_SMAP_header', 'load_SMAP_file', 'save_SMAP_csv']
 
 logger = logging.getLogger(__name__)
 
 
 @needs_package("h5py")
-def read_SMAP_header(file):
+def _read_SMAP_header(file):
     """
     Identify column names from a SMAP single-molecule localization file.
 
@@ -58,7 +58,7 @@ def load_SMAP_header(path):
         A list of valid dataset property keys as derived from the rapidSTORM identifiers.
     """
     with h5py.File(path, 'r') as file:
-        return read_SMAP_header(file)
+        return _read_SMAP_header(file)
 
 
 @needs_package("h5py")
@@ -81,7 +81,7 @@ def load_SMAP_file(path, nrows=None, convert=True):
         A new instance of LocData with all localizations.
     """
     with h5py.File(path, 'r') as file:
-        columns = read_SMAP_header(file)
+        columns = _read_SMAP_header(file)
 
         if file["saveloc"]["loc"]["frame"].shape == (0,):  # empty file
             logger.warning(f'File does not contain any data.')

@@ -14,7 +14,7 @@ There are functions for reading the following file structures
 * rapidSTORM track file format (RAPIDSTORMTRACK) [1]_
 * smlm file format (SMLM) [4]_, [5]_
 * decode file (DECODE) [6]_
-* smap file format (SMAP) [7_]
+* smap file format (SMAP) [7]_
 
 
 References
@@ -55,25 +55,35 @@ Submodules:
 
    io_locdata
    utilities
-   rapidstorm
-   smlm_file
-   decode_file
-   smap_file
+   rapidstorm_io
+   thunderstorm_io
+   elyra_io
+   nanoimager_io
+   asdf_io
+   smlm_io
+   decode_io
+   smap_io
 
 """
 from .io_locdata import *
 from .utilities import *
-from .rapidstorm import *
-from .smlm_file import *
-from .decode_file import *
-from .smap_file import *
+from .rapidstorm_io import *
+from .elyra_io import *
+from .thunderstorm_io import *
+from .nanoimager_io import *
+from .asdf_io import *
+from .smlm_io import *
+from .decode_io import *
+from .smap_io import *
 
 __all__ = []
 __all__.extend(io_locdata.__all__)
 __all__.extend(utilities.__all__)
-__all__.extend(rapidstorm.__all__)
-__all__.extend(smlm_file.__all__)
-__all__.extend(decode_file.__all__)
-__all__.extend(smap_file.__all__)
-
-# todo: make read_something functions private: _read_something) ?
+__all__.extend(rapidstorm_io.__all__)
+__all__.extend(elyra_io.__all__)
+__all__.extend(thunderstorm_io.__all__)
+__all__.extend(nanoimager_io.__all__)
+__all__.extend(asdf_io.__all__)
+__all__.extend(smlm_io.__all__)
+__all__.extend(decode_io.__all__)
+__all__.extend(smap_io.__all__)

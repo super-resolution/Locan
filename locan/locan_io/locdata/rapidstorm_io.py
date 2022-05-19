@@ -15,12 +15,13 @@ from locan.data import metadata_pb2
 from locan.locan_io.locdata.utilities import convert_property_types, open_path_or_file_like, convert_property_names
 
 
-__all__ = ['load_rapidSTORM_file', 'load_rapidSTORM_track_file']
+__all__ = ['load_rapidSTORM_header', 'load_rapidSTORM_file',
+           'load_rapidSTORM_track_header', 'load_rapidSTORM_track_file']
 
 logger = logging.getLogger(__name__)
 
 
-def read_rapidSTORM_header(file):
+def _read_rapidSTORM_header(file):
     """
     Read xml header from a rapidSTORM single-molecule localization file and identify column names.
 
@@ -70,7 +71,7 @@ def load_rapidSTORM_header(path):
 
     # read xml part in header
     with open_path_or_file_like(path) as file:
-        return read_rapidSTORM_header(file)
+        return _read_rapidSTORM_header(file)
 
 
 def load_rapidSTORM_file(path, nrows=None, convert=True, **kwargs):
@@ -94,7 +95,7 @@ def load_rapidSTORM_file(path, nrows=None, convert=True, **kwargs):
         A new instance of LocData with all localizations.
     """
     with open_path_or_file_like(path) as file:
-        columns = read_rapidSTORM_header(file)
+        columns = _read_rapidSTORM_header(file)
         dataframe = pd.read_csv(file, sep=" ", skiprows=0, nrows=nrows, names=columns, **kwargs)
 
     if convert:
@@ -116,7 +117,7 @@ def load_rapidSTORM_file(path, nrows=None, convert=True, **kwargs):
     return dat
 
 
-def read_rapidSTORM_track_header(file):
+def _read_rapidSTORM_track_header(file):
     """
     Read xml header from a rapidSTORM (track) single-molecule localization file and identify column names.
 
@@ -174,7 +175,7 @@ def load_rapidSTORM_track_header(path):
 
     # read xml part in header
     with open_path_or_file_like(path) as file:
-        return read_rapidSTORM_track_header(file)
+        return _read_rapidSTORM_track_header(file)
 
 
 def load_rapidSTORM_track_file(path, nrows=None, convert=True, collection=True, min_localization_count=1, **kwargs):
@@ -202,7 +203,7 @@ def load_rapidSTORM_track_file(path, nrows=None, convert=True, collection=True, 
         A new instance of LocData with all localizations/tracks as a collection.
     """
     with open_path_or_file_like(path) as file:
-        columns, columns_track = read_rapidSTORM_track_header(file)
+        columns, columns_track = _read_rapidSTORM_track_header(file)
         lines = pd.read_csv(file, lineterminator='\n', nrows=nrows, skiprows=1, header=None, **kwargs)
 
     lines = lines[0].str.split(" ", expand=False)

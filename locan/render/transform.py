@@ -106,9 +106,9 @@ class Transform(ABC):
 
 class HistogramEqualization(mcolors.Normalize, Transform):
     """
-    Histogram equalization with power intensification as described in [1]_.
+    Histogram equalization with power intensification.
 
-    The transformation function is :math:`f(a, p)` according to:
+    The transformation function as described in [1]_ is :math:`f(a, p)` according to:
 
     .. math::
 

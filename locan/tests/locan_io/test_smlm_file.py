@@ -7,7 +7,7 @@ from google.protobuf import json_format
 
 import locan.constants
 from locan.locan_io.locdata import manifest_pb2
-from locan.locan_io.locdata.smlm_file import load_SMLM_manifest, load_SMLM_header, save_SMLM, \
+from locan.locan_io.locdata.smlm_io import load_SMLM_manifest, load_SMLM_header, save_SMLM, \
     manifest_format_from_locdata, manifest_file_info_from_locdata, manifest_from_locdata, \
     load_SMLM_file, _change_upper_to_lower_keys
 

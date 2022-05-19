@@ -16,13 +16,13 @@ from locan.locan_io.locdata.utilities import convert_property_types, convert_pro
 if HAS_DEPENDENCY["h5py"]: import h5py
 
 
-__all__ = ['read_decode_header', 'load_decode_header', 'load_decode_file']
+__all__ = ['load_decode_header', 'load_decode_file']
 
 logger = logging.getLogger(__name__)
 
 
 @needs_package("h5py")
-def read_decode_header(file):
+def _read_decode_header(file):
     """
     Read header from a DECODE single-molecule localization file and identify column names.
 
@@ -78,7 +78,7 @@ def load_decode_header(path):
         Identifiers are list of valid dataset property keys as derived from the DECODE identifiers.
     """
     with h5py.File(path, 'r') as file:
-        return read_decode_header(file)
+        return _read_decode_header(file)
 
 
 @needs_package("h5py")
@@ -101,7 +101,7 @@ def load_decode_file(path, nrows=None, convert=True):
         A new instance of LocData with all localizations.
     """
     with h5py.File(path, 'r') as file:
-        columns, meta, decode = read_decode_header(file)
+        columns, meta, decode = _read_decode_header(file)
 
         if file['data']['xyz'].shape == (0, 3):  # empty file
             logger.warning(f'File does not contain any data.')

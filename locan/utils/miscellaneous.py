@@ -1,6 +1,8 @@
 """
 Miscellaneous functions without a home.
 """
+from __future__ import annotations
+
 from collections.abc import Generator
 
 

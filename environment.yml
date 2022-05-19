@@ -19,6 +19,7 @@ dependencies:
 
 # Python tests
 - pytest
+- pytest-qt
 
 # Scientific python
 - numpy>1.17.0

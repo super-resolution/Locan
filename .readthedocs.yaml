@@ -29,11 +29,4 @@ python:
      - method: pip
        path: .
        extra_requirements:
-         - test
-         - color
-         - track
-         - register
-         - napari
-         - scatter_density
-         - html
-         - hdf5
+         - all

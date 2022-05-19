@@ -17,6 +17,7 @@ Tutorials are provided as Jupyter notebooks.
    LocData <./notebooks/LocData>
    Load localization data <./notebooks/Load_LocData>
    Hulls <./notebooks/LocData_hulls>
+   Metadata <./notebooks/Metadata>
 
    Regions <./notebooks/Regions>
    Filter <./notebooks/Filter_LocData>

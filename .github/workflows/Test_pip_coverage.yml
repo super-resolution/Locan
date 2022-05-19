@@ -27,7 +27,7 @@ jobs:
 
       - name: "Install locan with extra requirements"
         run: |
-          pip install wheel cython numba
+          pip install wheel cython numba oldest-supported-numpy
           pip install hdbscan --no-build-isolation
           pip install .[all]
 

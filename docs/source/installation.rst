@@ -103,10 +103,10 @@ Various installation issues
     This error arises from version incompatibility between the numpy version installed in the current environment
     and the one used for building the wheel.
 
-    Solution: Install wheel, cython, and numpy (or numba) first, then build hdbscan using the installed versions
+    Solution: Install wheel, cython, and numpy (or numba) with oldest-supported-numpy first, then build hdbscan using the installed versions
     (and not in isolation as done by default), and finally install locan::
 
-        pip install wheel cython numba
+        pip install wheel cython numba oldest-supported-numpy
         pip install hdbscan --no-build-isolation
         pip install locan[all]
 

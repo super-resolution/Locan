@@ -13,12 +13,12 @@ import tomli
 import logging
 
 from google.protobuf.message import Message
-from google.protobuf import text_format
+from google.protobuf import text_format, json_format
 
 from locan.data import metadata_pb2
 
 
-__all__ = ['metadata_to_formatted_string', 'metadata_from_toml']
+__all__ = ['metadata_to_formatted_string', 'metadata_from_toml', 'message_scheme']
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ def metadata_to_formatted_string(message, **kwargs):
     Parameters
     ----------
     message : google.protobuf.message.Message
-        Message like locan.data.metadata_pb2.Metadata
+        Protobuf message like locan.data.metadata_pb2.Metadata
 
     kwargs : dict
         Other kwargs that are passed to :func:`google.protobuf.text_format.MessageToString`.
@@ -182,3 +182,35 @@ def metadata_from_toml(file):
         _dict_to_protobuf(dictionary=dictionary, message=instances[message_name], inplace=True)
 
     return instances
+
+
+def message_scheme(message) -> dict:
+    """
+    Provide message scheme with defaults including nested messages.
+
+    Parameters
+    ----------
+    message : google.protobuf.message.Message
+        Protobuf message
+
+    Returns
+    -------
+    dict
+        A nested dictionary with all message fields including default values.
+    """
+
+    message_dict = json_format.MessageToDict(message, including_default_value_fields=True,
+                                             preserving_proto_field_name=True)
+
+    for descriptor in message.DESCRIPTOR.fields:
+        if descriptor.type == descriptor.TYPE_MESSAGE:
+            attr_ = getattr(message, descriptor.name)
+
+            if descriptor.label != descriptor.LABEL_REPEATED:
+                message_dict[descriptor.name] = message_scheme(attr_)
+
+            elif descriptor.label == descriptor.LABEL_REPEATED and not 'ScalarMap' in type(attr_).__name__:
+                attr_ = attr_.add()
+                message_dict[descriptor.name] = message_scheme(attr_)
+
+    return message_dict

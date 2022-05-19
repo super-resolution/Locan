@@ -3,7 +3,7 @@ from copy import copy
 import google.protobuf.message
 import pytest
 
-from locan import metadata_to_formatted_string, metadata_from_toml
+from locan import metadata_to_formatted_string, metadata_from_toml, message_scheme
 from locan.data import metadata_pb2
 from locan.data.metadata_utils import _modify_meta, _dict_to_protobuf
 
@@ -137,3 +137,10 @@ def test_metadata_from_toml(metadata_toml):
                               'camera { identifier: "1" integration_time { 0.010s } } } } } } ' \
                               'localizer { software: "rapidSTORM" } production_time { 2022-05-14T06:58:00Z }'
     assert results_string == results_string_expected
+
+
+def test_message_scheme(metadata):
+    scheme = message_scheme(metadata)
+    assert isinstance(scheme, dict)
+    assert scheme['creation_time'] == '1111-11-11T10:11:11Z'
+    assert scheme['modification_time'] == '1970-01-01T00:00:00Z'

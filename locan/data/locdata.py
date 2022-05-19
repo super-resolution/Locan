@@ -900,6 +900,10 @@ class LocData:
     def print_meta(self):
         """
         Print Locdata.metadata.
+
+        See Also
+        --------
+        :func:`locan.data.metadata_utils.metadata_to_formatted_string`
         """
         print(metadata_to_formatted_string(self.meta))
 

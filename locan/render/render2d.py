@@ -435,7 +435,7 @@ def select_by_drawing_mpl(locdata, region_type='rectangle', **kwargs):
     return roi_list
 
 
-def select_by_drawing_napari(locdata, **kwargs):
+def select_by_drawing_napari(locdata, napari_run=True, **kwargs):
     """
     Select region of interest from rendered image by drawing rois in napari.
 
@@ -445,6 +445,8 @@ def select_by_drawing_napari(locdata, **kwargs):
     ----------
     locdata : LocData
         The localization data from which to select localization data.
+    napari_run : bool
+        If `True` napari.run is called (set to `False` for testing).
     kwargs : dict
         Other parameters passed to :func:`render_2d_napari`.
 
@@ -458,7 +460,8 @@ def select_by_drawing_napari(locdata, **kwargs):
     """
     # select roi
     viewer, bins = render_2d_napari(locdata, **kwargs)
-    napari.run()
+    if napari_run:
+        napari.run()
 
     vertices = viewer.layers['Shapes'].data
     types = viewer.layers['Shapes'].shape_type

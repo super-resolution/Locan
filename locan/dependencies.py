@@ -95,7 +95,7 @@ INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast-histogram', 'boost-
 
 #: List of optional dependencies (PyPi package names)
 EXTRAS_REQUIRE = {
-    "pytest",
+    "pytest", "pytest-qt",
     "colorcet",
     "trackpy",
     "open3d",
@@ -114,6 +114,7 @@ IMPORT_NAMES["boost-histogram"] = "boost_histogram"
 IMPORT_NAMES["protobuf"] = "google.protobuf"
 IMPORT_NAMES["scikit-image"] = "skimage"
 IMPORT_NAMES["scikit-learn"] = "sklearn"
+IMPORT_NAMES["pytest-qt"] = "pytestqt"
 
 #: A dictionary indicating if dependency is available.
 HAS_DEPENDENCY = _has_dependency_factory(packages=EXTRAS_REQUIRE)

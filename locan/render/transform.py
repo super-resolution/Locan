@@ -118,6 +118,12 @@ class HistogramEqualization(mcolors.Normalize, Transform):
     Here, :math:`a` is an intensity value, :math:`p` the power (a parameter), and :math:`h(a)` the histogram of
     intensities.
 
+    Notes
+    -----
+    The default for n_bins is 65536 (16 bit).
+    For most SMLM datasets this should be sufficient to resolve individual localizations despite a large dynamic range.
+    Setting n_bins to 256 (8 bit) is too course for many SMLM datasets.
+
     References
     ----------
     .. [1] Yaroslavsky, L. (1985) Digital picture processing. Springer, Berlin.
@@ -125,17 +131,17 @@ class HistogramEqualization(mcolors.Normalize, Transform):
     Parameters
     ----------
     reference : array-like
-        The data values to define the transformation function. If None values in call are used.
+        The data values to define the transformation function. If None then the values in `__call__` are used.
     power : float
         The `power` intensification parameter.
     n_bins : int
         Number of bins used to compute the intensity histogram.
     mask : array-like[bool]
-        A bool mask with shape equal to that of values. If reference is None it is set to values[mask].
-        The transformation determined from reference is then applied to the all values.
+        A bool mask with shape equal to that of values. If reference is None, reference is set to values[mask].
+        The transformation determined from reference is then applied to all values.
     """
 
-    def __init__(self, vmin=None, vmax=None, reference=None, power=1, n_bins=256, mask=None):
+    def __init__(self, vmin=None, vmax=None, reference=None, power=1, n_bins=65536, mask=None):
         super().__init__(vmin=vmin, vmax=vmax)
         self.reference = reference
         self.power = power
@@ -150,6 +156,10 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         ----------
         values : array-like
             The input values.
+
+        Returns
+        -------
+        numpy.ndarray
         """
         _values, is_scalar = self.process_value(values)
         self.autoscale_None(_values)  # sets self.vmin, self.vmax if None

@@ -146,9 +146,17 @@ def test_render_2d_napari(locdata_blobs_2d):
 
 @pytest.mark.gui
 @pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
-def test_render_2d_napari_empty(locdata_empty):
+def test_render_2d_napari_empty_gui(locdata_empty):
     render_2d_napari(locdata_empty, bin_size=100, cmap='viridis', gamma=0.1)
     napari.run()
+
+
+@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
+def test_render_2d_napari_empty(make_napari_viewer, locdata_empty):
+    viewer = make_napari_viewer()
+    render_2d_napari(locdata_empty, viewer=viewer, bin_size=100, cmap='viridis', gamma=0.1)
+    assert viewer.layers == []
+    viewer.close()
 
 
 @pytest.mark.gui

@@ -121,40 +121,40 @@ def test_transform_new():
     # 5) equalize: equalize histogram for all values>0
     new_img = adjust_contrast(img_with_zeros, rescale=Trafo.EQUALIZE)
     assert new_img.dtype == np.float64
-    assert np.allclose(new_img, [0.25, 0., 0.40277778, 0.70833333, 1.])
+    assert np.allclose(new_img, [0.25, 0., 0.48611111, 0.70833333, 1.])
 
     # 6) equalize_uint8: equalize histogram for all values>0 within (0, 255)
     new_img = adjust_contrast(img_with_zeros, rescale=Trafo.EQUALIZE_UINT8)
     assert new_img.dtype == np.uint8
-    assert np.allclose(new_img, [63, 0, 102, 180, 255])
+    assert np.allclose(new_img, [63, 0, 123, 180, 255])
 
     # 7) equalize_all: equalize histogram
     new_img = adjust_contrast(img_with_zeros, rescale=Trafo.EQUALIZE_ALL)
     assert new_img.dtype == np.float64
-    assert np.allclose(new_img, [0.4, 0.2, 0.52222222, 0.76666667, 1.])
+    assert np.allclose(new_img, [0.4, 0.2, 0.58888889, 0.76666667, 1.])
 
     # 8) equalize_all_uint8: equalize histogram within (0, 255)
     new_img = adjust_contrast(img_with_zeros, rescale=Trafo.EQUALIZE_ALL_UINT8)
     assert new_img.dtype == np.uint8
-    assert np.allclose(new_img, [102, 51, 133, 195, 255])
+    assert np.allclose(new_img, [102, 51, 150, 195, 255])
 
     # 9) equalize_0p3: equalize histogram with factor=0.3 for all values>0
     new_img = adjust_contrast(img_with_zeros, rescale=Trafo.EQUALIZE_0P3)
     assert new_img.dtype == np.float64
-    assert np.allclose(new_img, [0.25, 0., 0.40277778, 0.70833333, 1.])
+    assert np.allclose(new_img, [0.25, 0., 0.48611111, 0.70833333, 1.])
     # result is the same as for EQUALIZE due to the large number of bins
 
     # 10) equalize_0p3_uint8: equalize histogram with factor=0.3 for all values>0 within (0, 255)
     new_img = adjust_contrast(img_with_zeros, rescale=Trafo.EQUALIZE_0P3_UINT8)
     assert new_img.dtype == np.uint8
-    assert np.allclose(new_img, [63, 0, 102, 180, 255])
+    assert np.allclose(new_img, [63, 0, 123, 180, 255])
 
     # 11) equalize_0p3_all: equalize histogram with factor=0.3
     new_img = adjust_contrast(img_with_zeros, rescale=Trafo.EQUALIZE_0P3_ALL)
     assert new_img.dtype == np.float64
-    assert np.allclose(new_img, [0.4, 0.2, 0.52222222, 0.76666667, 1.])
+    assert np.allclose(new_img, [0.4, 0.2, 0.58888889, 0.76666667, 1.])
 
     # 12) equalize_0p3_all_uint8: equalize histogram with factor=0.3 within (0, 255)
     new_img = adjust_contrast(img_with_zeros, rescale=Trafo.EQUALIZE_0P3_ALL_UINT8)
     assert new_img.dtype == np.uint8
-    assert np.allclose(new_img, [102, 51, 133, 195, 255])
+    assert np.allclose(new_img, [102, 51, 150, 195, 255])

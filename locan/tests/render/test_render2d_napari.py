@@ -12,13 +12,18 @@ from locan import transform_affine
 if HAS_DEPENDENCY["napari"]: import napari
 
 
+pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="requires napari")
+
 HAS_NAPARI_AND_PYTESTQT = HAS_DEPENDENCY["napari"] and HAS_DEPENDENCY["pytestqt"]
+# pytestqt is not a requested or extra dependency.
+# If napari and pytest-qt is installed, all tests run.
+# Tests in docker or GitHub actions on linux require xvfb for tests with pytest-qt to run.
 
 
 @pytest.mark.gui
 @pytest.mark.parametrize("test_input, expected", list((member, 0) for member in list(RenderEngine)))
 def test_render_2d_gui(locdata_blobs_2d, test_input, expected):
-    if HAS_DEPENDENCY["napari"] and test_input == RenderEngine.NAPARI:
+    if test_input == RenderEngine.NAPARI:
         render_2d(locdata_blobs_2d, render_engine=test_input)
         # napari.run()
     else:
@@ -30,7 +35,6 @@ def test_render_2d_gui(locdata_blobs_2d, test_input, expected):
 
 @pytest.mark.visual
 # this is to check overlay of rendered image and single localization points
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_render_2d_napari_coordinates(locdata_blobs_2d):
     render_2d_mpl(locdata_blobs_2d, bin_size=10, cmap='viridis')
     plt.show()
@@ -43,7 +47,6 @@ def test_render_2d_napari_coordinates(locdata_blobs_2d):
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_render_2d_napari_gui(locdata_blobs_2d):
     render_2d_mpl(locdata_blobs_2d, bin_size=100, cmap='viridis')
     plt.show()
@@ -62,7 +65,7 @@ def test_render_2d_napari_gui(locdata_blobs_2d):
     plt.close('all')
 
 
-@pytest.mark.skipif(not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt.")
 def test_render_2d_napari(make_napari_viewer, locdata_blobs_2d):
     viewer = make_napari_viewer()
     render_2d_napari(locdata_blobs_2d, viewer=viewer, bin_size=100, cmap='viridis', gamma=0.1)
@@ -72,13 +75,12 @@ def test_render_2d_napari(make_napari_viewer, locdata_blobs_2d):
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_render_2d_napari_empty_gui(locdata_empty):
     render_2d_napari(locdata_empty, bin_size=100, cmap='viridis', gamma=0.1)
     napari.run()
 
 
-@pytest.mark.skipif(not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt.")
 def test_render_2d_napari_empty(make_napari_viewer, locdata_empty):
     viewer = make_napari_viewer()
     render_2d_napari(locdata_empty, viewer=viewer, bin_size=100, cmap='viridis', gamma=0.1)
@@ -87,14 +89,13 @@ def test_render_2d_napari_empty(make_napari_viewer, locdata_empty):
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_render_2d_napari_single_gui(locdata_single_localization, caplog):
     render_2d_napari(locdata_single_localization, bin_size=100, cmap='viridis', gamma=0.1)
     assert caplog.record_tuples[1] == ('locan.render.render2d', 30, 'Locdata carries a single localization.')
     napari.run()
 
 
-@pytest.mark.skipif(not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt.")
 def test_render_2d_napari_single(make_napari_viewer, locdata_single_localization, caplog):
     viewer = make_napari_viewer()
     render_2d_napari(locdata_single_localization, viewer=viewer,
@@ -104,7 +105,6 @@ def test_render_2d_napari_single(make_napari_viewer, locdata_single_localization
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_select_by_drawing_napari_gui(locdata_blobs_2d):
     viewer = napari.Viewer()
     viewer.add_shapes(data=np.array([(1, 10), (10, 20)]), shape_type='rectangle')
@@ -117,7 +117,7 @@ def test_select_by_drawing_napari_gui(locdata_blobs_2d):
     assert repr(rois[0].region) == 'Rectangle((122.0, 565.0), 90.0, 100.0, 0)'
 
 
-@pytest.mark.skipif(not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt.")
 def test_select_by_drawing_napari(make_napari_viewer, locdata_blobs_2d):
     viewer = make_napari_viewer()
     viewer.add_shapes(data=np.array([(1, 10), (10, 20)]), shape_type='rectangle')
@@ -130,14 +130,12 @@ def test_select_by_drawing_napari(make_napari_viewer, locdata_blobs_2d):
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_select_by_drawing_napari_2(locdata_blobs_2d):
     roi_list = select_by_drawing_napari(locdata_blobs_2d)
     print(roi_list)
 
 
 @pytest.mark.gui
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_render_2d_rgb_napari_gui(locdata_blobs_2d):
     locdata_0 = locdata_blobs_2d
     locdata_1 = transform_affine(locdata_blobs_2d, offset=(20, 0))
@@ -146,7 +144,7 @@ def test_render_2d_rgb_napari_gui(locdata_blobs_2d):
     napari.run()
 
 
-@pytest.mark.skipif(not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari.")
+@pytest.mark.skipif(not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt.")
 def test_render_2d_rgb_napari(make_napari_viewer, locdata_blobs_2d):
     viewer = make_napari_viewer()
     locdata_0 = locdata_blobs_2d

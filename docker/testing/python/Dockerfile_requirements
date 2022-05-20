@@ -43,6 +43,8 @@ RUN pip install pip setuptools wheel --trusted-host pypi.org --upgrade --no-cach
     # --no-build-isolation is required to ensure that hdbscan is build with the installed numpy version.
     pip install hdbscan --no-build-isolation --trusted-host pypi.org --no-cache-dir && \
     pip install -r requirements.txt --trusted-host pypi.org --trusted-host pypi.python.org --no-cache-dir && \
+    # xvfb needed to run tests with pytest_qt fixture
+    pip install pytest-xvfb && \
     pip install .
 
 # Volume for data

@@ -23,10 +23,19 @@ formats:
   - epub
 
 # Optionally declare the Python requirements required to build your docs
+# Currently we install all requirements except hdbscan due to installation issues
 python:
    install:
      - requirements: docs/requirements.txt
      - method: pip
        path: .
        extra_requirements:
-         - all
+         - test
+         - pyqt5
+         - color
+         - track
+         - register
+         - napari
+         - scatter_density
+         - html
+         - hdf5

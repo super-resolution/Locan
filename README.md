@@ -11,7 +11,7 @@
 [![Documentation Status](https://readthedocs.org/projects/locan/badge/?version=stable)](https://locan.readthedocs.io/en/stable/?badge=stable)
 
 
-Locan is a python-based library with code for analyzing fluoresence super-resolution
+Locan is a python-based library with code for analyzing fluorescence super-resolution
 microscopy data.
 
 Getting Started

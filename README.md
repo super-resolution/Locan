@@ -8,7 +8,7 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/super-resolution/locan)](https://github.com/super-resolution/Locan/commits/main)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/super-resolution/locan/Tests%20with%20matrix,%20pip)
 [![codecov](https://codecov.io/gh/super-resolution/Locan/branch/main/graph/badge.svg?token=XTZRIIVOGE)](https://codecov.io/gh/super-resolution/Locan)
-[![Documentation Status](https://readthedocs.org/projects/locan/badge/?version=stable)](https://locan.readthedocs.io/en/stable/?badge=stable)
+[![Documentation Status](https://readthedocs.org/projects/locan/badge/?version=latest)](https://locan.readthedocs.io/en/latest/?badge=latest)
 
 
 Locan is a python-based library with code for analyzing fluorescence super-resolution

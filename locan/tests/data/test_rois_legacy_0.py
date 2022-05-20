@@ -159,6 +159,8 @@ def test_as_artist():
     ax.add_patch(roi_polygon._region.as_artist())
     # plt.show()
 
+    plt.close('all')
+
 
 def test__napari_shape_to_RoiRegion():
     # rectangle

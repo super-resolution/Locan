@@ -90,6 +90,7 @@ def test_render_2d_scatter_density_single(locdata_single_localization, caplog):
     render_2d_scatter_density(locdata_single_localization)
     assert caplog.record_tuples == [('locan.render.render2d', 30, 'Locdata carries a single localization.')]
     # plt.show()
+    plt.close('all')
 
 
 @pytest.mark.gui

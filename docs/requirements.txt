@@ -1,11 +1,6 @@
 #
 # Tools for locan documentation
 #
-
-# fix for readthedocs
-jupyterlab
-
-# for documentation
 sphinx
 ipython
 myst-nb

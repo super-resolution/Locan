@@ -1,6 +1,11 @@
 #
 # Tools for locan documentation
 #
+
+# fix for readthedocs
+jupyterlab
+
+# for documentation
 sphinx
 ipython
 myst-nb
@@ -12,7 +17,3 @@ furo
 cython
 numba
 ray
-
-# fix for readthedocs
-# requested by jupyter-cache
-nbclient==0.5.13

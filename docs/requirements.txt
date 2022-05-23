@@ -12,3 +12,7 @@ furo
 cython
 numba
 ray
+
+# fix for readthedocs
+# requested by jupyter-cache
+nbclient>=0.2,<0.6"

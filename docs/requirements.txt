@@ -12,6 +12,3 @@ furo
 cython
 numba
 ray
-
-# fixes
-nbclient<0.6,>=0.2

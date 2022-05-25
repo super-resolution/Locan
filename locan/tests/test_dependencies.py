@@ -1,5 +1,5 @@
 import pytest
-from locan.dependencies import *
+from locan import IMPORT_NAMES, INSTALL_REQUIRES, EXTRAS_REQUIRE, HAS_DEPENDENCY, needs_package
 
 
 def test_IMPORT_NAMES():
@@ -7,19 +7,18 @@ def test_IMPORT_NAMES():
     assert IMPORT_NAMES.get(package, package) == "numpy"
     package = "scikit-learn"
     assert IMPORT_NAMES.get(package, package) == "sklearn"
-    print(IMPORT_NAMES)
 
 
 def test_dependency_lists():
     assert len(INSTALL_REQUIRES) > 0
+    assert len(INSTALL_REQUIRES) == len(set(INSTALL_REQUIRES))
     assert len(EXTRAS_REQUIRE) >= 0
     # print("install_requires:", INSTALL_REQUIRES)
     # print("extras_require:", EXTRAS_REQUIRE)
 
 
 def test_has_dependency():
-    with pytest.raises(KeyError):
-        assert HAS_DEPENDENCY["numpy"]
+    assert "numpy" in HAS_DEPENDENCY
     assert all(HAS_DEPENDENCY)
 
 

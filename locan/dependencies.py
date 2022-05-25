@@ -21,16 +21,14 @@ CONSTANTS
    HAS_DEPENDENCY
    QT_BINDINGS
 """
+from __future__ import annotations
+
 import os
 from functools import wraps
 import importlib.util
-import configparser
-import re
 from enum import Enum
 import warnings
-from typing import Optional, Union, Dict
-
-from locan import ROOT_DIR
+from collections.abc import Iterable
 
 
 __all__ = ["needs_package", "IMPORT_NAMES", "INSTALL_REQUIRES", "EXTRAS_REQUIRE", "HAS_DEPENDENCY",
@@ -38,8 +36,8 @@ __all__ = ["needs_package", "IMPORT_NAMES", "INSTALL_REQUIRES", "EXTRAS_REQUIRE"
 
 
 def _has_dependency_factory(
-        packages: list,
-        import_names: Optional[Dict[str, bool]] = None
+        packages: Iterable[str],
+        import_names: dict[str, str] | None = None
 ) -> dict:
     if import_names is None:
         import_names = IMPORT_NAMES
@@ -59,9 +57,9 @@ def needs_package(package, import_names=None, has_dependency=None):
     ----------
     package : str
         Package or dependency name that needs to be imported.
-    import_names : Optional[Dict, None]
+    import_names : dict[str, str] | None
         Mapping of import names on package names.
-    has_dependency : Optional[Dict, None]
+    has_dependency : dict | None
         Dictionary with bool indicator if package (import name) is available.
 
     Returns
@@ -89,18 +87,23 @@ def needs_package(package, import_names=None, has_dependency=None):
 #: List of required dependencies (PyPi package names)
 # Should reflect the dependencies specified in setup.cfg.
 # Some package names are different from the names for import.
-INSTALL_REQUIRES = ['asdf', 'tifffile', 'ruamel.yaml', 'fast-histogram', 'boost-histogram', 'lmfit',
+INSTALL_REQUIRES = {'asdf', 'tifffile', 'ruamel.yaml', 'fast-histogram', 'boost-histogram', 'lmfit',
                     'protobuf', 'shapely', 'networkx', 'scikit-learn', 'scikit-image', 'matplotlib', 'scipy',
-                    'pandas', 'numpy', 'tqdm', 'numba', 'cython']
+                    'pandas', 'numpy', 'tqdm', 'numba', 'cython'}
 
 #: List of optional dependencies (PyPi package names)
 EXTRAS_REQUIRE = {
     "pytest", "pytest-qt",
+    "PySide2",
+    "PyQt5",
     "colorcet",
     "trackpy",
     "open3d",
-    "PySide2", "napari", "mpl_scatter_density",
-    "requests", "h5py", 'hdbscan',
+    "napari",
+    "mpl_scatter_density",
+    "requests",
+    "h5py",
+    "hdbscan",
     "cupy",
     "sphinx", "ipython", "myst-nb", "sphinx-copybutton", "sphinx_rtd_theme", "furo",
     "coverage", "build", "twine"
@@ -117,7 +120,7 @@ IMPORT_NAMES["scikit-learn"] = "sklearn"
 IMPORT_NAMES["pytest-qt"] = "pytestqt"
 
 #: A dictionary indicating if dependency is available.
-HAS_DEPENDENCY = _has_dependency_factory(packages=EXTRAS_REQUIRE)
+HAS_DEPENDENCY = _has_dependency_factory(packages=INSTALL_REQUIRES.union(EXTRAS_REQUIRE))
 
 
 # Possible python bindings to interact with QT

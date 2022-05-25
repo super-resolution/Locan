@@ -15,7 +15,7 @@ import struct
 import os
 import locale
 
-from locan.dependencies import INSTALL_REQUIRES, EXTRAS_REQUIRE
+from locan.dependencies import INSTALL_REQUIRES, EXTRAS_REQUIRE, IMPORT_NAMES
 from locan import __version__ as locan_version
 
 
@@ -78,25 +78,30 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
     dict
         Version information on relevant Python libraries
     """
-    deps = INSTALL_REQUIRES
+    deps = INSTALL_REQUIRES.copy()
 
     if extra_dependencies:
-        deps.extend(EXTRAS_REQUIRE)
+        deps = deps.union(EXTRAS_REQUIRE)
 
     if other_dependencies:
-        deps.extend(other_dependencies)
+        deps = deps.union(other_dependencies)
+
+    # convert PyPI names to module names
+    deps = set(IMPORT_NAMES.get(dep, dep) for dep in deps)
 
     deps_info = {}
     for modname in deps:
         try:
+            deps_info[modname] = importlib.metadata.version(modname)
+        except (AttributeError, importlib.metadata.PackageNotFoundError):
             if modname in sys.modules:
                 module = sys.modules[modname]
             else:
-                module = importlib.import_module(modname)
-        except ImportError:
-            module = None
-
-        deps_info[modname] = getattr(module, "__version__", None)
+                try:
+                    module = importlib.import_module(modname)
+                except ModuleNotFoundError:
+                    module = None
+            deps_info[modname] = getattr(module, "__version__", None)
 
     return deps_info
 

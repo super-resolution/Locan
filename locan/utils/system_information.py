@@ -97,7 +97,7 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
                 deps_info[modname] = version(modname)
             except importlib.metadata.PackageNotFoundError:
                 deps_info[modname] = None
-        except AttributeError:  # for python<=3.7 which does not have metadata
+        except ModuleNotFoundError:  # for python<=3.7 which does not have metadata
             if modname in sys.modules:
                 module = sys.modules[modname]
             else:

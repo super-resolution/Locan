@@ -39,9 +39,9 @@ ENV PATH "$VIRTUAL_ENV/bin:$PATH"
 RUN pip install pip setuptools wheel --trusted-host pypi.org --upgrade --no-cache-dir && \
     # wheel, cython and numpy needs to be installed before hdbscan to build hdbscan correctly
     # numba usually requires numpy with older version which must be installed before building hdbscan
-    pip install cython numba oldest-supported-numpy --trusted-host pypi.org --no-cache-dir && \
+    #pip install cython numba oldest-supported-numpy --trusted-host pypi.org --no-cache-dir && \
     # --no-build-isolation is required to ensure that hdbscan is build with the installed numpy version.
-    pip install hdbscan --no-build-isolation --trusted-host pypi.org --no-cache-dir && \
+    #pip install hdbscan --no-build-isolation --trusted-host pypi.org --no-cache-dir && \
     pip install -r requirements.txt --trusted-host pypi.org --trusted-host pypi.python.org --no-cache-dir && \
     # xvfb needed to run tests with pytest_qt fixture
     pip install pytest-xvfb && \

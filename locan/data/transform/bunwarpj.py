@@ -26,7 +26,6 @@ from itertools import islice
 import numpy as np
 import pandas as pd
 from scipy import interpolate
-from numba import jit
 
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta

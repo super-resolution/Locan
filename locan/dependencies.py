@@ -89,7 +89,7 @@ def needs_package(package, import_names=None, has_dependency=None):
 # Some package names are different from the names for import.
 INSTALL_REQUIRES = {'asdf', 'tifffile', 'ruamel.yaml', 'fast-histogram', 'boost-histogram', 'lmfit',
                     'protobuf', 'shapely', 'networkx', 'scikit-learn', 'scikit-image', 'matplotlib', 'scipy',
-                    'pandas', 'numpy', 'tqdm', 'numba', 'cython'}
+                    'pandas', 'numpy', 'tqdm', 'cython'}
 
 #: List of optional dependencies (PyPi package names)
 EXTRAS_REQUIRE = {

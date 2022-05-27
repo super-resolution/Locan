@@ -14,7 +14,6 @@ dependencies:
 # Python
 - cython
 - pip
-- numba
 - tqdm
 
 # Python tests
@@ -54,7 +53,7 @@ dependencies:
 - h5py
 
 - pip:
-    - open3d!=0.12.0
+    - open3d!=0.12.0;python_version<'3.10'
 
 # Various issues
 - pydantic!=1.8.0

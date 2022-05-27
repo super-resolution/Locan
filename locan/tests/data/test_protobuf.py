@@ -273,7 +273,7 @@ def test_read_proto_message_locdata_metadata_v0p11(metadata_pb2_Metadata_v0p11_l
     for key in metadata_new.DESCRIPTOR.fields_by_name.keys():
         assert key in metadata.DESCRIPTOR.fields_by_name.keys()
         if key == "map":
-            assert str(getattr(metadata_new, key)) == str(getattr(metadata, key))
+            assert dict(getattr(metadata_new, key)) == dict(getattr(metadata, key))
         else:
             assert getattr(metadata_new, key) == getattr(metadata, key)
 

@@ -27,7 +27,7 @@ def test_Analysis():
     assert ae.meta.comment == 'new comment'
 
     ae.meta.map['variable key'] = 'value_1'
-    assert ae.meta.map == {'variable key': 'value_1'}
+    assert str(ae.meta.map) == "{'variable key': 'value_1'}"
 
     ae.meta.map['key_2'] = 'value_2'
     assert ae.meta.map['key_2'] == 'value_2'

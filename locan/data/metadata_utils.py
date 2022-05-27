@@ -209,7 +209,9 @@ def message_scheme(message) -> dict:
             if descriptor.label != descriptor.LABEL_REPEATED:
                 message_dict[descriptor.name] = message_scheme(attr_)
 
-            elif descriptor.label == descriptor.LABEL_REPEATED and not 'ScalarMap' in type(attr_).__name__:
+            elif descriptor.label == descriptor.LABEL_REPEATED \
+                    and not 'ScalarMap' in type(attr_).__name__ \
+                    and not 'MessageMapContainer' in type(attr_).__name__:
                 attr_ = attr_.add()
                 message_dict[descriptor.name] = message_scheme(attr_)
 

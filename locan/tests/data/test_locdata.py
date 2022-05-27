@@ -473,7 +473,7 @@ def test_LocData_handling_metadata(df_simple):
     assert dat.meta.comment == 'new comment'
 
     dat.meta.map['variable key'] = 'new comment'
-    assert dat.meta.map == {'variable key': 'new comment'}
+    assert str(dat.meta.map) == "{'variable key': 'new comment'}"
 
     dat.meta.map['key_2'] = 'value_2'
     assert dat.meta.map['key_2'] == 'value_2'

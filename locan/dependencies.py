@@ -23,7 +23,6 @@ CONSTANTS
 """
 from __future__ import annotations
 
-from typing import Annotated
 import os
 from functools import wraps
 import importlib.util
@@ -91,8 +90,9 @@ def _get_dependencies(package: str) -> tuple[set[str], set[str]]:
     """Read out all required and optional (extra) dependencies for locan (PyPI names)."""
     requires = importlib.metadata.requires(package)
 
-    required_dependencies = {re.split(r"[!=><]+", item)[0] for item in requires if "extra ==" not in item}
-    extra_dependencies = {re.split(r"[!=><;]+", item)[0] for item in requires if "extra ==" in item}
+    pattern = r"[\w-]+"
+    required_dependencies = {re.match(pattern, item).group() for item in requires if "extra ==" not in item}
+    extra_dependencies = {re.match(pattern, item).group() for item in requires if "extra ==" in item}
 
     return required_dependencies, extra_dependencies
 
@@ -113,6 +113,7 @@ IMPORT_NAMES["protobuf"] = "google.protobuf"
 IMPORT_NAMES["scikit-image"] = "skimage"
 IMPORT_NAMES["scikit-learn"] = "sklearn"
 IMPORT_NAMES["pytest-qt"] = "pytestqt"
+IMPORT_NAMES["mpl-scatter-density"] = "mpl_scatter_density"
 
 #: A dictionary indicating if dependency is available.
 HAS_DEPENDENCY = _has_dependency_factory(packages=INSTALL_REQUIRES.union(EXTRAS_REQUIRE))

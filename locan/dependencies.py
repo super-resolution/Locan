@@ -23,12 +23,15 @@ CONSTANTS
 """
 from __future__ import annotations
 
+from typing import Annotated
 import os
 from functools import wraps
 import importlib.util
+import importlib.metadata
 from enum import Enum
 import warnings
 from collections.abc import Iterable
+import re
 
 
 __all__ = ["needs_package", "IMPORT_NAMES", "INSTALL_REQUIRES", "EXTRAS_REQUIRE", "HAS_DEPENDENCY",
@@ -38,7 +41,7 @@ __all__ = ["needs_package", "IMPORT_NAMES", "INSTALL_REQUIRES", "EXTRAS_REQUIRE"
 def _has_dependency_factory(
         packages: Iterable[str],
         import_names: dict[str, str] | None = None
-) -> dict:
+) -> dict[str, bool]:
     if import_names is None:
         import_names = IMPORT_NAMES
     has_dependency = dict()
@@ -84,30 +87,22 @@ def needs_package(package, import_names=None, has_dependency=None):
     return decorator
 
 
+def _get_dependencies(package: str) -> tuple[set[str], set[str]]:
+    """Read out all required and optional (extra) dependencies for locan (PyPI names)."""
+    requires = importlib.metadata.requires(package)
+
+    required_dependencies = {re.split(r"[!=><]+", item)[0] for item in requires if "extra ==" not in item}
+    extra_dependencies = {re.split(r"[!=><;]+", item)[0] for item in requires if "extra ==" in item}
+
+    return required_dependencies, extra_dependencies
+
+
 #: List of required dependencies (PyPi package names)
-# Should reflect the dependencies specified in setup.cfg.
-# Some package names are different from the names for import.
-INSTALL_REQUIRES = {'asdf', 'tifffile', 'ruamel.yaml', 'fast-histogram', 'boost-histogram', 'lmfit',
-                    'protobuf', 'shapely', 'networkx', 'scikit-learn', 'scikit-image', 'matplotlib', 'scipy',
-                    'pandas', 'numpy', 'tqdm', 'cython'}
+INSTALL_REQUIRES = set()
 
 #: List of optional dependencies (PyPi package names)
-EXTRAS_REQUIRE = {
-    "pytest", "pytest-qt",
-    "PySide2",
-    "PyQt5",
-    "colorcet",
-    "trackpy",
-    "open3d",
-    "napari",
-    "mpl_scatter_density",
-    "requests",
-    "h5py",
-    "hdbscan",
-    "cupy",
-    "sphinx", "ipython", "myst-nb", "sphinx-copybutton", "sphinx_rtd_theme", "furo",
-    "coverage", "build", "twine"
-}
+EXTRAS_REQUIRE = set()
+INSTALL_REQUIRES, EXTRAS_REQUIRE = _get_dependencies(package='locan')
 
 #: A dictionary mapping PyPi package names to import names if they are different
 IMPORT_NAMES = dict()

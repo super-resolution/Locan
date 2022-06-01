@@ -23,7 +23,6 @@ from locan.data.region import Region, RoiRegion
 import locan.data.hulls
 from locan.data import metadata_pb2
 from locan.data.metadata_utils import _modify_meta, metadata_to_formatted_string
-from locan.utils.format import _time_string
 from locan.data.properties import inertia_moments
 
 

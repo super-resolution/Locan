@@ -27,7 +27,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 try:
     from locan._version import version as __version__
 except ImportError:
-    __version__ = "0.12-not-installed"
+    __version__ = "not-installed"
 
 
 # Root directory for path operations.

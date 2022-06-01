@@ -86,27 +86,12 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
     if other_dependencies:
         deps = deps.union(other_dependencies)
 
-    # convert PyPI names to module names
-    deps = set(IMPORT_NAMES.get(dep, dep) for dep in deps)
-
     deps_info = {}
     for modname in deps:
         try:
-            from importlib.metadata import version
-            try:
-                deps_info[modname] = version(modname)
-            except importlib.metadata.PackageNotFoundError:
-                deps_info[modname] = None
-        except ModuleNotFoundError:  # for python<=3.7 which does not have metadata
-            if modname in sys.modules:
-                module = sys.modules[modname]
-            else:
-                try:
-                    module = importlib.import_module(modname)
-                except ModuleNotFoundError:
-                    module = None
-            deps_info[modname] = getattr(module, "__version__", None)
-
+            deps_info[modname] = importlib.metadata.version(modname)
+        except importlib.metadata.PackageNotFoundError:
+            deps_info[modname] = None
     return deps_info
 
 

@@ -7,7 +7,6 @@ Functions to modify metadata in LocData objects.
 """
 from __future__ import annotations
 
-from copy import deepcopy
 import importlib
 import tomli
 import logging

@@ -27,6 +27,7 @@ protobuf
 ruamel.yaml
 tifffile
 asdf
+tomli
 
 # Data analysis tools
 boost-histogram
@@ -36,7 +37,7 @@ fast-histogram
 pyside2>=5.12.3
 colorcet
 trackpy
-open3d!=0.12.0;python_version<'3.10'
+open3d!=0.12.0
 mpl_scatter_density
 napari
 requests

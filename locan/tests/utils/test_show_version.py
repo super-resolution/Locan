@@ -1,4 +1,3 @@
-# from locan.utils.system_information
 from locan import system_info, dependency_info, show_versions
 
 
@@ -11,7 +10,7 @@ def test__get_sys_info():
 def test___get_dependency_info():
     deps_info = dependency_info(other_dependencies=['locan'])
     # print(deps_info)
-    assert 'numpy' in deps_info
+    assert 'boost-histogram' in deps_info
     assert 'locan' in deps_info
 
 

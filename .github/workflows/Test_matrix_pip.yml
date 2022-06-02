@@ -24,4 +24,10 @@ jobs:
       - name: "Install locan"
         run: pip install .[test]
       - name: "Run tests"
+        if: runner.os != 'Windows'
+        run: pytest
+      - name: "Run tests"
+        if: runner.os == 'Windows'
+        env:
+          MPLBACKEND: agg
         run: pytest

@@ -61,7 +61,14 @@ Using Conda to set up a dedicated environment:
 
 	conda env create --file "./environment.yml"
 
-3) Install locan using pip
+   or with specific python version::
+
+	conda create --name locan python==3.9
+	conda env update --name locan --file "./environment.yml"
+
+3) Activate the environment and install locan using pip
+
+We recommend using mamba to speed up dependency resolution.
 
 Jupyter
 -----------------------

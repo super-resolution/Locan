@@ -2,7 +2,7 @@
 Changelog
 =======================
 
-0.12 (unreleased)
+0.13 (unreleased)
 =================
 
 
@@ -113,6 +113,59 @@ locan.simulation
 Other Changes and Additions
 ---------------------------
 -
+
+
+0.12 - 2022-06-02
+=================
+
+API Changes
+-----------
+
+locan.configuration
+^^^^^^^^^^^^^^^^^^^^^
+- Introduced module locan.configuration to hold user-specific configuration values
+
+locan.constants
+^^^^^^^^^^^^^^^^^
+- Introduced enum `PropertyKey` that holds `PropertyDescription` dataclasses
+  with information on name, type, units and description
+
+locan.data
+^^^^^^^^^^^^^^^
+- Provided new scheme for metadata
+- Added tutorial about metadata for LocData
+- Introduced use of protobuf Timestamp and Duration types in metadata messages
+- Added function in `locan.data.metadata_utils` to provide scheme of default metadata
+- Added function in `locan.data.metadata_utils` to read metadata from toml file
+
+locan.io
+^^^^^^^^^^^^^^^
+- Refactored locan_io.locdata module structure
+
+locan.render
+^^^^^^^^^^^^^^^
+- Changed default value for n_bins in HistogramEqualization to increase intensity resolution.
+  Note: This modification changes the visual presentation of localization data with a large dynamic range.
+
+Bug Fixes
+---------
+
+locan.utils.system_information
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+- Fixed `show_version` to read out all dependency versions
+
+locan.data
+^^^^^^^^^^^^^^^
+- Fixed bug in cluster functions such that setting the region of empty collections does not raise a TypeError anymore
+- Fixed protobuf issues related to protobuf 4.21
+
+Other Changes and Additions
+---------------------------
+- Dropped support for python 3.7
+- Various minor changes of documentation and code
+- Removed numba as dependency
+- Based conda-related dockerfiles on mambaforge
+- Introduced use of fixture from pytest-qt for testing QT interfaces
 
 0.11.1 - 2022-04-08
 ===================

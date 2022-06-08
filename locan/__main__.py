@@ -11,7 +11,7 @@ from locan.scripts.script_napari import _add_arguments as _add_arguments_napari
 from locan.scripts.script_show_versions import _add_arguments as _add_arguments_show_versions
 from locan.scripts.script_test import _add_arguments as _add_arguments_test
 
-from locan import __version__
+from locan import __version__, show_versions
 
 
 def main(args=None):
@@ -22,6 +22,9 @@ def main(args=None):
 
     parser.add_argument('--version', action='version', version=f"locan version {__version__}",
                         help='show version and exit.')
+
+    parser.add_argument('--info', action='store_true',
+                        help='show system information and exit.')
 
     subparsers = parser.add_subparsers(dest='command')
 
@@ -58,7 +61,10 @@ def main(args=None):
     # Parse
     returned_args = parser.parse_args(args)
 
-    if returned_args.command:
+    if returned_args.info:
+        show_versions()
+
+    elif returned_args.command:
 
         if returned_args.command == "draw_roi_mpl":
             from .scripts.script_draw_roi import sc_draw_roi_mpl

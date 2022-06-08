@@ -15,7 +15,7 @@ import struct
 import os
 import locale
 
-from locan.dependencies import INSTALL_REQUIRES, EXTRAS_REQUIRE, IMPORT_NAMES
+from locan.dependencies import INSTALL_REQUIRES, EXTRAS_REQUIRE
 from locan import __version__ as locan_version
 
 

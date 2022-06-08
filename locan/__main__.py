@@ -11,7 +11,8 @@ from locan.scripts.script_napari import _add_arguments as _add_arguments_napari
 from locan.scripts.script_show_versions import _add_arguments as _add_arguments_show_versions
 from locan.scripts.script_test import _add_arguments as _add_arguments_test
 
-from locan import __version__, show_versions
+from locan import __version__
+from locan.utils.system_information import show_versions
 
 
 def main(args=None):

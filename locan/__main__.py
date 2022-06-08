@@ -11,12 +11,17 @@ from locan.scripts.script_napari import _add_arguments as _add_arguments_napari
 from locan.scripts.script_show_versions import _add_arguments as _add_arguments_show_versions
 from locan.scripts.script_test import _add_arguments as _add_arguments_test
 
+from locan import __version__
+
 
 def main(args=None):
     if args is None:
         args = sys.argv[1:]
 
     parser = argparse.ArgumentParser(description='Entry point for locan.')
+
+    parser.add_argument('--version', action='version', version=f"locan version {__version__}",
+                        help='show version and exit.')
 
     subparsers = parser.add_subparsers(dest='command')
 

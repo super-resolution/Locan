@@ -1,4 +1,3 @@
-import pytest
 from locan.scripts import script_show_versions
 
 

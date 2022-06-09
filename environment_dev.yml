@@ -22,6 +22,7 @@ dependencies:
 - twine
 - black
 - isort
+- pre-commit
 
 # Documentation
 - sphinx

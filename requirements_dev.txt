@@ -7,4 +7,5 @@ build
 twine
 black
 isort
+pre-commit
 -r docs/requirements

@@ -1,18 +1,23 @@
-import pytest
+import matplotlib.pyplot as plt  # needed for visual inspection
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt  # needed for visual inspection
+import pytest
 
 import locan.data.metadata_pb2
 from locan import render_2d_mpl  # needed for visual inspection
-from locan import LocData, scatter_2d_mpl, transform_affine, cluster_dbscan, HullType
-from locan import Rectangle, RoiRegion
 from locan import (
-    select_by_condition,
-    random_subset,
-    select_by_region,
+    HullType,
+    LocData,
+    Rectangle,
+    RoiRegion,
+    cluster_dbscan,
     exclude_sparse_points,
     localizations_in_cluster_regions,
+    random_subset,
+    scatter_2d_mpl,
+    select_by_condition,
+    select_by_region,
+    transform_affine,
 )
 
 

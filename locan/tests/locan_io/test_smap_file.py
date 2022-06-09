@@ -1,17 +1,16 @@
-from pathlib import Path
 import tempfile
 from copy import deepcopy
+from pathlib import Path
 
-import locan.constants
 import numpy as np
 import pytest
-from pandas.testing import assert_frame_equal
 from google.protobuf import json_format
+from pandas.testing import assert_frame_equal
 
 import locan as lc
+import locan.constants
+from locan import load_SMAP_file, load_SMAP_header, load_txt_file, save_SMAP_csv
 from locan.dependencies import HAS_DEPENDENCY
-from locan import load_SMAP_header, load_SMAP_file, save_SMAP_csv, load_txt_file
-
 
 pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["h5py"], reason="requires h5py.")
 

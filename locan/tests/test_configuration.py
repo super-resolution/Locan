@@ -3,12 +3,12 @@ from pathlib import Path
 import matplotlib.colors as mcolors
 
 from locan.configuration import (
-    DATASETS_DIR,
-    RENDER_ENGINE,
-    N_JOBS,
+    COLORMAP_CATEGORICAL,
     COLORMAP_CONTINUOUS,
     COLORMAP_DIVERGING,
-    COLORMAP_CATEGORICAL,
+    DATASETS_DIR,
+    N_JOBS,
+    RENDER_ENGINE,
 )
 from locan.constants import RenderEngine
 

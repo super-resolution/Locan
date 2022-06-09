@@ -1,18 +1,17 @@
-import pytest
+import matplotlib.pyplot as plt  # this import is needed for visual inspection
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt  # this import is needed for visual inspection
+import pytest
 
-from locan import LocData, simulate_uniform
 from locan import NearestNeighborDistances  # from locan.analysis.nearest_neighbor
+from locan import LocData, simulate_uniform
 from locan.analysis.nearest_neighbor import (
-    pdf_nnDistances_csr_2D,
-    pdf_nnDistances_csr_3D,
     NNDistances_csr_2d,
     NNDistances_csr_3d,
     _DistributionFits,
+    pdf_nnDistances_csr_2D,
+    pdf_nnDistances_csr_3D,
 )
-
 
 # fixtures
 

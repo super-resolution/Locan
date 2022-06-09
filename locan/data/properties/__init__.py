@@ -13,8 +13,8 @@ Submodules:
    statistics
 """
 
-from locan.data.properties.misc import *
 from locan.data.properties.locdata_statistics import *
+from locan.data.properties.misc import *
 
 __all__ = []
 __all__.extend(misc.__all__)

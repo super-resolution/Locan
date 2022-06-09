@@ -1,19 +1,18 @@
 """
 command-line interface
 """
-import sys
 import argparse
+import sys
 
-from locan.scripts.script_draw_roi import _add_arguments as _add_arguments_draw_roi
+from locan import __version__
 from locan.scripts.script_check import _add_arguments as _add_arguments_check
-from locan.scripts.script_rois import _add_arguments as _add_arguments_rois
+from locan.scripts.script_draw_roi import _add_arguments as _add_arguments_draw_roi
 from locan.scripts.script_napari import _add_arguments as _add_arguments_napari
+from locan.scripts.script_rois import _add_arguments as _add_arguments_rois
 from locan.scripts.script_show_versions import (
     _add_arguments as _add_arguments_show_versions,
 )
 from locan.scripts.script_test import _add_arguments as _add_arguments_test
-
-from locan import __version__
 from locan.utils.system_information import show_versions
 
 

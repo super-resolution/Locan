@@ -5,18 +5,16 @@ Analyze the distribution of a localization property as function of two other loc
 E.g. looking at how the local background is distributed over localization coordinates helps to characterize the
 illumination profile in SMLM experiments.
 """
-from collections import namedtuple
 import logging
+from collections import namedtuple
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from lmfit import Model, Parameters
 
-from locan.render.render2d import render_2d_mpl
 from locan.analysis.analysis_base import _Analysis, _list_parameters
-from locan.render.render2d import histogram
 from locan.configuration import COLORMAP_DIVERGING
-
+from locan.render.render2d import histogram, render_2d_mpl
 
 __all__ = ["LocalizationProperty2d"]
 

@@ -1,10 +1,11 @@
-import pytest
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt  # this import is required for visual inspection
+import numpy as np
+import pandas as pd
+import pytest
 
 from locan import LocData
 from locan.analysis.localization_precision import (
+    LocalizationPrecision,
     PairwiseDistance1d,
     PairwiseDistance1dIdenticalSigmaZeroMu,
     PairwiseDistance2d,
@@ -12,7 +13,6 @@ from locan.analysis.localization_precision import (
     PairwiseDistance2dIdenticalSigmaZeroMu,
     PairwiseDistance3d,
     PairwiseDistance3dIdenticalSigmaZeroMu,
-    LocalizationPrecision,
     _DistributionFits,
 )
 

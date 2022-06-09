@@ -17,9 +17,9 @@ import argparse
 import numpy as np
 import tifffile as tif
 
-from locan.dependencies import HAS_DEPENDENCY
 from locan import locdata_id
 from locan.constants import FileType
+from locan.dependencies import HAS_DEPENDENCY
 from locan.gui import file_dialog
 from locan.locan_io.locdata.io_locdata import load_locdata
 

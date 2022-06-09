@@ -10,14 +10,14 @@ Parts of this code is adapted from https://github.com/jungmannlab/picasso.
 """
 from collections import namedtuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 from lmfit import Model, Parameters
-import matplotlib.pyplot as plt
 
+from locan.data.aggregate import histogram
 from locan.data.locdata import LocData
 from locan.data.properties.locdata_statistics import range_from_collection
 from locan.data.transform.transformation import _homogeneous_matrix
-from locan.data.aggregate import histogram
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["open3d"]:

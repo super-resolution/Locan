@@ -1,11 +1,11 @@
 from copy import deepcopy
 
-import pytest
 import numpy as np
+import pytest
 
-from locan.dependencies import HAS_DEPENDENCY
-from locan.data.cluster.clustering import cluster_hdbscan, cluster_dbscan
+from locan.data.cluster.clustering import cluster_dbscan, cluster_hdbscan
 from locan.data.cluster.utils import serial_clustering
+from locan.dependencies import HAS_DEPENDENCY
 
 
 # tests hdbscan

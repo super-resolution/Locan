@@ -1,11 +1,20 @@
+import matplotlib.pyplot as plt  # needed for visual inspection
+import numpy as np
 import pytest
 
-import numpy as np
-import matplotlib.pyplot as plt  # needed for visual inspection
-
-from locan import regions_union, expand_region, surrounding_region
-from locan import render_2d_mpl, scatter_2d_mpl  # needed for visual inspection
-from locan import Region, Interval, Rectangle, Polygon, MultiPolygon, RoiRegion
+from locan import (  # needed for visual inspection
+    Interval,
+    MultiPolygon,
+    Polygon,
+    Rectangle,
+    Region,
+    RoiRegion,
+    expand_region,
+    regions_union,
+    render_2d_mpl,
+    scatter_2d_mpl,
+    surrounding_region,
+)
 
 
 def test_regions_union_Rectangles():

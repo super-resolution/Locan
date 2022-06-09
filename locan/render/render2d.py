@@ -5,23 +5,22 @@ This module provides functions for rendering locdata objects in 2D.
 """
 import logging
 
-import numpy as np
-from matplotlib import pyplot as plt
 import matplotlib.colors as mcolors
-from skimage import exposure
+import numpy as np
 import scipy.signal.windows
+from matplotlib import pyplot as plt
+from skimage import exposure
 
 from locan import locdata_id
-from locan.data import LocData
-from locan.data.rois import Roi
-from locan.constants import RenderEngine
 from locan.configuration import COLORMAP_CONTINUOUS, RENDER_ENGINE
-from locan.dependencies import HAS_DEPENDENCY
-from locan.data.rois import _MplSelector
-from locan.data.aggregate import histogram, Bins, _check_loc_properties
+from locan.constants import RenderEngine
+from locan.data import LocData
+from locan.data.aggregate import Bins, _check_loc_properties, histogram
 from locan.data.properties.locdata_statistics import ranges
-from locan.render.utilities import _napari_shape_to_region
+from locan.data.rois import Roi, _MplSelector
+from locan.dependencies import HAS_DEPENDENCY
 from locan.render.transform import adjust_contrast
+from locan.render.utilities import _napari_shape_to_region
 
 if HAS_DEPENDENCY["mpl_scatter_density"]:
     import mpl_scatter_density

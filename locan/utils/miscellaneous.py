@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from collections.abc import Generator
 
-
 __all__ = ["iterate_2d_array"]
 
 

@@ -16,8 +16,8 @@ Constants used throughout the project.
 """
 from __future__ import annotations
 
-from enum import Enum, unique
 from dataclasses import dataclass
+from enum import Enum, unique
 
 from locan.dependencies import HAS_DEPENDENCY
 
@@ -25,7 +25,6 @@ if HAS_DEPENDENCY["colorcet"]:
     from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
 
 import matplotlib.colors as mcolors
-
 
 __all__ = [
     "PROPERTY_KEYS",

@@ -1,15 +1,14 @@
-from pathlib import Path
 import logging
+from pathlib import Path
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 
 import locan.data.metadata_pb2
 from locan import ROOT_DIR, LocData
-from locan.locan_io.locdata.io_locdata import load_txt_file, load_rapidSTORM_file
-from locan.dependencies import HAS_DEPENDENCY, QtBindings, QT_BINDINGS
-
+from locan.dependencies import HAS_DEPENDENCY, QT_BINDINGS, QtBindings
+from locan.locan_io.locdata.io_locdata import load_rapidSTORM_file, load_txt_file
 
 logger = logging.getLogger(__name__)
 

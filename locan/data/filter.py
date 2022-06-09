@@ -11,13 +11,12 @@ import sys
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
-from locan.data.locdata import LocData
-from locan.constants import HullType
 from locan.configuration import N_JOBS
+from locan.constants import HullType
+from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
-from locan.data.rois import Roi
 from locan.data.region import Region, Region2D, RoiRegion
-
+from locan.data.rois import Roi
 
 __all__ = [
     "select_by_condition",

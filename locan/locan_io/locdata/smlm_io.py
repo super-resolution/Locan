@@ -8,22 +8,22 @@ Code is adapted from https://github.com/imodpasteur/smlm-file-format/blob/master
 (MIT license)
 """
 
-import time
-import logging
-import zipfile
 import json
+import logging
+import time
+import zipfile
 
 import numpy as np
 import pandas as pd
 from google.protobuf import json_format
 
-from locan.locan_io.locdata import manifest_pb2
-from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
+from locan.data.locdata import LocData
+from locan.locan_io.locdata import manifest_pb2
 from locan.locan_io.locdata.utilities import (
-    convert_property_types,
     convert_property_names,
+    convert_property_types,
 )
 from locan.utils.format import _time_string
 

@@ -1,9 +1,9 @@
-import pytest
-import numpy as np
 import matplotlib.pyplot as plt  # needed for visualization
+import numpy as np
+import pytest
 
 from locan import LocData
-from locan.analysis import RipleysKFunction, RipleysLFunction, RipleysHFunction
+from locan.analysis import RipleysHFunction, RipleysKFunction, RipleysLFunction
 
 
 def test_Ripleys_k_function_empty(caplog):

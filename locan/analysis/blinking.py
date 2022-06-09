@@ -6,14 +6,13 @@ provided by the `frame` property.
 """
 import logging
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from scipy import stats
 
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 from locan.data.locdata import LocData
-
 
 __all__ = ["BlinkStatistics"]
 

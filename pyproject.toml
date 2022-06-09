@@ -11,7 +11,11 @@ write_to = "locan/_version.py"
 fallback_version = "0.13-fallback"
 
 [tool.black]
-target-version = ['py38', 'py39', 'py310']
+line_length = 88
+
+[tool.isort]
+profile = "black"
+line_length = 88
 
 [tool.pytest.ini_options]
 filterwarnings = [

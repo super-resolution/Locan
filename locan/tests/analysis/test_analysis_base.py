@@ -1,12 +1,12 @@
-from pathlib import Path
-import tempfile
 import pickle
+import tempfile
+from pathlib import Path
 
 import pytest
 from scipy import stats
 
-from locan.analysis.analysis_base import _Analysis, _list_parameters
 from locan.analysis import metadata_analysis_pb2
+from locan.analysis.analysis_base import _Analysis, _list_parameters
 
 
 def test_Analysis():

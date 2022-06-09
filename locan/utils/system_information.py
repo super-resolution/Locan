@@ -7,16 +7,15 @@ Team, Copyright (c) 2011-2021, Open source contributors.)
 and from :func:`scikit-learn.show_versions` (`locan/licences/SCIKIT-LEARN.rst`)
 (BSD 3-Clause License, Copyright (c) 2007-2020 The scikit-learn developers.)
 """
-import platform
-import sys
 import importlib
-import struct
-import os
 import locale
+import os
+import platform
+import struct
+import sys
 
-from locan.dependencies import INSTALL_REQUIRES, EXTRAS_REQUIRE
 from locan import __version__ as locan_version
-
+from locan.dependencies import EXTRAS_REQUIRE, INSTALL_REQUIRES
 
 __all__ = ["system_info", "dependency_info", "show_versions"]
 

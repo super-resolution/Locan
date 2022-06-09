@@ -4,13 +4,12 @@ Utility functions for file input/output of localization data.
 
 """
 import io
-from contextlib import closing
 import logging
+from contextlib import closing
 
 import pandas as pd
 
 from locan.constants import PROPERTY_KEYS
-
 
 __all__ = ["convert_property_types", "convert_property_names"]
 

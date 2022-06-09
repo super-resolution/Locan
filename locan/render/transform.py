@@ -15,10 +15,9 @@ can be passed to the `norm` parameter.
 from abc import ABC, abstractmethod
 from enum import Enum
 
-import numpy as np
 import matplotlib.colors as mcolors
+import numpy as np
 from skimage import exposure
-
 
 __all__ = ["Trafo", "HistogramEqualization", "adjust_contrast"]
 

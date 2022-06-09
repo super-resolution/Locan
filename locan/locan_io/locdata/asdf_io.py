@@ -4,6 +4,7 @@ File input/output for localization data in ASDF files
 
 """
 from __future__ import annotations
+
 import logging
 
 import pandas as pd
@@ -13,7 +14,6 @@ from google.protobuf import json_format
 
 from locan.data.locdata import LocData
 from locan.locan_io.locdata.utilities import convert_property_names
-
 
 __all__ = ["save_asdf", "load_asdf_file"]
 

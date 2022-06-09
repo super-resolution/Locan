@@ -27,14 +27,13 @@ References
 """
 import warnings
 
+import networkx as nx
 import numpy as np
 from scipy.spatial import Delaunay
-import networkx as nx
 
-from locan.data.region import Region2D, Polygon, MultiPolygon
-from locan.data.region_utils import regions_union
 from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance
-
+from locan.data.region import MultiPolygon, Polygon, Region2D
+from locan.data.region_utils import regions_union
 
 __all__ = ["AlphaComplex", "AlphaShape"]
 

@@ -1,4 +1,4 @@
-from locan import system_info, dependency_info, show_versions
+from locan import dependency_info, show_versions, system_info
 
 
 def test__get_sys_info():

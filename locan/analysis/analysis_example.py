@@ -5,9 +5,9 @@ It includes two algorithms for specific analysis routines.
 And it provides standard interface functions modified for the specific analysis routine like report.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from scipy import stats
 
 from locan.analysis.analysis_base import _Analysis

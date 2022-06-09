@@ -1,5 +1,5 @@
-import pytest
 import matplotlib.pyplot as plt  # needed for visual inspection
+import pytest
 
 from locan import LocData
 from locan.analysis import LocalizationPropertyCorrelations

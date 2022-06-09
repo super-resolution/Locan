@@ -4,19 +4,19 @@ File input/output for localization data Nanoimager files.
 
 """
 from __future__ import annotations
+
 import logging
 
 import pandas as pd
 
-from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
+from locan.data.locdata import LocData
 from locan.locan_io.locdata.utilities import (
+    convert_property_names,
     convert_property_types,
     open_path_or_file_like,
-    convert_property_names,
 )
-
 
 __all__ = ["load_Nanoimager_header", "load_Nanoimager_file"]
 

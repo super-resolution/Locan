@@ -8,21 +8,20 @@ All region classes inherit from the abstract base class `Region`.
 """
 # todo: fix docstrings
 
-from abc import ABC, abstractmethod
 import itertools as it
+from abc import ABC, abstractmethod
 
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.path as mpl_path
 import matplotlib.patches as mpl_patches
+import matplotlib.path as mpl_path
+import matplotlib.pyplot as plt
+import numpy as np
 from scipy.spatial.distance import pdist
-from shapely.geometry import Point as shPoint
+from shapely.affinity import rotate, scale, translate
 from shapely.geometry import MultiPoint as shMultiPoint
-from shapely.geometry import Polygon as shPolygon
 from shapely.geometry import MultiPolygon as shMultiPolygon
+from shapely.geometry import Point as shPoint
+from shapely.geometry import Polygon as shPolygon
 from shapely.prepared import prep
-from shapely.affinity import scale, rotate, translate
-
 
 __all__ = [
     "Region",

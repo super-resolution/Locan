@@ -1,22 +1,22 @@
 import matplotlib.colors as mcolors
 
-from locan.dependencies import HAS_DEPENDENCY
 from locan import (
-    PropertyDescription,
-    PropertyKey,
+    DECODE_KEYS,
+    ELYRA_KEYS,
+    NANOIMAGER_KEYS,
     PROPERTY_KEYS,
+    RAPIDSTORM_KEYS,
+    SMAP_KEYS,
+    SMLM_KEYS,
+    THUNDERSTORM_KEYS,
+    ColorMaps,
     FileType,
     HullType,
+    PropertyDescription,
+    PropertyKey,
     RenderEngine,
-    ColorMaps,
-    RAPIDSTORM_KEYS,
-    ELYRA_KEYS,
-    THUNDERSTORM_KEYS,
-    NANOIMAGER_KEYS,
-    SMLM_KEYS,
-    DECODE_KEYS,
-    SMAP_KEYS,
 )
+from locan.dependencies import HAS_DEPENDENCY
 
 
 def test_PropertyDescription():

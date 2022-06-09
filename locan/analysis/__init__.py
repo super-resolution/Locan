@@ -27,6 +27,10 @@ Submodules:
 
 """
 
+from locan.analysis.accumulation_analysis import *
+from locan.analysis.blinking import *
+from locan.analysis.cbc import *
+from locan.analysis.drift import *
 # from locan.analysis.analysis_example import AnalysisExampleAlgorithm_1, AnalysisExampleAlgorithm_2
 from locan.analysis.localization_precision import *
 from locan.analysis.localization_property import *
@@ -37,10 +41,6 @@ from locan.analysis.nearest_neighbor import *
 from locan.analysis.pipeline import *
 from locan.analysis.ripley import *
 from locan.analysis.uncertainty import *
-from locan.analysis.cbc import *
-from locan.analysis.accumulation_analysis import *
-from locan.analysis.blinking import *
-from locan.analysis.drift import *
 
 __all__ = []
 __all__.extend(localization_precision.__all__)

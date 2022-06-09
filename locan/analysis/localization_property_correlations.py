@@ -3,18 +3,16 @@ Analyze cross dependencies between localization properties.
 
 Analyze cross dependencies as indicated by the correlation coefficients between any two localization properties.
 """
-from collections import namedtuple
 import logging
+from collections import namedtuple
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from lmfit import Model, Parameters
 
-from locan.render.render2d import render_2d_mpl
 from locan.analysis.analysis_base import _Analysis, _list_parameters
-from locan.render.render2d import histogram
 from locan.configuration import COLORMAP_DIVERGING
-
+from locan.render.render2d import histogram, render_2d_mpl
 
 __all__ = ["LocalizationPropertyCorrelations"]
 

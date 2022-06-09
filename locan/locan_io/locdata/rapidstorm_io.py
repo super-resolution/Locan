@@ -4,20 +4,19 @@ File input/output for localization data in rapidSTORM files.
 
 """
 import logging
+import xml.etree.ElementTree as etree
 
 import numpy as np
 import pandas as pd
-import xml.etree.ElementTree as etree
 
-from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
+from locan.data.locdata import LocData
 from locan.locan_io.locdata.utilities import (
+    convert_property_names,
     convert_property_types,
     open_path_or_file_like,
-    convert_property_names,
 )
-
 
 __all__ = [
     "load_rapidSTORM_header",

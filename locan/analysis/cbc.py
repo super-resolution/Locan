@@ -13,14 +13,13 @@ References
 """
 import logging
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.neighbors import NearestNeighbors
 from scipy.stats import spearmanr
-import matplotlib.pyplot as plt
+from sklearn.neighbors import NearestNeighbors
 
 from locan.analysis.analysis_base import _Analysis
-
 
 __all__ = ["CoordinateBasedColocalization"]
 

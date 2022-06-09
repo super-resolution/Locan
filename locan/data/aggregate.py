@@ -7,19 +7,18 @@ This module provides functions to bin LocData objects to form a histogram or ima
 Specify bins through one of the parameters (`bins`, `bin_edges`, `n_bins`, `bin_size`, `bin_range`, `labels`)
 as further outlined in the documentation for :class:`Bins`.
 """
-from typing import Union
-from collections.abc import Iterable
 import warnings
-from math import isclose
 from collections import namedtuple
+from collections.abc import Iterable
+from math import isclose
+from typing import Union
 
-import numpy as np
-import fast_histogram
 import boost_histogram as bh
+import fast_histogram
+import numpy as np
 
-from locan.data.properties.locdata_statistics import ranges
 from locan.data.locdata import LocData
-
+from locan.data.properties.locdata_statistics import ranges
 
 __all__ = ["Bins", "histogram"]
 

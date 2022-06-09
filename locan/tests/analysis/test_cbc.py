@@ -1,17 +1,15 @@
 from pathlib import Path
 
-import pytest
+import matplotlib.pyplot as plt  # this import is needed for visual inspection
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt  # this import is needed for visual inspection
+import pytest
 
-from locan import LocData
-from locan import ROOT_DIR
-from locan.locan_io.locdata.io_locdata import load_txt_file
-from locan.data.transform import transform_affine
-from locan.analysis.cbc import _coordinate_based_colocalization
+from locan import ROOT_DIR, LocData
 from locan.analysis import CoordinateBasedColocalization
-
+from locan.analysis.cbc import _coordinate_based_colocalization
+from locan.data.transform import transform_affine
+from locan.locan_io.locdata.io_locdata import load_txt_file
 
 # fixtures
 

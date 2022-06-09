@@ -1,11 +1,11 @@
-from pathlib import Path
-import tempfile
 import pickle
+import tempfile
+from pathlib import Path
 
 import pytest
 
-from locan.analysis.pipeline import Pipeline, computation_test
 from locan.analysis import metadata_analysis_pb2
+from locan.analysis.pipeline import Pipeline, computation_test
 
 
 def test_Pipeline(locdata_2d):

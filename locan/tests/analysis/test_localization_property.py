@@ -1,5 +1,5 @@
-import pytest
 import pandas as pd
+import pytest
 from scipy import stats
 
 from locan import LocData

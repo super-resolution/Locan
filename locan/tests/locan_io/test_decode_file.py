@@ -2,9 +2,8 @@ import numpy as np
 import pytest
 
 import locan as lc
+from locan import load_decode_file, load_decode_header
 from locan.dependencies import HAS_DEPENDENCY
-from locan import load_decode_header, load_decode_file
-
 
 pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["h5py"], reason="requires h5py.")
 

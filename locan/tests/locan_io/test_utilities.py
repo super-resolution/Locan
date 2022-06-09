@@ -1,13 +1,13 @@
-from platform import system
-from io import StringIO, BytesIO, TextIOWrapper
 import logging
+from io import BytesIO, StringIO, TextIOWrapper
+from platform import system
 
-import pytest
 import numpy as np
+import pytest
+
 from locan import ROOT_DIR
 from locan.constants import DECODE_KEYS, THUNDERSTORM_KEYS
-from locan.locan_io import convert_property_types, convert_property_names
-
+from locan.locan_io import convert_property_names, convert_property_types
 from locan.locan_io.locdata.utilities import open_path_or_file_like
 
 

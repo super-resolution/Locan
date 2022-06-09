@@ -23,20 +23,18 @@ References
 
 """
 
-import warnings
 import logging
+import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
-import matplotlib.pyplot as plt
-
-from sklearn.neighbors import NearestNeighbors
 from scipy import stats
+from sklearn.neighbors import NearestNeighbors
+from tqdm import tqdm
 
-from locan.configuration import N_JOBS, TQDM_DISABLE, TQDM_LEAVE
 from locan.analysis.analysis_base import _Analysis, _list_parameters
-
+from locan.configuration import N_JOBS, TQDM_DISABLE, TQDM_LEAVE
 
 __all__ = ["LocalizationPrecision"]
 

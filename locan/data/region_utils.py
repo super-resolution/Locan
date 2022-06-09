@@ -10,8 +10,7 @@ See Also
 """
 from shapely.ops import unary_union
 
-from locan.data.region import Region, Region2D, EmptyRegion, RoiRegion
-
+from locan.data.region import EmptyRegion, Region, Region2D, RoiRegion
 
 __all__ = ["regions_union", "expand_region", "surrounding_region"]
 

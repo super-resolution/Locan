@@ -1,14 +1,12 @@
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
-import pytest
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import pytest
 
-from locan import LocData, Rectangle, Ellipse, Polygon
-from locan import ROOT_DIR
-from locan import Roi, rasterize
+from locan import ROOT_DIR, Ellipse, LocData, Polygon, Rectangle, Roi, rasterize
 from locan.data import metadata_pb2
 
 

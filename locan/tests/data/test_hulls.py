@@ -1,8 +1,8 @@
-import pytest
-import numpy as np
 import matplotlib.pyplot as plt
-from shapely.geometry import MultiPoint
+import numpy as np
+import pytest
 from shapely import affinity
+from shapely.geometry import MultiPoint
 
 from locan import BoundingBox, ConvexHull, OrientedBoundingBox
 from locan.data.hulls.hull import _ConvexHullScipy, _ConvexHullShapely

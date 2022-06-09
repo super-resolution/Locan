@@ -3,7 +3,6 @@ Alpha shape utility functions for 2d
 """
 import numpy as np
 
-
 __all__ = []
 
 

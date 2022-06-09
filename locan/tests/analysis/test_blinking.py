@@ -1,11 +1,11 @@
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 from scipy import stats
 
 from locan import LocData
-from locan.analysis.blinking import _blink_statistics, _DistributionFits
 from locan.analysis import BlinkStatistics
+from locan.analysis.blinking import _blink_statistics, _DistributionFits
 
 
 def test__blink_statistics_0():

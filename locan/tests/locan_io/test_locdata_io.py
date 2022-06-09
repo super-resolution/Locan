@@ -1,17 +1,16 @@
-from pathlib import Path
-import tempfile
-import pickle
-from io import StringIO
 import logging
+import pickle
+import tempfile
+from io import StringIO
+from pathlib import Path
 
 import pytest
 from pandas.testing import assert_frame_equal
 
 import locan.constants
-from locan.dependencies import HAS_DEPENDENCY
 from locan.data import metadata_pb2
-from locan.locan_io import load_txt_file, load_locdata
-
+from locan.dependencies import HAS_DEPENDENCY
+from locan.locan_io import load_locdata, load_txt_file
 from locan.locan_io.locdata.io_locdata import _map_file_type_to_load_function
 
 

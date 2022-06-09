@@ -31,15 +31,14 @@ References
 """
 import logging
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.neighbors import NearestNeighbors
 from scipy import stats
-import matplotlib.pyplot as plt
+from sklearn.neighbors import NearestNeighbors
 
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 from locan.configuration import N_JOBS
-
 
 __all__ = ["NearestNeighborDistances"]
 

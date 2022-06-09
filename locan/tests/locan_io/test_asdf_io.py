@@ -1,9 +1,9 @@
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
 from pandas.testing import assert_frame_equal
 
-from locan.locan_io import save_asdf, load_asdf_file
+from locan.locan_io import load_asdf_file, save_asdf
 
 
 def test_save_and_load_asdf(locdata_2d):

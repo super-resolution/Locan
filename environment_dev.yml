@@ -21,6 +21,7 @@ dependencies:
 - build
 - twine
 - black
+- isort
 
 # Documentation
 - sphinx

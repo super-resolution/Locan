@@ -5,16 +5,16 @@ This module provides functions for rendering `LocData` objects in 3D.
 """
 import logging
 
+import matplotlib.colors as mcolors
 import numpy as np
 from matplotlib import pyplot as plt
-import matplotlib.colors as mcolors
 
 from locan import locdata_id
-from locan.data import LocData
-from locan.constants import RenderEngine
 from locan.configuration import COLORMAP_CONTINUOUS, RENDER_ENGINE
+from locan.constants import RenderEngine
+from locan.data import LocData
+from locan.data.aggregate import Bins, _check_loc_properties, histogram
 from locan.dependencies import HAS_DEPENDENCY
-from locan.data.aggregate import histogram, Bins, _check_loc_properties
 from locan.render.transform import adjust_contrast
 
 if HAS_DEPENDENCY["napari"]:

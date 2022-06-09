@@ -10,8 +10,7 @@ import numpy as np
 import scipy.spatial as spat
 from shapely.geometry import MultiPoint as shMultiPoint
 
-from locan.data.region import Rectangle, Polygon
-
+from locan.data.region import Polygon, Rectangle
 
 __all__ = ["BoundingBox", "ConvexHull", "OrientedBoundingBox"]
 

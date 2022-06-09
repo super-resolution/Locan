@@ -16,7 +16,6 @@ import logging
 
 from locan.analysis.analysis_base import _Analysis
 
-
 __all__ = ["Pipeline"]
 
 logger = logging.getLogger(__name__)

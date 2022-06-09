@@ -1,16 +1,15 @@
 """
 Functions to compute locdata properties.
 """
-from collections import namedtuple
-import warnings
 import logging
+import warnings
+from collections import namedtuple
 
 import numpy as np
 from scipy.spatial.distance import pdist
 from shapely.geometry import Point
 
 from locan.data.region import Region, Region2D, RoiRegion
-
 
 __all__ = [
     "distance_to_region",

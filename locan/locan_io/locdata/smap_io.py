@@ -7,13 +7,13 @@ import logging
 
 import pandas as pd
 
-from locan.dependencies import HAS_DEPENDENCY, needs_package
-from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
+from locan.data.locdata import LocData
+from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.locan_io.locdata.utilities import (
-    convert_property_types,
     convert_property_names,
+    convert_property_types,
 )
 
 if HAS_DEPENDENCY["h5py"]:

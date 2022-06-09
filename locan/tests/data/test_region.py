@@ -1,29 +1,29 @@
-from pathlib import Path
-import tempfile
 import pickle
+import tempfile
+from pathlib import Path
 
-import pytest
-import numpy as np
-import matplotlib.pyplot as plt  # needed for visual inspection
 import matplotlib.patches as mPatches
-from shapely.geometry import Polygon as shPolygon
+import matplotlib.pyplot as plt  # needed for visual inspection
+import numpy as np
+import pytest
 from shapely.geometry import MultiPolygon as shMultiPolygon
+from shapely.geometry import Polygon as shPolygon
 
 from locan import (
+    AxisOrientedCuboid,
+    AxisOrientedHypercuboid,
+    Cuboid,
+    Ellipse,
+    EmptyRegion,
+    Interval,
+    MultiPolygon,
+    Polygon,
+    Rectangle,
     Region,
     Region1D,
     Region2D,
     Region3D,
     RegionND,
-    EmptyRegion,
-    Interval,
-    Rectangle,
-    Ellipse,
-    Polygon,
-    MultiPolygon,
-    AxisOrientedCuboid,
-    Cuboid,
-    AxisOrientedHypercuboid,
 )
 
 

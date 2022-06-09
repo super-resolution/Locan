@@ -3,12 +3,11 @@
 Utility methods for clustering locdata.
 
 """
-import sys
 import itertools
+import sys
 from inspect import signature
 
 from locan.data.locdata import LocData
-
 
 __all__ = ["serial_clustering"]
 

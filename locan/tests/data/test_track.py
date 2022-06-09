@@ -1,13 +1,14 @@
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 
 from locan import LocData
 from locan.dependencies import HAS_DEPENDENCY
 
 if HAS_DEPENDENCY["trackpy"]:
-    from locan.data.tracking import link_locdata, track
     from trackpy import quiet as tp_quiet
+
+    from locan.data.tracking import link_locdata, track
 
 
 pytestmark = pytest.mark.skipif(

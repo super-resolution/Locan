@@ -8,17 +8,16 @@ It is often useful to analyze the properties from all localizations within a sel
 probability distribution.
 
 """
-import warnings
 import logging
+import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.neighbors import NearestNeighbors
 from scipy import stats
+from sklearn.neighbors import NearestNeighbors
 
 from locan.analysis.analysis_base import _Analysis, _list_parameters
-
 
 __all__ = ["LocalizationProperty"]
 

@@ -1,14 +1,11 @@
 import copy
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 
+from locan import AlphaShape, LocData, Rectangle, Region
 from locan.data import metadata_pb2
-from locan import LocData
-from locan import Region, Rectangle
-from locan import AlphaShape
-
 
 # fixtures for DataFrames (fixtures for LocData are defined in conftest.py)
 

@@ -3,9 +3,9 @@ from copy import copy
 import google.protobuf.message
 import pytest
 
-from locan import metadata_to_formatted_string, metadata_from_toml, message_scheme
+from locan import message_scheme, metadata_from_toml, metadata_to_formatted_string
 from locan.data import metadata_pb2
-from locan.data.metadata_utils import _modify_meta, _dict_to_protobuf
+from locan.data.metadata_utils import _dict_to_protobuf, _modify_meta
 
 
 @pytest.fixture

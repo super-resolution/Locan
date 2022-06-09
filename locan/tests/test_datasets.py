@@ -1,4 +1,5 @@
 import pytest
+
 from locan.datasets import load_npc, load_tubulin
 from locan.dependencies import HAS_DEPENDENCY
 

@@ -6,4 +6,5 @@ coverage
 build
 twine
 black
+isort
 -r docs/requirements

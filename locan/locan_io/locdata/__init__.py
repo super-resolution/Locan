@@ -65,16 +65,16 @@ Submodules:
    smap_io
 
 """
-from .io_locdata import *
-from .utilities import *
-from .rapidstorm_io import *
-from .elyra_io import *
-from .thunderstorm_io import *
-from .nanoimager_io import *
 from .asdf_io import *
-from .smlm_io import *
 from .decode_io import *
+from .elyra_io import *
+from .io_locdata import *
+from .nanoimager_io import *
+from .rapidstorm_io import *
 from .smap_io import *
+from .smlm_io import *
+from .thunderstorm_io import *
+from .utilities import *
 
 __all__ = []
 __all__.extend(io_locdata.__all__)

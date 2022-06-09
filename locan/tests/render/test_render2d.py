@@ -1,17 +1,19 @@
-import pytest
-import numpy as np
 import matplotlib.pyplot as plt  # this import is needed for interactive tests
+import numpy as np
+import pytest
 
 from locan import RenderEngine  # this import is needed for interactive tests
-from locan.dependencies import HAS_DEPENDENCY
 from locan import (
+    apply_window,
+    cluster_dbscan,
+    render_2d,
     render_2d_mpl,
+    render_2d_rgb_mpl,
     render_2d_scatter_density,
     scatter_2d_mpl,
-    render_2d_rgb_mpl,
+    transform_affine,
 )
-from locan import render_2d, apply_window
-from locan import cluster_dbscan, transform_affine
+from locan.dependencies import HAS_DEPENDENCY
 
 
 def test_render_2d_mpl_empty(locdata_empty):

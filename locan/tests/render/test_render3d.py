@@ -1,11 +1,16 @@
-import pytest
-import numpy as np
 import matplotlib.pyplot as plt  # this import is needed for interactive tests
+import numpy as np
+import pytest
 
 from locan import RenderEngine  # this import is needed for interactive tests
+from locan import (
+    render_3d,
+    render_3d_napari,
+    render_3d_rgb_napari,
+    scatter_3d_mpl,
+    transform_affine,
+)
 from locan.dependencies import HAS_DEPENDENCY
-from locan import render_3d, render_3d_napari, scatter_3d_mpl, render_3d_rgb_napari
-from locan import transform_affine
 
 if HAS_DEPENDENCY["napari"]:
     import napari

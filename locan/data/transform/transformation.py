@@ -10,12 +10,12 @@ import sys
 import numpy as np
 import pandas as pd
 
-from locan.data.locdata import LocData
 import locan.data.hulls
-from locan.data.region import Region
-from locan.simulation import simulate_uniform
+from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
+from locan.data.region import Region
 from locan.dependencies import HAS_DEPENDENCY
+from locan.simulation import simulate_uniform
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d

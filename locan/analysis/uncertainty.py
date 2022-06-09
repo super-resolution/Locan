@@ -12,14 +12,13 @@ References
 
 """
 import logging
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import warnings
 
-from locan.analysis.analysis_base import _Analysis
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
+from locan.analysis.analysis_base import _Analysis
 
 __all__ = ["LocalizationUncertaintyFromIntensity"]
 

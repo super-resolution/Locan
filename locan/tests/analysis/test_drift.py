@@ -1,23 +1,21 @@
-import locan
-import pytest
-import numpy as np
 import matplotlib.pyplot as plt  # this import is needed for visual inspection
+import numpy as np
+import pytest
 from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, PolynomialModel
 
-from locan import LocData
-from locan.dependencies import HAS_DEPENDENCY
-from locan import Drift, DriftComponent
+import locan
+from locan import Drift, DriftComponent, LocData
 from locan.analysis.drift import (
-    _LmfitModelFacade,
     _ConstantModelFacade,
-    _ConstantZeroModelFacade,
     _ConstantOneModelFacade,
-    _SplineModelFacade,
+    _ConstantZeroModelFacade,
     _estimate_drift_cc,
     _estimate_drift_icp,
+    _LmfitModelFacade,
+    _SplineModelFacade,
 )
-
+from locan.dependencies import HAS_DEPENDENCY
 
 # data to evaluate fitting
 x = np.array([1, 2, 4, 6, 9, 10, 11, 15, 16, 20])

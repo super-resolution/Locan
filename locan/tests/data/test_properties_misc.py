@@ -1,20 +1,23 @@
 import logging
 
-import pytest
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 from shapely import affinity
 from shapely.geometry import MultiPoint
 
-from locan import scatter_2d_mpl
-from locan.simulation import make_uniform, make_cluster
 from locan import (
+    Ellipse,
+    Rectangle,
+    RoiRegion,
     distance_to_region,
     distance_to_region_boundary,
-    max_distance,
     inertia_moments,
+    max_distance,
+    regions_union,
+    scatter_2d_mpl,
 )
-from locan import regions_union, RoiRegion, Rectangle, Ellipse
+from locan.simulation import make_cluster, make_uniform
 
 
 def test_distance_to_region_RoiRegion(locdata_2d):

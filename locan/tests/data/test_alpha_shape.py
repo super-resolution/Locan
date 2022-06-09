@@ -1,12 +1,12 @@
 import math
 
-import pytest
-import numpy as np
 import matplotlib.pyplot as plt  # needed for visualization
 import matplotlib.tri as mtri  # needed for visualization
 import networkx as nx
+import numpy as np
+import pytest
 
-from locan import AlphaShape, AlphaComplex, RoiRegion, EmptyRegion, Region2D
+from locan import AlphaComplex, AlphaShape, EmptyRegion, Region2D, RoiRegion
 
 
 @pytest.mark.visual

@@ -5,7 +5,7 @@ It also provides helper functions to be used in specialized analysis classes.
 """
 import time
 
-from google.protobuf import text_format, json_format
+from google.protobuf import json_format, text_format
 from scipy import stats
 
 from locan.analysis import metadata_analysis_pb2

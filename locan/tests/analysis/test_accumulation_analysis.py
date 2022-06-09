@@ -1,14 +1,14 @@
 import pytest
 
-from locan.dependencies import HAS_DEPENDENCY
-from locan import LocData
 import locan.constants
 import locan.locan_io.locdata.io_locdata as io
+from locan import LocData
 from locan.analysis import AccumulationClusterCheck
 from locan.analysis.accumulation_analysis import (
     _accumulation_cluster_check,
     _accumulation_cluster_check_for_single_dataset,
 )
+from locan.dependencies import HAS_DEPENDENCY
 
 
 @pytest.fixture()

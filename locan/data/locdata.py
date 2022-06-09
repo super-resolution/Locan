@@ -3,29 +3,27 @@
 A class to carry localization data.
 
 """
+import copy
+import logging
 import time
 import warnings
 from itertools import accumulate
-import copy
-import logging
 
-from google.protobuf import text_format, json_format
 import numpy as np
 import pandas as pd
+from google.protobuf import json_format, text_format
 
 try:
     from scipy.spatial import QhullError
 except ImportError:
     from scipy.spatial.qhull import QhullError  # needed for Python 3.7
 
+import locan.data.hulls
 from locan import locdata_id  # is required to use locdata_id as global variable
 from locan.constants import PROPERTY_KEYS, PropertyKey
-from locan.data.region import Region, RoiRegion
-import locan.data.hulls
 from locan.data import metadata_pb2
 from locan.data.metadata_utils import _modify_meta, metadata_to_formatted_string
-from locan.data.properties import inertia_moments
-
+from locan.data.region import Region, RoiRegion
 
 __all__ = ["LocData"]
 

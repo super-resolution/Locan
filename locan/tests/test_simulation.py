@@ -1,30 +1,37 @@
-import pytest
+import matplotlib.pyplot as plt  # needed for visual inspection
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt  # needed for visual inspection
+import pytest
 
-from locan import LocData, EmptyRegion, Interval, Rectangle, Ellipse, Polygon
+from locan import (
+    Ellipse,
+    EmptyRegion,
+    Interval,
+    LocData,
+    Polygon,
+    Rectangle,
+    add_drift,
+    resample,
+    simulate_frame_numbers,
+    simulate_tracks,
+)
 from locan.simulation import (
-    make_uniform,
-    make_Poisson,
     make_cluster,
-    make_NeymanScott,
-    make_Matern,
-    make_Thomas,
     make_dstorm,
-)
-from locan.simulation import (
-    simulate_uniform,
-    simulate_Poisson,
+    make_Matern,
+    make_NeymanScott,
+    make_Poisson,
+    make_Thomas,
+    make_uniform,
     simulate_cluster,
-    simulate_NeymanScott,
-    simulate_Matern,
-    simulate_Thomas,
     simulate_dstorm,
+    simulate_Matern,
+    simulate_NeymanScott,
+    simulate_Poisson,
+    simulate_Thomas,
+    simulate_uniform,
 )
-
-from locan import resample, simulate_tracks, add_drift, simulate_frame_numbers
-from locan.simulation.simulate_drift import _random_walk_drift, _drift
+from locan.simulation.simulate_drift import _drift, _random_walk_drift
 
 
 def test_make_uniform():

@@ -1,12 +1,12 @@
-from pathlib import Path
-import tempfile
 import pickle
+import tempfile
+from pathlib import Path
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_example import (
     AnalysisExampleAlgorithm_1,
     AnalysisExampleAlgorithm_2,
 )
-from locan.analysis import metadata_analysis_pb2
 
 
 def test_Analysis_example():

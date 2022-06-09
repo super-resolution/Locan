@@ -8,14 +8,13 @@ Functions to modify metadata in LocData objects.
 from __future__ import annotations
 
 import importlib
-import tomli
 import logging
 
+import tomli
+from google.protobuf import json_format, text_format
 from google.protobuf.message import Message
-from google.protobuf import text_format, json_format
 
 from locan.data import metadata_pb2
-
 
 __all__ = ["metadata_to_formatted_string", "metadata_from_toml", "message_scheme"]
 

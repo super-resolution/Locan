@@ -1,14 +1,14 @@
 from copy import deepcopy
 
-import pytest
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+import pytest
 
-from locan import LocData, LocalizationsPerFrame
+from locan import LocalizationsPerFrame, LocData
 from locan.analysis.localizations_per_frame import (
-    _Results,
-    _localizations_per_frame,
     _DistributionFits,
+    _localizations_per_frame,
+    _Results,
 )
 
 

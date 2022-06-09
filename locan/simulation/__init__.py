@@ -14,9 +14,8 @@ Submodules:
    simulate_drift
 
 """
-from .simulate_locdata import *
 from .simulate_drift import *
-
+from .simulate_locdata import *
 
 __all__ = []
 __all__.extend(simulate_locdata.__all__)

@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from locan.dependencies import HAS_DEPENDENCY
 from locan import ROOT_DIR
+from locan.dependencies import HAS_DEPENDENCY
 from locan.scripts.script_napari import sc_napari
 
 if HAS_DEPENDENCY["napari"]:

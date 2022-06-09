@@ -1,9 +1,10 @@
 import pytest
+
 from locan import (
-    IMPORT_NAMES,
-    INSTALL_REQUIRES,
     EXTRAS_REQUIRE,
     HAS_DEPENDENCY,
+    IMPORT_NAMES,
+    INSTALL_REQUIRES,
     needs_package,
 )
 

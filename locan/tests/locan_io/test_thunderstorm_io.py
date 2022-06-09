@@ -1,6 +1,5 @@
 from io import StringIO
 
-
 import locan.constants
 from locan.locan_io import load_thunderstorm_file
 from locan.locan_io.locdata.thunderstorm_io import load_thunderstorm_header

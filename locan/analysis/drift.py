@@ -43,22 +43,22 @@ References
    Opt Express. 2011 Aug 1;19(16):15009-19.
 
 """
+import logging
 import sys
 from collections import namedtuple
-import logging
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from scipy.interpolate import splev, splrep
 from lmfit.models import ConstantModel, LinearModel, PolynomialModel
+from scipy.interpolate import splev, splrep
 
-from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 from locan.data.locdata import LocData
+from locan.data.metadata_utils import _modify_meta
 from locan.data.register import _register_icp_open3d, register_cc
 from locan.data.transform.transformation import transform_affine
-from locan.data.metadata_utils import _modify_meta
+from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d

@@ -1,8 +1,9 @@
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
+
 from locan import LocData
-from locan.data.properties import statistics, ranges, range_from_collection
+from locan.data.properties import range_from_collection, ranges, statistics
 
 
 @pytest.fixture()

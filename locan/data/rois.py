@@ -10,25 +10,24 @@ dataset. It is therefore related to region specifications and a unique LocData o
 The Roi object provides methods for saving all specifications to a yaml file, for loading them, and for returning
 LocData with localizations selected to be within the roi region.
 """
+import logging
 import sys
-from pathlib import Path
 import warnings
 from itertools import product
-import logging
+from pathlib import Path
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import RectangleSelector, PolygonSelector, EllipseSelector
-from ruamel.yaml import YAML
+import numpy as np
 from google.protobuf import json_format
+from matplotlib.widgets import EllipseSelector, PolygonSelector, RectangleSelector
+from ruamel.yaml import YAML
 
+import locan.constants
+import locan.locan_io.locdata.io_locdata as io
 from locan.data import metadata_pb2
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
-import locan.constants
-import locan.locan_io.locdata.io_locdata as io
 from locan.data.region import *
-
 
 __all__ = ["Roi", "rasterize"]
 

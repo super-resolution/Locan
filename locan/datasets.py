@@ -9,9 +9,9 @@ If the directory does not exist the exemplary files are downloaded from GitHub.
 """
 from pathlib import Path
 
+from locan.configuration import DATASETS_DIR
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.locan_io.locdata.io_locdata import load_asdf_file
-from locan.configuration import DATASETS_DIR
 
 if HAS_DEPENDENCY["requests"]:
     import requests

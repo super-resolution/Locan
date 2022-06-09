@@ -29,19 +29,18 @@ from itertools import chain
 import numpy as np
 import pandas as pd
 
-from locan.data.locdata import LocData
 from locan.data import metadata_pb2
+from locan.data.locdata import LocData
 from locan.data.region import (
-    Region,
+    AxisOrientedCuboid,
+    AxisOrientedHypercuboid,
+    Ellipse,
     EmptyRegion,
     Interval,
     Rectangle,
-    Ellipse,
-    AxisOrientedCuboid,
-    AxisOrientedHypercuboid,
+    Region,
 )
 from locan.data.region_utils import expand_region
-
 
 __all__ = [
     "make_uniform",

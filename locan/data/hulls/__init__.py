@@ -12,9 +12,8 @@ Submodules:
 
 """
 
-from locan.data.hulls.hull import *
 from locan.data.hulls.alpha_shape import *
-
+from locan.data.hulls.hull import *
 
 __all__ = []
 __all__.extend(hull.__all__)

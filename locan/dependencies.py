@@ -23,15 +23,14 @@ CONSTANTS
 """
 from __future__ import annotations
 
-import os
-from functools import wraps
-import importlib.util
 import importlib.metadata
-from enum import Enum
+import importlib.util
+import os
+import re
 import warnings
 from collections.abc import Iterable
-import re
-
+from enum import Enum
+from functools import wraps
 
 __all__ = [
     "needs_package",

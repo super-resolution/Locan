@@ -6,13 +6,12 @@ Compute localizations per frame.
 import logging
 from dataclasses import dataclass
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import stats
-import matplotlib.pyplot as plt
 
 from locan.analysis.analysis_base import _Analysis
-
 
 __all__ = ["LocalizationsPerFrame"]
 

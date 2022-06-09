@@ -12,7 +12,6 @@ import pandas as pd
 
 from locan.data.locdata import LocData
 
-
 __all__ = ["statistics", "ranges", "range_from_collection"]
 
 

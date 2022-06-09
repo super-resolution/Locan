@@ -20,8 +20,8 @@ Submodules:
 
 from .render2d import *
 from .render3d import *
-from .utilities import *
 from .transform import *
+from .utilities import *
 
 __all__ = []
 __all__.extend(render2d.__all__)

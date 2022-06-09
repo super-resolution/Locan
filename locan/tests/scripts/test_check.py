@@ -1,12 +1,11 @@
 import os
 from pathlib import Path
 
-import tifffile as tif
 import pytest
+import tifffile as tif
 
+from locan import ROOT_DIR, load_locdata
 from locan.dependencies import HAS_DEPENDENCY
-from locan import ROOT_DIR
-from locan import load_locdata
 from locan.scripts.script_check import render_locs_per_frame_napari, sc_check
 
 if HAS_DEPENDENCY["napari"]:

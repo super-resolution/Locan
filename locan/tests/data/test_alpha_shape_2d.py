@@ -1,5 +1,5 @@
-import pytest
 import numpy as np
+import pytest
 from scipy.spatial import Delaunay
 
 from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance

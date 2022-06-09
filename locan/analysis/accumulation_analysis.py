@@ -18,19 +18,18 @@ References
    Nat Methods. 2016 Nov 29;13(12):963-964. doi: 10.1038/nmeth.406
 
 """
-import warnings
 import logging
+import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
-from locan.data.locdata import LocData
 from locan.analysis.analysis_base import _Analysis
 from locan.data.cluster.clustering import cluster_hdbscan
 from locan.data.filter import random_subset
 from locan.data.hulls import ConvexHull
-
+from locan.data.locdata import LocData
 
 __all__ = ["AccumulationClusterCheck"]
 

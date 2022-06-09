@@ -9,19 +9,17 @@ from copy import copy, deepcopy
 
 import numpy as np
 import pandas as pd
-from sklearn.neighbors import NearestNeighbors
 from scipy import stats
-
 from sklearn.cluster import DBSCAN
+from sklearn.neighbors import NearestNeighbors
 
 from locan import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["hdbscan"]:
     from hdbscan import HDBSCAN
 
-from locan.data.locdata import LocData
 from locan.configuration import N_JOBS
-
+from locan.data.locdata import LocData
 
 __all__ = ["cluster_hdbscan", "cluster_dbscan"]
 

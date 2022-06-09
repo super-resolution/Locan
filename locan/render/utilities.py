@@ -4,8 +4,7 @@ Utility functions for binning and rendering in 2 and 3 dimensions.
 """
 import numpy as np
 
-from locan.data.region import Rectangle, Ellipse, Polygon, RoiRegion
-
+from locan.data.region import Ellipse, Polygon, Rectangle, RoiRegion
 
 __all__ = []
 

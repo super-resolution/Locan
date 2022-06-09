@@ -27,18 +27,17 @@ Submodules:
 """
 from locan.data.aggregate import *
 from locan.data.cluster import *
-from locan.data.properties import *
-from locan.data.transform import *
 from locan.data.filter import *
 from locan.data.hulls import *
 from locan.data.locdata import *
+from locan.data.metadata_utils import *
+from locan.data.properties import *
 from locan.data.region import *
 from locan.data.region_utils import *
 from locan.data.register import *
 from locan.data.rois import *
 from locan.data.tracking import *
-from locan.data.metadata_utils import *
-
+from locan.data.transform import *
 
 __all__ = []
 __all__.extend(aggregate.__all__)

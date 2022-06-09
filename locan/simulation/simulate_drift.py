@@ -11,7 +11,6 @@ import pandas as pd
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 
-
 __all__ = ["add_drift"]
 
 

@@ -1,29 +1,29 @@
-import pytest
-import numpy as np
-
 import boost_histogram as bh
+import numpy as np
+import pytest
+
+from locan import Bins, histogram
 from locan.data.aggregate import (
-    _is_scalar,
-    _is_single_element,
+    _bin_edges_to_bin_centers,
+    _bin_edges_to_bin_size,
+    _bin_edges_to_bin_size_one_dimension,
+    _bin_edges_to_n_bins,
+    _bin_edges_to_n_bins_one_dimension,
+    _bin_size_to_bin_edges_one_dimension,
+    _BinsFromBoostHistogramAxis,
+    _BinsFromEdges,
+    _BinsFromNumber,
+    _BinsFromSize,
+    _indices_to_bin_centers,
     _is_1d_array_of_scalar,
     _is_1d_array_of_two_scalar,
     _is_2d_homogeneous_array,
     _is_2d_inhomogeneous_array,
     _is_2d_inhomogeneous_array_of_1d_array_of_scalar,
+    _is_scalar,
+    _is_single_element,
     _n_bins_to_bin_edges_one_dimension,
-    _bin_size_to_bin_edges_one_dimension,
-    _bin_edges_to_n_bins_one_dimension,
-    _bin_edges_to_n_bins,
-    _bin_edges_to_bin_size_one_dimension,
-    _bin_edges_to_bin_size,
-    _bin_edges_to_bin_centers,
-    _indices_to_bin_centers,
-    _BinsFromBoostHistogramAxis,
-    _BinsFromEdges,
-    _BinsFromNumber,
-    _BinsFromSize,
 )
-from locan import histogram, Bins
 
 data_scalars = {"1": 1, "()": ()}
 

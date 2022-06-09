@@ -23,21 +23,44 @@ from locan.data.properties.locdata_statistics import ranges
 from locan.render.utilities import _napari_shape_to_region
 from locan.render.transform import adjust_contrast
 
-if HAS_DEPENDENCY["mpl_scatter_density"]: import mpl_scatter_density
-if HAS_DEPENDENCY["napari"]: import napari
+if HAS_DEPENDENCY["mpl_scatter_density"]:
+    import mpl_scatter_density
+if HAS_DEPENDENCY["napari"]:
+    import napari
 
 
-__all__ = ['render_2d', 'render_2d_mpl', 'render_2d_scatter_density', 'render_2d_napari', 'scatter_2d_mpl',
-           'apply_window', 'select_by_drawing_napari', 'render_2d_rgb_mpl', 'render_2d_rgb_napari']
+__all__ = [
+    "render_2d",
+    "render_2d_mpl",
+    "render_2d_scatter_density",
+    "render_2d_napari",
+    "scatter_2d_mpl",
+    "apply_window",
+    "select_by_drawing_napari",
+    "render_2d_rgb_mpl",
+    "render_2d_rgb_napari",
+]
 
 logger = logging.getLogger(__name__)
 
 
-def render_2d_mpl(locdata, loc_properties=None, other_property=None,
-                  bins=None, n_bins=None, bin_size=10, bin_edges=None, bin_range=None,
-                  rescale=None,
-                  ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None,
-                  interpolation='nearest', **kwargs):
+def render_2d_mpl(
+    locdata,
+    loc_properties=None,
+    other_property=None,
+    bins=None,
+    n_bins=None,
+    bin_size=10,
+    bin_edges=None,
+    bin_range=None,
+    rescale=None,
+    ax=None,
+    cmap=COLORMAP_CONTINUOUS,
+    cbar=True,
+    colorbar_kws=None,
+    interpolation="nearest",
+    **kwargs,
+):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
 
@@ -100,22 +123,31 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
     # return ax if no or single point in locdata
     if len(locdata) < 2:
         if len(locdata) == 1:
-            logger.warning('Locdata carries a single localization.')
+            logger.warning("Locdata carries a single localization.")
         return ax
 
-    data, bins, labels = histogram(locdata, loc_properties, other_property,
-                                   bins, n_bins, bin_size, bin_edges, bin_range
-                                   )
+    data, bins, labels = histogram(
+        locdata,
+        loc_properties,
+        other_property,
+        bins,
+        n_bins,
+        bin_size,
+        bin_edges,
+        bin_range,
+    )
     data = adjust_contrast(data, rescale)
 
-    mappable = ax.imshow(data.T, origin='lower', extent=[*bins.bin_range[0], *bins.bin_range[1]],
-                         cmap=cmap, interpolation=interpolation, **kwargs)
+    mappable = ax.imshow(
+        data.T,
+        origin="lower",
+        extent=[*bins.bin_range[0], *bins.bin_range[1]],
+        cmap=cmap,
+        interpolation=interpolation,
+        **kwargs,
+    )
 
-    ax.set(
-        title=labels[-1],
-        xlabel=labels[0],
-        ylabel=labels[1]
-        )
+    ax.set(title=labels[-1], xlabel=labels[0], ylabel=labels[1])
 
     if cbar:
         if colorbar_kws is None:
@@ -126,8 +158,17 @@ def render_2d_mpl(locdata, loc_properties=None, other_property=None,
     return ax
 
 
-def render_2d_scatter_density(locdata, loc_properties=None, other_property=None, bin_range=None,
-                              ax=None, cmap=COLORMAP_CONTINUOUS, cbar=True, colorbar_kws=None, **kwargs):
+def render_2d_scatter_density(
+    locdata,
+    loc_properties=None,
+    other_property=None,
+    bin_range=None,
+    ax=None,
+    cmap=COLORMAP_CONTINUOUS,
+    cbar=True,
+    colorbar_kws=None,
+    **kwargs,
+):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
 
@@ -167,7 +208,7 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
         Axes object with the image.
     """
     if not HAS_DEPENDENCY["mpl_scatter_density"]:
-        raise ImportError('mpl-scatter-density is required.')
+        raise ImportError("mpl-scatter-density is required.")
 
     # Provide matplotlib.axes.Axes if not provided
     if ax is None:
@@ -176,26 +217,30 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     # return ax if no or single point in locdata
     if len(locdata) < 2:
         if len(locdata) == 1:
-            logger.warning('Locdata carries a single localization.')
+            logger.warning("Locdata carries a single localization.")
         return ax
     else:
         fig = ax.get_figure()
-        ax = fig.add_subplot(1, 1, 1, projection='scatter_density', label='scatter_density')
+        ax = fig.add_subplot(
+            1, 1, 1, projection="scatter_density", label="scatter_density"
+        )
 
     if loc_properties is None:
         data = locdata.coordinates.T
         labels = list(locdata.coordinate_labels)
-    elif isinstance(loc_properties, str) and loc_properties in locdata.coordinate_labels:
+    elif (
+        isinstance(loc_properties, str) and loc_properties in locdata.coordinate_labels
+    ):
         data = locdata.data[loc_properties].values.T
         labels = list(loc_properties)
     elif isinstance(loc_properties, (list, tuple)):
         for prop in loc_properties:
             if prop not in locdata.coordinate_labels:
-                raise ValueError(f'{prop} is not a valid property in locdata.')
+                raise ValueError(f"{prop} is not a valid property in locdata.")
         data = locdata.data[list(loc_properties)].values.T
         labels = list(loc_properties)
     else:
-        raise ValueError(f'{loc_properties} is not a valid property in locdata.')
+        raise ValueError(f"{loc_properties} is not a valid property in locdata.")
 
     if bin_range is None or isinstance(bin_range, str):
         bin_range_ = ranges(locdata, loc_properties=labels, special=bin_range)
@@ -207,29 +252,33 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
         if data.shape[0] == 2:
             values = None
         else:
-            raise TypeError('Only 2D data is supported.')
-        labels.append('counts')
+            raise TypeError("Only 2D data is supported.")
+        labels.append("counts")
     elif other_property in locdata.data.columns:
         # histogram data by averaging values
         if data.shape[0] == 2:
             # here color serves as weight since it is averaged over all points before binning.
             values = locdata.data[other_property].values.T
         else:
-            raise TypeError('Only 2D data is supported.')
+            raise TypeError("Only 2D data is supported.")
         labels.append(other_property)
     else:
-        raise TypeError(f'No valid property name {other_property}.')
+        raise TypeError(f"No valid property name {other_property}.")
 
-    a = mpl_scatter_density.ScatterDensityArtist(ax, *data, c=values, origin='lower', extent=[*bin_range_[0], *bin_range_[1]],
-                                                 cmap=cmap, **kwargs)
+    a = mpl_scatter_density.ScatterDensityArtist(
+        ax,
+        *data,
+        c=values,
+        origin="lower",
+        extent=[*bin_range_[0], *bin_range_[1]],
+        cmap=cmap,
+        **kwargs,
+    )
     mappable = ax.add_artist(a)
     ax.set_xlim(*bin_range_[0])
     ax.set_ylim(*bin_range_[1])
 
-    ax.set(title=labels[-1],
-           xlabel=labels[0],
-           ylabel=labels[1]
-           )
+    ax.set(title=labels[-1], xlabel=labels[0], ylabel=labels[1])
 
     if cbar:
         if colorbar_kws is None:
@@ -240,9 +289,20 @@ def render_2d_scatter_density(locdata, loc_properties=None, other_property=None,
     return ax
 
 
-def render_2d_napari(locdata, loc_properties=None, other_property=None,
-                     bins=None, n_bins=None, bin_size=10, bin_edges=None, bin_range=None,
-                     rescale=None, viewer=None, cmap='viridis', **kwargs):
+def render_2d_napari(
+    locdata,
+    loc_properties=None,
+    other_property=None,
+    bins=None,
+    n_bins=None,
+    bin_size=10,
+    bin_edges=None,
+    bin_range=None,
+    rescale=None,
+    viewer=None,
+    cmap="viridis",
+    **kwargs,
+):
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
     Render the data using napari.
@@ -293,7 +353,7 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
     napari.Viewer, Bins
     """
     if not HAS_DEPENDENCY["napari"]:
-        raise ImportError('Function requires napari.')
+        raise ImportError("Function requires napari.")
 
     # Provide napari viewer if not provided
     if viewer is None:
@@ -302,15 +362,22 @@ def render_2d_napari(locdata, loc_properties=None, other_property=None,
     # return ax if no or single point in locdata
     if len(locdata) < 2:
         if len(locdata) == 1:
-            logger.warning('Locdata carries a single localization.')
+            logger.warning("Locdata carries a single localization.")
         return viewer
 
-    data, bins, labels = histogram(locdata, loc_properties, other_property,
-                                   bins, n_bins, bin_size, bin_edges, bin_range
-                                   )
+    data, bins, labels = histogram(
+        locdata,
+        loc_properties,
+        other_property,
+        bins,
+        n_bins,
+        bin_size,
+        bin_edges,
+        bin_range,
+    )
     data = adjust_contrast(data, rescale)
 
-    viewer.add_image(data, name=f'LocData {locdata_id}', colormap=cmap, **kwargs)
+    viewer.add_image(data, name=f"LocData {locdata_id}", colormap=cmap, **kwargs)
     return viewer, bins
 
 
@@ -321,7 +388,10 @@ def render_2d(locdata, render_engine=RENDER_ENGINE, **kwargs):
     """
     if render_engine == RenderEngine.MPL:
         return render_2d_mpl(locdata, **kwargs)
-    elif HAS_DEPENDENCY["mpl_scatter_density"] and render_engine == RenderEngine.MPL_SCATTER_DENSITY:
+    elif (
+        HAS_DEPENDENCY["mpl_scatter_density"]
+        and render_engine == RenderEngine.MPL_SCATTER_DENSITY
+    ):
         return render_2d_scatter_density(locdata, **kwargs)
     elif HAS_DEPENDENCY["napari"] and render_engine == RenderEngine.NAPARI:
         return render_2d_napari(locdata, **kwargs)
@@ -361,26 +431,25 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
     # return ax if no or single point in locdata
     if len(locdata) < 2:
         if len(locdata) == 1:
-            logger.warning('Locdata carries a single localization.')
+            logger.warning("Locdata carries a single localization.")
         return ax
 
     coordinates = locdata.coordinates
-    ax.scatter(*coordinates.T, **dict({'marker': '+', 'color': 'grey'}, **kwargs))
+    ax.scatter(*coordinates.T, **dict({"marker": "+", "color": "grey"}, **kwargs))
 
     # plot element number
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
-            ax.text(*centroid, marker, **dict({'color': 'grey', 'size': 20}, **text_kwargs))
+            ax.text(
+                *centroid, marker, **dict({"color": "grey", "size": 20}, **text_kwargs)
+            )
 
-    ax.set(
-           xlabel='position_x',
-           ylabel='position_y'
-           )
+    ax.set(xlabel="position_x", ylabel="position_y")
 
     return ax
 
 
-def apply_window(image, window_function='tukey', **kwargs):
+def apply_window(image, window_function="tukey", **kwargs):
     """
     Apply window function to image.
 
@@ -396,14 +465,14 @@ def apply_window(image, window_function='tukey', **kwargs):
     window_func = getattr(scipy.signal.windows, window_function)
     windows = [window_func(M, **kwargs) for M in image.shape]
 
-    result = image.astype('float64')
+    result = image.astype("float64")
     result *= windows[0]
     result *= windows[1][:, None]
 
     return result
 
 
-def select_by_drawing_mpl(locdata, region_type='rectangle', **kwargs):
+def select_by_drawing_mpl(locdata, region_type="rectangle", **kwargs):
     """
     Select region of interest from rendered image by drawing rois.
 
@@ -430,8 +499,10 @@ def select_by_drawing_mpl(locdata, region_type='rectangle', **kwargs):
     render_2d_mpl(locdata, ax=ax, **kwargs)
     selector = _MplSelector(ax, type=region_type)
     plt.show()
-    roi_list = [Roi(reference=locdata, region_specs=roi['region_specs'],
-                    region=roi['region']) for roi in selector.rois]
+    roi_list = [
+        Roi(reference=locdata, region_specs=roi["region_specs"], region=roi["region"])
+        for roi in selector.rois
+    ]
     return roi_list
 
 
@@ -463,8 +534,8 @@ def select_by_drawing_napari(locdata, napari_run=True, **kwargs):
     if napari_run:
         napari.run()
 
-    vertices = viewer.layers['Shapes'].data
-    types = viewer.layers['Shapes'].shape_type
+    vertices = viewer.layers["Shapes"].data
+    types = viewer.layers["Shapes"].shape_type
 
     regions = []
     for verts, typ in zip(vertices, types):
@@ -474,11 +545,20 @@ def select_by_drawing_napari(locdata, napari_run=True, **kwargs):
     return roi_list
 
 
-def render_2d_rgb_mpl(locdatas, loc_properties=None, other_property=None,
-                      bins=None, n_bins=None, bin_size=10, bin_edges=None, bin_range=None,
-                      rescale=None,
-                      ax=None,
-                      interpolation='nearest', **kwargs):
+def render_2d_rgb_mpl(
+    locdatas,
+    loc_properties=None,
+    other_property=None,
+    bins=None,
+    n_bins=None,
+    bin_size=10,
+    bin_edges=None,
+    bin_range=None,
+    rescale=None,
+    ax=None,
+    interpolation="nearest",
+    **kwargs,
+):
     """
     Render localization data into a 2D RGB image by binning x,y-coordinates into regular bins.
 
@@ -550,21 +630,30 @@ def render_2d_rgb_mpl(locdatas, loc_properties=None, other_property=None,
     # return ax if no or single point in locdata
     if len(locdata_temp) < 2:
         if len(locdata_temp) == 1:
-            logger.warning('Locdata carries a single localization.')
+            logger.warning("Locdata carries a single localization.")
         return ax
 
     if bin_edges is None:
-        _, bins, labels = histogram(locdata_temp, loc_properties, other_property,
-                                    bins, n_bins, bin_size, bin_edges, bin_range
-                                    )
+        _, bins, labels = histogram(
+            locdata_temp,
+            loc_properties,
+            other_property,
+            bins,
+            n_bins,
+            bin_size,
+            bin_edges,
+            bin_range,
+        )
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
         bins = Bins(bin_edges=bin_edges, labels=labels)
 
-    imgs = [histogram(locdata, loc_properties, other_property, bin_edges=bins.bin_edges
-                      ).data
-            for locdata in locdatas
-            ]
+    imgs = [
+        histogram(
+            locdata, loc_properties, other_property, bin_edges=bins.bin_edges
+        ).data
+        for locdata in locdatas
+    ]
 
     if rescale is None:
         norm = mcolors.Normalize(vmin=np.min(imgs), vmax=np.max(imgs))
@@ -579,23 +668,32 @@ def render_2d_rgb_mpl(locdatas, loc_properties=None, other_property=None,
         rgb_stack[:, :, i] = img
 
     rgb_stack = np.transpose(rgb_stack, axes=(1, 0, 2))
-    ax.imshow(rgb_stack, origin='lower', extent=[*bins.bin_range[0], *bins.bin_range[1]],
-              interpolation=interpolation, **kwargs)
-
-    ax.set(
-        title=labels[-1],
-        xlabel=labels[0],
-        ylabel=labels[1]
+    ax.imshow(
+        rgb_stack,
+        origin="lower",
+        extent=[*bins.bin_range[0], *bins.bin_range[1]],
+        interpolation=interpolation,
+        **kwargs,
     )
+
+    ax.set(title=labels[-1], xlabel=labels[0], ylabel=labels[1])
 
     return ax
 
 
-def render_2d_rgb_napari(locdatas, loc_properties=None, other_property=None,
-                      bins=None, n_bins=None, bin_size=10, bin_edges=None, bin_range=None,
-                      rescale=None,
-                      viewer=None,
-                      **kwargs):
+def render_2d_rgb_napari(
+    locdatas,
+    loc_properties=None,
+    other_property=None,
+    bins=None,
+    n_bins=None,
+    bin_size=10,
+    bin_edges=None,
+    bin_range=None,
+    rescale=None,
+    viewer=None,
+    **kwargs,
+):
     """
     Render localization data into a 2D RGB image by binning x,y-coordinates into regular bins.
 
@@ -652,7 +750,7 @@ def render_2d_rgb_napari(locdatas, loc_properties=None, other_property=None,
     napari.Viewer, Bins
     """
     if not HAS_DEPENDENCY["napari"]:
-        raise ImportError('Function requires napari.')
+        raise ImportError("Function requires napari.")
 
     # Provide napari viewer if not provided
     if viewer is None:
@@ -663,21 +761,30 @@ def render_2d_rgb_napari(locdatas, loc_properties=None, other_property=None,
     # return viewer if no or single point in locdata
     if len(locdata_temp) < 2:
         if len(locdata_temp) == 1:
-            logger.warning('Locdata carries a single localization.')
+            logger.warning("Locdata carries a single localization.")
         return viewer
 
     if bin_edges is None:
-        _, bins, labels = histogram(locdata_temp, loc_properties, other_property,
-                                    bins, n_bins, bin_size, bin_edges, bin_range
-                                    )
+        _, bins, labels = histogram(
+            locdata_temp,
+            loc_properties,
+            other_property,
+            bins,
+            n_bins,
+            bin_size,
+            bin_edges,
+            bin_range,
+        )
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
         bins = Bins(bin_edges=bin_edges, labels=labels)
 
-    imgs = [histogram(locdata, loc_properties, other_property, bin_edges=bins.bin_edges
-                      ).data
-            for locdata in locdatas
-            ]
+    imgs = [
+        histogram(
+            locdata, loc_properties, other_property, bin_edges=bins.bin_edges
+        ).data
+        for locdata in locdatas
+    ]
 
     if rescale is None:
         norm = mcolors.Normalize(vmin=np.min(imgs), vmax=np.max(imgs))
@@ -692,5 +799,5 @@ def render_2d_rgb_napari(locdatas, loc_properties=None, other_property=None,
         rgb_stack[:, :, i] = img
 
     rgb_stack = np.transpose(rgb_stack, axes=(1, 0, 2))
-    viewer.add_image(rgb_stack, name=f'LocData {locdata_id}', rgb=True, **kwargs)
+    viewer.add_image(rgb_stack, name=f"LocData {locdata_id}", rgb=True, **kwargs)
     return viewer

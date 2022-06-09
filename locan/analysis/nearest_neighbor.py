@@ -41,12 +41,13 @@ from locan.analysis.analysis_base import _Analysis, _list_parameters
 from locan.configuration import N_JOBS
 
 
-__all__ = ['NearestNeighborDistances']
+__all__ = ["NearestNeighborDistances"]
 
 logger = logging.getLogger(__name__)
 
 
 #### The algorithms
+
 
 def pdf_nnDistances_csr_2D(x, density):
     """
@@ -65,7 +66,7 @@ def pdf_nnDistances_csr_2D(x, density):
     float
         Probability density function pdf(x).
     """
-    return 2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
+    return 2 * density * np.pi * x * np.exp(-density * np.pi * x ** 2)
 
 
 def pdf_nnDistances_csr_3D(x, density):
@@ -85,23 +86,30 @@ def pdf_nnDistances_csr_3D(x, density):
     float
         Probability density function pdf(x).
     """
-    a = (3 / 4 / np.pi / density)**(1/3)
-    return 3 / a * (x/a)**2 * np.exp(-(x/a)**3)
+    a = (3 / 4 / np.pi / density) ** (1 / 3)
+    return 3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
 
 
 def _nearest_neighbor_distances(points, k=1, other_points=None):
 
     if other_points is None:
-        nn = NearestNeighbors(n_neighbors=k, metric='euclidean', n_jobs=N_JOBS).fit(points)
+        nn = NearestNeighbors(n_neighbors=k, metric="euclidean", n_jobs=N_JOBS).fit(
+            points
+        )
         distances, indices = nn.kneighbors()
     else:
-        nn = NearestNeighbors(n_neighbors=k, metric='euclidean', n_jobs=N_JOBS).fit(other_points)
+        nn = NearestNeighbors(n_neighbors=k, metric="euclidean", n_jobs=N_JOBS).fit(
+            other_points
+        )
         distances, indices = nn.kneighbors(points)
 
-    return pd.DataFrame({'nn_distance': distances[..., k-1], 'nn_index': indices[..., k-1]})
+    return pd.DataFrame(
+        {"nn_distance": distances[..., k - 1], "nn_index": indices[..., k - 1]}
+    )
 
 
 # The specific analysis classes
+
 
 class NearestNeighborDistances(_Analysis):
     """
@@ -130,6 +138,7 @@ class NearestNeighborDistances(_Analysis):
     distribution_statistics : Distribution_stats, None
         Distribution parameters derived from MLE fitting of results.
     """
+
     count = 0
 
     def __init__(self, meta=None, k=1):
@@ -156,17 +165,21 @@ class NearestNeighborDistances(_Analysis):
            Returns the Analysis class object (self).
         """
         if not len(locdata):
-            logger.warning('Locdata is empty.')
+            logger.warning("Locdata is empty.")
             return self
 
         self.dimension = locdata.dimension
         # setting the localization density of locdata
         if other_locdata is None:
-            self.localization_density = locdata.properties['localization_density_bb']
+            self.localization_density = locdata.properties["localization_density_bb"]
         else:
             if other_locdata.dimension != self.dimension:
-                raise TypeError('Dimensions for locdata and other_locdata must be identical.')
-            self.localization_density = other_locdata.properties['localization_density_bb']
+                raise TypeError(
+                    "Dimensions for locdata and other_locdata must be identical."
+                )
+            self.localization_density = other_locdata.properties[
+                "localization_density_bb"
+            ]
 
         points = locdata.coordinates
         if other_locdata is None:
@@ -174,7 +187,9 @@ class NearestNeighborDistances(_Analysis):
         else:
             other_points = other_locdata.coordinates
 
-        self.results = _nearest_neighbor_distances(points=points, **self.parameter, other_points=other_points)
+        self.results = _nearest_neighbor_distances(
+            points=points, **self.parameter, other_points=other_points
+        )
         return self
 
     def fit_distributions(self, with_constraints=True):
@@ -196,9 +211,9 @@ class NearestNeighborDistances(_Analysis):
             self.distribution_statistics = _DistributionFits(self)
             self.distribution_statistics.fit(with_constraints=with_constraints)
         else:
-            logger.warning('No results available to fit.')
+            logger.warning("No results available to fit.")
 
-    def hist(self, ax=None, bins='auto', density=True, fit=False, **kwargs):
+    def hist(self, ax=None, bins="auto", density=True, fit=False, **kwargs):
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results).
 
@@ -227,15 +242,31 @@ class NearestNeighborDistances(_Analysis):
         if not self:
             return ax
 
-        values, bin_values, patches = ax.hist(self.results['nn_distance'], bins=bins, density=density, label='data')
+        values, bin_values, patches = ax.hist(
+            self.results["nn_distance"], bins=bins, density=density, label="data"
+        )
         x_data = (bin_values[:-1] + bin_values[1:]) / 2
 
         if self.dimension == 2:
-            ax.plot(x_data, pdf_nnDistances_csr_2D(x_data, self.localization_density), 'r-', label='CSR', **kwargs)
+            ax.plot(
+                x_data,
+                pdf_nnDistances_csr_2D(x_data, self.localization_density),
+                "r-",
+                label="CSR",
+                **kwargs,
+            )
         elif self.dimension == 3:
-            ax.plot(x_data, pdf_nnDistances_csr_3D(x_data, self.localization_density), 'r-', label='CSR', **kwargs)
+            ax.plot(
+                x_data,
+                pdf_nnDistances_csr_3D(x_data, self.localization_density),
+                "r-",
+                label="CSR",
+                **kwargs,
+            )
         else:
-            logger.warning(f'No analytic probability density function for {self.dimension} dimensions available.')
+            logger.warning(
+                f"No analytic probability density function for {self.dimension} dimensions available."
+            )
 
         # fit distributions:
         if fit:
@@ -245,16 +276,21 @@ class NearestNeighborDistances(_Analysis):
                 self.fit_distributions()
                 self.distribution_statistics.plot(ax=ax)
 
-        ax.set(title='k-Nearest Neigbor Distances\n'+' (k = ' + str(self.parameter['k'])+')',
-               xlabel='distance (nm)',
-               ylabel='pdf' if density else 'counts'
-               )
-        ax.legend(loc='best')
+        ax.set(
+            title="k-Nearest Neigbor Distances\n"
+            + " (k = "
+            + str(self.parameter["k"])
+            + ")",
+            xlabel="distance (nm)",
+            ylabel="pdf" if density else "counts",
+        )
+        ax.legend(loc="best")
 
         return ax
 
 
 #### Auxiliary functions and classes
+
 
 class NNDistances_csr_2d(stats.rv_continuous):
     """
@@ -268,7 +304,7 @@ class NNDistances_csr_2d(stats.rv_continuous):
     """
 
     def _pdf(self, x, density):
-        return 2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
+        return 2 * density * np.pi * x * np.exp(-density * np.pi * x ** 2)
 
 
 class NNDistances_csr_3d(stats.rv_continuous):
@@ -284,7 +320,7 @@ class NNDistances_csr_3d(stats.rv_continuous):
 
     def _pdf(self, x, density):
         a = (3 / 4 / np.pi / density) ** (1 / 3)
-        return 3 / a * (x / a) ** 2 * np.exp(-(x / a) ** 3)
+        return 3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
 
 
 class _DistributionFits:
@@ -312,9 +348,10 @@ class _DistributionFits:
     parameters : list of str
         Free parameters in `distribution`.
     """
+
     def __init__(self, analysis_class):
         self.analysis_class = analysis_class
-        self.loc_property = 'nn_distance'
+        self.loc_property = "nn_distance"
         self.distribution = None
         self.parameters = []
 
@@ -335,22 +372,26 @@ class _DistributionFits:
             Other parameters passed to the `distribution.fit()` method.
         """
         if self.analysis_class.dimension == 2:
-            self.distribution = NNDistances_csr_2d(name='NNDistances_csr_2d', a=0.)
+            self.distribution = NNDistances_csr_2d(name="NNDistances_csr_2d", a=0.0)
         elif self.analysis_class.dimension == 3:
-            self.distribution = NNDistances_csr_3d(name='NNDistances_csr_3d', a=0.)
+            self.distribution = NNDistances_csr_3d(name="NNDistances_csr_3d", a=0.0)
         else:
-            logger.warning(f'No fit model for {self.analysis_class.dimension} dimensions available.')
+            logger.warning(
+                f"No fit model for {self.analysis_class.dimension} dimensions available."
+            )
             return
 
-        self.parameters = [name.strip() for name in self.distribution.shapes.split(',')]
-        self.parameters += ['loc', 'scale']
+        self.parameters = [name.strip() for name in self.distribution.shapes.split(",")]
+        self.parameters += ["loc", "scale"]
 
         if with_constraints:
             kwargs_ = dict(dict(floc=0, fscale=1), **kwargs)
         else:
             kwargs_ = kwargs
 
-        fit_results = self.distribution.fit(data=self.analysis_class.results[self.loc_property].values, **kwargs_)
+        fit_results = self.distribution.fit(
+            data=self.analysis_class.results[self.loc_property].values, **kwargs_
+        )
         for parameter, result in zip(self.parameters, fit_results):
             setattr(self, parameter, result)
 
@@ -378,10 +419,20 @@ class _DistributionFits:
             return ax
 
         # plot fit curve
-        x_values = np.linspace(self.distribution.ppf(0.001, **self.parameter_dict()),
-                               self.distribution.ppf(0.999, **self.parameter_dict()), 100)
-        ax.plot(x_values, self.distribution.pdf(x_values, **self.parameter_dict()), 'r-',
-                **dict(dict(lw=3, alpha=0.6, label=str(self.distribution.name) + ' pdf'), **kwargs))
+        x_values = np.linspace(
+            self.distribution.ppf(0.001, **self.parameter_dict()),
+            self.distribution.ppf(0.999, **self.parameter_dict()),
+            100,
+        )
+        ax.plot(
+            x_values,
+            self.distribution.pdf(x_values, **self.parameter_dict()),
+            "r-",
+            **dict(
+                dict(lw=3, alpha=0.6, label=str(self.distribution.name) + " pdf"),
+                **kwargs,
+            ),
+        )
         return ax
 
     def parameter_dict(self):

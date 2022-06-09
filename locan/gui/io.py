@@ -10,10 +10,14 @@ if QT_BINDINGS == QtBindings.PYSIDE2:
 elif QT_BINDINGS == QtBindings.PYQT5:
     from PyQt5.QtWidgets import QApplication, QFileDialog
 
-__all__ = ['file_dialog']
+__all__ = ["file_dialog"]
 
 
-def file_dialog(directory=None, message='Select a file...', filter='Text files (*.txt);; All files (*)'):
+def file_dialog(
+    directory=None,
+    message="Select a file...",
+    filter="Text files (*.txt);; All files (*)",
+):
     """
     Select file names in a ui dialog.
 
@@ -34,21 +38,25 @@ def file_dialog(directory=None, message='Select a file...', filter='Text files (
         list with file names or empty list
     """
     if QT_BINDINGS == QtBindings.NONE:
-        raise ImportError('Function requires either PySide2 or PyQt5.')
+        raise ImportError("Function requires either PySide2 or PyQt5.")
 
     if directory is None:
-        directory_ = './'
+        directory_ = "./"
     else:
         directory_ = str(directory)
 
     if QT_BINDINGS == QtBindings.PYSIDE2:
-        app = QApplication.instance()  # this is needed if the function is called twice in a row.
+        app = (
+            QApplication.instance()
+        )  # this is needed if the function is called twice in a row.
         if app is None:
             app = QApplication([])  # todo: [directory_] is not working - please fix!
     elif QT_BINDINGS == QtBindings.PYQT5:
         app = QApplication([directory_])
 
-    fname = QFileDialog.getOpenFileNames(None, message, directory=directory_, filter=filter)
+    fname = QFileDialog.getOpenFileNames(
+        None, message, directory=directory_, filter=filter
+    )
 
     if isinstance(fname, tuple):
         return fname[0]

@@ -12,8 +12,14 @@ import pandas as pd
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.locan_io.locdata.utilities import convert_property_types, convert_property_names
-from locan.locan_io.locdata.rapidstorm_io import load_rapidSTORM_file, load_rapidSTORM_track_file
+from locan.locan_io.locdata.utilities import (
+    convert_property_types,
+    convert_property_names,
+)
+from locan.locan_io.locdata.rapidstorm_io import (
+    load_rapidSTORM_file,
+    load_rapidSTORM_track_file,
+)
 from locan.locan_io.locdata.thunderstorm_io import load_thunderstorm_file
 from locan.locan_io.locdata.elyra_io import load_Elyra_file
 from locan.locan_io.locdata.nanoimager_io import load_Nanoimager_file
@@ -23,12 +29,20 @@ from locan.locan_io.locdata.smap_io import load_SMAP_file
 from locan.locan_io.locdata.smlm_io import load_SMLM_file
 
 
-__all__ = ['load_txt_file', 'load_locdata']
+__all__ = ["load_txt_file", "load_locdata"]
 
 logger = logging.getLogger(__name__)
 
 
-def load_txt_file(path, sep=',', columns=None, nrows=None, property_mapping=None, convert=True, **kwargs):
+def load_txt_file(
+    path,
+    sep=",",
+    columns=None,
+    nrows=None,
+    property_mapping=None,
+    convert=True,
+    **kwargs,
+):
     """
     Load localization data from a txt file.
 
@@ -58,18 +72,27 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, property_mapping=None
     """
     # define columns
     if columns is None:
-        dataframe = pd.read_csv(path, sep=sep, nrows=nrows,
-                                **dict(dict(skiprows=0), **kwargs))
+        dataframe = pd.read_csv(
+            path, sep=sep, nrows=nrows, **dict(dict(skiprows=0), **kwargs)
+        )
 
-        column_keys = convert_property_names(dataframe.columns, property_mapping=property_mapping)
+        column_keys = convert_property_names(
+            dataframe.columns, property_mapping=property_mapping
+        )
         dataframe.columns = column_keys
     else:
         column_keys = convert_property_names(columns, property_mapping=property_mapping)
-        dataframe = pd.read_csv(path, sep=sep, nrows=nrows,
-                                **dict(dict(skiprows=1, names=column_keys), **kwargs))
+        dataframe = pd.read_csv(
+            path,
+            sep=sep,
+            nrows=nrows,
+            **dict(dict(skiprows=1, names=column_keys), **kwargs),
+        )
 
     if convert:
-        dataframe = convert_property_types(dataframe, types=locan.constants.PROPERTY_KEYS)
+        dataframe = convert_property_types(
+            dataframe, types=locan.constants.PROPERTY_KEYS
+        )
 
     dat = LocData.from_dataframe(dataframe=dataframe)
 
@@ -79,8 +102,12 @@ def load_txt_file(path, sep=',', columns=None, nrows=None, property_mapping=None
     dat.meta.file.path = str(path)
 
     del dat.meta.history[:]
-    dat.meta.history.add(name='load_txt_file',
-                         parameter='path={}, sep={}, columns={}, nrows={}'.format(path, sep, columns, nrows))
+    dat.meta.history.add(
+        name="load_txt_file",
+        parameter="path={}, sep={}, columns={}, nrows={}".format(
+            path, sep, columns, nrows
+        ),
+    )
 
     return dat
 
@@ -128,7 +155,9 @@ def _map_file_type_to_load_function(file_type):
         if isinstance(file_type, int):
             function_name = LoadFunction(file_type).name
         elif isinstance(file_type, str):
-            function_name = LoadFunction(locan.constants.FileType[file_type.upper()].value).name
+            function_name = LoadFunction(
+                locan.constants.FileType[file_type.upper()].value
+            ).name
         elif isinstance(file_type, locan.constants.FileType):
             function_name = LoadFunction(file_type.value).name
         elif isinstance(file_type, metadata_pb2):
@@ -137,7 +166,7 @@ def _map_file_type_to_load_function(file_type):
             raise TypeError
         return look_up_table[function_name]
     except ValueError:
-        raise ValueError(f'There is no load function for type {file_type}.')
+        raise ValueError(f"There is no load function for type {file_type}.")
 
 
 def load_locdata(path, file_type=1, nrows=None, **kwargs):

@@ -12,14 +12,17 @@ def test_Localization_property_2d_empty(caplog):
     lprop.plot_deviation_from_mean()
     lprop.plot_deviation_from_median()
     lprop.report()
-    assert caplog.record_tuples == [('locan.analysis.localization_property_2d', 30, 'Locdata is empty.'),
-                                    ('locan.analysis.localization_property_2d', 30, 'No results available')]
+    assert caplog.record_tuples == [
+        ("locan.analysis.localization_property_2d", 30, "Locdata is empty."),
+        ("locan.analysis.localization_property_2d", 30, "No results available"),
+    ]
 
 
 def test_Localization_property_2d(capfd, locdata_rapidSTORM_2d):
-    lprop = LocalizationProperty2d(meta=None, other_property='local_background', bin_size=1000)\
-        .compute(locdata_rapidSTORM_2d)
-    assert 'model_result' in lprop.results._fields
+    lprop = LocalizationProperty2d(
+        meta=None, other_property="local_background", bin_size=1000
+    ).compute(locdata_rapidSTORM_2d)
+    assert "model_result" in lprop.results._fields
     assert lprop.results.model_result.params
 
     lprop.report()
@@ -32,4 +35,4 @@ def test_Localization_property_2d(capfd, locdata_rapidSTORM_2d):
     lprop.plot_deviation_from_median()
     # plt.show()
 
-    plt.close('all')
+    plt.close("all")

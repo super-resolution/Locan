@@ -6,7 +6,7 @@ from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance
 
 
 def test__circumcircle_2d(locdata_2d):
-    points = np.array([(0, 0), (1, 1+np.sqrt(2)), (1+np.sqrt(2), 1)])
+    points = np.array([(0, 0), (1, 1 + np.sqrt(2)), (1 + np.sqrt(2), 1)])
     center, radius = _circumcircle(points, [2, 1, 0])
     assert radius == np.sqrt(2)
     assert np.array_equal(center, [1, 1])

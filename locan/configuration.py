@@ -21,16 +21,25 @@ from pathlib import Path
 import matplotlib.colors as mcolors
 
 from locan.dependencies import HAS_DEPENDENCY
-if HAS_DEPENDENCY["colorcet"]: from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
+
+if HAS_DEPENDENCY["colorcet"]:
+    from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
 from locan.constants import RenderEngine
 
-__all__ = ['DATASETS_DIR', 'RENDER_ENGINE', 'N_JOBS', 'TQDM_LEAVE', 'TQDM_DISABLE',
-           'COLORMAP_CONTINUOUS', 'COLORMAP_DIVERGING', 'COLORMAP_CATEGORICAL'
-           ]
+__all__ = [
+    "DATASETS_DIR",
+    "RENDER_ENGINE",
+    "N_JOBS",
+    "TQDM_LEAVE",
+    "TQDM_DISABLE",
+    "COLORMAP_CONTINUOUS",
+    "COLORMAP_DIVERGING",
+    "COLORMAP_CATEGORICAL",
+]
 
 
 #: Standard directory for example datasets.
-DATASETS_DIR = Path.home() / 'LocanDatasets'
+DATASETS_DIR = Path.home() / "LocanDatasets"
 
 #: Render engine.
 RENDER_ENGINE = RenderEngine.MPL
@@ -49,13 +58,13 @@ TQDM_LEAVE: bool = True
 TQDM_DISABLE: bool = False
 
 #: Default colormap for continuous scales. Default is `colorcet.m_fire` if installed or 'viridis'.
-COLORMAP_CONTINUOUS: mcolors.Colormap | str = 'viridis'
+COLORMAP_CONTINUOUS: mcolors.Colormap | str = "viridis"
 
 #: Default colormap for diverging scales. Default is `colorcet.m_coolwarm` if installed or 'coolwarm'.
-COLORMAP_DIVERGING: mcolors.Colormap | str = 'coolwarm'
+COLORMAP_DIVERGING: mcolors.Colormap | str = "coolwarm"
 
 #: Default colormap for categorical scales. Default is `colorcet.m_glasbey_dark` if installed or 'tab20'.
-COLORMAP_CATEGORICAL: mcolors.Colormap | str = 'tab20'
+COLORMAP_CATEGORICAL: mcolors.Colormap | str = "tab20"
 
 if HAS_DEPENDENCY["colorcet"]:
     COLORMAP_CONTINUOUS = m_fire

@@ -8,7 +8,7 @@ The tests are organized following the subpackage structure of locan.
 """
 from locan import ROOT_DIR
 
-__all__ = ['test']
+__all__ = ["test"]
 
 
 def test(args=None):
@@ -34,7 +34,7 @@ def test(args=None):
     else:
         extra_args.append(args)  # extra_args = [args]
 
-    test_directory = ROOT_DIR.joinpath('tests').as_posix()
+    test_directory = ROOT_DIR.joinpath("tests").as_posix()
     extra_args.append(test_directory)
     print(f'running: pytest {" ".join(extra_args)}')
     return pytest.main(extra_args)

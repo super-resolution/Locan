@@ -4,5 +4,5 @@ from locan import QT_BINDINGS
 
 
 def test_QT_API():
-    if 'QT_API' in os.environ:
-        assert os.environ['QT_API'] == QT_BINDINGS.value
+    if "QT_API" in os.environ:
+        assert os.environ["QT_API"] == QT_BINDINGS.value

@@ -17,10 +17,11 @@ from locan.simulation import simulate_uniform
 from locan.data.metadata_utils import _modify_meta
 from locan.dependencies import HAS_DEPENDENCY
 
-if HAS_DEPENDENCY["open3d"]: import open3d as o3d
+if HAS_DEPENDENCY["open3d"]:
+    import open3d as o3d
 
 
-__all__ = ['transform_affine', 'randomize']
+__all__ = ["transform_affine", "randomize"]
 
 
 def _transform_affine_numpy(points, matrix=None, offset=None, pre_translation=None):
@@ -57,7 +58,9 @@ def _transform_affine_numpy(points, matrix=None, offset=None, pre_translation=No
     else:
         transformed_points = points_ + pre_translation
         # transformed_points = np.array([np.dot(matrix_, point) + offset_ for point in transformed_points])
-        transformed_points = np.einsum("ij, nj -> ni", matrix_, transformed_points) + offset_
+        transformed_points = (
+            np.einsum("ij, nj -> ni", matrix_, transformed_points) + offset_
+        )
         transformed_points = transformed_points - pre_translation
 
     return transformed_points
@@ -83,12 +86,12 @@ def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)):
     dimension = np.shape(matrix)[0]
 
     if dimension != np.shape(matrix)[1]:
-        raise ValueError('The matrix has to be of shape (d, d).')
+        raise ValueError("The matrix has to be of shape (d, d).")
 
     if dimension != np.shape(offset)[0]:
-        raise ValueError('The matrix and offset must have the same dimension.')
+        raise ValueError("The matrix and offset must have the same dimension.")
 
-    matrix_ = np.identity(dimension+1)
+    matrix_ = np.identity(dimension + 1)
     matrix_[0:dimension, 0:dimension] = matrix
     matrix_[:dimension, dimension] = offset
 
@@ -132,7 +135,7 @@ def _transform_affine_open3d(points, matrix=None, offset=None, pre_translation=N
     elif dimension == 3:
         points_3d = points_
     else:
-        raise ValueError('Point array has the wrong shape.')
+        raise ValueError("Point array has the wrong shape.")
 
     # points in open3d
     point_cloud = o3d.geometry.PointCloud()
@@ -163,7 +166,9 @@ def _transform_affine_open3d(points, matrix=None, offset=None, pre_translation=N
     return transformed_points
 
 
-def transform_affine(locdata, matrix=None, offset=None, pre_translation=None, method='numpy'):
+def transform_affine(
+    locdata, matrix=None, offset=None, pre_translation=None, method="numpy"
+):
     """
     Transform `points` or coordinates in `locdata` by an affine transformation.
 
@@ -197,27 +202,38 @@ def transform_affine(locdata, matrix=None, offset=None, pre_translation=None, me
     else:
         points = locdata
 
-    if method == 'numpy':
-        transformed_points = _transform_affine_numpy(points, matrix=matrix, offset=offset,
-                                                     pre_translation=pre_translation)
-    elif method == 'open3d':
-        transformed_points = _transform_affine_open3d(points, matrix=matrix, offset=offset,
-                                                      pre_translation=pre_translation)
+    if method == "numpy":
+        transformed_points = _transform_affine_numpy(
+            points, matrix=matrix, offset=offset, pre_translation=pre_translation
+        )
+    elif method == "open3d":
+        transformed_points = _transform_affine_open3d(
+            points, matrix=matrix, offset=offset, pre_translation=pre_translation
+        )
     else:
-        raise ValueError(f'Method {method} is not available.')
+        raise ValueError(f"Method {method} is not available.")
 
     # prepare output
     if isinstance(locdata, LocData):
         # new LocData object
         new_dataframe = locdata.data.copy()
-        new_dataframe.update(pd.DataFrame(transformed_points, columns=locdata.coordinate_labels,
-                                          index=locdata.data.index))
+        new_dataframe.update(
+            pd.DataFrame(
+                transformed_points,
+                columns=locdata.coordinate_labels,
+                index=locdata.data.index,
+            )
+        )
         new_locdata = LocData.from_dataframe(new_dataframe)
 
         # update metadata
-        meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
-                             parameter=local_parameter,
-                             meta=None)
+        meta_ = _modify_meta(
+            locdata,
+            new_locdata,
+            function_name=sys._getframe().f_code.co_name,
+            parameter=local_parameter,
+            meta=None,
+        )
         new_locdata.meta = meta_
 
         return new_locdata
@@ -226,7 +242,7 @@ def transform_affine(locdata, matrix=None, offset=None, pre_translation=None, me
         return transformed_points
 
 
-def randomize(locdata, hull_region='bb', seed=None):
+def randomize(locdata, hull_region="bb", seed=None):
     """
     Transform locdata coordinates into randomized coordinates that follow complete spatial randomness on the same
     region as the input locdata.
@@ -249,13 +265,13 @@ def randomize(locdata, hull_region='bb', seed=None):
 
     rng = np.random.default_rng(seed)
 
-    if hull_region == 'bb':
+    if hull_region == "bb":
         region_ = locdata.bounding_box.hull.T
-    elif hull_region == 'ch':
+    elif hull_region == "ch":
         region_ = locdata.convex_hull.region
-    elif hull_region == 'as':
+    elif hull_region == "as":
         region_ = locdata.alpha_shape.region
-    elif hull_region == 'obb':
+    elif hull_region == "obb":
         region_ = locdata.oriented_bounding_box.region
     elif isinstance(hull_region, Region):
         region_ = hull_region
@@ -265,8 +281,13 @@ def randomize(locdata, hull_region='bb', seed=None):
     new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
 
     # update metadata
-    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
-                         parameter=local_parameter, meta=None)
+    meta_ = _modify_meta(
+        locdata,
+        new_locdata,
+        function_name=sys._getframe().f_code.co_name,
+        parameter=local_parameter,
+        meta=None,
+    )
     new_locdata.meta = meta_
 
     return new_locdata

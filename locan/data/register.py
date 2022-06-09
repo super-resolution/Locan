@@ -20,15 +20,25 @@ from locan.data.transform.transformation import _homogeneous_matrix
 from locan.data.aggregate import histogram
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
-if HAS_DEPENDENCY["open3d"]: import open3d as o3d
+if HAS_DEPENDENCY["open3d"]:
+    import open3d as o3d
 
 
-__all__ = ['register_icp', 'register_cc']
+__all__ = ["register_icp", "register_cc"]
 
 
 @needs_package("open3d")
-def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_translation=None,
-                         max_correspondence_distance=1_000, max_iteration=10_000, with_scaling=True, verbose=True):
+def _register_icp_open3d(
+    points,
+    other_points,
+    matrix=None,
+    offset=None,
+    pre_translation=None,
+    max_correspondence_distance=1_000,
+    max_iteration=10_000,
+    with_scaling=True,
+    verbose=True,
+):
     """
     Register `points` by an "Iterative Closest Point" algorithm using open3d.
 
@@ -65,16 +75,18 @@ def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_tra
     if np.shape(points)[1] == np.shape(other_points)[1]:
         dimension = np.shape(points)[1]
     else:
-        raise ValueError('Dimensions for locdata and other_locdata are incompatible.')
+        raise ValueError("Dimensions for locdata and other_locdata are incompatible.")
 
     if dimension == 2:
         points_3d = np.concatenate([points_, np.zeros((len(points_), 1))], axis=1)
-        other_points_3d = np.concatenate([other_points_, np.zeros((len(other_points_), 1))], axis=1)
+        other_points_3d = np.concatenate(
+            [other_points_, np.zeros((len(other_points_), 1))], axis=1
+        )
     elif dimension == 3:
         points_3d = points_
         other_points_3d = other_points_
     else:
-        raise ValueError('Point array has the wrong shape.')
+        raise ValueError("Point array has the wrong shape.")
 
     # points in open3d
     point_cloud = o3d.geometry.PointCloud()
@@ -100,11 +112,16 @@ def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_tra
 
     # apply ICP
     registration = o3d.pipelines.registration.registration_icp(
-        source=point_cloud, target=other_point_cloud,
+        source=point_cloud,
+        target=other_point_cloud,
         max_correspondence_distance=max_correspondence_distance,
         init=matrix_homogeneous,
-        estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPoint(with_scaling=with_scaling),
-        criteria=o3d.pipelines.registration.ICPConvergenceCriteria(max_iteration=max_iteration)
+        estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPoint(
+            with_scaling=with_scaling
+        ),
+        criteria=o3d.pipelines.registration.ICPConvergenceCriteria(
+            max_iteration=max_iteration
+        ),
     )
 
     if dimension == 2:
@@ -117,12 +134,20 @@ def _register_icp_open3d(points, other_points, matrix=None, offset=None, pre_tra
     if verbose:
         print(registration)
 
-    Transformation = namedtuple('Transformation', 'matrix offset')
+    Transformation = namedtuple("Transformation", "matrix offset")
     return Transformation(new_matrix, new_offset)
 
 
-def register_icp(locdata, other_locdata, matrix=None, offset=None, pre_translation=None,
-                 max_correspondence_distance=1_000, max_iteration=10_000, verbose=True):
+def register_icp(
+    locdata,
+    other_locdata,
+    matrix=None,
+    offset=None,
+    pre_translation=None,
+    max_correspondence_distance=1_000,
+    max_iteration=10_000,
+    verbose=True,
+):
     """
     Register `points` or coordinates in `locdata` by an "Iterative Closest Point" algorithm using open3d.
 
@@ -163,10 +188,16 @@ def register_icp(locdata, other_locdata, matrix=None, offset=None, pre_translati
     else:
         other_points = other_locdata
 
-    transformation = _register_icp_open3d(points, other_points, matrix=matrix, offset=offset,
-                                                  pre_translation=pre_translation,
-                                                  max_correspondence_distance=1_000, max_iteration=10_000,
-                                                  verbose=True)
+    transformation = _register_icp_open3d(
+        points,
+        other_points,
+        matrix=matrix,
+        offset=offset,
+        pre_translation=pre_translation,
+        max_correspondence_distance=1_000,
+        max_iteration=10_000,
+        verbose=True,
+    )
     return transformation
 
 
@@ -178,9 +209,9 @@ def _xcorr(imageA, imageB):
     """
     FimageA = np.fft.fft2(imageA)
     CFimageB = np.conj(np.fft.fft2(imageB))
-    return np.fft.fftshift(
-        np.real(np.fft.ifft2((FimageA * CFimageB)))
-        ) / np.sqrt(imageA.size)
+    return np.fft.fftshift(np.real(np.fft.ifft2((FimageA * CFimageB)))) / np.sqrt(
+        imageA.size
+    )
 
 
 def _get_image_shift(imageA, imageB, box, roi=None, display=False):
@@ -213,12 +244,11 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
     # A quarter of the fit ROI
     fit_X = int(box / 2)
     # A coordinate grid for the fitting ROI
-    y, x = np.mgrid[-fit_X: fit_X + 1, -fit_X: fit_X + 1]
+    y, x = np.mgrid[-fit_X : fit_X + 1, -fit_X : fit_X + 1]
     # Find the brightest pixel and cut out the fit ROI
     y_max_, x_max_ = np.unravel_index(XCorr.argmax(), XCorr.shape)
     FitROI = XCorr[
-        y_max_ - fit_X: y_max_ + fit_X + 1,
-        x_max_ - fit_X: x_max_ + fit_X + 1,
+        y_max_ - fit_X : y_max_ + fit_X + 1, x_max_ - fit_X : x_max_ + fit_X + 1,
     ]
 
     dimensions = FitROI.shape
@@ -231,9 +261,7 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
             A = a * np.exp(-0.5 * ((x - xc) ** 2 + (y - yc) ** 2) / s ** 2) + b
             return A.flatten()
 
-        gaussian2d = Model(
-            flat_2d_gaussian, name="2D Gaussian", independent_vars=[]
-        )
+        gaussian2d = Model(flat_2d_gaussian, name="2D Gaussian", independent_vars=[])
 
         # Set up initial parameters and fit
         params = Parameters()
@@ -267,9 +295,18 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
     return -yc, -xc
 
 
-def register_cc(locdata, other_locdata, max_offset=None,
-                bins=None, n_bins=None, bin_size=None, bin_edges=None, bin_range=None,
-                verbose=False, **kwargs):
+def register_cc(
+    locdata,
+    other_locdata,
+    max_offset=None,
+    bins=None,
+    n_bins=None,
+    bin_size=None,
+    bin_edges=None,
+    bin_range=None,
+    verbose=False,
+    **kwargs,
+):
     """
     Register `points` or coordinates in `locdata` by a cross-correlation algorithm.
 
@@ -316,10 +353,22 @@ def register_cc(locdata, other_locdata, max_offset=None,
         else:
             bin_range_ = bin_range
 
-        image, bins_, labels_ = histogram(locdata, bins=bins, n_bins=n_bins, bin_size=bin_size, bin_edges=bin_edges,
-                                        bin_range=bin_range_)
-        other_image, _, _ = histogram(other_locdata, bins=bins, n_bins=n_bins, bin_size=bin_size, bin_edges=bin_edges,
-                                      bin_range=bin_range_)
+        image, bins_, labels_ = histogram(
+            locdata,
+            bins=bins,
+            n_bins=n_bins,
+            bin_size=bin_size,
+            bin_edges=bin_edges,
+            bin_range=bin_range_,
+        )
+        other_image, _, _ = histogram(
+            other_locdata,
+            bins=bins,
+            n_bins=n_bins,
+            bin_size=bin_size,
+            bin_edges=bin_edges,
+            bin_range=bin_range_,
+        )
 
     else:
         image = np.asarray(locdata)
@@ -328,8 +377,10 @@ def register_cc(locdata, other_locdata, max_offset=None,
     dimension = image.ndim
     matrix = np.identity(dimension)
     # todo: turn box into parameter
-    offset = _get_image_shift(image, other_image, box=5, roi=max_offset, display=verbose)
+    offset = _get_image_shift(
+        image, other_image, box=5, roi=max_offset, display=verbose
+    )
     offset = tuple(np.asarray(offset) * bin_size)
 
-    Transformation = namedtuple('Transformation', 'matrix offset')
+    Transformation = namedtuple("Transformation", "matrix offset")
     return Transformation(matrix, offset)

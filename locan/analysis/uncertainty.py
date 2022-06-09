@@ -21,24 +21,34 @@ import warnings
 from locan.analysis.analysis_base import _Analysis
 
 
-__all__ = ['LocalizationUncertaintyFromIntensity']
+__all__ = ["LocalizationUncertaintyFromIntensity"]
 
 logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
 
+
 def _localization_uncertainty_from_intensity(locdata):
 
     results = {}
-    for v in ['x', 'y', 'z']:
-        if 'position_' + v in locdata.data.keys() and 'intensity' in locdata.data.keys():
-            if 'psf_sigma_' + v in locdata.data.keys():
+    for v in ["x", "y", "z"]:
+        if (
+            "position_" + v in locdata.data.keys()
+            and "intensity" in locdata.data.keys()
+        ):
+            if "psf_sigma_" + v in locdata.data.keys():
                 results.update(
-                    {'uncertainty_' + v: locdata.data['psf_sigma_' + v] / np.sqrt(locdata.data['intensity'])}
+                    {
+                        "uncertainty_"
+                        + v: locdata.data["psf_sigma_" + v]
+                        / np.sqrt(locdata.data["intensity"])
+                    }
                 )
             else:
-                results.update({'uncertainty_' + v: 1 / np.sqrt(locdata.data['intensity'])})
+                results.update(
+                    {"uncertainty_" + v: 1 / np.sqrt(locdata.data["intensity"])}
+                )
         else:
             pass
 
@@ -46,6 +56,7 @@ def _localization_uncertainty_from_intensity(locdata):
 
 
 ##### The specific analysis classes
+
 
 class LocalizationUncertaintyFromIntensity(_Analysis):
     """
@@ -71,6 +82,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
         The number of localizations per frame or
         the number of localizations per frame normalized to region_measure(hull).
     """
+
     count = 0
 
     def __init__(self, meta=None):
@@ -92,7 +104,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
             Returns the Analysis class object (self).
         """
         if not len(locdata):
-            logger.warning('Locdata is empty.')
+            logger.warning("Locdata is empty.")
             return self
 
         self.results = _localization_uncertainty_from_intensity(locdata=locdata)

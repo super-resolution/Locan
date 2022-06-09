@@ -24,17 +24,27 @@ from shapely.prepared import prep
 from shapely.affinity import scale, rotate, translate
 
 
-__all__ = ['Region', 'EmptyRegion',
-           'Region1D', 'Interval',
-           'Region2D', 'Rectangle', 'Ellipse', 'Polygon', 'MultiPolygon',
-           'Region3D', 'AxisOrientedCuboid', 'Cuboid',
-           'RegionND', 'AxisOrientedHypercuboid'
-           ]
+__all__ = [
+    "Region",
+    "EmptyRegion",
+    "Region1D",
+    "Interval",
+    "Region2D",
+    "Rectangle",
+    "Ellipse",
+    "Polygon",
+    "MultiPolygon",
+    "Region3D",
+    "AxisOrientedCuboid",
+    "Cuboid",
+    "RegionND",
+    "AxisOrientedHypercuboid",
+]
 
 # __all__ += ['Ellipsoid' 'Polyhedron']
 # __all__ += ['Polytope']
 
-__all__ += ['RoiRegion']  # legacy code that is only needed for legacy _roi.yml files.
+__all__ += ["RoiRegion"]  # legacy code that is only needed for legacy _roi.yml files.
 
 
 class RoiRegion:
@@ -99,30 +109,34 @@ class RoiRegion:
         self.region_specs = region_specs
         self.region_type = region_type
 
-        if region_type == 'interval':
+        if region_type == "interval":
             self._region = Interval(*region_specs)
 
-        elif region_type == 'rectangle':
+        elif region_type == "rectangle":
             self._region = Rectangle(*region_specs)
 
-        elif region_type == 'ellipse':
+        elif region_type == "ellipse":
             self._region = Ellipse(*region_specs)
 
-        elif region_type == 'polygon':
+        elif region_type == "polygon":
             self._region = Polygon(region_specs)
 
-        elif region_type == 'shapelyPolygon':
+        elif region_type == "shapelyPolygon":
             self._region = Polygon(region_specs)
 
-        elif region_type == 'shapelyMultiPolygon':
+        elif region_type == "shapelyMultiPolygon":
             self._region = MultiPolygon(region_specs)
 
         else:
-            raise NotImplementedError(f'Region_type {region_type} has not been implemented yet.')
+            raise NotImplementedError(
+                f"Region_type {region_type} has not been implemented yet."
+            )
 
     def __getattr__(self, attr):
         """All non-adapted calls are passed to the _region object"""
-        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
             raise AttributeError
         return getattr(self._region, attr)
 
@@ -138,14 +152,16 @@ class RoiRegion:
 
     @classmethod
     def from_shapely(cls, region_type, shapely_obj):
-        if region_type == 'shapelyPolygon':
+        if region_type == "shapelyPolygon":
             region_specs = Polygon.from_shapely(shapely_obj).region_specs
 
-        elif region_type == 'shapelyMultiPolygon':
+        elif region_type == "shapelyMultiPolygon":
             region_specs = MultiPolygon.from_shapely(shapely_obj).region_specs
 
         else:
-            raise NotImplementedError(f'Region_type {region_type} has not been implemented yet.')
+            raise NotImplementedError(
+                f"Region_type {region_type} has not been implemented yet."
+            )
 
         return cls(region_type=region_type, region_specs=region_specs)
 
@@ -197,8 +213,9 @@ class Region(ABC):
        Abstract Region class to define the interface for Region-derived classes that specify geometric objects
        to represent regions of interest.
     """
+
     def __repr__(self):
-        return f'{self.__class__.__name__}(...)'
+        return f"{self.__class__.__name__}(...)"
 
     @classmethod
     def from_intervals(cls, intervals):
@@ -435,6 +452,7 @@ class Region1D(Region):
     """
        Abstract Region class to define the interface for 1-dimensional Region classes.
     """
+
     @property
     def dimension(self):
         return 1
@@ -473,14 +491,15 @@ class Region2D(Region):
     """
        Abstract Region class to define the interface for 2-dimensional Region classes.
     """
+
     def __getstate__(self):
         state = self.__dict__.copy()
-        del state['_shapely_object']
+        del state["_shapely_object"]
         return state
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        self.__dict__['_shapely_object'] = None
+        self.__dict__["_shapely_object"] = None
 
     @property
     def dimension(self):
@@ -528,9 +547,9 @@ class Region2D(Region):
         Region
         """
         ptype = shapely_object.geom_type
-        if ptype == 'Polygon':
+        if ptype == "Polygon":
             return Polygon.from_shapely(shapely_object)
-        elif ptype == 'MultiPolygon':
+        elif ptype == "MultiPolygon":
             return MultiPolygon.from_shapely(shapely_object)
 
     @abstractmethod
@@ -615,6 +634,7 @@ class Region3D(Region):
     """
        Abstract Region class to define the interface for 3-dimensional Region classes.
     """
+
     @property
     def dimension(self):
         return 3
@@ -680,6 +700,7 @@ class RegionND(Region):
     """
        Abstract Region class to define the interface for n-dimensional Region classes.
     """
+
     def as_artist(self):
         raise NotImplementedError
 
@@ -697,14 +718,15 @@ class EmptyRegion(Region):
     """
        Region class to define an empty region that has no dimension.
     """
+
     def __init__(self):
         self.shapely_object = shPolygon()
 
     def __repr__(self):
-        return f'{self.__class__.__name__}()'
+        return f"{self.__class__.__name__}()"
 
     def __str__(self):
-        return f'{self.__class__.__name__}()'
+        return f"{self.__class__.__name__}()"
 
     @property
     def dimension(self):
@@ -786,7 +808,7 @@ class Interval(Region1D):
         self._region_specs = (self.lower_bound, self.upper_bound)
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.lower_bound}, {self.upper_bound})'
+        return f"{self.__class__.__name__}({self.lower_bound}, {self.upper_bound})"
 
     @classmethod
     def from_intervals(cls, intervals):
@@ -927,11 +949,13 @@ class Rectangle(Region2D):
         self._shapely_object = None
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({tuple(self.corner)}, {self.width}, {self.height}, {self.angle})'
+        return f"{self.__class__.__name__}({tuple(self.corner)}, {self.width}, {self.height}, {self.angle})"
 
     def __getattr__(self, attr):
         """All non-adapted calls are passed to shapely object"""
-        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
             raise AttributeError
         return getattr(self.shapely_object, attr)
 
@@ -1011,14 +1035,23 @@ class Rectangle(Region2D):
         Tuple of shape(dimension, 2)
             ((min_x, max_x), ...).
         """
-        lower_bounds = self.bounds[:self.dimension]
-        upper_bounds = self.bounds[self.dimension:]
-        return tuple(((lower, upper) for lower, upper in zip(lower_bounds, upper_bounds)))
+        lower_bounds = self.bounds[: self.dimension]
+        upper_bounds = self.bounds[self.dimension :]
+        return tuple(
+            ((lower, upper) for lower, upper in zip(lower_bounds, upper_bounds))
+        )
 
     @property
     def points(self):
-        rectangle = mpl_patches.Rectangle(self.corner, self.width, self.height, angle=self.angle,
-                                          fill=False, edgecolor='b', linewidth=1)
+        rectangle = mpl_patches.Rectangle(
+            self.corner,
+            self.width,
+            self.height,
+            angle=self.angle,
+            fill=False,
+            edgecolor="b",
+            linewidth=1,
+        )
         points = rectangle.get_verts()
         return points[::-1]
 
@@ -1049,7 +1082,7 @@ class Rectangle(Region2D):
 
     @property
     def max_distance(self):
-        return np.sqrt(self.width**2 + self.height**2)
+        return np.sqrt(self.width ** 2 + self.height ** 2)
 
     @property
     def region_measure(self):
@@ -1069,7 +1102,9 @@ class Rectangle(Region2D):
 
     def as_artist(self, origin=(0, 0), **kwargs):
         xy = self.corner[0] - origin[0], self.corner[1] - origin[1]
-        return mpl_patches.Rectangle(xy=xy, width=self.width, height=self.height, angle=self.angle, **kwargs)
+        return mpl_patches.Rectangle(
+            xy=xy, width=self.width, height=self.height, angle=self.angle, **kwargs
+        )
 
 
 class Ellipse(Region2D):
@@ -1087,6 +1122,7 @@ class Ellipse(Region2D):
     angle : float
         The angle (in degrees) by which the ellipse is rotated counterclockwise around the center point.
     """
+
     def __init__(self, center=(0, 0), width=1, height=1, angle=0):
         self._center = center
         self._width = width
@@ -1096,11 +1132,13 @@ class Ellipse(Region2D):
         self._shapely_object = None
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({tuple(self.center)}, {self.width}, {self.height}, {self.angle})'
+        return f"{self.__class__.__name__}({tuple(self.center)}, {self.width}, {self.height}, {self.angle})"
 
     def __getattr__(self, attr):
         """All non-adapted calls are passed to shapely object"""
-        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
             raise AttributeError
         return getattr(self.shapely_object, attr)
 
@@ -1186,7 +1224,7 @@ class Ellipse(Region2D):
 
     @property
     def region_measure(self):
-        return np.pi * self.width/2 * self.height/2
+        return np.pi * self.width / 2 * self.height / 2
 
     @property
     def subregion_measure(self):
@@ -1210,14 +1248,18 @@ class Ellipse(Region2D):
         xct = xc * cos_angle - yc * sin_angle
         yct = xc * sin_angle + yc * cos_angle
 
-        rad_cc = (xct ** 2 / (self.width / 2.) ** 2) + (yct ** 2 / (self.height / 2.) ** 2)
+        rad_cc = (xct ** 2 / (self.width / 2.0) ** 2) + (
+            yct ** 2 / (self.height / 2.0) ** 2
+        )
 
-        inside_indices = np.nonzero(rad_cc < 1.)[0]
+        inside_indices = np.nonzero(rad_cc < 1.0)[0]
         return inside_indices
 
     def as_artist(self, origin=(0, 0), **kwargs):
         xy = self.center[0] - origin[0], self.center[1] - origin[1]
-        return mpl_patches.Ellipse(xy=xy, width=self.width, height=self.height, angle=self.angle, **kwargs)
+        return mpl_patches.Ellipse(
+            xy=xy, width=self.width, height=self.height, angle=self.angle, **kwargs
+        )
 
 
 class Polygon(Region2D):
@@ -1250,16 +1292,18 @@ class Polygon(Region2D):
 
     def __repr__(self):
         if self.holes is None:
-            return f'{self.__class__.__name__}({self.points.tolist()})'
+            return f"{self.__class__.__name__}({self.points.tolist()})"
         else:
-            return f'{self.__class__.__name__}({self.points.tolist()}, {[hole.tolist() for hole in self.holes]})'
+            return f"{self.__class__.__name__}({self.points.tolist()}, {[hole.tolist() for hole in self.holes]})"
 
     def __str__(self):
-        return f'{self.__class__.__name__}(<self.points>, <self.holes>)'
+        return f"{self.__class__.__name__}(<self.points>, <self.holes>)"
 
     def __getattr__(self, attr):
         """All non-adapted calls are passed to shapely object"""
-        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
             raise AttributeError
         return getattr(self.shapely_object, attr)
 
@@ -1269,7 +1313,9 @@ class Polygon(Region2D):
             return EmptyRegion()
         else:
             points = np.array(polygon.exterior.coords).tolist()
-            holes = [np.array(interiors.coords).tolist() for interiors in polygon.interiors]
+            holes = [
+                np.array(interiors.coords).tolist() for interiors in polygon.interiors
+            ]
             return cls(points, holes)
 
     @property
@@ -1364,20 +1410,23 @@ class MultiPolygon(Region2D):
     polygons  : list of Polygon
         Polygons that define the individual polygons.
     """
+
     def __init__(self, polygons):
         self._polygons = polygons
         self._region_specs = None
         self._shapely_object = None
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.polygons})'
+        return f"{self.__class__.__name__}({self.polygons})"
 
     def __str__(self):
-        return f'{self.__class__.__name__}(<self.polygons>)'
+        return f"{self.__class__.__name__}(<self.polygons>)"
 
     def __getattr__(self, attr):
         """All non-adapted calls are passed to shapely object"""
-        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
             raise AttributeError
         return getattr(self.shapely_object, attr)
 
@@ -1433,7 +1482,9 @@ class MultiPolygon(Region2D):
     @property
     def shapely_object(self):
         if self._shapely_object is None:
-            self._shapely_object = shMultiPolygon([pol.shapely_object for pol in self._polygons])
+            self._shapely_object = shMultiPolygon(
+                [pol.shapely_object for pol in self._polygons]
+            )
         return self._shapely_object
 
     @property
@@ -1490,6 +1541,7 @@ class AxisOrientedCuboid(Region3D):
     height : float
         The length of a vector describing the edge in z-direction.
     """
+
     def __init__(self, corner=(0, 0, 0), length=1, width=1, height=1):
         self._corner = corner
         self._length = length
@@ -1497,8 +1549,10 @@ class AxisOrientedCuboid(Region3D):
         self._height = height
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({tuple(self.corner)}, ' \
-               f'{self.length}, {self.width}, {self.height})'
+        return (
+            f"{self.__class__.__name__}({tuple(self.corner)}, "
+            f"{self.length}, {self.width}, {self.height})"
+        )
 
     @classmethod
     def from_intervals(cls, intervals):
@@ -1573,12 +1627,22 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def centroid(self):
-        return tuple((cor + dist / 2 for cor, dist in zip(self.corner, (self.length, self.width, self.height))))
+        return tuple(
+            (
+                cor + dist / 2
+                for cor, dist in zip(
+                    self.corner, (self.length, self.width, self.height)
+                )
+            )
+        )
 
     @property
     def bounds(self):
         min_x, min_y, min_z = self.corner
-        max_x, max_y, max_z = [cor + dist for cor, dist in zip(self.corner, (self.length, self.width, self.height))]
+        max_x, max_y, max_z = [
+            cor + dist
+            for cor, dist in zip(self.corner, (self.length, self.width, self.height))
+        ]
         return min_x, min_y, min_z, max_x, max_y, max_z
 
     @property
@@ -1604,7 +1668,7 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def max_distance(self):
-        return np.sqrt(self.length**2 + self.width**2 + self.height**2)
+        return np.sqrt(self.length ** 2 + self.width ** 2 + self.height ** 2)
 
     @property
     def region_measure(self):
@@ -1612,14 +1676,22 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def subregion_measure(self):
-        return 2 * (self.length * self.width + self.height * self.width + self.height * self.length)
+        return 2 * (
+            self.length * self.width
+            + self.height * self.width
+            + self.height * self.length
+        )
 
     def contains(self, points):
         points = np.asarray(points)
         if points.size == 0:
             return np.array([])
-        condition_0 = [(points[:, i] >= bound) for i, bound in enumerate(self.bounds[:3])]
-        condition_1 = [(points[:, i] < bound) for i, bound in enumerate(self.bounds[3:])]
+        condition_0 = [
+            (points[:, i] >= bound) for i, bound in enumerate(self.bounds[:3])
+        ]
+        condition_1 = [
+            (points[:, i] < bound) for i, bound in enumerate(self.bounds[3:])
+        ]
         condition = np.all(condition_0, axis=0) & np.all(condition_1, axis=0)
         inside_indices = np.nonzero(condition)[0]
         return inside_indices
@@ -1628,11 +1700,13 @@ class AxisOrientedCuboid(Region3D):
         raise NotImplementedError
 
     def buffer(self, distance, **kwargs):
-        mins = self.bounds[:self.dimension]
-        maxs = self.bounds[self.dimension:]
+        mins = self.bounds[: self.dimension]
+        maxs = self.bounds[self.dimension :]
         new_mins = [value - distance for value in mins]
         new_maxs = [value + distance for value in maxs]
-        return AxisOrientedCuboid(new_mins, *(max_ - min_ for max_, min_ in zip(new_maxs, new_mins)))
+        return AxisOrientedCuboid(
+            new_mins, *(max_ - min_ for max_, min_ in zip(new_maxs, new_mins))
+        )
 
 
 # todo: complete implementation
@@ -1659,7 +1733,10 @@ class Cuboid(Region3D):
     gamma : float
         The third Euler angle (in degrees) by which the cuboid is rotated.
     """
-    def __init__(self, corner=(0, 0, 0), length=1, width=1, height=1, alpha=0, beta=0, gamma=0):
+
+    def __init__(
+        self, corner=(0, 0, 0), length=1, width=1, height=1, alpha=0, beta=0, gamma=0
+    ):
         self._corner = corner
         self._length = length
         self._width = width
@@ -1670,9 +1747,11 @@ class Cuboid(Region3D):
         self._region_specs = (corner, length, width, height, alpha, beta, gamma)
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({tuple(self.corner)}, ' \
-               f'{self.length}, {self.width}, {self.height}, ' \
-               f'{self.alpha}, {self.beta}, {self.gamma})'
+        return (
+            f"{self.__class__.__name__}({tuple(self.corner)}, "
+            f"{self.length}, {self.width}, {self.height}, "
+            f"{self.alpha}, {self.beta}, {self.gamma})"
+        )
 
     @property
     def corner(self):
@@ -1769,7 +1848,7 @@ class Cuboid(Region3D):
 
     @property
     def max_distance(self):
-        return np.sqrt(self.length**2 + self.width**2 + self.height**2)
+        return np.sqrt(self.length ** 2 + self.width ** 2 + self.height ** 2)
 
     @property
     def region_measure(self):
@@ -1777,7 +1856,11 @@ class Cuboid(Region3D):
 
     @property
     def subregion_measure(self):
-        return 2 * (self.length * self.width + self.height * self.width + self.height * self.length)
+        return 2 * (
+            self.length * self.width
+            + self.height * self.width
+            + self.height * self.length
+        )
 
     def contains(self, points):
         raise NotImplementedError
@@ -1791,6 +1874,7 @@ class Cuboid(Region3D):
     @property
     def bounding_box(self):
         return self
+
 
 class AxisOrientedHypercuboid(RegionND):
     """
@@ -1807,6 +1891,7 @@ class AxisOrientedHypercuboid(RegionND):
     lengths : array-like of shape(dimension,)
         Array of length values for the 1-dimensional edge vectors.
     """
+
     def __init__(self, corner=(0, 0, 0), lengths=(1, 1, 1)):
         if not len(corner) == len(lengths):
             raise TypeError("corner and lengths must have the same dimension.")
@@ -1814,7 +1899,7 @@ class AxisOrientedHypercuboid(RegionND):
         self._lengths = np.array(lengths)
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({tuple(self.corner)}, {tuple(self.lengths)})'
+        return f"{self.__class__.__name__}({tuple(self.corner)}, {tuple(self.lengths)})"
 
     @classmethod
     def from_intervals(cls, intervals):
@@ -1871,7 +1956,12 @@ class AxisOrientedHypercuboid(RegionND):
         Tuple of shape(dimension, 2)
             ((min_x, max_x), ...).
         """
-        return tuple((lower, upper) for lower, upper in zip(self.bounds[:self.dimension], self.bounds[self.dimension:]))
+        return tuple(
+            (lower, upper)
+            for lower, upper in zip(
+                self.bounds[: self.dimension], self.bounds[self.dimension :]
+            )
+        )
 
     @property
     def points(self):
@@ -1891,7 +1981,7 @@ class AxisOrientedHypercuboid(RegionND):
 
     @property
     def max_distance(self):
-        return np.sqrt(np.sum(self.lengths**2))
+        return np.sqrt(np.sum(self.lengths ** 2))
 
     @property
     def region_measure(self):
@@ -1909,15 +1999,21 @@ class AxisOrientedHypercuboid(RegionND):
         points = np.asarray(points)
         if points.size == 0:
             return np.array([])
-        condition_0 = [(points[:, i] >= bound) for i, bound in enumerate(self.bounds[:self.dimension])]
-        condition_1 = [(points[:, i] < bound) for i, bound in enumerate(self.bounds[self.dimension:])]
+        condition_0 = [
+            (points[:, i] >= bound)
+            for i, bound in enumerate(self.bounds[: self.dimension])
+        ]
+        condition_1 = [
+            (points[:, i] < bound)
+            for i, bound in enumerate(self.bounds[self.dimension :])
+        ]
         condition = np.all(condition_0, axis=0) & np.all(condition_1, axis=0)
         inside_indices = np.nonzero(condition)[0]
         return inside_indices
 
     def buffer(self, distance):
-        mins = self.bounds[:self.dimension] - distance
-        maxs = self.bounds[self.dimension:] + distance
+        mins = self.bounds[: self.dimension] - distance
+        maxs = self.bounds[self.dimension :] + distance
         lengths = maxs - mins
         return AxisOrientedHypercuboid(mins, lengths)
 
@@ -1927,29 +2023,37 @@ def _polygon_path(polygon):
     Constructs a compound matplotlib path from a Shapely geometric object.
     Adapted from https://pypi.org/project/descartes/ (BSD license, copyright Sean Gillies)
     """
+
     def coding(ob):
         # The codes will be all "LINETO" commands, except for "MOVETO"s at the
         # beginning of each subpath
-        n = len(getattr(ob, 'coords', None) or ob)
+        n = len(getattr(ob, "coords", None) or ob)
         vals = np.ones(n, dtype=mpl_path.Path.code_type) * mpl_path.Path.LINETO
         vals[0] = mpl_path.Path.MOVETO
         return vals
 
     ptype = polygon.geom_type
-    if ptype == 'Polygon':
+    if ptype == "Polygon":
         polygon = [polygon]
-    elif ptype == 'MultiPolygon':
+    elif ptype == "MultiPolygon":
         polygon = [shPolygon(p) for p in polygon.geoms]
     else:
-        raise ValueError(
-            "A polygon or multi-polygon representation is required")
+        raise ValueError("A polygon or multi-polygon representation is required")
 
-    vertices = np.concatenate([
-        np.concatenate([np.asarray(t.exterior.coords)[:, :2]] +
-                    [np.asarray(r.coords)[:, :2] for r in t.interiors])
-        for t in polygon])
-    codes = np.concatenate([
-        np.concatenate([coding(t.exterior)] +
-                    [coding(r) for r in t.interiors]) for t in polygon])
+    vertices = np.concatenate(
+        [
+            np.concatenate(
+                [np.asarray(t.exterior.coords)[:, :2]]
+                + [np.asarray(r.coords)[:, :2] for r in t.interiors]
+            )
+            for t in polygon
+        ]
+    )
+    codes = np.concatenate(
+        [
+            np.concatenate([coding(t.exterior)] + [coding(r) for r in t.interiors])
+            for t in polygon
+        ]
+    )
 
     return mpl_path.Path(vertices, codes)

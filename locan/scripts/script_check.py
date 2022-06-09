@@ -23,11 +23,19 @@ from locan.constants import FileType
 from locan.gui import file_dialog
 from locan.locan_io.locdata.io_locdata import load_locdata
 
-if HAS_DEPENDENCY["napari"]: import napari
+if HAS_DEPENDENCY["napari"]:
+    import napari
 
 
-def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, transpose=True,
-                                 kwargs_image=None, kwargs_points=None):
+def render_locs_per_frame_napari(
+    images,
+    pixel_size,
+    locdata,
+    viewer=None,
+    transpose=True,
+    kwargs_image=None,
+    kwargs_points=None,
+):
     """
     Display original recording and overlay localization spots in napari.
 
@@ -63,7 +71,7 @@ def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, trans
     elif np.ndim(pixel_size) == 1 and len(pixel_size) == 2:
         pixel_size_ = pixel_size
     else:
-        raise TypeError('Dimension of `pixel_size` is incompatible with 2d image.')
+        raise TypeError("Dimension of `pixel_size` is incompatible with 2d image.")
 
     # transpose x and y axis
     if transpose:
@@ -71,22 +79,39 @@ def render_locs_per_frame_napari(images, pixel_size, locdata, viewer=None, trans
     else:
         images_ = images
 
-    points = locdata.data[locdata.data['frame'] < len(images)][['frame', 'position_x', 'position_y']].values
+    points = locdata.data[locdata.data["frame"] < len(images)][
+        ["frame", "position_x", "position_y"]
+    ].values
 
     # Provide napari viewer if not provided
     if viewer is None:
         viewer = napari.Viewer()
 
-    viewer.add_image(images_, name=f'Raw data', **kwargs_image, scale=pixel_size_)
-    viewer.add_points(data=points, name=f'LocData {locdata_id}',
-                      symbol='disc', size=500, face_color='r', edge_color='r', opacity=0.3,
-                      **kwargs_points)
+    viewer.add_image(images_, name=f"Raw data", **kwargs_image, scale=pixel_size_)
+    viewer.add_points(
+        data=points,
+        name=f"LocData {locdata_id}",
+        symbol="disc",
+        size=500,
+        face_color="r",
+        edge_color="r",
+        opacity=0.3,
+        **kwargs_points,
+    )
 
     return viewer
 
 
-def sc_check(pixel_size, file_images=None, file_locdata=None, file_type=FileType.RAPIDSTORM,
-             viewer=None, transpose=True, kwargs_image=None, kwargs_points=None):
+def sc_check(
+    pixel_size,
+    file_images=None,
+    file_locdata=None,
+    file_type=FileType.RAPIDSTORM,
+    viewer=None,
+    transpose=True,
+    kwargs_image=None,
+    kwargs_points=None,
+):
     """
     Load and display original recording and load and overlay localization spots in napari.
 
@@ -125,45 +150,86 @@ def sc_check(pixel_size, file_images=None, file_locdata=None, file_type=FileType
     with napari.gui_qt():
         # load images
         if file_images is None:
-            file_images = file_dialog(directory=None,
-                                         message='Select images file...', filter='Tif files (*.tif)')[0]
+            file_images = file_dialog(
+                directory=None,
+                message="Select images file...",
+                filter="Tif files (*.tif)",
+            )[0]
         # load images from tiff file
-        image_stack = tif.imread(str(file_images))  #, key=range(0, 10, 1))  - maybe add key parameter
+        image_stack = tif.imread(
+            str(file_images)
+        )  # , key=range(0, 10, 1))  - maybe add key parameter
 
         # load locdata
         if file_locdata is None:
-            file_locdata = file_dialog(directory=None,
-                                          message='Select a localization file...',
-                                          filter='Text files (*.txt);; CSV files (*.csv)')[0]
+            file_locdata = file_dialog(
+                directory=None,
+                message="Select a localization file...",
+                filter="Text files (*.txt);; CSV files (*.csv)",
+            )[0]
         locdata = load_locdata(file_locdata, file_type=file_type)
 
-    # due to changed napari behavior from v3.0 on the context manager is moved up.
-    # with napari.gui_qt():
-        render_locs_per_frame_napari(image_stack, pixel_size, locdata, viewer, transpose,
-                                     kwargs_image, kwargs_points)
+        # due to changed napari behavior from v3.0 on the context manager is moved up.
+        # with napari.gui_qt():
+        render_locs_per_frame_napari(
+            image_stack,
+            pixel_size,
+            locdata,
+            viewer,
+            transpose,
+            kwargs_image,
+            kwargs_points,
+        )
 
 
 def _add_arguments(parser):
-    parser.add_argument(dest='pixel_size', type=float,
-                        help='Pixel size for images (in locdata units).')
-    parser.add_argument('-f', '--file', dest='file_images', type=str, default=None,
-                        help='File with images of original recording.')
-    parser.add_argument('-l', '--localizations', dest='file_locdata', type=str, default=None,
-                        help='File with localization data.')
-    parser.add_argument('-t', '--type', dest='file_type', type=int, default=2,
-                        help='Integer or string indicating the file type.')
+    parser.add_argument(
+        dest="pixel_size", type=float, help="Pixel size for images (in locdata units)."
+    )
+    parser.add_argument(
+        "-f",
+        "--file",
+        dest="file_images",
+        type=str,
+        default=None,
+        help="File with images of original recording.",
+    )
+    parser.add_argument(
+        "-l",
+        "--localizations",
+        dest="file_locdata",
+        type=str,
+        default=None,
+        help="File with localization data.",
+    )
+    parser.add_argument(
+        "-t",
+        "--type",
+        dest="file_type",
+        type=int,
+        default=2,
+        help="Integer or string indicating the file type.",
+    )
 
 
 def main(args=None):
 
-    parser = argparse.ArgumentParser(description='Show localizations in original recording.')
+    parser = argparse.ArgumentParser(
+        description="Show localizations in original recording."
+    )
     _add_arguments(parser)
     returned_args = parser.parse_args(args)
 
-    sc_check(pixel_size=returned_args.pixel_size, file_images=returned_args.file_images,
-             file_locdata=returned_args.file_locdata, file_type=returned_args.file_type,
-             transpose=True, kwargs_image={}, kwargs_points={})
+    sc_check(
+        pixel_size=returned_args.pixel_size,
+        file_images=returned_args.file_images,
+        file_locdata=returned_args.file_locdata,
+        file_type=returned_args.file_type,
+        transpose=True,
+        kwargs_image={},
+        kwargs_points={},
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

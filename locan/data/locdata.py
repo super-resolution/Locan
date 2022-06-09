@@ -12,10 +12,11 @@ import logging
 from google.protobuf import text_format, json_format
 import numpy as np
 import pandas as pd
+
 try:
     from scipy.spatial import QhullError
 except ImportError:
-    from scipy.spatial.qhull import QhullError # needed for Python 3.7
+    from scipy.spatial.qhull import QhullError  # needed for Python 3.7
 
 from locan import locdata_id  # is required to use locdata_id as global variable
 from locan.constants import PROPERTY_KEYS, PropertyKey
@@ -26,7 +27,7 @@ from locan.data.metadata_utils import _modify_meta, metadata_to_formatted_string
 from locan.data.properties import inertia_moments
 
 
-__all__ = ['LocData']
+__all__ = ["LocData"]
 
 logger = logging.getLogger(__name__)
 
@@ -68,11 +69,13 @@ class LocData:
     dimension : int
         Number of coordinates available for each localization (i.e. size of `coordinate_labels`).
     """
+
     count = 0
     """int: A counter for counting LocData instantiations (class attribute)."""
 
-    def __init__(self, references=None, dataframe=pd.DataFrame(), indices=None,
-                 meta=None):
+    def __init__(
+        self, references=None, dataframe=pd.DataFrame(), indices=None, meta=None
+    ):
         self.__class__.count += 1
 
         self.references = references
@@ -89,9 +92,13 @@ class LocData:
         self._alpha_shape = None
         self._inertia_moments = None
 
-        self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'position_x',
-                                                                                  'position_y',
-                                                                                  'position_z'})))
+        self.coordinate_labels = sorted(
+            list(
+                set(self.data.columns).intersection(
+                    {"position_x", "position_y", "position_z"}
+                )
+            )
+        )
 
         self.dimension = len(self.coordinate_labels)
 
@@ -107,8 +114,8 @@ class LocData:
         self.meta.state = metadata_pb2.RAW
 
         self.meta.element_count = len(self.data.index)
-        if 'frame' in self.data.columns:
-            self.meta.frame_count = len(self.data['frame'].unique())
+        if "frame" in self.data.columns:
+            self.meta.frame_count = len(self.data["frame"].unique())
 
         if meta is None:
             pass
@@ -119,7 +126,7 @@ class LocData:
             self.meta.MergeFrom(meta)
 
     def _update_properties(self):
-        self.properties['localization_count'] = len(self.data.index)
+        self.properties["localization_count"] = len(self.data.index)
 
         # property for mean spatial coordinates (centroids)
         self.properties.update(dict(self.data[self.coordinate_labels].mean()))
@@ -139,8 +146,10 @@ class LocData:
         # Copy the object's state from self.__dict__ to avoid modifying the original state.
         state = self.__dict__.copy()
         # Serialize the unpicklable protobuf entries.
-        json_string = json_format.MessageToJson(self.meta, including_default_value_fields=False)
-        state['meta'] = json_string
+        json_string = json_format.MessageToJson(
+            self.meta, including_default_value_fields=False
+        )
+        state["meta"] = json_string
         return state
 
     def __setstate__(self, state):
@@ -149,7 +158,7 @@ class LocData:
         self.__dict__.update(state)
         # Restore protobuf class for meta attribute
         self.meta = metadata_pb2.Metadata()
-        self.meta = json_format.Parse(state['meta'], self.meta)
+        self.meta = json_format.Parse(state["meta"], self.meta)
 
     def __copy__(self):
         """
@@ -157,14 +166,12 @@ class LocData:
         (i) The class variable `count` is increased for the copied LocData object.
         (ii) Metadata keeps the original meta.creation_time while meta.modification_time and meta.history is updated.
         """
-        new_locdata = LocData(self.references,
-                              self.dataframe,
-                              self.indices,
-                              meta=None)
+        new_locdata = LocData(self.references, self.dataframe, self.indices, meta=None)
         new_locdata._region = self._region
         # meta
-        meta_ = _modify_meta(self, new_locdata, function_name='LocData.copy',
-                             parameter=None, meta=None)
+        meta_ = _modify_meta(
+            self, new_locdata, function_name="LocData.copy", parameter=None, meta=None
+        )
         new_locdata.meta = meta_
         return new_locdata
 
@@ -176,14 +183,21 @@ class LocData:
         """
         if memodict is None:
             memodict = {}
-        new_locdata = LocData(copy.deepcopy(self.references, memodict),
-                              copy.deepcopy(self.dataframe, memodict),
-                              copy.deepcopy(self.indices, memodict),
-                              meta=None)
+        new_locdata = LocData(
+            copy.deepcopy(self.references, memodict),
+            copy.deepcopy(self.dataframe, memodict),
+            copy.deepcopy(self.indices, memodict),
+            meta=None,
+        )
         new_locdata._region = self._region
         # meta
-        meta_ = _modify_meta(self, new_locdata, function_name='LocData.deepcopy',
-                             parameter=None, meta=None)
+        meta_ = _modify_meta(
+            self,
+            new_locdata,
+            function_name="LocData.deepcopy",
+            parameter=None,
+            meta=None,
+        )
         new_locdata.meta = meta_
         return new_locdata
 
@@ -193,14 +207,21 @@ class LocData:
         if self._bounding_box is None:
             try:
                 self._bounding_box = locan.data.hulls.BoundingBox(self.coordinates)
-                self.properties['region_measure_bb'] = self._bounding_box.region_measure
+                self.properties["region_measure_bb"] = self._bounding_box.region_measure
                 if self._bounding_box.region_measure:
-                    self.properties['localization_density_bb'] = \
-                        self.properties['localization_count'] / self._bounding_box.region_measure
+                    self.properties["localization_density_bb"] = (
+                        self.properties["localization_count"]
+                        / self._bounding_box.region_measure
+                    )
                 if self._bounding_box.subregion_measure:
-                    self.properties['subregion_measure_bb'] = self._bounding_box.subregion_measure
+                    self.properties[
+                        "subregion_measure_bb"
+                    ] = self._bounding_box.subregion_measure
             except ValueError:
-                warnings.warn('Properties related to bounding box could not be computed.', UserWarning)
+                warnings.warn(
+                    "Properties related to bounding box could not be computed.",
+                    UserWarning,
+                )
         return self._bounding_box
 
     @property
@@ -209,12 +230,17 @@ class LocData:
         if self._convex_hull is None:
             try:
                 self._convex_hull = locan.data.hulls.ConvexHull(self.coordinates)
-                self.properties['region_measure_ch'] = self._convex_hull.region_measure
+                self.properties["region_measure_ch"] = self._convex_hull.region_measure
                 if self._convex_hull.region_measure:
-                    self.properties['localization_density_ch'] = self.properties['localization_count'] \
-                                                                      / self._convex_hull.region_measure
+                    self.properties["localization_density_ch"] = (
+                        self.properties["localization_count"]
+                        / self._convex_hull.region_measure
+                    )
             except (TypeError, QhullError):
-                warnings.warn('Properties related to convex hull could not be computed.', UserWarning)
+                warnings.warn(
+                    "Properties related to convex hull could not be computed.",
+                    UserWarning,
+                )
         return self._convex_hull
 
     @property
@@ -222,15 +248,26 @@ class LocData:
         """Hull object: Return an object representing the oriented minimal bounding box."""
         if self._oriented_bounding_box is None:
             try:
-                self._oriented_bounding_box = locan.data.hulls.OrientedBoundingBox(self.coordinates)
-                self.properties['region_measure_obb'] = self._oriented_bounding_box.region_measure
+                self._oriented_bounding_box = locan.data.hulls.OrientedBoundingBox(
+                    self.coordinates
+                )
+                self.properties[
+                    "region_measure_obb"
+                ] = self._oriented_bounding_box.region_measure
                 if self._oriented_bounding_box.region_measure:
-                    self.properties['localization_density_obb'] = self.properties['localization_count'] \
-                                                                      / self._oriented_bounding_box.region_measure
-                self.properties['orientation_obb'] = self._oriented_bounding_box.angle
-                self.properties['circularity_obb'] = self._oriented_bounding_box.elongation
+                    self.properties["localization_density_obb"] = (
+                        self.properties["localization_count"]
+                        / self._oriented_bounding_box.region_measure
+                    )
+                self.properties["orientation_obb"] = self._oriented_bounding_box.angle
+                self.properties[
+                    "circularity_obb"
+                ] = self._oriented_bounding_box.elongation
             except TypeError:
-                warnings.warn('Properties related to oriented bounding box could not be computed.', UserWarning)
+                warnings.warn(
+                    "Properties related to oriented bounding box could not be computed.",
+                    UserWarning,
+                )
         return self._oriented_bounding_box
 
     @property
@@ -253,19 +290,25 @@ class LocData:
         """
         try:
             if self._alpha_shape is None:
-                self._alpha_shape = locan.data.hulls.AlphaShape(points=self.coordinates, alpha=alpha)
+                self._alpha_shape = locan.data.hulls.AlphaShape(
+                    points=self.coordinates, alpha=alpha
+                )
             else:
                 self._alpha_shape.alpha = alpha
 
-            self.properties['region_measure_as'] = self._alpha_shape.region_measure
+            self.properties["region_measure_as"] = self._alpha_shape.region_measure
             try:
-                self.properties['localization_density_as'] = self._alpha_shape.n_points_alpha_shape \
-                                                             / self._alpha_shape.region_measure
+                self.properties["localization_density_as"] = (
+                    self._alpha_shape.n_points_alpha_shape
+                    / self._alpha_shape.region_measure
+                )
             except ZeroDivisionError:
-                self.properties['localization_density_as'] = float('nan')
+                self.properties["localization_density_as"] = float("nan")
 
         except TypeError:
-            warnings.warn('Properties related to alpha shape could not be computed.', UserWarning)
+            warnings.warn(
+                "Properties related to alpha shape could not be computed.", UserWarning
+            )
         return self
 
     def update_alpha_shape_in_references(self, alpha):
@@ -280,11 +323,15 @@ class LocData:
         if isinstance(self.references, list):
             for reference in self.references:
                 reference.update_alpha_shape(alpha=alpha)
-            new_df = pd.DataFrame([reference.properties for reference in self.references])
+            new_df = pd.DataFrame(
+                [reference.properties for reference in self.references]
+            )
             new_df.index = self.data.index
             self.dataframe.update(new_df)
-            new_columns = [column for column in new_df.columns if column in self.dataframe.columns]
-            new_df.drop(columns=new_columns, inplace=True, errors='ignore')
+            new_columns = [
+                column for column in new_df.columns if column in self.dataframe.columns
+            ]
+            new_df.drop(columns=new_columns, inplace=True, errors="ignore")
             self.dataframe = pd.concat([self.dataframe, new_df], axis=1)
         return self
 
@@ -293,11 +340,16 @@ class LocData:
         """Inertia moments are returned as computed by :func:`locan.data.properties.inertia_moments`."""
         if self._inertia_moments is None:
             try:
-                self._inertia_moments = locan.data.properties.inertia_moments(self.coordinates)
-                self.properties['orientation_im'] = self._inertia_moments.orientation
-                self.properties['circularity_im'] = self._inertia_moments.eccentricity
+                self._inertia_moments = locan.data.properties.inertia_moments(
+                    self.coordinates
+                )
+                self.properties["orientation_im"] = self._inertia_moments.orientation
+                self.properties["circularity_im"] = self._inertia_moments.eccentricity
             except TypeError:
-                warnings.warn('Properties related to inertia_moments could not be computed.', UserWarning)
+                warnings.warn(
+                    "Properties related to inertia_moments could not be computed.",
+                    UserWarning,
+                )
         return self._inertia_moments
 
     def update_inertia_moments_in_references(self):
@@ -312,11 +364,15 @@ class LocData:
         if isinstance(self.references, list):
             for reference in self.references:
                 reference.inertia_moments  # request property to update
-            new_df = pd.DataFrame([reference.properties for reference in self.references])
+            new_df = pd.DataFrame(
+                [reference.properties for reference in self.references]
+            )
             new_df.index = self.data.index
             self.dataframe.update(new_df)
-            new_columns = [column for column in new_df.columns if column in self.dataframe.columns]
-            new_df.drop(columns=new_columns, inplace=True, errors='ignore')
+            new_columns = [
+                column for column in new_df.columns if column in self.dataframe.columns
+            ]
+            new_df.drop(columns=new_columns, inplace=True, errors="ignore")
             self.dataframe = pd.concat([self.dataframe, new_df], axis=1)
         return self
 
@@ -329,18 +385,24 @@ class LocData:
     def region(self, region):
         if region is not None:
             if region.dimension != self.dimension:
-                raise TypeError("Region dimension and coordinates dimension must be identical.")
+                raise TypeError(
+                    "Region dimension and coordinates dimension must be identical."
+                )
             elif len(self) != len(region.contains(self.coordinates)):
                 logger.warning("Not all coordinates are within region.")
 
         if isinstance(region, (Region, RoiRegion)) or region is None:
             self._region = region
 
-        elif isinstance(region, dict):  # legacy code to deal with deprecated RoiLegacy_0
+        elif isinstance(
+            region, dict
+        ):  # legacy code to deal with deprecated RoiLegacy_0
             region_ = RoiRegion(**region)
             if region_ is not None:
                 if region_.dimension != self.dimension:
-                    raise TypeError("Region dimension and coordinates dimension must be identical.")
+                    raise TypeError(
+                        "Region dimension and coordinates dimension must be identical."
+                    )
                 elif len(self) != len(region_.contains(self.coordinates)):
                     logger.warning("Not all coordinates are within region.")
             self._region = region_
@@ -351,10 +413,12 @@ class LocData:
         # property for region measures
         if self._region is not None:
             if self._region.region_measure:
-                self.properties['region_measure'] = self._region.region_measure
-                self.properties['localization_density'] = self.meta.element_count / self._region.region_measure
+                self.properties["region_measure"] = self._region.region_measure
+                self.properties["localization_density"] = (
+                    self.meta.element_count / self._region.region_measure
+                )
             if self._region.subregion_measure:
-                self.properties['subregion_measure'] = self._region.subregion_measure
+                self.properties["subregion_measure"] = self._region.subregion_measure
 
     @property
     def data(self):
@@ -369,8 +433,12 @@ class LocData:
             try:
                 df = self.references.data.loc[self.indices]
             except KeyError:
-                df = self.references.data.loc[self.references.data.index.intersection(self.indices)]
-            df = pd.merge(df, self.dataframe, left_index=True, right_index=True, how='outer')
+                df = self.references.data.loc[
+                    self.references.data.index.intersection(self.indices)
+                ]
+            df = pd.merge(
+                df, self.dataframe, left_index=True, right_index=True, how="outer"
+            )
             return df
         else:
             return self.dataframe
@@ -384,7 +452,12 @@ class LocData:
     def centroid(self):
         """ndarray: Return coordinate values of the centroid
         (being the property values for all coordinate labels)."""
-        return np.array([self.properties[coordinate_label] for coordinate_label in self.coordinate_labels])
+        return np.array(
+            [
+                self.properties[coordinate_label]
+                for coordinate_label in self.coordinate_labels
+            ]
+        )
 
     @classmethod
     def from_dataframe(cls, dataframe=pd.DataFrame(), meta=None):
@@ -408,7 +481,7 @@ class LocData:
 
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.RAW
-        meta_.history.add(name='LocData.from_dataframe')
+        meta_.history.add(name="LocData.from_dataframe")
 
         if meta is None:
             pass
@@ -443,14 +516,20 @@ class LocData:
             dimension = len(coordinates[0])
 
             if coordinate_labels is None:
-                coordinate_labels = ['position_x', 'position_y', 'position_z'][0:dimension]
+                coordinate_labels = ["position_x", "position_y", "position_z"][
+                    0:dimension
+                ]
             else:
                 if all(cl in PROPERTY_KEYS for cl in coordinate_labels):
                     coordinate_labels = coordinate_labels
                 else:
-                    raise ValueError('The given coordinate_labels are not standard property keys.')
+                    raise ValueError(
+                        "The given coordinate_labels are not standard property keys."
+                    )
 
-            dataframe = pd.DataFrame.from_records(data=coordinates, columns=coordinate_labels)
+            dataframe = pd.DataFrame.from_records(
+                data=coordinates, columns=coordinate_labels
+            )
 
         else:
             dataframe = pd.DataFrame()
@@ -458,7 +537,7 @@ class LocData:
         meta_ = metadata_pb2.Metadata()
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.RAW
-        meta_.history.add(name='LocData.from_coordinates')
+        meta_.history.add(name="LocData.from_coordinates")
 
         if meta is None:
             pass
@@ -517,7 +596,7 @@ class LocData:
         meta_.modification_time.GetCurrentTime()
         meta_.state = metadata_pb2.MODIFIED
         meta_.ancestor_identifiers.append(locdata.meta.identifier)
-        meta_.history.add(name='LocData.from_selection')
+        meta_.history.add(name="LocData.from_selection")
 
         if meta is None:
             pass
@@ -556,7 +635,7 @@ class LocData:
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.RAW
         meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
-        meta_.history.add(name='LocData.from_collection')
+        meta_.history.add(name="LocData.from_collection")
 
         if meta is None:
             pass
@@ -606,7 +685,7 @@ class LocData:
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.MODIFIED
         meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdatas]
-        meta_.history.add(name='concat')
+        meta_.history.add(name="concat")
 
         if meta is None:
             pass
@@ -619,7 +698,16 @@ class LocData:
         return cls(references=references, dataframe=dataframe, meta=meta_)
 
     @classmethod
-    def from_chunks(cls, locdata, chunks=None, chunk_size=None, n_chunks=None, order='successive', drop=False, meta=None):
+    def from_chunks(
+        cls,
+        locdata,
+        chunks=None,
+        chunk_size=None,
+        n_chunks=None,
+        order="successive",
+        drop=False,
+        meta=None,
+    ):
         """
         Divide locdata in chunks of localization elements.
 
@@ -648,7 +736,9 @@ class LocData:
         n_nones = sum(element is None for element in [chunks, chunk_size, n_chunks])
 
         if n_nones != 2:
-            raise ValueError("One and only one of `chunks`, `chunk_size` or `n_chunks` must be different from None.")
+            raise ValueError(
+                "One and only one of `chunks`, `chunk_size` or `n_chunks` must be different from None."
+            )
         elif chunks is not None:
             index_lists = list(chunks)
         else:
@@ -661,20 +751,27 @@ class LocData:
                 if (len(locdata) % n_chunks) == 0:
                     chunk_size = len(locdata) // n_chunks
                 else:
-                    chunk_size = len(locdata) // (n_chunks-1)
+                    chunk_size = len(locdata) // (n_chunks - 1)
 
-            if order == 'successive':
+            if order == "successive":
                 if (len(locdata) % chunk_size) == 0:
                     chunk_sizes = [chunk_size] * n_chunks
                 else:
-                    chunk_sizes = [chunk_size] * (n_chunks-1) + [(len(locdata) % chunk_size)]
+                    chunk_sizes = [chunk_size] * (n_chunks - 1) + [
+                        (len(locdata) % chunk_size)
+                    ]
                 cum_chunk_sizes = list(accumulate(chunk_sizes))
                 cum_chunk_sizes.insert(0, 0)
-                index_lists = [locdata.data.index[slice(lower, upper)]
-                               for lower, upper in zip(cum_chunk_sizes[:-1], cum_chunk_sizes[1:])]
+                index_lists = [
+                    locdata.data.index[slice(lower, upper)]
+                    for lower, upper in zip(cum_chunk_sizes[:-1], cum_chunk_sizes[1:])
+                ]
 
-            elif order == 'alternating':
-                index_lists = [locdata.data.index[slice(i_chunk, None, n_chunks)] for i_chunk in range(n_chunks)]
+            elif order == "alternating":
+                index_lists = [
+                    locdata.data.index[slice(i_chunk, None, n_chunks)]
+                    for i_chunk in range(n_chunks)
+                ]
 
             else:
                 raise ValueError(f"The order {order} is not implemented.")
@@ -682,7 +779,10 @@ class LocData:
         if drop and len(index_lists) > 1 and len(index_lists[-1]) < len(index_lists[0]):
             index_lists = index_lists[:-1]
 
-        references = [LocData.from_selection(locdata=locdata, indices=index_list) for index_list in index_lists]
+        references = [
+            LocData.from_selection(locdata=locdata, indices=index_list)
+            for index_list in index_lists
+        ]
         dataframe = pd.DataFrame([ref.properties for ref in references])
 
         meta_ = metadata_pb2.Metadata()
@@ -691,7 +791,7 @@ class LocData:
         meta_.source = metadata_pb2.DESIGN
         meta_.state = metadata_pb2.RAW
         meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
-        meta_.history.add(name='LocData.chunks')
+        meta_.history.add(name="LocData.chunks")
 
         if meta is None:
             pass
@@ -758,27 +858,35 @@ class LocData:
             The modified object
         """
         local_parameter = locals()
-        del local_parameter['dataframe']  # dataframe is obvious and possibly large and should not be repeated in meta.
+        del local_parameter[
+            "dataframe"
+        ]  # dataframe is obvious and possibly large and should not be repeated in meta.
 
         if self.references is not None:
             self.reduce(reset_index=reset_index)
-            logger.warning("LocData.reduce() was applied since self.references was not None.")
+            logger.warning(
+                "LocData.reduce() was applied since self.references was not None."
+            )
 
         self.dataframe = dataframe
-        self.coordinate_labels = sorted(list(set(self.data.columns).intersection({'position_x',
-                                                                                  'position_y',
-                                                                                  'position_z'})))
+        self.coordinate_labels = sorted(
+            list(
+                set(self.data.columns).intersection(
+                    {"position_x", "position_y", "position_z"}
+                )
+            )
+        )
         self.dimension = len(self.coordinate_labels)
         self.reset(reset_index=reset_index)  # update hulls and properties
 
         # update meta
         self.meta.modification_time.GetCurrentTime()
         self.meta.state = metadata_pb2.MODIFIED
-        self.meta.history.add(name='LocData.update', parameter=str(local_parameter))
+        self.meta.history.add(name="LocData.update", parameter=str(local_parameter))
 
         self.meta.element_count = len(self.data.index)
-        if 'frame' in self.data.columns:
-            self.meta.frame_count = len(self.data['frame'].unique())
+        if "frame" in self.data.columns:
+            self.meta.frame_count = len(self.data["frame"].unique())
 
         if meta is None:
             pass
@@ -813,7 +921,7 @@ class LocData:
             self.indices = None
             self.references = None
         else:
-            raise ValueError('references has undefined value.')
+            raise ValueError("references has undefined value.")
 
         if reset_index is True:
             self.dataframe.reset_index(drop=True, inplace=True)
@@ -833,11 +941,15 @@ class LocData:
             for reference in self.references:
                 reference.convex_hull  # request property to update reference._convex_hull
 
-            new_df = pd.DataFrame([reference.properties for reference in self.references])
+            new_df = pd.DataFrame(
+                [reference.properties for reference in self.references]
+            )
             new_df.index = self.data.index
             self.dataframe.update(new_df)
-            new_columns = [column for column in new_df.columns if column in self.dataframe.columns]
-            new_df.drop(columns=new_columns, inplace=True, errors='ignore')
+            new_columns = [
+                column for column in new_df.columns if column in self.dataframe.columns
+            ]
+            new_df.drop(columns=new_columns, inplace=True, errors="ignore")
             self.dataframe = pd.concat([self.dataframe, new_df], axis=1)
         return self
 
@@ -853,11 +965,15 @@ class LocData:
         if isinstance(self.references, list):
             for reference in self.references:
                 reference.oriented_bounding_box  # request property to update reference._convex_hull
-            new_df = pd.DataFrame([reference.properties for reference in self.references])
+            new_df = pd.DataFrame(
+                [reference.properties for reference in self.references]
+            )
             new_df.index = self.data.index
             self.dataframe.update(new_df)
-            new_columns = [column for column in new_df.columns if column in self.dataframe.columns]
-            new_df.drop(columns=new_columns, inplace=True, errors='ignore')
+            new_columns = [
+                column for column in new_df.columns if column in self.dataframe.columns
+            ]
+            new_df.drop(columns=new_columns, inplace=True, errors="ignore")
             self.dataframe = pd.concat([self.dataframe, new_df], axis=1)
         return self
 
@@ -882,14 +998,18 @@ class LocData:
         new_locdata = copy.deepcopy(self)
 
         # reduce coordinate dimensions
-        coordinate_labels_to_drop = [label for label in self.coordinate_labels if label not in coordinate_labels]
+        coordinate_labels_to_drop = [
+            label for label in self.coordinate_labels if label not in coordinate_labels
+        ]
         columns = self.data.columns
-        new_columns = [column for column in columns if column not in coordinate_labels_to_drop]
+        new_columns = [
+            column for column in columns if column not in coordinate_labels_to_drop
+        ]
         dataframe = new_locdata.data[new_columns]
 
         # update
         _meta = metadata_pb2.Metadata()
-        _meta.history.add(name='LocData.projection', parameter=str(local_parameter))
+        _meta.history.add(name="LocData.projection", parameter=str(local_parameter))
         # other updates are done in the coming update call.
 
         new_locdata = new_locdata.update(dataframe=dataframe, meta=_meta)

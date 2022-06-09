@@ -22,6 +22,7 @@ Locan consists of the following modules:
 """
 from pathlib import Path
 import logging
+
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 try:
@@ -51,7 +52,7 @@ from locan.utils import *
 from locan.tests import *
 
 
-__all__ = ['__version__', 'ROOT_DIR']
+__all__ = ["__version__", "ROOT_DIR"]
 __all__.extend(dependencies.__all__)
 __all__.extend(constants.__all__)
 __all__.extend(configuration.__all__)

@@ -36,6 +36,7 @@ class _Analysis:
     results : any
         Computed results.
     """
+
     count = 0
     """int: A counter for counting Analysis class instantiations (class attribute)."""
 
@@ -53,16 +54,20 @@ class _Analysis:
 
     def __repr__(self):
         """ Return representation of the Analysis class. """
-        parameter_string = ", ".join((f'{key}={value}' for key, value in self.parameter.items()))
-        return f'{self.__class__.__name__}({parameter_string})'
+        parameter_string = ", ".join(
+            (f"{key}={value}" for key, value in self.parameter.items())
+        )
+        return f"{self.__class__.__name__}({parameter_string})"
 
     def __getstate__(self):
         """Modify pickling behavior."""
         # Copy the object's state from self.__dict__ to avoid modifying the original state.
         state = self.__dict__.copy()
         # Serialize the unpicklable protobuf entries.
-        json_string = json_format.MessageToJson(self.meta, including_default_value_fields=False)
-        state['meta'] = json_string
+        json_string = json_format.MessageToJson(
+            self.meta, including_default_value_fields=False
+        )
+        state["meta"] = json_string
         return state
 
     def __setstate__(self, state):
@@ -71,7 +76,7 @@ class _Analysis:
         self.__dict__.update(state)
         # Restore protobuf class for meta attribute
         self.meta = metadata_analysis_pb2.AMetadata()
-        self.meta = json_format.Parse(state['meta'], self.meta)
+        self.meta = json_format.Parse(state["meta"], self.meta)
 
     def __bool__(self):
         if self.results is not None:
@@ -89,6 +94,7 @@ class _Analysis:
 
 
 # Dealing with metadata
+
 
 def _init_meta(self):
     meta_ = metadata_analysis_pb2.AMetadata()
@@ -115,6 +121,7 @@ def _update_meta(self, meta=None):
 
 # Dealing with scipy.stats
 
+
 def _list_parameters(distribution):
     """
     List parameters for scipy.stats.distribution.
@@ -132,13 +139,13 @@ def _list_parameters(distribution):
     if isinstance(distribution, str):
         distribution = getattr(stats, distribution)
     if distribution.shapes:
-        parameters = [name.strip() for name in distribution.shapes.split(',')]
+        parameters = [name.strip() for name in distribution.shapes.split(",")]
     else:
         parameters = []
     if distribution.name in stats._discrete_distns._distn_names:
-        parameters += ['loc']
+        parameters += ["loc"]
     elif distribution.name in stats._continuous_distns._distn_names:
-        parameters += ['loc', 'scale']
+        parameters += ["loc", "scale"]
     else:
         raise TypeError("Distribution name not found in discrete or continuous lists.")
 

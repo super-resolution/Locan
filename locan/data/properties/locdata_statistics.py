@@ -13,10 +13,12 @@ import pandas as pd
 from locan.data.locdata import LocData
 
 
-__all__ = ['statistics', 'ranges', 'range_from_collection']
+__all__ = ["statistics", "ranges", "range_from_collection"]
 
 
-def statistics(locdata, statistic_keys=('count', 'min', 'max', 'mean', 'median', 'std', 'sem')):
+def statistics(
+    locdata, statistic_keys=("count", "min", "max", "mean", "median", "std", "sem")
+):
     """
     Compute selected statistical parameter for localization data.
 
@@ -39,23 +41,23 @@ def statistics(locdata, statistic_keys=('count', 'min', 'max', 'mean', 'median',
     elif isinstance(locdata, (pd.DataFrame, pd.Series)):
         data = locdata
     else:
-        raise TypeError('locdata should be of type locan.LocData or pandas.DataFrame.')
+        raise TypeError("locdata should be of type locan.LocData or pandas.DataFrame.")
 
     statistics_ = data.agg(statistic_keys)
 
     if isinstance(locdata, pd.Series):
         p = data.name
         if isinstance(statistic_keys, str):
-            dict_ = {p + '_' + statistic_keys: statistics_}
+            dict_ = {p + "_" + statistic_keys: statistics_}
         else:
-            dict_ = {p + '_' + s: statistics_[s] for s in statistic_keys}
+            dict_ = {p + "_" + s: statistics_[s] for s in statistic_keys}
     else:
         if isinstance(statistic_keys, str):
             generator = (p for p in list(data))
-            dict_ = {p + '_' + statistic_keys: statistics_[p] for p in generator}
+            dict_ = {p + "_" + statistic_keys: statistics_[p] for p in generator}
         else:
             generator = ((p, s) for p in list(data) for s in statistic_keys)
-            dict_ = {p + '_' + s: statistics_[p][s] for p, s in generator}
+            dict_ = {p + "_" + s: statistics_[p][s] for p, s in generator}
 
     return dict_
 
@@ -96,28 +98,32 @@ def ranges(locdata: LocData, loc_properties=None, special=None, epsilon=1):
     elif loc_properties is True:
         ranges_ = np.array([locdata.data.min(), locdata.data.max()]).T
     elif isinstance(loc_properties, str):
-        ranges_ = np.array([[locdata.data[loc_properties].min(),
-                            locdata.data[loc_properties].max()]])
+        ranges_ = np.array(
+            [[locdata.data[loc_properties].min(), locdata.data[loc_properties].max()]]
+        )
     else:
         loc_properties = list(loc_properties)
-        ranges_ = np.array([locdata.data[loc_properties].min(),
-                            locdata.data[loc_properties].max()]).T
+        ranges_ = np.array(
+            [locdata.data[loc_properties].min(), locdata.data[loc_properties].max()]
+        ).T
 
     if len(locdata) == 1:
         if ranges_.size == 0:
-            ranges_ = np.concatenate([locdata.coordinates, locdata.coordinates + epsilon], axis=0).T
+            ranges_ = np.concatenate(
+                [locdata.coordinates, locdata.coordinates + epsilon], axis=0
+            ).T
         else:
             ranges_ = ranges_ + [0, epsilon]
 
     if special is None:
         pass
-    elif special == 'zero':
+    elif special == "zero":
         ranges_[:, 0] = 0
-    elif special == 'link':
+    elif special == "link":
         minmax = np.array([ranges_[:, 0].min(axis=0), ranges_[:, 1].max(axis=0)])
         ranges_ = np.repeat(minmax[None, :], len(ranges_), axis=0)
     else:
-        raise ValueError(f'The parameter special={special} is not defined.')
+        raise ValueError(f"The parameter special={special} is not defined.")
 
     return ranges_
 
@@ -146,8 +152,15 @@ def range_from_collection(locdatas, loc_properties=None, special=None, epsilon=1
     namedtuple
         A namedtuple('Ranges', locdata.coordinate_labels) of namedtuple('Range', 'min max').
     """
-    ranges_ = [ranges(locdata=locdata, loc_properties=loc_properties, special=special, epsilon=epsilon)
-               for locdata in locdatas]
+    ranges_ = [
+        ranges(
+            locdata=locdata,
+            loc_properties=loc_properties,
+            special=special,
+            epsilon=epsilon,
+        )
+        for locdata in locdatas
+    ]
 
     mins = np.min([rand[:, 0] for rand in ranges_], axis=0)
     maxs = np.max([rand[:, 1] for rand in ranges_], axis=0)
@@ -157,7 +170,9 @@ def range_from_collection(locdatas, loc_properties=None, special=None, epsilon=1
     else:
         labels = loc_properties
 
-    Ranges = namedtuple('Ranges', labels)
-    Range = namedtuple('Range', 'min max')
-    result = Ranges(*(Range(min_value, max_value) for min_value, max_value in zip(mins, maxs)))
+    Ranges = namedtuple("Ranges", labels)
+    Range = namedtuple("Range", "min max")
+    result = Ranges(
+        *(Range(min_value, max_value) for min_value, max_value in zip(mins, maxs))
+    )
     return result

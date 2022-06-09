@@ -20,14 +20,15 @@ from scipy import stats
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 
 
-__all__ = ['LocalizationProperty']
+__all__ = ["LocalizationProperty"]
 
 logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
 
-def _localization_property(locdata, loc_property='intensity', index=None):
+
+def _localization_property(locdata, loc_property="intensity", index=None):
     if index is None:
         results = locdata.data[[loc_property]]
     else:
@@ -38,6 +39,7 @@ def _localization_property(locdata, loc_property='intensity', index=None):
 
 
 ##### The specific analysis classes
+
 
 class LocalizationProperty(_Analysis):
     """
@@ -65,7 +67,8 @@ class LocalizationProperty(_Analysis):
     distribution_statistics : Distribution_stats, None
         Distribution parameters derived from MLE fitting of results.
     """
-    def __init__(self, meta=None, loc_property='intensity', index=None):
+
+    def __init__(self, meta=None, loc_property="intensity", index=None):
         super().__init__(meta=meta, loc_property=loc_property, index=index)
         self.results = None
         self.distribution_statistics = None
@@ -85,13 +88,15 @@ class LocalizationProperty(_Analysis):
             Returns the Analysis class object (self).
         """
         if not len(locdata):
-            logger.warning('Locdata is empty.')
+            logger.warning("Locdata is empty.")
             return self
 
         self.results = _localization_property(locdata=locdata, **self.parameter)
         return self
 
-    def fit_distributions(self, distribution=stats.expon, with_constraints=True, **kwargs):
+    def fit_distributions(
+        self, distribution=stats.expon, with_constraints=True, **kwargs
+    ):
         """
         Fit probability density functions to the distributions of `loc_property` values in the results
         using MLE (scipy.stats).
@@ -110,9 +115,11 @@ class LocalizationProperty(_Analysis):
         """
         if self:
             self.distribution_statistics = _DistributionFits(self)
-            self.distribution_statistics.fit(distribution, with_constraints=with_constraints, **kwargs)
+            self.distribution_statistics.fit(
+                distribution, with_constraints=with_constraints, **kwargs
+            )
         else:
-            logger.warning('No results available to fit.')
+            logger.warning("No results available to fit.")
 
     def plot(self, ax=None, window=1, **kwargs):
         """
@@ -138,15 +145,18 @@ class LocalizationProperty(_Analysis):
         if not self:
             return ax
 
-        self.results.rolling(window=window, center=True).mean().plot(ax=ax, **dict(dict(legend=False), **kwargs))
-        ax.set(title=f"{self.parameter['loc_property']}({self.parameter['index']})\n (window={window})",
-               xlabel=self.parameter['index'],
-               ylabel=self.parameter['loc_property']
-               )
+        self.results.rolling(window=window, center=True).mean().plot(
+            ax=ax, **dict(dict(legend=False), **kwargs)
+        )
+        ax.set(
+            title=f"{self.parameter['loc_property']}({self.parameter['index']})\n (window={window})",
+            xlabel=self.parameter["index"],
+            ylabel=self.parameter["loc_property"],
+        )
 
         return ax
 
-    def hist(self, ax=None, bins='auto', log=True, fit=True, **kwargs):
+    def hist(self, ax=None, bins="auto", log=True, fit=True, **kwargs):
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results). Nan entries are ignored.
 
@@ -175,11 +185,16 @@ class LocalizationProperty(_Analysis):
         if not self:
             return ax
 
-        ax.hist(self.results.dropna(axis=0).values, bins=bins, **dict(dict(density=True, log=log), **kwargs))
-        ax.set(title=self.parameter['loc_property'],
-               xlabel=self.parameter['loc_property'],
-               ylabel='PDF'
-               )
+        ax.hist(
+            self.results.dropna(axis=0).values,
+            bins=bins,
+            **dict(dict(density=True, log=log), **kwargs),
+        )
+        ax.set(
+            title=self.parameter["loc_property"],
+            xlabel=self.parameter["loc_property"],
+            ylabel="PDF",
+        )
 
         # fit distributions:
         if fit:
@@ -193,6 +208,7 @@ class LocalizationProperty(_Analysis):
 
 
 # todo add Dependence_stats to fit a plot to a linear function, log function, or exponential decay.
+
 
 class _DistributionFits:
     """
@@ -219,9 +235,10 @@ class _DistributionFits:
     parameters : list of str
         Distribution parameters.
     """
+
     def __init__(self, analysis_class):
         self.analysis_class = analysis_class
-        self.loc_property = self.analysis_class.parameter['loc_property']
+        self.loc_property = self.analysis_class.parameter["loc_property"]
         self.distribution = None
         self.parameters = []
 
@@ -243,17 +260,27 @@ class _DistributionFits:
         """
         self.distribution = distribution
         for param in _list_parameters(distribution):
-            self.parameters.append(self.loc_property + '_' + param)
+            self.parameters.append(self.loc_property + "_" + param)
 
         if with_constraints and self.distribution == stats.expon:
             # MLE fit of exponential distribution with constraints
-            fit_results = stats.expon.fit(self.analysis_class.results[self.loc_property].values,
-                                          **dict(dict(floc=np.min(self.analysis_class.results[self.loc_property].values)
-                                                      ), **kwargs))
+            fit_results = stats.expon.fit(
+                self.analysis_class.results[self.loc_property].values,
+                **dict(
+                    dict(
+                        floc=np.min(
+                            self.analysis_class.results[self.loc_property].values
+                        )
+                    ),
+                    **kwargs,
+                ),
+            )
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
         else:
-            fit_results = self.distribution.fit(self.analysis_class.results[self.loc_property].values, **kwargs)
+            fit_results = self.distribution.fit(
+                self.analysis_class.results[self.loc_property].values, **kwargs
+            )
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
 
@@ -282,10 +309,20 @@ class _DistributionFits:
 
         # plot fit curve
         parameter = self.parameter_dict().values()
-        x_values = np.linspace(self.distribution.ppf(0.001, *parameter),
-                               self.distribution.ppf(0.999, *parameter), 100)
-        ax.plot(x_values, self.distribution.pdf(x_values, *parameter), 'r-',
-                **dict(dict(lw=3, alpha=0.6, label=str(self.distribution.name) + ' pdf'), **kwargs))
+        x_values = np.linspace(
+            self.distribution.ppf(0.001, *parameter),
+            self.distribution.ppf(0.999, *parameter),
+            100,
+        )
+        ax.plot(
+            x_values,
+            self.distribution.pdf(x_values, *parameter),
+            "r-",
+            **dict(
+                dict(lw=3, alpha=0.6, label=str(self.distribution.name) + " pdf"),
+                **kwargs,
+            ),
+        )
 
         return ax
 

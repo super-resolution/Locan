@@ -12,7 +12,7 @@ from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 
 
-__all__ = ['add_drift']
+__all__ = ["add_drift"]
 
 
 def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None):
@@ -44,8 +44,12 @@ def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None):
     if seed is not None:
         np.random.seed(seed)
     sigmas = np.sqrt(2 * np.asarray(diffusion_constant))  # * delta_t which is 1 frame
-    steps = np.array([np.random.normal(loc=-vel, scale=sigma, size=n_steps)
-                      for vel, sigma in zip(velocity, sigmas)])
+    steps = np.array(
+        [
+            np.random.normal(loc=-vel, scale=sigma, size=n_steps)
+            for vel, sigma in zip(velocity, sigmas)
+        ]
+    )
     return np.cumsum(steps, axis=1)
 
 
@@ -78,8 +82,10 @@ def _drift(frames, diffusion_constant=None, velocity=None, seed=None):
         position_deltas = position_deltas.T
 
     elif diffusion_constant is not None:  # random walk plus linear drift
-        velocity_ = (np.zeros(len(diffusion_constant)) if velocity is None else velocity)
-        cumsteps = _random_walk_drift(frames_.max() + 1, diffusion_constant, velocity_, seed)
+        velocity_ = np.zeros(len(diffusion_constant)) if velocity is None else velocity
+        cumsteps = _random_walk_drift(
+            frames_.max() + 1, diffusion_constant, velocity_, seed
+        )
         position_deltas = cumsteps[:, frames_]
 
     else:  # no drift
@@ -115,23 +121,34 @@ def add_drift(locdata, diffusion_constant=None, velocity=None, seed=None):
         return locdata
 
     points = locdata.coordinates
-    frames = locdata.data['frame']
+    frames = locdata.data["frame"]
 
     if diffusion_constant is None and velocity is None:
         transformed_points = points
     else:
-        transformed_points = points + _drift(frames, diffusion_constant, velocity, seed).T
+        transformed_points = (
+            points + _drift(frames, diffusion_constant, velocity, seed).T
+        )
 
     # new LocData object
     new_dataframe = locdata.data.copy()
-    new_dataframe.update(pd.DataFrame(transformed_points, columns=locdata.coordinate_labels,
-                                      index=locdata.data.index))
+    new_dataframe.update(
+        pd.DataFrame(
+            transformed_points,
+            columns=locdata.coordinate_labels,
+            index=locdata.data.index,
+        )
+    )
     new_locdata = LocData.from_dataframe(new_dataframe)
 
     # update metadata
-    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
-                         parameter=local_parameter,
-                         meta=None)
+    meta_ = _modify_meta(
+        locdata,
+        new_locdata,
+        function_name=sys._getframe().f_code.co_name,
+        parameter=local_parameter,
+        meta=None,
+    )
     new_locdata.meta = meta_
 
     return new_locdata

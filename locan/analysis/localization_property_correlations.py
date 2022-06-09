@@ -16,12 +16,13 @@ from locan.render.render2d import histogram
 from locan.configuration import COLORMAP_DIVERGING
 
 
-__all__ = ['LocalizationPropertyCorrelations']
+__all__ = ["LocalizationPropertyCorrelations"]
 
 logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
+
 
 def _localization_property_correlations(locdata, loc_properties=None):
     if loc_properties is None:
@@ -30,7 +31,9 @@ def _localization_property_correlations(locdata, loc_properties=None):
         results = locdata.data[loc_properties].corr()
     return results
 
+
 ##### The specific analysis classes
+
 
 class LocalizationPropertyCorrelations(_Analysis):
     """
@@ -54,6 +57,7 @@ class LocalizationPropertyCorrelations(_Analysis):
     results : pandas.DataFrame
         The correlation coefficients..
     """
+
     def __init__(self, meta=None, loc_properties=None):
         super().__init__(meta=meta, loc_properties=loc_properties)
         self.results = None
@@ -73,21 +77,22 @@ class LocalizationPropertyCorrelations(_Analysis):
             Returns the Analysis class object (self).
         """
         if not len(locdata):
-            logger.warning('Locdata is empty.')
+            logger.warning("Locdata is empty.")
             return self
 
-        self.results = _localization_property_correlations(locdata=locdata, **self.parameter)
+        self.results = _localization_property_correlations(
+            locdata=locdata, **self.parameter
+        )
         return self
 
     def report(self):
         if not self:
-            logger.warning('No results available')
+            logger.warning("No results available")
             return
 
-        print('Fit results for:\n')
+        print("Fit results for:\n")
         print(self.results.model_result.fit_report(min_correl=0.25))
         # print(self.results.fit_results.best_values)
-
 
     def plot(self, ax=None, cbar=True, colorbar_kws=None, **kwargs):
         """
@@ -115,7 +120,10 @@ class LocalizationPropertyCorrelations(_Analysis):
         if not self:
             return ax
 
-        im = ax.imshow(self.results, **dict(dict(vmin=-1, vmax=1, cmap=COLORMAP_DIVERGING), **kwargs))
+        im = ax.imshow(
+            self.results,
+            **dict(dict(vmin=-1, vmax=1, cmap=COLORMAP_DIVERGING), **kwargs)
+        )
         columns = self.results.columns
 
         # We want to show all ticks...
@@ -123,8 +131,8 @@ class LocalizationPropertyCorrelations(_Analysis):
         ax.set_yticks(np.arange(len(columns)))
 
         # ensure correct scaling
-        ax.set_xticks(np.arange(len(columns) + 1) - .5, minor=True)
-        ax.set_yticks(np.arange(len(columns) + 1) - .5, minor=True)
+        ax.set_xticks(np.arange(len(columns) + 1) - 0.5, minor=True)
+        ax.set_yticks(np.arange(len(columns) + 1) - 0.5, minor=True)
         ax.tick_params(which="minor", bottom=False, left=False)
 
         # ... and label them with the respective list entries
@@ -137,8 +145,14 @@ class LocalizationPropertyCorrelations(_Analysis):
         # Loop over data dimensions and create text annotations.
         for i in range(len(columns)):
             for j in range(len(columns)):
-                text = ax.text(j, i, round(self.results.values[i, j], 2),
-                               ha="center", va="center", color="w")
+                text = ax.text(
+                    j,
+                    i,
+                    round(self.results.values[i, j], 2),
+                    ha="center",
+                    va="center",
+                    color="w",
+                )
 
         ax.set_title("Localization Property Correlations")
 

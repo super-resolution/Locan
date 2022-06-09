@@ -32,7 +32,7 @@ from locan.data.metadata_utils import _modify_meta
 from locan.data.transform.transformation import transform_affine
 
 
-__all__ = ['bunwarp']
+__all__ = ["bunwarp"]
 
 
 def _unwarp(points, matrix_x, matrix_y, pixel_size):
@@ -62,9 +62,9 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size):
     x = np.arange(matrix_size[0])
     y = np.arange(matrix_size[1])
     z_x = matrix_x.T
-    f_x = interpolate.interp2d(x, y, z_x, kind='linear')
+    f_x = interpolate.interp2d(x, y, z_x, kind="linear")
     z_y = matrix_y.T
-    f_y = interpolate.interp2d(x, y, z_y, kind='linear')
+    f_y = interpolate.interp2d(x, y, z_y, kind="linear")
 
     new_points = np.array(
         [np.concatenate((f_x(*pind), f_y(*pind))) for pind in point_indices]
@@ -97,10 +97,12 @@ def _read_matrix(path):
     height = int(header[1].split("=")[1])
     matrix_size = np.array([width, height])
 
-    matrix_x = pd.read_csv(path, skiprows=4, header=None, nrows=matrix_size[1],
-                                 delim_whitespace=True).values.T      # transform values to get array[x, y]
-    matrix_y = pd.read_csv(path, skiprows=(6 + matrix_size[1]), header=None,
-                                 delim_whitespace=True).values.T      # transform values to get array[x, y]
+    matrix_x = pd.read_csv(
+        path, skiprows=4, header=None, nrows=matrix_size[1], delim_whitespace=True
+    ).values.T  # transform values to get array[x, y]
+    matrix_y = pd.read_csv(
+        path, skiprows=(6 + matrix_size[1]), header=None, delim_whitespace=True
+    ).values.T  # transform values to get array[x, y]
 
     return matrix_x, matrix_y
 
@@ -132,24 +134,29 @@ def bunwarp(locdata, matrix_path, pixel_size, flip=False):
 
     if flip:
         image_size = np.multiply(matrix_x.shape, pixel_size)
-        locdata = transform_affine(locdata,
-                                   matrix=[[-1, 0], [0, 1]],
-                                   offset=[image_size[0], 0]
-                                   )
+        locdata = transform_affine(
+            locdata, matrix=[[-1, 0], [0, 1]], offset=[image_size[0], 0]
+        )
 
     new_points = _unwarp(locdata.coordinates, matrix_x, matrix_y, pixel_size)
 
     # new LocData object
     new_dataframe = locdata.data.copy()
-    df = pd.DataFrame({'position_x': new_points[:, 0], 'position_y': new_points[:, 1]},
-                      index=locdata.data.index)
+    df = pd.DataFrame(
+        {"position_x": new_points[:, 0], "position_y": new_points[:, 1]},
+        index=locdata.data.index,
+    )
     new_dataframe.update(df)
     new_locdata = LocData.from_dataframe(new_dataframe)
 
     # update metadata
-    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
-                         parameter=local_parameter,
-                         meta=None)
+    meta_ = _modify_meta(
+        locdata,
+        new_locdata,
+        function_name=sys._getframe().f_code.co_name,
+        parameter=local_parameter,
+        meta=None,
+    )
     new_locdata.meta = meta_
 
     return new_locdata

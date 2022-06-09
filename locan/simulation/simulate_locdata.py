@@ -31,18 +31,36 @@ import pandas as pd
 
 from locan.data.locdata import LocData
 from locan.data import metadata_pb2
-from locan.data.region import Region, EmptyRegion, Interval, Rectangle, Ellipse, \
-    AxisOrientedCuboid, AxisOrientedHypercuboid
+from locan.data.region import (
+    Region,
+    EmptyRegion,
+    Interval,
+    Rectangle,
+    Ellipse,
+    AxisOrientedCuboid,
+    AxisOrientedHypercuboid,
+)
 from locan.data.region_utils import expand_region
 
 
 __all__ = [
-           'make_uniform', 'make_Poisson', 'make_cluster', 'make_NeymanScott', 'make_Matern', 'make_Thomas',
-           'make_dstorm',
-           'simulate_uniform', 'simulate_Poisson',
-           'simulate_cluster', 'simulate_NeymanScott', 'simulate_Matern', 'simulate_Thomas',
-           'simulate_dstorm',
-           'simulate_tracks', 'resample', 'simulate_frame_numbers'
+    "make_uniform",
+    "make_Poisson",
+    "make_cluster",
+    "make_NeymanScott",
+    "make_Matern",
+    "make_Thomas",
+    "make_dstorm",
+    "simulate_uniform",
+    "simulate_Poisson",
+    "simulate_cluster",
+    "simulate_NeymanScott",
+    "simulate_Matern",
+    "simulate_Thomas",
+    "simulate_dstorm",
+    "simulate_tracks",
+    "resample",
+    "simulate_frame_numbers",
 ]
 
 
@@ -73,9 +91,14 @@ def make_uniform(n_samples, region=(0, 1), seed=None):
 
     if isinstance(region, EmptyRegion):
         samples = np.array([])
-    elif isinstance(region, (Interval, Rectangle, AxisOrientedCuboid, AxisOrientedHypercuboid)):
-        samples = rng.uniform(region.bounds[:region.dimension], region.bounds[region.dimension:],
-                              size=(n_samples, region.dimension))
+    elif isinstance(
+        region, (Interval, Rectangle, AxisOrientedCuboid, AxisOrientedHypercuboid)
+    ):
+        samples = rng.uniform(
+            region.bounds[: region.dimension],
+            region.bounds[region.dimension :],
+            size=(n_samples, region.dimension),
+        )
     elif isinstance(region, Ellipse) and region.width == region.height:
         radius = region.width / 2
         # angular and radial coordinates of Poisson points
@@ -99,7 +122,7 @@ def make_uniform(n_samples, region=(0, 1), seed=None):
             n_remaining = n_remaining - len(new_samples)
 
         samples = np.concatenate(samples)
-        samples = samples[0: n_samples]
+        samples = samples[0:n_samples]
 
     return samples
 
@@ -162,7 +185,7 @@ def make_Poisson(intensity, region=(0, 1), seed=None):
     if not isinstance(region, Region):
         region = Region.from_intervals(region)
 
-    n_samples = rng.poisson(lam=intensity*region.region_measure)
+    n_samples = rng.poisson(lam=intensity * region.region_measure)
 
     if isinstance(region, EmptyRegion):
         samples = np.array([])
@@ -170,9 +193,14 @@ def make_Poisson(intensity, region=(0, 1), seed=None):
         samples = np.array([])
         for i in range(region.dimension):
             samples = samples[..., np.newaxis]
-    elif isinstance(region, (Interval, Rectangle, AxisOrientedCuboid, AxisOrientedHypercuboid)):
-        samples = rng.uniform(region.bounds[:region.dimension], region.bounds[region.dimension:],
-                              size=(n_samples, region.dimension))
+    elif isinstance(
+        region, (Interval, Rectangle, AxisOrientedCuboid, AxisOrientedHypercuboid)
+    ):
+        samples = rng.uniform(
+            region.bounds[: region.dimension],
+            region.bounds[region.dimension :],
+            size=(n_samples, region.dimension),
+        )
     elif isinstance(region, Ellipse) and region.width == region.height:
         radius = region.width / 2
         # angular and radial coordinates of Poisson points
@@ -196,7 +224,7 @@ def make_Poisson(intensity, region=(0, 1), seed=None):
             n_remaining = n_remaining - len(new_samples)
 
         samples = np.concatenate(samples)
-        samples = samples[0: n_samples]
+        samples = samples[0:n_samples]
 
     return samples
 
@@ -235,8 +263,15 @@ def simulate_Poisson(intensity, region=(0, 1), seed=None):
     return locdata
 
 
-def make_cluster(centers=3, region=(0, 1.), expansion_distance=0, offspring=None,
-                 clip=True, shuffle=True, seed=None):
+def make_cluster(
+    centers=3,
+    region=(0, 1.0),
+    expansion_distance=0,
+    offspring=None,
+    clip=True,
+    shuffle=True,
+    seed=None,
+):
     """
     Parent positions are taken from `centers`
     or are distributed according to a homogeneous Poisson process with exactly `centers`
@@ -272,7 +307,12 @@ def make_cluster(centers=3, region=(0, 1.), expansion_distance=0, offspring=None
     rng = np.random.default_rng(seed)
 
     if isinstance(region, EmptyRegion):
-        samples, labels, parent_samples, region = np.array([]), np.array([]), np.array([]), EmptyRegion()
+        samples, labels, parent_samples, region = (
+            np.array([]),
+            np.array([]),
+            np.array([]),
+            EmptyRegion(),
+        )
         return samples, labels, parent_samples, region
     elif not isinstance(region, Region):
         region = Region.from_intervals(region)
@@ -281,15 +321,19 @@ def make_cluster(centers=3, region=(0, 1.), expansion_distance=0, offspring=None
 
     if isinstance(centers, (int, np.integer)):
         n_centers = centers
-        parent_samples = make_uniform(n_samples=n_centers, region=expanded_region, seed=rng)
+        parent_samples = make_uniform(
+            n_samples=n_centers, region=expanded_region, seed=rng
+        )
     else:  # if centers is array
         parent_samples = np.array(centers)
         centers_shape = np.shape(parent_samples)
         centers_dimension = 1 if len(centers_shape) == 1 else centers_shape[1]
         if region.dimension != centers_dimension:
-            raise ValueError(f'Region dimensions must be the same as the dimensions for each center. '
-                             f'Got region dimension: {region.dimension} and '
-                             f'center dimensions: {centers_dimension} instead.')
+            raise ValueError(
+                f"Region dimensions must be the same as the dimensions for each center. "
+                f"Got region dimension: {region.dimension} and "
+                f"center dimensions: {centers_dimension} instead."
+            )
         n_centers = centers_shape[0]
 
     # replace parents by offspring samples
@@ -323,9 +367,13 @@ def make_cluster(centers=3, region=(0, 1.), expansion_distance=0, offspring=None
         labels = np.array(list(chain(*labels)))
 
     else:
-        raise TypeError(f"offspring must be callable or array-like with length >= than n_centers {n_centers}.")
+        raise TypeError(
+            f"offspring must be callable or array-like with length >= than n_centers {n_centers}."
+        )
 
-    if samples.ndim == 1:  # this is to convert 1-dimensional arrays into arrays with shape (n_samples, 1).
+    if (
+        samples.ndim == 1
+    ):  # this is to convert 1-dimensional arrays into arrays with shape (n_samples, 1).
         samples.shape = (len(samples), 1)
 
     if clip is True:
@@ -342,15 +390,24 @@ def make_cluster(centers=3, region=(0, 1.), expansion_distance=0, offspring=None
         samples = samples[shuffled_indices]
         labels = labels[shuffled_indices]
 
-    if len(samples) == 0:  # this is to convert empty arrays into arrays with shape (n_samples, n_features).
+    if (
+        len(samples) == 0
+    ):  # this is to convert empty arrays into arrays with shape (n_samples, n_features).
         samples = np.array([])
         samples = samples[:, np.newaxis]
 
     return samples, labels, parent_samples, region_
 
 
-def simulate_cluster(centers=3, region=(0, 1.), expansion_distance=0, offspring=None,
-                     clip=True, shuffle=True, seed=None):
+def simulate_cluster(
+    centers=3,
+    region=(0, 1.0),
+    expansion_distance=0,
+    offspring=None,
+    clip=True,
+    shuffle=True,
+    seed=None,
+):
     """
     Generate clustered point data.
     Parent positions are taken from `centers`
@@ -385,8 +442,9 @@ def simulate_cluster(centers=3, region=(0, 1.), expansion_distance=0, offspring=
         The generated samples.
     """
     parameter = locals()
-    samples, labels, _, region = make_cluster(centers, region, expansion_distance, offspring,
-                                     clip, shuffle, seed)
+    samples, labels, _, region = make_cluster(
+        centers, region, expansion_distance, offspring, clip, shuffle, seed
+    )
     region_ = region if isinstance(region, Region) else Region.from_intervals(region)
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -401,8 +459,15 @@ def simulate_cluster(centers=3, region=(0, 1.), expansion_distance=0, offspring=
     return locdata
 
 
-def make_NeymanScott(parent_intensity=100, region=(0, 1.), expansion_distance=0, offspring=None,
-                     clip=True, shuffle=True, seed=None):
+def make_NeymanScott(
+    parent_intensity=100,
+    region=(0, 1.0),
+    expansion_distance=0,
+    offspring=None,
+    clip=True,
+    shuffle=True,
+    seed=None,
+):
     """
     Generate clustered point data following a Neyman-Scott random point process.
     Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
@@ -438,14 +503,21 @@ def make_NeymanScott(parent_intensity=100, region=(0, 1.), expansion_distance=0,
     rng = np.random.default_rng(seed)
 
     if isinstance(region, EmptyRegion):
-        samples, labels, parent_samples, region = np.array([]), np.array([]), np.array([]), EmptyRegion()
+        samples, labels, parent_samples, region = (
+            np.array([]),
+            np.array([]),
+            np.array([]),
+            EmptyRegion(),
+        )
         return samples, labels, parent_samples, region
     elif not isinstance(region, Region):
         region = Region.from_intervals(region)
 
     expanded_region = expand_region(region, expansion_distance)
 
-    parent_samples = make_Poisson(intensity=parent_intensity, region=expanded_region, seed=rng)
+    parent_samples = make_Poisson(
+        intensity=parent_intensity, region=expanded_region, seed=rng
+    )
 
     # replace parents by offspring samples
     if offspring is None:
@@ -470,10 +542,14 @@ def make_NeymanScott(parent_intensity=100, region=(0, 1.), expansion_distance=0,
         offspring_samples = []
         labels = []
         if isinstance(offspring, np.ndarray):
-            offspring_samples = np.asarray(offspring[:len(parent_samples)]) + parent_samples
+            offspring_samples = (
+                np.asarray(offspring[: len(parent_samples)]) + parent_samples
+            )
             labels = [[i] * len(os) for i, os in enumerate(offspring_samples)]
         else:
-            for i, (os, parent) in enumerate(zip(offspring[:len(parent_samples)], parent_samples)):
+            for i, (os, parent) in enumerate(
+                zip(offspring[: len(parent_samples)], parent_samples)
+            ):
                 if len(os) > 0:
                     offspring_samples_ = np.asarray(os) + parent
                     offspring_samples.append(offspring_samples_)
@@ -482,10 +558,14 @@ def make_NeymanScott(parent_intensity=100, region=(0, 1.), expansion_distance=0,
         labels = np.array(list(chain(*labels)))
 
     else:
-        raise TypeError(f"offspring must be callable or array-like with "
-                        f"length >= n_centers {len(parent_samples)}.")
+        raise TypeError(
+            f"offspring must be callable or array-like with "
+            f"length >= n_centers {len(parent_samples)}."
+        )
 
-    if samples.ndim == 1:  # this is to convert 1-dimensional arrays into arrays with shape (n_samples, 1).
+    if (
+        samples.ndim == 1
+    ):  # this is to convert 1-dimensional arrays into arrays with shape (n_samples, 1).
         samples.shape = (len(samples), 1)
 
     if clip is True:
@@ -502,15 +582,24 @@ def make_NeymanScott(parent_intensity=100, region=(0, 1.), expansion_distance=0,
         samples = samples[shuffled_indices]
         labels = labels[shuffled_indices]
 
-    if len(samples) == 0:  # this is to convert empty arrays into arrays with shape (n_samples, n_features).
+    if (
+        len(samples) == 0
+    ):  # this is to convert empty arrays into arrays with shape (n_samples, n_features).
         samples = np.array([])
         samples = samples[:, np.newaxis]
 
     return samples, labels, parent_samples, region_
 
 
-def simulate_NeymanScott(parent_intensity=100, region=(0, 1.), expansion_distance=0, offspring=None,
-                     clip=True, shuffle=True, seed=None):
+def simulate_NeymanScott(
+    parent_intensity=100,
+    region=(0, 1.0),
+    expansion_distance=0,
+    offspring=None,
+    clip=True,
+    shuffle=True,
+    seed=None,
+):
     """
     Generate clustered point data following a Neyman-Scott random point process.
     Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
@@ -544,8 +633,9 @@ def simulate_NeymanScott(parent_intensity=100, region=(0, 1.), expansion_distanc
         The generated samples.
     """
     parameter = locals()
-    samples, labels, _, region = make_NeymanScott(parent_intensity, region, expansion_distance, offspring,
-                                     clip, shuffle, seed)
+    samples, labels, _, region = make_NeymanScott(
+        parent_intensity, region, expansion_distance, offspring, clip, shuffle, seed
+    )
     region_ = region if isinstance(region, Region) else Region.from_intervals(region)
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -560,8 +650,15 @@ def simulate_NeymanScott(parent_intensity=100, region=(0, 1.), expansion_distanc
     return locdata
 
 
-def make_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0,
-                clip=True, shuffle=True, seed=None):
+def make_Matern(
+    parent_intensity=1,
+    region=(0, 1.0),
+    cluster_mu=1,
+    radius=1.0,
+    clip=True,
+    shuffle=True,
+    seed=None,
+):
     """
     Generate clustered point data following a Matern cluster random point process.
     Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
@@ -595,7 +692,12 @@ def make_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0,
     rng = np.random.default_rng(seed)
 
     if isinstance(region, EmptyRegion):
-        samples, labels, parent_samples, region = np.array([]), np.array([]), np.array([]), EmptyRegion()
+        samples, labels, parent_samples, region = (
+            np.array([]),
+            np.array([]),
+            np.array([]),
+            EmptyRegion(),
+        )
         return samples, labels, parent_samples, region
     elif not isinstance(region, Region):
         region = Region.from_intervals(region)
@@ -603,16 +705,19 @@ def make_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0,
     expansion_distance = np.max(radius)
     expanded_region = expand_region(region, expansion_distance)
 
-    parent_samples = make_Poisson(intensity=parent_intensity, region=expanded_region, seed=rng)
+    parent_samples = make_Poisson(
+        intensity=parent_intensity, region=expanded_region, seed=rng
+    )
 
     # radius: if radius is given as list, it must be consistent with the n_parent_samples
     if hasattr(radius, "__len__"):
         if len(radius) < len(parent_samples):
-            raise ValueError(f"Length of `radius` {len(radius)} is less than "
-                             f"the generated n_parent_samples {len(parent_samples)}."
-                             )
+            raise ValueError(
+                f"Length of `radius` {len(radius)} is less than "
+                f"the generated n_parent_samples {len(parent_samples)}."
+            )
         else:
-            radii = radius[:len(parent_samples)]
+            radii = radius[: len(parent_samples)]
     else:  # if isinstance(radius, float):
         radii = np.full(len(parent_samples), radius)
 
@@ -623,11 +728,15 @@ def make_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0,
         if region.dimension == 1:
             offspring_region = Interval(-radius_, radius_)
             offspring_intensity = cluster_mu / offspring_region.region_measure
-            offspring_samples = make_Poisson(intensity=offspring_intensity, region=offspring_region, seed=rng)
+            offspring_samples = make_Poisson(
+                intensity=offspring_intensity, region=offspring_region, seed=rng
+            )
         elif region.dimension == 2:
-            offspring_region = Ellipse((0, 0), 2*radius_, 2*radius_, 0)
+            offspring_region = Ellipse((0, 0), 2 * radius_, 2 * radius_, 0)
             offspring_intensity = cluster_mu / offspring_region.region_measure
-            offspring_samples = make_Poisson(intensity=offspring_intensity, region=offspring_region, seed=rng)
+            offspring_samples = make_Poisson(
+                intensity=offspring_intensity, region=offspring_region, seed=rng
+            )
         elif region.dimension == 3:
             raise NotImplementedError
         else:
@@ -654,15 +763,24 @@ def make_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0,
         samples = samples[shuffled_indices]
         labels = labels[shuffled_indices]
 
-    if len(samples) == 0:  # this is to convert empty arrays into arrays with shape (n_samples, n_features).
+    if (
+        len(samples) == 0
+    ):  # this is to convert empty arrays into arrays with shape (n_samples, n_features).
         samples = np.array([])
         samples = samples[:, np.newaxis]
 
     return samples, labels, parent_samples, region_
 
 
-def simulate_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0,
-                clip=True, shuffle=True, seed=None):
+def simulate_Matern(
+    parent_intensity=1,
+    region=(0, 1.0),
+    cluster_mu=1,
+    radius=1.0,
+    clip=True,
+    shuffle=True,
+    seed=None,
+):
     """
     Generate clustered point data following a Matern cluster random point process.
     Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
@@ -694,8 +812,9 @@ def simulate_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0
         The generated samples.
     """
     parameter = locals()
-    samples, labels, _, region = make_Matern(parent_intensity, region, cluster_mu, radius,
-                          clip, shuffle, seed)
+    samples, labels, _, region = make_Matern(
+        parent_intensity, region, cluster_mu, radius, clip, shuffle, seed
+    )
     region_ = region if isinstance(region, Region) else Region.from_intervals(region)
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -710,9 +829,16 @@ def simulate_Matern(parent_intensity=1, region=(0, 1.), cluster_mu=1, radius=1.0
     return locdata
 
 
-def make_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
-                cluster_mu=1, cluster_std=1.0,
-                clip=True, shuffle=True, seed=None):
+def make_Thomas(
+    parent_intensity=1,
+    region=(0, 1.0),
+    expansion_factor=6,
+    cluster_mu=1,
+    cluster_std=1.0,
+    clip=True,
+    shuffle=True,
+    seed=None,
+):
     """
     Generate clustered point data following a Thomas random point process.
     Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
@@ -753,10 +879,17 @@ def make_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
     if not isinstance(region, Region):
         region = Region.from_intervals(region)
 
-    if parent_intensity == 0 or \
-            (np.size(cluster_mu) == 1 and cluster_mu == 0) or \
-            isinstance(region, EmptyRegion):
-        samples, labels, parent_samples, region = np.array([]), np.array([]), np.array([]), region
+    if (
+        parent_intensity == 0
+        or (np.size(cluster_mu) == 1 and cluster_mu == 0)
+        or isinstance(region, EmptyRegion)
+    ):
+        samples, labels, parent_samples, region = (
+            np.array([]),
+            np.array([]),
+            np.array([]),
+            region,
+        )
         if region.dimension and region.dimension > 0:
             samples = samples[:, np.newaxis]
         return samples, labels, parent_samples, region
@@ -765,28 +898,38 @@ def make_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
     expansion_distance = expansion_factor * np.max(cluster_std)
     expanded_region = expand_region(region, expansion_distance)
 
-    parent_samples = make_Poisson(intensity=parent_intensity, region=expanded_region, seed=rng)
+    parent_samples = make_Poisson(
+        intensity=parent_intensity, region=expanded_region, seed=rng
+    )
     n_cluster = len(parent_samples)
 
     # check cluster_std consistent with n_centers or n_features
     if len(np.shape(cluster_std)) == 0:
-        cluster_std_ = np.full(shape=(n_cluster, region.dimension), fill_value=cluster_std)
+        cluster_std_ = np.full(
+            shape=(n_cluster, region.dimension), fill_value=cluster_std
+        )
     elif len(np.shape(cluster_std)) == 1:  # iterate over cluster_std for each feature
         if region.dimension == 1 or len(cluster_std) != region.dimension:
-            raise TypeError(f"The shape of cluster_std {np.shape(cluster_std)} is incompatible "
-                            f"with n_features {region.dimension}.")
+            raise TypeError(
+                f"The shape of cluster_std {np.shape(cluster_std)} is incompatible "
+                f"with n_features {region.dimension}."
+            )
         else:
             cluster_std_ = np.empty(shape=(n_cluster, region.dimension))
             for i, element in enumerate(cluster_std):
                 cluster_std_[:, i] = np.full((n_cluster,), element)
     elif len(np.shape(cluster_std)) == 2:  # iterate over cluster_std for each center
         if np.shape(cluster_std) < (n_cluster, region.dimension):
-            raise TypeError(f"The shape of cluster_std {np.shape(cluster_std)} is incompatible with "
-                            f"n_cluster {n_cluster} or n_features {region.dimension}.")
+            raise TypeError(
+                f"The shape of cluster_std {np.shape(cluster_std)} is incompatible with "
+                f"n_cluster {n_cluster} or n_features {region.dimension}."
+            )
         else:
             cluster_std_ = cluster_std
     else:
-        raise TypeError(f"The shape of cluster_std {np.shape(cluster_std)} is incompatible.")
+        raise TypeError(
+            f"The shape of cluster_std {np.shape(cluster_std)} is incompatible."
+        )
 
     # replace parents by normal-distributed offspring samples
     try:
@@ -798,8 +941,12 @@ def make_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
         n_offspring_list = rng.poisson(lam=cluster_mu, size=n_cluster)
     samples = []
     labels = []
-    for i, (parent, std, n_offspring) in enumerate(zip(parent_samples, cluster_std_, n_offspring_list)):
-        offspring_samples = rng.normal(loc=parent, scale=std, size=(n_offspring, region.dimension))
+    for i, (parent, std, n_offspring) in enumerate(
+        zip(parent_samples, cluster_std_, n_offspring_list)
+    ):
+        offspring_samples = rng.normal(
+            loc=parent, scale=std, size=(n_offspring, region.dimension)
+        )
         samples.append(offspring_samples)
         labels += [i] * len(offspring_samples)
 
@@ -820,16 +967,25 @@ def make_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
         samples = samples[shuffled_indices]
         labels = labels[shuffled_indices]
 
-    if len(samples) == 0:  # this is to convert empty arrays into arrays with shape (n_samples, n_features).
+    if (
+        len(samples) == 0
+    ):  # this is to convert empty arrays into arrays with shape (n_samples, n_features).
         samples = np.array([])
         samples = samples[:, np.newaxis]
 
     return samples, labels, parent_samples, region_
 
 
-def simulate_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
-                cluster_mu=1, cluster_std=1.0,
-                clip=True, shuffle=True, seed=None):
+def simulate_Thomas(
+    parent_intensity=1,
+    region=(0, 1.0),
+    expansion_factor=6,
+    cluster_mu=1,
+    cluster_std=1.0,
+    clip=True,
+    shuffle=True,
+    seed=None,
+):
     """
     Generate clustered point data following a Thomas random point process.
     Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
@@ -866,9 +1022,16 @@ def simulate_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
         The generated samples.
     """
     parameter = locals()
-    samples, labels, _, region = make_Thomas(parent_intensity, region, expansion_factor,
-                          cluster_mu, cluster_std,
-                          clip, shuffle, seed)
+    samples, labels, _, region = make_Thomas(
+        parent_intensity,
+        region,
+        expansion_factor,
+        cluster_mu,
+        cluster_std,
+        clip,
+        shuffle,
+        seed,
+    )
     region_ = region if isinstance(region, Region) else Region.from_intervals(region)
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -882,9 +1045,18 @@ def simulate_Thomas(parent_intensity=1, region=(0, 1.), expansion_factor=6,
 
     return locdata
 
-def make_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
-                cluster_mu=1, min_points=0, cluster_std=1.0,
-                clip=True, shuffle=True, seed=None):
+
+def make_dstorm(
+    parent_intensity=1,
+    region=(0, 1.0),
+    expansion_factor=6,
+    cluster_mu=1,
+    min_points=0,
+    cluster_std=1.0,
+    clip=True,
+    shuffle=True,
+    seed=None,
+):
     """
     Generate clustered point data following a Thomas-like random point process.
     Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
@@ -927,10 +1099,17 @@ def make_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
     if not isinstance(region, Region):
         region = Region.from_intervals(region)
 
-    if parent_intensity == 0 or \
-            (np.size(cluster_mu) == 1 and cluster_mu == 0) or \
-            isinstance(region, EmptyRegion):
-        samples, labels, parent_samples, region = np.array([]), np.array([]), np.array([]), region
+    if (
+        parent_intensity == 0
+        or (np.size(cluster_mu) == 1 and cluster_mu == 0)
+        or isinstance(region, EmptyRegion)
+    ):
+        samples, labels, parent_samples, region = (
+            np.array([]),
+            np.array([]),
+            np.array([]),
+            region,
+        )
         if region.dimension and region.dimension > 0:
             samples = samples[:, np.newaxis]
         return samples, labels, parent_samples, region
@@ -939,28 +1118,38 @@ def make_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
     expansion_distance = expansion_factor * np.max(cluster_std)
     expanded_region = expand_region(region, expansion_distance)
 
-    parent_samples = make_Poisson(intensity=parent_intensity, region=expanded_region, seed=rng)
+    parent_samples = make_Poisson(
+        intensity=parent_intensity, region=expanded_region, seed=rng
+    )
     n_cluster = len(parent_samples)
 
     # check cluster_std consistent with n_centers or n_features
     if len(np.shape(cluster_std)) == 0:
-        cluster_std_ = np.full(shape=(n_cluster, region.dimension), fill_value=cluster_std)
+        cluster_std_ = np.full(
+            shape=(n_cluster, region.dimension), fill_value=cluster_std
+        )
     elif len(np.shape(cluster_std)) == 1:  # iterate over cluster_std for each feature
         if region.dimension == 1 or len(cluster_std) != region.dimension:
-            raise TypeError(f"The shape of cluster_std {np.shape(cluster_std)} is incompatible "
-                            f"with n_features {region.dimension}.")
+            raise TypeError(
+                f"The shape of cluster_std {np.shape(cluster_std)} is incompatible "
+                f"with n_features {region.dimension}."
+            )
         else:
             cluster_std_ = np.empty(shape=(n_cluster, region.dimension))
             for i, element in enumerate(cluster_std):
                 cluster_std_[:, i] = np.full((n_cluster,), element)
     elif len(np.shape(cluster_std)) == 2:  # iterate over cluster_std for each center
         if np.shape(cluster_std) < (n_cluster, region.dimension):
-            raise TypeError(f"The shape of cluster_std {np.shape(cluster_std)} is incompatible with "
-                            f"n_cluster {n_cluster} or n_features {region.dimension}.")
+            raise TypeError(
+                f"The shape of cluster_std {np.shape(cluster_std)} is incompatible with "
+                f"n_cluster {n_cluster} or n_features {region.dimension}."
+            )
         else:
             cluster_std_ = cluster_std
     else:
-        raise TypeError(f"The shape of cluster_std {np.shape(cluster_std)} is incompatible.")
+        raise TypeError(
+            f"The shape of cluster_std {np.shape(cluster_std)} is incompatible."
+        )
 
     # replace parents by normal-distributed offspring samples
     try:
@@ -972,13 +1161,20 @@ def make_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
         e.args += (f"Too few offspring events for n_cluster: {n_cluster}",)
         raise
     except (TypeError, IndexError):
-        n_offspring_list = rng.geometric(p=1 / (cluster_mu + 1 - min_points),
-                                         size=n_cluster) - 1 + min_points
+        n_offspring_list = (
+            rng.geometric(p=1 / (cluster_mu + 1 - min_points), size=n_cluster)
+            - 1
+            + min_points
+        )
 
     samples = []
     labels = []
-    for i, (parent, std, n_offspring) in enumerate(zip(parent_samples, cluster_std_, n_offspring_list)):
-        offspring_samples = rng.normal(loc=parent, scale=std, size=(n_offspring, region.dimension))
+    for i, (parent, std, n_offspring) in enumerate(
+        zip(parent_samples, cluster_std_, n_offspring_list)
+    ):
+        offspring_samples = rng.normal(
+            loc=parent, scale=std, size=(n_offspring, region.dimension)
+        )
         samples.append(offspring_samples)
         labels += [i] * len(offspring_samples)
 
@@ -999,16 +1195,26 @@ def make_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
         samples = samples[shuffled_indices]
         labels = labels[shuffled_indices]
 
-    if len(samples) == 0:  # this is to convert empty arrays into arrays with shape (n_samples, n_features).
+    if (
+        len(samples) == 0
+    ):  # this is to convert empty arrays into arrays with shape (n_samples, n_features).
         samples = np.array([])
         samples = samples[:, np.newaxis]
 
     return samples, labels, parent_samples, region_
 
 
-def simulate_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
-                cluster_mu=1, min_points=0, cluster_std=1.0,
-                clip=True, shuffle=True, seed=None):
+def simulate_dstorm(
+    parent_intensity=1,
+    region=(0, 1.0),
+    expansion_factor=6,
+    cluster_mu=1,
+    min_points=0,
+    cluster_std=1.0,
+    clip=True,
+    shuffle=True,
+    seed=None,
+):
     """
     Generate clustered point data following a Thomas-like random point process.
     Parent positions are distributed according to a homogeneous Poisson process with `parent_intensity`
@@ -1047,9 +1253,17 @@ def simulate_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
         The generated samples.
     """
     parameter = locals()
-    samples, labels, _, region = make_dstorm(parent_intensity, region, expansion_factor,
-                          cluster_mu, min_points, cluster_std,
-                          clip, shuffle, seed)
+    samples, labels, _, region = make_dstorm(
+        parent_intensity,
+        region,
+        expansion_factor,
+        cluster_mu,
+        min_points,
+        cluster_std,
+        clip,
+        shuffle,
+        seed,
+    )
     region_ = region if isinstance(region, Region) else Region.from_intervals(region)
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -1064,7 +1278,9 @@ def simulate_dstorm(parent_intensity=1, region=(0, 1.), expansion_factor=6,
     return locdata
 
 
-def _random_walk(n_walks=1, n_steps=10, dimensions=2, diffusion_constant=1, time_step=10, seed=None):
+def _random_walk(
+    n_walks=1, n_steps=10, dimensions=2, diffusion_constant=1, time_step=10, seed=None
+):
     """
     Random walk simulation
 
@@ -1093,7 +1309,9 @@ def _random_walk(n_walks=1, n_steps=10, dimensions=2, diffusion_constant=1, time
     times = np.arange(n_steps) * time_step
 
     # random step sizes according to the diffusion constant
-    random_numbers = rng.integers(0, 2, size=(n_walks, n_steps, dimensions))  # np.random.randint(0, 2, size=(n_walks, n_steps, dimensions))
+    random_numbers = rng.integers(
+        0, 2, size=(n_walks, n_steps, dimensions)
+    )  # np.random.randint(0, 2, size=(n_walks, n_steps, dimensions))
     step_size = np.sqrt(2 * dimensions * diffusion_constant * time_step)
     steps = np.where(random_numbers == 0, -step_size, +step_size)
 
@@ -1103,8 +1321,14 @@ def _random_walk(n_walks=1, n_steps=10, dimensions=2, diffusion_constant=1, time
     return times, positions
 
 
-def simulate_tracks(n_walks=1, n_steps=10, ranges=((0, 10000), (0, 10000)), diffusion_constant=1,
-                    time_step=10, seed=None):
+def simulate_tracks(
+    n_walks=1,
+    n_steps=10,
+    ranges=((0, 10000), (0, 10000)),
+    diffusion_constant=1,
+    time_step=10,
+    seed=None,
+):
     """
     Provide a dataset of localizations representing random walks with starting points being spatially-distributed
     on a rectangular shape or cubic volume by complete spatial randomness.
@@ -1131,19 +1355,29 @@ def simulate_tracks(n_walks=1, n_steps=10, ranges=((0, 10000), (0, 10000)), diff
     """
     parameter = locals()
 
-    start_positions = np.array([np.random.uniform(*_range, size=n_walks) for _range in ranges]).T
+    start_positions = np.array(
+        [np.random.uniform(*_range, size=n_walks) for _range in ranges]
+    ).T
 
-    times, positions = _random_walk(n_walks=n_walks, n_steps=n_steps, dimensions=len(ranges),
-                                    diffusion_constant=diffusion_constant, time_step=time_step, seed=seed)
+    times, positions = _random_walk(
+        n_walks=n_walks,
+        n_steps=n_steps,
+        dimensions=len(ranges),
+        diffusion_constant=diffusion_constant,
+        time_step=time_step,
+        seed=seed,
+    )
 
-    new_positions = np.concatenate([
-        start_position + position
-        for start_position, position in zip(start_positions, positions)
-    ])
+    new_positions = np.concatenate(
+        [
+            start_position + position
+            for start_position, position in zip(start_positions, positions)
+        ]
+    )
 
     locdata_dict = {
-        'position_' + label: position_values
-        for _, position_values, label in zip(ranges, new_positions.T, ('x', 'y', 'z'))
+        "position_" + label: position_values
+        for _, position_values, label in zip(ranges, new_positions.T, ("x", "y", "z"))
     }
 
     locdata_dict.update(frame=np.tile(range(len(times)), n_walks))
@@ -1153,7 +1387,9 @@ def simulate_tracks(n_walks=1, n_steps=10, ranges=((0, 10000), (0, 10000)), diff
     # metadata
     locdata.meta.source = metadata_pb2.SIMULATION
     del locdata.meta.history[:]
-    locdata.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+    locdata.meta.history.add(
+        name=sys._getframe().f_code.co_name, parameter=str(parameter)
+    )
 
     return locdata
 
@@ -1186,25 +1422,28 @@ def resample(locdata, n_samples=10, seed=None):
     list_ = []
     for i in range(len(locdata)):
         new_d = {}
-        new_d.update({'origin_index': np.full(n_samples, i)})
-        x_values = rng.normal(loc=locdata.data.iloc[i]['position_x'],
-                              scale=locdata.data.iloc[i]['uncertainty_x'],
-                              size=n_samples
-                              )
-        new_d.update({'position_x': x_values})
+        new_d.update({"origin_index": np.full(n_samples, i)})
+        x_values = rng.normal(
+            loc=locdata.data.iloc[i]["position_x"],
+            scale=locdata.data.iloc[i]["uncertainty_x"],
+            size=n_samples,
+        )
+        new_d.update({"position_x": x_values})
 
-        y_values = rng.normal(loc=locdata.data.iloc[i]['position_y'],
-                              scale=locdata.data.iloc[i]['uncertainty_y'],
-                              size=n_samples
-                              )
-        new_d.update({'position_y': y_values})
+        y_values = rng.normal(
+            loc=locdata.data.iloc[i]["position_y"],
+            scale=locdata.data.iloc[i]["uncertainty_y"],
+            size=n_samples,
+        )
+        new_d.update({"position_y": y_values})
 
         try:
-            z_values = rng.normal(loc=locdata.data.iloc[i]['position_z'],
-                                  scale=locdata.data.iloc[i]['uncertainty_z'],
-                                  size=n_samples
-                                  )
-            new_d.update({'position_z': z_values})
+            z_values = rng.normal(
+                loc=locdata.data.iloc[i]["position_z"],
+                scale=locdata.data.iloc[i]["uncertainty_z"],
+                size=n_samples,
+            )
+            new_d.update({"position_z": z_values})
         except KeyError:
             pass
 
@@ -1233,8 +1472,9 @@ def resample(locdata, n_samples=10, seed=None):
     meta_.modification_time.GetCurrentTime()
     meta_.state = metadata_pb2.MODIFIED
     meta_.ancestor_identifiers.append(locdata.meta.identifier)
-    meta_.history.add(name='resample',
-                      parameter='locdata={}, n_samples={}'.format(locdata, n_samples))
+    meta_.history.add(
+        name="resample", parameter="locdata={}, n_samples={}".format(locdata, n_samples)
+    )
 
     # instantiate
     new_locdata = LocData.from_dataframe(dataframe=dataframe, meta=meta_)
@@ -1271,7 +1511,7 @@ def _random_poisson_repetitions(n_samples, lam, seed=None):
         repeats = rng.poisson(lam=lam, size=n_random_numbers)
         for repeat in repeats:
             try:
-                frames[position:position + repeat] = current_number
+                frames[position : position + repeat] = current_number
             except ValueError:
                 frames[position:] = current_number
                 break

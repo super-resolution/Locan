@@ -229,8 +229,8 @@ def metadata_pb2_Metadata_v0p12():
     metadata.ancestor_identifiers.append("110")
     metadata.element_count = 1
     metadata.frame_count = 1
-    metadata.properties.add(name='position_x', unit='nm', type='float')
-    metadata.localization_properties.add(name='position_x', unit='nm', type='float')
+    metadata.properties.add(name="position_x", unit="nm", type="float")
+    metadata.localization_properties.add(name="position_x", unit="nm", type="float")
     metadata.file.CopyFrom(file)
     metadata.relations.append(relation)
     metadata.experiment.CopyFrom(experiment)

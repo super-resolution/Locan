@@ -12,7 +12,12 @@ from shapely.geometry import Point
 from locan.data.region import Region, Region2D, RoiRegion
 
 
-__all__ = ['distance_to_region', 'distance_to_region_boundary', 'max_distance', 'inertia_moments']
+__all__ = [
+    "distance_to_region",
+    "distance_to_region_boundary",
+    "max_distance",
+    "inertia_moments",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +40,7 @@ def distance_to_region(locdata, region):
     numpy.ndarray
         Distance for each localization.
     """
-    distances = np.full(len(locdata), 0.)
+    distances = np.full(len(locdata), 0.0)
     if isinstance(region, (Region2D, RoiRegion)):
         for i, point in enumerate(locdata.coordinates):
             distances[i] = Point(point).distance(region.shapely_object)
@@ -63,7 +68,7 @@ def distance_to_region_boundary(locdata, region):
     numpy.ndarray
         Distance for each localization.
     """
-    distances = np.full(len(locdata), 0.)
+    distances = np.full(len(locdata), 0.0)
     if isinstance(region, (Region2D, RoiRegion)):
         for i, point in enumerate(locdata.coordinates):
             distances[i] = Point(point).distance(region.shapely_object.boundary)
@@ -90,7 +95,7 @@ def max_distance(locdata):
     points = locdata.convex_hull.vertices
     D = pdist(points)
     distance = np.nanmax(D)
-    return {'max_distance': distance}
+    return {"max_distance": distance}
 
 
 def inertia_moments(points):
@@ -119,19 +124,31 @@ def inertia_moments(points):
     points = np.asarray(points)
     covariance_matrix = np.cov(points.T)
     eigen_values, eigen_vectors = np.linalg.eig(covariance_matrix)
-    variance_explained = [eigen_value / sum(eigen_values) for eigen_value in eigen_values]
+    variance_explained = [
+        eigen_value / sum(eigen_values) for eigen_value in eigen_values
+    ]
     index_max_eigen_value = np.argmax(eigen_values)
 
     if np.shape(points)[1] == 2:
         orientation = np.degrees(
-            np.arctan2(eigen_vectors[1][index_max_eigen_value], eigen_vectors[0][index_max_eigen_value]))
+            np.arctan2(
+                eigen_vectors[1][index_max_eigen_value],
+                eigen_vectors[0][index_max_eigen_value],
+            )
+        )
         eccentricity = np.sqrt(1 - np.min(eigen_values) / np.max(eigen_values))
     else:  # todo implement for 3d
-        logger.warning("Orientation and eccentricity have not yet been implemented for 3D.")
+        logger.warning(
+            "Orientation and eccentricity have not yet been implemented for 3D."
+        )
         orientation = np.nan
         eccentricity = np.nan
 
-    InertiaMoments = namedtuple('InertiaMoments',
-                                'eigenvalues eigenvectors variance_explained orientation eccentricity')
-    inertia_moments = InertiaMoments(eigen_values, eigen_vectors, variance_explained, orientation, eccentricity)
+    InertiaMoments = namedtuple(
+        "InertiaMoments",
+        "eigenvalues eigenvectors variance_explained orientation eccentricity",
+    )
+    inertia_moments = InertiaMoments(
+        eigen_values, eigen_vectors, variance_explained, orientation, eccentricity
+    )
     return inertia_moments

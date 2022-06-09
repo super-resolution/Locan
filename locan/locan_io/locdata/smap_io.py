@@ -11,12 +11,16 @@ from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.locan_io.locdata.utilities import convert_property_types, convert_property_names
+from locan.locan_io.locdata.utilities import (
+    convert_property_types,
+    convert_property_names,
+)
 
-if HAS_DEPENDENCY["h5py"]: import h5py
+if HAS_DEPENDENCY["h5py"]:
+    import h5py
 
 
-__all__ = ['load_SMAP_header', 'load_SMAP_file', 'save_SMAP_csv']
+__all__ = ["load_SMAP_header", "load_SMAP_file", "save_SMAP_csv"]
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +42,9 @@ def _read_SMAP_header(file):
     """
     # list identifiers
     identifiers = list(file["saveloc"]["loc"].keys())
-    column_keys = convert_property_names(properties=identifiers, property_mapping=locan.constants.SMAP_KEYS)
+    column_keys = convert_property_names(
+        properties=identifiers, property_mapping=locan.constants.SMAP_KEYS
+    )
     return column_keys
 
 
@@ -57,7 +63,7 @@ def load_SMAP_header(path):
     list of str
         A list of valid dataset property keys as derived from the rapidSTORM identifiers.
     """
-    with h5py.File(path, 'r') as file:
+    with h5py.File(path, "r") as file:
         return _read_SMAP_header(file)
 
 
@@ -80,11 +86,11 @@ def load_SMAP_file(path, nrows=None, convert=True):
     LocData
         A new instance of LocData with all localizations.
     """
-    with h5py.File(path, 'r') as file:
+    with h5py.File(path, "r") as file:
         columns = _read_SMAP_header(file)
 
         if file["saveloc"]["loc"]["frame"].shape == (0,):  # empty file
-            logger.warning(f'File does not contain any data.')
+            logger.warning(f"File does not contain any data.")
             locdata = LocData()
 
         else:  # file not empty
@@ -99,7 +105,9 @@ def load_SMAP_file(path, nrows=None, convert=True):
             dataframe = pd.DataFrame(data)
 
             if convert:
-                dataframe = convert_property_types(dataframe, types=locan.constants.PROPERTY_KEYS)
+                dataframe = convert_property_types(
+                    dataframe, types=locan.constants.PROPERTY_KEYS
+                )
 
             locdata = LocData.from_dataframe(dataframe=dataframe)
 
@@ -108,11 +116,17 @@ def load_SMAP_file(path, nrows=None, convert=True):
     locdata.meta.file.type = metadata_pb2.SMAP
     locdata.meta.file.path = str(path)
 
-    for property_ in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        locdata.meta.localization_properties.add(name=property_, unit="nm", type="float")
+    for property_ in sorted(
+        list(set(columns).intersection({"position_x", "position_y", "position_z"}))
+    ):
+        locdata.meta.localization_properties.add(
+            name=property_, unit="nm", type="float"
+        )
 
     del locdata.meta.history[:]
-    locdata.meta.history.add(name='load_SMAP_file', parameter='path={}, nrows={}'.format(path, nrows))
+    locdata.meta.history.add(
+        name="load_SMAP_file", parameter="path={}, nrows={}".format(path, nrows)
+    )
 
     return locdata
 
@@ -138,7 +152,9 @@ def save_SMAP_csv(locdata, path):
 
     # rename columns
     dataframe = dataframe.rename(index=str, columns=inv_map, inplace=False)
-    valid_smap_columns = [key for key in dataframe.columns if key in locan.constants.SMAP_KEYS]
+    valid_smap_columns = [
+        key for key in dataframe.columns if key in locan.constants.SMAP_KEYS
+    ]
 
     # write to csv
-    dataframe[valid_smap_columns].to_csv(path, float_format='%.10g', index=False)
+    dataframe[valid_smap_columns].to_csv(path, float_format="%.10g", index=False)

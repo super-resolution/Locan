@@ -13,10 +13,11 @@ from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.locan_io.locdata.io_locdata import load_asdf_file
 from locan.configuration import DATASETS_DIR
 
-if HAS_DEPENDENCY["requests"]: import requests
+if HAS_DEPENDENCY["requests"]:
+    import requests
 
 
-__all__ = ['load_npc', 'load_tubulin']
+__all__ = ["load_npc", "load_tubulin"]
 
 
 @needs_package("requests")
@@ -43,13 +44,13 @@ def load_npc(**kwargs):
     -------
     LocData
     """
-    path = Path(DATASETS_DIR) / 'npc_gp210.asdf'
+    path = Path(DATASETS_DIR) / "npc_gp210.asdf"
     if not path.exists():
         DATASETS_DIR.mkdir(exist_ok=True)
         url = "https://raw.github.com/super-resolution/LocanDatasets/main/smlm_data/npc_gp210.asdf"
         response = requests.get(url)
         assert response.status_code == requests.codes.ok
-        with open(path, 'wb') as file:
+        with open(path, "wb") as file:
             for chunk in response.iter_content(chunk_size=128):
                 file.write(chunk)
     locdata = load_asdf_file(path, **kwargs)
@@ -81,13 +82,13 @@ def load_tubulin(**kwargs):
     -------
     LocData
     """
-    path = Path(DATASETS_DIR) / 'tubulin_cos7.asdf'
+    path = Path(DATASETS_DIR) / "tubulin_cos7.asdf"
     if not path.exists():
         DATASETS_DIR.mkdir(exist_ok=True)
         url = "https://raw.github.com/super-resolution/LocanDatasets/main/smlm_data/tubulin_cos7.asdf"
         response = requests.get(url)
         assert response.status_code == requests.codes.ok
-        with open(path, 'wb') as file:
+        with open(path, "wb") as file:
             for chunk in response.iter_content(chunk_size=128):
                 file.write(chunk)
     locdata = load_asdf_file(path, **kwargs)

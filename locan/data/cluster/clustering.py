@@ -15,17 +15,25 @@ from scipy import stats
 from sklearn.cluster import DBSCAN
 
 from locan import HAS_DEPENDENCY, needs_package
-if HAS_DEPENDENCY["hdbscan"]: from hdbscan import HDBSCAN
+
+if HAS_DEPENDENCY["hdbscan"]:
+    from hdbscan import HDBSCAN
 
 from locan.data.locdata import LocData
 from locan.configuration import N_JOBS
 
 
-__all__ = ['cluster_hdbscan', 'cluster_dbscan']
+__all__ = ["cluster_hdbscan", "cluster_dbscan"]
 
 
 @needs_package("hdbscan")
-def cluster_hdbscan(locdata, min_cluster_size=5, loc_properties=None, allow_single_cluster=False, **kwargs):
+def cluster_hdbscan(
+    locdata,
+    min_cluster_size=5,
+    loc_properties=None,
+    allow_single_cluster=False,
+    **kwargs
+):
     """
     Cluster localizations in locdata using the hdbscan clustering algorithm.
 
@@ -74,8 +82,13 @@ def cluster_hdbscan(locdata, min_cluster_size=5, loc_properties=None, allow_sing
         ).fit_predict(fit_data)
 
         grouped = locdata.data.groupby(labels)
-        locdata_index_labels = [locdata.data.index[idxs] for idxs in grouped.indices.values()]
-        selections = [LocData.from_selection(locdata=locdata, indices=idxs) for idxs in locdata_index_labels]
+        locdata_index_labels = [
+            locdata.data.index[idxs] for idxs in grouped.indices.values()
+        ]
+        selections = [
+            LocData.from_selection(locdata=locdata, indices=idxs)
+            for idxs in locdata_index_labels
+        ]
 
         try:
             grouped.get_group(-1)
@@ -94,9 +107,13 @@ def cluster_hdbscan(locdata, min_cluster_size=5, loc_properties=None, allow_sing
     # metadata
     if locdata_noise:
         del locdata_noise.meta.history[:]
-        locdata_noise.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+        locdata_noise.meta.history.add(
+            name=sys._getframe().f_code.co_name, parameter=str(parameter)
+        )
     del collection.meta.history[:]
-    collection.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+    collection.meta.history.add(
+        name=sys._getframe().f_code.co_name, parameter=str(parameter)
+    )
 
     return locdata_noise, collection
 
@@ -144,8 +161,13 @@ def cluster_dbscan(locdata, eps=20, min_samples=5, loc_properties=None, **kwargs
         ).fit_predict(fit_data)
 
         grouped = locdata.data.groupby(labels)
-        locdata_index_labels = [locdata.data.index[idxs] for idxs in grouped.indices.values()]
-        selections = [LocData.from_selection(locdata=locdata, indices=idxs) for idxs in locdata_index_labels]
+        locdata_index_labels = [
+            locdata.data.index[idxs] for idxs in grouped.indices.values()
+        ]
+        selections = [
+            LocData.from_selection(locdata=locdata, indices=idxs)
+            for idxs in locdata_index_labels
+        ]
 
         try:
             grouped.get_group(-1)
@@ -164,8 +186,12 @@ def cluster_dbscan(locdata, eps=20, min_samples=5, loc_properties=None, **kwargs
     # metadata
     if locdata_noise:
         del locdata_noise.meta.history[:]
-        locdata_noise.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+        locdata_noise.meta.history.add(
+            name=sys._getframe().f_code.co_name, parameter=str(parameter)
+        )
     del collection.meta.history[:]
-    collection.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+    collection.meta.history.add(
+        name=sys._getframe().f_code.co_name, parameter=str(parameter)
+    )
 
     return locdata_noise, collection

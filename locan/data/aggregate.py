@@ -21,7 +21,7 @@ from locan.data.properties.locdata_statistics import ranges
 from locan.data.locdata import LocData
 
 
-__all__ = ['Bins', 'histogram']
+__all__ = ["Bins", "histogram"]
 
 
 def is_array_like(anything) -> bool:
@@ -53,13 +53,15 @@ def is_array_like(anything) -> bool:
 
 
 def _is_scalar(element) -> bool:
-    return isinstance(element, (int, float)) or \
-           (is_array_like(element) and np.size(element) == 1 and np.ndim(element) == 0)
+    return isinstance(element, (int, float)) or (
+        is_array_like(element) and np.size(element) == 1 and np.ndim(element) == 0
+    )
 
 
 def _is_single_element(element) -> bool:
-    return isinstance(element, (int, float)) or \
-           (is_array_like(element) and np.size(element) == 1 and np.ndim(element) in (0, 1))
+    return isinstance(element, (int, float)) or (
+        is_array_like(element) and np.size(element) == 1 and np.ndim(element) in (0, 1)
+    )
 
 
 def _is_1d_array_of_scalar(element) -> bool:
@@ -79,15 +81,21 @@ def _is_2d_homogeneous_array(element) -> bool:
 
 
 def _is_2d_inhomogeneous_array_of_1d_array_of_scalar(element) -> bool:
-    return not is_array_like(element) and all(_is_1d_array_of_scalar(el) for el in element)
+    return not is_array_like(element) and all(
+        _is_1d_array_of_scalar(el) for el in element
+    )
 
 
 def _is_2d_inhomogeneous_array(element) -> bool:
-    return not is_array_like(element) and all(_is_scalar(el) or _is_1d_array_of_scalar(el) for el in element)
+    return not is_array_like(element) and all(
+        _is_scalar(el) or _is_1d_array_of_scalar(el) for el in element
+    )
 
 
 def _is_2d_array_of_1d_array_of_scalar(element) -> bool:
-    return _is_2d_homogeneous_array(element) or _is_2d_inhomogeneous_array_of_1d_array_of_scalar(element)
+    return _is_2d_homogeneous_array(
+        element
+    ) or _is_2d_inhomogeneous_array_of_1d_array_of_scalar(element)
 
 
 """
@@ -135,7 +143,9 @@ def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> np.ndarray:
     return np.linspace(*bin_range, n_bins + 1, endpoint=True, dtype=float)
 
 
-def _bin_size_to_bin_edges_one_dimension(bin_size, bin_range, extend_range=None) -> np.ndarray:
+def _bin_size_to_bin_edges_one_dimension(
+    bin_size, bin_range, extend_range=None
+) -> np.ndarray:
     """
     Compute bin edges from bin_size and bin_range.
 
@@ -165,13 +175,15 @@ def _bin_size_to_bin_edges_one_dimension(bin_size, bin_range, extend_range=None)
     """
     if _is_scalar(bin_size):
         bin_edges = np.arange(*bin_range, bin_size, dtype=float)
-        if bin_edges.size == 1:  # this is the case if bin_size is greater than the bin_range
+        if (
+            bin_edges.size == 1
+        ):  # this is the case if bin_size is greater than the bin_range
             if extend_range is True:
                 bin_edges = np.append(bin_edges, bin_edges + bin_size)
             elif extend_range is None or extend_range is False:
                 bin_edges = np.array(bin_range)
             else:
-                raise ValueError('`extend_range` must be None, True or False.')
+                raise ValueError("`extend_range` must be None, True or False.")
         else:
             last_edge = bin_edges[-1] + bin_size
             if isclose(last_edge, bin_range[-1]):
@@ -184,7 +196,7 @@ def _bin_size_to_bin_edges_one_dimension(bin_size, bin_range, extend_range=None)
                 elif extend_range is False:
                     bin_edges = np.append(bin_edges, bin_range[-1])
                 else:
-                    raise ValueError('`extend_range` must be None, True or False.')
+                    raise ValueError("`extend_range` must be None, True or False.")
 
     elif _is_1d_array_of_scalar(bin_size):
         if bin_size[0] > np.diff(bin_range):
@@ -193,9 +205,11 @@ def _bin_size_to_bin_edges_one_dimension(bin_size, bin_range, extend_range=None)
             elif extend_range is None or extend_range is False:
                 bin_edges = bin_range
             else:
-                raise ValueError('`extend_range` must be None, True or False.')
+                raise ValueError("`extend_range` must be None, True or False.")
         else:
-            bin_edges_ = np.concatenate((np.asarray([bin_range[0]]), np.cumsum(bin_size) + bin_range[0]))
+            bin_edges_ = np.concatenate(
+                (np.asarray([bin_range[0]]), np.cumsum(bin_size) + bin_range[0])
+            )
             bin_edges = bin_edges_[bin_edges_ <= bin_range[-1]]
             if extend_range is None:
                 pass
@@ -208,7 +222,7 @@ def _bin_size_to_bin_edges_one_dimension(bin_size, bin_range, extend_range=None)
             elif extend_range is False:
                 bin_edges = np.append(bin_edges, bin_range[-1])
             else:
-                raise ValueError('`extend_range` must be None, True or False.')
+                raise ValueError("`extend_range` must be None, True or False.")
 
     else:
         raise TypeError("`bin_size` must be 0- or 1-dimensional.")
@@ -240,7 +254,7 @@ def _bin_edges_to_n_bins(bin_edges):
     elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
         n_bins = tuple(_bin_edges_to_n_bins_one_dimension(edges) for edges in bin_edges)
     else:
-        raise TypeError('The shape of bin_edges must be (dimension, n_bin_edges).')
+        raise TypeError("The shape of bin_edges must be (dimension, n_bin_edges).")
     return n_bins
 
 
@@ -270,9 +284,11 @@ def _bin_edges_to_bin_size(bin_edges):
     if _is_1d_array_of_scalar(bin_edges):
         bin_size = (_bin_edges_to_bin_size_one_dimension(bin_edges),)
     elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
-        bin_size = tuple(_bin_edges_to_bin_size_one_dimension(edges) for edges in bin_edges)
+        bin_size = tuple(
+            _bin_edges_to_bin_size_one_dimension(edges) for edges in bin_edges
+        )
     else:
-        raise TypeError('The shape of bin_edges must be (dimension, n_bin_edges).')
+        raise TypeError("The shape of bin_edges must be (dimension, n_bin_edges).")
     return bin_size
 
 
@@ -295,7 +311,7 @@ def _bin_edges_to_bin_centers(bin_edges):
     elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
         bin_centers = tuple(np.diff(edges) / 2 + edges[0:-1] for edges in bin_edges)
     else:
-        raise TypeError('The shape of bin_edges must be (dimension, n_bin_edges).')
+        raise TypeError("The shape of bin_edges must be (dimension, n_bin_edges).")
     return bin_centers
 
 
@@ -328,7 +344,7 @@ def _indices_to_bin_centers(bin_edges, indices):
         elif _is_2d_homogeneous_array(indices):
             selected_bin_centers = bin_centers[indices]
         else:
-            raise TypeError('The given array shapes cannot be processed.')
+            raise TypeError("The given array shapes cannot be processed.")
 
     elif _is_2d_array_of_1d_array_of_scalar(bin_centers):
         if _is_scalar(indices):
@@ -337,13 +353,17 @@ def _indices_to_bin_centers(bin_edges, indices):
             selected_bin_centers = [bc[indices] for bc in bin_centers]
         elif _is_2d_homogeneous_array(indices):
             if len(bin_centers) != len(indices.T):
-                raise TypeError("`bin_centers` and `indices` must be for the same dimension.")
+                raise TypeError(
+                    "`bin_centers` and `indices` must be for the same dimension."
+                )
             else:
-                selected_bin_centers = np.array([bc[idx] for bc, idx in zip(bin_centers, indices.T)]).T
+                selected_bin_centers = np.array(
+                    [bc[idx] for bc, idx in zip(bin_centers, indices.T)]
+                ).T
         else:
-            raise TypeError('The given array shapes cannot be processed.')
+            raise TypeError("The given array shapes cannot be processed.")
     else:
-        raise TypeError('The given array shapes cannot be processed.')
+        raise TypeError("The given array shapes cannot be processed.")
 
     return selected_bin_centers
 
@@ -373,14 +393,18 @@ class _BinsFromBoostHistogramAxis:
             self.n_bins = self._bins.size
             self.bin_size = tuple(tuple(arr) for arr in self._bins.widths.flatten())
             self.bin_edges = self._bins.edges.flatten()
-            self.bin_range = tuple((axis.edges[0], axis.edges[-1]) for axis in self._bins)
+            self.bin_range = tuple(
+                (axis.edges[0], axis.edges[-1]) for axis in self._bins
+            )
             self.bin_centers = self._bins.centers.flatten()
 
         else:
             raise TypeError
 
     def __getattr__(self, attr):
-        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
             raise AttributeError
         return getattr(self._bins, attr)
 
@@ -434,43 +458,51 @@ class _BinsFromNumber:
         elif _is_scalar(n_bins):
             if _is_1d_array_of_two_scalar(bin_range):
                 self.dimension = 1
-                self.bin_edges = (_n_bins_to_bin_edges_one_dimension(n_bins, bin_range),)
+                self.bin_edges = (
+                    _n_bins_to_bin_edges_one_dimension(n_bins, bin_range),
+                )
                 self.n_bins = (n_bins,)
                 self.bin_range = (bin_range,)
 
             elif _is_2d_homogeneous_array(bin_range):
                 self.dimension = len(bin_range)
-                self.bin_edges = tuple(_n_bins_to_bin_edges_one_dimension(n_bins, single_range)
-                                       for single_range in bin_range)
+                self.bin_edges = tuple(
+                    _n_bins_to_bin_edges_one_dimension(n_bins, single_range)
+                    for single_range in bin_range
+                )
                 self.n_bins = tuple(n_bins for _ in bin_range)
                 self.bin_range = tuple(bin_range)
 
             else:
-                raise TypeError('n_bins and/or bin_range have incorrect shapes.')
+                raise TypeError("n_bins and/or bin_range have incorrect shapes.")
 
         elif _is_1d_array_of_scalar(n_bins):
             if _is_1d_array_of_two_or_more_scalar(bin_range):
                 self.dimension = len(n_bins)
-                self.bin_edges = tuple(_n_bins_to_bin_edges_one_dimension(n_bins=n, bin_range=bin_range)
-                                       for n in n_bins)
+                self.bin_edges = tuple(
+                    _n_bins_to_bin_edges_one_dimension(n_bins=n, bin_range=bin_range)
+                    for n in n_bins
+                )
                 self.n_bins = tuple(n_bins)
                 self.bin_range = tuple(bin_range for _ in n_bins)
 
             elif _is_2d_homogeneous_array(bin_range):
                 if len(n_bins) != len(bin_range):
-                    raise TypeError('n_bins and bin_range have incompatible shapes.')
+                    raise TypeError("n_bins and bin_range have incompatible shapes.")
                 else:
                     self.dimension = len(n_bins)
-                    self.bin_edges = tuple(_n_bins_to_bin_edges_one_dimension(n_bins=b, bin_range=r)
-                                           for b, r in zip(n_bins, bin_range))
+                    self.bin_edges = tuple(
+                        _n_bins_to_bin_edges_one_dimension(n_bins=b, bin_range=r)
+                        for b, r in zip(n_bins, bin_range)
+                    )
                     self.n_bins = tuple(n_bins)
                     self.bin_range = tuple(bin_range)
 
             else:
-                raise TypeError('n_bins and/or bin_range have incorrect shapes.')
+                raise TypeError("n_bins and/or bin_range have incorrect shapes.")
 
         else:
-            raise TypeError('n_bins and/or bin_range have incorrect shapes.')
+            raise TypeError("n_bins and/or bin_range have incorrect shapes.")
 
         self.bin_size = _bin_edges_to_bin_size(self.bin_edges)
 
@@ -500,83 +532,128 @@ class _BinsFromSize:
         the last bin_edge will be equal to the maximum bin_range (False);
         the last bin_edge will be larger than the maximum bin_range but taken from the input sequence (True).
     """
+
     def __init__(self, bin_size, bin_range, extend_range=None):
 
         if _is_scalar(bin_size):
             if _is_1d_array_of_two_scalar(bin_range):
                 self.dimension = 1
-                self.bin_edges = (_bin_size_to_bin_edges_one_dimension(bin_size, bin_range, extend_range),)
+                self.bin_edges = (
+                    _bin_size_to_bin_edges_one_dimension(
+                        bin_size, bin_range, extend_range
+                    ),
+                )
                 self.bin_range = (bin_range,)
 
             elif _is_2d_homogeneous_array(bin_range):
                 self.dimension = len(bin_range)
-                self.bin_edges = tuple(_bin_size_to_bin_edges_one_dimension(bin_size, single_range, extend_range)
-                                       for single_range in bin_range)
-                self.bin_range = tuple((edges[0], edges[-1]) for edges in self.bin_edges)
+                self.bin_edges = tuple(
+                    _bin_size_to_bin_edges_one_dimension(
+                        bin_size, single_range, extend_range
+                    )
+                    for single_range in bin_range
+                )
+                self.bin_range = tuple(
+                    (edges[0], edges[-1]) for edges in self.bin_edges
+                )
 
             else:
-                raise TypeError('bin_size and/or bin_range have incorrect shapes.')
+                raise TypeError("bin_size and/or bin_range have incorrect shapes.")
 
         elif _is_single_element(bin_size):
             if _is_1d_array_of_two_scalar(bin_range):
                 self.dimension = 1
-                self.bin_edges = (_bin_size_to_bin_edges_one_dimension(bin_size[0], bin_range, extend_range),)
+                self.bin_edges = (
+                    _bin_size_to_bin_edges_one_dimension(
+                        bin_size[0], bin_range, extend_range
+                    ),
+                )
                 self.bin_range = (bin_range,)
 
             elif _is_2d_homogeneous_array(bin_range):
                 self.dimension = len(bin_range)
-                self.bin_edges = tuple(_bin_size_to_bin_edges_one_dimension(bin_size[0], single_range, extend_range)
-                                       for single_range in bin_range)
-                self.bin_range = tuple((edges[0], edges[-1]) for edges in self.bin_edges)
+                self.bin_edges = tuple(
+                    _bin_size_to_bin_edges_one_dimension(
+                        bin_size[0], single_range, extend_range
+                    )
+                    for single_range in bin_range
+                )
+                self.bin_range = tuple(
+                    (edges[0], edges[-1]) for edges in self.bin_edges
+                )
 
             else:
-                raise TypeError('bin_size and/or bin_range have incorrect shapes.')
+                raise TypeError("bin_size and/or bin_range have incorrect shapes.")
 
         elif _is_1d_array_of_scalar(bin_size):
             if _is_1d_array_of_two_scalar(bin_range):
                 self.dimension = len(bin_size)
-                self.bin_edges = tuple(_bin_size_to_bin_edges_one_dimension(bin_size=bs, bin_range=bin_range,
-                                                                            extend_range=extend_range)
-                                       for bs in bin_size)
-                self.bin_range = tuple((edges[0], edges[-1]) for edges in self.bin_edges)
+                self.bin_edges = tuple(
+                    _bin_size_to_bin_edges_one_dimension(
+                        bin_size=bs, bin_range=bin_range, extend_range=extend_range
+                    )
+                    for bs in bin_size
+                )
+                self.bin_range = tuple(
+                    (edges[0], edges[-1]) for edges in self.bin_edges
+                )
 
             elif _is_2d_homogeneous_array(bin_range):
                 if len(bin_size) != len(bin_range):
-                    raise TypeError('bin_size and bin_range have incompatible shapes.')
+                    raise TypeError("bin_size and bin_range have incompatible shapes.")
                 else:
                     self.dimension = len(bin_size)
-                    self.bin_edges = tuple(_bin_size_to_bin_edges_one_dimension(bin_size=bs, bin_range=br,
-                                                                                extend_range=extend_range)
-                                           for bs, br in zip(bin_size, bin_range))
-                    self.bin_range = tuple((edges[0], edges[-1]) for edges in self.bin_edges)
+                    self.bin_edges = tuple(
+                        _bin_size_to_bin_edges_one_dimension(
+                            bin_size=bs, bin_range=br, extend_range=extend_range
+                        )
+                        for bs, br in zip(bin_size, bin_range)
+                    )
+                    self.bin_range = tuple(
+                        (edges[0], edges[-1]) for edges in self.bin_edges
+                    )
 
             else:
-                raise TypeError('bin_size and/or bin_range have incorrect shapes.')
+                raise TypeError("bin_size and/or bin_range have incorrect shapes.")
 
-        elif _is_2d_inhomogeneous_array(bin_size) or _is_2d_homogeneous_array(bin_size):  #_is_2d_array_of_1d_array_of_scalar(bin_size):
+        elif _is_2d_inhomogeneous_array(bin_size) or _is_2d_homogeneous_array(
+            bin_size
+        ):  # _is_2d_array_of_1d_array_of_scalar(bin_size):
             if _is_1d_array_of_two_scalar(bin_range):
                 self.dimension = len(bin_size)
-                self.bin_edges = tuple(_bin_size_to_bin_edges_one_dimension(bin_size=bs, bin_range=bin_range,
-                                                                            extend_range=extend_range)
-                                       for bs in bin_size)
-                self.bin_range = tuple((edges[0], edges[-1]) for edges in self.bin_edges)
+                self.bin_edges = tuple(
+                    _bin_size_to_bin_edges_one_dimension(
+                        bin_size=bs, bin_range=bin_range, extend_range=extend_range
+                    )
+                    for bs in bin_size
+                )
+                self.bin_range = tuple(
+                    (edges[0], edges[-1]) for edges in self.bin_edges
+                )
 
             elif _is_2d_homogeneous_array(bin_range):
                 if len(bin_size) != len(bin_range):
-                    raise TypeError('bin_size and bin_range have incompatible shapes.')
+                    raise TypeError("bin_size and bin_range have incompatible shapes.")
                 else:
                     self.dimension = len(bin_size)
-                    self.bin_edges = tuple(_bin_size_to_bin_edges_one_dimension(bin_size=bs, bin_range=br,
-                                                                                extend_range=extend_range)
-                                           for bs, br in zip(bin_size, bin_range))
-                    self.bin_range = tuple((edges[0], edges[-1]) for edges in self.bin_edges)
+                    self.bin_edges = tuple(
+                        _bin_size_to_bin_edges_one_dimension(
+                            bin_size=bs, bin_range=br, extend_range=extend_range
+                        )
+                        for bs, br in zip(bin_size, bin_range)
+                    )
+                    self.bin_range = tuple(
+                        (edges[0], edges[-1]) for edges in self.bin_edges
+                    )
 
         elif np.ndim(bin_size) > 2:
-            raise TypeError("`bin_size` must be 0-, 1- or 2-dimensional. \
-                            Construct from bin_edges if you need variable bin_sizes in one dimension.")
+            raise TypeError(
+                "`bin_size` must be 0-, 1- or 2-dimensional. \
+                            Construct from bin_edges if you need variable bin_sizes in one dimension."
+            )
 
         else:
-            raise TypeError('bin_size and/or bin_range have incorrect shapes.')
+            raise TypeError("bin_size and/or bin_range have incorrect shapes.")
 
         self.n_bins = _bin_edges_to_n_bins(self.bin_edges)
         self.bin_size = _bin_edges_to_bin_size(self.bin_edges)
@@ -659,20 +736,32 @@ class Bins:
         Names for each bin axis.
     """
 
-    def __init__(self, bins=None, n_bins=None, bin_size=None, bin_edges=None, bin_range=None,
-                 labels=None, extend_range=None):
+    def __init__(
+        self,
+        bins=None,
+        n_bins=None,
+        bin_size=None,
+        bin_edges=None,
+        bin_range=None,
+        labels=None,
+        extend_range=None,
+    ):
 
         # check for correct inputs
         excluding_parameter = (bins, n_bins, bin_size, bin_edges)
-        excluding_parameter_strings = ('bins', 'n_bins', 'bin_size', 'bin_edges')
+        excluding_parameter_strings = ("bins", "n_bins", "bin_size", "bin_edges")
         n_inputs = sum(param is not None for param in excluding_parameter)
         if n_inputs != 1:
-            raise ValueError(f"One and only one of {excluding_parameter_strings} must be different from None.")
+            raise ValueError(
+                f"One and only one of {excluding_parameter_strings} must be different from None."
+            )
 
         # inject builder class
         if bins is not None:
             if bin_range is not None:
-                raise ValueError("The parameter `bin_range` is derived from bins class and must be None.")
+                raise ValueError(
+                    "The parameter `bin_range` is derived from bins class and must be None."
+                )
             if isinstance(bins, Bins):
                 self._bins = bins
             if isinstance(bins, (bh.axis.Axis, bh.axis.AxesTuple)):
@@ -683,7 +772,9 @@ class Bins:
             self._bins = _BinsFromSize(bin_size, bin_range, extend_range)
         elif bin_edges is not None:
             if bin_range is not None:
-                raise ValueError("The parameter `bin_range` is derived from `bin_edges` and must be None.")
+                raise ValueError(
+                    "The parameter `bin_range` is derived from `bin_edges` and must be None."
+                )
             self._bins = _BinsFromEdges(bin_edges)
 
         self._bin_centers = None
@@ -712,7 +803,7 @@ class Bins:
     @property
     def bin_centers(self):
         if self._bin_centers is None:
-            self._bin_centers = getattr(self._bins, 'bin_centers', None)
+            self._bin_centers = getattr(self._bins, "bin_centers", None)
             if self._bin_centers is None:
                 self._bin_centers = _bin_edges_to_bin_centers(self.bin_edges)
         return self._bin_centers
@@ -720,7 +811,7 @@ class Bins:
     @property
     def labels(self):
         if self._labels is None:
-            self._labels = getattr(self._bins, 'labels', None)
+            self._labels = getattr(self._bins, "labels", None)
         return self._labels
 
     @labels.setter
@@ -739,7 +830,9 @@ class Bins:
             raise ValueError("`labels` must have a length of `dimension`.")
 
     def __getattr__(self, attr):
-        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
             raise AttributeError
         return getattr(self._bins, attr)
 
@@ -792,11 +885,13 @@ def _histogram_fast_histogram(data, bins) -> np.ndarray:
     numpy.ndarray
     """
     if data.shape[0] == 1:
-        img = fast_histogram.histogram1d(data, range=bins.bin_range[0], bins=bins.n_bins[0])
+        img = fast_histogram.histogram1d(
+            data, range=bins.bin_range[0], bins=bins.n_bins[0]
+        )
     elif data.shape[0] == 2:
         img = fast_histogram.histogram2d(*data, range=bins.bin_range, bins=bins.n_bins)
     else:
-        raise TypeError('Dimension of data must be 1 or 2.')
+        raise TypeError("Dimension of data must be 1 or 2.")
     return img
 
 
@@ -815,7 +910,10 @@ def _histogram_boost_histogram(data, bins) -> np.ndarray:
     -------
     numpy.ndarray
     """
-    hist_axes = [bh.axis.Variable(bins.bin_edges[i], metadata=bins.labels[i]) for i in range(bins.dimension)]
+    hist_axes = [
+        bh.axis.Variable(bins.bin_edges[i], metadata=bins.labels[i])
+        for i in range(bins.dimension)
+    ]
     hist = bh.Histogram(*hist_axes).fill(*data)
     img = hist.view()
     return img
@@ -839,15 +937,21 @@ def _histogram_mean_fast_histogram(data, bins, values):
     numpy.ndarray
     """
     if data.shape[0] == 1:
-        hist = fast_histogram.histogram1d(data, range=bins.bin_range[0], bins=bins.n_bins[0])
-        hist_w = fast_histogram.histogram1d(data, range=bins.bin_range[0], bins=bins.n_bins[0], weights=values)
+        hist = fast_histogram.histogram1d(
+            data, range=bins.bin_range[0], bins=bins.n_bins[0]
+        )
+        hist_w = fast_histogram.histogram1d(
+            data, range=bins.bin_range[0], bins=bins.n_bins[0], weights=values
+        )
     elif data.shape[0] == 2:
         hist = fast_histogram.histogram2d(*data, range=bins.bin_range, bins=bins.n_bins)
-        hist_w = fast_histogram.histogram2d(*data, range=bins.bin_range, bins=bins.n_bins, weights=values)
+        hist_w = fast_histogram.histogram2d(
+            *data, range=bins.bin_range, bins=bins.n_bins, weights=values
+        )
     else:
-        raise TypeError('Dimension of data must be 1 or 2.')
+        raise TypeError("Dimension of data must be 1 or 2.")
 
-    with np.errstate(divide='ignore', invalid='ignore'):
+    with np.errstate(divide="ignore", invalid="ignore"):
         hist = np.true_divide(hist_w, hist)
         hist[hist == np.inf] = 0
         # hist = np.nan_to_num(hist)
@@ -869,14 +973,17 @@ def _histogram_mean_boost_histogram(data, bins, values) -> np.ndarray:
     -------
     numpy.ndarray
     """
-    hist_axes = [bh.axis.Variable(bins.bin_edges[i], metadata=bins.labels[i]) for i in range(bins.dimension)]
+    hist_axes = [
+        bh.axis.Variable(bins.bin_edges[i], metadata=bins.labels[i])
+        for i in range(bins.dimension)
+    ]
     hist = bh.Histogram(*hist_axes).fill(*data)
     hist_w = bh.Histogram(*hist_axes).fill(*data, weight=values)
     hist = hist_w / hist
     return hist.view()
 
 
-def _check_loc_properties(locdata:LocData, loc_properties:Union[str, Iterable]):
+def _check_loc_properties(locdata: LocData, loc_properties: Union[str, Iterable]):
     """
     Check that loc_properties are valid properties in locdata.
 
@@ -896,21 +1003,32 @@ def _check_loc_properties(locdata:LocData, loc_properties:Union[str, Iterable]):
         labels = locdata.coordinate_labels.copy()
     elif isinstance(loc_properties, str):
         if loc_properties not in locdata.data.columns:
-            raise ValueError(f'{loc_properties} is not a valid property in locdata.data.')
+            raise ValueError(
+                f"{loc_properties} is not a valid property in locdata.data."
+            )
         labels = [loc_properties]
     elif isinstance(loc_properties, (tuple, list)):
         labels = list(loc_properties)
         for loc_property in loc_properties:
             if loc_property not in locdata.data.columns:
-                raise ValueError(f'{loc_property} is not a valid property in locdata.data.')
+                raise ValueError(
+                    f"{loc_property} is not a valid property in locdata.data."
+                )
     else:
-        raise ValueError(f'{loc_properties} is not a valid property in locdata.data.')
+        raise ValueError(f"{loc_properties} is not a valid property in locdata.data.")
     return labels
 
 
-def histogram(locdata, loc_properties=None, other_property=None,
-              bins=None, n_bins=None, bin_size=None, bin_edges=None, bin_range=None,
-              ):
+def histogram(
+    locdata,
+    loc_properties=None,
+    other_property=None,
+    bins=None,
+    n_bins=None,
+    bin_size=None,
+    bin_edges=None,
+    bin_range=None,
+):
     """
     Make histogram of loc_properties (columns in locdata.data) by binning all localizations
     or averaging other_property within each bin.
@@ -968,8 +1086,10 @@ def histogram(locdata, loc_properties=None, other_property=None,
         elif data.shape[0] == 1 or data.shape[0] == 3:
             img = _histogram_boost_histogram(data, bins)
         else:
-            raise TypeError('loc_properties must contain a string or a list with 1, 2 or 3 elements.')
-        labels_.append('counts')
+            raise TypeError(
+                "loc_properties must contain a string or a list with 1, 2 or 3 elements."
+            )
+        labels_.append("counts")
 
     elif other_property in locdata.data.columns:
         # histogram data by averaging values
@@ -979,10 +1099,12 @@ def histogram(locdata, loc_properties=None, other_property=None,
         elif data.shape[0] == 1 or data.shape[0] == 3:
             img = _histogram_mean_boost_histogram(data, bins, values)
         else:
-            raise TypeError('No more than 3 elements in loc_properties are allowed.')
+            raise TypeError("No more than 3 elements in loc_properties are allowed.")
         labels_.append(other_property)
     else:
-        raise TypeError(f'Parameter for `other_property` {other_property} is not a valid property name.')
+        raise TypeError(
+            f"Parameter for `other_property` {other_property} is not a valid property name."
+        )
 
-    Histogram = namedtuple('Histogram', "data bins labels")
+    Histogram = namedtuple("Histogram", "data bins labels")
     return Histogram(img, bins, labels_)

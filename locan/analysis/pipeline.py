@@ -17,7 +17,7 @@ import logging
 from locan.analysis.analysis_base import _Analysis
 
 
-__all__ = ['Pipeline']
+__all__ = ["Pipeline"]
 
 logger = logging.getLogger(__name__)
 
@@ -71,12 +71,15 @@ class Pipeline(_Analysis):
     With multiprocessing it will have to be re-injected for each Pipeline object by `pipeline.computation = computation`
     after computation and before pickling.
     """
+
     def __init__(self, computation, meta=None, **kwargs):
         super().__init__(meta=meta, computation=computation, **kwargs)
 
         if not callable(computation):
-            raise TypeError('A callable function `computation(self, locdata, **kwargs)` '
-                            'must be passed as first argument.')
+            raise TypeError(
+                "A callable function `computation(self, locdata, **kwargs)` "
+                "must be passed as first argument."
+            )
         self.computation = computation
         self.kwargs = kwargs
 
@@ -96,8 +99,8 @@ class Pipeline(_Analysis):
         path : str, bytes, os.PathLike
             Path and file name for saving the text file.
         """
-        with open(path, 'w') as handle:
-            handle.write('Analysis Pipeline: {}\n\n'.format(self.__class__.__name__))
+        with open(path, "w") as handle:
+            handle.write("Analysis Pipeline: {}\n\n".format(self.__class__.__name__))
             handle.write(inspect.getsource(self.computation))
 
     def computation_as_string(self):
@@ -107,17 +110,17 @@ class Pipeline(_Analysis):
         return inspect.getsource(self.computation)
 
 
-def computation_test(self, locdata=None, parameter='test'):
+def computation_test(self, locdata=None, parameter="test"):
     """ A pipeline definition for testing."""
     self.locdata = locdata
-    something = 'changed_value'
-    logger.debug(f'something has a : {something}')
+    something = "changed_value"
+    logger.debug(f"something has a : {something}")
     self.test = parameter
-    logger.info(f'computation finished for locdata: {locdata}')
+    logger.info(f"computation finished for locdata: {locdata}")
 
     try:
         raise NotImplementedError
     except NotImplementedError:
-        logger.warning(f'An exception occurred for locdata: {locdata}')
+        logger.warning(f"An exception occurred for locdata: {locdata}")
 
     return self

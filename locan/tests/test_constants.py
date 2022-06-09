@@ -1,15 +1,37 @@
 import matplotlib.colors as mcolors
 
 from locan.dependencies import HAS_DEPENDENCY
-from locan import PropertyDescription, PropertyKey, PROPERTY_KEYS, \
-    FileType, HullType, RenderEngine, ColorMaps, \
-    RAPIDSTORM_KEYS, ELYRA_KEYS, THUNDERSTORM_KEYS, NANOIMAGER_KEYS, SMLM_KEYS, DECODE_KEYS, SMAP_KEYS
+from locan import (
+    PropertyDescription,
+    PropertyKey,
+    PROPERTY_KEYS,
+    FileType,
+    HullType,
+    RenderEngine,
+    ColorMaps,
+    RAPIDSTORM_KEYS,
+    ELYRA_KEYS,
+    THUNDERSTORM_KEYS,
+    NANOIMAGER_KEYS,
+    SMLM_KEYS,
+    DECODE_KEYS,
+    SMAP_KEYS,
+)
 
 
 def test_PropertyDescription():
-    prop = PropertyDescription(name="prop_name", type='integer', unit_SI="m", unit="nm", description="something")
-    assert repr(prop) == "PropertyDescription(name='prop_name', type='integer', unit_SI='m', unit='nm', " \
-                         "description='something')"
+    prop = PropertyDescription(
+        name="prop_name",
+        type="integer",
+        unit_SI="m",
+        unit="nm",
+        description="something",
+    )
+    assert (
+        repr(prop)
+        == "PropertyDescription(name='prop_name', type='integer', unit_SI='m', unit='nm', "
+        "description='something')"
+    )
     assert prop.name == "prop_name"
 
 
@@ -18,8 +40,14 @@ def test_PropertyKey():
     for element in PropertyKey:
         assert element.name == element.value.name
 
-    assert all(key in PropertyKey.coordinate_labels()
-               for key in [PropertyKey.position_x, PropertyKey.position_y, PropertyKey.position_z])
+    assert all(
+        key in PropertyKey.coordinate_labels()
+        for key in [
+            PropertyKey.position_x,
+            PropertyKey.position_y,
+            PropertyKey.position_z,
+        ]
+    )
 
     PropertyKey.position_x.value.unit = "nm"
     assert PropertyKey.position_x.value.unit == "nm"
@@ -35,11 +63,20 @@ def test_PROPERTY_KEYS():
 
 def test_HullType():
     values = [item.value for item in HullType]
-    assert all(value in values for value in ['bounding_box', 'convex_hull', 'oriented_bounding_box', 'alpha_shape'])
+    assert all(
+        value in values
+        for value in [
+            "bounding_box",
+            "convex_hull",
+            "oriented_bounding_box",
+            "alpha_shape",
+        ]
+    )
 
 
 def test_FileType():
     from locan.data.metadata_pb2 import File_type
+
     for ft_enum, ft_pb in zip(FileType, File_type.items()):
         assert ft_enum.name == ft_pb[0]
         assert ft_enum.value == ft_pb[1]
@@ -47,9 +84,9 @@ def test_FileType():
 
 def test_RenderEngine():
     if not HAS_DEPENDENCY["napari"]:
-        assert all(key in RenderEngine._member_names_ for key in ['MPL'])
+        assert all(key in RenderEngine._member_names_ for key in ["MPL"])
     else:
-        assert all(key in RenderEngine._member_names_ for key in ['MPL', 'NAPARI'])
+        assert all(key in RenderEngine._member_names_ for key in ["MPL", "NAPARI"])
 
 
 def test_ColorMaps():

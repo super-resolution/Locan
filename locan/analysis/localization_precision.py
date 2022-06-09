@@ -38,32 +38,39 @@ from locan.configuration import N_JOBS, TQDM_DISABLE, TQDM_LEAVE
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 
 
-__all__ = ['LocalizationPrecision']
+__all__ = ["LocalizationPrecision"]
 
 logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
 
+
 def _localization_precision(locdata, radius=50):
     # group localizations
-    grouped = locdata.data.groupby('frame')
+    grouped = locdata.data.groupby("frame")
 
     # find nearest neighbors
-    min = locdata.data['frame'].unique().min()
-    max = locdata.data['frame'].unique().max()
+    min = locdata.data["frame"].unique().min()
+    max = locdata.data["frame"].unique().max()
 
     results = pd.DataFrame()
 
-    for i in tqdm(range(min, max - 1),
-                  desc='Processed frames:', leave=TQDM_LEAVE, disable=TQDM_DISABLE):
+    for i in tqdm(
+        range(min, max - 1),
+        desc="Processed frames:",
+        leave=TQDM_LEAVE,
+        disable=TQDM_DISABLE,
+    ):
         try:
             points = grouped.get_group(i)[locdata.coordinate_labels]
             other_points = grouped.get_group(i + 1)[locdata.coordinate_labels]
 
             # print(points)
 
-            nn = NearestNeighbors(radius=radius, metric='euclidean', n_jobs=N_JOBS).fit(other_points)
+            nn = NearestNeighbors(radius=radius, metric="euclidean", n_jobs=N_JOBS).fit(
+                other_points
+            )
             distances, indices = nn.radius_neighbors(points)
 
             if len(distances):
@@ -75,9 +82,13 @@ def _localization_precision(locdata, radius=50):
                         difference = points.iloc[n] - other_points.iloc[min_index]
 
                         df = difference.to_frame().T
-                        df = df.rename(columns={'position_x': 'position_delta_x',
-                                                'position_y': 'position_delta_y',
-                                                'position_z': 'position_delta_z'})
+                        df = df.rename(
+                            columns={
+                                "position_x": "position_delta_x",
+                                "position_y": "position_delta_y",
+                                "position_z": "position_delta_z",
+                            }
+                        )
                         df = df.assign(position_distance=min_distance)
                         df = df.assign(frame=i)
                         results = pd.concat([results, df])
@@ -115,6 +126,7 @@ class LocalizationPrecision(_Analysis):
     distribution_statistics : Distribution_fits object, None
         Distribution parameters derived from MLE fitting of results.
     """
+
     def __init__(self, meta=None, radius=50):
         super().__init__(meta=meta, radius=radius)
         self.results = None
@@ -135,12 +147,12 @@ class LocalizationPrecision(_Analysis):
             Returns the Analysis class object (self).
         """
         if not len(locdata):
-            logger.warning('Locdata is empty.')
+            logger.warning("Locdata is empty.")
             return self
 
         self.results = _localization_precision(locdata=locdata, **self.parameter)
         if self.results.empty:
-            logger.warning('No successive localizations were found.')
+            logger.warning("No successive localizations were found.")
 
         return self
 
@@ -157,13 +169,18 @@ class LocalizationPrecision(_Analysis):
             Other parameters passed to the `distribution.fit()` method.
         """
         if not self:
-            logger.warning('No results available to be fitted.')
+            logger.warning("No results available to be fitted.")
             return
 
         self.distribution_statistics = _DistributionFits(self)
 
         if loc_property is None:
-            for prop in ['position_delta_x', 'position_delta_y', 'position_delta_z', 'position_distance']:
+            for prop in [
+                "position_delta_x",
+                "position_delta_y",
+                "position_delta_z",
+                "position_distance",
+            ]:
                 if prop in self.results.columns:
                     self.distribution_statistics.fit(loc_property=prop, **kwargs)
         else:
@@ -196,19 +213,20 @@ class LocalizationPrecision(_Analysis):
             return ax
 
         # prepare plot
-        self.results.rolling(window=window, center=True).mean().plot(ax=ax,
-                                                                     x='frame',
-                                                                     y=loc_property,
-                                                                     **dict(dict(legend=False), **kwargs))
-        ax.set(title=f'Localization Precision\n (window={window})',
-               xlabel='frame',
-               ylabel=loc_property
-               )
+        self.results.rolling(window=window, center=True).mean().plot(
+            ax=ax, x="frame", y=loc_property, **dict(dict(legend=False), **kwargs)
+        )
+        ax.set(
+            title=f"Localization Precision\n (window={window})",
+            xlabel="frame",
+            ylabel=loc_property,
+        )
 
         return ax
 
-
-    def hist(self, ax=None, loc_property='position_distance', bins='auto', fit=True, **kwargs):
+    def hist(
+        self, ax=None, loc_property="position_distance", bins="auto", fit=True, **kwargs
+    ):
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing the distributions of results.
 
@@ -237,11 +255,12 @@ class LocalizationPrecision(_Analysis):
             return ax
 
         # prepare plot
-        ax.hist(self.results[loc_property].values, bins=bins, **dict(dict(density=True, log=False), **kwargs))
-        ax.set(title='Localization Precision',
-               xlabel=loc_property,
-               ylabel='PDF'
-               )
+        ax.hist(
+            self.results[loc_property].values,
+            bins=bins,
+            **dict(dict(density=True, log=False), **kwargs),
+        )
+        ax.set(title="Localization Precision", xlabel=loc_property, ylabel="PDF")
 
         if fit:
             if isinstance(self.distribution_statistics, _DistributionFits):
@@ -254,6 +273,7 @@ class LocalizationPrecision(_Analysis):
 
 
 #### Auxiliary functions and classes
+
 
 class PairwiseDistance1d(stats.rv_continuous):
     """
@@ -281,10 +301,15 @@ class PairwiseDistance1d(stats.rv_continuous):
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
+
     def _pdf(self, x, mu, sigma_1, sigma_2):
         sigma = np.sqrt(sigma_1 ** 2 + sigma_2 ** 2)
-        return np.sqrt(2 / np.pi) / sigma * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) \
-               * np.cosh(x * mu / (sigma ** 2))
+        return (
+            np.sqrt(2 / np.pi)
+            / sigma
+            * np.exp(-(mu ** 2 + x ** 2) / (2 * sigma ** 2))
+            * np.cosh(x * mu / (sigma ** 2))
+        )
 
 
 class PairwiseDistance2d(stats.rv_continuous):
@@ -313,9 +338,15 @@ class PairwiseDistance2d(stats.rv_continuous):
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
+
     def _pdf(self, x, mu, sigma_1, sigma_2):
         sigma = np.sqrt(sigma_1 ** 2 + sigma_2 ** 2)
-        return x / (sigma ** 2) * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * np.i0(x * mu / (sigma ** 2))
+        return (
+            x
+            / (sigma ** 2)
+            * np.exp(-(mu ** 2 + x ** 2) / (2 * sigma ** 2))
+            * np.i0(x * mu / (sigma ** 2))
+        )
 
 
 class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
@@ -342,8 +373,14 @@ class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
+
     def _pdf(self, x, mu, sigma):
-        return x / (sigma ** 2) * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * np.i0(x * mu / (sigma ** 2))
+        return (
+            x
+            / (sigma ** 2)
+            * np.exp(-(mu ** 2 + x ** 2) / (2 * sigma ** 2))
+            * np.i0(x * mu / (sigma ** 2))
+        )
 
 
 class PairwiseDistance3d(stats.rv_continuous):
@@ -372,13 +409,27 @@ class PairwiseDistance3d(stats.rv_continuous):
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
+
     def _pdf(self, x, mu, sigma_1, sigma_2):
         sigma = np.sqrt(sigma_1 ** 2 + sigma_2 ** 2)
         if all(mu == 0):
-            return np.sqrt(2 / np.pi) * x / sigma * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * x / (sigma ** 2)
+            return (
+                np.sqrt(2 / np.pi)
+                * x
+                / sigma
+                * np.exp(-(mu ** 2 + x ** 2) / (2 * sigma ** 2))
+                * x
+                / (sigma ** 2)
+            )
         else:
-            return np.sqrt(2 / np.pi) * x / sigma / mu * np.exp(- (mu ** 2 + x ** 2) / (2 * sigma ** 2)) * np.sinh(
-                x * mu / (sigma ** 2))
+            return (
+                np.sqrt(2 / np.pi)
+                * x
+                / sigma
+                / mu
+                * np.exp(-(mu ** 2 + x ** 2) / (2 * sigma ** 2))
+                * np.sinh(x * mu / (sigma ** 2))
+            )
 
 
 class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
@@ -403,8 +454,9 @@ class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
+
     def _pdf(self, x, sigma):
-        return np.sqrt(2 / np.pi) / sigma * np.exp(- x ** 2 / (2 * sigma ** 2))
+        return np.sqrt(2 / np.pi) / sigma * np.exp(-(x ** 2) / (2 * sigma ** 2))
 
 
 class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
@@ -429,8 +481,9 @@ class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
+
     def _pdf(self, x, sigma):
-        return x / (sigma ** 2) * np.exp(- x ** 2 / (2 * sigma ** 2))
+        return x / (sigma ** 2) * np.exp(-(x ** 2) / (2 * sigma ** 2))
 
 
 class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
@@ -455,8 +508,16 @@ class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
+
     def _pdf(self, x, sigma):
-        return np.sqrt(2 / np.pi) * x / sigma * np.exp(- x ** 2 / (2 * sigma ** 2)) * x / (sigma ** 2)
+        return (
+            np.sqrt(2 / np.pi)
+            * x
+            / sigma
+            * np.exp(-(x ** 2) / (2 * sigma ** 2))
+            * x
+            / (sigma ** 2)
+        )
 
 
 class _DistributionFits:
@@ -496,17 +557,25 @@ class _DistributionFits:
         if self.analysis_class.results is None:
             self.pairwise_distribution = None
         else:
-            delta_columns = [c for c in self.analysis_class.results.columns if 'position_delta' in c]
+            delta_columns = [
+                c for c in self.analysis_class.results.columns if "position_delta" in c
+            ]
             if len(delta_columns) == 1:
-                self.pairwise_distribution = PairwiseDistance1dIdenticalSigmaZeroMu(name='pairwise', a=0.)
+                self.pairwise_distribution = PairwiseDistance1dIdenticalSigmaZeroMu(
+                    name="pairwise", a=0.0
+                )
             elif len(delta_columns) == 2:
-                self.pairwise_distribution = PairwiseDistance2dIdenticalSigmaZeroMu(name='pairwise', a=0.)
+                self.pairwise_distribution = PairwiseDistance2dIdenticalSigmaZeroMu(
+                    name="pairwise", a=0.0
+                )
             elif len(delta_columns) == 3:
-                self.pairwise_distribution = PairwiseDistance3dIdenticalSigmaZeroMu(name='pairwise', a=0.)
+                self.pairwise_distribution = PairwiseDistance3dIdenticalSigmaZeroMu(
+                    name="pairwise", a=0.0
+                )
             # a is the lower bound of the support of the distribution
             # self.pairwise_distribution = PairwiseDistance2dIdenticalSigma(name='pairwise') also works but is very slow.
 
-    def fit(self, loc_property='position_distance', **kwargs):
+    def fit(self, loc_property="position_distance", **kwargs):
         """
         Fit distributions of results using a MLE fit (scipy.stats) and provide fit results.
 
@@ -518,32 +587,40 @@ class _DistributionFits:
             Other parameters passed to the `distribution.fit()` method.
         """
         # prepare parameters
-        if 'position_delta_' in loc_property:
+        if "position_delta_" in loc_property:
             self.distribution = stats.norm
-            self._dist_parameters = [(loc_property + '_' + param) for param in ['loc', 'scale']]
-        elif loc_property == 'position_distance':
+            self._dist_parameters = [
+                (loc_property + "_" + param) for param in ["loc", "scale"]
+            ]
+        elif loc_property == "position_distance":
             self.distribution = self.pairwise_distribution
-            self._dist_parameters = [(loc_property + '_' + param) for param in ['sigma', 'loc', 'scale']]
+            self._dist_parameters = [
+                (loc_property + "_" + param) for param in ["sigma", "loc", "scale"]
+            ]
         else:
-            raise TypeError('Unknown localization property.')
+            raise TypeError("Unknown localization property.")
 
         for param in self._dist_parameters:
             if param not in self.parameters:
                 self.parameters.append(param)
 
         # MLE fit of distribution on data
-        if 'position_delta_' in loc_property:
-            fit_results = self.distribution.fit(self.analysis_class.results[loc_property].values, **kwargs)
-        elif loc_property == 'position_distance':
-            fit_results = self.distribution.fit(self.analysis_class.results[loc_property].values,
-                                                **dict(dict(floc=0, fscale=1), **kwargs))
+        if "position_delta_" in loc_property:
+            fit_results = self.distribution.fit(
+                self.analysis_class.results[loc_property].values, **kwargs
+            )
+        elif loc_property == "position_distance":
+            fit_results = self.distribution.fit(
+                self.analysis_class.results[loc_property].values,
+                **dict(dict(floc=0, fscale=1), **kwargs),
+            )
         else:
-            raise TypeError('Unknown localization property.')
+            raise TypeError("Unknown localization property.")
 
         for parameter, result in zip(self._dist_parameters, fit_results):
             setattr(self, parameter, result)
 
-    def plot(self, ax=None, loc_property='position_distance', **kwargs):
+    def plot(self, ax=None, loc_property="position_distance", **kwargs):
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the probability distribution functions of fitted
         results.
@@ -569,34 +646,73 @@ class _DistributionFits:
             return ax
 
         # plot fit curve
-        if 'position_delta_' in loc_property:
-            _loc = getattr(self, loc_property + '_loc')
-            _scale = getattr(self, loc_property + '_scale')
+        if "position_delta_" in loc_property:
+            _loc = getattr(self, loc_property + "_loc")
+            _scale = getattr(self, loc_property + "_scale")
 
-            x_values = np.linspace(stats.norm.ppf(0.01, loc=_loc, scale=_scale),
-                                   stats.norm.ppf(0.99, loc=_loc, scale=_scale), 100)
-            ax.plot(x_values, stats.norm.pdf(x_values, loc=_loc, scale=_scale), 'r-', lw=3, alpha=0.6,
-                    label='fitted pdf', **kwargs)
+            x_values = np.linspace(
+                stats.norm.ppf(0.01, loc=_loc, scale=_scale),
+                stats.norm.ppf(0.99, loc=_loc, scale=_scale),
+                100,
+            )
+            ax.plot(
+                x_values,
+                stats.norm.pdf(x_values, loc=_loc, scale=_scale),
+                "r-",
+                lw=3,
+                alpha=0.6,
+                label="fitted pdf",
+                **kwargs,
+            )
 
-        elif loc_property == 'position_distance':
-            if isinstance(self.pairwise_distribution, PairwiseDistance2dIdenticalSigma):  # pragma: no cover
+        elif loc_property == "position_distance":
+            if isinstance(
+                self.pairwise_distribution, PairwiseDistance2dIdenticalSigma
+            ):  # pragma: no cover
                 _sigma = self.position_distance_sigma
                 _mu = self.position_distance_mu
-                x_values = np.linspace(self.pairwise_distribution.ppf(0.01, mu=_mu, sigma=_sigma),
-                                       self.pairwise_distribution.ppf(0.99, mu=_mu, sigma=_sigma), 100)
-                ax.plot(x_values, self.pairwise_distribution.pdf(x_values, mu=_mu, sigma=_sigma), 'r-', lw=3, alpha=0.6,
-                        label='fitted pdf', **kwargs)
-            elif isinstance(self.pairwise_distribution, (PairwiseDistance1dIdenticalSigmaZeroMu,
-                                                         PairwiseDistance2dIdenticalSigmaZeroMu,
-                                                         PairwiseDistance3dIdenticalSigmaZeroMu)):
+                x_values = np.linspace(
+                    self.pairwise_distribution.ppf(0.01, mu=_mu, sigma=_sigma),
+                    self.pairwise_distribution.ppf(0.99, mu=_mu, sigma=_sigma),
+                    100,
+                )
+                ax.plot(
+                    x_values,
+                    self.pairwise_distribution.pdf(x_values, mu=_mu, sigma=_sigma),
+                    "r-",
+                    lw=3,
+                    alpha=0.6,
+                    label="fitted pdf",
+                    **kwargs,
+                )
+            elif isinstance(
+                self.pairwise_distribution,
+                (
+                    PairwiseDistance1dIdenticalSigmaZeroMu,
+                    PairwiseDistance2dIdenticalSigmaZeroMu,
+                    PairwiseDistance3dIdenticalSigmaZeroMu,
+                ),
+            ):
                 _sigma = self.position_distance_sigma
-                x_values = np.linspace(self.pairwise_distribution.ppf(0.01, sigma=_sigma),
-                                       self.pairwise_distribution.ppf(0.99, sigma=_sigma), 100)
-                ax.plot(x_values, self.pairwise_distribution.pdf(x_values, sigma=_sigma), 'r-', lw=3, alpha=0.6,
-                        label='fitted pdf', **kwargs)
+                x_values = np.linspace(
+                    self.pairwise_distribution.ppf(0.01, sigma=_sigma),
+                    self.pairwise_distribution.ppf(0.99, sigma=_sigma),
+                    100,
+                )
+                ax.plot(
+                    x_values,
+                    self.pairwise_distribution.pdf(x_values, sigma=_sigma),
+                    "r-",
+                    lw=3,
+                    alpha=0.6,
+                    label="fitted pdf",
+                    **kwargs,
+                )
             else:
-                raise NotImplementedError('pairwise_distribution function has not been implemented for plotting '
-                                          'position distances.')
+                raise NotImplementedError(
+                    "pairwise_distribution function has not been implemented for plotting "
+                    "position distances."
+                )
 
         return ax
 

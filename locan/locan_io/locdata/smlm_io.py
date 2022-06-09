@@ -21,18 +21,37 @@ from locan.locan_io.locdata import manifest_pb2
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.locan_io.locdata.utilities import convert_property_types, convert_property_names
+from locan.locan_io.locdata.utilities import (
+    convert_property_types,
+    convert_property_names,
+)
 from locan.utils.format import _time_string
 
-__all__ = ['manifest_format_from_locdata', 'manifest_file_info_from_locdata', 'manifest_from_locdata',
-           'save_SMLM', 'load_SMLM_manifest', 'load_SMLM_header', 'load_SMLM_file']
+__all__ = [
+    "manifest_format_from_locdata",
+    "manifest_file_info_from_locdata",
+    "manifest_from_locdata",
+    "save_SMLM",
+    "load_SMLM_manifest",
+    "load_SMLM_header",
+    "load_SMLM_file",
+]
 
 logger = logging.getLogger(__name__)
 
 
-dtype2length = {'int8': 1, 'uint8': 1, 'int16': 2, 'uint16': 2,
-                'int32': 4, 'uint32': 4, 'int64': 8, 'uint64': 8,
-                'float32': 4, 'float64': 8}
+dtype2length = {
+    "int8": 1,
+    "uint8": 1,
+    "int16": 2,
+    "uint16": 2,
+    "int32": 4,
+    "uint32": 4,
+    "int64": 8,
+    "uint64": 8,
+    "float32": 4,
+    "float64": 8,
+}
 
 
 def manifest_format_from_locdata(locdata):
@@ -59,8 +78,7 @@ def manifest_format_from_locdata(locdata):
     format.columns = len(locdata.data.columns)
     format.headers.extend(locdata.data.columns)
     format.dtype.extend(
-        [manifest_pb2.Dtype.Value(str(dt).upper())
-         for dt in locdata.data.dtypes.values]
+        [manifest_pb2.Dtype.Value(str(dt).upper()) for dt in locdata.data.dtypes.values]
     )
     format.shape.extend([1] * len(locdata.data.columns))
     format.units.extend([""] * len(locdata.data.columns))  # todo: add correct units
@@ -149,9 +167,11 @@ def manifest_from_locdata(locdata, return_json_string=False):
     manifest.locdata_meta.CopyFrom(locdata.meta)
 
     if return_json_string:
-        json_string = json_format.MessageToJson(manifest,
-                                                preserving_proto_field_name=True,
-                                                including_default_value_fields=False)
+        json_string = json_format.MessageToJson(
+            manifest,
+            preserving_proto_field_name=True,
+            including_default_value_fields=False,
+        )
         json_string = _change_upper_to_lower_keys(json_string)
         return json_string
     else:
@@ -197,21 +217,27 @@ def save_SMLM(locdata, path, manifest=None):
     elif isinstance(manifest, str):
         manifest_json = manifest
     elif isinstance(manifest, manifest_pb2.Manifest):
-        manifest_json = json_format.MessageToJson(manifest,
-                                                  preserving_proto_field_name=True,
-                                                  including_default_value_fields=False
-                                                  )
+        manifest_json = json_format.MessageToJson(
+            manifest,
+            preserving_proto_field_name=True,
+            including_default_value_fields=False,
+        )
         manifest_json = _change_upper_to_lower_keys(manifest_json)
     else:
         raise TypeError("Type of manifest is not correct.")
 
-    byte_string = b"".join([locdata.data[column][i].tobytes()
-                            for i in range(len(locdata))
-                            for column in locdata.data.columns
-                            ])
+    byte_string = b"".join(
+        [
+            locdata.data[column][i].tobytes()
+            for i in range(len(locdata))
+            for column in locdata.data.columns
+        ]
+    )
 
     # save zip file
-    with zipfile.ZipFile(path, 'w', compression=zipfile.ZIP_DEFLATED, allowZip64=True) as zf:
+    with zipfile.ZipFile(
+        path, "w", compression=zipfile.ZIP_DEFLATED, allowZip64=True
+    ) as zf:
         # write manifest
         zf.writestr("manifest.json", manifest_json)
         # write files
@@ -232,12 +258,12 @@ def load_SMLM_manifest(path):
     dictionary
         manifest in json format
     """
-    zf = zipfile.ZipFile(path, 'r')
+    zf = zipfile.ZipFile(path, "r")
     file_names = zf.namelist()
     if "manifest.json" not in file_names:
-        raise Exception('invalid file: no manifest.json found in the smlm file.')
+        raise Exception("invalid file: no manifest.json found in the smlm file.")
     manifest = json.loads(zf.read("manifest.json"))
-    assert manifest['format_version'] == '0.2'
+    assert manifest["format_version"] == "0.2"
     return manifest
 
 
@@ -255,28 +281,30 @@ def load_SMLM_header(path):
     list(str)
         A list of dataset property keys as derived from the SMLM identifiers.
     """
-    zf = zipfile.ZipFile(path, 'r')
+    zf = zipfile.ZipFile(path, "r")
     file_names = zf.namelist()
     if "manifest.json" not in file_names:
-        raise Exception('invalid file: no manifest.json found in the smlm file.')
+        raise Exception("invalid file: no manifest.json found in the smlm file.")
     manifest = json.loads(zf.read("manifest.json"))
-    assert manifest['format_version'] == '0.2'
+    assert manifest["format_version"] == "0.2"
 
     locdata_columns_list = []
-    for file_info in manifest['files']:
-        if file_info['type'] != "table":
-            logger.info('ignore file with type: %s', file_info['type'])
+    for file_info in manifest["files"]:
+        if file_info["type"] != "table":
+            logger.info("ignore file with type: %s", file_info["type"])
         else:
-            name = file_info['name']
-            logger.info(f'loading table {name}....')
-            format_key = file_info['format']
-            file_format = manifest['formats'][format_key]
+            name = file_info["name"]
+            logger.info(f"loading table {name}....")
+            format_key = file_info["format"]
+            file_format = manifest["formats"][format_key]
             if name not in file_names:
-                logger.error('ERROR: Did not find %s in zip file', file_info['name'])
+                logger.error("ERROR: Did not find %s in zip file", file_info["name"])
             else:
-                headers = file_format['headers']
+                headers = file_format["headers"]
 
-                column_keys = convert_property_names(properties=headers, property_mapping=locan.constants.SMLM_KEYS)
+                column_keys = convert_property_names(
+                    properties=headers, property_mapping=locan.constants.SMLM_KEYS
+                )
                 locdata_columns_list.append(column_keys)
 
     if len(locdata_columns_list) == 1:
@@ -303,50 +331,60 @@ def load_SMLM_file(path, nrows=None, convert=True):
     LocData, list(LocData)
         A new instance of LocData with all localizations. Returns a list of LocData if multiple tables are found.
     """
-    zf = zipfile.ZipFile(path, 'r')
+    zf = zipfile.ZipFile(path, "r")
     file_names = zf.namelist()
     if "manifest.json" not in file_names:
-        raise Exception('invalid file: no manifest.json found in the smlm file.')
+        raise Exception("invalid file: no manifest.json found in the smlm file.")
     manifest = json.loads(zf.read("manifest.json"))
-    assert manifest['format_version'] == '0.2'
+    assert manifest["format_version"] == "0.2"
 
     locdatas = []
-    for file_info in manifest['files']:
-        if file_info['type'] != "table":
-            logger.info('ignore file with type: %s', file_info['type'])
+    for file_info in manifest["files"]:
+        if file_info["type"] != "table":
+            logger.info("ignore file with type: %s", file_info["type"])
         else:
-            name = file_info['name']
-            logger.debug(f'start loading {name} ...')
-            format_key = file_info['format']
-            file_format = manifest['formats'][format_key]
-            if file_format['mode'] != 'binary':
+            name = file_info["name"]
+            logger.debug(f"start loading {name} ...")
+            format_key = file_info["format"]
+            file_format = manifest["formats"][format_key]
+            if file_format["mode"] != "binary":
                 raise Exception(f"format mode {file_format['mode']} not supported.")
             else:
                 try:
-                    table_file = zf.read(file_info['name'])
+                    table_file = zf.read(file_info["name"])
                 except KeyError:
-                    logger.error('ERROR: Did not find %s in zip file', file_info['name'])
+                    logger.error(
+                        "ERROR: Did not find %s in zip file", file_info["name"]
+                    )
                     continue
                 else:
-                    logger.debug(f'loading {len(table_file)} bytes')
-                    headers = file_format['headers']
-                    dtype = file_format['dtype']
-                    shape = file_format['shape']
+                    logger.debug(f"loading {len(table_file)} bytes")
+                    headers = file_format["headers"]
+                    dtype = file_format["dtype"]
+                    shape = file_format["shape"]
                     cols = len(headers)
-                    rows = nrows if nrows is not None else int(file_info['rows'])
+                    rows = nrows if nrows is not None else int(file_info["rows"])
 
-                    logger.debug('columns: %s', headers)
-                    logger.debug('rows: %s, columns: %s', rows, cols)
+                    logger.debug("columns: %s", headers)
+                    logger.debug("rows: %s, columns: %s", rows, cols)
                     assert len(headers) == len(dtype) == len(shape)
 
-                    rowLen = sum(dtype2length[dtype[i]] for i, header in enumerate(headers))
+                    rowLen = sum(
+                        dtype2length[dtype[i]] for i, header in enumerate(headers)
+                    )
                     tableDict = {}
                     byteOffset = 0
                     for i, header in enumerate(headers):
-                        tableDict[header] = np.ndarray((rows,), buffer=table_file, dtype=dtype[i], offset=byteOffset,
-                                                       order='C', strides=(rowLen,))
+                        tableDict[header] = np.ndarray(
+                            (rows,),
+                            buffer=table_file,
+                            dtype=dtype[i],
+                            offset=byteOffset,
+                            order="C",
+                            strides=(rowLen,),
+                        )
                         byteOffset += dtype2length[dtype[i]]
-                    logger.debug(f'finished loading {name}')
+                    logger.debug(f"finished loading {name}")
 
                     dataframe = pd.DataFrame.from_dict(tableDict)
 
@@ -355,14 +393,20 @@ def load_SMLM_file(path, nrows=None, convert=True):
                         if header in locan.constants.SMLM_KEYS:
                             column_keys[header] = locan.constants.SMLM_KEYS[header]
                         elif header in locan.constants.RAPIDSTORM_KEYS:
-                            column_keys[header] = locan.constants.RAPIDSTORM_KEYS[header]
+                            column_keys[header] = locan.constants.RAPIDSTORM_KEYS[
+                                header
+                            ]
                         else:
-                            logger.warning(f'Column {header} is not a Locan property standard.')
+                            logger.warning(
+                                f"Column {header} is not a Locan property standard."
+                            )
                             column_keys[header] = header
                     dataframe.rename(columns=column_keys, inplace=True)
 
                     if convert:
-                        dataframe = convert_property_types(dataframe, types=locan.constants.PROPERTY_KEYS)
+                        dataframe = convert_property_types(
+                            dataframe, types=locan.constants.PROPERTY_KEYS
+                        )
 
                     locdata = LocData.from_dataframe(dataframe=dataframe)
 
@@ -372,12 +416,21 @@ def load_SMLM_file(path, nrows=None, convert=True):
                     locdata.meta.file.type = metadata_pb2.SMLM
                     locdata.meta.file.path = str(path)
 
-                    for property_ in sorted(list(set(dataframe.columns).intersection(
-                            {'position_x', 'position_y', 'position_z'}))):
-                        locdata.meta.localization_properties.add(name=property_, unit="nm", type="float")
+                    for property_ in sorted(
+                        list(
+                            set(dataframe.columns).intersection(
+                                {"position_x", "position_y", "position_z"}
+                            )
+                        )
+                    ):
+                        locdata.meta.localization_properties.add(
+                            name=property_, unit="nm", type="float"
+                        )
 
                     del locdata.meta.history[:]
-                    locdata.meta.history.add(name='load_SMLM_file', parameter=f'path={path}, nrows={nrows}')
+                    locdata.meta.history.add(
+                        name="load_SMLM_file", parameter=f"path={path}, nrows={nrows}"
+                    )
 
                     locdatas.append(locdata)
 

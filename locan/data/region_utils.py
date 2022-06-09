@@ -13,7 +13,7 @@ from shapely.ops import unary_union
 from locan.data.region import Region, Region2D, EmptyRegion, RoiRegion
 
 
-__all__ = ['regions_union', 'expand_region', 'surrounding_region']
+__all__ = ["regions_union", "expand_region", "surrounding_region"]
 
 
 def regions_union(regions):
@@ -91,7 +91,9 @@ def surrounding_region(region, distance=100, support=None, **kwargs):
     --------
     Region
     """
-    extended_region = expand_region(region, distance=distance, support=support, **kwargs)
+    extended_region = expand_region(
+        region, distance=distance, support=support, **kwargs
+    )
     if isinstance(extended_region, Region2D):
         surrounding_region_ = extended_region.symmetric_difference(region)
         return Region2D.from_shapely(surrounding_region_)

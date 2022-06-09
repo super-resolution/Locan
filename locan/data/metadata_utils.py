@@ -17,7 +17,7 @@ from google.protobuf import text_format, json_format
 from locan.data import metadata_pb2
 
 
-__all__ = ['metadata_to_formatted_string', 'metadata_from_toml', 'message_scheme']
+__all__ = ["metadata_to_formatted_string", "metadata_from_toml", "message_scheme"]
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,9 @@ def _modify_meta(locdata, new_locdata, function_name=None, parameter=None, meta=
     return meta_
 
 
-def _dict_to_protobuf(dictionary: dict, message: Message, inplace: bool = False) -> Message | None:
+def _dict_to_protobuf(
+    dictionary: dict, message: Message, inplace: bool = False
+) -> Message | None:
     """
     Parse dictionary with message attributes and their values in message.
     """
@@ -105,7 +107,9 @@ def _dict_to_protobuf(dictionary: dict, message: Message, inplace: bool = False)
             except TypeError:
                 for element in value:
                     submessage = attr_.add()
-                    _dict_to_protobuf(dictionary=element, message=submessage, inplace=True)
+                    _dict_to_protobuf(
+                        dictionary=element, message=submessage, inplace=True
+                    )
         else:
             try:
                 setattr(message, key, value)
@@ -138,13 +142,16 @@ def metadata_to_formatted_string(message, **kwargs):
     str
         Formatted metadata string.
     """
+
     def message_formatter(message, indent: int, as_one_line: bool) -> str | None:
         if message.DESCRIPTOR.name in ["Timestamp", "Duration"]:
             return message.ToJsonString()
         else:
             return None
 
-    return text_format.MessageToString(message, message_formatter=message_formatter, **kwargs)
+    return text_format.MessageToString(
+        message, message_formatter=message_formatter, **kwargs
+    )
 
 
 def metadata_from_toml(file):
@@ -178,7 +185,9 @@ def metadata_from_toml(file):
 
     # parse values
     for message_name, dictionary in toml_dict.items():
-        _dict_to_protobuf(dictionary=dictionary, message=instances[message_name], inplace=True)
+        _dict_to_protobuf(
+            dictionary=dictionary, message=instances[message_name], inplace=True
+        )
 
     return instances
 
@@ -198,8 +207,9 @@ def message_scheme(message) -> dict:
         A nested dictionary with all message fields including default values.
     """
 
-    message_dict = json_format.MessageToDict(message, including_default_value_fields=True,
-                                             preserving_proto_field_name=True)
+    message_dict = json_format.MessageToDict(
+        message, including_default_value_fields=True, preserving_proto_field_name=True
+    )
 
     for descriptor in message.DESCRIPTOR.fields:
         if descriptor.type == descriptor.TYPE_MESSAGE:
@@ -208,9 +218,11 @@ def message_scheme(message) -> dict:
             if descriptor.label != descriptor.LABEL_REPEATED:
                 message_dict[descriptor.name] = message_scheme(attr_)
 
-            elif descriptor.label == descriptor.LABEL_REPEATED \
-                    and not 'ScalarMap' in type(attr_).__name__ \
-                    and not 'MessageMapContainer' in type(attr_).__name__:
+            elif (
+                descriptor.label == descriptor.LABEL_REPEATED
+                and not "ScalarMap" in type(attr_).__name__
+                and not "MessageMapContainer" in type(attr_).__name__
+            ):
                 attr_ = attr_.add()
                 message_dict[descriptor.name] = message_scheme(attr_)
 

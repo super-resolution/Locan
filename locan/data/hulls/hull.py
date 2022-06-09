@@ -13,7 +13,7 @@ from shapely.geometry import MultiPoint as shMultiPoint
 from locan.data.region import Rectangle, Polygon
 
 
-__all__ = ['BoundingBox', 'ConvexHull', 'OrientedBoundingBox']
+__all__ = ["BoundingBox", "ConvexHull", "OrientedBoundingBox"]
 
 
 class BoundingBox:
@@ -61,7 +61,7 @@ class BoundingBox:
             self.hull = np.array([np.min(points, axis=0), np.max(points, axis=0)])
             self.width = np.diff(self.hull, axis=0).flatten()
             self.region_measure = np.prod(self.width)
-            self.subregion_measure = np.sum(self.width)*2
+            self.subregion_measure = np.sum(self.width) * 2
 
     @property
     def vertices(self):
@@ -112,7 +112,9 @@ class _ConvexHullScipy:
         if len(points) < 6:
             unique_points = np.array(list(set(tuple(point) for point in points)))
             if len(unique_points) < 3:
-                raise TypeError('Convex_hull needs at least 3 different points as input.')
+                raise TypeError(
+                    "Convex_hull needs at least 3 different points as input."
+                )
 
         self.dimension = np.shape(points)[1]
         self.hull = spat.ConvexHull(points)
@@ -129,7 +131,9 @@ class _ConvexHullScipy:
     @property
     def region(self):
         if self.dimension > 2:
-            raise NotImplementedError('Region for 3D data has not yet been implemented.')
+            raise NotImplementedError(
+                "Region for 3D data has not yet been implemented."
+            )
         else:
             # closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
             # region_ = RoiRegion(region_type='polygon', region_specs=closed_vertices)
@@ -166,20 +170,27 @@ class _ConvexHullShapely:
     region : RoiRegion
         Convert the hull to a RoiRegion object.
     """
+
     def __init__(self, points):
         if len(points) < 6:
             unique_points = np.array(list(set(tuple(point) for point in points)))
             if len(unique_points) < 3:
-                raise TypeError('Convex_hull needs at least 3 different points as input.')
+                raise TypeError(
+                    "Convex_hull needs at least 3 different points as input."
+                )
 
         self.dimension = np.shape(points)[1]
         if self.dimension >= 3:
-            raise TypeError('ConvexHullShapely only takes 1 or 2-dimensional points as input.')
+            raise TypeError(
+                "ConvexHullShapely only takes 1 or 2-dimensional points as input."
+            )
 
         self.hull = shMultiPoint(points).convex_hull
         # todo: set vertex_indices
         # self.vertex_indices = None
-        self.points_on_boundary = len(self.hull.exterior.coords)-1  # the first point is repeated in exterior.coords
+        self.points_on_boundary = (
+            len(self.hull.exterior.coords) - 1
+        )  # the first point is repeated in exterior.coords
         self.points_on_boundary_rel = self.points_on_boundary / len(points)
         self.region_measure = self.hull.area
         self.subregion_measure = self.hull.length
@@ -191,7 +202,9 @@ class _ConvexHullShapely:
     @property
     def region(self):
         if self.dimension > 2:
-            raise NotImplementedError('Region for 3D data has not yet been implemented.')
+            raise NotImplementedError(
+                "Region for 3D data has not yet been implemented."
+            )
         else:
             #  closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
             # region_ = RoiRegion(region_type='polygon', region_specs=closed_vertices)
@@ -233,17 +246,19 @@ class ConvexHull:
         Convert the hull to a Region object.
     """
 
-    def __init__(self, points, method='scipy'):
+    def __init__(self, points, method="scipy"):
         self.method = method
-        if method == 'scipy':
+        if method == "scipy":
             self._special_class = _ConvexHullScipy(points)
-        elif method == 'shapely':
+        elif method == "shapely":
             self._special_class = _ConvexHullShapely(points)
         else:
-            raise ValueError(f'The provided method {method} is not available.')
+            raise ValueError(f"The provided method {method} is not available.")
 
     def __getattr__(self, attr):
-        if attr.startswith('__') and attr.endswith('__'):  # this is needed to enable pickling
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
             raise AttributeError
 
         if attr in self.__dict__:
@@ -280,11 +295,14 @@ class OrientedBoundingBox:
         Orientation defined as angle (in degrees) between the vector from first to last point and x-axis.
     
     """
+
     def __init__(self, points):
         self.dimension = np.shape(points)[1]
 
         if self.dimension >= 3:
-            raise TypeError('OrientedBoundingBox only takes 1 or 2-dimensional points as input.')
+            raise TypeError(
+                "OrientedBoundingBox only takes 1 or 2-dimensional points as input."
+            )
 
         if len(points) < 3:
             self.hull = np.array([])
@@ -296,7 +314,9 @@ class OrientedBoundingBox:
         else:
             self.hull = shMultiPoint(points).minimum_rotated_rectangle
             difference = np.diff(self.vertices[0:3], axis=0)
-            self.width = np.array([np.linalg.norm(difference[0]), np.linalg.norm(difference[1])])
+            self.width = np.array(
+                [np.linalg.norm(difference[0]), np.linalg.norm(difference[1])]
+            )
             self.region_measure = self.hull.area
             self.subregion_measure = self.hull.length
             self.angle = np.degrees(np.arctan2(difference[0][1], difference[0][0]))

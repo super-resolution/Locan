@@ -20,13 +20,14 @@ import matplotlib.colors as mcolors
 from skimage import exposure
 
 
-__all__ = ['Trafo', 'HistogramEqualization', 'adjust_contrast']
+__all__ = ["Trafo", "HistogramEqualization", "adjust_contrast"]
 
 
 class Trafo(Enum):
     """
     Standard definitions for intensity transformation.
     """
+
     NONE = 0
     """no transformation"""
     STANDARDIZE = 1
@@ -92,9 +93,9 @@ class Transform(ABC):
 
         # Clip to the 0 to 1 range
         if clip:
-            np.clip(_values, 0., 1., out=_values)
+            np.clip(_values, 0.0, 1.0, out=_values)
 
-        new_values =_values
+        new_values = _values
         return new_values
 
     @property
@@ -141,7 +142,9 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         The transformation determined from reference is then applied to all values.
     """
 
-    def __init__(self, vmin=None, vmax=None, reference=None, power=1, n_bins=65536, mask=None):
+    def __init__(
+        self, vmin=None, vmax=None, reference=None, power=1, n_bins=65536, mask=None
+    ):
         super().__init__(vmin=vmin, vmax=vmax)
         self.reference = reference
         self.power = power
@@ -169,7 +172,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         np.true_divide(_values, self.vmax - self.vmin, out=_values)
 
         # Clip to the 0 to 1 range
-        np.clip(_values, 0., 1., out=_values)
+        np.clip(_values, 0.0, 1.0, out=_values)
 
         if self.reference is None:
             _reference = _values[self.mask]
@@ -178,7 +181,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
 
         data, bin_edges = np.histogram(_reference, bins=self.n_bins, range=(0, 1))
         bin_centers = bin_edges[:-1] + np.diff(bin_edges) / 2
-        cdf = np.cumsum(data**self.power)
+        cdf = np.cumsum(data ** self.power)
         cdf = cdf / cdf[-1]
         new_values = np.interp(_values, bin_centers, cdf)
         return new_values
@@ -214,81 +217,129 @@ def adjust_contrast(image, rescale=True, **kwargs):
     if rescale is None or rescale is False or rescale is Trafo.NONE or rescale == 0:
         new_image = image
 
-    elif rescale is True or rescale == 1 or rescale is Trafo.STANDARDIZE \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.STANDARDIZE.name):
-        new_image = exposure.rescale_intensity(image * 1., **kwargs)
+    elif (
+        rescale is True
+        or rescale == 1
+        or rescale is Trafo.STANDARDIZE
+        or (isinstance(rescale, str) and rescale.upper() == Trafo.STANDARDIZE.name)
+    ):
+        new_image = exposure.rescale_intensity(image * 1.0, **kwargs)
 
-    elif rescale == 2 or rescale is Trafo.STANDARDIZE_UINT8 \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.STANDARDIZE_UINT8.name):
-        new_image = exposure.rescale_intensity(image,
-                                               **dict(dict(out_range=(0, 255)), **kwargs)
-                                               ).astype(np.uint8)
+    elif (
+        rescale == 2
+        or rescale is Trafo.STANDARDIZE_UINT8
+        or (
+            isinstance(rescale, str) and rescale.upper() == Trafo.STANDARDIZE_UINT8.name
+        )
+    ):
+        new_image = exposure.rescale_intensity(
+            image, **dict(dict(out_range=(0, 255)), **kwargs)
+        ).astype(np.uint8)
 
-    elif rescale == 3 or rescale is Trafo.ZERO \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.ZERO.name):
-        new_image = exposure.rescale_intensity(image * 1.,
-                                               **dict(dict(in_range=(0, np.nanmax(image)),
-                                                           out_range=(0, 1)), **kwargs)
-                                               )
+    elif (
+        rescale == 3
+        or rescale is Trafo.ZERO
+        or (isinstance(rescale, str) and rescale.upper() == Trafo.ZERO.name)
+    ):
+        new_image = exposure.rescale_intensity(
+            image * 1.0,
+            **dict(dict(in_range=(0, np.nanmax(image)), out_range=(0, 1)), **kwargs)
+        )
 
-    elif rescale == 4 or rescale is Trafo.ZERO_UINT8 \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.ZERO_UINT8.name):
-        new_image = exposure.rescale_intensity(image,
-                                               **dict(dict(in_range=(0, np.nanmax(image)),
-                                                           out_range=(0, 255)), **kwargs)
-                                               ).astype(np.uint8)
+    elif (
+        rescale == 4
+        or rescale is Trafo.ZERO_UINT8
+        or (isinstance(rescale, str) and rescale.upper() == Trafo.ZERO_UINT8.name)
+    ):
+        new_image = exposure.rescale_intensity(
+            image,
+            **dict(dict(in_range=(0, np.nanmax(image)), out_range=(0, 255)), **kwargs)
+        ).astype(np.uint8)
 
-    elif rescale == 5 or rescale is Trafo.EQUALIZE \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE.name):
+    elif (
+        rescale == 5
+        or rescale is Trafo.EQUALIZE
+        or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE.name)
+    ):
         norm = HistogramEqualization(**dict(dict(power=1, mask=image > 0), **kwargs))
         new_image = norm(image)
 
-    elif rescale == 6 or rescale is Trafo.EQUALIZE_UINT8 \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_UINT8.name):
+    elif (
+        rescale == 6
+        or rescale is Trafo.EQUALIZE_UINT8
+        or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_UINT8.name)
+    ):
         norm = HistogramEqualization(**dict(dict(power=1, mask=image > 0), **kwargs))
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
-    elif rescale == 7 or rescale is Trafo.EQUALIZE_ALL \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_ALL.name):
+    elif (
+        rescale == 7
+        or rescale is Trafo.EQUALIZE_ALL
+        or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_ALL.name)
+    ):
         norm = HistogramEqualization(**dict(dict(power=1, mask=None), **kwargs))
         new_image = norm(image)
 
-    elif rescale == 8 or rescale is Trafo.EQUALIZE_ALL_UINT8 \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_ALL_UINT8.name):
+    elif (
+        rescale == 8
+        or rescale is Trafo.EQUALIZE_ALL_UINT8
+        or (
+            isinstance(rescale, str)
+            and rescale.upper() == Trafo.EQUALIZE_ALL_UINT8.name
+        )
+    ):
         norm = HistogramEqualization(**dict(dict(power=1, mask=None), **kwargs))
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
-    elif rescale == 9 or rescale is Trafo.EQUALIZE_0P3 \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_0P3.name):
+    elif (
+        rescale == 9
+        or rescale is Trafo.EQUALIZE_0P3
+        or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_0P3.name)
+    ):
         norm = HistogramEqualization(**dict(dict(power=0.3, mask=image > 0), **kwargs))
         new_image = norm(image)
 
-    elif rescale == 10 or rescale is Trafo.EQUALIZE_0P3_UINT8 \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_0P3_UINT8.name):
+    elif (
+        rescale == 10
+        or rescale is Trafo.EQUALIZE_0P3_UINT8
+        or (
+            isinstance(rescale, str)
+            and rescale.upper() == Trafo.EQUALIZE_0P3_UINT8.name
+        )
+    ):
         norm = HistogramEqualization(**dict(dict(power=0.3, mask=image > 0), **kwargs))
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
-    elif rescale == 11 or rescale is Trafo.EQUALIZE_0P3_ALL \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_0P3_ALL.name):
+    elif (
+        rescale == 11
+        or rescale is Trafo.EQUALIZE_0P3_ALL
+        or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_0P3_ALL.name)
+    ):
         norm = HistogramEqualization(**dict(dict(power=0.3, mask=None), **kwargs))
         new_image = norm(image)
 
-    elif rescale == 12 or rescale is Trafo.EQUALIZE_0P3_ALL_UINT8 \
-            or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_0P3_ALL_UINT8.name):
+    elif (
+        rescale == 12
+        or rescale is Trafo.EQUALIZE_0P3_ALL_UINT8
+        or (
+            isinstance(rescale, str)
+            and rescale.upper() == Trafo.EQUALIZE_0P3_ALL_UINT8.name
+        )
+    ):
         norm = HistogramEqualization(**dict(dict(power=0.3, mask=None), **kwargs))
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
     # to be deprecated eventually
-    elif rescale == 'equal':
+    elif rescale == "equal":
         new_image = exposure.equalize_hist(image, **kwargs)
-    elif rescale == 'unity':
-        new_image = exposure.rescale_intensity(image * 1., **kwargs)
+    elif rescale == "unity":
+        new_image = exposure.rescale_intensity(image * 1.0, **kwargs)
     elif isinstance(rescale, tuple):
         p_low, p_high = np.ptp(image) * np.asarray(rescale) / 100 + image.min()
         new_image = exposure.rescale_intensity(image, in_range=(p_low, p_high))
     elif callable(rescale):
         new_image = rescale(image, **kwargs)
     else:
-        raise TypeError('Transformation is not defined.')
+        raise TypeError("Transformation is not defined.")
 
     return new_image

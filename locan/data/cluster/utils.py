@@ -10,7 +10,7 @@ from inspect import signature
 from locan.data.locdata import LocData
 
 
-__all__ = ['serial_clustering']
+__all__ = ["serial_clustering"]
 
 
 def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
@@ -57,10 +57,14 @@ def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
 
     # metadata for noise_collection
     del noise_collection.meta.history[:]
-    noise_collection.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+    noise_collection.meta.history.add(
+        name=sys._getframe().f_code.co_name, parameter=str(parameter)
+    )
 
     # metadata for collection
     del collection.meta.history[:]
-    collection.meta.history.add(name=sys._getframe().f_code.co_name, parameter=str(parameter))
+    collection.meta.history.add(
+        name=sys._getframe().f_code.co_name, parameter=str(parameter)
+    )
 
     return noise_collection, collection

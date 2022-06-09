@@ -22,12 +22,13 @@ import matplotlib.pyplot as plt
 from locan.analysis.analysis_base import _Analysis
 
 
-__all__ = ['CoordinateBasedColocalization']
+__all__ = ["CoordinateBasedColocalization"]
 
 logger = logging.getLogger(__name__)
 
 
 ##### The algorithm
+
 
 def _coordinate_based_colocalization(points, other_points=None, radius=100, n_steps=10):
     """
@@ -54,16 +55,16 @@ def _coordinate_based_colocalization(points, other_points=None, radius=100, n_st
         An array with coordinate-based colocalization coefficients for each input point.
     """
     # sampled radii
-    radii = np.linspace(0, radius, n_steps+1)
+    radii = np.linspace(0, radius, n_steps + 1)
 
     # nearest neighbors within radius
-    nneigh_1 = NearestNeighbors(radius=radius, metric='euclidean').fit(points)
+    nneigh_1 = NearestNeighbors(radius=radius, metric="euclidean").fit(points)
     distances_1 = np.array(nneigh_1.radius_neighbors()[0])
 
     if other_points is None:
-        nneigh_2 = NearestNeighbors(radius=radius, metric='euclidean').fit(points)
+        nneigh_2 = NearestNeighbors(radius=radius, metric="euclidean").fit(points)
     else:
-        nneigh_2 = NearestNeighbors(radius=radius, metric='euclidean').fit(other_points)
+        nneigh_2 = NearestNeighbors(radius=radius, metric="euclidean").fit(other_points)
     distances_2 = np.array(nneigh_2.radius_neighbors(points)[0])
 
     # CBC for each point
@@ -85,7 +86,9 @@ def _coordinate_based_colocalization(points, other_points=None, radius=100, n_st
             correlation[i] = np.nan
 
     # CBC normalization for each point
-    max_distances = np.array([np.max(d, initial=0) for d in distances_2])  # max is set to 0 for empty arrays.
+    max_distances = np.array(
+        [np.max(d, initial=0) for d in distances_2]
+    )  # max is set to 0 for empty arrays.
     norm_spearmanr = np.exp(-1 * max_distances / radius)
     correlation = correlation * norm_spearmanr
 
@@ -93,6 +96,7 @@ def _coordinate_based_colocalization(points, other_points=None, radius=100, n_st
 
 
 ##### The specific analysis classes
+
 
 class CoordinateBasedColocalization(_Analysis):
     """
@@ -124,6 +128,7 @@ class CoordinateBasedColocalization(_Analysis):
     results : pandas.DataFrame
         Coordinate-based colocalization coefficients for each input point.
     """
+
     count = 0
 
     def __init__(self, meta=None, radius=100, n_steps=10):
@@ -147,7 +152,7 @@ class CoordinateBasedColocalization(_Analysis):
            Returns the Analysis class object (self).
         """
         if not len(locdata):
-            logger.warning('Locdata is empty.')
+            logger.warning("Locdata is empty.")
             return self
 
         points = locdata.coordinates
@@ -156,10 +161,15 @@ class CoordinateBasedColocalization(_Analysis):
             id_ = other_locdata.meta.identifier
         else:
             other_points = None
-            id_ = 'self'
+            id_ = "self"
 
-        self.results = pd.DataFrame({f'colocalization_cbc_{id_}':
-                                         _coordinate_based_colocalization(points, other_points, **self.parameter)})
+        self.results = pd.DataFrame(
+            {
+                f"colocalization_cbc_{id_}": _coordinate_based_colocalization(
+                    points, other_points, **self.parameter
+                )
+            }
+        )
         return self
 
     def hist(self, ax=None, bins=(-1, -0.3333, 0.3333, 1), density=True, **kwargs):
@@ -187,12 +197,13 @@ class CoordinateBasedColocalization(_Analysis):
         if not self:
             return ax
 
-        ax.hist(self.results.iloc[:, 0].values, bins=bins, density=density, label='cbc')
+        ax.hist(self.results.iloc[:, 0].values, bins=bins, density=density, label="cbc")
 
-        ax.set(title='CBC histogram',
-               xlabel='colocalization_cbc',
-               ylabel='pdf' if density else 'counts'
-               )
-        ax.legend(loc='best')
+        ax.set(
+            title="CBC histogram",
+            xlabel="colocalization_cbc",
+            ylabel="pdf" if density else "counts",
+        )
+        ax.legend(loc="best")
 
         return ax

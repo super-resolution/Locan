@@ -2,8 +2,14 @@ from pathlib import Path
 
 import matplotlib.colors as mcolors
 
-from locan.configuration import DATASETS_DIR, RENDER_ENGINE, N_JOBS, \
-    COLORMAP_CONTINUOUS, COLORMAP_DIVERGING, COLORMAP_CATEGORICAL
+from locan.configuration import (
+    DATASETS_DIR,
+    RENDER_ENGINE,
+    N_JOBS,
+    COLORMAP_CONTINUOUS,
+    COLORMAP_DIVERGING,
+    COLORMAP_CATEGORICAL,
+)
 from locan.constants import RenderEngine
 
 
@@ -23,4 +29,6 @@ def test_n_jobs():
 def test_colormaps():
     colormaps = [COLORMAP_CONTINUOUS, COLORMAP_DIVERGING, COLORMAP_CATEGORICAL]
     for item in colormaps:
-        assert isinstance(item, mcolors.Colormap) or isinstance(mcolors.Colormap(item), mcolors.Colormap)
+        assert isinstance(item, mcolors.Colormap) or isinstance(
+            mcolors.Colormap(item), mcolors.Colormap
+        )

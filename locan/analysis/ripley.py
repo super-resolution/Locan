@@ -50,7 +50,7 @@ from sklearn.neighbors import NearestNeighbors
 from locan.analysis.analysis_base import _Analysis
 
 
-__all__ = ['RipleysKFunction', 'RipleysLFunction', 'RipleysHFunction']
+__all__ = ["RipleysKFunction", "RipleysLFunction", "RipleysHFunction"]
 
 logger = logging.getLogger(__name__)
 
@@ -81,14 +81,16 @@ def _ripleys_k_function(points, radii, region_measure=1, other_points=None):
     if other_points is None:
         other_points = points
 
-    nn = NearestNeighbors(metric='euclidean').fit(points)
+    nn = NearestNeighbors(metric="euclidean").fit(points)
 
     ripley_0 = []
     for radius in radii:
         indices_list = nn.radius_neighbors(other_points, radius, return_distance=False)
-        ripley_0.append(np.array([len(indices)-1 for indices in indices_list]).sum())
+        ripley_0.append(np.array([len(indices) - 1 for indices in indices_list]).sum())
 
-    ripley = region_measure / (len(points) * (len(other_points) - 1)) * np.array(ripley_0)
+    ripley = (
+        region_measure / (len(points) * (len(other_points) - 1)) * np.array(ripley_0)
+    )
 
     return ripley
 
@@ -99,9 +101,16 @@ def _ripleys_l_function(points, radii, region_measure=1, other_points=None):
     see _ripleys_k_function.
     """
     if np.shape(points)[1] == 2:
-        return np.sqrt(_ripleys_k_function(points, radii, region_measure, other_points) / np.pi)
+        return np.sqrt(
+            _ripleys_k_function(points, radii, region_measure, other_points) / np.pi
+        )
     elif np.shape(points)[1] == 3:
-        return np.cbrt(_ripleys_k_function(points, radii, region_measure, other_points) * 3 / 4 / np.pi)
+        return np.cbrt(
+            _ripleys_k_function(points, radii, region_measure, other_points)
+            * 3
+            / 4
+            / np.pi
+        )
 
 
 def _ripleys_h_function(points, radii, region_measure=1, other_points=None):
@@ -114,6 +123,7 @@ def _ripleys_h_function(points, radii, region_measure=1, other_points=None):
 
 
 ##### The specific analysis classes
+
 
 class RipleysKFunction(_Analysis):
     """
@@ -140,9 +150,10 @@ class RipleysKFunction(_Analysis):
     results : pandas.DataFrame
         Data frame with radii as provided and Ripley's K function.
     """
+
     count = 0
 
-    def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb'):
+    def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure="bb"):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
         self.results = None
 
@@ -164,7 +175,7 @@ class RipleysKFunction(_Analysis):
            Returns the Analysis class object (self).
         """
         if not len(locdata):
-            logger.warning('Locdata is empty.')
+            logger.warning("Locdata is empty.")
             return self
 
         points = locdata.coordinates
@@ -175,15 +186,21 @@ class RipleysKFunction(_Analysis):
 
         # choose the right region_measure
         # todo: add other hull regions
-        if self.parameter['region_measure'] == 'bb':
-            region_measure = float(locdata.properties['region_measure_bb'])
+        if self.parameter["region_measure"] == "bb":
+            region_measure = float(locdata.properties["region_measure_bb"])
         else:
-            region_measure = self.parameter['region_measure']
+            region_measure = self.parameter["region_measure"]
 
-        ripley = _ripleys_k_function(points=points, radii=self.parameter['radii'],
-                                           region_measure=region_measure, other_points=other_points)
-        self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_k_data': ripley})
-        self.results = self.results.set_index('radius')
+        ripley = _ripleys_k_function(
+            points=points,
+            radii=self.parameter["radii"],
+            region_measure=region_measure,
+            other_points=other_points,
+        )
+        self.results = pd.DataFrame(
+            {"radius": self.parameter["radii"], "Ripley_k_data": ripley}
+        )
+        self.results = self.results.set_index("radius")
         return self
 
     def plot(self, ax=None, **kwargs):
@@ -214,9 +231,10 @@ class RipleysLFunction(_Analysis):
     results : pandas.DataFrame
         Data frame with radii as provided and Ripley's L function.
     """
+
     count = 0
 
-    def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb'):
+    def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure="bb"):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
         self.results = None
 
@@ -238,7 +256,7 @@ class RipleysLFunction(_Analysis):
            Returns the Analysis class object (self).
         """
         if not len(locdata):
-            logger.warning('Locdata is empty.')
+            logger.warning("Locdata is empty.")
             return self
 
         points = locdata.coordinates
@@ -249,15 +267,21 @@ class RipleysLFunction(_Analysis):
 
         # choose the right region_measure
         # todo: add other hull regions
-        if self.parameter['region_measure'] == 'bb':
-            region_measure = float(locdata.properties['region_measure_bb'])
+        if self.parameter["region_measure"] == "bb":
+            region_measure = float(locdata.properties["region_measure_bb"])
         else:
-            region_measure = self.parameter['region_measure']
+            region_measure = self.parameter["region_measure"]
 
-        ripley = _ripleys_l_function(points=points, radii=self.parameter['radii'],
-                                           region_measure=region_measure, other_points=other_points)
-        self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_l_data': ripley})
-        self.results = self.results.set_index('radius')
+        ripley = _ripleys_l_function(
+            points=points,
+            radii=self.parameter["radii"],
+            region_measure=region_measure,
+            other_points=other_points,
+        )
+        self.results = pd.DataFrame(
+            {"radius": self.parameter["radii"], "Ripley_l_data": ripley}
+        )
+        self.results = self.results.set_index("radius")
         return self
 
     def plot(self, ax=None, **kwargs):
@@ -290,9 +314,10 @@ class RipleysHFunction(_Analysis):
     Ripley_h_maximum : pandas.DataFrame
         Data frame with radius and Ripley's H value for the radius at which the H function has its maximum.
     """
+
     count = 0
 
-    def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure='bb'):
+    def __init__(self, meta=None, radii=np.linspace(0, 100, 10), region_measure="bb"):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
         self.results = None
         self._Ripley_h_maximum = None
@@ -315,7 +340,7 @@ class RipleysHFunction(_Analysis):
            Returns the Analysis class object (self).
         """
         if not len(locdata):
-            logger.warning('Locdata is empty.')
+            logger.warning("Locdata is empty.")
             return self
 
         # reset secondary results
@@ -329,23 +354,30 @@ class RipleysHFunction(_Analysis):
 
         # choose the right region_measure
         # todo: add other hull regions
-        if self.parameter['region_measure'] == 'bb':
-            region_measure = float(locdata.properties['region_measure_bb'])
+        if self.parameter["region_measure"] == "bb":
+            region_measure = float(locdata.properties["region_measure_bb"])
         else:
-            region_measure = self.parameter['region_measure']
+            region_measure = self.parameter["region_measure"]
 
-        ripley = _ripleys_h_function(points=points, radii=self.parameter['radii'],
-                                           region_measure=region_measure, other_points=other_points)
-        self.results = pd.DataFrame({'radius': self.parameter['radii'], 'Ripley_h_data': ripley})
-        self.results = self.results.set_index('radius')
+        ripley = _ripleys_h_function(
+            points=points,
+            radii=self.parameter["radii"],
+            region_measure=region_measure,
+            other_points=other_points,
+        )
+        self.results = pd.DataFrame(
+            {"radius": self.parameter["radii"], "Ripley_h_data": ripley}
+        )
+        self.results = self.results.set_index("radius")
         return self
-
 
     @property
     def Ripley_h_maximum(self):
         if self._Ripley_h_maximum is None:
-            index = self.results['Ripley_h_data'].idxmax()
-            self._Ripley_h_maximum = pd.DataFrame({'radius': index, 'Ripley_h_maximum': self.results.loc[index]})
+            index = self.results["Ripley_h_data"].idxmax()
+            self._Ripley_h_maximum = pd.DataFrame(
+                {"radius": index, "Ripley_h_maximum": self.results.loc[index]}
+            )
             return self._Ripley_h_maximum
         else:
             return self._Ripley_h_maximum
@@ -385,18 +417,15 @@ def plot(self, ax=None, **kwargs):
 
     self.results.plot(ax=ax, **kwargs)
 
-    if self.results.columns[0] == 'Ripley_k_data':
-        ylabel = 'K-function'
-    elif self.results.columns[0] == 'Ripley_l_data':
-        ylabel = 'L-function'
-    elif self.results.columns[0] == 'Ripley_h_data':
-        ylabel = 'H-function'
+    if self.results.columns[0] == "Ripley_k_data":
+        ylabel = "K-function"
+    elif self.results.columns[0] == "Ripley_l_data":
+        ylabel = "L-function"
+    elif self.results.columns[0] == "Ripley_h_data":
+        ylabel = "H-function"
     else:
         ylabel = None
 
-    ax.set(title="Ripley's " + ylabel,
-           xlabel='radius',
-           ylabel=ylabel
-           )
+    ax.set(title="Ripley's " + ylabel, xlabel="radius", ylabel=ylabel)
 
     return ax

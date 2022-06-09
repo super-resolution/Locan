@@ -9,7 +9,7 @@ import time
 __all__ = []
 
 
-def _time_string(time_value):
+def _time_string(time_value) -> str:
     """
     Convert 'time_value' (typically timestamp from Unix epoch) to the local time
     and return as "%Y-%m-%d %H:%M:%S %z" formatted string.

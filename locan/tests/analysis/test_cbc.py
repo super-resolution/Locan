@@ -15,16 +15,17 @@ from locan.analysis import CoordinateBasedColocalization
 
 # fixtures
 
+
 @pytest.fixture()
 def locdata():
-    path = Path(ROOT_DIR / 'tests/test_data/five_blobs.txt')
+    path = Path(ROOT_DIR / "tests/test_data/five_blobs.txt")
     dat = load_txt_file(path)
     return dat
 
 
 @pytest.fixture()
 def locdata_3d():
-    path = Path(ROOT_DIR / 'tests/test_data/five_blobs_3D.txt')
+    path = Path(ROOT_DIR / "tests/test_data/five_blobs_3D.txt")
     dat = load_txt_file(path)
     return dat
 
@@ -32,8 +33,8 @@ def locdata_3d():
 @pytest.fixture()
 def locdata_line():
     locdata_dict = {
-        'position_x': [0, 1, 3, 4, 50, 98, 99, 100],
-        'position_y': np.zeros(8)
+        "position_x": [0, 1, 3, 4, 50, 98, 99, 100],
+        "position_y": np.zeros(8),
     }
     return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
 
@@ -41,8 +42,10 @@ def locdata_line():
 def test_cbc(locdata):
     points = locdata.coordinates
     points_trans = transform_affine(locdata.coordinates)
-    res = _coordinate_based_colocalization(points=points, other_points=points_trans, radius=100, n_steps=10)
-    assert(res[0] == 0.6162215398589203)
+    res = _coordinate_based_colocalization(
+        points=points, other_points=points_trans, radius=100, n_steps=10
+    )
+    assert res[0] == 0.6162215398589203
     # print(res[0:5])
 
     # # plot data
@@ -56,32 +59,36 @@ def test_cbc(locdata):
     #
     # plt.show()
 
-    plt.close('all')
+    plt.close("all")
 
 
 def test_cbc_nan(locdata_line):
-    res = _coordinate_based_colocalization(points=locdata_line.coordinates,
-                                           other_points=locdata_line.coordinates+(0.5, 0),
-                                           radius=10, n_steps=10)
-    assert(len(res) == 8)
-    assert(np.isnan(res[4]))
+    res = _coordinate_based_colocalization(
+        points=locdata_line.coordinates,
+        other_points=locdata_line.coordinates + (0.5, 0),
+        radius=10,
+        n_steps=10,
+    )
+    assert len(res) == 8
+    assert np.isnan(res[4])
 
 
 def test_Coordinate_based_colocalization_empty(caplog):
     cbc = CoordinateBasedColocalization().compute(LocData())
     cbc.hist()
-    assert caplog.record_tuples == [('locan.analysis.cbc', 30, 'Locdata is empty.')]
+    assert caplog.record_tuples == [("locan.analysis.cbc", 30, "Locdata is empty.")]
 
-    plt.close('all')
+    plt.close("all")
 
 
 def test_Coordinate_based_colocalization(locdata_line):
     other_locdata = transform_affine(locdata_line)
-    cbc = CoordinateBasedColocalization(radius=100, n_steps=10).compute(locdata=locdata_line,
-                                                                        other_locdata=other_locdata)
+    cbc = CoordinateBasedColocalization(radius=100, n_steps=10).compute(
+        locdata=locdata_line, other_locdata=other_locdata
+    )
     # print(cbc.results)
-    assert(cbc.results.columns == f'colocalization_cbc_{other_locdata.meta.identifier}')
+    assert cbc.results.columns == f"colocalization_cbc_{other_locdata.meta.identifier}"
 
     cbc.hist()
 
-    plt.close('all')
+    plt.close("all")

@@ -17,17 +17,29 @@ from locan.dependencies import HAS_DEPENDENCY
 from locan.data.aggregate import histogram, Bins, _check_loc_properties
 from locan.render.transform import adjust_contrast
 
-if HAS_DEPENDENCY["napari"]: import napari
+if HAS_DEPENDENCY["napari"]:
+    import napari
 
 
-__all__ = ['render_3d', 'render_3d_napari', 'scatter_3d_mpl', 'render_3d_rgb_napari']
+__all__ = ["render_3d", "render_3d_napari", "scatter_3d_mpl", "render_3d_rgb_napari"]
 
 logger = logging.getLogger(__name__)
 
 
-def render_3d_napari(locdata, loc_properties=None, other_property=None,
-                     bins=None, n_bins=None, bin_size=10, bin_edges=None, bin_range=None,
-                     rescale=None, viewer=None, cmap='viridis', **kwargs):
+def render_3d_napari(
+    locdata,
+    loc_properties=None,
+    other_property=None,
+    bins=None,
+    n_bins=None,
+    bin_size=10,
+    bin_edges=None,
+    bin_range=None,
+    rescale=None,
+    viewer=None,
+    cmap="viridis",
+    **kwargs,
+):
     """
     Render localization data into a 3D image by binning x,y,z-coordinates into regular bins.
     Render the data using napari.
@@ -78,7 +90,7 @@ def render_3d_napari(locdata, loc_properties=None, other_property=None,
     napari.Viewer
     """
     if not HAS_DEPENDENCY["napari"]:
-        raise ImportError('Function requires napari.')
+        raise ImportError("Function requires napari.")
 
     # Provide napari viewer if not provided
     if viewer is None:
@@ -87,14 +99,21 @@ def render_3d_napari(locdata, loc_properties=None, other_property=None,
     # return ax if no or single point in locdata
     if len(locdata) < 2:
         if len(locdata) == 1:
-            logger.warning('Locdata carries a single localization.')
+            logger.warning("Locdata carries a single localization.")
         return viewer
 
-    hist = histogram(locdata, loc_properties, other_property,
-                     bins, n_bins, bin_size, bin_edges, bin_range,
-                     )
+    hist = histogram(
+        locdata,
+        loc_properties,
+        other_property,
+        bins,
+        n_bins,
+        bin_size,
+        bin_edges,
+        bin_range,
+    )
 
-    viewer.add_image(hist.data, name=f'LocData {locdata_id}', colormap=cmap, **kwargs)
+    viewer.add_image(hist.data, name=f"LocData {locdata_id}", colormap=cmap, **kwargs)
     return viewer
 
 
@@ -141,31 +160,37 @@ def scatter_3d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
     # return ax if no or single point in locdata
     if len(locdata) < 2:
         if len(locdata) == 1:
-            logger.warning('Locdata carries a single localization.')
+            logger.warning("Locdata carries a single localization.")
         return ax
 
     coordinates = locdata.coordinates
-    ax.scatter(*coordinates.T, **dict({'marker': '+', 'color': 'grey'}, **kwargs))
+    ax.scatter(*coordinates.T, **dict({"marker": "+", "color": "grey"}, **kwargs))
 
     # plot element number
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
-            ax.text(*centroid, marker, **dict({'color': 'grey', 'size': 20}, **text_kwargs))
+            ax.text(
+                *centroid, marker, **dict({"color": "grey", "size": 20}, **text_kwargs)
+            )
 
-    ax.set(
-           xlabel='position_x',
-           ylabel='position_y',
-           zlabel='position_z'
-           )
+    ax.set(xlabel="position_x", ylabel="position_y", zlabel="position_z")
 
     return ax
 
 
-def render_3d_rgb_napari(locdatas, loc_properties=None, other_property=None,
-                      bins=None, n_bins=None, bin_size=10, bin_edges=None, bin_range=None,
-                      rescale=None,
-                      viewer=None,
-                      **kwargs):
+def render_3d_rgb_napari(
+    locdatas,
+    loc_properties=None,
+    other_property=None,
+    bins=None,
+    n_bins=None,
+    bin_size=10,
+    bin_edges=None,
+    bin_range=None,
+    rescale=None,
+    viewer=None,
+    **kwargs,
+):
     """
     Render localization data into a 3D RGB image by binning x,y,z-coordinates into regular bins.
 
@@ -220,7 +245,7 @@ def render_3d_rgb_napari(locdatas, loc_properties=None, other_property=None,
     napari.Viewer
     """
     if not HAS_DEPENDENCY["napari"]:
-        raise ImportError('Function requires napari.')
+        raise ImportError("Function requires napari.")
 
     # Provide napari viewer if not provided
     if viewer is None:
@@ -231,20 +256,30 @@ def render_3d_rgb_napari(locdatas, loc_properties=None, other_property=None,
     # return viewer if no or single point in locdata
     if len(locdata_temp) < 2:
         if len(locdata_temp) == 1:
-            logger.warning('Locdata carries a single localization.')
+            logger.warning("Locdata carries a single localization.")
         return viewer
 
     if bin_edges is None:
-        _, bins, labels = histogram(locdata_temp, loc_properties, other_property,
-                                       bins, n_bins, bin_size, bin_edges, bin_range)
+        _, bins, labels = histogram(
+            locdata_temp,
+            loc_properties,
+            other_property,
+            bins,
+            n_bins,
+            bin_size,
+            bin_edges,
+            bin_range,
+        )
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
         bins = Bins(bin_edges=bin_edges, labels=labels)
 
-    imgs = [histogram(locdata, loc_properties, other_property, bin_edges=bins.bin_edges
-                      ).data
-            for locdata in locdatas
-            ]
+    imgs = [
+        histogram(
+            locdata, loc_properties, other_property, bin_edges=bins.bin_edges
+        ).data
+        for locdata in locdatas
+    ]
 
     if rescale is None:
         norm = mcolors.Normalize(vmin=np.min(imgs), vmax=np.max(imgs))
@@ -258,5 +293,5 @@ def render_3d_rgb_napari(locdatas, loc_properties=None, other_property=None,
         rgb_stack[:, :, :, i] = img
     rgb_stack = np.transpose(rgb_stack, axes=(2, 1, 0, 3))
 
-    viewer.add_image(rgb_stack, name=f'LocData {locdata_id}', rgb=True, **kwargs)
+    viewer.add_image(rgb_stack, name=f"LocData {locdata_id}", rgb=True, **kwargs)
     return viewer

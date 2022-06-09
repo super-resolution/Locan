@@ -33,10 +33,10 @@ def _algorithm_1(data=None, limits=(0, 10)):
 def _algorithm_2(data=None, n_sample=100, seed=None):
     """ Provides random normal distributed data. data would be input data that is currently not used."""
     np.random.seed(seed)
-    dict_ = {'a': np.random.normal(size=n_sample),
-             'b': np.random.normal(size=n_sample)}
+    dict_ = {"a": np.random.normal(size=n_sample), "b": np.random.normal(size=n_sample)}
     results = pd.DataFrame.from_dict(dict_)
     return results
+
 
 #
 ##### The base analysis class
@@ -54,6 +54,7 @@ def _algorithm_2(data=None, n_sample=100, seed=None):
 #
 # The classes for each particular algorithm are defined as:
 #
+
 
 class AnalysisExampleAlgorithm_1(_Analysis):
     """
@@ -82,6 +83,7 @@ class AnalysisExampleAlgorithm_1(_Analysis):
     results : numpy.ndarray, pandas.DataFrame
         Computed results.
     """
+
     count = 0
 
     def __init__(self, meta=None, limits=(0, 10)):
@@ -102,13 +104,15 @@ class AnalysisExampleAlgorithm_1(_Analysis):
           Returns the Analysis class object (self).
         """
         data = locdata  # take certain elements from locdata
-        self.results = _algorithm_1(data=data, **self.parameter)  # some complicated algorithm
+        self.results = _algorithm_1(
+            data=data, **self.parameter
+        )  # some complicated algorithm
         return self
 
     def plot(self, ax=None):
         plot(self, ax)
 
-    def plot_2(self, ax=None, bins='auto', normed=True, log=False, fit=True):
+    def plot_2(self, ax=None, bins="auto", normed=True, log=False, fit=True):
         plot_2(self, ax, bins, normed, log, fit)
 
     def plot_histogram_fit(self, ax=None):
@@ -145,6 +149,7 @@ class AnalysisExampleAlgorithm_2(_Analysis):
     results : numpy.ndarray, pandas.DataFrame
         Computed results.
     """
+
     count = 0
 
     def __init__(self, meta=None, n_sample=100, seed=None):
@@ -165,13 +170,15 @@ class AnalysisExampleAlgorithm_2(_Analysis):
           Returns the Analysis class object (self).
         """
         data = locdata  # take certain elements from locdata
-        self.results = _algorithm_2(data=data, **self.parameter)  # some complicated algorithm
+        self.results = _algorithm_2(
+            data=data, **self.parameter
+        )  # some complicated algorithm
         return self
 
     def plot(self, ax=None):
         plot(self, ax)
 
-    def plot_2(self, ax=None, bins='auto', density=True, log=False, fit=True):
+    def plot_2(self, ax=None, bins="auto", density=True, log=False, fit=True):
         plot_2(self, ax, bins, density, log, fit)
 
     def plot_histogram_fit(self, ax=None):
@@ -179,6 +186,7 @@ class AnalysisExampleAlgorithm_2(_Analysis):
 
     def report(self, path=None):
         report(self, path)
+
 
 #
 #### Interface functions
@@ -196,15 +204,12 @@ def plot(self, ax=None):
         ax = plt.gca()
 
     ax.plot(self.results)
-    ax.set(title='Normal Data',
-           xlabel=property,
-           ylabel='PDF'
-           )
+    ax.set(title="Normal Data", xlabel=property, ylabel="PDF")
 
     return ax
 
 
-def plot_2(self, ax=None, bins='auto', density=True, log=False, fit=True):
+def plot_2(self, ax=None, bins="auto", density=True, log=False, fit=True):
     """
     A specialized plot to give a standardized visualization of results - in this case a histogram of results.
     """
@@ -214,21 +219,26 @@ def plot_2(self, ax=None, bins='auto', density=True, log=False, fit=True):
         plt.subplots_adjust(wspace=0)
 
     # create histogram on first axes
-    hist, bins, _ = ax[0].hist(self.results.values, bins=bins, density=density, log=log,
-                               label=list(self.results))
-    ax[0].set(title='Normal Data',
-              xlabel='property',
-              ylabel='PDF'
-              )
+    hist, bins, _ = ax[0].hist(
+        self.results.values,
+        bins=bins,
+        density=density,
+        log=log,
+        label=list(self.results),
+    )
+    ax[0].set(title="Normal Data", xlabel="property", ylabel="PDF")
 
     # create legend and results text on second axes
     h, l = ax[0].get_legend_handles_labels()
-    ax[1].legend(h, l,
-                 loc='upper left',
-                 bbox_to_anchor=(0, 1),
-                 title='Legend',
-                 frameon=False,
-                 borderaxespad=0)
+    ax[1].legend(
+        h,
+        l,
+        loc="upper left",
+        bbox_to_anchor=(0, 1),
+        title="Legend",
+        frameon=False,
+        borderaxespad=0,
+    )
 
     ax[1].set_axis_off()
 
@@ -249,23 +259,34 @@ def plot_histogram_fit(self, ax=None):
         plt.subplots_adjust(wspace=0)
 
     # fit distributions
-    loc, scale = fit_histogram(self, data=self.results['a'].values, id_='a')
+    loc, scale = fit_histogram(self, data=self.results["a"].values, id_="a")
 
     # plot fit
-    x_values = np.linspace(stats.norm.ppf(0.01, loc=loc, scale=scale),
-                           stats.norm.ppf(0.99, loc=loc, scale=scale), 100)
-    ax[0].plot(x_values, stats.norm.pdf(x_values, loc=loc, scale=scale), 'r-', lw=3, alpha=0.6,
-               label='norm pdf')
+    x_values = np.linspace(
+        stats.norm.ppf(0.01, loc=loc, scale=scale),
+        stats.norm.ppf(0.99, loc=loc, scale=scale),
+        100,
+    )
+    ax[0].plot(
+        x_values,
+        stats.norm.pdf(x_values, loc=loc, scale=scale),
+        "r-",
+        lw=3,
+        alpha=0.6,
+        label="norm pdf",
+    )
 
     # present fit results
-    ax[1].text(0, 0.5, 'Fit Results:')
-    ax[1].text(0, 0.5,
-               'center: ' + str(loc) + '\n' + 'sigma: ' + str(scale),
-               horizontalalignment='left',
-               verticalalignment='top',
-               transform=ax[1].transAxes,
-               clip_on=False
-               )
+    ax[1].text(0, 0.5, "Fit Results:")
+    ax[1].text(
+        0,
+        0.5,
+        "center: " + str(loc) + "\n" + "sigma: " + str(scale),
+        horizontalalignment="left",
+        verticalalignment="top",
+        transform=ax[1].transAxes,
+        clip_on=False,
+    )
 
     ax[1].set_axis_off()
 
@@ -277,12 +298,13 @@ def fit_histogram(self, data, id_):
     # MLE fit of distribution on data
     loc, scale = stats.norm.fit(data)
 
-    attribute_center = id_ + '_center'
-    attribute_sigma = id_ + '_sigma'
+    attribute_center = id_ + "_center"
+    attribute_sigma = id_ + "_sigma"
     self.attribute_center = loc
     self.attribute_sigma = scale
 
     return loc, scale
+
 
 # there will be other specific visualization methods for other analysis routines.
 
@@ -305,9 +327,18 @@ def report(self, path=None):
 
     # save figure as pdf
     if path is not None:
-        plt.savefig(fname=path, dpi=None, facecolor='w', edgecolor='w',
-                    orientation='portrait', papertype=None, format=None,
-                    transparent=False, bbox_inches=None, pad_inches=0.1,
-                    frameon=None)
+        plt.savefig(
+            fname=path,
+            dpi=None,
+            facecolor="w",
+            edgecolor="w",
+            orientation="portrait",
+            papertype=None,
+            format=None,
+            transparent=False,
+            bbox_inches=None,
+            pad_inches=0.1,
+            frameon=None,
+        )
 
     return ax

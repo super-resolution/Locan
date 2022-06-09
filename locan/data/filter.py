@@ -19,8 +19,14 @@ from locan.data.rois import Roi
 from locan.data.region import Region, Region2D, RoiRegion
 
 
-__all__ = ['select_by_condition', 'select_by_region', 'select_by_image_mask', 'exclude_sparse_points',
-           'random_subset', 'localizations_in_cluster_regions']
+__all__ = [
+    "select_by_condition",
+    "select_by_region",
+    "select_by_image_mask",
+    "exclude_sparse_points",
+    "random_subset",
+    "localizations_in_cluster_regions",
+]
 
 
 def select_by_condition(locdata, condition):
@@ -49,8 +55,13 @@ def select_by_condition(locdata, condition):
     new_locdata = LocData.from_selection(locdata=locdata, indices=new_indices)
 
     # update metadata
-    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
-                         parameter=local_parameter, meta=None)
+    meta_ = _modify_meta(
+        locdata,
+        new_locdata,
+        function_name=sys._getframe().f_code.co_name,
+        parameter=local_parameter,
+        meta=None,
+    )
     new_locdata.meta = meta_
 
     return new_locdata
@@ -85,7 +96,7 @@ def select_by_region(locdata, region, loc_properties=None, reduce=True):
     local_parameter = locals()
 
     if loc_properties is None:
-        loc_properties_ = locdata.coordinate_labels[0:region.dimension]
+        loc_properties_ = locdata.coordinate_labels[0 : region.dimension]
     else:
         loc_properties_ = loc_properties
 
@@ -94,7 +105,9 @@ def select_by_region(locdata, region, loc_properties=None, reduce=True):
     if isinstance(region, (Region2D, RoiRegion)):
         indices_inside = region.contains(points)
         locdata_indices_to_keep = locdata.data.index[indices_inside]
-        new_locdata = LocData.from_selection(locdata=locdata, indices=locdata_indices_to_keep)
+        new_locdata = LocData.from_selection(
+            locdata=locdata, indices=locdata_indices_to_keep
+        )
         new_locdata.region = region
     else:
         raise NotImplementedError("Only Region2D has been implemented.")
@@ -104,9 +117,13 @@ def select_by_region(locdata, region, loc_properties=None, reduce=True):
         new_locdata.reduce()
 
     # update metadata
-    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
-                         parameter=local_parameter,
-                         meta=None)
+    meta_ = _modify_meta(
+        locdata,
+        new_locdata,
+        function_name=sys._getframe().f_code.co_name,
+        parameter=local_parameter,
+        meta=None,
+    )
     new_locdata.meta = meta_
 
     return new_locdata
@@ -173,20 +190,31 @@ def exclude_sparse_points(locdata, other_locdata=None, radius=50, min_samples=5)
     local_parameter = locals()
 
     if other_locdata is None:
-        nn = NearestNeighbors(metric='euclidean', n_jobs=N_JOBS).fit(locdata.coordinates)
+        nn = NearestNeighbors(metric="euclidean", n_jobs=N_JOBS).fit(
+            locdata.coordinates
+        )
         neighbor_points_list = nn.radius_neighbors(radius=radius, return_distance=False)
         # if points is not provided the query point is not considered its own neighbor.
     else:
-        nn = NearestNeighbors(metric='euclidean', n_jobs=N_JOBS).fit(other_locdata.coordinates)
-        neighbor_points_list = nn.radius_neighbors(locdata.coordinates, radius=radius, return_distance=False)
+        nn = NearestNeighbors(metric="euclidean", n_jobs=N_JOBS).fit(
+            other_locdata.coordinates
+        )
+        neighbor_points_list = nn.radius_neighbors(
+            locdata.coordinates, radius=radius, return_distance=False
+        )
 
     indices_to_keep = [len(pts) >= min_samples for pts in neighbor_points_list]
     locdata_indices_to_keep = locdata.data.index[indices_to_keep]
     new_locdata = LocData.from_selection(locdata, locdata_indices_to_keep)
 
     # update metadata
-    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
-                         parameter=local_parameter, meta=None)
+    meta_ = _modify_meta(
+        locdata,
+        new_locdata,
+        function_name=sys._getframe().f_code.co_name,
+        parameter=local_parameter,
+        meta=None,
+    )
     new_locdata.meta = meta_
 
     return new_locdata
@@ -223,14 +251,21 @@ def random_subset(locdata, n_points, replace=True, seed=None):
     new_locdata = LocData.from_selection(locdata, indices)
 
     # update metadata
-    meta_ = _modify_meta(locdata, new_locdata, function_name=sys._getframe().f_code.co_name,
-                         parameter=local_parameter, meta=None)
+    meta_ = _modify_meta(
+        locdata,
+        new_locdata,
+        function_name=sys._getframe().f_code.co_name,
+        parameter=local_parameter,
+        meta=None,
+    )
     new_locdata = LocData.from_selection(locdata, indices, meta=meta_)
 
     return new_locdata
 
 
-def localizations_in_cluster_regions(locdata, collection, hull_type=HullType.CONVEX_HULL):
+def localizations_in_cluster_regions(
+    locdata, collection, hull_type=HullType.CONVEX_HULL
+):
     """
     Identify localizations from `locdata` within the regions of all `collection` elements.
 
@@ -259,7 +294,9 @@ def localizations_in_cluster_regions(locdata, collection, hull_type=HullType.CON
                 locdatas.append(locdata_selection)
         else:  # this case covers selections of collections
             for index in collection.indices:
-                cregion = getattr(collection.references.references[index], hull_type.value).region
+                cregion = getattr(
+                    collection.references.references[index], hull_type.value
+                ).region
                 locdata_selection = select_by_region(locdata=locdata, region=cregion)
                 locdatas.append(locdata_selection)
     else:  # this case covers list of LocData objects

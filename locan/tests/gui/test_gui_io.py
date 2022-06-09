@@ -12,7 +12,7 @@ pytestmark = pytest.mark.gui
 
 def test_file_dialog():
     print(QT_BINDINGS)
-    result = file_dialog(directory=ROOT_DIR, message='Select single file')
+    result = file_dialog(directory=ROOT_DIR, message="Select single file")
     # result = file_dialog()
     print(result)
-    assert (len(result) == 1)
+    assert len(result) == 1

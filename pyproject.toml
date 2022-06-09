@@ -10,6 +10,9 @@ build-backend = "setuptools.build_meta"
 write_to = "locan/_version.py"
 fallback_version = "0.13-fallback"
 
+[tool.black]
+target-version = ['py38', 'py39', 'py310']
+
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",

@@ -34,13 +34,13 @@ def test_regions_union_Rectangles():
     # visualize
     fig, ax = plt.subplots()
     ax.scatter(*region_0.points.T)
-    ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(region_2.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(union.as_artist(fill=True, alpha=0.2, color='Red'))
+    ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(region_2.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(union.as_artist(fill=True, alpha=0.2, color="Red"))
     # plt.show()
 
-    plt.close('all')
+    plt.close("all")
 
 
 def test_extend_Interval():
@@ -51,7 +51,9 @@ def test_extend_Interval():
 
     with pytest.raises(NotImplementedError):
         support = Interval(-1, 2)
-        expanded_region_with_support = expand_region(region, distance=2, support=support)
+        expanded_region_with_support = expand_region(
+            region, distance=2, support=support
+        )
         assert isinstance(expanded_region_with_support, Region)
         assert expanded_region_with_support.region_measure == 3
         assert expanded_region_with_support.bounds == (-1, 2)
@@ -75,12 +77,14 @@ def test_extend_Rectangle():
     # visualize
     fig, ax = plt.subplots()
     ax.scatter(*region.points.T)
-    ax.add_patch(region.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
-    ax.add_patch(extended_region_with_support.as_artist(fill=True, alpha=0.2, color='Green'))
+    ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color="Red"))
+    ax.add_patch(
+        extended_region_with_support.as_artist(fill=True, alpha=0.2, color="Green")
+    )
     # plt.show()
 
-    plt.close('all')
+    plt.close("all")
 
 
 def test_extend_Rectangles():
@@ -103,18 +107,21 @@ def test_extend_Rectangles():
     # visualize
     fig, ax = plt.subplots()
     ax.scatter(*region_0.points.T)
-    ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(region_2.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
+    ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(region_2.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color="Red"))
     # plt.show()
 
-    plt.close('all')
+    plt.close("all")
 
 
 def test_extend_Polygon():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
-    holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
+    holes = [
+        ((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)),
+        ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45)),
+    ]
     region = Polygon(points, holes)
     support = Rectangle((0, 0), 1, 1, 0)
     extended_region = expand_region(region, distance=0.1)
@@ -123,22 +130,29 @@ def test_extend_Polygon():
     assert isinstance(extended_region_with_support, Region)
     assert region.region_measure == pytest.approx(0.7350000000000001)
     assert extended_region.region_measure == pytest.approx(1.1431688585174895)
-    assert extended_region_with_support.region_measure == pytest.approx(0.8493033988749895)
+    assert extended_region_with_support.region_measure == pytest.approx(
+        0.8493033988749895
+    )
 
     # visualize
     fig, ax = plt.subplots()
     ax.scatter(*region.points.T)
-    ax.add_patch(region.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
-    ax.add_patch(extended_region_with_support.as_artist(fill=True, alpha=0.2, color='Green'))
+    ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color="Red"))
+    ax.add_patch(
+        extended_region_with_support.as_artist(fill=True, alpha=0.2, color="Green")
+    )
     # plt.show()
 
-    plt.close('all')
+    plt.close("all")
 
 
 def test_extend_MultiPolygon():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
-    holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
+    holes = [
+        ((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)),
+        ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45)),
+    ]
     region = Polygon(points, holes)
 
     support = Rectangle((0, 0), 1, 1, 0)
@@ -148,17 +162,21 @@ def test_extend_MultiPolygon():
     assert isinstance(extended_region_with_support, Region)
     assert region.region_measure == pytest.approx(0.7350000000000001)
     assert extended_region.region_measure == pytest.approx(1.1431688585174895)
-    assert extended_region_with_support.region_measure == pytest.approx(0.8493033988749895)
+    assert extended_region_with_support.region_measure == pytest.approx(
+        0.8493033988749895
+    )
 
     # visualize
     fig, ax = plt.subplots()
     ax.scatter(*region.points.T)
-    ax.add_patch(region.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
-    ax.add_patch(extended_region_with_support.as_artist(fill=True, alpha=0.2, color='Green'))
+    ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color="Red"))
+    ax.add_patch(
+        extended_region_with_support.as_artist(fill=True, alpha=0.2, color="Green")
+    )
     # plt.show()
 
-    plt.close('all')
+    plt.close("all")
 
 
 def test_surrounding_region_Rectangles():
@@ -174,41 +192,50 @@ def test_surrounding_region_Rectangles():
     # visualize
     fig, ax = plt.subplots()
     ax.scatter(*region_0.points.T)
-    ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(region_2.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
+    ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(region_2.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color="Red"))
     # plt.show()
 
-    plt.close('all')
+    plt.close("all")
 
 
 def test_surrounding_region_Polygon():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
-    holes = [((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)), ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45))]
+    holes = [
+        ((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)),
+        ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45)),
+    ]
     region = Polygon(points, holes)
     support = Rectangle((0, 0), 1, 1, 0)
     extended_region = surrounding_region(region, distance=0.1)
-    extended_region_with_support = surrounding_region(region, distance=0.1, support=support)
+    extended_region_with_support = surrounding_region(
+        region, distance=0.1, support=support
+    )
     assert isinstance(extended_region, Region)
     assert isinstance(extended_region_with_support, Region)
     assert region.region_measure == pytest.approx(0.7350000000000001)
     assert extended_region.region_measure == pytest.approx(0.4081688585174893)
-    assert extended_region_with_support.region_measure == pytest.approx(0.11430339887498947)
+    assert extended_region_with_support.region_measure == pytest.approx(
+        0.11430339887498947
+    )
 
     # visualize
     fig, ax = plt.subplots()
     ax.scatter(*region.points.T)
-    ax.add_patch(region.as_artist(fill=True, alpha=0.2, color='Blue'))
-    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color='Red'))
-    ax.add_patch(extended_region_with_support.as_artist(fill=True, alpha=0.2, color='Green'))
+    ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
+    ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color="Red"))
+    ax.add_patch(
+        extended_region_with_support.as_artist(fill=True, alpha=0.2, color="Green")
+    )
     # plt.show()
 
-    plt.close('all')
+    plt.close("all")
 
 
 def test_extend_region_RoiRegion():
-    rr = RoiRegion(region_type='rectangle', region_specs=((0, 0), 1, 1, 0))
+    rr = RoiRegion(region_type="rectangle", region_specs=((0, 0), 1, 1, 0))
     er = expand_region(region=rr, distance=1, support=None)
     assert rr.region_measure == pytest.approx(1)
 
@@ -223,27 +250,31 @@ def test_extend_region_RoiRegion():
     er = expand_region(region=rr.to_shapely(), distance=1, support=None)
     assert er.area == pytest.approx(8.13654849054594)
 
-    rr = RoiRegion(region_type='ellipse', region_specs=((0, 0), 1, 3, 0))
+    rr = RoiRegion(region_type="ellipse", region_specs=((0, 0), 1, 3, 0))
     sr = expand_region(region=rr, distance=1, support=None)
     assert sr.area == pytest.approx(12.169350575721547)
 
-    rr = RoiRegion(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0)))
+    rr = RoiRegion(
+        region_type="polygon", region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    )
     sr = expand_region(region=rr, distance=1, support=None)
     assert sr.area == pytest.approx(7.50457995299987)
 
-    rr = RoiRegion(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0)))
-    sup = RoiRegion(region_type='rectangle', region_specs=((0, 0), 2, 2, 0))
+    rr = RoiRegion(
+        region_type="polygon", region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    )
+    sup = RoiRegion(region_type="rectangle", region_specs=((0, 0), 2, 2, 0))
     sr = expand_region(region=rr, distance=1, support=sup)
     assert sr.area == pytest.approx(3.762009021216654)
 
-    rr = RoiRegion(region_type='rectangle', region_specs=((0, 0), 1, 1, 0))
+    rr = RoiRegion(region_type="rectangle", region_specs=((0, 0), 1, 1, 0))
     sr = expand_region(region=rr, distance=1, support=None)
     assert sr.area == pytest.approx(8.13654849054594)
     assert isinstance(sr, Polygon)
-    rr_1 = RoiRegion(region_type='rectangle', region_specs=((10, 10), 1, 1, 0))
+    rr_1 = RoiRegion(region_type="rectangle", region_specs=((10, 10), 1, 1, 0))
     region = regions_union([rr, rr_1])
     sr = expand_region(region=region, distance=1, support=None)
-    assert sr.area == pytest.approx(2*8.13654849054594)
+    assert sr.area == pytest.approx(2 * 8.13654849054594)
 
     # visualize
     fig, ax = plt.subplots()
@@ -262,35 +293,39 @@ def test_extend_region_RoiRegion():
     #     ax.add_patch(pat)
     # plt.show()
 
-    plt.close('all')
+    plt.close("all")
 
 
 def test_surrounding_region():
-    rr = RoiRegion(region_type='rectangle', region_specs=((0, 0), 1, 1, 0))
+    rr = RoiRegion(region_type="rectangle", region_specs=((0, 0), 1, 1, 0))
     sr = surrounding_region(region=rr, distance=1, support=None)
     assert sr.area == pytest.approx(7.136548490545939)
 
-    rr = RoiRegion(region_type='ellipse', region_specs=((0, 0), 1, 3, 0))
+    rr = RoiRegion(region_type="ellipse", region_specs=((0, 0), 1, 3, 0))
     sr = surrounding_region(region=rr, distance=1, support=None)
     assert sr.area == pytest.approx(9.816939207812093)
 
-    rr = RoiRegion(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0)))
+    rr = RoiRegion(
+        region_type="polygon", region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    )
     sr = surrounding_region(region=rr, distance=1, support=None)
     assert sr.area == pytest.approx(6.754579952999869)
 
-    rr = RoiRegion(region_type='polygon', region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0)))
-    sup = RoiRegion(region_type='rectangle', region_specs=((0, 0), 2, 2, 0))
+    rr = RoiRegion(
+        region_type="polygon", region_specs=((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    )
+    sup = RoiRegion(region_type="rectangle", region_specs=((0, 0), 2, 2, 0))
     sr = surrounding_region(region=rr, distance=1, support=sup)
     assert sr.area == pytest.approx(3.012009021216654)
 
-    rr = RoiRegion(region_type='rectangle', region_specs=((0, 0), 1, 1, 0))
-    rr_1 = RoiRegion(region_type='rectangle', region_specs=((0, 0), 1, 1, 0))
+    rr = RoiRegion(region_type="rectangle", region_specs=((0, 0), 1, 1, 0))
+    rr_1 = RoiRegion(region_type="rectangle", region_specs=((0, 0), 1, 1, 0))
     sr = surrounding_region(region=regions_union([rr, rr_1]), distance=1, support=None)
     assert sr.area == pytest.approx(7.136548490545939)
     assert isinstance(sr, Polygon)
-    rr_1 = RoiRegion(region_type='rectangle', region_specs=((10, 10), 1, 1, 0))
+    rr_1 = RoiRegion(region_type="rectangle", region_specs=((10, 10), 1, 1, 0))
     sr = surrounding_region(region=regions_union([rr, rr_1]), distance=1, support=None)
-    assert sr.area == pytest.approx(2*7.136548490545939)
+    assert sr.area == pytest.approx(2 * 7.136548490545939)
     assert isinstance(sr, MultiPolygon)
 
     # visualize
@@ -303,4 +338,4 @@ def test_surrounding_region():
     #     ax.add_patch(pat)
     # plt.show()
 
-    plt.close('all')
+    plt.close("all")

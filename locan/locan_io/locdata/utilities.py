@@ -12,7 +12,7 @@ import pandas as pd
 from locan.constants import PROPERTY_KEYS
 
 
-__all__ = ['convert_property_types', 'convert_property_names']
+__all__ = ["convert_property_types", "convert_property_names"]
 
 logger = logging.getLogger(__name__)
 
@@ -48,14 +48,14 @@ def convert_property_types(dataframe, types, loc_properties=None):
 
     for key, value in selected_property_keys.items():
         if isinstance(value, str):
-            new_df[key] = pd.to_numeric(dataframe[key], downcast=value, errors='coerce')
+            new_df[key] = pd.to_numeric(dataframe[key], downcast=value, errors="coerce")
         else:
             new_df[key] = dataframe[key].astype(value)
 
     return new_df
 
 
-def open_path_or_file_like(path_or_file_like, mode='r', encoding=None):
+def open_path_or_file_like(path_or_file_like, mode="r", encoding=None):
     """
     Provide open-file context from `path_or_file_like` input.
 
@@ -73,7 +73,7 @@ def open_path_or_file_like(path_or_file_like, mode='r', encoding=None):
     context for file object
     """
     try:
-        all(getattr(path_or_file_like, attr) for attr in ('seek', 'read', 'close'))
+        all(getattr(path_or_file_like, attr) for attr in ("seek", "read", "close"))
         file = path_or_file_like
     except (AttributeError, io.UnsupportedOperation):
         try:
@@ -81,7 +81,9 @@ def open_path_or_file_like(path_or_file_like, mode='r', encoding=None):
             # or isinstance(path_or_file_like, (str, bytes)):
             file = open(path_or_file_like, mode=mode, encoding=encoding)
         except TypeError:
-            raise TypeError("path_or_file_like must be str, bytes, os.PathLike or file-like.")
+            raise TypeError(
+                "path_or_file_like must be str, bytes, os.PathLike or file-like."
+            )
     return closing(file)
 
 
@@ -119,7 +121,7 @@ def convert_property_names(properties, property_mapping=None):
             column_keys.append(property_mapping_[i])
 
         else:
-            logger.warning(f'Column {i} is not a Locan property standard.')
+            logger.warning(f"Column {i} is not a Locan property standard.")
             column_keys.append(i)
 
     return column_keys

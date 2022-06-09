@@ -1,5 +1,11 @@
 import pytest
-from locan import IMPORT_NAMES, INSTALL_REQUIRES, EXTRAS_REQUIRE, HAS_DEPENDENCY, needs_package
+from locan import (
+    IMPORT_NAMES,
+    INSTALL_REQUIRES,
+    EXTRAS_REQUIRE,
+    HAS_DEPENDENCY,
+    needs_package,
+)
 
 
 def test_IMPORT_NAMES():
@@ -34,5 +40,8 @@ def function_to_be_decorated():
 
 
 def test_function_to_be_decorated():
-    assert function_to_be_decorated.__doc__ == "This is documentation for function_to_be_decorated."
+    assert (
+        function_to_be_decorated.__doc__
+        == "This is documentation for function_to_be_decorated."
+    )
     assert function_to_be_decorated()

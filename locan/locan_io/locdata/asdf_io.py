@@ -15,7 +15,7 @@ from locan.data.locdata import LocData
 from locan.locan_io.locdata.utilities import convert_property_names
 
 
-__all__ = ['save_asdf', 'load_asdf_file']
+__all__ = ["save_asdf", "load_asdf_file"]
 
 logger = logging.getLogger(__name__)
 
@@ -40,12 +40,14 @@ def save_asdf(locdata, path):
         File path including file name to save to.
     """
     # Prepare tree
-    meta_json = json_format.MessageToJson(locdata.meta, including_default_value_fields=False)
+    meta_json = json_format.MessageToJson(
+        locdata.meta, including_default_value_fields=False
+    )
     tree = {
-        'data': locdata.data.values,
-        'columns': list(locdata.data),
-        'properties': locdata.properties,
-        'meta': meta_json
+        "data": locdata.data.values,
+        "columns": list(locdata.data),
+        "properties": locdata.properties,
+        "meta": meta_json,
     }
 
     # Create the ASDF file object from tree
@@ -72,12 +74,21 @@ def load_asdf_file(path, nrows=None):
         A new instance of LocData with all localizations.
     """
     with asdf_open(path) as af:
-        new_df = pd.DataFrame({k: af.tree['data'][slice(nrows), n] for n, k in enumerate(af.tree['columns'])})
+        new_df = pd.DataFrame(
+            {
+                k: af.tree["data"][slice(nrows), n]
+                for n, k in enumerate(af.tree["columns"])
+            }
+        )
 
-        column_keys = convert_property_names(properties=new_df.columns.tolist(), property_mapping=None)
+        column_keys = convert_property_names(
+            properties=new_df.columns.tolist(), property_mapping=None
+        )
         mapper = {key: value for key, value in zip(new_df.columns, column_keys)}
         new_df = new_df.rename(columns=mapper)
 
         locdata = LocData(dataframe=new_df)
-        locdata.meta = json_format.Parse(af.tree['meta'], locdata.meta, ignore_unknown_fields=True)
+        locdata.meta = json_format.Parse(
+            af.tree["meta"], locdata.meta, ignore_unknown_fields=True
+        )
     return locdata

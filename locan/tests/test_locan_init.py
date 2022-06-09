@@ -24,7 +24,7 @@ def test_entrypoint(capfd):
 
 
 def test_entrypoint_from_sys(capfd):
-    exit_status = os.system('locan')
+    exit_status = os.system("locan")
     captured = capfd.readouterr()
     assert captured.out[:47] == "This is the command line entry point for locan."
     assert exit_status == 0

@@ -36,7 +36,7 @@ from locan.data.region_utils import regions_union
 from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance
 
 
-__all__ = ['AlphaComplex', 'AlphaShape']
+__all__ = ["AlphaComplex", "AlphaShape"]
 
 
 def _k_simplex_index_list(d, k):
@@ -76,7 +76,9 @@ def _k_simplex_neighbor_index_list(d, k):
 def _get_k_simplices(simplex, k=1):
     """ Function to extract k-simplices (e.g. edges) from a d-simplex (e.g. triangle; d>k)."""
     d = len(simplex) - 1
-    k_simplices = ([simplex[indx] for indx in indices] for indices in _k_simplex_index_list(d, k))
+    k_simplices = (
+        [simplex[indx] for indx in indices] for indices in _k_simplex_index_list(d, k)
+    )
     return k_simplices
 
 
@@ -131,7 +133,9 @@ class AlphaComplex:
 
         else:
             self.dimension = np.shape(self.points)[1]
-            self.delaunay_triangulation = Delaunay(self.points) if delaunay is None else delaunay
+            self.delaunay_triangulation = (
+                Delaunay(self.points) if delaunay is None else delaunay
+            )
 
             if self.dimension == 2:
                 self.lines, self.triangles = self._compute_2d()
@@ -140,7 +144,9 @@ class AlphaComplex:
                 self.triangles = []
                 raise NotImplementedError
             else:
-                raise ValueError(f'There is no algorithm available for points with dimension {self.dimension}.')
+                raise ValueError(
+                    f"There is no algorithm available for points with dimension {self.dimension}."
+                )
 
     def _compute_2d(self):
         """ Compute the alpha complex for 2d data."""
@@ -153,21 +159,34 @@ class AlphaComplex:
 
         alpha_complex_lines = []
         alpha_complex_triangles = []
-        for n, (simplex, neighbors, circumcircle_radius) in enumerate(zip(self.delaunay_triangulation.simplices,
-                                                                     self.delaunay_triangulation.neighbors,
-                                                                     circumcircle_radii)):
+        for n, (simplex, neighbors, circumcircle_radius) in enumerate(
+            zip(
+                self.delaunay_triangulation.simplices,
+                self.delaunay_triangulation.neighbors,
+                circumcircle_radii,
+            )
+        ):
             interval_a_list = []
             interval_b_list = []
             interval_c_list = []
-            for k_simplex, neighbor_index in zip(_get_k_simplices(simplex, k=1),
-                                                 _k_simplex_neighbor_index_list(d=2, k=1)):
+            for k_simplex, neighbor_index in zip(
+                _get_k_simplices(simplex, k=1), _k_simplex_neighbor_index_list(d=2, k=1)
+            ):
                 neighbor = neighbors[neighbor_index]
-                circumcircle_radius_neigh = np.inf if neighbor == -1 else circumcircle_radii[neighbor]
-                interval_b, interval_c = sorted((circumcircle_radius, circumcircle_radius_neigh))
-                interval_a = _half_distance(self.points[k_simplex])  # distance between vertices / 2
+                circumcircle_radius_neigh = (
+                    np.inf if neighbor == -1 else circumcircle_radii[neighbor]
+                )
+                interval_b, interval_c = sorted(
+                    (circumcircle_radius, circumcircle_radius_neigh)
+                )
+                interval_a = _half_distance(
+                    self.points[k_simplex]
+                )  # distance between vertices / 2
 
                 # named tuple Simplices(vertices, interval_a, interval_b, interval_c)
-                alpha_complex_lines.append((tuple(sorted(k_simplex)), interval_a, interval_b, interval_c))
+                alpha_complex_lines.append(
+                    (tuple(sorted(k_simplex)), interval_a, interval_b, interval_c)
+                )
                 # use tuple(sorted()) together with set to get rid of duplicate simplices
 
                 interval_a_list.append(interval_a)
@@ -176,11 +195,13 @@ class AlphaComplex:
 
             # if alpha is large enough such that ALL k-simplices are singular, regular, or interior,
             # the d-simplex is a singular, regular or interior part of the alpha shape
-            alpha_complex_triangles.append((n, max(interval_a_list), max(interval_b_list), max(interval_c_list)))
+            alpha_complex_triangles.append(
+                (n, max(interval_a_list), max(interval_b_list), max(interval_c_list))
+            )
         alpha_complex_lines = set(alpha_complex_lines)
         return alpha_complex_lines, alpha_complex_triangles
 
-    def get_alpha_complex_lines(self, alpha, type='all'):
+    def get_alpha_complex_lines(self, alpha, type="all"):
         """
         Simplicial subcomplex (lines) of the Delaunay triangulation for the specific alpha complex
         for the given `alpha`.
@@ -201,21 +222,21 @@ class AlphaComplex:
         if np.size(self.lines) == 0:
             return []
 
-        if type == 'exterior':
+        if type == "exterior":
             return [list(ac[0]) for ac in self.lines if ac[1] > alpha]
-        elif type == 'all':
+        elif type == "all":
             return [list(ac[0]) for ac in self.lines if ac[1] <= alpha]
-        elif type == 'singular':
+        elif type == "singular":
             return [list(ac[0]) for ac in self.lines if ac[1] <= alpha < ac[2]]
-        elif type == 'regular':
+        elif type == "regular":
             return [list(ac[0]) for ac in self.lines if ac[2] <= alpha < ac[3]]
-        elif type == 'interior':
+        elif type == "interior":
             return [list(ac[0]) for ac in self.lines if ac[3] <= alpha]
         else:
-            raise AttributeError(f'Parameter type: {type} is not valid.')
+            raise AttributeError(f"Parameter type: {type} is not valid.")
         # a list of lists and not of tuples should be returned since the return value will be used for indexing arrays.
 
-    def get_alpha_complex_triangles(self, alpha, type='all'):
+    def get_alpha_complex_triangles(self, alpha, type="all"):
         """
         Simplicial subcomplex (triangles) of the Delaunay triangulation for the specific alpha complex
         for the given `alpha`.
@@ -236,21 +257,21 @@ class AlphaComplex:
         if np.size(self.triangles) == 0:
             return []
 
-        if type == 'exterior':
+        if type == "exterior":
             return [ac[0] for ac in self.triangles if ac[1] > alpha]
-        elif type == 'all':
+        elif type == "all":
             return [ac[0] for ac in self.triangles if ac[1] <= alpha]
-        elif type == 'singular':
+        elif type == "singular":
             return [ac[0] for ac in self.triangles if ac[1] <= alpha < ac[2]]
-        elif type == 'regular':
+        elif type == "regular":
             return [ac[0] for ac in self.triangles if ac[2] <= alpha < ac[3]]
-        elif type == 'interior':
+        elif type == "interior":
             return [ac[0] for ac in self.triangles if ac[3] <= alpha]
         else:
-            raise AttributeError(f'Parameter type: {type} is not valid.')
+            raise AttributeError(f"Parameter type: {type} is not valid.")
         # a list of lists and not of tuples should be returned since the return value will be used for indexing arrays.
 
-    def graph_from_lines(self, alpha, type='all'):
+    def graph_from_lines(self, alpha, type="all"):
         """
         Return networkx Graph object with nodes and edges from selected lines.
 
@@ -277,7 +298,7 @@ class AlphaComplex:
         G.add_edges_from(ac_simplices, type=type)
         return G
 
-    def graph_from_triangles(self, alpha, type='all'):
+    def graph_from_triangles(self, alpha, type="all"):
         """
         Return networkx Graph object with nodes and edges from selected triangles.
 
@@ -301,7 +322,9 @@ class AlphaComplex:
         # positions = {i: tuple(point) for i, point in enumerate(self.points)}  # positions for all nodes
         # G.add_nodes_from(positions)
         triangles = self.get_alpha_complex_triangles(alpha=alpha, type=type)
-        for triangle, vertices in zip(triangles, self.delaunay_triangulation.simplices[triangles]):
+        for triangle, vertices in zip(
+            triangles, self.delaunay_triangulation.simplices[triangles]
+        ):
             edges = [vertices[[n, m]] for n, m in [(0, 1), (1, 2), (2, 0)]]
             G.add_edges_from(edges, triangle=triangle)
         return G
@@ -319,8 +342,12 @@ class AlphaComplex:
         -------
         float
         """
-        return AlphaShape(points=self.points, alpha=alpha,
-                          alpha_complex=self, delaunay=self.delaunay_triangulation)
+        return AlphaShape(
+            points=self.points,
+            alpha=alpha,
+            alpha_complex=self,
+            delaunay=self.delaunay_triangulation,
+        )
 
     def optimal_alpha(self):
         """
@@ -442,19 +469,23 @@ class AlphaShape:
         self._connected_components = None
         self._vertices_connected_components_indices = None
 
-        self.n_points_alpha_shape = self.alpha_complex.graph_from_lines(alpha=self.alpha, type='all'). \
-            number_of_nodes()
-        self.n_points_on_boundary = self.alpha_complex.graph_from_lines(alpha=self.alpha, type='regular'). \
-            number_of_nodes()
+        self.n_points_alpha_shape = self.alpha_complex.graph_from_lines(
+            alpha=self.alpha, type="all"
+        ).number_of_nodes()
+        self.n_points_on_boundary = self.alpha_complex.graph_from_lines(
+            alpha=self.alpha, type="regular"
+        ).number_of_nodes()
         try:
-            self.n_points_on_boundary_rel = self.n_points_on_boundary / self.n_points_alpha_shape
+            self.n_points_on_boundary_rel = (
+                self.n_points_on_boundary / self.n_points_alpha_shape
+            )
         except ZeroDivisionError:
-            self.n_points_on_boundary_rel = float('nan')
+            self.n_points_on_boundary_rel = float("nan")
 
         try:
             self.n_points_alpha_shape_rel = self.n_points_alpha_shape / len(self.points)
         except ZeroDivisionError:
-            self.n_points_alpha_shape_rel = float('nan')
+            self.n_points_alpha_shape_rel = float("nan")
 
         self.region_measure = self.region.region_measure
         self.subregion_measure = self.region.subregion_measure
@@ -462,15 +493,21 @@ class AlphaShape:
     @property
     def region(self):
         if self.dimension == 3:
-            raise NotImplementedError('Region for 3D data has not yet been implemented.')
+            raise NotImplementedError(
+                "Region for 3D data has not yet been implemented."
+            )
 
         if self._region is None:
             triangles = self.alpha_complex.get_alpha_complex_triangles(alpha=self.alpha)
             if not triangles:
                 vertices = []
             else:
-                vertices = self.alpha_complex.delaunay_triangulation.simplices[triangles]
-            self._region = regions_union([Polygon(pts) for pts in self.points[vertices]])
+                vertices = self.alpha_complex.delaunay_triangulation.simplices[
+                    triangles
+                ]
+            self._region = regions_union(
+                [Polygon(pts) for pts in self.points[vertices]]
+            )
         return self._region
 
     @property
@@ -482,20 +519,24 @@ class AlphaShape:
             for cc in nx.connected_components(graph):
                 subgraph = graph.subgraph(cc)
                 self._vertices_connected_components_indices.append(list(subgraph.nodes))
-                triangles = list({edge[2] for edge in subgraph.edges.data('triangle')})
-                vertices = self.alpha_complex.delaunay_triangulation.simplices[triangles]
+                triangles = list({edge[2] for edge in subgraph.edges.data("triangle")})
+                vertices = self.alpha_complex.delaunay_triangulation.simplices[
+                    triangles
+                ]
                 region = regions_union([Polygon(pts) for pts in self.points[vertices]])
                 self._connected_components.append(region)
         return self._connected_components
 
     @property
     def vertices_connected_components_indices(self):
-        _ = self.connected_components  # trigger computation of _vertices_connected_components_indices
+        _ = (
+            self.connected_components
+        )  # trigger computation of _vertices_connected_components_indices
         return self._vertices_connected_components_indices
 
     @property
     def alpha_shape(self):
-        return self.alpha_complex.get_alpha_complex_lines(self.alpha, type='all')
+        return self.alpha_complex.get_alpha_complex_lines(self.alpha, type="all")
 
     @property
     def vertices(self):
@@ -503,7 +544,7 @@ class AlphaShape:
 
     @property
     def vertex_indices(self):
-        array = self.alpha_complex.get_alpha_complex_lines(self.alpha, type='regular')
+        array = self.alpha_complex.get_alpha_complex_lines(self.alpha, type="regular")
         return np.unique(array).tolist()
 
     @property
@@ -512,7 +553,11 @@ class AlphaShape:
 
     @property
     def vertex_alpha_shape_indices(self):
-        array_r = self.alpha_complex.get_alpha_complex_lines(self.alpha, type='regular')
-        array_s = self.alpha_complex.get_alpha_complex_lines(self.alpha, type='singular')
-        array_i = self.alpha_complex.get_alpha_complex_lines(self.alpha, type='interior')
+        array_r = self.alpha_complex.get_alpha_complex_lines(self.alpha, type="regular")
+        array_s = self.alpha_complex.get_alpha_complex_lines(
+            self.alpha, type="singular"
+        )
+        array_i = self.alpha_complex.get_alpha_complex_lines(
+            self.alpha, type="interior"
+        )
         return np.unique(array_r + array_s + array_i).tolist()

@@ -7,7 +7,6 @@ Team, Copyright (c) 2011-2021, Open source contributors.)
 and from :func:`scikit-learn.show_versions` (`locan/licences/SCIKIT-LEARN.rst`)
 (BSD 3-Clause License, Copyright (c) 2007-2020 The scikit-learn developers.)
 """
-
 import platform
 import sys
 import importlib
@@ -19,7 +18,7 @@ from locan.dependencies import INSTALL_REQUIRES, EXTRAS_REQUIRE
 from locan import __version__ as locan_version
 
 
-__all__ = ['system_info', 'dependency_info', 'show_versions']
+__all__ = ["system_info", "dependency_info", "show_versions"]
 
 
 def system_info(verbose=True):
@@ -53,10 +52,9 @@ def system_info(verbose=True):
     }
 
     if verbose:
-        sys_info.update({
-            "node": uname_result.node,
-            "executable": sys.executable,
-        })
+        sys_info.update(
+            {"node": uname_result.node, "executable": sys.executable,}
+        )
 
     return sys_info
 
@@ -95,8 +93,15 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
     return deps_info
 
 
-def show_versions(locan=True, python=True, system=True, dependencies=True,
-                  verbose=True, extra_dependencies=True, other_dependencies=None):
+def show_versions(
+    locan=True,
+    python=True,
+    system=True,
+    dependencies=True,
+    verbose=True,
+    extra_dependencies=True,
+    other_dependencies=None,
+):
     """
     Print useful debugging information on system and dependency versions.
 
@@ -122,27 +127,27 @@ def show_versions(locan=True, python=True, system=True, dependencies=True,
     None
     """
 
-    locan_info = {'version': locan_version}
-    python_info = {'version': platform.python_version()}
+    locan_info = {"version": locan_version}
+    python_info = {"version": platform.python_version()}
     sys_info = system_info(verbose)
     deps_info = dependency_info(extra_dependencies, other_dependencies)
 
     if locan:
-        print('\nLocan:')
+        print("\nLocan:")
         for key, value in locan_info.items():
             print(f"{key:>10}: {value}")
 
     if python:
-        print('\nPython:')
+        print("\nPython:")
         for key, value in python_info.items():
             print(f"{key:>10}: {value}")
 
     if system:
-        print('\nSystem:')
+        print("\nSystem:")
         for key, value in sys_info.items():
             print(f"{key:>10}: {value}")
 
     if dependencies:
-        print('\nPython dependencies:')
+        print("\nPython dependencies:")
         for key, value in deps_info.items():
             print(f"{key:>10}: {value}")

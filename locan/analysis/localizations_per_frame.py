@@ -14,14 +14,17 @@ import matplotlib.pyplot as plt
 from locan.analysis.analysis_base import _Analysis
 
 
-__all__ = ['LocalizationsPerFrame']
+__all__ = ["LocalizationsPerFrame"]
 
 logger = logging.getLogger(__name__)
 
 
 #### The algorithms
 
-def _localizations_per_frame(locdata, norm=None, time_delta="integration_time", resample=None, **kwargs):
+
+def _localizations_per_frame(
+    locdata, norm=None, time_delta="integration_time", resample=None, **kwargs
+):
     """
     Compute localizations per frame.
 
@@ -47,15 +50,17 @@ def _localizations_per_frame(locdata, norm=None, time_delta="integration_time", 
     # normalization
     if norm is None:
         normalization_factor = 1
-        series_name = 'n_localizations'
+        series_name = "n_localizations"
     elif isinstance(norm, str):
         normalization_factor = locdata.properties[norm]
-        series_name = f'n_localizations / ' + norm
+        series_name = f"n_localizations / " + norm
     elif isinstance(norm, (int, float)):
         normalization_factor = norm
-        series_name = f'n_localizations / {norm}'
+        series_name = f"n_localizations / {norm}"
     else:
-        raise TypeError('normalization should be None, a number or a valid property name.')
+        raise TypeError(
+            "normalization should be None, a number or a valid property name."
+        )
 
     try:
         frames_ = locdata.data.frame.astype(int)
@@ -64,23 +69,29 @@ def _localizations_per_frame(locdata, norm=None, time_delta="integration_time", 
 
     frames, frame_counts = np.unique(frames_, return_counts=True)
     series = pd.Series(frame_counts, index=frames, dtype=float) / normalization_factor
-    series.index.name = 'frame'
+    series.index.name = "frame"
     series.name = series_name
 
     if time_delta is None:
         pass
     elif isinstance(time_delta, (int, float)):
         series.index = pd.to_timedelta(frames * time_delta, unit="s")
-        series.index.name = 'time'
+        series.index.name = "time"
         series.name = series.name + " / s"
     elif time_delta == "integration_time":
         try:
-            time_delta = locdata.meta.experiment.setups[0].optical_units[0].detection.camera.integration_time.ToSeconds()
+            time_delta = (
+                locdata.meta.experiment.setups[0]
+                .optical_units[0]
+                .detection.camera.integration_time.ToSeconds()
+            )
             series.index = pd.to_timedelta(frames * time_delta, unit="s")
-            series.index.name = 'time'
+            series.index.name = "time"
             series.name = series.name + " / s"
         except (IndexError, AttributeError):
-            logger.warning("integration_time not available in locdata.meta - frames used instead.")
+            logger.warning(
+                "integration_time not available in locdata.meta - frames used instead."
+            )
     else:
         raise ValueError("The input for time_delta is not implemented.")
 
@@ -92,12 +103,15 @@ def _localizations_per_frame(locdata, norm=None, time_delta="integration_time", 
 
 # The specific analysis classes
 
+
 @dataclass(repr=False)
 class _Results:
     time_series: pd.Series
 
     def accumulation_time(self, fraction=0.5) -> int:
-        normalized_cumulative_time_trace = self.time_series.cumsum() / self.time_series.sum()
+        normalized_cumulative_time_trace = (
+            self.time_series.cumsum() / self.time_series.sum()
+        )
         accumulation_time = normalized_cumulative_time_trace.gt(fraction).idxmax()
         return accumulation_time
 
@@ -133,10 +147,20 @@ class LocalizationsPerFrame(_Analysis):
     distribution_statistics : Distribution_fits object, None
         Distribution parameters derived from MLE fitting of results.
     """
+
     count = 0
 
-    def __init__(self, meta=None, norm=None, time_delta="integration_time", resample=None, **kwargs):
-        super().__init__(meta=meta, norm=norm, time_delta=time_delta, resample=resample, **kwargs)
+    def __init__(
+        self,
+        meta=None,
+        norm=None,
+        time_delta="integration_time",
+        resample=None,
+        **kwargs,
+    ):
+        super().__init__(
+            meta=meta, norm=norm, time_delta=time_delta, resample=resample, **kwargs
+        )
         self.results = None
         self.distribution_statistics = None
 
@@ -155,7 +179,7 @@ class LocalizationsPerFrame(_Analysis):
            Returns the Analysis class object (self).
         """
         if not len(locdata):
-            logger.warning('Locdata is empty.')
+            logger.warning("Locdata is empty.")
             self.distribution_statistics = None
             self.results = None
             return self
@@ -180,7 +204,7 @@ class LocalizationsPerFrame(_Analysis):
             self.distribution_statistics = _DistributionFits(self)
             self.distribution_statistics.fit(**kwargs)
         else:
-            logger.warning('No results available to fit.')
+            logger.warning("No results available to fit.")
 
     def plot(self, ax=None, window=1, cumulative=False, normalize=False, **kwargs):
         """
@@ -224,14 +248,15 @@ class LocalizationsPerFrame(_Analysis):
 
         _results.rolling(window=window, center=True).mean().plot(ax=ax, **kwargs)
 
-        ax.set(title=f'Localizations per Frame\n (window={window})',
-               xlabel=series.index.name,
-               ylabel=f'{series.name} (cumulative)' if cumulative else series.name
-               )
+        ax.set(
+            title=f"Localizations per Frame\n (window={window})",
+            xlabel=series.index.name,
+            ylabel=f"{series.name} (cumulative)" if cumulative else series.name,
+        )
 
         return ax
 
-    def hist(self, ax=None, fit=True, bins='auto', **kwargs):
+    def hist(self, ax=None, fit=True, bins="auto", **kwargs):
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results).
 
@@ -259,11 +284,10 @@ class LocalizationsPerFrame(_Analysis):
 
         series = self.results.time_series
 
-        ax.hist(series.values, bins=bins, **dict(dict(density=True, log=False), **kwargs))
-        ax.set(title = 'Localizations per Frame',
-               xlabel = series.name,
-               ylabel = 'PDF'
-               )
+        ax.hist(
+            series.values, bins=bins, **dict(dict(density=True, log=False), **kwargs)
+        )
+        ax.set(title="Localizations per Frame", xlabel=series.name, ylabel="PDF")
 
         if fit:
             if isinstance(self.distribution_statistics, _DistributionFits):
@@ -274,7 +298,9 @@ class LocalizationsPerFrame(_Analysis):
 
         return ax
 
+
 # todo: add fit function
+
 
 class _DistributionFits:
     """
@@ -299,6 +325,7 @@ class _DistributionFits:
         Distribution model to fit.
     parameters :
     """
+
     def __init__(self, analysis_class):
         self.analysis_class = analysis_class
         self.loc_property = self.analysis_class.results.time_series.name
@@ -324,11 +351,14 @@ class _DistributionFits:
 
         self.distribution = distribution
 
-        loc, scale = self.distribution.fit(self.analysis_class.results.time_series.values, **kwargs)
-        self.parameters.extend([self.loc_property + '_center', self.loc_property + '_sigma'])
-        setattr(self, self.loc_property + '_center', loc)
-        setattr(self, self.loc_property + '_sigma', scale)
-
+        loc, scale = self.distribution.fit(
+            self.analysis_class.results.time_series.values, **kwargs
+        )
+        self.parameters.extend(
+            [self.loc_property + "_center", self.loc_property + "_sigma"]
+        )
+        setattr(self, self.loc_property + "_center", loc)
+        setattr(self, self.loc_property + "_sigma", scale)
 
     def plot(self, ax=None, **kwargs):
         """
@@ -356,10 +386,20 @@ class _DistributionFits:
         # plot fit curve
         _center, _sigma = self.parameter_dict().values()
 
-        x_values = np.linspace(self.distribution.ppf(0.001, loc=_center, scale=_sigma),
-                               self.distribution.ppf(0.999, loc=_center, scale=_sigma), 100)
-        ax.plot(x_values, self.distribution.pdf(x_values, loc=_center, scale=_sigma), 'r-',
-                **dict(dict(lw=3, alpha=0.6, label=str(self.distribution.name) + ' pdf'), **kwargs))
+        x_values = np.linspace(
+            self.distribution.ppf(0.001, loc=_center, scale=_sigma),
+            self.distribution.ppf(0.999, loc=_center, scale=_sigma),
+            100,
+        )
+        ax.plot(
+            x_values,
+            self.distribution.pdf(x_values, loc=_center, scale=_sigma),
+            "r-",
+            **dict(
+                dict(lw=3, alpha=0.6, label=str(self.distribution.name) + " pdf"),
+                **kwargs,
+            ),
+        )
         return ax
 
     def parameter_dict(self):

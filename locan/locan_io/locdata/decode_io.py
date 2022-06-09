@@ -11,12 +11,16 @@ from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.data.locdata import LocData
 import locan.constants
 from locan.data import metadata_pb2
-from locan.locan_io.locdata.utilities import convert_property_types, convert_property_names
+from locan.locan_io.locdata.utilities import (
+    convert_property_types,
+    convert_property_names,
+)
 
-if HAS_DEPENDENCY["h5py"]: import h5py
+if HAS_DEPENDENCY["h5py"]:
+    import h5py
 
 
-__all__ = ['load_decode_header', 'load_decode_file']
+__all__ = ["load_decode_header", "load_decode_file"]
 
 logger = logging.getLogger(__name__)
 
@@ -37,11 +41,11 @@ def _read_decode_header(file):
         Tuple with identifiers, meta and decode sections.
         Identifiers are list of valid dataset property keys as derived from the DECODE identifiers.
     """
-    meta_data = dict(file['meta'].attrs)
-    meta_decode = dict(file['decode'].attrs)
+    meta_data = dict(file["meta"].attrs)
+    meta_decode = dict(file["decode"].attrs)
 
     # list identifiers
-    identifiers = list(file['data'].keys())
+    identifiers = list(file["data"].keys())
 
     column_keys = []
     for i in identifiers:
@@ -54,7 +58,9 @@ def _read_decode_header(file):
         else:
             column_keys.append(i)
 
-    column_keys = convert_property_names(properties=column_keys, property_mapping=locan.constants.DECODE_KEYS)
+    column_keys = convert_property_names(
+        properties=column_keys, property_mapping=locan.constants.DECODE_KEYS
+    )
 
     return column_keys, meta_data, meta_decode
 
@@ -77,7 +83,7 @@ def load_decode_header(path):
         Tuple with identifiers, meta and decode sections.
         Identifiers are list of valid dataset property keys as derived from the DECODE identifiers.
     """
-    with h5py.File(path, 'r') as file:
+    with h5py.File(path, "r") as file:
         return _read_decode_header(file)
 
 
@@ -100,19 +106,21 @@ def load_decode_file(path, nrows=None, convert=True):
     LocData
         A new instance of LocData with all localizations.
     """
-    with h5py.File(path, 'r') as file:
+    with h5py.File(path, "r") as file:
         columns, meta, decode = _read_decode_header(file)
 
-        if file['data']['xyz'].shape == (0, 3):  # empty file
-            logger.warning(f'File does not contain any data.')
+        if file["data"]["xyz"].shape == (0, 3):  # empty file
+            logger.warning(f"File does not contain any data.")
             locdata = LocData()
 
         else:  # file not empty
             data = {}
-            for key, value in file['data'].items():
+            for key, value in file["data"].items():
                 if value.shape is not None:
                     if key == "xyz":
-                        for i, property_ in enumerate(['position_x', 'position_y', 'position_z']):
+                        for i, property_ in enumerate(
+                            ["position_x", "position_y", "position_z"]
+                        ):
                             data[property_] = value[:nrows, i]
                     elif key == "xyz_cr":
                         for i, property_ in enumerate(["x_cr", "y_cr", "z_cr"]):
@@ -128,7 +136,9 @@ def load_decode_file(path, nrows=None, convert=True):
             dataframe = pd.DataFrame(data)
 
             if convert:
-                dataframe = convert_property_types(dataframe, types=locan.constants.PROPERTY_KEYS)
+                dataframe = convert_property_types(
+                    dataframe, types=locan.constants.PROPERTY_KEYS
+                )
 
             locdata = LocData.from_dataframe(dataframe=dataframe)
 
@@ -137,10 +147,16 @@ def load_decode_file(path, nrows=None, convert=True):
     locdata.meta.file.type = metadata_pb2.DECODE
     locdata.meta.file.path = str(path)
 
-    for property_ in sorted(list(set(columns).intersection({'position_x', 'position_y', 'position_z'}))):
-        locdata.meta.localization_properties.add(name=property_, unit=meta['xy_unit'], type="float")
+    for property_ in sorted(
+        list(set(columns).intersection({"position_x", "position_y", "position_z"}))
+    ):
+        locdata.meta.localization_properties.add(
+            name=property_, unit=meta["xy_unit"], type="float"
+        )
 
     del locdata.meta.history[:]
-    locdata.meta.history.add(name='load_decode_file', parameter='path={}, nrows={}'.format(path, nrows))
+    locdata.meta.history.add(
+        name="load_decode_file", parameter="path={}, nrows={}".format(path, nrows)
+    )
 
     return locdata

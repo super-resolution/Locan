@@ -15,12 +15,13 @@ from locan.analysis.analysis_base import _Analysis, _list_parameters
 from locan.data.locdata import LocData
 
 
-__all__ = ['BlinkStatistics']
+__all__ = ["BlinkStatistics"]
 
 logger = logging.getLogger(__name__)
 
 
 ##### The algorithms
+
 
 def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
     """
@@ -55,14 +56,18 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
     # provide warning if duplicate frames are found. This should not be the case for appropriate localization clusters.
     if np.any(counts > 1):
         counts_larger_one = counts[counts > 1]
-        logger.warning(f'There are {sum(counts_larger_one) - len(counts_larger_one)} '
-                       f'duplicated frames found that will be ignored.')
+        logger.warning(
+            f"There are {sum(counts_larger_one) - len(counts_larger_one)} "
+            f"duplicated frames found that will be ignored."
+        )
 
     # shift frames and add first frame if no zero frame present to account for initial off_period
     first_frame = frames[0]
     frames_ = np.insert(frames + 1, 0, 0)
 
-    differences = np.insert(np.diff(frames_), 0, 1)  # first frame should be one since zero frame now is always on.
+    differences = np.insert(
+        np.diff(frames_), 0, 1
+    )  # first frame should be one since zero frame now is always on.
 
     # on_ and off_periods
     mask = np.where(differences > memory + 1, True, False)
@@ -93,9 +98,11 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
         if remove_heading_off_periods:
             off_periods = off_periods[1:]
             off_periods_frame = off_periods_frame[1:]
-        on_periods_indices= on_periods_indices[1:]
+        on_periods_indices = on_periods_indices[1:]
 
-    elif first_frame <= memory:  # there is an initial off_period integrated in the first on_period
+    elif (
+        first_frame <= memory
+    ):  # there is an initial off_period integrated in the first on_period
         if remove_heading_off_periods:
             on_periods[0] = on_periods[0] - first_frame - 1
             on_periods_frame[0] = first_frame + 1
@@ -107,12 +114,17 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
     on_periods_frame = on_periods_frame - 1
     off_periods_frame = off_periods_frame - 1
 
-    return dict(on_periods=on_periods, on_periods_frame=on_periods_frame,
-                off_periods=off_periods, off_periods_frame=off_periods_frame,
-                on_periods_indices=on_periods_indices)
+    return dict(
+        on_periods=on_periods,
+        on_periods_frame=on_periods_frame,
+        off_periods=off_periods,
+        off_periods_frame=off_periods_frame,
+        on_periods_indices=on_periods_indices,
+    )
 
 
 ##### The specific analysis classes
+
 
 class BlinkStatistics(_Analysis):
     """
@@ -150,10 +162,13 @@ class BlinkStatistics(_Analysis):
         'on_periods_frame' and 'off_periods_frame' with the first frame in each on/off-period.
         'on_periods_indices' are groups of indices to the input frames or more precise np.unique(frames)
     """
+
     count = 0
 
     def __init__(self, meta=None, memory=0, remove_heading_off_periods=True):
-        super().__init__(meta, memory=memory, remove_heading_off_periods=remove_heading_off_periods)
+        super().__init__(
+            meta, memory=memory, remove_heading_off_periods=remove_heading_off_periods
+        )
         self.results = None
         self.distribution_statistics = {}
 
@@ -172,14 +187,19 @@ class BlinkStatistics(_Analysis):
             Returns the Analysis class object (self).
         """
         if not len(locdata):
-            logger.warning('Locdata is empty.')
+            logger.warning("Locdata is empty.")
             return self
 
         self.results = _blink_statistics(locdata=locdata, **self.parameter)
         return self
 
-    def fit_distributions(self, distribution=stats.expon, data_identifier=('on_periods', 'off_periods'),
-                          with_constraints=True, **kwargs):
+    def fit_distributions(
+        self,
+        distribution=stats.expon,
+        data_identifier=("on_periods", "off_periods"),
+        with_constraints=True,
+        **kwargs,
+    ):
         """
         Fit probability density functions to the distributions of on- and off-periods in the results
         using MLE (scipy.stats).
@@ -200,7 +220,7 @@ class BlinkStatistics(_Analysis):
             Other parameters are passed to the `scipy.stat.distribution.fit()` function.
         """
         if not self:
-            logger.warning('No results available to fit.')
+            logger.warning("No results available to fit.")
         else:
             if isinstance(data_identifier, (tuple, list)):
                 data_identifier_ = data_identifier
@@ -208,11 +228,22 @@ class BlinkStatistics(_Analysis):
                 data_identifier_ = (data_identifier,)
 
             for data_id in data_identifier_:
-                self.distribution_statistics[data_id] = _DistributionFits(self, data_identifier=data_id,
-                                                 distribution=distribution)
-                self.distribution_statistics[data_id].fit(with_constraints=with_constraints, **kwargs)
+                self.distribution_statistics[data_id] = _DistributionFits(
+                    self, data_identifier=data_id, distribution=distribution
+                )
+                self.distribution_statistics[data_id].fit(
+                    with_constraints=with_constraints, **kwargs
+                )
 
-    def hist(self, data_identifier='on_periods', ax=None, bins='auto', log=True, fit=True, **kwargs):
+    def hist(
+        self,
+        data_identifier="on_periods",
+        ax=None,
+        bins="auto",
+        log=True,
+        fit=True,
+        **kwargs,
+    ):
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results).
 
@@ -243,16 +274,22 @@ class BlinkStatistics(_Analysis):
         if not self:
             return ax
 
-        ax.hist(self.results[data_identifier], bins=bins, **dict(dict(density=True, log=log), **kwargs))
-        ax.set(title = f'Distribution of {data_identifier}',
-               xlabel = f'{data_identifier} (frames)',
-               ylabel = 'PDF'
-               )
+        ax.hist(
+            self.results[data_identifier],
+            bins=bins,
+            **dict(dict(density=True, log=log), **kwargs),
+        )
+        ax.set(
+            title=f"Distribution of {data_identifier}",
+            xlabel=f"{data_identifier} (frames)",
+            ylabel="PDF",
+        )
 
         # fit distributions:
         if fit:
-            if data_identifier in self.distribution_statistics and \
-                    isinstance(self.distribution_statistics[data_identifier], _DistributionFits):
+            if data_identifier in self.distribution_statistics and isinstance(
+                self.distribution_statistics[data_identifier], _DistributionFits
+            ):
                 self.distribution_statistics[data_identifier].plot(ax=ax)
             else:
                 self.fit_distributions(data_identifier=data_identifier)
@@ -290,6 +327,7 @@ class _DistributionFits:
     parameters : list of str
         Distribution parameters.
     """
+
     def __init__(self, analysis_class, distribution, data_identifier):
         self.analysis_class = analysis_class
         self.distribution = distribution
@@ -298,11 +336,13 @@ class _DistributionFits:
 
     def __repr__(self):
         """ Return representation of the _DistributionFits class. """
-        param_dict = dict(analysis_class=self.analysis_class.__class__.__name__,
-                          distribution=self.distribution.__class__.__name__,
-                          data_identifier=self.data_identifier)
-        param_string = ", ".join((f'{key}={val}' for key, val in param_dict.items()))
-        return f'{self.__class__.__name__}({param_string})'
+        param_dict = dict(
+            analysis_class=self.analysis_class.__class__.__name__,
+            distribution=self.distribution.__class__.__name__,
+            data_identifier=self.data_identifier,
+        )
+        param_string = ", ".join((f"{key}={val}" for key, val in param_dict.items()))
+        return f"{self.__class__.__name__}({param_string})"
 
     def fit(self, with_constraints=True, **kwargs):
         """
@@ -326,12 +366,14 @@ class _DistributionFits:
 
         # define parameter names
         for param in _list_parameters(self.distribution):
-            self.parameters.append(self.data_identifier + '_' + param)
+            self.parameters.append(self.data_identifier + "_" + param)
 
         # perform fit
         if with_constraints and self.distribution == stats.expon:
             # MLE fit of exponential distribution with constraints
-            fit_results = stats.expon.fit(data, **dict(dict(floc=np.min(data)), **kwargs))
+            fit_results = stats.expon.fit(
+                data, **dict(dict(floc=np.min(data)), **kwargs)
+            )
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
         else:
@@ -364,11 +406,20 @@ class _DistributionFits:
 
         # plot fit curve
         parameter = self.parameter_dict().values()
-        x_values = np.linspace(self.distribution.ppf(1e-4, *parameter),
-                               self.distribution.ppf(1 - 1e-4, *parameter), 100)
-        ax.plot(x_values, self.distribution.pdf(x_values, *parameter), 'r-',
-                **dict(dict(lw=3, alpha=0.6, label=str(self.distribution.name) + ' pdf'),
-                       **kwargs))
+        x_values = np.linspace(
+            self.distribution.ppf(1e-4, *parameter),
+            self.distribution.ppf(1 - 1e-4, *parameter),
+            100,
+        )
+        ax.plot(
+            x_values,
+            self.distribution.pdf(x_values, *parameter),
+            "r-",
+            **dict(
+                dict(lw=3, alpha=0.6, label=str(self.distribution.name) + " pdf"),
+                **kwargs,
+            ),
+        )
 
         return ax
 

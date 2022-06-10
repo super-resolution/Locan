@@ -19,12 +19,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum, unique
 
+import matplotlib.colors as mcolors
+
 from locan.dependencies import HAS_DEPENDENCY
 
 if HAS_DEPENDENCY["colorcet"]:
-    from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
-
-import matplotlib.colors as mcolors
+    from colorcet import m_coolwarm, m_fire, m_glasbey_dark, m_gray
 
 __all__ = [
     "PROPERTY_KEYS",

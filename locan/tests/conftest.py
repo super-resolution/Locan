@@ -7,7 +7,7 @@ import pytest
 
 import locan.data.metadata_pb2
 from locan import ROOT_DIR, LocData
-from locan.dependencies import HAS_DEPENDENCY, QT_BINDINGS, QtBindings
+from locan.dependencies import HAS_DEPENDENCY
 from locan.locan_io.locdata.io_locdata import load_rapidSTORM_file, load_txt_file
 
 logger = logging.getLogger(__name__)
@@ -15,11 +15,6 @@ logger = logging.getLogger(__name__)
 for key, value in HAS_DEPENDENCY.items():
     if not value:
         logger.info(f"Extra dependency {key} is not available.")
-
-if QT_BINDINGS == QtBindings.NONE:
-    logger.warning(
-        f"Extra dependency for Qt bindings (pyside2 or pyqt5) is not available."
-    )
 
 
 # register pytest markers - should be in sync with pyproject.toml

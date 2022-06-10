@@ -3,22 +3,16 @@
 User interfaces.
 
 This module provides functions and classes for using graphical user interfaces (GUI).
-Functions provide a GUI based on QT if the QT backend and appropriate python bindings are available.
 
-The constant `locan.QT_BINDINGS` declares which python binding to use.
-Depending on the situation it is set to one of the values specified in the enum class `locan.QtBindings`.
+Functions provide a GUI based on QT if the QT backend and appropriate python bindings
+are available. Supported bindings are found in the enum class `locan.QtBindings`.
 
-1) `QtBindings.NONE` if no QT backend with python bindings is installed.
+The configuration variable `locan.QT_BINDING` declares which python binding to use
+if several are installed.
+If an environment variable `QT_API` is defined it takes precedence over
+`locan.QT_BINDING`.
 
-2) `QtBindings.PYSIDE2` or `QtBindings.PYQT5` if exactly one of them is installed.
-
-3) the `QtBindings` value that is equal to the python environment variable `QT_API`
-   if both PySide2 and PyQt5 are installed and `QT_API` exists.
-
-4) `QtBindings.PYSIDE2` if both PySide2 and PyQt5 are installed and `QT_API` does not exist.
-
-To force locan to use specific QT bindings set the `QT_API` environment variable to 'pyside2' or 'pyqt5'.
-
+If neither `locan.QT_BINDING` nor `QT_API` is defined, qtpy will choose the binding.
 
 Submodules:
 -----------

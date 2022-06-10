@@ -5,6 +5,7 @@
 # Python
 cython
 tqdm
+qtpy
 
 # Python tests
 pytest

@@ -39,9 +39,9 @@ locdata_id = 0
 
 
 # isort: off
-from locan.dependencies import *  # has to be imported before any others due to pyqt5/sidepy2 issues.
-from locan.constants import *
-from locan.configuration import *
+from locan.dependencies import *  # imported by locan.configuration
+from locan.constants import *  # imported by locan.configuration
+from locan.configuration import *  # has to be imported before any others due to pyqt5/sidepy2 issues.
 from locan.analysis import *
 from locan.data import *
 from locan.datasets import *
@@ -51,6 +51,7 @@ from locan.render import *
 from locan.simulation import *
 from locan.utils import *
 from locan.tests import *
+
 # isort: on
 
 __all__ = ["__version__", "ROOT_DIR"]

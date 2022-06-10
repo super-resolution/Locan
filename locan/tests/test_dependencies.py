@@ -5,6 +5,7 @@ from locan import (
     HAS_DEPENDENCY,
     IMPORT_NAMES,
     INSTALL_REQUIRES,
+    QtBindings,
     needs_package,
 )
 
@@ -46,3 +47,12 @@ def test_function_to_be_decorated():
         == "This is documentation for function_to_be_decorated."
     )
     assert function_to_be_decorated()
+
+
+def test_QtBindings():
+    assert QtBindings.NONE
+    for item in QtBindings:
+        if item == QtBindings.NONE:
+            assert not QtBindings.NONE.value
+        else:
+            assert QtBindings.PYQT5.value

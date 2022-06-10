@@ -3,12 +3,10 @@
 Functions for user interaction with paths and file names.
 
 """
-from locan.dependencies import QT_BINDINGS, QtBindings
+from qtpy.QtWidgets import QApplication, QFileDialog
 
-if QT_BINDINGS == QtBindings.PYSIDE2:
-    from PySide2.QtWidgets import QApplication, QFileDialog
-elif QT_BINDINGS == QtBindings.PYQT5:
-    from PyQt5.QtWidgets import QApplication, QFileDialog
+from locan.configuration import QT_BINDING
+from locan.dependencies import QtBindings
 
 __all__ = ["file_dialog"]
 
@@ -37,7 +35,7 @@ def file_dialog(
     list of str
         list with file names or empty list
     """
-    if QT_BINDINGS == QtBindings.NONE:
+    if QT_BINDING == QtBindings.NONE:
         raise ImportError("Function requires either PySide2 or PyQt5.")
 
     if directory is None:
@@ -45,13 +43,13 @@ def file_dialog(
     else:
         directory_ = str(directory)
 
-    if QT_BINDINGS == QtBindings.PYSIDE2:
+    if QT_BINDING == QtBindings.PYSIDE2:
         app = (
             QApplication.instance()
         )  # this is needed if the function is called twice in a row.
         if app is None:
             app = QApplication([])  # todo: [directory_] is not working - please fix!
-    elif QT_BINDINGS == QtBindings.PYQT5:
+    else:
         app = QApplication([directory_])
 
     fname = QFileDialog.getOpenFileNames(

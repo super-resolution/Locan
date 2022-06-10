@@ -8,6 +8,7 @@ from locan.configuration import (
     COLORMAP_DIVERGING,
     DATASETS_DIR,
     N_JOBS,
+    QT_BINDING,
     RENDER_ENGINE,
 )
 from locan.constants import RenderEngine
@@ -32,3 +33,7 @@ def test_colormaps():
         assert isinstance(item, mcolors.Colormap) or isinstance(
             mcolors.Colormap(item), mcolors.Colormap
         )
+
+
+def test_QT_BINDING():
+    assert QT_BINDING

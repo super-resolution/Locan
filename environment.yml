@@ -15,6 +15,7 @@ dependencies:
 - cython
 - pip
 - tqdm
+- qtpy
 
 # Python tests
 - pytest

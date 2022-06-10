@@ -19,18 +19,20 @@ CONSTANTS
    EXTRAS_REQUIRE
    IMPORT_NAMES
    HAS_DEPENDENCY
-   QT_BINDINGS
 """
 from __future__ import annotations
 
 import importlib.metadata
 import importlib.util
+import logging
 import os
 import re
-import warnings
+import sys
 from collections.abc import Iterable
 from enum import Enum
 from functools import wraps
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "needs_package",
@@ -39,7 +41,6 @@ __all__ = [
     "EXTRAS_REQUIRE",
     "HAS_DEPENDENCY",
     "QtBindings",
-    "QT_BINDINGS",
 ]
 
 
@@ -136,54 +137,43 @@ HAS_DEPENDENCY = _has_dependency_factory(
 # Possible python bindings to interact with QT
 class QtBindings(Enum):
     """
-    Python bindings used to interact with Qt.
+    Python bindings to interact with Qt.
     """
 
-    NONE = "none"
+    NONE = ""
     PYSIDE2 = "pyside2"
     PYQT5 = "pyqt5"
+    PYSIDE6 = "pyside6"
+    PYQT6 = "pyqt6"
 
 
-# Force python binding - only for testing purposes:
-# os.environ['QT_API'] = QtBindings.PYQT5.value
+def _set_qt_binding(qt_binding: QtBindings | str) -> str:
+    """
+    Check if qtpy can import `qt_binding` and return the qt_binding that will be used.
+    Checks os.environ["QT_API"] first.
+    If os.environ["QT_API"] is set it will take precedence over `qt_bindings`.
 
-
-# Determine Python bindings for QT interaction.
-if "QT_API" in os.environ:  # this is the case that QT_API has been set.
-    try:
-        QT_BINDINGS = QtBindings(os.environ["QT_API"])
-    except KeyError:
-        warnings.warn(
-            f'The requested QT_API {os.environ["QT_API"]} cannot be imported. Will continue without QT.'
-        )
-        QT_BINDINGS = QtBindings.NONE
-
-    if QT_BINDINGS == QtBindings.PYSIDE2:
-        if importlib.util.find_spec("PySide2") is None:
-            warnings.warn(
-                f"The requested QT_API {QT_BINDINGS.value} cannot be imported. Will continue without QT."
-            )
-            QT_BINDINGS = QtBindings.NONE
-
-    elif QT_BINDINGS == QtBindings.PYQT5:
-        if importlib.util.find_spec("PyQt5") is None:
-            warnings.warn(
-                f"The requested QT_API {QT_BINDINGS.value} cannot be imported. Will continue without QT."
-            )
-            QT_BINDINGS = QtBindings.NONE
-
-else:  # this is the case that QT_API has not been set.
-    if importlib.util.find_spec("PySide2") is not None:
-        QT_BINDINGS = QtBindings.PYSIDE2
-    elif importlib.util.find_spec("PyQt5") is not None:
-        QT_BINDINGS = QtBindings.PYQT5
+    Note
+    -----
+    This function must be used before qtpy is imported for the first time.
+    """
+    QT_API = ""
+    if "qtpy" in sys.modules:
+        logger.warning("qtpy has already been loaded. QT_BINDING cannot be changed.")
+    elif os.environ.get("QT_API", ""):
+        QT_API = os.environ["QT_API"]
     else:
-        QT_BINDINGS = (
-            QtBindings.NONE
-        )  # this is the case that no qt bindings are available.
+        if isinstance(qt_binding, QtBindings):
+            QT_API = qt_binding.value
+        elif qt_binding:
+            QT_API = qt_binding.lower()
 
-# In order to force napari and other QT-using libraries to import with the correct Qt bindings
-# the environment variable QT_API has to be set.
-# See use of qtpy in napari which default to pyqt5 if both bindings are installed.
-if QT_BINDINGS != QtBindings.NONE:
-    os.environ["QT_API"] = QT_BINDINGS.value
+        if QT_API:
+            os.environ["QT_API"] = QT_API
+
+    from qtpy import API
+
+    if QT_API and QT_API != API:
+        logger.warning(f"QT_BINDING {QT_API} is not available - {API} is used instead.")
+
+    return API

@@ -24,7 +24,9 @@ from locan.dependencies import HAS_DEPENDENCY
 
 if HAS_DEPENDENCY["colorcet"]:
     from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
+
 from locan.constants import RenderEngine
+from locan.dependencies import QtBindings, _set_qt_binding
 
 __all__ = [
     "DATASETS_DIR",
@@ -35,6 +37,7 @@ __all__ = [
     "COLORMAP_CONTINUOUS",
     "COLORMAP_DIVERGING",
     "COLORMAP_CATEGORICAL",
+    "QT_BINDING",
 ]
 
 
@@ -70,3 +73,9 @@ if HAS_DEPENDENCY["colorcet"]:
     COLORMAP_CONTINUOUS = m_fire
     COLORMAP_DIVERGING = m_coolwarm
     COLORMAP_CATEGORICAL = m_glasbey_dark
+
+# Preferred QT binding. At this point this variable cannot be set at runtime.
+QT_BINDING: QtBindings | str = ""
+
+# Initialize pyqt
+QT_BINDING = _set_qt_binding(QT_BINDING)

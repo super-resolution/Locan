@@ -176,4 +176,6 @@ def _set_qt_binding(qt_binding: QtBindings | str) -> str:
     if QT_API and QT_API != API:
         logger.warning(f"QT_BINDING {QT_API} is not available - {API} is used instead.")
 
+    HAS_DEPENDENCY["qt"] = True if QT_API else False
+
     return API

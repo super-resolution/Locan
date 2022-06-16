@@ -3,7 +3,10 @@
 Functions for user interaction with paths and file names.
 
 """
-from qtpy.QtWidgets import QApplication, QFileDialog
+from locan.dependencies import HAS_DEPENDENCY
+
+if HAS_DEPENDENCY["qt"]:
+    from qtpy.QtWidgets import QApplication, QFileDialog
 
 from locan.configuration import QT_BINDING
 from locan.dependencies import QtBindings

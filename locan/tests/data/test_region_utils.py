@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt  # needed for visual inspection
 import numpy as np
 import pytest
 
-from locan import (  # needed for visual inspection
+from locan import (  # needed for visual inspection  # noqa: F401
     Interval,
     MultiPolygon,
     Polygon,
@@ -63,6 +63,8 @@ def test_extend_Interval():
         expanded_region_with_support = expand_region(
             region, distance=2, support=support
         )
+        # the following test are not reached.
+        # They should pass when intersection has been implemented.
         assert isinstance(expanded_region_with_support, Region)
         assert expanded_region_with_support.region_measure == 3
         assert expanded_region_with_support.bounds == (-1, 2)

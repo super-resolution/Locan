@@ -87,7 +87,7 @@ def render_locs_per_frame_napari(
     if viewer is None:
         viewer = napari.Viewer()
 
-    viewer.add_image(images_, name=f"Raw data", **kwargs_image, scale=pixel_size_)
+    viewer.add_image(images_, name="Raw data", **kwargs_image, scale=pixel_size_)
     viewer.add_points(
         data=points,
         name=f"LocData {locdata_id}",

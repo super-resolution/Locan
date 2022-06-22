@@ -10,7 +10,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from locan import locdata_id
-from locan.configuration import COLORMAP_CONTINUOUS, RENDER_ENGINE
+from locan.configuration import RENDER_ENGINE
 from locan.constants import RenderEngine
 from locan.data import LocData
 from locan.data.aggregate import Bins, _check_loc_properties, histogram

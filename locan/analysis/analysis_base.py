@@ -3,13 +3,11 @@ Base class that serves as template for a specialized analysis class.
 
 It also provides helper functions to be used in specialized analysis classes.
 """
-import time
 
-from google.protobuf import json_format, text_format
+from google.protobuf import json_format
 from scipy import stats
 
 from locan.analysis import metadata_analysis_pb2
-from locan.utils.format import _time_string
 
 
 class _Analysis:
@@ -49,11 +47,11 @@ class _Analysis:
         self.results = None
 
     def __del__(self):
-        """ Update the counter upon deletion of class instance. """
+        """Update the counter upon deletion of class instance."""
         self.__class__.count -= 1
 
     def __repr__(self):
-        """ Return representation of the Analysis class. """
+        """Return representation of the Analysis class."""
         parameter_string = ", ".join(
             (f"{key}={value}" for key, value in self.parameter.items())
         )
@@ -85,11 +83,11 @@ class _Analysis:
             return False
 
     def compute(self):
-        """ Apply analysis routine with the specified parameters on locdata and return results."""
+        """Apply analysis routine with the specified parameters on locdata and return results."""
         raise NotImplementedError
 
     def report(self):
-        """ Show a report about analysis results."""
+        """Show a report about analysis results."""
         raise NotImplementedError
 
 

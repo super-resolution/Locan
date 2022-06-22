@@ -4,7 +4,6 @@ import pytest
 from lmfit.model import ModelResult
 from lmfit.models import ConstantModel, LinearModel, PolynomialModel
 
-import locan
 from locan import Drift, DriftComponent, LocData
 from locan.analysis.drift import (
     _ConstantModelFacade,

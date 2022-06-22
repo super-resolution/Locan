@@ -5,13 +5,9 @@ Methods for clustering localization data in LocData objects.
 """
 
 import sys
-from copy import copy, deepcopy
+from copy import copy
 
-import numpy as np
-import pandas as pd
-from scipy import stats
 from sklearn.cluster import DBSCAN
-from sklearn.neighbors import NearestNeighbors
 
 from locan import HAS_DEPENDENCY, needs_package
 

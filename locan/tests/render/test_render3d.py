@@ -13,7 +13,7 @@ from locan import (
 from locan.dependencies import HAS_DEPENDENCY
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
+    import napari  # noqa: F401
 
 
 @pytest.mark.visual
@@ -92,7 +92,7 @@ def test_scatter_3d_mpl_empty(locdata_empty):
 
 def test_scatter_3d_mpl_single(locdata_single_localization, caplog):
     fig = plt.figure()
-    ax = fig.add_subplot(projection="3d")
+    fig.add_subplot(projection="3d")
     scatter_3d_mpl(locdata_single_localization)
     assert caplog.record_tuples == [
         ("locan.render.render3d", 30, "Locdata carries a single localization.")

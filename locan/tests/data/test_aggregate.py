@@ -755,7 +755,7 @@ def test_histogram_3d(locdata_blobs_3d):
 
 def test_histogram_empty(locdata_empty):
     with pytest.raises(TypeError):
-        hist = histogram(locdata_empty, n_bins=10)
+        histogram(locdata_empty, n_bins=10)
 
 
 def test_histogram_single_value(locdata_single_localization_3d):

@@ -18,7 +18,7 @@ __all__ = ["LocalizationsPerFrame"]
 logger = logging.getLogger(__name__)
 
 
-#### The algorithms
+# The algorithms
 
 
 def _localizations_per_frame(
@@ -52,7 +52,7 @@ def _localizations_per_frame(
         series_name = "n_localizations"
     elif isinstance(norm, str):
         normalization_factor = locdata.properties[norm]
-        series_name = f"n_localizations / " + norm
+        series_name = "n_localizations / " + norm
     elif isinstance(norm, (int, float)):
         normalization_factor = norm
         series_name = f"n_localizations / {norm}"
@@ -402,7 +402,7 @@ class _DistributionFits:
         return ax
 
     def parameter_dict(self):
-        """ Dictionary of fitted parameters. """
+        """Dictionary of fitted parameters."""
         if self.parameters is None:
             return None
         else:

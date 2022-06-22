@@ -51,9 +51,7 @@ def system_info(verbose=True):
     }
 
     if verbose:
-        sys_info.update(
-            {"node": uname_result.node, "executable": sys.executable,}
-        )
+        sys_info.update({"node": uname_result.node, "executable": sys.executable})
 
     return sys_info
 

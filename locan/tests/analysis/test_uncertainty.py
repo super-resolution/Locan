@@ -18,7 +18,7 @@ def locdata_simple():
 
 
 def test_uncertainty_empty(caplog):
-    unc = LocalizationUncertaintyFromIntensity().compute(LocData())
+    LocalizationUncertaintyFromIntensity().compute(LocData())
     assert caplog.record_tuples == [
         ("locan.analysis.uncertainty", 30, "Locdata is empty.")
     ]

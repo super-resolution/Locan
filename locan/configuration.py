@@ -23,7 +23,7 @@ import matplotlib.colors as mcolors
 from locan.dependencies import HAS_DEPENDENCY
 
 if HAS_DEPENDENCY["colorcet"]:
-    from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark
+    from colorcet import m_fire, m_gray, m_coolwarm, m_glasbey_dark  # noqa: F401
 
 from locan.constants import RenderEngine
 from locan.dependencies import QtBindings, _set_qt_binding

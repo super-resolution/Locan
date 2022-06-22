@@ -53,23 +53,19 @@ import pandas as pd
 from lmfit.models import ConstantModel, LinearModel, PolynomialModel
 from scipy.interpolate import splev, splrep
 
-from locan.analysis.analysis_base import _Analysis, _list_parameters
+from locan.analysis.analysis_base import _Analysis
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 from locan.data.register import _register_icp_open3d, register_cc
 from locan.data.transform.transformation import transform_affine
-from locan.dependencies import HAS_DEPENDENCY, needs_package
-
-if HAS_DEPENDENCY["open3d"]:
-    import open3d as o3d
-
+from locan.dependencies import needs_package
 
 __all__ = ["Drift", "DriftComponent"]
 
 logger = logging.getLogger(__name__)
 
 
-##### The algorithms
+# The algorithms
 
 
 @needs_package("open3d")
@@ -236,7 +232,7 @@ def _estimate_drift_cc(
     return collection, transformations
 
 
-##### The specific analysis classes
+# The specific analysis classes
 
 
 class _LmfitModelFacade:
@@ -682,7 +678,7 @@ class Drift(_Analysis):
         if matrix_models is None:
             self.transformation_models["matrix"] = None
         else:
-            if len(matrix_models) != self.locdata.dimension ** 2:
+            if len(matrix_models) != self.locdata.dimension**2:
                 raise ValueError(
                     "Length of matrix_models must be equal to the square of the "
                     "transformations dimension (4 or 9)."

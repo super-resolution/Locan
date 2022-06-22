@@ -19,7 +19,7 @@ __all__ = ["BlinkStatistics"]
 logger = logging.getLogger(__name__)
 
 
-##### The algorithms
+# The algorithms
 
 
 def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
@@ -122,7 +122,7 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
     )
 
 
-##### The specific analysis classes
+# The specific analysis classes
 
 
 class BlinkStatistics(_Analysis):
@@ -334,7 +334,7 @@ class _DistributionFits:
         self.parameters = []
 
     def __repr__(self):
-        """ Return representation of the _DistributionFits class. """
+        """Return representation of the _DistributionFits class."""
         param_dict = dict(
             analysis_class=self.analysis_class.__class__.__name__,
             distribution=self.distribution.__class__.__name__,
@@ -423,5 +423,5 @@ class _DistributionFits:
         return ax
 
     def parameter_dict(self):
-        """ Dictionary of fitted parameters. """
+        """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

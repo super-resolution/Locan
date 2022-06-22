@@ -292,7 +292,7 @@ class OrientedBoundingBox:
         Convert the hull to a Region object.
     angle : float
         Orientation defined as angle (in degrees) between the vector from first to last point and x-axis.
-    
+
     """
 
     def __init__(self, points):

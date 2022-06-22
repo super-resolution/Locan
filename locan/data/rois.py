@@ -27,7 +27,7 @@ import locan.locan_io.locdata.io_locdata as io
 from locan.data import metadata_pb2
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
-from locan.data.region import *
+from locan.data.region import Rectangle, Region, RoiRegion
 
 __all__ = ["Roi", "rasterize"]
 
@@ -82,7 +82,7 @@ class _MplSelector:  # pragma: no cover
         plt.connect("key_press_event", self.key_pressed_callback)
 
     def selector_callback(self, eclick, erelease):
-        """ eclick and erelease are matplotlib events at press and release."""
+        """eclick and erelease are matplotlib events at press and release."""
         print("startposition: {}".format((eclick.xdata, eclick.ydata)))
         print("endposition  : {}".format((erelease.xdata, erelease.ydata)))
 

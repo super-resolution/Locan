@@ -1,6 +1,5 @@
-import matplotlib.pyplot as plt  # needed for visualization
+import matplotlib.pyplot as plt  # needed for visualization  # noqa: F401
 import numpy as np
-import pytest
 
 from locan import LocData
 from locan.analysis import RipleysHFunction, RipleysKFunction, RipleysLFunction

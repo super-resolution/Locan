@@ -10,9 +10,6 @@ It makes use of the trackpy package.
 
 import sys
 
-import numpy as np
-import pandas as pd
-
 from locan.data.locdata import LocData
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 

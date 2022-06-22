@@ -24,7 +24,6 @@ References
 """
 
 import logging
-import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -33,7 +32,7 @@ from scipy import stats
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
 
-from locan.analysis.analysis_base import _Analysis, _list_parameters
+from locan.analysis.analysis_base import _Analysis
 from locan.configuration import N_JOBS, TQDM_DISABLE, TQDM_LEAVE
 
 __all__ = ["LocalizationPrecision"]
@@ -41,7 +40,7 @@ __all__ = ["LocalizationPrecision"]
 logger = logging.getLogger(__name__)
 
 
-##### The algorithms
+# The algorithms
 
 
 def _localization_precision(locdata, radius=50):
@@ -97,7 +96,7 @@ def _localization_precision(locdata, radius=50):
     return results
 
 
-##### The specific analysis classes
+# The specific analysis classes
 
 
 class LocalizationPrecision(_Analysis):
@@ -270,7 +269,7 @@ class LocalizationPrecision(_Analysis):
         return ax
 
 
-#### Auxiliary functions and classes
+# Auxiliary functions and classes
 
 
 class PairwiseDistance1d(stats.rv_continuous):
@@ -301,12 +300,12 @@ class PairwiseDistance1d(stats.rv_continuous):
     """
 
     def _pdf(self, x, mu, sigma_1, sigma_2):
-        sigma = np.sqrt(sigma_1 ** 2 + sigma_2 ** 2)
+        sigma = np.sqrt(sigma_1**2 + sigma_2**2)
         return (
             np.sqrt(2 / np.pi)
             / sigma
-            * np.exp(-(mu ** 2 + x ** 2) / (2 * sigma ** 2))
-            * np.cosh(x * mu / (sigma ** 2))
+            * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
+            * np.cosh(x * mu / (sigma**2))
         )
 
 
@@ -338,12 +337,12 @@ class PairwiseDistance2d(stats.rv_continuous):
     """
 
     def _pdf(self, x, mu, sigma_1, sigma_2):
-        sigma = np.sqrt(sigma_1 ** 2 + sigma_2 ** 2)
+        sigma = np.sqrt(sigma_1**2 + sigma_2**2)
         return (
             x
-            / (sigma ** 2)
-            * np.exp(-(mu ** 2 + x ** 2) / (2 * sigma ** 2))
-            * np.i0(x * mu / (sigma ** 2))
+            / (sigma**2)
+            * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
+            * np.i0(x * mu / (sigma**2))
         )
 
 
@@ -375,9 +374,9 @@ class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
     def _pdf(self, x, mu, sigma):
         return (
             x
-            / (sigma ** 2)
-            * np.exp(-(mu ** 2 + x ** 2) / (2 * sigma ** 2))
-            * np.i0(x * mu / (sigma ** 2))
+            / (sigma**2)
+            * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
+            * np.i0(x * mu / (sigma**2))
         )
 
 
@@ -409,15 +408,15 @@ class PairwiseDistance3d(stats.rv_continuous):
     """
 
     def _pdf(self, x, mu, sigma_1, sigma_2):
-        sigma = np.sqrt(sigma_1 ** 2 + sigma_2 ** 2)
+        sigma = np.sqrt(sigma_1**2 + sigma_2**2)
         if all(mu == 0):
             return (
                 np.sqrt(2 / np.pi)
                 * x
                 / sigma
-                * np.exp(-(mu ** 2 + x ** 2) / (2 * sigma ** 2))
+                * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
                 * x
-                / (sigma ** 2)
+                / (sigma**2)
             )
         else:
             return (
@@ -425,8 +424,8 @@ class PairwiseDistance3d(stats.rv_continuous):
                 * x
                 / sigma
                 / mu
-                * np.exp(-(mu ** 2 + x ** 2) / (2 * sigma ** 2))
-                * np.sinh(x * mu / (sigma ** 2))
+                * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
+                * np.sinh(x * mu / (sigma**2))
             )
 
 
@@ -454,7 +453,7 @@ class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
     """
 
     def _pdf(self, x, sigma):
-        return np.sqrt(2 / np.pi) / sigma * np.exp(-(x ** 2) / (2 * sigma ** 2))
+        return np.sqrt(2 / np.pi) / sigma * np.exp(-(x**2) / (2 * sigma**2))
 
 
 class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
@@ -481,7 +480,7 @@ class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
     """
 
     def _pdf(self, x, sigma):
-        return x / (sigma ** 2) * np.exp(-(x ** 2) / (2 * sigma ** 2))
+        return x / (sigma**2) * np.exp(-(x**2) / (2 * sigma**2))
 
 
 class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
@@ -512,9 +511,9 @@ class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
             np.sqrt(2 / np.pi)
             * x
             / sigma
-            * np.exp(-(x ** 2) / (2 * sigma ** 2))
+            * np.exp(-(x**2) / (2 * sigma**2))
             * x
-            / (sigma ** 2)
+            / (sigma**2)
         )
 
 
@@ -715,5 +714,5 @@ class _DistributionFits:
         return ax
 
     def parameter_dict(self):
-        """ Dictionary of fitted parameters. """
+        """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

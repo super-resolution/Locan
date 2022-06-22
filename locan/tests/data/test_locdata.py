@@ -376,7 +376,7 @@ def test_LocData_reduce(df_simple):
 
 @pytest.mark.parametrize(
     "fixture_name, expected",
-    [("locdata_empty", 0), ("locdata_single_localization", 1),],
+    [("locdata_empty", 0), ("locdata_single_localization", 1)],
 )
 def test_locdata_reduce_empty(
     locdata_empty, locdata_single_localization, fixture_name, expected
@@ -402,7 +402,7 @@ def test_LocData_reset(df_simple):
 
 @pytest.mark.parametrize(
     "fixture_name, expected",
-    [("locdata_empty", 0), ("locdata_single_localization", 1),],
+    [("locdata_empty", 0), ("locdata_single_localization", 1)],
 )
 def test_locdata_reset_empty(
     locdata_empty, locdata_single_localization, fixture_name, expected
@@ -604,7 +604,7 @@ def test_standard_locdata_objects(
 
 @pytest.mark.parametrize(
     "fixture_name, expected",
-    [("locdata_empty", 0), ("locdata_single_localization", 0),],
+    [("locdata_empty", 0), ("locdata_single_localization", 0)],
 )
 def test_locdata_hulls(
     locdata_empty, locdata_single_localization, fixture_name, expected
@@ -625,7 +625,7 @@ def test_locdata_hulls(
 
 @pytest.mark.parametrize(
     "fixture_name, expected",
-    [("locdata_empty", 0), ("locdata_single_localization", 0),],
+    [("locdata_empty", 0), ("locdata_single_localization", 0)],
 )
 def test_locdata_from_selection_exceptions(
     locdata_empty,

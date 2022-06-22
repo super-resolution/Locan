@@ -1,5 +1,3 @@
-import time
-
 from locan.utils.format import _time_string
 
 

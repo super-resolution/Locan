@@ -19,7 +19,6 @@ References
 
 """
 import logging
-import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -35,7 +34,7 @@ __all__ = ["AccumulationClusterCheck"]
 
 logger = logging.getLogger(__name__)
 
-#### The algorithms
+# The algorithms
 
 
 def _accumulation_cluster_check_for_single_dataset(
@@ -60,7 +59,7 @@ def _accumulation_cluster_check_for_single_dataset(
     # compute cluster regions and densities
     if hull == "bb":
         # Region_measure_bb has been computed upon instantiation
-        if not "region_measure_bb" in clust.data.columns:
+        if "region_measure_bb" not in clust.data.columns:
             # return localization_density, eta, rho
             return np.nan, np.nan, np.nan
 
@@ -175,7 +174,7 @@ def _accumulation_cluster_check(
     return results
 
 
-##### The specific analysis classes
+# The specific analysis classes
 
 
 class AccumulationClusterCheck(_Analysis):

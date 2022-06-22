@@ -5,7 +5,6 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
-from pandas.testing import assert_frame_equal
 
 import locan.constants
 from locan.data import metadata_pb2

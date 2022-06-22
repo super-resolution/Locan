@@ -90,7 +90,7 @@ def load_SMAP_file(path, nrows=None, convert=True):
         columns = _read_SMAP_header(file)
 
         if file["saveloc"]["loc"]["frame"].shape == (0,):  # empty file
-            logger.warning(f"File does not contain any data.")
+            logger.warning("File does not contain any data.")
             locdata = LocData()
 
         else:  # file not empty

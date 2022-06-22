@@ -11,7 +11,7 @@ from locan.data.transform import randomize, transform_affine
 from locan.data.transform.bunwarpj import _read_matrix, _unwarp
 from locan.data.transform.transformation import _homogeneous_matrix
 from locan.dependencies import HAS_DEPENDENCY
-from locan.locan_io.locdata.io_locdata import load_asdf_file, load_rapidSTORM_file
+from locan.locan_io.locdata.io_locdata import load_asdf_file
 
 
 def test_randomize_2d(locdata_2d):

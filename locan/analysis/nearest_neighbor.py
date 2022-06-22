@@ -37,7 +37,7 @@ import pandas as pd
 from scipy import stats
 from sklearn.neighbors import NearestNeighbors
 
-from locan.analysis.analysis_base import _Analysis, _list_parameters
+from locan.analysis.analysis_base import _Analysis
 from locan.configuration import N_JOBS
 
 __all__ = ["NearestNeighborDistances"]
@@ -45,7 +45,7 @@ __all__ = ["NearestNeighborDistances"]
 logger = logging.getLogger(__name__)
 
 
-#### The algorithms
+# The algorithms
 
 
 def pdf_nnDistances_csr_2D(x, density):
@@ -65,7 +65,7 @@ def pdf_nnDistances_csr_2D(x, density):
     float
         Probability density function pdf(x).
     """
-    return 2 * density * np.pi * x * np.exp(-density * np.pi * x ** 2)
+    return 2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
 
 
 def pdf_nnDistances_csr_3D(x, density):
@@ -288,7 +288,7 @@ class NearestNeighborDistances(_Analysis):
         return ax
 
 
-#### Auxiliary functions and classes
+# Auxiliary functions and classes
 
 
 class NNDistances_csr_2d(stats.rv_continuous):
@@ -303,7 +303,7 @@ class NNDistances_csr_2d(stats.rv_continuous):
     """
 
     def _pdf(self, x, density):
-        return 2 * density * np.pi * x * np.exp(-density * np.pi * x ** 2)
+        return 2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
 
 
 class NNDistances_csr_3d(stats.rv_continuous):
@@ -435,5 +435,5 @@ class _DistributionFits:
         return ax
 
     def parameter_dict(self):
-        """ Dictionary of fitted parameters. """
+        """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

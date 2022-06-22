@@ -21,7 +21,7 @@ We follow the definition of l and h functions in [2]_. Ripley's l function is:
 
 .. math::
 
-   l(r) &= \\sqrt{k(r)) / \pi} \\qquad \\text{in 2D}
+   l(r) &= \\sqrt{k(r)) / \\pi} \\qquad \\text{in 2D}
 
    l(r) &= \\sqrt[3]{\\frac{3}{4 \\pi} k(r)} \\qquad \\text{in 3D}
 
@@ -53,7 +53,7 @@ __all__ = ["RipleysKFunction", "RipleysLFunction", "RipleysHFunction"]
 
 logger = logging.getLogger(__name__)
 
-#### The algorithms
+# The algorithms
 
 
 def _ripleys_k_function(points, radii, region_measure=1, other_points=None):
@@ -121,7 +121,7 @@ def _ripleys_h_function(points, radii, region_measure=1, other_points=None):
     return _ripleys_l_function(points, radii, region_measure, other_points) - radii
 
 
-##### The specific analysis classes
+# The specific analysis classes
 
 
 class RipleysKFunction(_Analysis):
@@ -389,7 +389,7 @@ class RipleysHFunction(_Analysis):
         plot(self, ax, **kwargs)
 
 
-##### Interface functions
+# Interface functions
 
 
 def plot(self, ax=None, **kwargs):

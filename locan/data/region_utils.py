@@ -10,7 +10,7 @@ See Also
 """
 from shapely.ops import unary_union
 
-from locan.data.region import EmptyRegion, Region, Region2D, RoiRegion
+from locan.data.region import EmptyRegion, Region2D, RoiRegion
 
 __all__ = ["regions_union", "expand_region", "surrounding_region"]
 
@@ -42,7 +42,8 @@ def regions_union(regions):
 def expand_region(region, distance=100, support=None, **kwargs):
     """
     Expand a region by `distance`.
-    If region contains a list of regions, the unification of all expanded regions is returned.
+    If region contains a list of regions, the unification of all expanded regions is
+    returned.
 
     Parameters
     ----------
@@ -53,7 +54,8 @@ def expand_region(region, distance=100, support=None, **kwargs):
     support : Region or None
         A region defining the maximum outer boundary.
     kwargs : dict
-        Other parameters passed to :func:`shapely.geometry.buffer` for :class:`Region2D` objects.
+        Other parameters passed to :func:`shapely.geometry.buffer`
+        for :class:`Region2D` objects.
 
     Returns
     --------
@@ -66,7 +68,7 @@ def expand_region(region, distance=100, support=None, **kwargs):
 
     try:
         return Region2D.from_shapely(expanded_region)
-    except:
+    except AttributeError:
         return expanded_region
 
 

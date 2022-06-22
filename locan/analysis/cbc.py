@@ -26,7 +26,7 @@ __all__ = ["CoordinateBasedColocalization"]
 logger = logging.getLogger(__name__)
 
 
-##### The algorithm
+# The algorithm
 
 
 def _coordinate_based_colocalization(points, other_points=None, radius=100, n_steps=10):
@@ -75,8 +75,8 @@ def _coordinate_based_colocalization(points, other_points=None, radius=100, n_st
             hist_2 = np.histogram(d_2, bins=radii, range=(0, radius))[0]
 
             # normalization
-            values_1 = np.cumsum(hist_1) * radius ** 2 / radii[1:] ** 2 / len(d_1)
-            values_2 = np.cumsum(hist_2) * radius ** 2 / radii[1:] ** 2 / len(d_2)
+            values_1 = np.cumsum(hist_1) * radius**2 / radii[1:] ** 2 / len(d_1)
+            values_2 = np.cumsum(hist_2) * radius**2 / radii[1:] ** 2 / len(d_2)
 
             # Spearman rank correlation
             rho, pval = spearmanr(values_1, values_2)
@@ -94,7 +94,7 @@ def _coordinate_based_colocalization(points, other_points=None, radius=100, n_st
     return correlation
 
 
-##### The specific analysis classes
+# The specific analysis classes
 
 
 class CoordinateBasedColocalization(_Analysis):

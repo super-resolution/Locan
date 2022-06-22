@@ -6,7 +6,7 @@ import networkx as nx
 import numpy as np
 import pytest
 
-from locan import AlphaComplex, AlphaShape, EmptyRegion, Region2D, RoiRegion
+from locan import AlphaComplex, AlphaShape, EmptyRegion, Region2D
 
 
 @pytest.mark.visual
@@ -71,7 +71,7 @@ def test_AlphaComplex_1_visual():
 
     alpha = 2.2
     ac_simplices_all = alpha_complex.get_alpha_complex_lines(alpha, type="all")
-    ac_simplices_exterior = alpha_complex.get_alpha_complex_lines(
+    ac_simplices_exterior = alpha_complex.get_alpha_complex_lines(  # noqa: F841
         alpha, type="exterior"
     )
     ac_simplices_interior = alpha_complex.get_alpha_complex_lines(
@@ -102,7 +102,7 @@ def test_AlphaComplex_1_visual():
     triangles_all = alpha_complex.delaunay_triangulation.simplices[
         alpha_complex.get_alpha_complex_triangles(alpha, type="all")
     ]
-    triangles_exterior = alpha_complex.delaunay_triangulation.simplices[
+    triangles_exterior = alpha_complex.delaunay_triangulation.simplices[  # noqa: F841
         alpha_complex.get_alpha_complex_triangles(alpha, type="exterior")
     ]
     triangles_interior = alpha_complex.delaunay_triangulation.simplices[
@@ -153,7 +153,7 @@ def test_AlphaComplex_2_visual():
 
     alpha = 2.2
     ac_simplices_all = alpha_complex.get_alpha_complex_lines(alpha, type="all")
-    ac_simplices_exterior = alpha_complex.get_alpha_complex_lines(
+    ac_simplices_exterior = alpha_complex.get_alpha_complex_lines(  # noqa: F841
         alpha, type="exterior"
     )
     ac_simplices_interior = alpha_complex.get_alpha_complex_lines(
@@ -184,7 +184,7 @@ def test_AlphaComplex_2_visual():
     triangles_all = alpha_complex.delaunay_triangulation.simplices[
         alpha_complex.get_alpha_complex_triangles(alpha, type="all")
     ]
-    triangles_exterior = alpha_complex.delaunay_triangulation.simplices[
+    triangles_exterior = alpha_complex.delaunay_triangulation.simplices[  # noqa: F841
         alpha_complex.get_alpha_complex_triangles(alpha, type="exterior")
     ]
     triangles_interior = alpha_complex.delaunay_triangulation.simplices[
@@ -252,7 +252,7 @@ def test_AlphaComplex_3_visual():
 
     alpha = 2.2
     ac_simplices_all = alpha_complex.get_alpha_complex_lines(alpha, type="all")
-    ac_simplices_exterior = alpha_complex.get_alpha_complex_lines(
+    ac_simplices_exterior = alpha_complex.get_alpha_complex_lines(  # noqa: F841
         alpha, type="exterior"
     )
     ac_simplices_interior = alpha_complex.get_alpha_complex_lines(
@@ -283,7 +283,7 @@ def test_AlphaComplex_3_visual():
     triangles_all = alpha_complex.delaunay_triangulation.simplices[
         alpha_complex.get_alpha_complex_triangles(alpha, type="all")
     ]
-    triangles_exterior = alpha_complex.delaunay_triangulation.simplices[
+    triangles_exterior = alpha_complex.delaunay_triangulation.simplices[  # noqa: F841
         alpha_complex.get_alpha_complex_triangles(alpha, type="exterior")
     ]
     triangles_interior = alpha_complex.delaunay_triangulation.simplices[

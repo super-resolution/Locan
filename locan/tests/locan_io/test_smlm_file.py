@@ -19,6 +19,10 @@ from locan.locan_io.locdata.smlm_io import (
 )
 
 
+def test__change_upper_to_lower_keys():
+    assert "text" == _change_upper_to_lower_keys("TEXT")
+
+
 def test_manifest_format_from_locdata(locdata_2d):
     format = manifest_format_from_locdata(locdata_2d)
     assert isinstance(format, manifest_pb2.Format)

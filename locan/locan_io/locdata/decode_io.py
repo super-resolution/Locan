@@ -110,7 +110,7 @@ def load_decode_file(path, nrows=None, convert=True):
         columns, meta, decode = _read_decode_header(file)
 
         if file["data"]["xyz"].shape == (0, 3):  # empty file
-            logger.warning(f"File does not contain any data.")
+            logger.warning("File does not contain any data.")
             locdata = LocData()
 
         else:  # file not empty

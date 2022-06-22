@@ -32,7 +32,7 @@ import numpy as np
 from scipy.spatial import Delaunay
 
 from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance
-from locan.data.region import MultiPolygon, Polygon, Region2D
+from locan.data.region import Polygon
 from locan.data.region_utils import regions_union
 
 __all__ = ["AlphaComplex", "AlphaShape"]
@@ -73,7 +73,7 @@ def _k_simplex_neighbor_index_list(d, k):
 
 
 def _get_k_simplices(simplex, k=1):
-    """ Function to extract k-simplices (e.g. edges) from a d-simplex (e.g. triangle; d>k)."""
+    """Function to extract k-simplices (e.g. edges) from a d-simplex (e.g. triangle; d>k)."""
     d = len(simplex) - 1
     k_simplices = (
         [simplex[indx] for indx in indices] for indices in _k_simplex_index_list(d, k)
@@ -148,7 +148,7 @@ class AlphaComplex:
                 )
 
     def _compute_2d(self):
-        """ Compute the alpha complex for 2d data."""
+        """Compute the alpha complex for 2d data."""
         n_simplices = len(self.delaunay_triangulation.simplices)
 
         # circumference for d-simplexes

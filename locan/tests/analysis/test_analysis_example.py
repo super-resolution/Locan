@@ -24,8 +24,8 @@ def test_Analysis_example():
     ae.plot()
     ae.plot_2()
     ae.plot_histogram_fit()
-    assert ae.attribute_center
-    assert ae.attribute_sigma
+    assert ae.a_center
+    assert ae.a_sigma
     ae.report()
 
     ae_2 = eval(repr(ae))
@@ -40,8 +40,8 @@ def test_Analysis_example_2():
     ae.plot()
     ae.plot_2()
     ae.plot_histogram_fit()
-    assert ae.attribute_center
-    assert ae.attribute_sigma
+    assert ae.a_center
+    assert ae.a_sigma
     ae.report()
 
 

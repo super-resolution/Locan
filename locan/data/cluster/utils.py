@@ -5,7 +5,6 @@ Utility methods for clustering locdata.
 """
 import itertools
 import sys
-from inspect import signature
 
 from locan.data.locdata import LocData
 
@@ -43,8 +42,8 @@ def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
     products_transposed = zip(*products)
     dictionary = {key: values for key, values in zip(keys, products_transposed)}
     results = []
-    for l in products:
-        iterated_arguments = {k: v for k, v in zip(keys, l)}
+    for product in products:
+        iterated_arguments = {k: v for k, v in zip(keys, product)}
         results.append(algorithm(locdata, **iterated_arguments, **kwargs))
 
     noise_locdata = [result[0] for result in results]

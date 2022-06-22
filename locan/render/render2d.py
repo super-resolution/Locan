@@ -9,7 +9,6 @@ import matplotlib.colors as mcolors
 import numpy as np
 import scipy.signal.windows
 from matplotlib import pyplot as plt
-from skimage import exposure
 
 from locan import locdata_id
 from locan.configuration import COLORMAP_CONTINUOUS, RENDER_ENGINE

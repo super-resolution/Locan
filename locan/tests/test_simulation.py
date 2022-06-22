@@ -1831,9 +1831,9 @@ def test_visual__drift():
     position_deltas = _drift(frames=frames, diffusion_constant=(1, 2), seed=1)
     print(position_deltas.shape)
     print(position_deltas[0, :10])
-    for pd in position_deltas:
-        plt.plot(frames, pd)
-        plt.plot(frames, pd)
+    for pd_ in position_deltas:
+        plt.plot(frames, pd_)
+        plt.plot(frames, pd_)
     plt.show()
 
 

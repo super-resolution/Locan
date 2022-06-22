@@ -5,13 +5,12 @@ A class to carry localization data.
 """
 import copy
 import logging
-import time
 import warnings
 from itertools import accumulate
 
 import numpy as np
 import pandas as pd
-from google.protobuf import json_format, text_format
+from google.protobuf import json_format
 
 try:
     from scipy.spatial import QhullError
@@ -19,8 +18,10 @@ except ImportError:
     from scipy.spatial.qhull import QhullError  # needed for Python 3.7
 
 import locan.data.hulls
-from locan import locdata_id  # is required to use locdata_id as global variable
-from locan.constants import PROPERTY_KEYS, PropertyKey
+from locan import (  # is required to use locdata_id as global variable  # noqa: F401
+    locdata_id,
+)
+from locan.constants import PROPERTY_KEYS
 from locan.data import metadata_pb2
 from locan.data.metadata_utils import _modify_meta, metadata_to_formatted_string
 from locan.data.region import Region, RoiRegion
@@ -421,7 +422,7 @@ class LocData:
     @property
     def data(self):
         """pandas.DataFrame: Return all elements either copied from the reference or referencing the current
-        dataframe. """
+        dataframe."""
         if isinstance(self.references, LocData):
             # we refer to the localization data by its index label, not position
             # in other words we decided not to use iloc but loc
@@ -443,7 +444,7 @@ class LocData:
 
     @property
     def coordinates(self):
-        """ndarray: Return all coordinate values. """
+        """ndarray: Return all coordinate values."""
         return self.data[self.coordinate_labels].values
 
     @property

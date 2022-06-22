@@ -4,7 +4,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from google.protobuf import json_format
 from pandas.testing import assert_frame_equal
 
 import locan as lc

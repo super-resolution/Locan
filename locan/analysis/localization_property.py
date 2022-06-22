@@ -9,13 +9,10 @@ probability distribution.
 
 """
 import logging
-import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from scipy import stats
-from sklearn.neighbors import NearestNeighbors
 
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 
@@ -24,7 +21,7 @@ __all__ = ["LocalizationProperty"]
 logger = logging.getLogger(__name__)
 
 
-##### The algorithms
+# The algorithms
 
 
 def _localization_property(locdata, loc_property="intensity", index=None):
@@ -37,7 +34,7 @@ def _localization_property(locdata, loc_property="intensity", index=None):
     return results
 
 
-##### The specific analysis classes
+# The specific analysis classes
 
 
 class LocalizationProperty(_Analysis):
@@ -326,5 +323,5 @@ class _DistributionFits:
         return ax
 
     def parameter_dict(self):
-        """ Dictionary of fitted parameters. """
+        """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

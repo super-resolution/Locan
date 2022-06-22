@@ -56,36 +56,36 @@ def meta_dict():
 def metadata_toml():
     metadata_toml_ = """
     # Define the class (message) instances.
-    
+
     [[messages]]
     name = "metadata"
     module = "locan.data.metadata_pb2"
     class_name = "Metadata"
-    
-    
+
+
     # Fill metadata attributes
     # Use [[]] to add repeated elements
     # Use string '2022-05-14T06:58:00Z' for Timestamp elements
     # Use int in nanoseconds for Duration elements
-    
+
     [metadata]
     identifier = "123"
     comment = "my comment"
     ancestor_identifiers = ["1", "2"]
     production_time = '2022-05-14T06:58:00Z'
-    
+
     [metadata.localizer]
     software = "rapidSTORM"
-    
+
     [[metadata.relations]]
     identifier = "1"
-    
+
     [[metadata.experiment.setups]]
     identifier = "1"
-    
+
     [[metadata.experiment.setups.optical_units]]
     identifier = "1"
-    
+
     [metadata.experiment.setups.optical_units.detection.camera]
     identifier = "1"
     integration_time = 10_000_000

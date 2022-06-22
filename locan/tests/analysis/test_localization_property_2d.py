@@ -1,5 +1,4 @@
-import matplotlib.pyplot as plt  # needed for visual inspection
-import pytest
+import matplotlib.pyplot as plt  # needed for visual inspection  # noqa: F401
 
 from locan import LocData
 from locan.analysis import LocalizationProperty2d

@@ -13,7 +13,7 @@ from scipy import stats
 from locan.analysis.analysis_base import _Analysis
 
 #
-#### The algorithms
+# The algorithms
 #
 # First there is an algorithm to compute something given a set of point coordinates.
 # Second there might be an alternative algorithm doing the same thing.
@@ -24,14 +24,14 @@ from locan.analysis.analysis_base import _Analysis
 
 
 def _algorithm_1(data=None, limits=(0, 10)):
-    """ Provides a list of data values. data would be input data that is currently not used."""
+    """Provides a list of data values. data would be input data that is currently not used."""
     results = [i for i in range(*limits)]  # some complicated algorithm
     results = pd.DataFrame.from_dict(dict(a=results))
     return results
 
 
 def _algorithm_2(data=None, n_sample=100, seed=None):
-    """ Provides random normal distributed data. data would be input data that is currently not used."""
+    """Provides random normal distributed data. data would be input data that is currently not used."""
     np.random.seed(seed)
     dict_ = {"a": np.random.normal(size=n_sample), "b": np.random.normal(size=n_sample)}
     results = pd.DataFrame.from_dict(dict_)
@@ -39,7 +39,7 @@ def _algorithm_2(data=None, n_sample=100, seed=None):
 
 
 #
-##### The base analysis class
+# The base analysis class
 #
 # Now we want a class implementing this algorithm to be used with locdata. Also the results from this algorithm should
 # be reused in some visual representation that is specific for this analysis routine.
@@ -189,7 +189,7 @@ class AnalysisExampleAlgorithm_2(_Analysis):
 
 
 #
-#### Interface functions
+# Interface functions
 #
 # Now we have a class structure with results that can be further processed.
 # Secondary results from e.g. fit procedures are added to the analysis class as new attributes.
@@ -229,10 +229,10 @@ def plot_2(self, ax=None, bins="auto", density=True, log=False, fit=True):
     ax[0].set(title="Normal Data", xlabel="property", ylabel="PDF")
 
     # create legend and results text on second axes
-    h, l = ax[0].get_legend_handles_labels()
+    h_, l_ = ax[0].get_legend_handles_labels()
     ax[1].legend(
-        h,
-        l,
+        h_,
+        l_,
         loc="upper left",
         bbox_to_anchor=(0, 1),
         title="Legend",
@@ -251,7 +251,8 @@ def plot_2(self, ax=None, bins="auto", density=True, log=False, fit=True):
 
 def plot_histogram_fit(self, ax=None):
     """
-    A specialized plot to give a standardized visualization of results - in this case a histogram of results.
+    A specialized plot to give a standardized visualization of results -
+    in this case a histogram of results.
     """
     if ax is None:
         fig = plt.figure(figsize=(8, 3))
@@ -300,8 +301,8 @@ def fit_histogram(self, data, id_):
 
     attribute_center = id_ + "_center"
     attribute_sigma = id_ + "_sigma"
-    self.attribute_center = loc
-    self.attribute_sigma = scale
+    setattr(self, attribute_center, loc)
+    setattr(self, attribute_sigma, scale)
 
     return loc, scale
 
@@ -312,7 +313,8 @@ def fit_histogram(self, data, id_):
 def report(self, path=None):
     """
     Provide a report that is either displayed or saved as pdf.
-    The report is a figure summarizing all visual representations. It is arranged specifically for a particular
+    The report is a figure summarizing all visual representations.
+    It is arranged specifically for a particular
     analysis routine.
     """
     fig = plt.figure(figsize=(8.3, 11.7))

@@ -4,22 +4,19 @@ Analyze cross dependencies between localization properties.
 Analyze cross dependencies as indicated by the correlation coefficients between any two localization properties.
 """
 import logging
-from collections import namedtuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-from lmfit import Model, Parameters
 
-from locan.analysis.analysis_base import _Analysis, _list_parameters
+from locan.analysis.analysis_base import _Analysis
 from locan.configuration import COLORMAP_DIVERGING
-from locan.render.render2d import histogram, render_2d_mpl
 
 __all__ = ["LocalizationPropertyCorrelations"]
 
 logger = logging.getLogger(__name__)
 
 
-##### The algorithms
+# The algorithms
 
 
 def _localization_property_correlations(locdata, loc_properties=None):
@@ -30,7 +27,7 @@ def _localization_property_correlations(locdata, loc_properties=None):
     return results
 
 
-##### The specific analysis classes
+# The specific analysis classes
 
 
 class LocalizationPropertyCorrelations(_Analysis):
@@ -143,7 +140,7 @@ class LocalizationPropertyCorrelations(_Analysis):
         # Loop over data dimensions and create text annotations.
         for i in range(len(columns)):
             for j in range(len(columns)):
-                text = ax.text(
+                ax.text(
                     j,
                     i,
                     round(self.results.values[i, j], 2),

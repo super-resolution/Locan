@@ -6,9 +6,6 @@ from locan import ROOT_DIR
 from locan.dependencies import HAS_DEPENDENCY
 from locan.scripts.script_rois import sc_draw_roi_napari
 
-if HAS_DEPENDENCY["napari"]:
-    import napari
-
 
 @pytest.mark.gui
 @pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")

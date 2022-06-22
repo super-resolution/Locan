@@ -12,16 +12,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 from lmfit import Model, Parameters
 
-from locan.analysis.analysis_base import _Analysis, _list_parameters
+from locan.analysis.analysis_base import _Analysis
 from locan.configuration import COLORMAP_DIVERGING
-from locan.render.render2d import histogram, render_2d_mpl
+from locan.render.render2d import histogram
 
 __all__ = ["LocalizationProperty2d"]
 
 logger = logging.getLogger(__name__)
 
 
-##### The algorithms
+# The algorithms
 
 # model fit function in 2d
 def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
@@ -57,8 +57,8 @@ def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
     )
     return amplitude * np.exp(
         -(
-            (x_ - center_x) ** 2 / (2.0 * sigma_x ** 2)
-            + (y_ - center_y) ** 2 / (2.0 * sigma_y ** 2)
+            (x_ - center_x) ** 2 / (2.0 * sigma_x**2)
+            + (y_ - center_y) ** 2 / (2.0 * sigma_y**2)
         )
     )
 
@@ -142,7 +142,7 @@ def _localization_property2d(
     return results
 
 
-##### The specific analysis classes
+# The specific analysis classes
 
 
 class LocalizationProperty2d(_Analysis):

@@ -10,7 +10,6 @@ import sys
 import numpy as np
 import pandas as pd
 
-import locan.data.hulls
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 from locan.data.region import Region

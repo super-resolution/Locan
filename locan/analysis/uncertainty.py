@@ -12,9 +12,7 @@ References
 
 """
 import logging
-import warnings
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -25,7 +23,7 @@ __all__ = ["LocalizationUncertaintyFromIntensity"]
 logger = logging.getLogger(__name__)
 
 
-##### The algorithms
+# The algorithms
 
 
 def _localization_uncertainty_from_intensity(locdata):
@@ -54,7 +52,7 @@ def _localization_uncertainty_from_intensity(locdata):
     return pd.DataFrame(results)
 
 
-##### The specific analysis classes
+# The specific analysis classes
 
 
 class LocalizationUncertaintyFromIntensity(_Analysis):

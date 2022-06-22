@@ -1,11 +1,11 @@
-import matplotlib.pyplot as plt  # needed for visual inspection
+import matplotlib.pyplot as plt  # needed for visual inspection  # noqa: F401
 import numpy as np
 import pandas as pd
 import pytest
 
 import locan.data.metadata_pb2
-from locan import render_2d_mpl  # needed for visual inspection
-from locan import (
+from locan import render_2d_mpl  # needed for visual inspection  # noqa: F401
+from locan import (  # noqa: F401
     HullType,
     LocData,
     Rectangle,

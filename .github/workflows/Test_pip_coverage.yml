@@ -12,7 +12,7 @@ env:
 
 jobs:
   test-on-python:
-    name: "Tests with ${{ runner.os }}, py${{ matrix.python-version }}, pip-environment"
+    name: "Tests with ubuntu, py${{ env.PYTHON_VERSION }}, pip-environment"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

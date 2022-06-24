@@ -11,7 +11,7 @@ defaults:
 
 jobs:
   matrix-test-on-mambaforge:
-    name: "Tests with ${{ runner.os }}, py${{ matrix.python-version }}, Mambaforge"
+    name: "Tests with ${{ matrix.os }}, py${{ matrix.python-version }}, Mambaforge"
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false

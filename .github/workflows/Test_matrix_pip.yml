@@ -15,7 +15,7 @@ jobs:
         os: ["ubuntu", "macos", "windows"]
         python-version: ["3.8", "3.9", "3.10"]
     env:
-      REQUIREMENTS_FILE: "environment-${{ matrix.os }}-py${{ matrix.python-version }}.yml"
+      REQUIREMENTS_FILE: "requirements-${{ matrix.os }}-py${{ matrix.python-version }}.yml"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2

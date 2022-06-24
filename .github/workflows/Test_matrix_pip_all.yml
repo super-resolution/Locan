@@ -18,7 +18,7 @@ jobs:
           - os: "ubuntu"
             python-version: "3.9"
     env:
-      REQUIREMENTS_FILE: "environment-${{ matrix.os }}-py${{ matrix.python-version }}.yml"
+      REQUIREMENTS_FILE: "requirements-all-${{ matrix.os }}-py${{ matrix.python-version }}.yml"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2

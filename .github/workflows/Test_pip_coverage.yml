@@ -44,7 +44,7 @@ jobs:
       - name: "Freeze requirements"
         env:
           REQUIREMENTS_FILE: "requirements-all-${{ runner.os }}-${{ env.PYTHON_VERSION }}.txt"
-        run: pip-compile setup.cfg --extras test --output-file ${{ env.REQUIREMENTS_FILE }}
+        run: pip-compile setup.cfg --extra test --output-file ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"
         uses: actions/upload-artifact@v3
         with:

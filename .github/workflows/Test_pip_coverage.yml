@@ -13,7 +13,7 @@ env:
 
 jobs:
   test-on-python:
-    name: "Tests with ${{ env.OS }}, py${{ env.PYTHON_VERSION }}, pip-environment"
+    name: "Tests with ubuntu, py3,9, pip-environment"
     runs-on: ubuntu-latest
     env:
       REQUIREMENTS_FILE: "environment-${{ env.OS }}-py${{ env.PYTHON_VERSION }}.yml"

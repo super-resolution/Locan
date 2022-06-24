@@ -17,7 +17,7 @@ env:
 
 jobs:
   test-on-mambaforge:
-    name: "Tests with ${{ env.OS }}, py${{ env.PYTHON_VERSION }}, Mambaforge"
+    name: "Tests with linux, py3.9, Mambaforge"
     runs-on: ubuntu-latest
     env:
       REQUIREMENTS_FILE: "environment-${{ env.OS }}-py${{ env.PYTHON_VERSION }}.yml"

@@ -19,10 +19,11 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      - name: "Install Coverage.py"
+      - name: "Install and upgrade"
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade coverage[toml]
+          pip install pip-tools
       - name: "Install locan with extra requirements"
         run: |
           pip install .[all]
@@ -48,4 +49,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.REQUIREMENTS_FILE }}
-          path: ./requirements/${{ env.REQUIREMENTS_FILE }}
+          path: ${{ env.REQUIREMENTS_FILE }}

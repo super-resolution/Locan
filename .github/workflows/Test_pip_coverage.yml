@@ -14,6 +14,8 @@ jobs:
   test-on-python:
     name: "Tests with ubuntu, py39, pip-environment"
     runs-on: ubuntu-latest
+    env:
+      REQUIREMENTS_FILE: "environment-${{ runner.os }}-py${{ env.PYTHON_VERSION }}.yml"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -42,8 +44,6 @@ jobs:
           name: "CodeCov report"
           verbose: true
       - name: "Freeze requirements"
-        env:
-          REQUIREMENTS_FILE: "requirements-all-${{ runner.os }}-py${{ env.PYTHON_VERSION }}.txt"
         run: pip-compile setup.cfg --extra test --output-file ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"
         uses: actions/upload-artifact@v3

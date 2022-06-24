@@ -38,10 +38,10 @@ jobs:
         run:  pytest
       - name: "Freeze requirements"
         env:
-          REQUIREMENTS_FILE: "requirements-all-${{ runner.os }}-${{ env.PYTHON_VERSION }}.txt"
+          REQUIREMENTS_FILE: "requirements-all-${{ runner.os }}-py${{ env.PYTHON_VERSION }}.txt"
         run: pip-compile setup.cfg --extra test --output-file ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.REQUIREMENTS_FILE }}
+          name: "${{ env.REQUIREMENTS_FILE }}"
           path: ${{ env.REQUIREMENTS_FILE }}

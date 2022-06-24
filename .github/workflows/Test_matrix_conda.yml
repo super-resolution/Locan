@@ -44,5 +44,5 @@ jobs:
       - name: "Upload requirements file"
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.REQUIREMENTS_FILE }}
+          name: "${{ env.REQUIREMENTS_FILE }}"
           path: ${{ env.REQUIREMENTS_FILE }}

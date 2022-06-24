@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-on-python:
-    name: "Run (${{ matrix.os }}, ${{ matrix.python-version }}, pip)"
+    name: "Tests with ${{ runner.os }}, ${{ matrix.python-version }}, pip-environment"
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
@@ -15,6 +15,10 @@ jobs:
         os: ["ubuntu", "macos", "windows"]
         python-version: ["3.8", "3.9", "3.10"]
     steps:
+      - name: "Set environment variables for windows"
+        if: runner.os == 'Windows'
+        env:
+          MPLBACKEND: agg
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
@@ -24,10 +28,13 @@ jobs:
       - name: "Install locan"
         run: pip install .[test]
       - name: "Run tests"
-        if: runner.os != 'Windows'
         run: pytest
-      - name: "Run tests"
-        if: runner.os == 'Windows'
+      - name: "Freeze requirements"
         env:
-          MPLBACKEND: agg
-        run: pytest
+          REQUIREMENTS_FILE: "requirements-all-${{ runner.os }}-${{ env.PYTHON_VERSION }}.txt"
+        run: pip-compile setup.cfg --extras test --output-file ${{ env.REQUIREMENTS_FILE }}
+      - name: "Upload requirements file"
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.REQUIREMENTS_FILE }}
+          path: ./requirements/${{ env.REQUIREMENTS_FILE }}

@@ -7,13 +7,16 @@ on:
 
 jobs:
   test-on-python:
-    name: "Run (${{ matrix.os }}, ${{ matrix.python-version }}, pip)"
+    name: "Tests with ${{ runner.os }}, py${{ matrix.python-version }}, pip-environment"
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: ["ubuntu", "macos", "windows"]
         python-version: ["3.8", "3.9", "3.10"]
+        exclude:
+          - os: "ubuntu"
+            python-version: "3.9"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -31,3 +34,12 @@ jobs:
           pip install .[pyqt5,test,color,track,napari,scatter_density,html,hdf5,hdbscan]
       - name: "Run tests"
         run:  pytest
+      - name: "Freeze requirements"
+        env:
+          REQUIREMENTS_FILE: "requirements-all-${{ runner.os }}-${{ env.PYTHON_VERSION }}.txt"
+        run: pip-compile setup.cfg --extras test --output-file ${{ env.REQUIREMENTS_FILE }}
+      - name: "Upload requirements file"
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.REQUIREMENTS_FILE }}
+          path: ./requirements/${{ env.REQUIREMENTS_FILE }}

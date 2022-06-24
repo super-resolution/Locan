@@ -1,4 +1,4 @@
-name:  Tests with ubuntu, current python, pip and coverage
+name:  "Tests with ubuntu, current python, pip and coverage"
 
 on:
   push:
@@ -12,48 +12,26 @@ env:
 
 jobs:
   test-on-python:
-    name: "Tests with pip"
+    name: "Tests with ${{ runner.os }}, py${{ matrix.python-version }}, pip-environment"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
       - name: "Install Coverage.py"
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade coverage[toml]
-
       - name: "Install locan with extra requirements"
         run: |
           pip install .[all]
-
       - name: "Run tests"
         run: coverage run -m pytest --junitxml=./test-results-${{ env.PYTHON_VERSION }}.xml
-
-      - name: "Upload test results"
-        uses: actions/upload-artifact@v2
-        with:
-          name: "test-results-${{ env.PYTHON_VERSION }}"
-          path: test-results-${{ env.PYTHON_VERSION }}.xml
-        # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}
-
       - name: "Prepare coverage reports"
-        run: |
-          coverage html
-          coverage xml
-
-      - name: "Upload coverage HTML report"
-        uses: actions/upload-artifact@v2
-        with:
-          name: "Coverage html-report"
-          path: htmlcov
-
+        run: coverage xml
       - name: "Check coverage"
         run: coverage report --fail-under=80
-
       - name: "Upload coverage to CodeCov"
         uses: codecov/codecov-action@v2
         with:
@@ -62,3 +40,12 @@ jobs:
           flags: unittests
           name: "CodeCov report"
           verbose: true
+      - name: "Freeze requirements"
+        env:
+          REQUIREMENTS_FILE: "requirements-all-${{ runner.os }}-${{ env.PYTHON_VERSION }}.txt"
+        run: pip-compile setup.cfg --extras test --output-file ${{ env.REQUIREMENTS_FILE }}
+      - name: "Upload requirements file"
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.REQUIREMENTS_FILE }}
+          path: ./requirements/${{ env.REQUIREMENTS_FILE }}

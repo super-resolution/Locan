@@ -11,13 +11,16 @@ defaults:
 
 jobs:
   matrix-test-on-mambaforge:
-    name: "Run (${{ matrix.os }}, ${{ matrix.python-version }}, Mambaforge)"
+    name: "Tests with ${{ runner.os }}, py${{ matrix.python-version }}, Mambaforge"
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: ["ubuntu", "macos", "windows"]
         python-version: ["3.8", "3.9"]
+        exclude:
+          - os: "ubuntu"
+            python-version: "3.9"
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
@@ -34,3 +37,12 @@ jobs:
           pip install .
       - name: "Run tests"
         run: pytest
+      - name: "Freeze environment"
+        env:
+          REQUIREMENTS_FILE: "environment-${{ runner.os }}-py${{ env.PYTHON_VERSION }}.yml"
+        run: conda env export > ${{ env.REQUIREMENTS_FILE }}
+      - name: "Upload requirements file"
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.REQUIREMENTS_FILE }}
+          path: ./requirements/${{ env.REQUIREMENTS_FILE }}

@@ -16,7 +16,7 @@ env:
 
 jobs:
   test-on-mambaforge:
-    name: "Tests with conda"
+    name: "Tests with ${{ runner.os }}, py${{ env.PYTHON_VERSION }}, Mambaforge"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -32,14 +32,14 @@ jobs:
       - name: "Install locan"
         run: |
           pip install .
-
       - name: "Run tests"
-        run: pytest --junitxml=./test-results-${{ env.PYTHON_VERSION }}.xml
-
-      - name: "Upload test results"
-        uses: actions/upload-artifact@v2
+        run: pytest
+      - name: "Freeze environment"
+        env:
+          REQUIREMENTS_FILE: "environment-${{ runner.os }}-py${{ env.PYTHON_VERSION }}.yml"
+        run: conda env export > ${{ env.REQUIREMENTS_FILE }}
+      - name: "Upload requirements file"
+        uses: actions/upload-artifact@v3
         with:
-          name: "test-results-${{ env.PYTHON_VERSION }}"
-          path: test-results-${{ env.PYTHON_VERSION }}.xml
-        # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}
+          name: ${{ env.REQUIREMENTS_FILE }}
+          path: ./requirements/${{ env.REQUIREMENTS_FILE }}

@@ -10,7 +10,7 @@ on:
 env:
   OS: "linux"
   PYTHON_VERSION: 3.9
-  REQUIREMENTS_FILE: "environment-${{ env.OS }}-py${{ env.PYTHON_VERSION }}.yml"
+  REQUIREMENTS_FILE: "requirements-all-linux-py3.9.txt"
 
 jobs:
   test-on-python:

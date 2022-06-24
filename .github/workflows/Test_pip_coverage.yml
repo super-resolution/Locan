@@ -10,13 +10,12 @@ on:
 env:
   OS: "linux"
   PYTHON_VERSION: 3.9
+  REQUIREMENTS_FILE: "environment-${{ env.OS }}-py${{ env.PYTHON_VERSION }}.yml"
 
 jobs:
   test-on-python:
     name: "Tests with ubuntu, py3,9, pip-environment"
     runs-on: ubuntu-latest
-    env:
-      REQUIREMENTS_FILE: "environment-${{ env.OS }}-py${{ env.PYTHON_VERSION }}.yml"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2

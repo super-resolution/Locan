@@ -14,13 +14,12 @@ defaults:
 env:
   OS: "linux"
   PYTHON_VERSION: 3.9
+  REQUIREMENTS_FILE: "environment-${{ env.OS }}-py${{ env.PYTHON_VERSION }}.yml"
 
 jobs:
   test-on-mambaforge:
     name: "Tests with linux, py3.9, Mambaforge"
     runs-on: ubuntu-latest
-    env:
-      REQUIREMENTS_FILE: "environment-${{ env.OS }}-py${{ env.PYTHON_VERSION }}.yml"
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2

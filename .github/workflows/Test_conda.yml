@@ -16,7 +16,7 @@ env:
 
 jobs:
   test-on-mambaforge:
-    name: "Tests with ubuntu, py${{ env.PYTHON_VERSION }}, Mambaforge"
+    name: "Tests with ubuntu, py3.9, Mambaforge"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

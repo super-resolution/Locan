@@ -8,14 +8,15 @@ on:
   workflow_dispatch:
 
 env:
+  OS: "linux"
   PYTHON_VERSION: 3.9
 
 jobs:
   test-on-python:
-    name: "Tests with ubuntu, py39, pip-environment"
+    name: "Tests with ${{ env.OS }}, py${{ env.PYTHON_VERSION }}, pip-environment"
     runs-on: ubuntu-latest
     env:
-      REQUIREMENTS_FILE: "environment-${{ runner.os }}-py${{ env.PYTHON_VERSION }}.yml"
+      REQUIREMENTS_FILE: "environment-${{ env.OS }}-py${{ env.PYTHON_VERSION }}.yml"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -48,5 +49,5 @@ jobs:
       - name: "Upload requirements file"
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ env.REQUIREMENTS_FILE }}"
+          name: ${{ env.REQUIREMENTS_FILE }}
           path: ${{ env.REQUIREMENTS_FILE }}

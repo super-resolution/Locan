@@ -12,14 +12,15 @@ defaults:
     shell: bash -l {0}
 
 env:
+  OS: "linux"
   PYTHON_VERSION: 3.9
 
 jobs:
   test-on-mambaforge:
-    name: "Tests with ubuntu, py3.9, Mambaforge"
+    name: "Tests with ${{ env.OS }}, py${{ env.PYTHON_VERSION }}, Mambaforge"
     runs-on: ubuntu-latest
     env:
-      REQUIREMENTS_FILE: "environment-${{ runner.os }}-py${{ env.PYTHON_VERSION }}.yml"
+      REQUIREMENTS_FILE: "environment-${{ env.OS }}-py${{ env.PYTHON_VERSION }}.yml"
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
@@ -41,5 +42,5 @@ jobs:
       - name: "Upload requirements file"
         uses: actions/upload-artifact@v3
         with:
-          name: "${{ env.REQUIREMENTS_FILE }}"
+          name: ${{ env.REQUIREMENTS_FILE }}
           path: ${{ env.REQUIREMENTS_FILE }}

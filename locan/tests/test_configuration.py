@@ -12,6 +12,7 @@ from locan.configuration import (
     RENDER_ENGINE,
 )
 from locan.constants import RenderEngine
+from locan.dependencies import HAS_DEPENDENCY
 
 
 def test_datasets_dir():
@@ -19,7 +20,7 @@ def test_datasets_dir():
     assert isinstance(DATASETS_DIR, Path)
 
 
-def test_render_enginge():
+def test_render_engine():
     assert isinstance(RENDER_ENGINE, RenderEngine)
 
 
@@ -35,5 +36,11 @@ def test_colormaps():
         )
 
 
-def test_QT_BINDING():
-    assert QT_BINDING
+def test_qt_bindings():
+    assert "qt" in HAS_DEPENDENCY
+    assert isinstance(QT_BINDING, str)
+
+    if HAS_DEPENDENCY["qt"]:
+        from qtpy import QT_VERSION
+
+        assert QT_VERSION is not None

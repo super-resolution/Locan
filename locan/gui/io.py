@@ -3,7 +3,7 @@
 Functions for user interaction with paths and file names.
 
 """
-from locan.dependencies import HAS_DEPENDENCY
+from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["qt"]:
     from qtpy.QtWidgets import QApplication, QFileDialog
@@ -14,6 +14,7 @@ from locan.dependencies import QtBindings
 __all__ = ["file_dialog"]
 
 
+@needs_package("qt")
 def file_dialog(
     directory=None,
     message="Select a file...",
@@ -56,7 +57,12 @@ def file_dialog(
         app = QApplication([directory_])
 
     fname = QFileDialog.getOpenFileNames(
-        None, message, directory=directory_, filter=filter
+        None,
+        message,
+        directory_,
+        filter=filter
+        # kwargs: parent, message, directory, filter
+        # but kw_names are different for different qt_bindings
     )
 
     if isinstance(fname, tuple):

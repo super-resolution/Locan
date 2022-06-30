@@ -16,6 +16,7 @@ Configuration variables used throughout the project.
 """
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 import matplotlib.colors as mcolors
@@ -27,6 +28,8 @@ if HAS_DEPENDENCY["colorcet"]:
 
 from locan.constants import RenderEngine
 from locan.dependencies import QtBindings, _set_qt_binding
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "DATASETS_DIR",
@@ -79,3 +82,4 @@ QT_BINDING: QtBindings | str = ""
 
 # Initialize pyqt
 QT_BINDING = _set_qt_binding(QT_BINDING)
+HAS_DEPENDENCY["qt"] = True if QT_BINDING else False

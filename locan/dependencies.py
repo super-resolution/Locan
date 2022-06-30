@@ -66,7 +66,7 @@ def needs_package(package, import_names=None, has_dependency=None):
     package : str
         Package or dependency name that needs to be imported.
     import_names : dict[str, str] | None
-        Mapping of import names on package names.
+        Mapping of package names onto import names.
     has_dependency : dict | None
         Dictionary with bool indicator if package (import name) is available.
 
@@ -96,7 +96,14 @@ def needs_package(package, import_names=None, has_dependency=None):
 
 
 def _get_dependencies(package: str) -> tuple[set[str], set[str]]:
-    """Read out all required and optional (extra) dependencies for locan (PyPI names)."""
+    """
+    Read out all required and optional (extra) dependencies for locan.
+
+    Returns
+    -------
+    tuple[set[str], set[str]]
+        PyPI names
+    """
     requires = importlib.metadata.requires(package)
 
     pattern = r"[\w-]+"
@@ -155,27 +162,44 @@ def _set_qt_binding(qt_binding: QtBindings | str) -> str:
 
     Note
     -----
-    This function must be used before qtpy is imported for the first time.
+    This function must be used before qtpy is imported for the first time
+    to be effective.
+
+    Returns
+    -------
+    str
+        qt-bindings or empty string
     """
-    QT_API = ""
+    if isinstance(qt_binding, QtBindings):
+        qt_api = qt_binding.value
+    elif qt_binding:
+        qt_api = qt_binding.lower()
+    else:
+        qt_api = ""
+
     if "qtpy" in sys.modules:
         logger.warning("qtpy has already been loaded. QT_BINDING cannot be changed.")
     elif os.environ.get("QT_API", ""):
-        QT_API = os.environ["QT_API"]
+        qt_api = os.environ["QT_API"]
     else:
-        if isinstance(qt_binding, QtBindings):
-            QT_API = qt_binding.value
-        elif qt_binding:
-            QT_API = qt_binding.lower()
+        if qt_api:
+            os.environ["QT_API"] = qt_api
 
-        if QT_API:
-            os.environ["QT_API"] = QT_API
+    try:
+        from qtpy import (  # noqa: F401  # import API alone does not raise ModuleNotFoundError if no module is available
+            API,
+            QtCore,
+        )
 
-    from qtpy import API
+        if qt_api and qt_api != API:
+            logger.warning(
+                f"QT_BINDING {qt_api} is not available - {API} is used instead."
+            )
+            os.environ["QT_API"] = API
+        qt_api = API
+    except ModuleNotFoundError:
+        if qt_api:
+            logger.warning("QT_BINDING is not available.")
+        qt_api = ""
 
-    if QT_API and QT_API != API:
-        logger.warning(f"QT_BINDING {QT_API} is not available - {API} is used instead.")
-
-    HAS_DEPENDENCY["qt"] = True if QT_API else False
-
-    return API
+    return qt_api

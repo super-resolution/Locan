@@ -11,8 +11,10 @@ from locan.data import metadata_pb2
 def test_Roi_2d(locdata_2d):
     roi = Roi(reference=locdata_2d, region=Rectangle((0, 0), 2, 2, 0))
     assert (
-        repr(roi)
-        == f"Roi(reference={locdata_2d}, region=Rectangle((0, 0), 2, 2, 0),  loc_properties=())"
+        repr(roi) == f"Roi("
+        f"reference={locdata_2d}, "
+        f"region=Rectangle((0, 0), 2, 2, 0),  "
+        f"loc_properties=())"
     )
     assert isinstance(roi._region, Rectangle)
     assert isinstance(roi.region, Rectangle)
@@ -90,6 +92,14 @@ def test_Roi_io(locdata_2d):
         roi_new = Roi.from_yaml(path=file_path)
         assert roi_new.reference is None
         assert isinstance(roi_new.region, Rectangle)
+        assert roi_new.loc_properties == []
+
+        roi = Roi(region=Ellipse((0, 0), 2, 1, 0))
+        roi.to_yaml(path=file_path)
+
+        roi_new = Roi.from_yaml(path=file_path)
+        assert roi_new.reference is None
+        assert isinstance(roi_new.region, Ellipse)
         assert roi_new.loc_properties == []
 
         roi = Roi(

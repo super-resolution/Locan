@@ -80,22 +80,23 @@ class Transform(ABC):
         """
         raise NotImplementedError
 
-        _values, is_scalar = self.process_value(values)
-        self.autoscale_None(_values)  # sets self.vmin, self.vmax if None
-
-        if clip is None:
-            clip = self.clip
-
-        # Normalize based on vmin and vmax
-        np.subtract(_values, self.vmin, out=_values)
-        np.true_divide(_values, self.vmax - self.vmin, out=_values)
-
-        # Clip to the 0 to 1 range
-        if clip:
-            np.clip(_values, 0.0, 1.0, out=_values)
-
-        new_values = _values
-        return new_values
+        # Example implementation:
+        # _values, is_scalar = self.process_value(values)
+        # self.autoscale_None(_values)  # sets self.vmin, self.vmax if None
+        #
+        # if clip is None:
+        #     clip = self.clip
+        #
+        # # Normalize based on vmin and vmax
+        # np.subtract(_values, self.vmin, out=_values)
+        # np.true_divide(_values, self.vmax - self.vmin, out=_values)
+        #
+        # # Clip to the 0 to 1 range
+        # if clip:
+        #     np.clip(_values, 0.0, 1.0, out=_values)
+        #
+        # new_values = _values
+        # return new_values
 
     @property
     @abstractmethod
@@ -163,6 +164,9 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         -------
         numpy.ndarray
         """
+        if np.any(np.isnan(values)):
+            raise ValueError("HistogramEqualization does not work with nan values.")
+
         _values, is_scalar = self.process_value(values)
         self.autoscale_None(_values)  # sets self.vmin, self.vmax if None
 
@@ -180,7 +184,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
 
         data, bin_edges = np.histogram(_reference, bins=self.n_bins, range=(0, 1))
         bin_centers = bin_edges[:-1] + np.diff(bin_edges) / 2
-        cdf = np.cumsum(data ** self.power)
+        cdf = np.cumsum(data**self.power)
         cdf = cdf / cdf[-1]
         new_values = np.interp(_values, bin_centers, cdf)
         return new_values
@@ -222,7 +226,10 @@ def adjust_contrast(image, rescale=True, **kwargs):
         or rescale is Trafo.STANDARDIZE
         or (isinstance(rescale, str) and rescale.upper() == Trafo.STANDARDIZE.name)
     ):
-        new_image = exposure.rescale_intensity(image * 1.0, **kwargs)
+        new_image = exposure.rescale_intensity(
+            image * 1.0,
+            **dict(dict(in_range=(np.nanmin(image), np.nanmax(image))), **kwargs)
+        )
 
     elif (
         rescale == 2
@@ -232,7 +239,11 @@ def adjust_contrast(image, rescale=True, **kwargs):
         )
     ):
         new_image = exposure.rescale_intensity(
-            image, **dict(dict(out_range=(0, 255)), **kwargs)
+            image,
+            **dict(
+                dict(in_range=(np.nanmin(image), np.nanmax(image)), out_range=(0, 255)),
+                **kwargs
+            )
         ).astype(np.uint8)
 
     elif (

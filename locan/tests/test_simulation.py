@@ -78,6 +78,14 @@ def test_make_uniform():
     assert np.all(10 <= samples[:, 1])
     assert np.all(samples[:, 1] < 11)
 
+    samples = make_uniform(n_samples=10, region=Rectangle((0, 10), 1, 1, 45), seed=rng)
+    assert len(samples) == 10
+    assert samples.shape[1] == 2
+    assert np.all(-0.71 <= samples[:, 0])  # 0.71 ~ (np.sqrt(2) / 2)
+    assert np.all(samples[:, 0] < 0.71)
+    assert np.all(10 <= samples[:, 1])
+    assert np.all(samples[:, 1] < (10 + 1.42))
+
     samples = make_uniform(n_samples=10, region=Ellipse((0, 0), 1, 1, 0), seed=rng)
     assert len(samples) == 10
     assert samples.shape[1] == 2

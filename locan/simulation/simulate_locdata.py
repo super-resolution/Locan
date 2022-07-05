@@ -90,8 +90,8 @@ def make_uniform(n_samples, region=(0, 1), seed=None):
     if isinstance(region, EmptyRegion):
         samples = np.array([])
     elif isinstance(
-        region, (Interval, Rectangle, AxisOrientedCuboid, AxisOrientedHypercuboid)
-    ):
+        region, (Interval, AxisOrientedCuboid, AxisOrientedHypercuboid)
+    ) or (isinstance(region, Rectangle) and region.angle == 0):
         samples = rng.uniform(
             region.bounds[: region.dimension],
             region.bounds[region.dimension :],

@@ -138,11 +138,15 @@ def render_2d_mpl(
 
     mappable = ax.imshow(
         data.T,
-        origin="lower",
-        extent=[*bins.bin_range[0], *bins.bin_range[1]],
-        cmap=cmap,
-        interpolation=interpolation,
-        **kwargs,
+        **dict(
+            {
+                "origin": "lower",
+                "extent": [*bins.bin_range[0], *bins.bin_range[1]],
+                "cmap": cmap,
+                "interpolation": interpolation,
+            },
+            **kwargs,
+        ),
     )
 
     ax.set(title=labels[-1], xlabel=labels[0], ylabel=labels[1])
@@ -375,7 +379,9 @@ def render_2d_napari(
     )
     data = adjust_contrast(data, rescale)
 
-    viewer.add_image(data, name=f"LocData {locdata_id}", colormap=cmap, **kwargs)
+    viewer.add_image(
+        data, **dict({"name": f"LocData {locdata_id}", "colormap": cmap}, **kwargs)
+    )
     return viewer, bins
 
 
@@ -668,10 +674,14 @@ def render_2d_rgb_mpl(
     rgb_stack = np.transpose(rgb_stack, axes=(1, 0, 2))
     ax.imshow(
         rgb_stack,
-        origin="lower",
-        extent=[*bins.bin_range[0], *bins.bin_range[1]],
-        interpolation=interpolation,
-        **kwargs,
+        **dict(
+            {
+                "origin": "lower",
+                "extent": [*bins.bin_range[0], *bins.bin_range[1]],
+                "interpolation": interpolation,
+            },
+            **kwargs,
+        ),
     )
 
     ax.set(title=labels[-1], xlabel=labels[0], ylabel=labels[1])
@@ -797,5 +807,8 @@ def render_2d_rgb_napari(
         rgb_stack[:, :, i] = img
 
     rgb_stack = np.transpose(rgb_stack, axes=(1, 0, 2))
-    viewer.add_image(rgb_stack, name=f"LocData {locdata_id}", rgb=True, **kwargs)
+    viewer.add_image(
+        rgb_stack,
+        **dict({"name": f"LocData {locdata_id}", "rgb": True}, **kwargs),
+    )
     return viewer

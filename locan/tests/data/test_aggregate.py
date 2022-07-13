@@ -645,6 +645,7 @@ def test_histogram(locdata_blobs_2d):
     assert hist.data.dtype == "float64"
     assert hist.data.ndim == 2
     assert np.max(hist.data) == 7
+    assert np.min(hist.data) == 0
 
     hist = histogram(locdata_blobs_2d, n_bins=10, bin_range=((500, 1000), (500, 1000)))
     assert hist.data.ndim == 2
@@ -700,6 +701,9 @@ def test_histogram(locdata_blobs_2d):
     hist = histogram(locdata_blobs_2d, bin_size=10, other_property="position_y")
     assert hist.labels == ["position_x", "position_y", "position_y"]
     assert hist.data.shape == (89, 55)
+    assert np.isnan(hist.data).any()
+    assert np.nanmax(hist.data) == 1001
+    assert np.nanmin(hist.data) == 465
 
 
 def test_histogram_1d(locdata_1d):
@@ -720,6 +724,7 @@ def test_histogram_1d(locdata_1d):
     hist = histogram(locdata_1d, n_bins=10, other_property="intensity")
     assert hist.labels == ["position_x", "intensity"]
     assert hist.data.shape == (10,)
+    assert np.isnan(hist.data).any()
     assert np.nanmax(hist.data) == 125
 
 
@@ -750,6 +755,7 @@ def test_histogram_3d(locdata_blobs_3d):
     hist = histogram(locdata_blobs_3d, n_bins=10, other_property="position_y")
     assert hist.labels == ["position_x", "position_y", "position_z", "position_y"]
     assert hist.data.shape == (10, 10, 10)
+    assert np.isnan(hist.data).any()
     assert np.nanmax(hist.data) == 787
 
 

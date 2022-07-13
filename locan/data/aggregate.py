@@ -7,6 +7,8 @@ This module provides functions to bin LocData objects to form a histogram or ima
 Specify bins through one of the parameters (`bins`, `bin_edges`, `n_bins`, `bin_size`, `bin_range`, `labels`)
 as further outlined in the documentation for :class:`Bins`.
 """
+from __future__ import annotations
+
 import warnings
 from collections import namedtuple
 from collections.abc import Iterable
@@ -870,7 +872,7 @@ class Bins:
 
 def _histogram_fast_histogram(data, bins) -> np.ndarray:
     """
-    Provide histogram with averaged values for all counts in each bin.
+    Provide histogram with counts in each bin.
 
     Parameters
     ----------
@@ -896,7 +898,7 @@ def _histogram_fast_histogram(data, bins) -> np.ndarray:
 
 def _histogram_boost_histogram(data, bins) -> np.ndarray:
     """
-    Provide histogram with averaged values for all counts in each bin.
+    Provide histogram with counts in each bin.
 
     Parameters
     ----------
@@ -918,7 +920,7 @@ def _histogram_boost_histogram(data, bins) -> np.ndarray:
     return img
 
 
-def _histogram_mean_fast_histogram(data, bins, values):
+def _histogram_mean_fast_histogram(data, bins, values) -> np.ndarray:
     """
     Provide histogram with averaged values for all counts in each bin.
 
@@ -967,6 +969,8 @@ def _histogram_mean_boost_histogram(data, bins, values) -> np.ndarray:
         Coordinate values with shape (n_dimensions, n_points) to be binned
     bins : Bins
         The bin specification
+    values : array-like
+        Values with shape (n_points,) to be averaged in each bin
 
     Returns
     -------
@@ -976,13 +980,19 @@ def _histogram_mean_boost_histogram(data, bins, values) -> np.ndarray:
         bh.axis.Variable(bins.bin_edges[i], metadata=bins.labels[i])
         for i in range(bins.dimension)
     ]
-    hist = bh.Histogram(*hist_axes).fill(*data)
-    hist_w = bh.Histogram(*hist_axes).fill(*data, weight=values)
-    hist = hist_w / hist
-    return hist.view()
+    hist = bh.Histogram(*hist_axes, storage=bh.storage.Mean()).fill(
+        *data, sample=values
+    )
+    # bh.Histogram yields zero for mean values in bins with zero counts
+    mean_values = hist.values()
+    mask = hist.counts() == 0
+    mean_values[mask] = np.nan
+    return mean_values
 
 
-def _check_loc_properties(locdata: LocData, loc_properties: Union[str, Iterable]):
+def _check_loc_properties(
+    locdata: LocData, loc_properties: str | Iterable
+) -> list[str]:
     """
     Check that loc_properties are valid properties in locdata.
 

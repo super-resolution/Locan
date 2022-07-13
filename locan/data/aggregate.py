@@ -735,6 +735,9 @@ class Bins:
 
     labels : list of str or None
         Names for each bin axis.
+
+    boost_histogram_axes : boost_histogram.axis.AxesTuple
+        Axis definitions for boost-histogram
     """
 
     def __init__(
@@ -780,6 +783,7 @@ class Bins:
 
         self._bin_centers = None
         self.labels = labels
+        self._boost_histogram_axes = None
 
     @property
     def dimension(self):
@@ -838,7 +842,7 @@ class Bins:
         return getattr(self._bins, attr)
 
     @property
-    def is_equally_sized(self) -> np.array:
+    def is_equally_sized(self) -> tuple[bool]:
         """True for each dimension if all bins are of the same size."""
         if _is_1d_array_of_scalar(self.bin_size):
             return tuple(True for _ in self.bin_size)
@@ -856,7 +860,7 @@ class Bins:
         else:
             raise TypeError
 
-    def equalize_bin_size(self):
+    def equalize_bin_size(self) -> Bins:
         """
         Return a new instance of `Bins` with bin_size set equal to the first bin_size element in each dimension
         and extend_range=None.
@@ -868,6 +872,21 @@ class Bins:
             except IndexError:
                 new_bin_size.append(bs)
         return Bins(bin_size=new_bin_size, bin_range=self.bin_range, extend_range=None)
+
+    @property
+    def boost_histogram_axes(self) -> bh.axis.AxesTuple:
+        """Axis definitions for boost-histogram"""
+        if self._boost_histogram_axes is None:
+            axes = []
+            for index in range(self.dimension):
+                if self.is_equally_sized[index]:
+                    axis = bh.axis.Regular(self.n_bins[index], *self.bin_range[index])
+                else:
+                    axis = bh.axis.Variable(self.bin_edges[index])
+                axes.append(axis)
+            self._boost_histogram_axes = bh.axis.AxesTuple(axes)
+
+        return self._boost_histogram_axes
 
 
 def _histogram_fast_histogram(data, bins) -> np.ndarray:
@@ -911,11 +930,7 @@ def _histogram_boost_histogram(data, bins) -> np.ndarray:
     -------
     numpy.ndarray
     """
-    hist_axes = [
-        bh.axis.Variable(bins.bin_edges[i], metadata=bins.labels[i])
-        for i in range(bins.dimension)
-    ]
-    hist = bh.Histogram(*hist_axes).fill(*data)
+    hist = bh.Histogram(*bins.boost_histogram_axes).fill(*data)
     img = hist.view()
     return img
 
@@ -976,11 +991,7 @@ def _histogram_mean_boost_histogram(data, bins, values) -> np.ndarray:
     -------
     numpy.ndarray
     """
-    hist_axes = [
-        bh.axis.Variable(bins.bin_edges[i], metadata=bins.labels[i])
-        for i in range(bins.dimension)
-    ]
-    hist = bh.Histogram(*hist_axes, storage=bh.storage.Mean()).fill(
+    hist = bh.Histogram(*bins.boost_histogram_axes, storage=bh.storage.Mean()).fill(
         *data, sample=values
     )
     # bh.Histogram yields zero for mean values in bins with zero counts

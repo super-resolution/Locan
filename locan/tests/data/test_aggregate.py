@@ -559,6 +559,7 @@ def test_Bins():
     assert np.array_equal(bins.bin_edges[0], np.array([0, 2, 4]))
     assert np.array_equal(bins.bin_centers[0], np.array([1, 3]))
     assert bins.is_equally_sized == (True,)
+    assert bins.boost_histogram_axes == (bh.axis.Regular(2, 0, 4),)
 
     bins = Bins(n_bins=5, bin_range=(0, 10))
     assert bins.dimension == 1
@@ -568,6 +569,7 @@ def test_Bins():
     assert np.array_equal(bins.bin_edges[0], np.array([0, 2, 4, 6, 8, 10]))
     assert np.array_equal(bins.bin_centers[0], np.array([1, 3, 5, 7, 9]))
     assert bins.is_equally_sized == (True,)
+    assert bins.boost_histogram_axes == (bh.axis.Regular(5, 0, 10),)
 
     bins = Bins(bin_size=2, bin_range=(0, 10))
     assert bins.dimension == 1
@@ -577,6 +579,7 @@ def test_Bins():
     assert np.array_equal(bins.bin_edges[0], np.array([0, 2, 4, 6, 8, 10]))
     assert np.array_equal(bins.bin_centers[0], np.array([1, 3, 5, 7, 9]))
     assert bins.is_equally_sized == (True,)
+    assert bins.boost_histogram_axes == (bh.axis.Regular(5, 0, 10),)
 
     bins = Bins(bin_size=(2, (1, 2, 3)), bin_range=(0, 10))
     assert bins.dimension == 2
@@ -585,6 +588,10 @@ def test_Bins():
     assert np.array_equal(bins.bin_size[0], 2)
     assert np.array_equal(bins.bin_size[1], (1, 2, 3))
     assert bins.is_equally_sized == (True, False)
+    assert bins.boost_histogram_axes == (
+        bh.axis.Regular(5, 0, 10),
+        bh.axis.Variable([0, 1, 3, 6]),
+    )
 
     bins = Bins(bins=Bins(n_bins=5, bin_range=(0, 10)))
     assert bins.dimension == 1
@@ -594,11 +601,16 @@ def test_Bins():
     assert np.array_equal(bins.bin_edges[0], np.array([0, 2, 4, 6, 8, 10]))
     assert np.array_equal(bins.bin_centers[0], np.array([1, 3, 5, 7, 9]))
     assert bins.is_equally_sized == (True,)
+    assert bins.boost_histogram_axes == (bh.axis.Regular(5, 0, 10),)
 
     bins = Bins(n_bins=(2, 5), bin_range=(0, 10), labels=["position_x", "position_y"])
     assert bins.labels == ["position_x", "position_y"]
     assert bins.dimension == 2
     assert bins.is_equally_sized == (True, True)
+    assert bins.boost_histogram_axes == (
+        bh.axis.Regular(2, 0, 10),
+        bh.axis.Regular(5, 0, 10),
+    )
     bins = Bins(bins=Bins(n_bins=5, bin_range=(0, 10)), labels=["position_x"])
     assert bins.labels == ["position_x"]
     assert bins.dimension == 1
@@ -619,6 +631,7 @@ def test_Bins_with_boost_histogram():
     assert np.array_equal(bins.bin_edges[0], np.array([0, 2, 4, 6, 8, 10]))
     assert np.array_equal(bins.bin_centers[0], np.array([1, 3, 5, 7, 9]))
     assert bins.is_equally_sized == (True,)
+    assert bins.boost_histogram_axes == (bh.axis.Regular(5, 0, 10),)
 
 
 def test_Bins_methods():
@@ -629,6 +642,7 @@ def test_Bins_methods():
     assert np.array_equal(bins.bin_size[0], (1, 1, 2))
     assert np.array_equal(bins.bin_edges[0], np.array([0, 1, 2, 4]))
     assert bins.is_equally_sized == (False,)
+    assert bins.boost_histogram_axes == (bh.axis.Variable([0, 1, 2, 4]),)
 
     bins = Bins(bin_edges=(0, 1, 2, 4)).equalize_bin_size()
     assert bins.dimension == 1
@@ -637,6 +651,7 @@ def test_Bins_methods():
     assert bins.bin_size == (1,)
     assert np.array_equal(bins.bin_edges[0], np.array([0, 1, 2, 3, 4]))
     assert bins.is_equally_sized == (True,)
+    assert bins.boost_histogram_axes == (bh.axis.Regular(4, 0, 4),)
 
 
 def test_histogram(locdata_blobs_2d):

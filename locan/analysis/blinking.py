@@ -75,11 +75,23 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
     off_periods_frame = frames_[mask] - off_periods
 
     indices_on = np.nonzero(mask)[0]
-    groups = np.split(differences, indices_on)
-
+    # the following paragraph corresponds to this python equivalent:
+    #
+    # groups = np.split(differences, indices_on)
     # the sum is taken to include memory > 0.
     # one is added since a single localization is considered to be on for one frame.
-    on_periods = np.array([np.sum(group[1:]) + 1 for group in groups])
+    # on_periods = np.array([np.sum(group[1:]) + 1 for group in groups])
+    if indices_on.size:
+        differences[0] = 1
+        differences[indices_on] = 1
+        cumsum = differences.cumsum()
+        first = cumsum[indices_on[0] - 1]
+        middle = cumsum[indices_on - 1][1:] - cumsum[indices_on - 1][:-1]
+        last = cumsum[-1] - cumsum[indices_on - 1][-1]
+        on_periods = np.insert(middle, 0, first)
+        on_periods = np.append(on_periods, last)
+    else:
+        on_periods = np.array([frames_[-1] + 1])
 
     # grouped indices to all localizations in each on-period
     indices = np.arange(-1, len(frames_) - 1)

@@ -3,8 +3,13 @@ from copy import deepcopy
 import numpy as np
 import pytest
 
-from locan.data.cluster.clustering import cluster_dbscan, cluster_hdbscan
-from locan.data.cluster.utils import serial_clustering
+from locan import (
+    Bins,
+    cluster_by_bin,
+    cluster_dbscan,
+    cluster_hdbscan,
+    serial_clustering,
+)
 from locan.dependencies import HAS_DEPENDENCY
 
 
@@ -199,3 +204,53 @@ def test_serial_clustering(locdata_two_cluster_with_noise_2d):
     )
     assert len(noise) == 4
     assert len(clust) == 4
+
+
+# tests cluster_by_bin
+
+
+@pytest.mark.parametrize(
+    "fixture_name, expected",
+    [
+        ("locdata_empty", (np.array([]), 0, np.array([]))),
+        ("locdata_single_localization", (np.array([[1, 1]]), 1, np.array([1]))),
+    ],
+)
+def test_cluster_by_bin_empty_locdata(
+    locdata_empty, locdata_single_localization, fixture_name, expected
+):
+    locdata = eval(fixture_name)
+    bins, bin_indices, collection, counts = cluster_by_bin(
+        locdata,
+        loc_properties=["position_x", "position_y"],
+        bin_size=2,
+        return_counts=True,
+    )
+    assert bins is None or isinstance(bins, Bins)
+    assert np.array_equal(bin_indices, expected[0])
+    assert len(bin_indices) == len(collection)
+    assert len(collection) == expected[1]
+    assert np.array_equal(counts, expected[2])
+
+
+def test_cluster_by_bin(locdata_2d):
+    bins, bin_indices, collection, counts = cluster_by_bin(
+        locdata_2d, loc_properties=["position_x", "position_y"], bin_size=5
+    )
+    assert bins.bin_size == (4, 5)
+    assert np.array_equal(bin_indices, [[1, 1], [1, 2], [2, 1]])
+    assert len(bin_indices) == len(collection)
+    assert counts is None
+
+    # test with min_samples
+    bins, bin_indices, collection, counts = cluster_by_bin(
+        locdata_2d,
+        loc_properties=["position_x", "position_y"],
+        bin_size=5,
+        min_samples=2,
+        return_counts=True,
+    )
+    assert bins.bin_size == (4, 5)
+    assert np.array_equal(bin_indices, [[1, 1]])
+    assert len(bin_indices) == len(collection)
+    assert np.array_equal(counts, [4])

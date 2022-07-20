@@ -4,6 +4,8 @@ import pytest
 
 from locan import Bins, histogram
 from locan.data.aggregate import (
+    _accumulate_1d,
+    _accumulate_2d,
     _bin_edges_to_bin_centers,
     _bin_edges_to_bin_size,
     _bin_edges_to_bin_size_one_dimension,
@@ -800,3 +802,295 @@ def test_histogram_2d_negative_values(locdata_2d_negative):
     hist = histogram(locdata_2d_negative, n_bins=10)
     assert hist.labels == ["position_x", "position_y", "counts"]
     assert hist.data.shape == (10, 10)
+
+
+def test__accumulate_1d():
+    bins = Bins(n_bins=5, bin_range=(0, 10))
+    n_bins = bins.n_bins[0] + 2  # including over- and underflow bins
+
+    # test 0 - no data
+    data = np.array([])
+    bin_indices, data_indices, collection, counts = _accumulate_1d(
+        data,
+        bin_edges=bins.bin_edges[0],
+        return_data=True,
+        return_counts=True,
+    )
+    # print(f"{bin_indices=}")
+    # print(f"{data_indices=}")
+    # print(f"{collection=}")
+    assert np.array_equal(bin_indices, [])
+    assert data_indices == collection == []
+    assert np.array_equal(counts, [])
+
+    # test 1 - single data point
+    data = np.array([9])
+    bin_indices, data_indices, collection, counts = _accumulate_1d(
+        data, bin_edges=bins.bin_edges[0], return_data=True, return_counts=True
+    )
+    assert np.array_equal(bin_indices, [5])
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(data_indices, [np.array([0])])
+        ]
+    )
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(collection, [np.array([9])])
+        ]
+    )
+    assert np.array_equal(counts, [1])
+
+    # test 2 - return_data=False
+    data = np.array([1, -1, 11, 0.1, 6, 2, 1, 2.0])
+
+    bin_indices, data_indices, collection, counts = _accumulate_1d(
+        data, bin_edges=bins.bin_edges[0]
+    )
+    assert np.array_equal(bin_indices, [0, 1, 2, 4, 6])
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(
+                data_indices,
+                [
+                    np.array([1]),
+                    np.array([0, 3, 6]),
+                    np.array([5, 7]),
+                    np.array([4]),
+                    np.array([2]),
+                ],
+            )
+        ]
+    )
+    assert collection is None
+    assert counts is None
+
+    # test 3
+    data = np.array([1, -1, 11, 0.1, 6, 2, 1, 2.0])
+
+    bin_indices, data_indices, collection, counts = _accumulate_1d(
+        data, bin_edges=bins.bin_edges[0], return_data=True, return_counts=True
+    )
+    assert np.array_equal(bin_indices, [0, 1, 2, 4, 6])
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(
+                data_indices,
+                [
+                    np.array([1]),
+                    np.array([0, 3, 6]),
+                    np.array([5, 7]),
+                    np.array([4]),
+                    np.array([2]),
+                ],
+            )
+        ]
+    )
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(
+                collection,
+                [
+                    np.array([-1]),
+                    np.array([1, 0.1, 1]),
+                    np.array([2, 2]),
+                    np.array([6]),
+                    np.array([11]),
+                ],
+            )
+        ]
+    )
+    assert np.array_equal(counts, [1, 3, 2, 1, 1])
+
+    # test 4 - large data
+    n_samples = 1_000
+    data = np.random.default_rng().normal(loc=5, scale=5, size=n_samples)
+
+    bin_indices, data_indices, collection, counts = _accumulate_1d(
+        data, bin_edges=bins.bin_edges[0], return_data=True, return_counts=True
+    )
+    assert (
+        len(bin_indices)
+        == len(data_indices)
+        == len(collection)
+        == len(counts)
+        == n_bins
+    )
+
+    # test 5 - Two dimensions
+    data = np.array(
+        [(1, 2), (-1, 5), (11, -1), (0.1, 11), (6, 5), (2, 5), (1, 2.1), (2.0, 2)]
+    )
+
+    bin_indices, data_indices, collection, counts = _accumulate_1d(
+        data, bin_edges=bins.bin_edges[0], return_data=True, return_counts=True
+    )
+    assert np.array_equal(bin_indices, [0, 1, 2, 4, 6])
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(
+                data_indices,
+                [
+                    np.array([1]),
+                    np.array([0, 3, 6]),
+                    np.array([5, 7]),
+                    np.array([4]),
+                    np.array([2]),
+                ],
+            )
+        ]
+    )
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(
+                collection,
+                [
+                    np.array([(-1, 5)]),
+                    np.array([(1, 2), (0.1, 11), (1, 2.1)]),
+                    np.array([(2, 5), (2, 2)]),
+                    np.array([(6, 5)]),
+                    np.array([(11, -1)]),
+                ],
+            )
+        ]
+    )
+    assert np.array_equal(counts, [1, 3, 2, 1, 1])
+
+
+def test__accumulate_2d():
+    bins = Bins(n_bins=5, bin_range=((0, 10), (0, 10)))
+    n_bins = bins.n_bins[0] + 2  # including over- and underflow bins
+
+    # test 0 - no data
+    data = []
+
+    bin_indices, data_indices, collection, counts = _accumulate_2d(
+        data=data, bin_edges=bins.bin_edges, return_data=True, return_counts=True
+    )
+    # print(f"{bin_indices=}")
+    # print(f"{data_indices=}")
+    # print(f"{collection=}")
+    assert np.array_equal(bin_indices, [])
+    assert data_indices == collection == []
+    assert np.array_equal(counts, [])
+
+    # test 1 - single data point
+    data = [(1, 1)]
+
+    bin_indices, data_indices, collection, counts = _accumulate_2d(
+        data=data, bin_edges=bins.bin_edges, return_data=True, return_counts=True
+    )
+    assert np.array_equal(bin_indices, [[1, 1]])
+    assert np.array_equal(data_indices, [[0]])
+    assert np.array_equal(collection, [[(1, 1)]])
+    assert np.array_equal(counts, [1])
+
+    # test 2 - return_data=False
+    data = np.array([(1, 2), (1, 5), (4, 5), (1, 2)])
+
+    bin_indices, data_indices, collection, counts = _accumulate_2d(
+        data=data, bin_edges=bins.bin_edges
+    )
+    assert np.array_equal(bin_indices, [[1, 2], [1, 3], [3, 3]])
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(data_indices, [[0, 3], [1], [2]])
+        ]
+    )
+    assert collection is None
+    assert counts is None
+
+    # test 3 - including over- underflow bins
+    data = np.array([(1, 2), (-1, 5), (-1, -1), (2, 11), (1, 5), (4, 5), (1.1, 2.1)])
+
+    bin_indices, data_indices, collection, counts = _accumulate_2d(
+        data=data, bin_edges=bins.bin_edges, return_data=True, return_counts=True
+    )
+    assert np.array_equal(bin_indices, [[0, 0], [0, 3], [1, 2], [1, 3], [2, 6], [3, 3]])
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(data_indices, [[2], [1], [0, 6], [4], [3]])
+        ]
+    )
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(
+                collection,
+                [
+                    [[-1, -1]],
+                    [[-1, 5]],
+                    [[1, 2], [1.1, 2.1]],
+                    [[1, 5]],
+                    [[2, 11]],
+                    [[4, 5]],
+                ],
+            )
+        ]
+    )
+    assert np.array_equal(counts, [1, 1, 2, 1, 1, 1])
+
+    # test 4 - large data
+    n_samples = 1_000
+    data = np.random.default_rng().normal(loc=5, scale=5, size=(n_samples, 2))
+
+    bin_indices, data_indices, collection, counts = _accumulate_2d(
+        data, bin_edges=bins.bin_edges, return_data=True, return_counts=True
+    )
+    assert (
+        len(bin_indices)
+        == len(data_indices)
+        == len(collection)
+        == len(counts)
+        == n_bins**2
+    )
+
+    # test 5 - Three dimensions
+    data = np.array(
+        [
+            (1, 2, 1),
+            (-1, 5, 1),
+            (-1, -1, 1),
+            (2, 11, 1),
+            (1, 5, 1),
+            (4, 5, 1),
+            (1.1, 2.1, 1),
+        ]
+    )
+
+    bin_indices, data_indices, collection, counts = _accumulate_2d(
+        data, bin_edges=bins.bin_edges, return_data=True, return_counts=True
+    )
+    assert np.array_equal(bin_indices, [[0, 0], [0, 3], [1, 2], [1, 3], [2, 6], [3, 3]])
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(data_indices, [[2], [1], [0, 6], [4], [3]])
+        ]
+    )
+    assert np.all(
+        [
+            np.array_equal(result, expected)
+            for result, expected in zip(
+                collection,
+                [
+                    [[-1, -1, 1]],
+                    [[-1, 5, 1]],
+                    [[1, 2, 1], [1.1, 2.1, 1]],
+                    [[1, 5, 1]],
+                    [[2, 11, 1]],
+                    [[4, 5, 1]],
+                ],
+            )
+        ]
+    )
+    assert np.array_equal(counts, [1, 1, 2, 1, 1, 1])

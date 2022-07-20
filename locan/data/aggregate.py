@@ -4,8 +4,8 @@ Aggregate localization data.
 
 This module provides functions to bin LocData objects to form a histogram or image.
 
-Specify bins through one of the parameters (`bins`, `bin_edges`, `n_bins`, `bin_size`, `bin_range`, `labels`)
-as further outlined in the documentation for :class:`Bins`.
+Specify bins through one of the parameters (`bins`, `bin_edges`, `n_bins`, `bin_size`,
+`bin_range`, `labels`) as further outlined in the documentation for :class:`Bins`.
 """
 from __future__ import annotations
 
@@ -27,7 +27,8 @@ __all__ = ["Bins", "histogram"]
 
 def is_array_like(anything) -> bool:
     """
-    Return true if `anything` can be turned into a numpy.ndarray without creating elements of type object.
+    Return true if `anything` can be turned into a numpy.ndarray without creating
+    elements of type object.
 
     Catches numpy.VisibleDeprecationWarning.
 
@@ -669,11 +670,13 @@ class _BinsFromSize:
 class Bins:
     """
     Bin definitions to be used in histogram and render functions.
-    `Bins`can be instantiated from specifications for `bins` or `bin_edges`
+    Bin edges are continuous, contiguous and monotonic.
+    Bins can be instantiated from specifications for `bins` or `bin_edges`
     or for one of `n_bins` or `bin_size` in combination with `bin_range`.
-    One and only one of (`bins`, `bin_edges`, `n_bins`, `bin_size`) must be different from None in any instantiating
-    function.
-    To pass bin specifications to other functions use an instance of `Bins` or `bin_edges`.
+    One and only one of (`bins`, `bin_edges`, `n_bins`, `bin_size`) must be different
+    from None in any instantiating function.
+    To pass bin specifications to other functions use an instance of
+    `Bins` or `bin_edges`.
 
     Parameters
     ----------
@@ -862,7 +865,8 @@ class Bins:
 
     def equalize_bin_size(self) -> Bins:
         """
-        Return a new instance of `Bins` with bin_size set equal to the first bin_size element in each dimension
+        Return a new instance of `Bins` with bin_size set equal to the
+        first bin_size element in each dimension
         and extend_range=None.
         """
         new_bin_size = []
@@ -1050,7 +1054,8 @@ def histogram(
     bin_range=None,
 ):
     """
-    Make histogram of loc_properties (columns in locdata.data) by binning all localizations
+    Make histogram of loc_properties (columns in locdata.data)
+    by binning all localizations
     or averaging other_property within each bin.
 
     Parameters
@@ -1101,13 +1106,15 @@ def histogram(
     if other_property is None:
         # histogram data by counting points
         if data.shape[0] == 2:
-            # we are using fast-histogram for 2D since it is even faster than boost_histogram
+            # we are using fast-histogram for 2D since it is even faster
+            # than boost_histogram
             img = _histogram_fast_histogram(data, bins)
         elif data.shape[0] == 1 or data.shape[0] == 3:
             img = _histogram_boost_histogram(data, bins)
         else:
             raise TypeError(
-                "loc_properties must contain a string or a list with 1, 2 or 3 elements."
+                "loc_properties must contain a string or a list with 1, 2 or 3 "
+                "elements."
             )
         labels_.append("counts")
 
@@ -1123,8 +1130,142 @@ def histogram(
         labels_.append(other_property)
     else:
         raise TypeError(
-            f"Parameter for `other_property` {other_property} is not a valid property name."
+            f"Parameter for `other_property` {other_property} is not a valid property "
+            f"name."
         )
 
     Histogram = namedtuple("Histogram", "data bins labels")
     return Histogram(img, bins, labels_)
+
+
+def _accumulate_1d(
+    data: np.ndarray,
+    bin_edges: np.ndarray,
+    return_data: bool = False,
+    return_counts: bool = False,
+) -> tuple[np.ndarray, list, list | None, np.ndarray | None]:
+    """
+    Bin data and collect data elements contained in each bin.
+    The returned `bin_indices` refer to the given bins including index[0] for underflow
+    data and index[n_bins] for overflow data.
+
+    Parameters
+    ----------
+    data
+        Data array of shape (n_points,) or (n_points, dimensions)
+        All points are binned with regard to the first dimension.
+    bin_edges
+        Array of bin edges for corresponding dimension.
+    return_data
+        If true, grouped data elements are returned.
+    return_counts
+        If true, counts (number of elements per bin) are returned.
+
+    Note
+    ----
+    Even though the returned data groups are sorted according to the bins,
+    the data within groups is not sorted.
+
+    Returns
+    -------
+    tuple[numpy.ndarray, list, list | None, numpy.ndarray | None]
+        bin_indices, data_indices, collection, counts.
+    """
+    data_ = np.array(data)
+    if data_.ndim > 1:
+        data_ = data_[:, 0]
+    # identify bins indices
+    bin_identifier = np.digitize(data_, bins=bin_edges)
+    # bin_identifier 0 and n_bins represent out of bounds data
+
+    # sort data
+    sorted_indices = np.argsort(bin_identifier)
+
+    # group data
+    bin_indices, n_elements = np.unique(bin_identifier, return_counts=True)
+    # bin_indices (like bin_identifier) 0 and n_bins represent out of bounds data
+
+    cumsum = np.cumsum(n_elements)
+    start_indices = np.insert(cumsum[:-1], 0, 0)
+    stop_indices = cumsum
+    data_indices = [
+        sorted_indices[start:stop] for start, stop in zip(start_indices, stop_indices)
+    ]
+
+    collection = [data[indices_] for indices_ in data_indices] if return_data else None
+    counts = n_elements if return_counts else None
+
+    return bin_indices, data_indices, collection, counts
+
+
+def _accumulate_2d(
+    data: np.ndarray,
+    bin_edges: tuple[np.ndarray],
+    return_data: bool = False,
+    return_counts: bool = False,
+) -> tuple[np.ndarray, list, list | None, np.ndarray | None]:
+    """
+    Bin data and collect data elements contained in each bin.
+    All points are binned with regard to the first and second dimension.
+    The returned `bin_indices` refer to the given bins
+    including index[0] for underflow data
+    and index[n_bins] for overflow data.
+
+    Parameters
+    ----------
+    data
+        Data array of shape (n_points, dimensions)
+    bin_edges
+        Array of bin edges for corresponding dimensions.
+    return_data
+        If true, grouped data elements are returned.
+    return_counts
+        If true, counts (number of elements per bin) are returned.
+
+    Returns
+    -------
+    tuple[numpy.ndarray, list, list | None, numpy.ndarray | None]
+        bin_indices, data_indices, collection, counts.
+    """
+    data_ = np.array(data)
+    if data_.size == 0:
+        bin_indices = np.array([])
+        data_indices = []
+        collection = [] if return_data else None
+        counts = np.array([]) if return_counts else None
+        return bin_indices, data_indices, collection, counts
+
+    # accumulate first dimension
+    bin_indices_first_dim, data_indices_first_dim, _, _ = _accumulate_1d(
+        data=data_[:, 0], bin_edges=bin_edges[0]
+    )
+
+    # traverse groups
+    bin_indices = []
+    data_indices = []
+    counts = []
+    for bin_index_first_dim_, data_indices_first_dim_ in zip(
+        bin_indices_first_dim, data_indices_first_dim
+    ):
+        grouped_data_ = data_[:, 1][data_indices_first_dim_]
+        bin_indices_group, data_indices_group, _, counts_group = _accumulate_1d(
+            data=grouped_data_, bin_edges=bin_edges[1], return_counts=return_counts
+        )
+
+        # form multi-dimensional bin_indices
+        first = np.repeat(bin_index_first_dim_, len(bin_indices_group))
+        new_bin_indices = np.vstack([first, bin_indices_group]).T
+        bin_indices.append(new_bin_indices)
+        counts.append(counts_group)
+
+        # form multi-dimensional data_indices
+        new_data_indices = [
+            data_indices_first_dim_[idxs] for idxs in data_indices_group
+        ]
+        data_indices.extend(new_data_indices)
+
+    bin_indices = np.concatenate(bin_indices)
+    counts = np.concatenate(counts) if return_counts else None
+    collection = [data_[idxs] for idxs in data_indices] if return_data else None
+
+    return bin_indices, data_indices, collection, counts

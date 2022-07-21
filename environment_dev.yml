@@ -16,6 +16,7 @@ dependencies:
 # Python tests
 - pytest
 - coverage
+- asv
 
 # Development
 - build
@@ -23,6 +24,7 @@ dependencies:
 - black
 - isort
 - pre-commit
+- flake8
 
 # Documentation
 - sphinx

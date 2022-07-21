@@ -8,4 +8,6 @@ twine
 black
 isort
 pre-commit
+flake8
+asv
 -r docs/requirements

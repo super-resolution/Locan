@@ -1,0 +1,28 @@
+{
+    "version": 1,
+    "project": "locan",
+    "project_url": "https://github.com/super-resolution/Locan",
+    "repo": "..",
+    "repo_subdir": "",
+
+    "branches": ["main"],
+    "dvcs": "git",
+
+	"build_command": ["python -V"],  // skip build stage
+    "install_command": ["in-dir={env_dir} python -m pip install {build_dir}[napari]"],
+    "uninstall_command": ["return-code=any python -m pip uninstall -y {project}"],
+
+    "environment_type": "conda",
+    "install_timeout": 600,
+    "show_commit_url": "https://github.com/super-resolution/Locan/commit/",
+    // "pythons": ["3.9, 3.10"],
+    "conda_channels": ["conda-forge", "defaults"],
+    // "conda_environment_file": "environment.yml",
+
+    "benchmark_dir": "benchmarks",
+    "env_dir": ".asv/env",
+    "results_dir": ".asv/results",
+    "html_dir": ".asv/html",
+    "hash_length": 8,
+    "build_cache_size": 2
+}

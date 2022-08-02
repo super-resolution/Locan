@@ -14,9 +14,11 @@ yaml file, for loading them, and for returning LocData with
 localizations selected to be within the roi region.
 """
 import logging
+import re
 import sys
 import warnings
 from ast import literal_eval
+from inspect import isabstract
 from itertools import product
 from pathlib import Path
 
@@ -32,6 +34,7 @@ from locan.data import metadata_pb2, region
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 from locan.data.region import Region, RoiRegion
+from locan.utils.miscellaneous import _get_subclasses
 
 __all__ = ["Roi", "rasterize"]
 
@@ -317,8 +320,20 @@ class Roi:
         else:
             reference_ = yaml_output["reference"]
 
-        func, _, remainder = yaml_output["region"].partition("(")
-        region_ = getattr(region, func)(*literal_eval(remainder[:-1]))
+        region_names = [
+            cls.__name__ for cls in _get_subclasses(Region) if not isabstract(cls)
+        ]
+        pattern = "|".join(region_names)
+        match = re.match(pattern=pattern, string=yaml_output["region"])
+        if match:
+            cls_name = match.group()
+            remainder = match.string[match.end() :]
+            parameters = literal_eval(remainder)
+            if isinstance(parameters, tuple):
+                region_ = getattr(region, cls_name)(*parameters)
+            else:
+                region_ = getattr(region, cls_name)(parameters)
+
         loc_properties_ = yaml_output["loc_properties"]
 
         return cls(reference=reference_, region=region_, loc_properties=loc_properties_)

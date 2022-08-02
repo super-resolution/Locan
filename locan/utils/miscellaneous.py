@@ -27,3 +27,16 @@ def iterate_2d_array(n_elements=5, n_cols=2) -> Generator[tuple[int, int]]:
     n_rows = -(-n_elements // n_cols)
     iterator = ((i, j) for i in range(n_rows) for j in range(n_cols))
     return (item for item, _ in zip(iterator, range(n_elements)))
+
+
+def _get_subclasses(cls) -> set:
+    """
+    Recursively identify all classes that inherit from `cls`.
+
+    Returns
+    -------
+    set
+    """
+    return set(cls.__subclasses__()).union(
+        [s for c in cls.__subclasses__() for s in _get_subclasses(c)]
+    )

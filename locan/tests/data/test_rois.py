@@ -102,6 +102,14 @@ def test_Roi_io(locdata_2d):
         assert isinstance(roi_new.region, Ellipse)
         assert roi_new.loc_properties == []
 
+        roi = Roi(region=Polygon(((0, 0), (0, 1), (1, 0.5), (0.8, 0.2))))
+        roi.to_yaml(path=file_path)
+
+        roi_new = Roi.from_yaml(path=file_path)
+        assert roi_new.reference is None
+        assert isinstance(roi_new.region, Polygon)
+        assert roi_new.loc_properties == []
+
         roi = Roi(
             reference=dict(
                 file_path=ROOT_DIR / "tests/test_data/five_blobs.txt", file_type=1

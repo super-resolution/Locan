@@ -9,6 +9,8 @@ from locan import ROOT_DIR
 from locan.dependencies import HAS_DEPENDENCY
 from locan.gui.io import file_dialog
 
+pytestmark = pytest.mark.qt
+
 
 def test_file_dialog_no_qt():
     if not HAS_DEPENDENCY["qt"]:
@@ -19,7 +21,9 @@ def test_file_dialog_no_qt():
 @pytest.mark.gui
 @pytest.mark.skipif(not HAS_DEPENDENCY["qt"], reason="requires qt_binding.")
 def test_file_dialog():
-    result = file_dialog(directory=ROOT_DIR, message="Select single file")
+    file_path = ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_data.txt"
+    result = file_dialog(directory=file_path, message="Select single file")
     # result = file_dialog()
     # print(result)
     assert len(result) == 1
+    assert result == str(file_path)

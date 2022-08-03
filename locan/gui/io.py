@@ -39,9 +39,6 @@ def file_dialog(
     list of str
         list with file names or empty list
     """
-    if QT_BINDING == QtBindings.NONE:
-        raise ImportError("Function requires either PySide2 or PyQt5.")
-
     if directory is None:
         directory_ = "./"
     else:

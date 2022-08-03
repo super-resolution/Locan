@@ -17,7 +17,10 @@ if HAS_DEPENDENCY["napari"]:
     import napari
 
 
-pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="requires napari")
+pytestmark = [
+    pytest.mark.qt,
+    pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="requires napari"),
+]
 
 HAS_NAPARI_AND_PYTESTQT = HAS_DEPENDENCY["napari"] and HAS_DEPENDENCY["pytestqt"]
 # pytestqt is not a requested or extra dependency.

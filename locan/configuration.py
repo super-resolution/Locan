@@ -63,13 +63,16 @@ TQDM_LEAVE: bool = True
 #: Flag to disable all tqdm progress bars.
 TQDM_DISABLE: bool = False
 
-#: Default colormap for continuous scales. Default is `colorcet.m_fire` if installed or 'viridis'.
+#: Default colormap for continuous scales. Default is `colorcet.m_fire`
+#: if installed or 'viridis'.
 COLORMAP_CONTINUOUS: mcolors.Colormap | str = "viridis"
 
-#: Default colormap for diverging scales. Default is `colorcet.m_coolwarm` if installed or 'coolwarm'.
+#: Default colormap for diverging scales. Default is
+#: `colorcet.m_coolwarm` if installed or 'coolwarm'.
 COLORMAP_DIVERGING: mcolors.Colormap | str = "coolwarm"
 
-#: Default colormap for categorical scales. Default is `colorcet.m_glasbey_dark` if installed or 'tab20'.
+#: Default colormap for categorical scales. Default is
+#: `colorcet.m_glasbey_dark` if installed or 'tab20'.
 COLORMAP_CATEGORICAL: mcolors.Colormap | str = "tab20"
 
 if HAS_DEPENDENCY["colorcet"]:
@@ -77,7 +80,8 @@ if HAS_DEPENDENCY["colorcet"]:
     COLORMAP_DIVERGING = m_coolwarm
     COLORMAP_CATEGORICAL = m_glasbey_dark
 
-# Preferred QT binding. At this point this variable cannot be set at runtime.
+# Preferred QT binding. At this point this variable cannot be set at
+# runtime.
 QT_BINDING: QtBindings | str = ""
 
 # Initialize pyqt

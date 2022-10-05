@@ -830,6 +830,7 @@ class LocData:
         self._oriented_bounding_box = None
         self._convex_hull = None
         self._alpha_shape = None
+        self._inertia_moments = None
 
         self._update_properties()
 

@@ -6,8 +6,9 @@ import pytest
 
 import locan.constants
 from locan import bunwarp, render_2d_mpl, render_2d_rgb_mpl
+from locan.data.cluster import cluster_dbscan
 from locan.data.region import Polygon
-from locan.data.transform import randomize, transform_affine
+from locan.data.transform import overlay, randomize, transform_affine
 from locan.data.transform.bunwarpj import _read_matrix, _unwarp
 from locan.data.transform.transformation import _homogeneous_matrix
 from locan.dependencies import HAS_DEPENDENCY
@@ -324,3 +325,68 @@ def test_transformation_affine_3d_open3d(locdata_3d):
     )
     assert np.array_equal(new_locdata.coordinates, points_target)
     assert len(new_locdata.data.columns) == 5
+
+
+def test_overlay(locdata_two_cluster_2d):
+    _, clust = cluster_dbscan(locdata_two_cluster_2d, eps=2, min_samples=1)
+    new_locdata = overlay(clust.references)
+    assert new_locdata.meta.history[0].name == "overlay"
+    assert len(new_locdata) == 2
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=0.1)
+
+    # various translations
+    new_locdata = overlay(clust.references, centers=None)
+    assert len(new_locdata) == 2
+    assert np.array_equal(new_locdata.coordinates, clust.coordinates)
+
+    centers = [ref.centroid for ref in clust.references]
+    new_locdata = overlay(clust.references, centers=centers)
+    assert len(new_locdata) == 2
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=0.1)
+
+    new_locdata = overlay(clust.references, centers="bb")
+    assert len(new_locdata) == 2
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=0.1)
+
+    new_locdata = overlay(clust.references, centers="obb")
+    assert len(new_locdata) == 2
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=0.1)
+
+    new_locdata = overlay(clust.references, centers="ch")
+    assert len(new_locdata) == 2
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=0.1)
+
+    for reference in clust.references:
+        reference.region = reference.bounding_box.region
+    new_locdata = overlay(clust.references, centers="region")
+    assert len(new_locdata) == 2
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=0.1)
+
+    with pytest.raises(ValueError):
+        overlay(clust.references, centers="undefined")
+    with pytest.raises(ValueError):
+        overlay(clust.references, centers=[(1, 1)])
+
+    # various rotations
+    orientations = [ref.oriented_bounding_box.angle for ref in clust.references]
+    new_locdata = overlay(clust.references, orientations=orientations)
+    assert len(new_locdata) == 2
+    assert 0 == pytest.approx(new_locdata.coordinates)
+
+    new_locdata = overlay(clust.references, orientations="orientation_obb")
+    assert len(new_locdata) == 2
+    assert 0 == pytest.approx(new_locdata.coordinates)
+
+    new_locdata = overlay(clust.references, orientations="orientation_im")
+    assert len(new_locdata) == 2
+    assert 0 == pytest.approx(new_locdata.coordinates)
+
+    with pytest.raises(ValueError):
+        overlay(clust.references, orientations="undefined")
+    with pytest.raises(ValueError):
+        overlay(clust.references, orientations=[(180,)])
+
+    with pytest.raises(TypeError):
+        overlay([])
+    with pytest.raises(TypeError):
+        overlay(clust)

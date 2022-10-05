@@ -2,7 +2,8 @@
 
 Transform localization data.
 
-This module takes localization data and applies transformation procedures on coordinates or other properties.
+This module takes localization data and applies transformation procedures on
+coordinates or other properties.
 
 """
 import sys
@@ -20,22 +21,23 @@ if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
 
 
-__all__ = ["transform_affine", "randomize"]
+__all__ = ["transform_affine", "randomize", "overlay"]
 
 
 def _transform_affine_numpy(points, matrix=None, offset=None, pre_translation=None):
     """
-    Transform `points` by an affine transformation using standard numpy procedures.
+    Transform `points` by an affine transformation using standard numpy
+    procedures.
 
     Parameters
     ----------
     points : array-like
         Points on which to perform the manipulation.
-    matrix : tuple with shape (d, d)
+    matrix : tuple with shape (d, d) | None
         Transformation matrix. If None the unit matrix is used.
-    offset : tuple of int or float with shape (d,)
+    offset : tuple of int or float with shape (d,) | None
         Translation vector. If None a vector of zeros is used.
-    pre_translation : tuple of int or float
+    pre_translation : tuple of int or float | None
         Translation vector for coordinates applied before affine transformation.
         The reverse translation is applied after the affine transformation.
 
@@ -51,12 +53,16 @@ def _transform_affine_numpy(points, matrix=None, offset=None, pre_translation=No
     offset_ = np.zeros(dimension) if offset is None else offset
 
     if pre_translation is None:
-        # transformed_points = np.array([np.dot(matrix_, point) + offset_ for point in points_])
+        # transformed_points = np.array(
+        # [np.dot(matrix_, point) + offset_ for point in points_]
+        # )
         # same function but better performance:
         transformed_points = np.einsum("ij, nj -> ni", matrix_, points) + offset_
     else:
         transformed_points = points_ + pre_translation
-        # transformed_points = np.array([np.dot(matrix_, point) + offset_ for point in transformed_points])
+        # transformed_points = np.array(
+        # [np.dot(matrix_, point) + offset_ for point in transformed_points]
+        # )
         transformed_points = (
             np.einsum("ij, nj -> ni", matrix_, transformed_points) + offset_
         )
@@ -67,7 +73,8 @@ def _transform_affine_numpy(points, matrix=None, offset=None, pre_translation=No
 
 def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)):
     """
-    Combine transformation matrix and translation vector for dimension d into homogeneous (d+1, d+1) transformation
+    Combine transformation matrix and translation vector for dimension d into
+    homogeneous (d+1, d+1) transformation
     matrix to be used with homogeneous coordinates.
 
     Parameters
@@ -80,7 +87,8 @@ def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)):
     Returns
     -------
     numpy.ndarray with shape (d+1, d+1)
-        Homogeneous transformation matrix to be used with homogeneous coordinate vector.
+        Homogeneous transformation matrix to be used with homogeneous
+        coordinate vector.
     """
     dimension = np.shape(matrix)[0]
 
@@ -106,11 +114,11 @@ def _transform_affine_open3d(points, matrix=None, offset=None, pre_translation=N
     ----------
     points : array-like
         Points on which to perform the manipulation.
-    matrix : tuple with shape (d, d)
+    matrix : tuple with shape (d, d) | None
         Transformation matrix. If None the unit matrix is used.
-    offset : tuple of int or float with shape (d,)
+    offset : tuple of int or float with shape (d,) | None
         Translation vector. If None a vector of zeros is used.
-    pre_translation : tuple of int or float
+    pre_translation : tuple of int or float | None
         Translation vector for coordinates applied before affine transformation.
         The reverse translation is applied after the affine transformation.
 
@@ -175,15 +183,16 @@ def transform_affine(
     ----------
     locdata : numpy.ndarray or LocData
         Localization data on which to perform the manipulation.
-    matrix :
+    matrix : tuple with shape (d, d) | None
         Transformation matrix. If None the unit matrix is used.
-    offset : tuple of int or float
+    offset : tuple of int or float with shape (d,) | None
         Values for translation. If None a vector of zeros is used.
-    pre_translation : tuple of int or float
+    pre_translation : tuple of int or float | None
         Translation vector for coordinates applied before affine transformation.
         The reverse translation is applied after the affine transformation.
     method : string
-        The method (i.e. library or algorithm) used for computation. One of 'numpy', 'open3d'.
+        The method (i.e. library or algorithm) used for computation.
+        One of 'numpy', 'open3d'.
 
     Returns
     -------
@@ -243,15 +252,16 @@ def transform_affine(
 
 def randomize(locdata, hull_region="bb", seed=None):
     """
-    Transform locdata coordinates into randomized coordinates that follow complete spatial randomness on the same
-    region as the input locdata.
+    Transform locdata coordinates into randomized coordinates that follow
+    complete spatial randomness on the same region as the input locdata.
 
     Parameters
     ----------
     locdata : LocData
         Localization data to be randomized
     hull_region : Region, str
-        Region of interest. String identifier can be one of 'bb', 'ch', 'as', 'obb' referring to the corresponding hull.
+        Region of interest. String identifier can be one of 'bb', 'ch', 'as',
+        'obb' referring to the corresponding hull.
     seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
@@ -288,5 +298,139 @@ def randomize(locdata, hull_region="bb", seed=None):
         meta=None,
     )
     new_locdata.meta = meta_
+
+    return new_locdata
+
+
+def overlay(locdatas, centers="centroid", orientations=None):
+    """
+    Transform locdatas to their common center and rotate according to their
+    orientation.
+
+    Parameters:
+    -----------
+    locdatas : list[LocData]
+        Localization data to overlay.
+    centers : array-like | str | None
+        centers to which locdatas are translated.
+        Must have the same length as locdatas.
+        One of `centroid`, `ch`, 'bb', 'obb', or 'region'.
+    orientations : array-like | str | None
+        Orientation value to use in degree. One of `orientation_im`, `orientation_obb`
+        or None.
+
+    Returns:
+    --------
+    LocData
+        Collection with transformed locdatas.
+
+    References
+    ----------
+    .. [1] Broeken J, Johnson H, Lidke DS, et al.
+    "Resolution improvement by 3 D particle averaging in localization microscopy"
+    Methods and applications in fluorescence, 3(1):014003, 2015,
+    doi:10.1088/2050-6120/3/1/014003.
+    """
+    local_parameter = locals()
+
+    if not locdatas or not isinstance(locdatas, (tuple, list)):
+        raise TypeError("locdatas must be a list of LocData objects.")
+
+    dimensions = {locdata.dimension for locdata in locdatas}
+    if len(dimensions) == 1:
+        dimension = dimensions.pop()
+    else:
+        raise ValueError(
+            "Some elements of `locdatas` have a different dimension. "
+            "All locdatas must have the same dimension."
+        )
+
+    if centers is None or isinstance(centers, str):
+        centers = [centers] * len(locdatas)
+    else:
+        if len(centers) != len(locdatas):
+            raise ValueError("Centers must have the same length as locdatas.")
+
+    if orientations is None or isinstance(orientations, str):
+        orientations = [orientations] * len(locdatas)
+    else:
+        if len(orientations) != len(locdatas):
+            raise ValueError("orientations must have the same length as locdatas.")
+
+    transformed_locdatas = []
+    for locdata, centre, orientation in zip(locdatas, centers, orientations):
+        # translation
+        if centre is None:
+            transformed_locdata = locdata
+        elif not isinstance(centre, str):
+            transformed_locdata = transform_affine(
+                locdata, matrix=None, offset=np.multiply(centre, -1)
+            )
+        elif centre == "centroid":
+            transformed_locdata = transform_affine(
+                locdata, matrix=None, offset=np.multiply(locdata.centroid, -1)
+            )
+        elif centre == "bb":
+            transformed_locdata = transform_affine(
+                locdata,
+                matrix=None,
+                offset=np.multiply(locdata.bounding_box.region.centroid, -1),
+            )
+        elif centre == "obb":
+            transformed_locdata = transform_affine(
+                locdata,
+                matrix=None,
+                offset=np.multiply(locdata.oriented_bounding_box.region.centroid, -1),
+            )
+        elif centre == "ch":
+            transformed_locdata = transform_affine(
+                locdata,
+                matrix=None,
+                offset=np.multiply(locdata.convex_hull.region.centroid, -1),
+            )
+        elif centre == "region":
+            transformed_locdata = transform_affine(
+                locdata, matrix=None, offset=np.multiply(locdata.region.centroid, -1)
+            )
+        else:
+            raise ValueError(f"Value for centre={centre} is not defined.")
+
+        # prepare rotation
+        if orientation is None:
+            matrix = np.identity(dimension)
+        elif not isinstance(orientation, str):
+            theta = -np.radians(orientation)
+            cos_, sin_ = np.cos(theta), np.sin(theta)
+            matrix = np.array(((cos_, -sin_), (sin_, cos_)))
+        else:
+            if dimension != 2:
+                raise NotImplementedError(
+                    "Rotation has only been implemented for 2 dimensions."
+                )
+            if orientation == "orientation_obb":
+                locdata.oriented_bounding_box
+            elif orientation == "orientation_im":
+                locdata.inertia_moments
+            else:
+                raise ValueError(f"orientation={orientation} is undefined.")
+
+            theta = -np.radians(locdata.properties[orientation])
+            cos_, sin_ = np.cos(theta), np.sin(theta)
+            matrix = np.array(((cos_, -sin_), (sin_, cos_)))
+
+        # rotation
+        transformed_locdata = transform_affine(
+            transformed_locdata, matrix=matrix, offset=None
+        )
+
+        transformed_locdatas.append(transformed_locdata)
+
+    new_locdata = LocData.from_collection(transformed_locdatas)
+
+    # update metadata
+    del new_locdata.meta.history[:]
+    new_locdata.meta.history.add(
+        name=sys._getframe().f_code.co_name, parameter=str(local_parameter)
+    )
 
     return new_locdata

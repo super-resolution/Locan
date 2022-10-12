@@ -25,6 +25,7 @@ import numpy as np
 from locan.data.locdata import LocData  # noqa: F401
 from locan.data.locdata_utils import _check_loc_properties
 from locan.data.properties.locdata_statistics import ranges
+from locan.data.validation import _check_loc_properties
 
 __all__ = ["Bins", "histogram"]
 
@@ -1042,7 +1043,7 @@ def _histogram_mean_boost_histogram(data, bins, values) -> np.ndarray:
 
 
 def histogram(
-    locdata,
+    locdata: LocData,
     loc_properties=None,
     other_property=None,
     bins=None,

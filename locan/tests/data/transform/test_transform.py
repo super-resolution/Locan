@@ -5,10 +5,17 @@ import numpy as np
 import pytest
 
 import locan.constants
-from locan import bunwarp, render_2d_mpl, render_2d_rgb_mpl
+from locan import (
+    bunwarp,
+    overlay,
+    randomize,
+    render_2d_mpl,
+    render_2d_rgb_mpl,
+    standardize,
+    transform_affine,
+)
 from locan.data.cluster import cluster_dbscan
 from locan.data.region import Polygon
-from locan.data.transform import overlay, randomize, transform_affine
 from locan.data.transform.bunwarpj import _read_matrix, _unwarp
 from locan.data.transform.spatial_transformation import _homogeneous_matrix
 from locan.dependencies import HAS_DEPENDENCY
@@ -325,6 +332,24 @@ def test_transformation_affine_3d_open3d(locdata_3d):
     )
     assert np.array_equal(new_locdata.coordinates, points_target)
     assert len(new_locdata.data.columns) == 5
+
+
+def test_standardize(locdata_2d):
+    locdata_standardized = standardize(locdata_2d)
+    assert locdata_standardized.coordinates.mean() == pytest.approx(0)
+    assert locdata_standardized.coordinates.var(ddof=0) == pytest.approx(1)
+
+    locdata_standardized = standardize(locdata_2d, with_std=False)
+    assert locdata_standardized.coordinates.mean() == pytest.approx(0)
+    assert locdata_standardized.coordinates.var() != pytest.approx(
+        locdata_2d.coordinates.var(ddof=0)
+    )
+
+    locdata_standardized = standardize(
+        locdata_2d, loc_properties=["intensity"], with_mean=True
+    )
+    assert locdata_standardized.data.intensity.mean() == pytest.approx(0)
+    assert locdata_standardized.data.intensity.var(ddof=0) == pytest.approx(1)
 
 
 def test_overlay(locdata_two_cluster_2d):

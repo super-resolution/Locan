@@ -17,6 +17,7 @@ import pandas as pd
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 from locan.data.region import Region
+from locan.data.validation import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY
 from locan.simulation import simulate_uniform
 
@@ -24,7 +25,7 @@ if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
 
 
-__all__ = ["transform_affine", "randomize", "overlay"]
+__all__ = ["transform_affine", "randomize", "standardize", "overlay"]
 
 logger = logging.getLogger(__name__)
 
@@ -316,6 +317,68 @@ def randomize(locdata, hull_region="bb", seed=None):
         raise NotImplementedError
 
     new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
+
+    # update metadata
+    meta_ = _modify_meta(
+        locdata,
+        new_locdata,
+        function_name=sys._getframe().f_code.co_name,
+        parameter=local_parameter,
+        meta=None,
+    )
+    new_locdata.meta = meta_
+
+    return new_locdata
+
+
+def standardize(locdata, loc_properties=None, with_mean=True, with_std=True):
+    """
+    Transform locdata properties by centering to the mean
+    and property-wise scaling to unit standard deviation (variance).
+
+    Notes
+    -----
+    This function makes use of :func:sklearn.preprocessing.scale
+    and thus works with a biased estimator for the standard deviation.
+
+    Parameters
+    ----------
+    locdata : LocData
+        Localization data to be standardized.
+    loc_properties : list[str] | None
+        Localization properties to be standardized.
+        If None The coordinate_values of locdata are used.
+    with_mean : bool
+        If True center to the mean.
+    with_std: bool
+        If True scale to unit standard deviation (variance).
+
+    Returns
+    -------
+    locdata : LocData
+        New localization data with standardized properties.
+    """
+    local_parameter = locals()
+
+    if len(locdata) == 0:
+        return locdata
+
+    labels_ = _check_loc_properties(locdata, loc_properties)
+    data = locdata.data[labels_].values
+
+    from sklearn.preprocessing import scale
+
+    transformed_data = scale(data, with_mean=with_mean, with_std=with_std)
+
+    new_dataframe = locdata.data.copy()
+    new_dataframe.update(
+        pd.DataFrame(
+            transformed_data,
+            columns=labels_,
+            index=locdata.data.index,
+        )
+    )
+    new_locdata = LocData.from_dataframe(new_dataframe)
 
     # update metadata
     meta_ = _modify_meta(

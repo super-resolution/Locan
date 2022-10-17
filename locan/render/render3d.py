@@ -103,14 +103,14 @@ def render_3d_napari(
         return viewer
 
     hist = histogram(
-        locdata,
-        loc_properties,
-        other_property,
-        bins,
-        n_bins,
-        bin_size,
-        bin_edges,
-        bin_range,
+        locdata=locdata,
+        loc_properties=loc_properties,
+        other_property=other_property,
+        bins=bins,
+        n_bins=n_bins,
+        bin_size=bin_size,
+        bin_edges=bin_edges,
+        bin_range=bin_range,
     )
 
     viewer.add_image(hist.data, name=f"LocData {locdata_id}", colormap=cmap, **kwargs)
@@ -261,14 +261,14 @@ def render_3d_rgb_napari(
 
     if bin_edges is None:
         _, bins, labels = histogram(
-            locdata_temp,
-            loc_properties,
-            other_property,
-            bins,
-            n_bins,
-            bin_size,
-            bin_edges,
-            bin_range,
+            locdata=locdata_temp,
+            loc_properties=loc_properties,
+            other_property=other_property,
+            bins=bins,
+            n_bins=n_bins,
+            bin_size=bin_size,
+            bin_edges=bin_edges,
+            bin_range=bin_range,
         )
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
@@ -276,7 +276,10 @@ def render_3d_rgb_napari(
 
     imgs = [
         histogram(
-            locdata, loc_properties, other_property, bin_edges=bins.bin_edges
+            locdata=locdata,
+            loc_properties=loc_properties,
+            other_property=other_property,
+            bin_edges=bins.bin_edges,
         ).data
         for locdata in locdatas
     ]

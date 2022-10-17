@@ -125,14 +125,14 @@ def render_2d_mpl(
         return ax
 
     data, bins, labels = histogram(
-        locdata,
-        loc_properties,
-        other_property,
-        bins,
-        n_bins,
-        bin_size,
-        bin_edges,
-        bin_range,
+        locdata=locdata,
+        loc_properties=loc_properties,
+        other_property=other_property,
+        bins=bins,
+        n_bins=n_bins,
+        bin_size=bin_size,
+        bin_edges=bin_edges,
+        bin_range=bin_range,
     )
     data = adjust_contrast(data, rescale)
 
@@ -368,14 +368,14 @@ def render_2d_napari(
         return viewer
 
     data, bins, labels = histogram(
-        locdata,
-        loc_properties,
-        other_property,
-        bins,
-        n_bins,
-        bin_size,
-        bin_edges,
-        bin_range,
+        locdata=locdata,
+        loc_properties=loc_properties,
+        other_property=other_property,
+        bins=bins,
+        n_bins=n_bins,
+        bin_size=bin_size,
+        bin_edges=bin_edges,
+        bin_range=bin_range,
     )
     data = adjust_contrast(data, rescale)
 
@@ -639,14 +639,14 @@ def render_2d_rgb_mpl(
 
     if bin_edges is None:
         _, bins, labels = histogram(
-            locdata_temp,
-            loc_properties,
-            other_property,
-            bins,
-            n_bins,
-            bin_size,
-            bin_edges,
-            bin_range,
+            locdata=locdata_temp,
+            loc_properties=loc_properties,
+            other_property=other_property,
+            bins=bins,
+            n_bins=n_bins,
+            bin_size=bin_size,
+            bin_edges=bin_edges,
+            bin_range=bin_range,
         )
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
@@ -774,22 +774,26 @@ def render_2d_rgb_napari(
 
     if bin_edges is None:
         _, bins, labels = histogram(
-            locdata_temp,
-            loc_properties,
-            other_property,
-            bins,
-            n_bins,
-            bin_size,
-            bin_edges,
-            bin_range,
+            locdata=locdata_temp,
+            loc_properties=loc_properties,
+            other_property=other_property,
+            bins=bins,
+            n_bins=n_bins,
+            bin_size=bin_size,
+            bin_edges=bin_edges,
+            bin_range=bin_range,
         )
+
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
         bins = Bins(bin_edges=bin_edges, labels=labels)
 
     imgs = [
         histogram(
-            locdata, loc_properties, other_property, bin_edges=bins.bin_edges
+            locdata=locdata,
+            loc_properties=loc_properties,
+            other_property=other_property,
+            bin_edges=bins.bin_edges,
         ).data
         for locdata in locdatas
     ]

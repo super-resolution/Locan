@@ -15,6 +15,7 @@ from lmfit import Model, Parameters
 from locan.analysis.analysis_base import _Analysis
 from locan.configuration import COLORMAP_DIVERGING
 from locan.render.render2d import histogram
+from locan.render.transform import adjust_contrast
 
 __all__ = ["LocalizationProperty2d"]
 
@@ -118,15 +119,22 @@ def _localization_property2d(
     rescale=None,
 ):
     # bin localization data
-    img, bins_, label = histogram(
-        locdata, loc_properties, other_property, bins, bin_size, bin_range, rescale
+    img, bins, label = histogram(
+        locdata=locdata,
+        loc_properties=loc_properties,
+        other_property=other_property,
+        bins=bins,
+        n_bins=n_bins,
+        bin_size=bin_size,
+        bin_edges=bin_edges,
+        bin_range=bin_range,
     )
+    img = adjust_contrast(img, rescale)
 
     # prepare one-dimensional data
-    xx, yy = np.meshgrid(bins_.bin_edges[0][1:], bins_.bin_edges[1][1:])
+    xx, yy = np.meshgrid(bins.bin_edges[0][1:], bins.bin_edges[1][1:])
 
     # eliminate image zeros
-    # positions = np.nonzero(img)
     positions = np.nonzero(~np.isnan(img))
 
     data_0 = xx[positions].flatten()
@@ -135,10 +143,10 @@ def _localization_property2d(
 
     data = np.stack((data_0, data_1, data_2))
 
-    model_result = _fit_image(data, np.array(bins_.bin_range))
+    model_result = _fit_image(data, np.array(bins.bin_range))
 
     Results = namedtuple("Results", "image bins label model_result")
-    results = Results(img, bins_, label, model_result)
+    results = Results(img, bins, label, model_result)
     return results
 
 
@@ -382,7 +390,7 @@ class LocalizationProperty2d(_Analysis):
             return ax
 
         positions = np.nonzero(self.results.image)
-        mean_value = self.results.image[positions].mean()
+        mean_value = np.nanmean(self.results.image[positions])
         deviations = np.where(
             self.results.image == 0, np.nan, self.results.image - mean_value
         )
@@ -429,7 +437,7 @@ class LocalizationProperty2d(_Analysis):
             return ax
 
         positions = np.nonzero(self.results.image)
-        median_value = np.median(self.results.image[positions])
+        median_value = np.nanmedian(self.results.image[positions])
         deviations = np.where(
             self.results.image == 0, np.nan, self.results.image - median_value
         )

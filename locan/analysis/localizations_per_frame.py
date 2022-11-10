@@ -30,14 +30,19 @@ def _localizations_per_frame(
     Parameters
     ----------
     locdata : LocData or array-like
-       Points in time: either localization data that contains a column `frame` or an array with time points.
+       Points in time: either localization data that contains a column `frame`
+       or an array with time points.
     norm : int, float, str, None
-        Normalization factor that can be None, a number, or another property in `locdata`.
-    time_delta : int, float, str, None
-        Time per frame or "integration_time" for which the time is taken from
+        Normalization factor that can be None, a number, or another property in
+         `locdata`.
+    time_delta : int, float, str, pd.Timedelta, None
+        Time per frame in milliseconds. String must specify the unit like
+        "10ms".
+         For "integration_time" the time is taken from
         locdata.meta.experiment.setups[0].optical_units[0].detection.camera.integration_time
     resample : DateOffset, Timedelta or str
-        Parameter for :func:`pandas.Series.resample`: The offset string or object representing target conversion.
+        Parameter for :func:`pandas.Series.resample`: The offset string or
+        object representing target conversion.
     kwargs : dict
         Other parameters passed to :func:`pandas.Series.resample`.
 
@@ -73,24 +78,29 @@ def _localizations_per_frame(
 
     if time_delta is None:
         pass
-    elif isinstance(time_delta, (int, float)):
-        series.index = pd.to_timedelta(frames * time_delta, unit="s")
+    elif isinstance(time_delta, pd.Timedelta):
+        series.index = frames * time_delta
         series.index.name = "time"
-        series.name = series.name + " / s"
+    elif isinstance(time_delta, (int, float)):
+        series.index = pd.to_timedelta(frames * time_delta, unit="ms")
+        series.index.name = "time"
     elif time_delta == "integration_time":
         try:
             time_delta = (
                 locdata.meta.experiment.setups[0]
                 .optical_units[0]
-                .detection.camera.integration_time.ToSeconds()
+                .detection.camera.integration_time.ToTimedelta()
             )
-            series.index = pd.to_timedelta(frames * time_delta, unit="s")
+            series.index = frames * time_delta
             series.index.name = "time"
-            series.name = series.name + " / s"
         except (IndexError, AttributeError):
             logger.warning(
                 "integration_time not available in locdata.meta - frames used instead."
             )
+    elif isinstance(time_delta, str):
+        time_delta = pd.Timedelta(time_delta)
+        series.index = frames * time_delta
+        series.index.name = "time"
     else:
         raise ValueError("The input for time_delta is not implemented.")
 
@@ -124,12 +134,14 @@ class LocalizationsPerFrame(_Analysis):
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     norm : int, float, str, None
-        Normalization factor that can be None, a number, or another property in `locdata`.
+        Normalization factor that can be None, a number, or another property
+        in `locdata`.
     time_delta : int, float, str, None
         Time per frame or "integration_time" for which the time is taken from
         locdata.meta.experiment.setups[0].optical_units[0].detection.camera.integration_time
     resample : DateOffset, Timedelta or str
-        Parameter for :func:`pandas.Series.resample`: The offset string or object representing target conversion.
+        Parameter for :func:`pandas.Series.resample`: The offset string or
+        object representing target conversion.
     kwargs : dict
         Other parameters passed to :func:`pandas.Series.resample`.
 
@@ -170,7 +182,8 @@ class LocalizationsPerFrame(_Analysis):
         Parameters
         ----------
         locdata : LocData or array-like
-           Points in time: either localization data that contains a column `frame` or an array with time points.
+           Points in time: either localization data that contains a column
+           `frame` or an array with time points.
 
         Returns
         -------
@@ -191,13 +204,14 @@ class LocalizationsPerFrame(_Analysis):
 
     def fit_distributions(self, **kwargs):
         """
-        Fit probability density functions to the distributions of `loc_property` values in the results
-        using MLE (scipy.stats).
+        Fit probability density functions to the distributions of `
+        loc_property` values in the results using MLE (scipy.stats).
 
         Parameters
         ----------
         loc_property : str
-            The LocData property for which to fit an appropriate distribution; if None all plots are shown.
+            The LocData property for which to fit an appropriate distribution;
+            if None all plots are shown.
         """
         if self:
             self.distribution_statistics = _DistributionFits(self)
@@ -207,7 +221,8 @@ class LocalizationsPerFrame(_Analysis):
 
     def plot(self, ax=None, window=1, cumulative=False, normalize=False, **kwargs):
         """
-        Provide plot as :class:`matplotlib.axes.Axes` object showing the running average of results over window size.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the
+        running average of results over window size.
 
         Parameters
         ----------
@@ -257,7 +272,8 @@ class LocalizationsPerFrame(_Analysis):
 
     def hist(self, ax=None, fit=True, bins="auto", **kwargs):
         """
-        Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing
+        hist(results).
 
         Parameters
         ----------
@@ -305,7 +321,8 @@ class _DistributionFits:
     """
     Handle for distribution fits.
 
-    It holds the statistical parameters derived by fitting the result distributions using MLE (scipy.stats).
+    It holds the statistical parameters derived by fitting the result
+    distributions using MLE (scipy.stats).
     Statistical parameters are defined as described in
     :ref:(https://docs.scipy.org/doc/scipy/reference/tutorial/stats/continuous.html)
 
@@ -335,15 +352,18 @@ class _DistributionFits:
         """
         Fit scipy.stats.distribution to analysis_class.results[loc_property].
 
-        If with_constraints is true we put the following constraints on the fit procedure:
-        If distribution is expon then floc=np.min(self.analysis_class.results[self.loc_property].values).
+        If with_constraints is true we put the following constraints on the fit
+        procedure:
+        If distribution is expon then
+        floc=np.min(self.analysis_class.results[self.loc_property].values).
 
         Parameters
         ----------
         distribution : str, scipy.stats.distribution
             Distribution model to fit.
         kwargs : dict
-            Other parameters are passed to the `scipy.stat.distribution.fit()` function.
+            Other parameters are passed to
+            :func:`scipy.stat.distribution.fit()`.
         """
         if self.analysis_class.results is None:
             return
@@ -361,8 +381,8 @@ class _DistributionFits:
 
     def plot(self, ax=None, **kwargs):
         """
-        Provide plot as :class:`matplotlib.axes.Axes` object showing the probability distribution functions of fitted
-        results.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the
+        probability distribution functions of fitted results.
 
         Parameters
         ----------

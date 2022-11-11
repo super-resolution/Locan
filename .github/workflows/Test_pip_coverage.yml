@@ -9,7 +9,7 @@ on:
 
 env:
   OS: "linux"
-  PYTHON_VERSION: 3.9
+  PYTHON_VERSION: 3.10
   REQUIREMENTS_FILE: "requirements-all-linux-py3.9.txt"
 
 jobs:

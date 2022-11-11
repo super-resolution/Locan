@@ -1,5 +1,5 @@
 # Use an official image for a Python runtime that is based on debian
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.10
 FROM python:${PYTHON_VERSION}-slim-buster
 
 ARG PYTHON_VERSION

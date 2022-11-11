@@ -1,7 +1,7 @@
 # Use an official image for mambaforge that is based on debian
 FROM condaforge/mambaforge:latest
 
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.10
 ARG ENVIRONMENT_NAME="locan"
 
 ENV PYTHON_VERSION=${PYTHON_VERSION} \

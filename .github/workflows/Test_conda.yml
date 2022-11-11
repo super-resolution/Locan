@@ -13,7 +13,7 @@ defaults:
 
 env:
   OS: "linux"
-  PYTHON_VERSION: 3.10
+  PYTHON_VERSION: "3.10"
   REQUIREMENTS_FILE: "environment-linux-py3.10.yml"
 
 jobs:

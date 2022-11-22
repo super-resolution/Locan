@@ -1,9 +1,9 @@
 # Use an official image for a Python runtime that is based on debian
 ARG PYTHON_VERSION=3.10
-FROM python:${PYTHON_VERSION}-slim-buster
+FROM python:${PYTHON_VERSION}-slim-bullseye
 
 ARG PYTHON_VERSION
-ARG ENVIRONMENT_NAME="locan_python_py39"
+ARG ENVIRONMENT_NAME="locan_python"
 
 ENV PYTHON_VERSION=${PYTHON_VERSION} \
     ENVIRONMENT_NAME=${ENVIRONMENT_NAME}
@@ -19,7 +19,6 @@ RUN ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 # Install gcc compiler and remove package manager cache
 RUN apt-get update && \
     apt-get install gcc -y && \
-    apt-get install qt5-default -y && \
     # install git for setuptools_scm to deal with locan source distribution versioning
     apt-get install -qqy git && \
     apt-get clean && \

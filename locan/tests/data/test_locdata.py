@@ -120,15 +120,15 @@ def test_LocData_count(df_simple):
     # import gc
     # print("Current number of LocData instances: ",
     #       len([item for item in gc.get_referrers(LocData) if isinstance(item, LocData)]))
-    n_instances = LocData.count
+    LocData.count = 0
 
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-    assert LocData.count == 1 + n_instances
+    assert LocData.count == 1
     dat_2 = LocData.from_dataframe(dataframe=df_simple)
     assert dat.properties == dat_2.properties
-    assert LocData.count == 2 + n_instances
+    assert LocData.count == 2
     del dat
-    assert LocData.count == 1 + n_instances
+    assert LocData.count == 1
 
 
 def test_LocData_from_dataframe_with_meta_dict(df_simple):

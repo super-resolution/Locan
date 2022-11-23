@@ -1,19 +1,11 @@
-import matplotlib.pyplot as plt  # this import is needed for interactive tests
 import numpy as np
 import pytest
 
-from locan import RenderEngine  # this import is needed for interactive tests
-from locan import (
-    render_3d,
-    render_3d_napari,
-    render_3d_rgb_napari,
-    scatter_3d_mpl,
-    transform_affine,
-)
+from locan import render_3d_napari, render_3d_rgb_napari, transform_affine
 from locan.dependencies import HAS_DEPENDENCY
 
 if HAS_DEPENDENCY["napari"]:
-    import napari  # noqa: F401
+    import napari
 
 
 @pytest.mark.visual
@@ -45,10 +37,7 @@ def test_render_3d_napari(locdata_blobs_3d):
         scale=(2, 2),
         blending="additive",
     )
-    # napari.run()
-
-    render_3d(locdata_blobs_3d, render_engine=RenderEngine.NAPARI)
-    # napari.run()
+    napari.run()
 
 
 @pytest.mark.gui
@@ -70,52 +59,6 @@ def test_render_3d_napari_single(locdata_single_localization, caplog):
         "Locdata carries a single localization.",
     )
     napari.run()
-
-
-def test_scatter_3d_mpl(locdata_3d):
-    fig = plt.figure()
-    ax = fig.add_subplot(projection="3d")
-    scatter_3d_mpl(locdata_3d, ax=ax, text_kwargs=dict(color="r"), color="r")
-    # plt.show()
-
-    plt.close("all")
-
-
-def test_scatter_3d_mpl_empty(locdata_empty):
-    fig = plt.figure()
-    ax = fig.add_subplot(projection="3d")
-    scatter_3d_mpl(locdata_empty, ax=ax)
-    # plt.show()
-
-    plt.close("all")
-
-
-def test_scatter_3d_mpl_single(locdata_single_localization, caplog):
-    fig = plt.figure()
-    fig.add_subplot(projection="3d")
-    scatter_3d_mpl(locdata_single_localization)
-    assert caplog.record_tuples == [
-        ("locan.render.render3d", 30, "Locdata carries a single localization.")
-    ]
-    # plt.show()
-
-    plt.close("all")
-
-
-@pytest.mark.gui
-@pytest.mark.parametrize(
-    "test_input, expected", list((member, 0) for member in list(RenderEngine))
-)
-def test_render_3d(locdata_blobs_3d, test_input, expected):
-    if HAS_DEPENDENCY["napari"] and test_input == RenderEngine.NAPARI:
-        render_3d(locdata_blobs_3d, render_engine=test_input)
-        # napari.run()
-    else:
-        with pytest.raises(NotImplementedError):
-            render_3d(locdata_blobs_3d, render_engine=test_input)
-    # plt.show()
-
-    plt.close("all")
 
 
 @pytest.mark.gui

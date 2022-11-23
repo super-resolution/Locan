@@ -14,8 +14,8 @@ from lmfit import Model, Parameters
 
 from locan.analysis.analysis_base import _Analysis
 from locan.configuration import COLORMAP_DIVERGING
-from locan.render.render2d import histogram
-from locan.render.transform import adjust_contrast
+from locan.data.aggregate import histogram
+from locan.visualize.transform import adjust_contrast
 
 __all__ = ["LocalizationProperty2d"]
 

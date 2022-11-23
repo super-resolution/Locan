@@ -1,12 +1,23 @@
 """
-Utility functions for binning and rendering in 2 and 3 dimensions.
+
+Utility functions for interacting with napari.
 
 """
+import logging
+
 import numpy as np
 
 from locan.data.region import Ellipse, Polygon, Rectangle, RoiRegion
+from locan.data.rois import Roi
+from locan.dependencies import HAS_DEPENDENCY
+from locan.visualize.napari.render2d import render_2d_napari
 
-__all__ = []
+if HAS_DEPENDENCY["napari"]:
+    import napari
+
+logger = logging.getLogger(__name__)
+
+__all__ = ["select_by_drawing_napari"]
 
 
 def _napari_shape_to_region(vertices, bin_edges, region_type):
@@ -127,3 +138,42 @@ def _napari_shape_to_RoiRegion(vertices, bin_edges, region_type):
         raise TypeError(f" Type {region_type} is not defined in locan.")
 
     return RoiRegion(region_specs=region_specs, region_type=region_type)
+
+
+def select_by_drawing_napari(locdata, napari_run=True, **kwargs):
+    """
+    Select region of interest from rendered image by drawing rois in napari.
+
+    Rois will be created from shapes in napari.viewer.layers['Shapes'].
+
+    Parameters
+    ----------
+    locdata : LocData
+        The localization data from which to select localization data.
+    napari_run : bool
+        If `True` napari.run is called (set to `False` for testing).
+    kwargs : dict
+        Other parameters passed to :func:`render_2d_napari`.
+
+    Returns
+    -------
+    list[Roi]
+
+    See Also
+    --------
+    :func:`locan.scripts.rois` : script for drawing rois
+    """
+    # select roi
+    viewer, bins = render_2d_napari(locdata, **kwargs)
+    if napari_run:
+        napari.run()
+
+    vertices = viewer.layers["Shapes"].data
+    types = viewer.layers["Shapes"].shape_type
+
+    regions = []
+    for verts, typ in zip(vertices, types):
+        regions.append(_napari_shape_to_region(verts, bins.bin_edges, typ))
+
+    roi_list = [Roi(reference=locdata, region=reg) for reg in regions]
+    return roi_list

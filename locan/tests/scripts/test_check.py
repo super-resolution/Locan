@@ -9,7 +9,7 @@ from locan.dependencies import HAS_DEPENDENCY
 from locan.scripts.script_check import render_locs_per_frame_napari, sc_check
 
 if HAS_DEPENDENCY["napari"]:
-    import napari  # noqa: F401
+    import napari
 
 
 @pytest.mark.gui
@@ -33,7 +33,7 @@ def test_render_locs_per_frame_napari(locdata_2d):
         kwargs_points=None,
     )
     assert viewer
-    # napari.run()
+    napari.run()
 
 
 @pytest.mark.gui

@@ -28,7 +28,7 @@ import locan.locan_io.locdata.io_locdata as io
 from locan.constants import FileType
 from locan.dependencies import HAS_DEPENDENCY
 from locan.gui.io import file_dialog
-from locan.render.render2d import select_by_drawing_napari
+from locan.visualize.napari.utilities import select_by_drawing_napari
 
 if HAS_DEPENDENCY["napari"]:
     import napari

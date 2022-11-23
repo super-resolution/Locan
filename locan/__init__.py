@@ -14,10 +14,10 @@ Locan consists of the following modules:
    dependencies
    gui
    locan_io
-   render
    scripts
    simulation
    utils
+   visualize
    tests
 """
 import logging
@@ -47,9 +47,9 @@ from locan.data import *
 from locan.datasets import *
 from locan.gui import *
 from locan.locan_io import *
-from locan.render import *
 from locan.simulation import *
 from locan.utils import *
+from locan.visualize import *
 from locan.tests import *
 
 # isort: on
@@ -63,7 +63,7 @@ __all__.extend(data.__all__)
 __all__.extend(datasets.__all__)
 __all__.extend(gui.__all__)
 __all__.extend(locan_io.__all__)
-__all__.extend(render.__all__)
 __all__.extend(simulation.__all__)
 __all__.extend(utils.__all__)
+__all__.extend(visualize.__all__)
 __all__.extend(tests.__all__)

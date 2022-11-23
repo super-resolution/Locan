@@ -11,7 +11,7 @@ Callable transformation classes that inherit from :class:`matplotlib.colors.Norm
 can be passed to the `norm` parameter.
 
 """
-
+import logging
 from abc import ABC, abstractmethod
 from enum import Enum
 
@@ -20,6 +20,8 @@ import numpy as np
 from skimage import exposure
 
 __all__ = ["Trafo", "HistogramEqualization", "adjust_contrast"]
+
+logger = logging.getLogger(__name__)
 
 
 class Trafo(Enum):

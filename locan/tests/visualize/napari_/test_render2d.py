@@ -2,9 +2,8 @@ import matplotlib.pyplot as plt  # this import is needed for interactive tests
 import numpy as np
 import pytest
 
-from locan import RenderEngine  # this import is needed for interactive tests
-from locan import (
-    render_2d,
+from locan import (  # noqa: F401  # this import is needed for interactive tests
+    RenderEngine,
     render_2d_mpl,
     render_2d_napari,
     render_2d_rgb_napari,
@@ -16,7 +15,6 @@ from locan.dependencies import HAS_DEPENDENCY
 if HAS_DEPENDENCY["napari"]:
     import napari
 
-
 pytestmark = [
     pytest.mark.qt,
     pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="requires napari"),
@@ -25,22 +23,8 @@ pytestmark = [
 HAS_NAPARI_AND_PYTESTQT = HAS_DEPENDENCY["napari"] and HAS_DEPENDENCY["pytestqt"]
 # pytestqt is not a requested or extra dependency.
 # If napari and pytest-qt is installed, all tests run.
-# Tests in docker or GitHub actions on linux require xvfb for tests with pytest-qt to run.
-
-
-@pytest.mark.gui
-@pytest.mark.parametrize(
-    "test_input, expected", list((member, 0) for member in list(RenderEngine))
-)
-def test_render_2d_gui(locdata_blobs_2d, test_input, expected):
-    if test_input == RenderEngine.NAPARI:
-        render_2d(locdata_blobs_2d, render_engine=test_input)
-        # napari.run()
-    else:
-        render_2d(locdata_blobs_2d, render_engine=test_input)
-    # plt.show()
-
-    plt.close("all")
+# Tests in docker or GitHub actions on linux require xvfb
+# for tests with pytest-qt to run.
 
 
 @pytest.mark.visual
@@ -80,10 +64,7 @@ def test_render_2d_napari_gui(locdata_blobs_2d):
         scale=(2, 2),
         blending="additive",
     )
-    # napari.run()
-
-    render_2d(locdata_blobs_2d, render_engine=RenderEngine.NAPARI)
-    # napari.run()
+    napari.run()
 
     plt.close("all")
 

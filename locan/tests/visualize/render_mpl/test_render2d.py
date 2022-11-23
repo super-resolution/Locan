@@ -2,11 +2,10 @@ import matplotlib.pyplot as plt  # this import is needed for interactive tests
 import numpy as np
 import pytest
 
-from locan import RenderEngine  # this import is needed for interactive tests
-from locan import (
+from locan import (  # noqa: F401  # this import is needed for interactive tests
+    RenderEngine,
     apply_window,
     cluster_dbscan,
-    render_2d,
     render_2d_mpl,
     render_2d_rgb_mpl,
     render_2d_scatter_density,
@@ -26,7 +25,11 @@ def test_render_2d_mpl_empty(locdata_empty):
 def test_render_2d_mpl_single(locdata_single_localization, caplog):
     render_2d_mpl(locdata_single_localization, bin_size=0.5)
     assert caplog.record_tuples == [
-        ("locan.render.render2d", 30, "Locdata carries a single localization.")
+        (
+            "locan.visualize.render_mpl.render2d",
+            30,
+            "Locdata carries a single localization.",
+        )
     ]
     # plt.show()
 
@@ -67,7 +70,10 @@ def test_render_2d_mpl_show(locdata_blobs_2d):
         rescale=None,
         other_property="position_y",
     )
-    # plt.plot(locdata_blobs_2d.coordinates[:, 0], locdata_blobs_2d.coordinates[:, 1], 'o')
+    # plt.plot(locdata_blobs_2d.coordinates[:, 0],
+    # locdata_blobs_2d.coordinates[:, 1],
+    # 'o'
+    # )
     plt.show()
 
     plt.close("all")
@@ -78,7 +84,8 @@ def test_render_2d_mpl_show(locdata_blobs_2d):
 )
 def test_render_2d_scatter_density(locdata_blobs_2d):
     render_2d_scatter_density(locdata_blobs_2d)
-    # render_2d_scatter_density(locdata_blobs_2d, bin_range=[[500, 1000], [500, 1000]], cbar=False)
+    # render_2d_scatter_density(locdata_blobs_2d, bin_range=[[500, 1000], [500, 1000]],
+    # cbar=False)
 
     # render_2d_scatter_density(locdata_blobs_2d, bin_range=None, vmin=0, vmax=1)
 
@@ -112,24 +119,13 @@ def test_render_2d_scatter_density_empty(locdata_empty):
 def test_render_2d_scatter_density_single(locdata_single_localization, caplog):
     render_2d_scatter_density(locdata_single_localization)
     assert caplog.record_tuples == [
-        ("locan.render.render2d", 30, "Locdata carries a single localization.")
+        (
+            "locan.visualize.render_mpl.render2d",
+            30,
+            "Locdata carries a single localization.",
+        )
     ]
     # plt.show()
-    plt.close("all")
-
-
-@pytest.mark.gui
-@pytest.mark.parametrize(
-    "test_input, expected", list((member, 0) for member in list(RenderEngine))
-)
-def test_render_2d(locdata_blobs_2d, test_input, expected):
-    if HAS_DEPENDENCY["napari"] and test_input == RenderEngine.NAPARI:
-        render_2d(locdata_blobs_2d, render_engine=test_input)
-        # napari.run()
-    else:
-        render_2d(locdata_blobs_2d, render_engine=test_input)
-    # plt.show()
-
     plt.close("all")
 
 
@@ -150,7 +146,11 @@ def test_scatter_2d_mpl_empty(locdata_empty):
 def test_scatter_2d_mpl_single(locdata_single_localization, caplog):
     scatter_2d_mpl(locdata_single_localization)
     assert caplog.record_tuples == [
-        ("locan.render.render2d", 30, "Locdata carries a single localization.")
+        (
+            "locan.visualize.render_mpl.render2d",
+            30,
+            "Locdata carries a single localization.",
+        )
     ]
     # plt.show()
 
@@ -184,7 +184,11 @@ def test_render_2d_rgb_mpl_empty(locdata_empty):
 def test_render_2d_rgb_mpl_single(locdata_empty, locdata_single_localization, caplog):
     render_2d_rgb_mpl([locdata_empty, locdata_single_localization], bin_size=1)
     assert caplog.record_tuples == [
-        ("locan.render.render2d", 30, "Locdata carries a single localization.")
+        (
+            "locan.visualize.render_mpl.render2d",
+            30,
+            "Locdata carries a single localization.",
+        )
     ]
     # plt.show()
 

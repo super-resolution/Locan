@@ -1,27 +1,24 @@
 """
 
-This module provides functions for rendering `LocData` objects in 3D.
+This module provides functions to interact with napari
+for rendering `LocData` objects in 3D.
 
 """
 import logging
 
-import matplotlib.colors as mcolors
 import numpy as np
-from matplotlib import pyplot as plt
+from matplotlib import colors as mcolors
 
 from locan import locdata_id
-from locan.configuration import RENDER_ENGINE
-from locan.constants import RenderEngine
 from locan.data import LocData
 from locan.data.aggregate import Bins, _check_loc_properties, histogram
 from locan.dependencies import HAS_DEPENDENCY
-from locan.render.transform import adjust_contrast
+from locan.visualize.transform import adjust_contrast
 
 if HAS_DEPENDENCY["napari"]:
     import napari
 
-
-__all__ = ["render_3d", "render_3d_napari", "scatter_3d_mpl", "render_3d_rgb_napari"]
+__all__ = ["render_3d_napari", "render_3d_rgb_napari"]
 
 logger = logging.getLogger(__name__)
 
@@ -115,67 +112,6 @@ def render_3d_napari(
 
     viewer.add_image(hist.data, name=f"LocData {locdata_id}", colormap=cmap, **kwargs)
     return viewer
-
-
-def render_3d(locdata, render_engine=RENDER_ENGINE, **kwargs):
-    """
-    Wrapper function to render localization data into a 3D image.
-    For complete signatures see render_3d_mpl or corresponding functions.
-    """
-    if HAS_DEPENDENCY["napari"] and render_engine == RenderEngine.NAPARI:
-        return render_3d_napari(locdata, **kwargs)
-    else:
-        raise NotImplementedError(f"render_3d is not implemented for {render_engine}.")
-
-
-def scatter_3d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
-    """
-    Scatter plot of locdata elements with text marker for each element.
-
-    Parameters
-    ----------
-    locdata : LocData
-       Localization data.
-    ax : matplotlib.axes.Axes3D
-       The axes on which to show the plot
-    index : bool
-       Flag indicating if element indices are shown.
-    text_kwargs : dict
-       Keyword arguments for :func:`matplotlib.axes.Axes.text`.
-    kwargs : dict
-       Other parameters passed to :func:`matplotlib.axes.Axes.scatter`.
-
-    Returns
-    -------
-    matplotlib.axes.Axes
-       Axes object with the image.
-    """
-    if text_kwargs is None:
-        text_kwargs = {}
-
-    # Provide matplotlib.axes.Axes if not provided
-    if ax is None:
-        ax = plt.gca()
-
-    # return ax if no or single point in locdata
-    if len(locdata) < 2:
-        if len(locdata) == 1:
-            logger.warning("Locdata carries a single localization.")
-        return ax
-
-    coordinates = locdata.coordinates
-    ax.scatter(*coordinates.T, **dict({"marker": "+", "color": "grey"}, **kwargs))
-
-    # plot element number
-    if index:
-        for centroid, marker in zip(coordinates, locdata.data.index.values):
-            ax.text(
-                *centroid, marker, **dict({"color": "grey", "size": 20}, **text_kwargs)
-            )
-
-    ax.set(xlabel="position_x", ylabel="position_y", zlabel="position_z")
-
-    return ax
 
 
 def render_3d_rgb_napari(

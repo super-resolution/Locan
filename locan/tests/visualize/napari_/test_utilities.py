@@ -1,6 +1,6 @@
 import numpy as np
 
-from locan.render.utilities import _napari_shape_to_region
+from locan.visualize.napari.utilities import _napari_shape_to_region
 
 
 def test__napari_shape_to_region():

@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from locan import HistogramEqualization, Trafo, adjust_contrast
-from locan.render.transform import Transform
+from locan.visualize.transform import Transform
 
 
 def test_Trafo():

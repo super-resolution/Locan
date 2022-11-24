@@ -669,6 +669,18 @@ def test_histogram(locdata_blobs_2d):
     assert np.max(hist.data) == 5
     assert hist.data.shape == (10, 10)
 
+    new_bins = Bins(n_bins=10, bin_range=((500, 1000), (500, 1000)))
+    hist = histogram(locdata_blobs_2d, bins=new_bins)
+    assert hist.data.ndim == 2
+    assert np.max(hist.data) == 5
+    assert hist.data.shape == (10, 10)
+
+    new_bins = Bins(n_bins=10, bin_range=((500, 1000), (500, 1000)))
+    hist = histogram(locdata_blobs_2d, bin_edges=new_bins.bin_edges)
+    assert hist.data.ndim == 2
+    assert np.max(hist.data) == 5
+    assert hist.data.shape == (10, 10)
+
     hist = histogram(locdata_blobs_2d, bin_size=10, loc_properties="position_x")
     assert hist.labels == ["position_x", "counts"]
     assert hist.data.shape == (89,)

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import warnings
 from collections import namedtuple
-from collections.abc import Iterable
+from collections.abc import Iterable  # noqa: F401
 from math import isclose
 from typing import Union
 
@@ -19,7 +19,7 @@ import boost_histogram as bh
 import fast_histogram
 import numpy as np
 
-from locan.data.locdata import LocData
+from locan.data.locdata import LocData  # noqa: F401
 from locan.data.properties.locdata_statistics import ranges
 
 __all__ = ["Bins", "histogram"]
@@ -1005,18 +1005,17 @@ def _histogram_mean_boost_histogram(data, bins, values) -> np.ndarray:
     return mean_values
 
 
-def _check_loc_properties(
-    locdata: LocData, loc_properties: str | Iterable
-) -> list[str]:
+def _check_loc_properties(locdata, loc_properties) -> list[str]:
     """
     Check that loc_properties are valid properties in locdata.
 
     Parameters
     ----------
-    locdata
+    locdata : LocData
         Localization data
-    loc_properties
-        LocData property names
+    loc_properties : str | Iterable[str] | None
+        LocData property names.
+        If None the coordinate_values of locdata are used.
 
     Returns
     -------
@@ -1062,9 +1061,10 @@ def histogram(
     ----------
     locdata : LocData
         Localization data.
-    loc_properties : list of str or None
-        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
-    other_property : str or None
+    loc_properties :  str | Iterable[str] | None
+        Localization properties to be grouped into bins.
+        If None The coordinate_values of locdata are used.
+    other_property : str | None
         Localization property that is averaged in each pixel. If None localization counts are
         shown.
     bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
@@ -1093,7 +1093,11 @@ def histogram(
     labels_ = _check_loc_properties(locdata, loc_properties)
     data = locdata.data[labels_].values.T
 
-    if (bin_range is None or isinstance(bin_range, str)) and bin_edges is None:
+    if (
+        (bin_range is None or isinstance(bin_range, str))
+        and bin_edges is None
+        and bins is None
+    ):
         bin_range_ = ranges(locdata, loc_properties=labels_, special=bin_range)
     else:
         bin_range_ = bin_range

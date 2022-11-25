@@ -10,7 +10,11 @@ from __future__ import annotations
 import importlib
 import logging
 
-import tomli
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
+
 from google.protobuf import json_format, text_format
 from google.protobuf.message import Message
 
@@ -173,7 +177,7 @@ def metadata_from_toml(file):
         Message instances with name as declared in toml file.
     """
     # load toml file
-    toml_dict = tomli.loads(file)
+    toml_dict = tomllib.loads(file)
 
     # instantiate messages
     instances = {}

@@ -28,7 +28,8 @@ protobuf
 ruamel.yaml
 tifffile
 asdf
-tomli
+tomli >= 1.1.0 ; python_version < "3.11"
+
 
 # Data analysis tools
 boost-histogram

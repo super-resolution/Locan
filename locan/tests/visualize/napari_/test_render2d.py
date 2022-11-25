@@ -1,13 +1,13 @@
-import matplotlib.pyplot as plt  # this import is needed for interactive tests
+import matplotlib.pyplot as plt  # noqa: F401  # this import is needed for interactive tests
 import numpy as np
 import pytest
 
+import locan
 from locan import (  # noqa: F401  # this import is needed for interactive tests
     RenderEngine,
     render_2d_mpl,
     render_2d_napari,
     render_2d_rgb_napari,
-    select_by_drawing_napari,
     transform_affine,
 )
 from locan.dependencies import HAS_DEPENDENCY
@@ -29,43 +29,33 @@ HAS_NAPARI_AND_PYTESTQT = HAS_DEPENDENCY["napari"] and HAS_DEPENDENCY["pytestqt"
 
 @pytest.mark.visual
 # this is to check overlay of rendered image and single localization points
-def test_render_2d_napari_coordinates(locdata_blobs_2d):
+def test_render_2d_napari_new_visual(locdata_blobs_2d):
+    print(locdata_blobs_2d.data[locdata_blobs_2d.coordinate_labels].describe())
+
     render_2d_mpl(locdata_blobs_2d, bin_size=10, cmap="viridis")
     plt.show()
 
-    viewer, bins = render_2d_napari(
-        locdata_blobs_2d, bin_size=10, cmap="viridis", gamma=0.1
+    viewer = napari.Viewer()
+
+    bins = locan.Bins(
+        bin_size=(50, 100),
+        bin_range=(
+            (0, locdata_blobs_2d.coordinates.max(axis=0)[0]),
+            (0, locdata_blobs_2d.coordinates.max(axis=0)[1]),
+        ),
+        extend_range=True,
     )
-    viewer.add_points(
-        (locdata_blobs_2d.coordinates - np.array(bins.bin_range)[:, 0]) / 10
-    )
+
+    render_2d_napari(locdata_blobs_2d, bins=bins, cmap="viridis", viewer=viewer)
+
+    render_2d_napari(locdata_blobs_2d, bin_size=10, cmap="viridis", viewer=viewer)
+
+    viewer.add_points(locdata_blobs_2d.coordinates, size=10, opacity=0.2)
+
+    print(viewer.layers[0].corner_pixels)
+    print(viewer.layers[0].data_to_world(viewer.layers[0].corner_pixels))
+
     napari.run()
-
-    plt.close("all")
-
-
-@pytest.mark.gui
-def test_render_2d_napari_gui(locdata_blobs_2d):
-    render_2d_mpl(locdata_blobs_2d, bin_size=100, cmap="viridis")
-    plt.show()
-
-    render_2d_napari(locdata_blobs_2d, bin_size=100, cmap="viridis", gamma=0.1)
-    napari.run()
-
-    viewer, _ = render_2d_napari(
-        locdata_blobs_2d, bin_size=50, cmap="magenta", gamma=0.1
-    )
-    render_2d_napari(
-        locdata_blobs_2d,
-        viewer=viewer,
-        bin_size=100,
-        cmap="cyan",
-        gamma=0.1,
-        scale=(2, 2),
-        blending="additive",
-    )
-    napari.run()
-
     plt.close("all")
 
 
@@ -74,11 +64,25 @@ def test_render_2d_napari_gui(locdata_blobs_2d):
 )
 def test_render_2d_napari(make_napari_viewer, locdata_blobs_2d):
     viewer = make_napari_viewer()
-    render_2d_napari(
+
+    with pytest.raises(AssertionError):
+        render_2d_napari(
+            locdata_blobs_2d, viewer=viewer, bin_edges=((0, 10, 100), (0, 10, 100))
+        )
+
+    viewer_ = render_2d_napari(
         locdata_blobs_2d, viewer=viewer, bin_size=100, cmap="viridis", gamma=0.1
     )
+    assert viewer_ is viewer
     assert len(viewer.layers) == 1
     assert viewer.layers[0].name == "LocData 0"
+    assert np.array_equal(viewer.layers[0].corner_pixels, [[0, 0], [8, 5]])
+    assert np.array_equal(
+        viewer.layers[0].data_to_world(viewer.layers[0].corner_pixels),
+        [[112.0, 465.0], [912.0, 965.0]],
+    )
+    assert viewer.scale_bar.unit is None or len(viewer.scale_bar.unit) != 0
+    assert viewer.layers[0].metadata["message"]
     viewer.close()
 
 
@@ -129,51 +133,10 @@ def test_render_2d_napari_single(
     )
     viewer.close()
     assert caplog.record_tuples[0] == (
-        "locan.render.render2d",
+        "locan.visualize.napari.render2d",
         30,
         "Locdata carries a single localization.",
     )
-
-
-@pytest.mark.gui
-def test_select_by_drawing_napari_gui(locdata_blobs_2d):
-    viewer = napari.Viewer()
-    viewer.add_shapes(data=np.array([(1, 10), (10, 20)]), shape_type="rectangle")
-
-    rois = select_by_drawing_napari(
-        locdata_blobs_2d, viewer=viewer, bin_size=10, cmap="viridis", gamma=0.1
-    )
-    # No need for napari.run() since it is called inside select_by_drawing_napari.
-    print(rois)
-    print(viewer.layers["Shapes"].data)
-    assert len(rois) == 1
-    assert repr(rois[0].region) == "Rectangle((122.0, 565.0), 90.0, 100.0, 0)"
-
-
-@pytest.mark.skipif(
-    not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
-)
-def test_select_by_drawing_napari(make_napari_viewer, locdata_blobs_2d):
-    viewer = make_napari_viewer()
-    viewer.add_shapes(data=np.array([(1, 10), (10, 20)]), shape_type="rectangle")
-
-    rois = select_by_drawing_napari(
-        locdata_blobs_2d,
-        viewer=viewer,
-        napari_run=False,
-        bin_size=10,
-        cmap="viridis",
-        gamma=0.1,
-    )
-    assert len(rois) == 1
-    assert repr(rois[0].region) == "Rectangle((122.0, 565.0), 90.0, 100.0, 0)"
-    viewer.close()
-
-
-@pytest.mark.gui
-def test_select_by_drawing_napari_2(locdata_blobs_2d):
-    roi_list = select_by_drawing_napari(locdata_blobs_2d)
-    print(roi_list)
 
 
 @pytest.mark.gui

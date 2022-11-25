@@ -4,12 +4,15 @@ Utility functions for interacting with napari.
 
 """
 import logging
+from pathlib import Path
+from typing import Iterable  # noqa: F401
 
 import numpy as np
 
-from locan.data.region import Ellipse, Polygon, Rectangle, RoiRegion
+from locan.data.region import Ellipse, Polygon, Rectangle, Region
 from locan.data.rois import Roi
 from locan.dependencies import HAS_DEPENDENCY
+from locan.gui import file_dialog
 from locan.visualize.napari.render2d import render_2d_napari
 
 if HAS_DEPENDENCY["napari"]:
@@ -17,127 +20,11 @@ if HAS_DEPENDENCY["napari"]:
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["select_by_drawing_napari"]
-
-
-def _napari_shape_to_region(vertices, bin_edges, region_type):
-    """
-    Convert napari shape to `locan.Region`.
-
-    Parameters
-    ----------
-    vertices : numpy.ndarray of float
-        Sequence of point coordinates as returned by napari.
-    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimension, n_bin_edges)
-        Array of bin edges for each dimension. At this point there are only equally-sized bins allowed.
-    region_type : str
-        String specifying the selector widget that can be either rectangle, ellipse, or polygon.
-
-    Returns
-    -------
-    Region
-    """
-    # at this point there are only equally-sized bins used.
-    bin_sizes = [bedges[1] - bedges[0] for bedges in bin_edges]
-
-    vertices = np.array(
-        [
-            bedges[0] + vert * bin_size
-            for vert, bedges, bin_size in zip(vertices.T, bin_edges, bin_sizes)
-        ]
-    ).T
-
-    if region_type == "rectangle":
-        if len(set(vertices[:, 0].astype(int))) != 2:
-            raise NotImplementedError("Rotated rectangles are not implemented.")
-        mins = vertices.min(axis=0)
-        maxs = vertices.max(axis=0)
-        corner_x, corner_y = mins
-        width, height = maxs - mins
-        angle = 0
-        region = Rectangle((corner_x, corner_y), width, height, angle)
-
-    elif region_type == "ellipse":
-        if len(set(vertices[:, 0].astype(int))) != 2:
-            raise NotImplementedError("Rotated ellipses are not implemented.")
-        mins = vertices.min(axis=0)
-        maxs = vertices.max(axis=0)
-        width, height = maxs - mins
-        center_x, center_y = mins[0] + width / 2, mins[1] + height / 2
-        angle = 0
-        region = Ellipse((center_x, center_y), width, height, angle)
-
-    elif region_type == "polygon":
-        region = Polygon(np.concatenate([vertices, [vertices[0]]], axis=0))
-
-    else:
-        raise TypeError(f" Type {region_type} is not defined.")
-
-    return region
-
-
-def _napari_shape_to_RoiRegion(vertices, bin_edges, region_type):
-    """
-    Convert napari shape to locan RoiRegion
-
-    Parameters
-    ----------
-    vertices : numpy.ndarray of float
-        Sequence of point coordinates as returned by napari
-    bin_edges : tuple, list, numpy.ndarray of float with shape (n_dimension, n_bin_edges)
-        Array of bin edges for each dimension. At this point there are only equally-sized bins allowed.
-    region_type : str
-        String specifying the selector widget that can be either rectangle, ellipse, or polygon.
-
-    Returns
-    -------
-    RoiRegion
-
-    Warnings
-    --------
-    This function is only used by :class:`locan.RoiLegacy_0` and will be deprecated.
-    Use :func:`locan.render.render2d._napari_shape_to_region` instead.
-    """
-    # at this point there are only equally-sized bins used.
-    bin_sizes = [bedges[1] - bedges[0] for bedges in bin_edges]
-
-    # flip since napari returns vertices with first component representing the horizontal axis
-    vertices = np.flip(vertices, axis=1)
-
-    vertices = np.array(
-        [
-            bedges[0] + vert * bin_size
-            for vert, bedges, bin_size in zip(vertices.T, bin_edges, bin_sizes)
-        ]
-    ).T
-
-    if region_type == "rectangle":
-        if len(set(vertices[:, 0].astype(int))) != 2:
-            raise NotImplementedError("Rotated rectangles are not implemented.")
-        mins = vertices.min(axis=0)
-        maxs = vertices.max(axis=0)
-        corner_x, corner_y = mins
-        width, height = maxs - mins
-        angle = 0
-        region_specs = ((corner_x, corner_y), width, height, angle)
-
-    elif region_type == "ellipse":
-        if len(set(vertices[:, 0].astype(int))) != 2:
-            raise NotImplementedError("Rotated ellipses are not implemented.")
-        mins = vertices.min(axis=0)
-        maxs = vertices.max(axis=0)
-        width, height = maxs - mins
-        center_x, center_y = mins[0] + width / 2, mins[1] + height / 2
-        angle = 0
-        region_specs = ((center_x, center_y), width, height, angle)
-
-    elif region_type == "polygon":
-        region_specs = np.concatenate([vertices, [vertices[0]]], axis=0)
-
-    else:
-        raise TypeError(f" Type {region_type} is not defined in locan.")
-
-    return RoiRegion(region_specs=region_specs, region_type=region_type)
+__all__ = [
+    "select_by_drawing_napari",
+    "get_rois",
+    "save_rois",
+]
 
 
 def select_by_drawing_napari(locdata, napari_run=True, **kwargs):
@@ -164,16 +51,168 @@ def select_by_drawing_napari(locdata, napari_run=True, **kwargs):
     :func:`locan.scripts.rois` : script for drawing rois
     """
     # select roi
-    viewer, bins = render_2d_napari(locdata, **kwargs)
+    viewer = render_2d_napari(locdata, **kwargs)
+    if "Rois" not in viewer.layers:
+        viewer.add_shapes(name="Rois", edge_width=0.1)
     if napari_run:
         napari.run()
 
-    vertices = viewer.layers["Shapes"].data
-    types = viewer.layers["Shapes"].shape_type
+    roi_list = get_rois(viewer.layers["Rois"], reference=locdata)
 
-    regions = []
-    for verts, typ in zip(vertices, types):
-        regions.append(_napari_shape_to_region(verts, bins.bin_edges, typ))
-
-    roi_list = [Roi(reference=locdata, region=reg) for reg in regions]
     return roi_list
+
+
+def _shape_to_region(vertices, shape_type):
+    """
+    Convert napari shape to `locan.Region`.
+
+    Parameters
+    ----------
+    vertices : np.array[float]
+        Sequence of point coordinates as returned by napari.
+    shape_type : str
+        One of rectangle, ellipse, or polygon.
+
+    Returns
+    -------
+    Region
+    """
+    if shape_type == "rectangle":
+        if len(set(vertices[:, 0].astype(int))) != 2:
+            raise NotImplementedError("Rotated rectangles are not implemented.")
+        mins = vertices.min(axis=0)
+        maxs = vertices.max(axis=0)
+        corner_x, corner_y = mins
+        width, height = maxs - mins
+        angle = 0
+        region = Rectangle((corner_x, corner_y), width, height, angle)
+
+    elif shape_type == "ellipse":
+        if len(set(vertices[:, 0].astype(int))) != 2:
+            raise NotImplementedError("Rotated ellipses are not implemented.")
+        mins = vertices.min(axis=0)
+        maxs = vertices.max(axis=0)
+        width, height = maxs - mins
+        center_x, center_y = mins[0] + width / 2, mins[1] + height / 2
+        angle = 0
+        region = Ellipse((center_x, center_y), width, height, angle)
+
+    elif shape_type == "polygon":
+        region = Polygon(np.concatenate([vertices, [vertices[0]]], axis=0))
+
+    else:
+        raise TypeError(f" Type {shape_type} is not defined.")
+
+    return region
+
+
+def _shapes_to_regions(shapes_data) -> list[Region]:
+    """
+    Convert napari shapes to `locan.Region`.
+
+    Parameters
+    ----------
+    shapes_data : napari.types.ShapesData
+        Shapes data with list of shapes
+
+    Returns
+    -------
+    list[Region]
+    """
+    assert shapes_data[2] == "shapes"
+    data = shapes_data[0]
+    shape_types = shapes_data[1]["shape_type"]
+    regions = [
+        _shape_to_region(vertices=vertices, shape_type=shape_type)
+        for vertices, shape_type in zip(data, shape_types)
+    ]
+    return regions
+
+
+def get_rois(shapes_layer, reference=None, loc_properties=None):
+    """
+    Create rois from shapes in napari.viewer.Shapes.
+
+    Parameters
+    ----------
+    shapes_layer: napari.layers.Shapes
+        Napari shapes layer like `viewer.layers["Shapes"]`
+    reference : LocData, locan.data.metadata_pb2.Metadata, None
+        Reference to localization data for which the region of interests
+        are defined. It can be a LocData object, a reference
+        (locan.data.metadata_pb2.Metadata) to a saved SMLM file, or
+        None for indicating no specific reference.
+        When referencing a saved SMLM file, reference as attributes
+        `file.path` and `file.type` for a path pointing to a
+        localization file and an integer indicating the file type.
+        The integer should be according to
+        locan.data.metadata_pb2.Metadata.file.type.
+    loc_properties : tuple of str
+        Localization properties in LocData object on which the region
+        selection will be applied (for instance the coordinate_labels).
+
+    Returns
+    -------
+    list[Roi]
+
+    See Also
+    --------
+    :func:`locan.scripts.rois` : script for drawing rois
+    """
+    assert isinstance(shapes_layer, napari.layers.Shapes)
+    shapes_data = shapes_layer.as_layer_data_tuple()
+    regions = _shapes_to_regions(shapes_data=shapes_data)
+    rois = [
+        Roi(region=reg, reference=reference, loc_properties=loc_properties)
+        for reg in regions
+    ]
+    return rois
+
+
+def save_rois(rois, file_path=None, roi_file_indicator="_roi"):
+    """
+    Save list of Roi objects.
+
+    Parameters
+    ----------
+    rois : Iterable[Rois]
+        The rois to be saved.
+    file_path : str | bytes | os.PathLike | "roi_reference" | None
+        Base name for roi files or existing directory to save rois in.
+        If "roi_reference", roi.reference.file.path is used.
+        If None, a file dialog is opened.
+    roi_file_indicator : str
+        Indicator to add to the localization file name and use as roi
+        file name (with further extension .yaml).
+
+    Returns
+    -------
+    list[str]
+        New created roi file paths.
+    """
+    # choose file interactively
+    if file_path is None:
+        file_path = Path(
+            file_dialog(message="choose localization file or base name")[0]
+        )
+    elif file_path == "roi_reference":
+        file_path = None
+    elif Path(file_path).is_dir():
+        file_path = Path(file_path) / "my"
+    else:
+        file_path = Path(file_path)
+
+    # create roi file names and save rois
+    roi_path_list = []
+    for i, roi in enumerate(rois):
+        if file_path is None:
+            try:
+                file_path = Path(roi.reference.file.path)
+            except AttributeError:
+                raise
+        roi_file = file_path.stem + roi_file_indicator + f"_{i}.yaml"
+        roi_path = file_path.with_name(roi_file)
+        roi_path_list.append(roi_path)
+        roi.to_yaml(path=roi_path)
+
+    return roi_path_list

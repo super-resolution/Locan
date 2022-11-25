@@ -7,16 +7,6 @@ from locan import ROOT_DIR
 from locan.dependencies import HAS_DEPENDENCY
 from locan.scripts.script_napari import sc_napari
 
-if HAS_DEPENDENCY["napari"]:
-    import napari
-
-
-@pytest.mark.gui
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
-def test_napari():
-    viewer = napari.Viewer(show=False)
-    assert viewer
-
 
 @pytest.mark.gui
 @pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
@@ -35,3 +25,7 @@ def test_script_napari_from_sys():
         f"locan napari -f {str(path)} -t 1 --bin_size 20 --rescale None"
     )
     assert exit_status == 0
+
+
+# pass to CL:
+# locan napari -f "locan/tests/test_data/five_blobs.txt" -t 1 --bin_size 20 --rescale None

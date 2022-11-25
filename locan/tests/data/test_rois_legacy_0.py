@@ -11,7 +11,6 @@ from locan import ROOT_DIR, LocData
 from locan.data import metadata_pb2
 from locan.data.rois import RoiLegacy_0
 from locan.locan_io.locdata.io_locdata import load_txt_file
-from locan.visualize.napari.utilities import _napari_shape_to_RoiRegion
 
 # fixtures
 
@@ -211,27 +210,3 @@ def test_as_artist():
     # plt.show()
 
     plt.close("all")
-
-
-def test__napari_shape_to_RoiRegion():
-    # rectangle
-    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
-    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
-    region = _napari_shape_to_RoiRegion(vertices, bin_edges, "rectangle")
-    for a, b in zip(region.region_specs, ((0.0, 2.0), 25.0, 3.0999999999999996, 0)):
-        assert a == b
-
-    # ellipse
-    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
-    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
-    region = _napari_shape_to_RoiRegion(vertices, bin_edges, "ellipse")
-    for a, b in zip(region.region_specs, ((12.5, 3.55), 25.0, 3.0999999999999996, 0)):
-        assert a == b
-
-    # polygon
-    vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
-    bin_edges = np.array([[0, 10, 20], [2, 3, 4, 5]], dtype=object)
-    region = _napari_shape_to_RoiRegion(vertices, bin_edges, "polygon")
-    assert np.array_equal(
-        region.region_specs, np.array([[0, 2], [25, 2], [25, 5.1], [0, 5.1], [0, 2]])
-    )

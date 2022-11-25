@@ -26,4 +26,6 @@ def test_file_dialog():
     # result = file_dialog()
     # print(result)
     assert len(result) == 1
-    assert result == str(file_path)
+    assert result == str(file_path).replace("\\", "/") or result[0] == str(
+        file_path
+    ).replace("\\", "/")

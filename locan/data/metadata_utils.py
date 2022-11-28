@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import importlib
 import logging
+from typing import BinaryIO  # noqa: F401
 
 try:
     import tomllib
@@ -20,7 +21,12 @@ from google.protobuf.message import Message
 
 from locan.data import metadata_pb2
 
-__all__ = ["metadata_to_formatted_string", "metadata_from_toml", "message_scheme"]
+__all__ = [
+    "metadata_to_formatted_string",
+    "metadata_from_toml_string",
+    "load_metadata_from_toml",
+    "message_scheme",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -157,28 +163,20 @@ def metadata_to_formatted_string(message, **kwargs):
     )
 
 
-def metadata_from_toml(file):
+def _toml_dict_to_protobuf(toml_dict):
     """
-    Turn toml file into protobuf message instances.
-
-    Note
-    -----
-    Parses Timestamp elements from string '2022-05-14T06:58:00Z'.
-    Parses Duration elements from int in nanoseconds.
+    Turn toml dict into protobuf messages.
 
     Parameters
     ----------
-    file : str
-        TOML file-like to load from.
+    toml_string : str
+        TOML string with metadata.
 
     Returns
     -------
     dict[str, google.protobuf.message.Message]
         Message instances with name as declared in toml file.
     """
-    # load toml file
-    toml_dict = tomllib.loads(file)
-
     # instantiate messages
     instances = {}
     for message in toml_dict.pop("messages"):
@@ -193,6 +191,57 @@ def metadata_from_toml(file):
         )
 
     return instances
+
+
+def metadata_from_toml_string(toml_string):
+    """
+    Turn toml string into protobuf message instances.
+
+    Note
+    -----
+    Parses Timestamp elements from string '2022-05-14T06:58:00Z'.
+    Parses Duration elements from int in nanoseconds.
+
+    Parameters
+    ----------
+    toml_string : str
+        TOML string with metadata.
+
+    Returns
+    -------
+    dict[str, google.protobuf.message.Message]
+        Message instances with name as declared in toml file.
+    """
+    toml_dict = tomllib.loads(toml_string)
+    return _toml_dict_to_protobuf(toml_dict)
+
+
+def load_metadata_from_toml(path_or_file_like):
+    """
+    Turn toml file into protobuf message instances.
+
+    Note
+    -----
+    Parses Timestamp elements from string '2022-05-14T06:58:00Z'.
+    Parses Duration elements from int in nanoseconds.
+
+    Parameters
+    ----------
+    path_or_file_like : str | bytes | os.PathLike | BinaryIO
+        File path or file-like for a TOML file.
+
+    Returns
+    -------
+    dict[str, google.protobuf.message.Message]
+        Message instances with name as declared in toml file.
+    """
+    try:
+        toml_dict = tomllib.load(path_or_file_like)
+    except AttributeError:
+        with open(path_or_file_like, "rb") as file:
+            toml_dict = tomllib.load(file)
+
+    return _toml_dict_to_protobuf(toml_dict)
 
 
 def message_scheme(message) -> dict:

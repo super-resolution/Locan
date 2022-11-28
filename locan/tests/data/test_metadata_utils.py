@@ -3,7 +3,12 @@ from copy import copy
 import google.protobuf.message
 import pytest
 
-from locan import message_scheme, metadata_from_toml, metadata_to_formatted_string
+from locan import (
+    load_metadata_from_toml,
+    message_scheme,
+    metadata_from_toml_string,
+    metadata_to_formatted_string,
+)
 from locan.data import metadata_pb2
 from locan.data.metadata_utils import _dict_to_protobuf, _modify_meta
 
@@ -156,8 +161,8 @@ def test__dict_to_protobuf(meta_dict):
     assert results_string == results_string_expected
 
 
-def test_metadata_from_toml(metadata_toml):
-    result = metadata_from_toml(metadata_toml)
+def test_metadata_from_toml_string(metadata_toml):
+    result = metadata_from_toml_string(metadata_toml)
     assert isinstance(result, dict)
     assert isinstance(result["metadata"], google.protobuf.message.Message)
     results_string = metadata_to_formatted_string(
@@ -171,6 +176,33 @@ def test_metadata_from_toml(metadata_toml):
         'localizer { software: "rapidSTORM" } production_time { 2022-05-14T06:58:00Z }'
     )
     assert results_string == results_string_expected
+
+
+def test_metadata_from_toml_file(tmp_path, metadata_toml):
+    file_path = tmp_path / "metadata_toml.toml"
+    with file_path.open("w", encoding="utf-8") as file:
+        file.write(metadata_toml)
+
+    # load path-like
+    result = load_metadata_from_toml(file_path)
+
+    assert isinstance(result["metadata"], google.protobuf.message.Message)
+    results_string = metadata_to_formatted_string(
+        message=result["metadata"], as_one_line=True
+    )
+    results_string_expected = (
+        'identifier: "123" comment: "my comment" ancestor_identifiers: "1" '
+        'ancestor_identifiers: "2" relations { identifier: "1" } experiment { '
+        'setups { identifier: "1" optical_units { identifier: "1" detection { '
+        'camera { identifier: "1" integration_time { 0.010s } } } } } } '
+        'localizer { software: "rapidSTORM" } production_time { 2022-05-14T06:58:00Z }'
+    )
+    assert results_string == results_string_expected
+
+    # load file-like
+    with open(file_path, "rb") as f:
+        result = load_metadata_from_toml(f)
+    assert isinstance(result, dict)
 
 
 def test_message_scheme(metadata):

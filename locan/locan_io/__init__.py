@@ -11,9 +11,12 @@ Submodules:
    :toctree: ./
 
    locdata
+   utilities
 
 """
 from .locdata import *
+from .utilities import *
 
 __all__ = []
 __all__.extend(locdata.__all__)
+__all__.extend(utilities.__all__)

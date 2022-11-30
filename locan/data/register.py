@@ -17,7 +17,7 @@ from lmfit import Model, Parameters
 from locan.data.aggregate import histogram
 from locan.data.locdata import LocData
 from locan.data.properties.locdata_statistics import range_from_collection
-from locan.data.transform.transformation import _homogeneous_matrix
+from locan.data.transform.spatial_transformation import _homogeneous_matrix
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["open3d"]:
@@ -248,7 +248,8 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
     # Find the brightest pixel and cut out the fit ROI
     y_max_, x_max_ = np.unravel_index(XCorr.argmax(), XCorr.shape)
     FitROI = XCorr[
-        y_max_ - fit_X : y_max_ + fit_X + 1, x_max_ - fit_X : x_max_ + fit_X + 1,
+        y_max_ - fit_X : y_max_ + fit_X + 1,
+        x_max_ - fit_X : x_max_ + fit_X + 1,
     ]
 
     dimensions = FitROI.shape
@@ -258,7 +259,7 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
     else:
         # The fit model based on lmfit
         def flat_2d_gaussian(a, xc, yc, s, b):
-            A = a * np.exp(-0.5 * ((x - xc) ** 2 + (y - yc) ** 2) / s ** 2) + b
+            A = a * np.exp(-0.5 * ((x - xc) ** 2 + (y - yc) ** 2) / s**2) + b
             return A.flatten()
 
         gaussian2d = Model(flat_2d_gaussian, name="2D Gaussian", independent_vars=[])

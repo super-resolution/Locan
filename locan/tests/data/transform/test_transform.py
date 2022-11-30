@@ -10,7 +10,7 @@ from locan.data.cluster import cluster_dbscan
 from locan.data.region import Polygon
 from locan.data.transform import overlay, randomize, transform_affine
 from locan.data.transform.bunwarpj import _read_matrix, _unwarp
-from locan.data.transform.transformation import _homogeneous_matrix
+from locan.data.transform.spatial_transformation import _homogeneous_matrix
 from locan.dependencies import HAS_DEPENDENCY
 from locan.locan_io.locdata.io_locdata import load_asdf_file
 

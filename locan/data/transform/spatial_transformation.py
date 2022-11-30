@@ -6,6 +6,7 @@ This module takes localization data and applies transformation procedures on
 coordinates or other properties.
 
 """
+import logging
 import sys
 
 import numpy as np
@@ -22,6 +23,8 @@ if HAS_DEPENDENCY["open3d"]:
 
 
 __all__ = ["transform_affine", "randomize", "overlay"]
+
+logger = logging.getLogger(__name__)
 
 
 def _transform_affine_numpy(points, matrix=None, offset=None, pre_translation=None):

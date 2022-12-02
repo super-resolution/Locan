@@ -132,8 +132,8 @@ def _localization_property2d(
     img = adjust_contrast(img, rescale)
 
     # prepare one-dimensional data
-    xx, yy = np.meshgrid(bins.bin_edges[0][1:], bins.bin_edges[1][1:])
-
+    x, y = bins.bin_centers
+    xx, yy = np.meshgrid(x, y, indexing="ij")
     # eliminate image zeros
     positions = np.nonzero(~np.isnan(img))
 
@@ -164,14 +164,16 @@ class LocalizationProperty2d(_Analysis):
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     loc_properties : list, None
-        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
+        Localization properties to be grouped into bins.
+        If None, the coordinate_values of locdata are used.
     other_property : str, None
-        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
-        shown.
+        Localization property (columns in locdata.data) that is averaged in each pixel.
+        If None, the localization counts are shown.
     bins : int, sequence, Bins, boost_histogram.axis.Axis, None
         The bin specification as defined in :class:`Bins`
-    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges), None
-        Array of bin edges for all or each dimension.
+    bin_edges : tuple | list | numpy.ndarray[float] | None
+        Array of bin edges with shape (dimension, n_bin_edges)
+        for all or each dimension.
     n_bins : int, list, tuple, numpy.ndarray, None
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
@@ -292,19 +294,19 @@ class LocalizationProperty2d(_Analysis):
             return ax
 
         ax.imshow(
-            self.results.image,
+            self.results.image.T,
             cmap="viridis",
             origin="lower",
             extent=np.ravel(self.results.bins.bin_range),
         )
 
-        x, y = self.results.bins.bin_edges[0][1:], self.results.bins.bin_edges[1][1:]
-        xx, yy = np.meshgrid(x, y)
+        x, y = self.results.bins.bin_centers
+        xx, yy = np.meshgrid(x, y, indexing="ij")
         zz = np.stack((xx, yy), axis=-1).reshape((np.product(xx.shape), 2))
         z = self.results.model_result.eval(points=zz)
 
         contourset = ax.contour(
-            x, y, z.reshape((len(y), len(x))), 8, colors="w", **kwargs
+            x, y, z.reshape((len(x), len(y))).T, 8, **dict(dict(colors="w"), **kwargs)
         )
         plt.clabel(contourset, fontsize=9, inline=1)
         ax.set(
@@ -337,19 +339,19 @@ class LocalizationProperty2d(_Analysis):
         if not self:
             return ax
 
-        x, y = self.results.bins.bin_edges[0][1:], self.results.bins.bin_edges[1][1:]
-        xx, yy = np.meshgrid(x, y)
+        x, y = self.results.bins.bin_centers
+        xx, yy = np.meshgrid(x, y, indexing="ij")
         zz = np.stack((xx, yy), axis=-1).reshape((np.product(xx.shape), 2))
         z = self.results.model_result.eval(points=zz)
 
         residuals = np.where(
             self.results.image == 0,
             np.nan,
-            z.reshape((len(y), len(x))) - self.results.image,
+            z.reshape((len(x), len(y))) - self.results.image,
         )
         max_absolute_value = max([abs(np.nanmin(residuals)), abs(np.nanmax(residuals))])
         ax.imshow(
-            residuals,
+            residuals.T,
             cmap=COLORMAP_DIVERGING,
             origin="lower",
             extent=np.ravel(self.results.bins.bin_range),
@@ -357,8 +359,11 @@ class LocalizationProperty2d(_Analysis):
             vmax=max_absolute_value,
         )
 
-        # contourset = ax.contour(x, y, z.special((len(y), len(x))), 8, colors='w', **kwargs)
-        # plt.clabel(contourset, fontsize=9, inline=1)
+        contourset = ax.contour(
+            x, y, z.reshape((len(x), len(y))).T, 8, **dict(dict(colors="w"), **kwargs)
+        )
+        plt.clabel(contourset, fontsize=9, inline=1)
+
         ax.set(
             title=self.parameter["other_property"],
             xlabel=self.results.label[0],
@@ -367,7 +372,7 @@ class LocalizationProperty2d(_Analysis):
 
         return ax
 
-    def plot_deviation_from_mean(self, ax=None, **kwargs):
+    def plot_deviation_from_mean(self, ax=None):
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
 
@@ -375,8 +380,6 @@ class LocalizationProperty2d(_Analysis):
         ----------
         ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
-        kwargs : dict
-            Other parameters passed to :func:`matplotlib.pyplot.contour`.
 
         Returns
         -------
@@ -398,7 +401,7 @@ class LocalizationProperty2d(_Analysis):
             [abs(np.nanmin(deviations)), abs(np.nanmax(deviations))]
         )
         ax.imshow(
-            deviations,
+            deviations.T,
             cmap=COLORMAP_DIVERGING,
             origin="lower",
             extent=np.ravel(self.results.bins.bin_range),
@@ -414,7 +417,7 @@ class LocalizationProperty2d(_Analysis):
 
         return ax
 
-    def plot_deviation_from_median(self, ax=None, **kwargs):
+    def plot_deviation_from_median(self, ax=None):
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
 
@@ -422,8 +425,6 @@ class LocalizationProperty2d(_Analysis):
         ----------
         ax : matplotlib.axes.Axes
             The axes on which to show the image
-        kwargs : dict
-            Other parameters passed to :func:`matplotlib.pyplot.contour`.
 
         Returns
         -------
@@ -445,7 +446,7 @@ class LocalizationProperty2d(_Analysis):
             [abs(np.nanmin(deviations)), abs(np.nanmax(deviations))]
         )
         ax.imshow(
-            deviations,
+            deviations.T,
             cmap=COLORMAP_DIVERGING,
             origin="lower",
             extent=np.ravel(self.results.bins.bin_range),

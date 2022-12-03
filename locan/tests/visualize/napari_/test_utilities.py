@@ -48,6 +48,9 @@ def test__shape_to_region():
     )
 
 
+@pytest.mark.skipif(
+    not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
+)
 def test__shapes_to_regions(make_napari_viewer, locdata_blobs_2d):
     viewer = make_napari_viewer()
     shape_data = (np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]]), "rectangle")
@@ -72,6 +75,9 @@ def test__shapes_to_regions(make_napari_viewer, locdata_blobs_2d):
         assert repr(region) == expected
 
 
+@pytest.mark.skipif(
+    not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
+)
 def test_get_rois(make_napari_viewer, locdata_blobs_2d):
     viewer = make_napari_viewer()
     shape_data = (np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]]), "rectangle")
@@ -93,6 +99,9 @@ def test_get_rois(make_napari_viewer, locdata_blobs_2d):
         assert roi.loc_properties == ["position_x", "position_y"]
 
 
+@pytest.mark.skipif(
+    not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
+)
 def test_save_rois(make_napari_viewer, locdata_blobs_2d, tmp_path):
     viewer = make_napari_viewer()
     shape_data = (np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]]), "rectangle")

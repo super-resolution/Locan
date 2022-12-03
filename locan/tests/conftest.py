@@ -8,7 +8,8 @@ import pytest
 import locan.data.metadata_pb2
 from locan import ROOT_DIR, LocData
 from locan.dependencies import HAS_DEPENDENCY
-from locan.locan_io.locdata.io_locdata import load_rapidSTORM_file, load_txt_file
+from locan.locan_io.locdata.io_locdata import load_txt_file
+from locan.locan_io.locdata.rapidstorm_io import load_rapidSTORM_file
 
 logger = logging.getLogger(__name__)
 

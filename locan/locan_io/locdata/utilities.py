@@ -31,7 +31,8 @@ def convert_property_types(dataframe, types, loc_properties=None):
     types : dict
         Mapping of loc_properties to types
     loc_properties : list(str), None
-        The columns in dataframe to be converted. If None all columns will be converted according to types.
+        The columns in dataframe to be converted.
+        If None, all columns will be converted according to types.
 
     Returns
     -------
@@ -89,7 +90,7 @@ def open_path_or_file_like(path_or_file_like, mode="r", encoding=None):
 def convert_property_names(properties, property_mapping=None):
     """
     Convert property names to standard locan property names if a mapping is provided.
-    Otherwise leave the property name a is and throw a warning.
+    Otherwise, leave the property name as is and throw a warning.
 
     Parameters
     ----------

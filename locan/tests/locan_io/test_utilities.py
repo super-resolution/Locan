@@ -1,6 +1,4 @@
-from locan_io.utilities import find_pattern_upstream
-
-from locan import ROOT_DIR
+from locan import ROOT_DIR, find_pattern_upstream
 
 
 def test_find_pattern_upstream():

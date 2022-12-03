@@ -4,11 +4,11 @@ from platform import system
 
 import numpy as np
 import pytest
-from locan_io.locdata.utilities import open_path_or_file_like
 
 from locan import ROOT_DIR
 from locan.constants import DECODE_KEYS, THUNDERSTORM_KEYS
 from locan.locan_io import convert_property_names, convert_property_types
+from locan.locan_io.locdata.utilities import open_path_or_file_like
 
 
 def test_open_path_or_file_like():

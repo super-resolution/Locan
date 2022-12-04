@@ -3,6 +3,8 @@
 This module provides functions for rendering locdata objects in 2D.
 
 """
+from __future__ import annotations
+
 import logging
 
 import matplotlib.colors as mcolors

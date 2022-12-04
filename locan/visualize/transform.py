@@ -2,15 +2,19 @@
 Transform intensity values.
 
 This module provides functions and classes to rescale intensity values.
-In addition to the presented functions, rescaling can further be performed by third-party modules like:
+In addition to the presented functions, rescaling can further be performed by
+third-party modules like:
 1) matplotlib.colors
 2) skimage.exposure
 3) astropy.visualization.
 
-Callable transformation classes that inherit from :class:`matplotlib.colors.Normalize` and specify an inverse transformation
+Callable transformation classes that inherit from
+:class:`matplotlib.colors.Normalize` and specify an inverse transformation
 can be passed to the `norm` parameter.
 
 """
+from __future__ import annotations
+
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -111,20 +115,23 @@ class HistogramEqualization(mcolors.Normalize, Transform):
     """
     Histogram equalization with power intensification.
 
-    The transformation function as described in [1]_ is :math:`f(a, p)` according to:
+    The transformation function as described in [1]_ is :math:`f(a, p)`
+    according to:
 
     .. math::
 
        \\frac{f(a) - f(a_min)} {f(a_max) - f(a_min)} =
        \\frac{\\int_{a_min}^{a}{h^p(a') da'}} {\\int_{a_min}^{a_max}{h^p(a') da'}}
 
-    Here, :math:`a` is an intensity value, :math:`p` the power (a parameter), and :math:`h(a)` the histogram of
+    Here, :math:`a` is an intensity value, :math:`p` the power (a parameter),
+    and :math:`h(a)` the histogram of
     intensities.
 
     Notes
     -----
     The default for n_bins is 65536 (16 bit).
-    For most SMLM datasets this should be sufficient to resolve individual localizations despite a large dynamic range.
+    For most SMLM datasets this should be sufficient to resolve individual
+    localizations despite a large dynamic range.
     Setting n_bins to 256 (8 bit) is too course for many SMLM datasets.
 
     References
@@ -134,14 +141,17 @@ class HistogramEqualization(mcolors.Normalize, Transform):
     Parameters
     ----------
     reference : array-like
-        The data values to define the transformation function. If None then the values in `__call__` are used.
+        The data values to define the transformation function. If None then
+        the values in `__call__` are used.
     power : float
         The `power` intensification parameter.
     n_bins : int
         Number of bins used to compute the intensity histogram.
     mask : array-like[bool]
-        A bool mask with shape equal to that of values. If reference is None, reference is set to values[mask].
-        The transformation determined from reference is then applied to all values.
+        A bool mask with shape equal to that of values. If reference is None,
+        reference is set to values[mask].
+        The transformation determined from reference is then applied to all
+        values.
     """
 
     def __init__(
@@ -206,11 +216,13 @@ def adjust_contrast(image, rescale=True, **kwargs):
     image : array-like
         Values to be adjusted
     rescale : int, str, Trafo, callable, bool, None
-        Transformation as defined in :class:`locan.constants.Trafo` or by transformation function.
+        Transformation as defined in :class:`locan.constants.Trafo` or by
+        transformation function.
         For None or False no rescaling occurs.
         Legacy behavior:
         For tuple with upper and lower bounds provided in percent,
-        rescale intensity values to be within percentile of max and min intensities
+        rescale intensity values to be within percentile of max and min
+        intensities.
         For 'equal' intensity values are rescaled by histogram equalization.
     kwargs : dict
         Other parameters that are passed to the specific Transformation class.
@@ -230,7 +242,7 @@ def adjust_contrast(image, rescale=True, **kwargs):
     ):
         new_image = exposure.rescale_intensity(
             image * 1.0,
-            **dict(dict(in_range=(np.nanmin(image), np.nanmax(image))), **kwargs)
+            **dict(dict(in_range=(np.nanmin(image), np.nanmax(image))), **kwargs),
         )
 
     elif (
@@ -244,8 +256,8 @@ def adjust_contrast(image, rescale=True, **kwargs):
             image,
             **dict(
                 dict(in_range=(np.nanmin(image), np.nanmax(image)), out_range=(0, 255)),
-                **kwargs
-            )
+                **kwargs,
+            ),
         ).astype(np.uint8)
 
     elif (
@@ -255,7 +267,7 @@ def adjust_contrast(image, rescale=True, **kwargs):
     ):
         new_image = exposure.rescale_intensity(
             image * 1.0,
-            **dict(dict(in_range=(0, np.nanmax(image)), out_range=(0, 1)), **kwargs)
+            **dict(dict(in_range=(0, np.nanmax(image)), out_range=(0, 1)), **kwargs),
         )
 
     elif (
@@ -265,7 +277,7 @@ def adjust_contrast(image, rescale=True, **kwargs):
     ):
         new_image = exposure.rescale_intensity(
             image,
-            **dict(dict(in_range=(0, np.nanmax(image)), out_range=(0, 255)), **kwargs)
+            **dict(dict(in_range=(0, np.nanmax(image)), out_range=(0, 255)), **kwargs),
         ).astype(np.uint8)
 
     elif (

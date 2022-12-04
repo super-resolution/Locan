@@ -4,6 +4,8 @@ This module provides functions to interact with napari
 for rendering `LocData` objects in 3D.
 
 """
+from __future__ import annotations
+
 import logging
 
 import numpy as np

@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Sören"
+  given-names: "Doose"
+  orcid: "https://orcid.org/0000-0002-6983-1182"
+title: "Locan"
+version: 0.13-dev
+doi: "10.5281/zenodo.5722472"
+date-released: 2022
+url: "https://github.com/super-resolution/Locan"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Sören"
+      given-names: "Doose"
+      orcid: "https://orcid.org/0000-0002-6983-1182"
+  doi: "10.1093/bioinformatics/btac160"
+  journal: "Bioinformatics"
+  start: 2670 # First page number
+  end: 2672 # Last page number
+  title: "LOCAN: a python library for analyzing single-molecule localization microscopy data"
+  issue: 9
+  volume: 38
+  year: 2022

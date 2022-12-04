@@ -53,7 +53,7 @@ Citing
 
 If you want to acknowledge locan please cite the following publication:
 
-Sören Doose, LOCAN: a python library for analyzing single-molecule localization microscopy data, Bioinformatics, 2022,
+Sören Doose, LOCAN: a python library for analyzing single-molecule localization microscopy data, Bioinformatics 38(9), 2670–2672, 2022,
 https://doi.org/10.1093/bioinformatics/btac160
 
 Or cite this repository using the DOI provided by zenodo:

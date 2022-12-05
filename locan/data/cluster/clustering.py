@@ -3,6 +3,7 @@
 Methods for clustering localization data in LocData objects.
 
 """
+from __future__ import annotations
 
 import sys
 from copy import copy
@@ -27,7 +28,7 @@ def cluster_hdbscan(
     min_cluster_size=5,
     loc_properties=None,
     allow_single_cluster=False,
-    **kwargs
+    **kwargs,
 ):
     """
     Cluster localizations in locdata using the hdbscan clustering algorithm.
@@ -36,9 +37,9 @@ def cluster_hdbscan(
     ----------
     locdata : LocData
         Localization data on which to perform the manipulation.
-    loc_properties : list of string, None
+    loc_properties : list[str] | None
         The LocData properties to be used for clustering.
-        If None, locdata.coordinates will be used.
+        If None, `locdata.coordinates` will be used.
     min_cluster_size : int
         Minimumm cluster size in HDBSCAN algorithm (default: 5)
     allow_single_cluster : bool
@@ -48,7 +49,7 @@ def cluster_hdbscan(
 
     Returns
     -------
-    tuple (LocData, LocData)
+    tuple[LocData, LocData]
         A tuple with noise and cluster.
         The first LocData object is a selection of all localizations that are
         defined as noise, in other words all localizations that are not part
@@ -76,7 +77,7 @@ def cluster_hdbscan(
             min_cluster_size=min_cluster_size,
             allow_single_cluster=allow_single_cluster,
             gen_min_span_tree=False,
-            **kwargs
+            **kwargs,
         ).fit_predict(fit_data)
 
         grouped = locdata.data.groupby(labels)
@@ -132,15 +133,15 @@ def cluster_dbscan(locdata, eps=20, min_samples=5, loc_properties=None, **kwargs
         The number of samples in a neighborhood for a point to be considered
         as a core point.
         This includes the point itself.
-    loc_properties : list of string, None
+    loc_properties : list[str] | None
         The LocData properties to be used for clustering. If None,
-        locdata.coordinates will be used.
+        `locdata.coordinates` will be used.
     kwargs : dict
         Other parameters passed to `sklearn.cluster.DBSCAN`.
 
     Returns
     -------
-    tuple (LocData, LocData)
+    tuple[LocData, LocData]
         A tuple with noise and cluster.
         The first LocData object is a selection of all localizations that are
         defined as noise, in other words all localizations that are not part
@@ -230,18 +231,18 @@ def cluster_by_bin(
     bin_edges : tuple | list | numpy.ndarray[float] | None
         Array of bin edges with shape (n_bin_edges,)
         or (dimension, n_bin_edges) for all or each dimension.
-    n_bins : int | list | tuple | numpy.ndarray | None
+    n_bins : int | list[int] | tuple[int] | numpy.ndarray[int] | None
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float | list | tuple | numpy.ndarray | None
+    bin_size : float | list[float] | tuple[float] | numpy.ndarray[float] | None
         The size of bins in units of locdata coordinate units for all or each
         dimension.
         5 would describe bin_size of 5 for all bins in all dimensions.
         (2, 5) yields bins of size 2 for one dimension and 5 for the other
         dimension.
         To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple | tuple[tuple[float]] | str | None
+    bin_range : tuple[float] | tuple[tuple[float]] | str | None
         The data bin_range to be taken into consideration for all or each
         dimension.
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;

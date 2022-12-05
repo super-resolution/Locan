@@ -3,8 +3,11 @@
 Utility methods for clustering locdata.
 
 """
+from __future__ import annotations
+
 import itertools
 import sys
+from collections.abc import Callable  # noqa: F401
 
 from locan.data.locdata import LocData
 
@@ -13,27 +16,29 @@ __all__ = ["serial_clustering"]
 
 def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
     """
-    Run and analyse a series of clustering processes to identify optimal parameters.
+    Run and analyse a series of clustering processes to identify optimal
+    parameters.
 
     Parameters
     ----------
     locdata : LocData
         Localization data.
-    algorithm : callable
+    algorithm : Callable
         The locan clustering algorithm to use on locdata.
     parameter_lists : dict
-        A dictionary with all parameter lists that are to be iterated. The keys should be identical to parameter names
-        of the used algorithm.
+        A dictionary with all parameter lists that are to be iterated.
+        The keys should be identical to parameter names of the used algorithm.
     kwargs : dict
         Optional keyword arguments that are passed to the algorithm.
 
     Returns
     -------
-    Tuple of LocData
-        The first element is a LocData object with a selection of all localizations that are defined as noise.
+    tuple[LocData]
+        The first element is a LocData object with a selection of all
+        localizations that are defined as noise.
         If noise is false this element will be None.
-        The second element is a new LocData instance assembling all generated selections (i.e. localization cluster).
-
+        The second element is a new LocData instance assembling all generated
+        selections (i.e. localization cluster).
     """
     parameter = locals()
 

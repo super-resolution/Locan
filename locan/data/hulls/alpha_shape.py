@@ -2,30 +2,39 @@
 
 Alpha shape
 
-This module provides methods for computing the alpha complex and specific alpha shapes
-together with related properties for LocData objects.
+This module provides methods for computing the alpha complex and specific
+alpha shapes together with related properties for LocData objects.
 
 Alpha shape is a hull object that
-defines a group of localizations bordering a concave hull (which does not have to be connected and might have
-holes) [1]_. It depends on a single parameter `alpha` (here defined to be a distance with a unit equal to the coordinate
-units of the given localization data). For `alpha` approaching infinity the alpha shape is equal to the convex hull.
+defines a group of localizations bordering a concave hull (which does not have
+to be connected and might have holes) [1]_. It depends on a single parameter
+`alpha` (here defined to be a distance with a unit equal to the coordinate
+units of the given localization data). For `alpha` approaching infinity the
+alpha shape is equal to the convex hull.
 
-In this context we call an alpha-complex the subgroup of simplexes of a Delaunay triangulation that is computed
-according to Edelsbrunner algorithm.  All localizations that lie on the boundary of the alpha-complex make up the
+In this context we call an alpha-complex the subgroup of simplexes of a
+Delaunay triangulation that is computed according to Edelsbrunner algorithm.
+All localizations that lie on the boundary of the alpha-complex make up the
 alpha shape.
 
-Internally we also work with an alpha-independent representation of the alpha-complex that allows efficient computation
-of alpha shapes for arbitrary alpha values.
+Internally we also work with an alpha-independent representation of the
+alpha-complex that allows efficient computation of alpha shapes for arbitrary
+alpha values.
 
-Simplices are classified as exterior (not part of the alpha complex), interior (not part of the boundary),
-regular (part of the boundary but not singular), and singular (part of the boundary but all simplices of higher
-dimension they are incident to are exterior).
+Simplices are classified as exterior (not part of the alpha complex), interior
+(not part of the boundary), regular (part of the boundary but not singular),
+and singular (part of the boundary but all simplices of higher dimension they
+are incident to are exterior).
 
 References
 ----------
-.. [1] H. Edelsbrunner and E. P. Mücke, Three-dimensional alpha shapes. ACM Trans. Graph. 13(1):43-72, 1994.
+.. [1] H. Edelsbrunner and E. P. Mücke, Three-dimensional alpha shapes.
+   ACM Trans. Graph. 13(1):43-72, 1994.
 """
+from __future__ import annotations
+
 import warnings
+from typing import Generator
 
 import networkx as nx
 import numpy as np
@@ -38,9 +47,13 @@ from locan.data.region_utils import regions_union
 __all__ = ["AlphaComplex", "AlphaShape"]
 
 
-def _k_simplex_index_list(d, k):
-    """Given a d-simplex with d being 2 or 3, indexes are provided for all k-simplices with k<d
-    that are part of the d-simplex."""
+def _k_simplex_index_list(
+    d: int, k: int
+) -> tuple[int, ...] | tuple[tuple[int, ...], ...]:
+    """
+    Given a d-simplex with d being 2 or 3, indexes are provided for all
+    k-simplices with k<d that are part of the d-simplex.
+    """
     if d == 2:
         if k == 0:
             return 0, 1, 2
@@ -61,9 +74,12 @@ def _k_simplex_index_list(d, k):
         raise ValueError
 
 
-def _k_simplex_neighbor_index_list(d, k):
-    """Given a d-simplex with d being 2 or 3, indexes for neighbor simplexes in the scipy.Delaunay triangulation
-    are provided for all k-simplices with k<d that are part of the d-simplex."""
+def _k_simplex_neighbor_index_list(d: int, k: int) -> tuple[int, ...]:
+    """
+    Given a d-simplex with d being 2 or 3, indexes for neighbor simplexes in
+    the scipy. Delaunay triangulation are provided for all k-simplices with k<d
+    that are part of the d-simplex.
+    """
     if d == 2 and k == 1:
         return 2, 0, 1
     elif d == 3 and k == 2:
@@ -72,8 +88,11 @@ def _k_simplex_neighbor_index_list(d, k):
         raise ValueError
 
 
-def _get_k_simplices(simplex, k=1):
-    """Function to extract k-simplices (e.g. edges) from a d-simplex (e.g. triangle; d>k)."""
+def _get_k_simplices(simplex, k: int = 1) -> Generator:
+    """
+    Function to extract k-simplices (e.g. edges) from a d-simplex
+    (e.g. triangle; d>k).
+    """
     d = len(simplex) - 1
     k_simplices = (
         [simplex[indx] for indx in indices] for indices in _k_simplex_index_list(d, k)
@@ -83,35 +102,46 @@ def _get_k_simplices(simplex, k=1):
 
 class AlphaComplex:
     """
-    Class for an alpha-independent representation of the alpha complex of the given points.
+    Class for an alpha-independent representation of the alpha complex of the
+    given points.
 
-    Here the alpha complex is the simplicial subcomplex of the Denlaunay triangulation together with the intervals
-    defining simplex membership for an alpha complex for a specific `alpha`.
+    Here the alpha complex is the simplicial subcomplex of the Denlaunay
+    triangulation together with the intervals defining simplex membership for
+    an alpha complex for a specific `alpha`.
 
     Parameters
     ----------
-    points : array-like with shape (npoints, ndim)
-        Coordinates of input points.
-    delaunay : scipy.spatial.Delaunay
-        Object with attribute `simplices` specifying a list of indices in the array of points that define the
-        simplexes in the Delaunay triangulation.
-        Also an attribute `neighbor` is required that specifies indices of neighboring simplices.
+    points : array-like
+        Coordinates of input points. Array with shape (npoints, ndim).
+    delaunay : scipy.spatial.Delaunay | None
+        Object with attribute `simplices` specifying a list of indices in the
+        array of points that define the simplexes in the Delaunay
+        triangulation.
+        Also, an attribute `neighbor` is required that specifies indices of
+        neighboring simplices.
         If None, scipy.stat.Delaunay(points) is computed.
 
     Attributes
     ----------
-    lines : list of tuple with shape (n_lines, 3)
-        1-simplices (lines) that represent a simplicial subcomplex of the Delaunay triangulation with intervals.
-    triangles : list of tuple with shape (n_triangles, 3)
-        2-simplices (triangles) that represent a simplicial subcomplex of the Delaunay triangulation with intervals.
-    tetrahedrons : list of tuple with shape (n_tetrahedrons, 3)
-        3-simplices (tetrahedrons) that represent a simplicial subcomplex of the Delaunay triangulation with intervals.
+    lines : list[tuple]
+        1-simplices (lines) that represent a simplicial subcomplex of the
+        Delaunay triangulation with intervals. Array with shape (n_lines, 3).
+    triangles : list[tuple]
+        2-simplices (triangles) that represent a simplicial subcomplex of the
+        Delaunay triangulation with intervals.
+        Array with shape (n_triangles, 3).
+    tetrahedrons : list[tuple]
+        3-simplices (tetrahedrons) that represent a simplicial subcomplex of
+        the Delaunay triangulation with intervals.
+        Array with shape (n_tetrahedrons, 3).
     dimension : int
         Spatial dimension of the hull.
     delaunay_triangulation : scipy.spatial.Delaunay
-        Object with attribute `simplices` specifying a list of indices in the array of points that define the
-        simplexes in the Delaunay triangulation.
-        Also an attribute `neighbor` is required that specifies indices of neighboring simplices.
+        Object with attribute `simplices` specifying a list of indices in the
+        array of points that define the simplexes in the Delaunay
+        triangulation.
+        Also, an attribute `neighbor` is required that specifies indices of
+        neighboring simplices.
     """
 
     def __init__(self, points, delaunay=None):
@@ -144,7 +174,8 @@ class AlphaComplex:
                 raise NotImplementedError
             else:
                 raise ValueError(
-                    f"There is no algorithm available for points with dimension {self.dimension}."
+                    f"There is no algorithm available for points with dimension "
+                    f"{self.dimension}."
                 )
 
     def _compute_2d(self):
@@ -202,8 +233,8 @@ class AlphaComplex:
 
     def get_alpha_complex_lines(self, alpha, type="all"):
         """
-        Simplicial subcomplex (lines) of the Delaunay triangulation for the specific alpha complex
-        for the given `alpha`.
+        Simplicial subcomplex (lines) of the Delaunay triangulation for the
+        specific alpha complex for the given `alpha`.
 
         Parameters
         ----------
@@ -215,7 +246,7 @@ class AlphaComplex:
 
         Returns
         -------
-        list of list of int
+        list[list[int]]
             The indices to specific points in `self.points`.
         """
         if np.size(self.lines) == 0:
@@ -233,12 +264,13 @@ class AlphaComplex:
             return [list(ac[0]) for ac in self.lines if ac[3] <= alpha]
         else:
             raise AttributeError(f"Parameter type: {type} is not valid.")
-        # a list of lists and not of tuples should be returned since the return value will be used for indexing arrays.
+        # a list of lists and not of tuples should be returned since the return value
+        # will be used for indexing arrays.
 
     def get_alpha_complex_triangles(self, alpha, type="all"):
         """
-        Simplicial subcomplex (triangles) of the Delaunay triangulation for the specific alpha complex
-        for the given `alpha`.
+        Simplicial subcomplex (triangles) of the Delaunay triangulation for
+        the specific alpha complex for the given `alpha`.
 
         Parameters
         ----------
@@ -291,7 +323,8 @@ class AlphaComplex:
         if np.size(self.lines) == 0:
             return G
 
-        # positions = {i: tuple(point) for i, point in enumerate(self.points)}  # positions for all nodes
+        # positions for all nodes:
+        # positions = {i: tuple(point) for i, point in enumerate(self.points)}
         # G.add_nodes_from(positions)
         ac_simplices = self.get_alpha_complex_lines(alpha, type)
         G.add_edges_from(ac_simplices, type=type)
@@ -318,7 +351,8 @@ class AlphaComplex:
         if np.size(self.triangles) == 0:
             return G
 
-        # positions = {i: tuple(point) for i, point in enumerate(self.points)}  # positions for all nodes
+        # positions for all nodes:
+        # positions = {i: tuple(point) for i, point in enumerate(self.points)}
         # G.add_nodes_from(positions)
         triangles = self.get_alpha_complex_triangles(alpha=alpha, type=type)
         for triangle, vertices in zip(
@@ -339,7 +373,7 @@ class AlphaComplex:
 
         Returns
         -------
-        float
+        AlphaShape
         """
         return AlphaShape(
             points=self.points,
@@ -380,24 +414,29 @@ class AlphaShape:
     """
     Class for the alpha shape of points for a specific alpha value.
 
-    Here the alpha complex is the simplicial subcomplex of the Denlaunay triangulation for a given alpha value.
-    The alhpa shape is the union of all simplexes of the alpha complex, specified by the boundary points of the
-    alpha complex.
+    Here the alpha complex is the simplicial subcomplex of the Delaunay
+    triangulation for a given alpha value.
+    The alpha shape is the union of all simplexes of the alpha complex,
+    specified by the boundary points of the alpha complex.
 
-    In order to update an existing AlphaShape object to a different `alpha` reset AlphaShape.alpha.
+    In order to update an existing AlphaShape object to a different `alpha`
+    reset AlphaShape.alpha.
 
     Parameters
     ----------
     alpha : float
         Alpha parameter specifying a unique alpha complex.
-    points : array-like with shape (npoints, ndim), None
-        Coordinates of input points. Either `points` or `alpha_complex` have to be specified but not both.
-    alpha_complex : AlphaComplex, None
+    points : array-like | None
+        Coordinates of input points with shape (npoints, ndim).
+        Either `points` or `alpha_complex` have to be specified but not both.
+    alpha_complex : AlphaComplex | None
         The unfiltered alpha complex with computed interval values.
-    delaunay : scipy.spatial.Delaunay, None
-        Object with attribute `simplices` specifying a list of indices in the array of points that define the
-        simplexes in the Delaunay triangulation.
-        Also an attribute `neighbor` is required that specifies indices of neighboring simplices.
+    delaunay : scipy.spatial.Delaunay | None
+        Object with attribute `simplices` specifying a list of indices in the
+        array of points that define the simplexes in the Delaunay
+        triangulation.
+        Also, an attribute `neighbor` is required that specifies indices of
+        neighboring simplices.
         If None, scipy.stat.Delaunay(points) is computed.
 
     Attributes
@@ -405,36 +444,45 @@ class AlphaShape:
     alpha_complex : AlphaComplex
         The unfiltered alpha complex with computed interval values.
     alpha_shape : numpy.ndarray
-        The list of k-simplices (edges) from the alpha complex that make up the alpha shape.
-        Or: Simplicial subcomplex of the Delaunay triangulation with regular simplices from the alpha complex.
+        The list of k-simplices (edges) from the alpha complex that make up
+        the alpha shape.
+        Or: Simplicial subcomplex of the Delaunay triangulation with regular
+        simplices from the alpha complex.
     region : Region
         Region object.
-    connected_components : list of Region
-        Connected components, i.e. a list of the individual unconnected polygons that together make up the alpha shape.
+    connected_components : list[Region]
+        Connected components, i.e. a list of the individual unconnected
+        polygons that together make up the alpha shape.
     dimension : int
-        Spatial dimension of the hull as determined from the dimension of `points`
+        Spatial dimension of the hull as determined from the dimension of
+        `points`
     vertices : array of (2,) tuples
-        Coordinates of points that make up the hull (regular alpha_shape line-simplices).
-    vertex_indices : list of int
-        Indices identifying a polygon of all points that make up the hull (regular alpha_shape line-simplices).
+        Coordinates of points that make up the hull
+        (regular alpha_shape line-simplices).
+    vertex_indices : list[int]
+        Indices identifying a polygon of all points that make up the hull
+        (regular alpha_shape line-simplices).
     vertices_alpha_shape : array of (2,) tuples
-        Coordinates of points that make up the interior and boundary of the hull
-        (regular, singular and interior alpha_shape line-simplices).
-    vertex_alpha_shape_indices : list of int
+        Coordinates of points that make up the interior and boundary of the
+        hull (regular, singular and interior alpha_shape line-simplices).
+    vertex_alpha_shape_indices : list[int]
         Indices to all points that make up the interior and boundary of the hull.
         (regular, singular and interior alpha_shape line-simplices).
-    vertices_connected_components_indices : list of list
+    vertices_connected_components_indices : list[list[int]]
         Indices to the points for each connected component of the alpha shape.
     n_points_on_boundary : float
-        The number of points on the hull (regular and singular alpha_shape simplices).
+        The number of points on the hull
+        (regular and singular alpha_shape simplices).
     n_points_on_boundary_rel : float
-        The number of points on the hull (regular and singular alpha_shape simplices)
+        The number of points on the hull
+        (regular and singular alpha_shape simplices)
         relative to all alpha_shape points.
     n_points_alpha_shape : int
         Absolute number of points that are part of the alpha_shape
         (regular, singular and interior alpha_shape simplices).
     n_points_alpha_shape_rel : int
-        Absolute number of points that are part of the alpha_shape relative to all input points
+        Absolute number of points that are part of the alpha_shape relative
+        to all input points
         (regular, singular and interior alpha_shape simplices).
     region_measure : float
         Hull measure, i.e. area or volume.

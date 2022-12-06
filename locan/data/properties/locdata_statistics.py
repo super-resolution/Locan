@@ -5,6 +5,8 @@ Compute statistics for localization data.
 These values can represent new properties of locdata.
 
 """
+from __future__ import annotations
+
 from collections import namedtuple
 
 import numpy as np
@@ -23,11 +25,12 @@ def statistics(
 
     Parameters
     ----------
-    locdata : LocData, pandas.DataFrame, pandas.Series
+    locdata : LocData | pandas.DataFrame | pandas.Series
         Localization data
 
-    statistic_keys : str, tuple of str
-        Pandas statistic functions. Default: ('count', 'min', 'max', 'mean', 'median', 'std', 'sem')
+    statistic_keys : str | tuple[str]
+        Pandas statistic functions.
+        Default: ('count', 'min', 'max', 'mean', 'median', 'std', 'sem')
 
     Returns
     -------
@@ -45,7 +48,7 @@ def statistics(
     statistics_ = data.agg(statistic_keys)
 
     if isinstance(locdata, pd.Series):
-        p = data.name
+        p = str(data.name)
         if isinstance(statistic_keys, str):
             dict_ = {p + "_" + statistic_keys: statistics_}
         else:
@@ -61,31 +64,34 @@ def statistics(
     return dict_
 
 
-def ranges(locdata: LocData, loc_properties=None, special=None, epsilon=1):
+def ranges(locdata, loc_properties=None, special=None, epsilon=1):
     """
-    Provide data ranges for locdata.data property.
-    If LocData is empty None is returned.
-    If LocData carries a single value, the range will be (value, value + `epsilon`).
+    Provide data ranges for localization properties.
+    If LocData is empty, None is returned.
+    If LocData carries a single localization, the range will be
+    (value, value + `epsilon`).
 
     Parameters
     ----------
     locdata : LocData
         Localization data.
-    loc_properties : str, tuple[str], list[str], True, None.
+    loc_properties : str | tuple[str, ...] | list[str] | True | None
         Localization properties for which the range is determined.
         If None the ranges for all spatial coordinates are returned.
-        If True the ranges for all locdata.data properties are returned.
-    special : None, str
+        If True the ranges for all localization properties are returned.
+    special : str | None
         If None (min, max) ranges are determined from data and returned;
         if 'zero' (0, max) ranges with max determined from data are returned.
-        if 'link' (min_all, max_all) ranges with min and max determined from all combined data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from
+        all combined data are returned.
     epsilon : float
         number to specify the range for single values in locdata.
 
     Returns
     -------
-    numpy.ndarray of float with shape (dimension, 2), None
+    numpy.ndarray[float] | None
         The data range (min, max) for each localization property.
+        Array of shape (dimension, 2).
     """
     if locdata.data.empty:
         return None
@@ -129,27 +135,30 @@ def ranges(locdata: LocData, loc_properties=None, special=None, epsilon=1):
 
 def range_from_collection(locdatas, loc_properties=None, special=None, epsilon=1):
     """
-    Compute the maximum range from all combined localizations for each dimension.
+    Compute the maximum range from all combined localizations for each
+    dimension.
 
     Parameters
     ----------
-    locdatas : list of LocData
+    locdatas : list[LocData]
         Collection of localization datasets.
-    loc_properties : str, tuple[str], list[str], True, None.
+    loc_properties : str | tuple[str, ...] | list[str] | True | None
         Localization properties for which the range is determined.
         If None the ranges for all spatial coordinates are returned.
         If True the ranges for all locdata.data properties are returned.
-    special : None, str
+    special : str | None
         If None (min, max) ranges are determined from data and returned;
         if 'zero' (0, max) ranges with max determined from data are returned.
-        if 'link' (min_all, max_all) ranges with min and max determined from all combined data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from
+        all combined data are returned.
     epsilon : float
         number to specify the range for single values in locdata.
 
     Returns
     -------
     namedtuple
-        A namedtuple('Ranges', locdata.coordinate_labels) of namedtuple('Range', 'min max').
+        A namedtuple('Ranges', locdata.coordinate_labels)
+        of namedtuple('Range', 'min max').
     """
     ranges_ = [
         ranges(

@@ -1,6 +1,8 @@
 """
 Functions to compute locdata properties.
 """
+from __future__ import annotations
+
 import logging
 from collections import namedtuple
 
@@ -22,7 +24,8 @@ logger = logging.getLogger(__name__)
 
 def distance_to_region(locdata, region):
     """
-    Determine the distance to the nearest point within `region` for all localizations.
+    Determine the distance to the nearest point within `region` for all
+    localizations.
     Returns zero if localization is within the region.
 
     Parameters
@@ -50,8 +53,10 @@ def distance_to_region(locdata, region):
 
 def distance_to_region_boundary(locdata, region):
     """
-    Determine the distance to the nearest region boundary for all localizations.
-    Returns a positive value regardless of weather the point is within or outside the region.
+    Determine the distance to the nearest region boundary for all
+    localizations.
+    Returns a positive value regardless of weather the point is within or
+    outside the region.
 
     Parameters
     ----------
@@ -88,32 +93,39 @@ def max_distance(locdata):
     Returns
     -------
     dict
-        A dict with key `max_distance` and the corresponding value being the maximum distance.
+        A dict with key `max_distance` and the corresponding value being the
+        maximum distance.
     """
     points = locdata.convex_hull.vertices
-    D = pdist(points)
-    distance = np.nanmax(D)
+    distances = pdist(points)
+    distance = np.nanmax(distances)
     return {"max_distance": distance}
 
 
 def inertia_moments(points):
     """
-    Return inertia moments (or principal components) and related properties for the given points.
-    Inertia moments are represented by eigenvalues (and corresponding eigenvectors) of the covariance matrix.
-    Variance_explained represents the eigenvalues normalized to the sum of all eigenvalues.
-    For 2-dimensional data, orientation is the angle (in degrees) between the principal axis
-    with the largest variance and the x-axis.
-    Also for 2-dimensional data, eccentricity is computed as e=Sqrt(1-M_min/M_max).
+    Return inertia moments (or principal components) and related properties
+    for the given points.
+    Inertia moments are represented by eigenvalues (and corresponding
+    eigenvectors) of the covariance matrix.
+    Variance_explained represents the eigenvalues normalized to the sum of all
+    eigenvalues.
+    For 2-dimensional data, orientation is the angle (in degrees) between the
+    principal axis with the largest variance and the x-axis.
+    Also, for 2-dimensional data, eccentricity is computed as
+    e=Sqrt(1-M_min/M_max).
 
     Parameters
     ----------
-    points : tuple, list, numpy.ndarray of shape (n_points, n_dim)
-        Point coordinates or other data.
+    points : tuple | list | numpy.ndarray[float]
+        Coordinates of input points. Array with shape (npoints, ndim).
 
     Returns
     -------
-    namedtuple(InertiaMoments, 'eigenvalues eigenvectors variance_explained orientation eccentricity')
-        A tuple with eigenvalues, eigenvectors, variance_explained, orientation, eccentricity
+    namedtuple(InertiaMoments, 'eigenvalues eigenvectors variance_explained
+    orientation eccentricity')
+        A tuple with eigenvalues, eigenvectors, variance_explained,
+        orientation, eccentricity
 
     Note
     ----

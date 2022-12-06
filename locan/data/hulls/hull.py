@@ -2,10 +2,12 @@
 
 Hull objects of localization data.
 
-This module computes specific hulls for the bounding box, convex hull and oriented bounding box
-and related properties for LocData objects.
+This module computes specific hulls for the bounding box, convex hull and
+oriented bounding box and related properties for LocData objects.
 
 """
+from __future__ import annotations
+
 import numpy as np
 import scipy.spatial as spat
 from shapely.geometry import MultiPoint as shMultiPoint
@@ -21,18 +23,20 @@ class BoundingBox:
 
     Parameters
     ----------
-    points : numpy.ndarray of double, shape (npoints, ndim)
-        Coordinates of input points.
+    points : numpy.ndarray[float]
+        Coordinates of input points. Array with shape (npoints, ndim).
 
     Attributes
     ----------
-    hull : array of arrays
-        Array of point coordinates that represent [[min_coordinates], [max_coordinates]].
+    hull : numpy.ndarray
+        Array of point coordinates of shape (2, ndim) that represent
+        [[min_coordinates], [max_coordinates]].
     dimension : int
         Spatial dimension of hull
-    vertices : array of coordinate tuples
+    vertices : numpy.ndarray
         Coordinates of points that make up the hull.
-    width : array of float
+        Array of shape (ndim, 2).
+    width : numpy.ndarray[float]
         Array with differences between max and min for each coordinate.
     region_measure : float
         Hull measure, i.e. area or volume
@@ -82,19 +86,20 @@ class _ConvexHullScipy:
 
     Parameters
     ----------
-    points : numpy.ndarray of double, shape (npoints, ndim)
-        Coordinates of input points.
+    points : numpy.ndarray
+        Coordinates of input points. Array with shape (npoints, ndim).
 
     Attributes
     ----------
-    hull : Hull object
+    hull : scipy.spatial.ConvexHull
         hull object from the corresponding algorithm
     dimension : int
         spatial dimension of hull
-    vertices : array of coordinate tuples
+    vertices : numpy.ndarray
         Coordinates of points that make up the hull.
-    vertex_indices : indices for points
-        indices identifying a polygon of all points that make up the hull
+        Array of shape (ndim, 2).
+    vertex_indices : numpy.ndarray
+        Indices identifying a polygon of all points that make up the hull.
     points_on_boundary : int
         absolute number of points that are part of the convex hull.
     points_on_boundary_rel : float
@@ -145,8 +150,8 @@ class _ConvexHullShapely:
 
     Parameters
     ----------
-    points : numpy.ndarray of double, shape (npoints, ndim)
-        Coordinates of input points.
+    points : numpy.ndarray
+        Coordinates of input points. Array with shape (npoints, ndim).
 
     Attributes
     ----------
@@ -154,9 +159,10 @@ class _ConvexHullShapely:
         Polygon object from the .convex_hull method
     dimension : int
         Spatial dimension of hull
-    vertices : array of coordinate tuples
+    vertices : numpy.ndarray
         Coordinates of points that make up the hull.
-    vertex_indices : indices for points
+        Array of shape (ndim, 2).
+    vertex_indices : numpy.ndarray
         indices identifying a polygon of all points that make up the hull
     points_on_boundary : int
         The absolute number of points on the hull
@@ -216,22 +222,25 @@ class ConvexHull:
 
     Parameters
     ----------
-    points : numpy.ndarray of double, shape (npoints, ndim)
-        Coordinates of input points.
-    method : string
-        Specific class to compute the convex hull and attributes. One of 'scipy', 'shapely'.
+    points : numpy.ndarray
+        Coordinates of input points. Array with shape (npoints, ndim).
+    method : str
+        Specific class to compute the convex hull and attributes.
+        One of 'scipy', 'shapely'.
 
     Attributes
     ----------
-    method : string
-        Specific class to compute the convex hull and attributes. One of 'scipy', 'shapely'.
+    method : str
+        Specific class to compute the convex hull and attributes.
+        One of 'scipy', 'shapely'.
     hull : Hull object
         Polygon object from the .convex_hull method
     dimension : int
         Spatial dimension of hull
-    vertices : array of coordinate tuples
+    vertices : numpy.ndarray
         Coordinates of points that make up the hull.
-    vertex_indices : indices for points
+        Array of shape (ndim, 2).
+    vertex_indices : numpy.ndarray
         indices identifying a polygon of all points that make up the hull
     points_on_boundary : int
         The absolute number of points on the hull
@@ -267,12 +276,14 @@ class ConvexHull:
 
 class OrientedBoundingBox:
     """
-    Class with oriented bounding box computed using the shapely minimum_rotated_rectangle method.
+    Class with oriented bounding box computed using the shapely
+    minimum_rotated_rectangle method.
 
     Parameters
     ----------
-    points : numpy.ndarray of double, shape (npoints, ndim)
-        Coordinates of input points.
+    ----------
+    points : numpy.ndarray
+        Coordinates of input points. Array with shape (npoints, ndim).
 
     Attributes
     ----------
@@ -280,9 +291,10 @@ class OrientedBoundingBox:
         Polygon object from the minimum_rotated_rectangle method
     dimension : int
         Spatial dimension of hull
-    vertices : array of coordinate tuples
+    vertices : numpy.ndarray
         Coordinates of points that make up the hull.
-    width : array of float
+        Array of shape (ndim, 2).
+    width : numpy.ndarray[float]
         Array with lengths of box edges.
     region_measure : float
         hull measure, i.e. area or volume
@@ -291,7 +303,8 @@ class OrientedBoundingBox:
     region : Region
         Convert the hull to a Region object.
     angle : float
-        Orientation defined as angle (in degrees) between the vector from first to last point and x-axis.
+        Orientation defined as angle (in degrees) between the vector from
+        first to last point and x-axis.
 
     """
 
@@ -318,7 +331,9 @@ class OrientedBoundingBox:
             )
             self.region_measure = self.hull.area
             self.subregion_measure = self.hull.length
-            self.angle = np.degrees(np.arctan2(difference[0][1], difference[0][0]))
+            self.angle = float(
+                np.degrees(np.arctan2(difference[0][1], difference[0][0]))
+            )
             # numpy.arctan2(y, x) takes reversed x, y arguments.
             self.elongation = 1 - np.divide(*sorted(self.width))
 
@@ -329,8 +344,10 @@ class OrientedBoundingBox:
     @property
     def region(self):
         if self.dimension == 2:
-            # region_ = RoiRegion(region_type='rectangle',
-            #                     region_specs=(self.vertices[0], self.width[0], self.width[1], self.angle))
+            # region_ = RoiRegion(
+            # region_type='rectangle',
+            # region_specs=(self.vertices[0], self.width[0], self.width[1], self.angle)
+            # )
             return Rectangle(self.vertices[0], self.width[0], self.width[1], self.angle)
         else:
             raise NotImplementedError

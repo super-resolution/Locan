@@ -6,6 +6,8 @@ This module takes localization data and applies transformation procedures on
 coordinates or other properties.
 
 """
+from __future__ import annotations
+
 import logging
 import sys
 
@@ -27,7 +29,9 @@ __all__ = ["transform_affine", "randomize", "overlay"]
 logger = logging.getLogger(__name__)
 
 
-def _transform_affine_numpy(points, matrix=None, offset=None, pre_translation=None):
+def _transform_affine_numpy(
+    points, matrix=None, offset=None, pre_translation=None
+) -> np.ndarray:
     """
     Transform `points` by an affine transformation using standard numpy
     procedures.
@@ -36,12 +40,17 @@ def _transform_affine_numpy(points, matrix=None, offset=None, pre_translation=No
     ----------
     points : array-like
         Points on which to perform the manipulation.
-    matrix : tuple with shape (d, d) | None
+    matrix : array-like | None
         Transformation matrix. If None the unit matrix is used.
-    offset : tuple of int or float with shape (d,) | None
-        Translation vector. If None a vector of zeros is used.
-    pre_translation : tuple of int or float | None
-        Translation vector for coordinates applied before affine transformation.
+        Array with shape (ndim, ndim).
+        If None the unit matrix is used.
+    offset : array-like | None
+        Translation vector.
+        Array with shape (ndim,).
+        If None a vector of zeros is used.
+    pre_translation : array-like | None
+        Translation vector for coordinates applied before affine
+        transformation. Array with shape (ndim,).
         The reverse translation is applied after the affine transformation.
 
     Returns
@@ -74,7 +83,7 @@ def _transform_affine_numpy(points, matrix=None, offset=None, pre_translation=No
     return transformed_points
 
 
-def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)):
+def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)) -> np.ndarray:
     """
     Combine transformation matrix and translation vector for dimension d into
     homogeneous (d+1, d+1) transformation
@@ -82,16 +91,18 @@ def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)):
 
     Parameters
     ----------
-    matrix : array-like of int or float with shape (d, d)
-        Transformation matrix.
-    offset : array-like of int or float with shape (d,)
+    matrix : array-like
+        Transformation matrix. If None the unit matrix is used.
+        Array with shape (ndim, ndim).
+    offset : array-like | None
         Translation vector.
+        Array with shape (ndim,).
 
     Returns
     -------
-    numpy.ndarray with shape (d+1, d+1)
+    numpy.ndarray
         Homogeneous transformation matrix to be used with homogeneous
-        coordinate vector.
+        coordinate vector. Array with shape (ndim+1, ndim+1).
     """
     dimension = np.shape(matrix)[0]
 
@@ -108,7 +119,9 @@ def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)):
     return matrix_
 
 
-def _transform_affine_open3d(points, matrix=None, offset=None, pre_translation=None):
+def _transform_affine_open3d(
+    points, matrix=None, offset=None, pre_translation=None
+) -> np.ndarray:
     """
     Transform `points` or coordinates in `locdata` by an affine
     transformation using open3d.
@@ -117,12 +130,17 @@ def _transform_affine_open3d(points, matrix=None, offset=None, pre_translation=N
     ----------
     points : array-like
         Points on which to perform the manipulation.
-    matrix : tuple with shape (d, d) | None
+    matrix : array-like | None
         Transformation matrix. If None the unit matrix is used.
-    offset : tuple of int or float with shape (d,) | None
-        Translation vector. If None a vector of zeros is used.
-    pre_translation : tuple of int or float | None
-        Translation vector for coordinates applied before affine transformation.
+        Array with shape (ndim, ndim).
+        If None the unit matrix is used.
+    offset : array-like | None
+        Translation vector.
+        Array with shape (ndim,).
+        If None a vector of zeros is used.
+    pre_translation : array-like | None
+        Translation vector for coordinates applied before affine
+        transformation. Array with shape (ndim,).
         The reverse translation is applied after the affine transformation.
 
     Returns
@@ -178,28 +196,33 @@ def _transform_affine_open3d(points, matrix=None, offset=None, pre_translation=N
 
 def transform_affine(
     locdata, matrix=None, offset=None, pre_translation=None, method="numpy"
-):
+) -> np.ndarray | LocData:
     """
     Transform `points` or coordinates in `locdata` by an affine transformation.
 
     Parameters
     ----------
-    locdata : numpy.ndarray or LocData
+    locdata : numpy.ndarray | LocData
         Localization data on which to perform the manipulation.
-    matrix : tuple with shape (d, d) | None
+    matrix : array-like | None
         Transformation matrix. If None the unit matrix is used.
-    offset : tuple of int or float with shape (d,) | None
-        Values for translation. If None a vector of zeros is used.
-    pre_translation : tuple of int or float | None
-        Translation vector for coordinates applied before affine transformation.
+        Array with shape (ndim, ndim).
+        If None the unit matrix is used.
+    offset : array-like | None
+        Translation vector.
+        Array with shape (ndim,).
+        If None a vector of zeros is used.
+    pre_translation : array-like | None
+        Translation vector for coordinates applied before affine
+        transformation. Array with shape (ndim,).
         The reverse translation is applied after the affine transformation.
-    method : string
+    method : str
         The method (i.e. library or algorithm) used for computation.
         One of 'numpy', 'open3d'.
 
     Returns
     -------
-    numpy.ndarray or LocData
+    numpy.ndarray | LocData
         New localization data with transformed coordinates.
     """
     local_parameter = locals()
@@ -262,10 +285,10 @@ def randomize(locdata, hull_region="bb", seed=None):
     ----------
     locdata : LocData
         Localization data to be randomized
-    hull_region : Region, str
+    hull_region : Region | str
         Region of interest. String identifier can be one of 'bb', 'ch', 'as',
         'obb' referring to the corresponding hull.
-    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : None, int, array_like[int], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -307,32 +330,35 @@ def randomize(locdata, hull_region="bb", seed=None):
 
 def overlay(locdatas, centers="centroid", orientations=None):
     """
-    Transform locdatas to their common center and rotate according to their
+    Translate locdatas to their common center and rotate according to their
     orientation.
 
-    Parameters:
-    -----------
-    locdatas : list[LocData]
+    Parameters
+    ----------
+    locdatas : Iterable[LocData]
         Localization data to overlay.
-    centers : array-like | str | None
+    centers : Iterable | str | None
         centers to which locdatas are translated.
         Must have the same length as locdatas.
         One of `centroid`, `ch`, 'bb', 'obb', or 'region'.
-    orientations : array-like | str | None
-        Orientation value to use in degree. One of `orientation_im`, `orientation_obb`
-        or None.
+        If None, no translation is applied.
+    orientations : Iterable | str | None
+        Orientation value to use in degree.
+        Must have the same length as locdatas.
+        If str, it must be one of `orientation_im`, `orientation_obb`.
+        If None, no rotation is applied.
 
-    Returns:
-    --------
+    Returns
+    -------
     LocData
         Collection with transformed locdatas.
 
     References
     ----------
     .. [1] Broeken J, Johnson H, Lidke DS, et al.
-    "Resolution improvement by 3 D particle averaging in localization microscopy"
-    Methods and applications in fluorescence, 3(1):014003, 2015,
-    doi:10.1088/2050-6120/3/1/014003.
+       "Resolution improvement by 3 D particle averaging in localization microscopy"
+       Methods and applications in fluorescence 3(1), 014003, 2015,
+       doi:10.1088/2050-6120/3/1/014003.
     """
     local_parameter = locals()
 

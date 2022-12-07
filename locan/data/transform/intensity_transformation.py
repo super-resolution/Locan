@@ -6,6 +6,8 @@ Localization intensities can be given in counts, electrons or photons.
 This module provides often used transformation functions.
 
 """
+from __future__ import annotations
+
 import logging
 import sys
 
@@ -57,12 +59,12 @@ def transform_counts_to_photons(locdata, loc_properties=None, metadata=None) -> 
 
     Parameters
     ----------
-    locdata : numpy.ndarray or LocData
+    locdata : LocData
         Localization data on which to perform the manipulation.
     loc_properties : str | list[str] | None
         Localization properties to be converted.
         If None the `intensity` values of locdata are used.
-    metadata : locan.data.metadata_pb2.Camera
+    metadata : locan.data.metadata_pb2.Camera | None
         Camera metadata with attribute offset, gain, electrons_per_count
         If None, locdata.meta.experiment.setups[0].optical_units[0].detection.camera
         is used.

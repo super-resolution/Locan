@@ -2,24 +2,33 @@
 
 Transform localization data with a BUnwarpJ transformation matrix.
 
-This module provides functions to transform coordinates in LocData objects by applying a B-spline transformation as
-defined with the ImageJ/Fiji plugin BunwarpJ_ [1]_, [2]_.
+This module provides functions to transform coordinates in LocData objects by
+applying a B-spline transformation as defined with the ImageJ/Fiji
+plugin BunwarpJ_ [1]_, [2]_.
 
 .. _BunwarpJ: https://imagej.net/BUnwarpJ
 
 References
 ----------
 
-.. [1] I. Arganda-Carreras, C. O. S. Sorzano, R. Marabini, J.-M. Carazo, C. Ortiz-de Solorzano, and J. Kybic,
-   "Consistent and Elastic Registration of Histological Sections using Vector-Spline Regularization",
-   Lecture Notes in Computer Science, Springer Berlin / Heidelberg, volume 4241/2006,
-   CVAMIA: Computer Vision Approaches to Medical Image Analysis, pages 85-95, 2006.
+.. [1] I. Arganda-Carreras, C. O. S. Sorzano, R. Marabini, J.-M. Carazo,
+   C. Ortiz-de Solorzano, and J. Kybic,
+   "Consistent and Elastic Registration of Histological Sections using
+   Vector-Spline Regularization",
+   Lecture Notes in Computer Science, Springer Berlin / Heidelberg,
+   volume 4241/2006,
+   CVAMIA: Computer Vision Approaches to Medical Image Analysis,
+   pages 85-95, 2006.
 
 .. [2] C.Ó. Sánchez Sorzano, P. Thévenaz, M. Unser,
-   "Elastic Registration of Biological Images Using Vector-Spline Regularization",
-   IEEE Transactions on Biomedical Engineering, vol. 52, no. 4, pp. 652-663, April 2005.
+   "Elastic Registration of Biological Images Using Vector-Spline
+   Regularization",
+   IEEE Transactions on Biomedical Engineering, vol. 52, no. 4,
+   pages 652-663, 2005.
 
 """
+from __future__ import annotations
+
 import sys
 from itertools import islice
 
@@ -34,23 +43,24 @@ from locan.data.transform.spatial_transformation import transform_affine
 __all__ = ["bunwarp"]
 
 
-def _unwarp(points, matrix_x, matrix_y, pixel_size):
+def _unwarp(points, matrix_x, matrix_y, pixel_size) -> np.ndarray:
     """
     Transform points with raw matrix from BunwarpJ.
 
     Parameters
     ----------
-    points : array-like with shape (n_points, 2)
-        Point coordinates to be transformed
+    points : array_like
+        Point coordinates to be transformed.
+        Array with shape (n_points, 2).
     matrix_x, matrix_y : array-like
         Transformation matrix for x and y coordinates
-    pixel_size : tuple (2,)
+    pixel_size : tuple[float, float]
         Pixel size for x and y component as used in ImageJ for registration
 
     Returns
     -------
-    numpy.ndarray with shape (n_points, 2)
-        Transformed point coordinates
+    numpy.ndarray
+        Transformed point coordinates with shape (n_points, 2).
     """
     points_ = np.asarray(points)
     point_indices = np.divide(points_, pixel_size)
@@ -72,21 +82,19 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size):
     return new_points
 
 
-def _read_matrix(path):
+def _read_matrix(path) -> tuple[np.ndarray, np.ndarray]:
     """
     Read file with raw matrix from BunwarpJ.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike
+    path : str | bytes | os.PathLike
         Path to file with a raw matrix from BunwarpJ.
 
     Returns
     -------
-    numpy.ndarray
-        x transformation array
-    numpy.ndarray
-        y transformation array
+    tuple[numpy.ndarray, numpy.ndarray]
+        x transformation array, y transformation array
     """
     with open(path) as file:
         header = list(islice(file, 2))
@@ -106,7 +114,7 @@ def _read_matrix(path):
     return matrix_x, matrix_y
 
 
-def bunwarp(locdata, matrix_path, pixel_size, flip=False):
+def bunwarp(locdata, matrix_path, pixel_size, flip=False) -> LocData:
     """
     Transform coordinates by applying a B-spline transformation
     as represented by a raw transformation matrix from BunwarpJ.
@@ -115,9 +123,9 @@ def bunwarp(locdata, matrix_path, pixel_size, flip=False):
     ----------
     locdata : LocData
         specifying the localization data on which to perform the manipulation.
-    matrix_path :
+    matrix_path : str | bytes | os.PathLike
         Path to file with a raw matrix from BunwarpJ.
-    pixel_size : tuple
+    pixel_size : tuple[float, float]
         Pixel sizes used to determine transition matrix in ImageJ
     flip : bool
         Flip locdata along x-axis before transformation

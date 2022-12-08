@@ -13,7 +13,7 @@ Submodules:
 
    render
    render_mpl
-   napari_
+   napari
    transform
 
 """

@@ -167,12 +167,12 @@ class Roi:
     ----------
     region : Region
         Geometrical region of interest.
-    reference : LocData, dict, locan.data.metadata_pb2.Metadata, None
-        Reference to localization data for which the region of interests
-        are defined. It can be a LocData object, a reference to a saved
+    reference : LocData, dict, locan.data.metadata_pb2.Metadata, locan.data.metadata_pb2.File, None
+        Reference to localization data for which the region of interest
+        is defined. It can be a LocData object, a reference to a saved
         SMLM file, or None for indicating no specific reference.
-        When referencing a saved SMLM file, reference must be a dict or
-        locan.data.metadata_pb2.Metadata with keys `file.path` and
+        When dict it must have keys `file_path`and `file_type`.
+        When Metadata message it must have keys `file.path` and
         `file.type` for a path pointing to a localization file and an
         integer or string indicating the file type.
         Integer or string should be according to
@@ -187,15 +187,13 @@ class Roi:
     region : Region
         Geometrical region of interest.
     reference : LocData, locan.data.metadata_pb2.Metadata, None
-        Reference to localization data for which the region of interests
-        are defined. It can be a LocData object, a reference
-        (locan.data.metadata_pb2.Metadata) to a saved SMLM file, or
+        Reference to localization data for which the region of interest
+        is defined. It can be a LocData object, a reference
+        to a saved SMLM file, or
         None for indicating no specific reference.
-        When referencing a saved SMLM file, reference as attributes
+        When referencing a saved SMLM file, reference has attributes
         `file.path` and `file.type` for a path pointing to a
         localization file and an integer indicating the file type.
-        The integer should be according to
-        locan.data.metadata_pb2.Metadata.file.type.
     loc_properties : tuple of str
         Localization properties in LocData object on which the region
         selection will be applied (for instance the coordinate_labels).
@@ -219,7 +217,10 @@ class Roi:
                 raise TypeError
         elif isinstance(reference, metadata_pb2.Metadata):
             self.reference = metadata_pb2.Metadata()
-            self.reference.MergeFrom(reference)
+            self.reference.file.MergeFrom(reference.file)
+        elif isinstance(reference, metadata_pb2.File):
+            self.reference = metadata_pb2.Metadata()
+            self.reference.file.MergeFrom(reference)
         else:
             self.reference = reference
 

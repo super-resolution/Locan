@@ -41,6 +41,33 @@ def test_Roi_2d(locdata_2d):
     assert len(empty_dat) == 0
     assert new_dat.region is None
 
+    roi = Roi(
+        reference=dict(file_path="test_path", file_type=0),
+        region=Rectangle((0, 0), 2, 2, 0),
+    )
+    # print(roi.reference)
+    assert isinstance(roi.reference, metadata_pb2.Metadata)
+    assert roi.reference.file.type == 0
+    assert roi.reference.file.path == "test_path"
+
+    meta = metadata_pb2.Metadata()
+    meta.file.path = "test_path"
+    meta.file.type = 0
+    roi = Roi(reference=meta, region=Rectangle((0, 0), 2, 2, 0))
+    # print(roi.reference)
+    assert isinstance(roi.reference, metadata_pb2.Metadata)
+    assert roi.reference.file.type == 0
+    assert roi.reference.file.path == "test_path"
+
+    meta = metadata_pb2.File()
+    meta.path = "test_path"
+    meta.type = 0
+    roi = Roi(reference=meta, region=Rectangle((0, 0), 2, 2, 0))
+    # print(roi.reference)
+    assert isinstance(roi.reference, metadata_pb2.Metadata)
+    assert roi.reference.file.type == 0
+    assert roi.reference.file.path == "test_path"
+
 
 def test_Roi_3d(locdata_3d):
     roi = Roi(reference=locdata_3d, region=Rectangle((0, 0), 2, 2, 0))

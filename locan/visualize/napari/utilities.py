@@ -139,16 +139,16 @@ def get_rois(shapes_layer, reference=None, loc_properties=None):
     ----------
     shapes_layer: napari.layers.Shapes
         Napari shapes layer like `viewer.layers["Shapes"]`
-    reference : LocData, locan.data.metadata_pb2.Metadata, None
-        Reference to localization data for which the region of interests
-        are defined. It can be a LocData object, a reference
-        (locan.data.metadata_pb2.Metadata) to a saved SMLM file, or
-        None for indicating no specific reference.
-        When referencing a saved SMLM file, reference as attributes
-        `file.path` and `file.type` for a path pointing to a
-        localization file and an integer indicating the file type.
-        The integer should be according to
-        locan.data.metadata_pb2.Metadata.file.type.
+    reference : LocData, dict, locan.data.metadata_pb2.Metadata, locan.data.metadata_pb2.File, None
+        Reference to localization data for which the region of interest
+        is defined. It can be a LocData object, a reference to a saved
+        SMLM file, or None for indicating no specific reference.
+        When dict it must have keys `file_path`and `file_type`.
+        When Metadata message it must have keys `file.path` and
+        `file.type` for a path pointing to a localization file and an
+        integer or string indicating the file type.
+        Integer or string should be according to
+        locan.constants.FileType.
     loc_properties : tuple of str
         Localization properties in LocData object on which the region
         selection will be applied (for instance the coordinate_labels).

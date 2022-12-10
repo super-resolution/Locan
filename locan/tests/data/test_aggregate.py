@@ -169,55 +169,60 @@ def test__n_bins_to_bin_edges_one_dimension():
 
 def test__bin_size_to_bin_edges_one_dimension():
     bin_edges = _bin_size_to_bin_edges_one_dimension(4, (1, 10), extend_range=None)
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 5, 9))
+
+    bin_edges = _bin_size_to_bin_edges_one_dimension(4, (-1, 10), extend_range=None)
+    assert isinstance(bin_edges, np.ndarray)
+    assert np.array_equal(bin_edges, (-1, 3, 7))
+
     bin_edges = _bin_size_to_bin_edges_one_dimension(4, (1, 10), extend_range=True)
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 5, 9, 13))
     bin_edges = _bin_size_to_bin_edges_one_dimension(4, (1, 10), extend_range=False)
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 5, 9, 10))
 
     bin_edges = _bin_size_to_bin_edges_one_dimension(20, (1, 10), extend_range=None)
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 10))
     bin_edges = _bin_size_to_bin_edges_one_dimension(20, (1, 10), extend_range=True)
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 21))
     bin_edges = _bin_size_to_bin_edges_one_dimension(20, (1, 10), extend_range=False)
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 10))
 
     bin_edges = _bin_size_to_bin_edges_one_dimension(
         (1, 2, 3, 3, 2), (1, 11), extend_range=None
     )
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 2, 4, 7, 10))
     bin_edges = _bin_size_to_bin_edges_one_dimension(
         (1, 2, 3, 3, 2), (1, 11), extend_range=True
     )
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 2, 4, 7, 10, 12))
     bin_edges = _bin_size_to_bin_edges_one_dimension(
         (1, 2, 3, 3, 2), (1, 11), extend_range=False
     )
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 2, 4, 7, 10, 11))
 
     bin_edges = _bin_size_to_bin_edges_one_dimension(
         (10, 20, 30), (1, 2), extend_range=None
     )
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 2))
     bin_edges = _bin_size_to_bin_edges_one_dimension(
         (10, 20, 30), (1, 2), extend_range=True
     )
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 11))
     bin_edges = _bin_size_to_bin_edges_one_dimension(
         (10, 20, 30), (1, 2), extend_range=False
     )
-    isinstance(bin_edges, np.ndarray)
+    assert isinstance(bin_edges, np.ndarray)
     assert np.array_equal(bin_edges, (1, 2))
 
     with pytest.raises(TypeError):
@@ -255,9 +260,23 @@ def test__bin_edges_to_bin_size_one_dimension():
     assert bin_size == 1
 
 
-def test__bin_edges_to_bin_size():
+def test__bin_edges_to_bin_size(caplog):
     bin_size = _bin_edges_to_bin_size([1, 3, 5])
     assert bin_size == (2,)
+    bin_size = _bin_edges_to_bin_size([-1, 1, 3.001, 5])
+    assert np.array_equal(bin_size[0], [2, 2.001, 1.999])
+    bin_size = _bin_edges_to_bin_size([-1, 1, 3.00001, 5])
+    assert bin_size == (2,)
+    assert np.array_equal(
+        caplog.record_tuples,
+        [
+            (
+                "locan.data.aggregate",
+                30,
+                "bin_sizes differ by floating point instability less than rtol=1.e-6",
+            )
+        ],
+    )
     bin_size = _bin_edges_to_bin_size(([1, 3, 5],))
     assert bin_size == (2,)
     bin_size = _bin_edges_to_bin_size([1, 2, 4])
@@ -654,6 +673,26 @@ def test_Bins_methods():
     assert np.array_equal(bins.bin_edges[0], np.array([0, 1, 2, 3, 4]))
     assert bins.is_equally_sized == (True,)
     assert bins.boost_histogram_axes == (bh.axis.Regular(4, 0, 4),)
+
+    bins = Bins(
+        bin_edges=((-1.0, 1.0, 2.0, 4.0), (-1.0, 1.0, 2.0, 6.0))
+    ).equalize_bin_size()
+    assert bins.dimension == 2
+    assert bins.bin_range == ((-1, 3), (-1, 5))
+    assert bins.n_bins == (2, 3)
+    assert bins.bin_size == (2, 2)
+    assert np.array_equal(bins.bin_edges[0], np.array([-1, 1, 3]))
+    assert bins.is_equally_sized == (True, True)
+    assert bins.boost_histogram_axes == (
+        bh.axis.Regular(2, -1, 3),
+        bh.axis.Regular(3, -1, 5),
+    )
+
+    bins = Bins(bin_size=2.0, bin_range=(-1, 10)).equalize_bin_size()
+    assert bins.dimension == 1
+    assert bins.bin_range == ((-1.0, 9),)
+    assert bins.n_bins == (5,)
+    assert bins.bin_size == (2,)
 
 
 def test_histogram(locdata_blobs_2d):

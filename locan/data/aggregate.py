@@ -9,6 +9,7 @@ Specify bins through one of the parameters (`bins`, `bin_edges`, `n_bins`, `bin_
 """
 from __future__ import annotations
 
+import logging
 import warnings
 from collections import namedtuple
 from collections.abc import Iterable  # noqa: F401
@@ -23,6 +24,8 @@ from locan.data.locdata import LocData  # noqa: F401
 from locan.data.properties.locdata_statistics import ranges
 
 __all__ = ["Bins", "histogram"]
+
+logger = logging.getLogger(__name__)
 
 
 def is_array_like(anything) -> bool:
@@ -229,7 +232,7 @@ def _bin_size_to_bin_edges_one_dimension(
     else:
         raise TypeError("`bin_size` must be 0- or 1-dimensional.")
 
-    return bin_edges
+    return np.array(bin_edges)
 
 
 def _bin_edges_to_n_bins_one_dimension(bin_edges) -> int:
@@ -264,6 +267,11 @@ def _bin_edges_to_bin_size_one_dimension(bin_edges) -> Union[float, np.ndarray]:
     differences = np.diff(bin_edges)
     if np.all(differences == differences[0]):
         bin_size = differences[0]
+    elif np.all(np.isclose(differences, differences[0], atol=0)):
+        bin_size = differences[0]
+        logger.debug(
+            "bin_sizes differ by floating point instability with less than rtol=1.e-5"
+        )
     else:
         bin_size = differences
     return bin_size

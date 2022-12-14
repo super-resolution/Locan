@@ -2,19 +2,21 @@
 
 Aggregate localization data.
 
-This module provides functions to bin LocData objects to form a histogram or image.
+This module provides functions to bin LocData objects to form a histogram or
+image.
 
-Specify bins through one of the parameters (`bins`, `bin_edges`, `n_bins`, `bin_size`,
-`bin_range`, `labels`) as further outlined in the documentation for :class:`Bins`.
+Specify bins through one of the parameters (`bins`, `bin_edges`, `n_bins`,
+`bin_size`, `bin_range`, `labels`) as further outlined in the documentation
+for :class:`Bins`.
 """
 from __future__ import annotations
 
 import logging
 import warnings
 from collections import namedtuple
-from collections.abc import Iterable  # noqa: F401
+from collections.abc import Iterable, Sequence  # noqa: F401
 from math import isclose
-from typing import Union
+from typing import Any, Union
 
 import boost_histogram as bh
 import fast_histogram
@@ -30,14 +32,14 @@ logger = logging.getLogger(__name__)
 
 def is_array_like(anything) -> bool:
     """
-    Return true if `anything` can be turned into a numpy.ndarray without creating
-    elements of type object.
+    Return true if `anything` can be turned into a numpy.ndarray without
+    creating elements of type object.
 
     Catches numpy.VisibleDeprecationWarning.
 
     Parameters
     ----------
-    anything
+    anything : Any
         Anything to be classified as being array-like or not.
 
     Returns
@@ -57,79 +59,53 @@ def is_array_like(anything) -> bool:
             raise e
 
 
-def _is_scalar(element) -> bool:
+def _is_scalar(element: Any) -> bool:
     return isinstance(element, (int, float)) or (
         is_array_like(element) and np.size(element) == 1 and np.ndim(element) == 0
     )
 
 
-def _is_single_element(element) -> bool:
+def _is_single_element(element: Any) -> bool:
     return isinstance(element, (int, float)) or (
         is_array_like(element) and np.size(element) == 1 and np.ndim(element) in (0, 1)
     )
 
 
-def _is_1d_array_of_scalar(element) -> bool:
+def _is_1d_array_of_scalar(element: Any) -> bool:
     return is_array_like(element) and np.size(element) >= 1 and np.ndim(element) == 1
 
 
-def _is_1d_array_of_two_or_more_scalar(element) -> bool:
+def _is_1d_array_of_two_or_more_scalar(element: Any) -> bool:
     return is_array_like(element) and np.size(element) > 1 and np.ndim(element) == 1
 
 
-def _is_1d_array_of_two_scalar(element) -> bool:
+def _is_1d_array_of_two_scalar(element: Any) -> bool:
     return is_array_like(element) and np.size(element) == 2 and np.ndim(element) == 1
 
 
-def _is_2d_homogeneous_array(element) -> bool:
+def _is_2d_homogeneous_array(element: Any) -> bool:
     return is_array_like(element) and np.size(element) > 1 and np.ndim(element) == 2
 
 
-def _is_2d_inhomogeneous_array_of_1d_array_of_scalar(element) -> bool:
+def _is_2d_inhomogeneous_array_of_1d_array_of_scalar(element: Any) -> bool:
     return not is_array_like(element) and all(
         _is_1d_array_of_scalar(el) for el in element
     )
 
 
-def _is_2d_inhomogeneous_array(element) -> bool:
+def _is_2d_inhomogeneous_array(element: Any) -> bool:
     return not is_array_like(element) and all(
         _is_scalar(el) or _is_1d_array_of_scalar(el) for el in element
     )
 
 
-def _is_2d_array_of_1d_array_of_scalar(element) -> bool:
+def _is_2d_array_of_1d_array_of_scalar(element: Any) -> bool:
     return _is_2d_homogeneous_array(
         element
     ) or _is_2d_inhomogeneous_array_of_1d_array_of_scalar(element)
 
 
-"""
-def _is_scalar(element) -> bool:
-    return isinstance(element, (int, float)) or \
-           (_is_array_like(element) and np.size(element) == 1 and np.ndim(element) == 0)
-
-
-def _is_1d_array_of_scalar(element) -> bool:
-    return _is_array_like(element) and np.size(element) > 0 and np.ndim(element) == 1
-
-
-def _is_1d_array_of_two_scalar(element) -> bool:
-    return _is_array_like(element) and np.size(element) == 2 and np.ndim(element) == 1
-
-
-def _is_2d_homogeneous_array(element) -> bool:
-    return _is_array_like(element) and np.size(element) > 1 and np.ndim(element) == 2
-
-
-def _is_2d_inhomogeneous_array_of_1d_array_of_scalar(element) -> bool:
-    return not _is_array_like(element) and len(element) > 1 and \
-           all([((_is_array_like(element_) and np.ndim(element_) in (1, 2)) or
-                  _is_scalar(element_)) for element_ in element])
-
-"""
-
-
-def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> np.ndarray:
+def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> np.ndarray[float]:
     """
     Compute bin edges from n_bins and bin_range.
 
@@ -137,12 +113,12 @@ def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> np.ndarray:
     ----------
     n_bins : int
         Number of bins.
-    bin_range : tuple, list, numpy.ndarray of float with shape (2,)
-        Minimum and maximum edge.
+    bin_range : tuple[float, float] | Sequence[float]
+        Minimum and maximum edge. Array with shape (2,).
 
     Returns
     -------
-    numpy.ndarray
+    numpy.ndarray[float]
         Array with bin edges.
     """
     return np.linspace(*bin_range, n_bins + 1, endpoint=True, dtype=float)
@@ -150,7 +126,7 @@ def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> np.ndarray:
 
 def _bin_size_to_bin_edges_one_dimension(
     bin_size, bin_range, extend_range=None
-) -> np.ndarray:
+) -> np.ndarray[float]:
     """
     Compute bin edges from bin_size and bin_range.
 
@@ -158,24 +134,29 @@ def _bin_size_to_bin_edges_one_dimension(
 
     Parameters
     ----------
-    bin_size : float or tuple, list, numpy.ndarray of float with shape (n_bins,).
-        One size or sequence of sizes for bins.
-    bin_range : tuple, list, numpy.ndarray of float with shape (2,).
-        Minimum and maximum edge of binned bin_range.
-    extend_range : bool, None
-        If for equally-sized bins the final bin_edge is different from the maximum bin_range,
-        the last bin_edge will be smaller than the maximum bin_range but all bins are equally-sized (None);
-        the last bin_edge will be equal to the maximum bin_range but bins are not equally-sized (False);
-        the last bin_edge will be larger than the maximum bin_range but all bins are equally-sized (True).
+    bin_size : float | tuple | list[float] | numpy.ndarray[float]
+        One size or sequence of sizes for bins with shape (n_bins,).
+    bin_range : tuple[float, float] | Sequence[float]
+        Minimum and maximum edge. Array with shape (2,).
+    extend_range : bool | None
+        If for equally-sized bins the final bin_edge is different from the
+        maximum bin_range, the last bin_edge will be smaller than the maximum
+        bin_range but all bins are equally-sized (None);
+        the last bin_edge will be equal to the maximum bin_range but bins
+        are not equally-sized (False);
+        the last bin_edge will be larger than the maximum bin_range but all
+        bins are equally-sized (True).
 
-        If for variable-sized bins the final bin_edge is different from the maximum bin_range,
-        the last bin_edge will be smaller than the maximum bin_range (None);
+        If for variable-sized bins the final bin_edge is different from the
+        maximum bin_range, the last bin_edge will be smaller than the maximum
+        bin_range (None);
         the last bin_edge will be equal to the maximum bin_range (False);
-        the last bin_edge will be larger than the maximum bin_range but taken from the input sequence (True).
+        the last bin_edge will be larger than the maximum bin_range but taken
+        from the input sequence (True).
 
     Returns
     -------
-    numpy.ndarray
+    numpy.ndarray[float]
         Array of bin edges
     """
     if _is_scalar(bin_size):
@@ -236,22 +217,36 @@ def _bin_size_to_bin_edges_one_dimension(
 
 
 def _bin_edges_to_n_bins_one_dimension(bin_edges) -> int:
+    """
+    Return the number of bins.
+
+    Parameters
+    ----------
+    bin_edges : Sequence[float]
+        Array of bin edges
+        with shape (n_bin_edges,).
+
+    Returns
+    -------
+    int
+        Number of bins
+    """
     n_bins = len(bin_edges) - 1
     return n_bins
 
 
-def _bin_edges_to_n_bins(bin_edges):
+def _bin_edges_to_n_bins(bin_edges) -> tuple[int, ...]:
     """
     Check if bins are equally sized and return the number of bins.
 
     Parameters
     ----------
-    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges)
-        Array of bin edges for each dimension.
+    bin_edges : Sequence[float] | Sequence[Sequence[float]]
+        Bin edges for each dimension with shape (dimension, n_bin_edges).
 
     Returns
     -------
-    tuple of int
+    tuple[int, ...]
         Number of bins
     """
     if _is_1d_array_of_scalar(bin_edges):
@@ -264,6 +259,20 @@ def _bin_edges_to_n_bins(bin_edges):
 
 
 def _bin_edges_to_bin_size_one_dimension(bin_edges) -> Union[float, np.ndarray]:
+    """
+    Compute the sizes of bins.
+
+    Parameters
+    ----------
+    bin_edges : Sequence[float]
+        Array of bin edges
+        with shape (n_bin_edges,).
+
+    Returns
+    -------
+    float | numpy.array[float]
+        Bin size for all bins or for each bin.
+    """
     differences = np.diff(bin_edges)
     if np.all(differences == differences[0]):
         bin_size = differences[0]
@@ -277,19 +286,21 @@ def _bin_edges_to_bin_size_one_dimension(bin_edges) -> Union[float, np.ndarray]:
     return bin_size
 
 
-def _bin_edges_to_bin_size(bin_edges):
+def _bin_edges_to_bin_size(
+    bin_edges,
+) -> tuple[float, ...] | tuple[np.ndarray[float], ...]:
     """
     Compute the sizes of bins.
 
     Parameters
     ----------
-    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges)
-        Array of bin edges for each dimension.
+    bin_edges : Sequence[float] | Sequence[Sequence[float]]
+        Bin edges for each dimension with shape (dimension, n_bin_edges).
 
     Returns
     -------
-    tuple of float or tuple of np.ndarray
-        Bin sizes for each dimension
+    tuple[float, ...] | tuple[numpy.array[float], ...]
+        Bin size for all bins or for each bin in each dimension.
     """
     if _is_1d_array_of_scalar(bin_edges):
         bin_size = (_bin_edges_to_bin_size_one_dimension(bin_edges),)
@@ -302,19 +313,19 @@ def _bin_edges_to_bin_size(bin_edges):
     return bin_size
 
 
-def _bin_edges_to_bin_centers(bin_edges):
+def _bin_edges_to_bin_centers(bin_edges) -> tuple[np.ndarray[float], ...]:
     """
     Compute bin centers.
 
     Parameters
     ----------
-    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges)
-        Array of bin edges for each dimension
+    bin_edges : Sequence[float] | Sequence[Sequence[float]]
+        Bin edges for each dimension with shape (dimension, n_bin_edges).
 
     Returns
     -------
-    tuple of numpy.ndarray of shape (dimension, n_bins)
-        Bin centers
+    tuple[numpy.ndarray[float], ...]
+        Array of bin centers for each dimension with shape (n_bins,)
     """
     if _is_1d_array_of_scalar(bin_edges):
         bin_centers = (np.diff(bin_edges) / 2 + bin_edges[0:-1],)
@@ -325,21 +336,22 @@ def _bin_edges_to_bin_centers(bin_edges):
     return bin_centers
 
 
-def _indices_to_bin_centers(bin_edges, indices):
+def _indices_to_bin_centers(bin_edges, indices) -> np.ndarray[float]:
     """
     Compute bin centers for given indices.
 
     Parameters
     ----------
-    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges)
-        Array of bin edges for each dimension
-    indices : int or tuple, list, numpy.ndarray of int with shape (n_indices, dimension)
-        Array of multi-dimensional indices, e.g. reflecting a list of vertices.
+    bin_edges : Sequence[float] | Sequence[Sequence[float]]
+        Bin edges for each dimension with shape (dimension, n_bin_edges).
+    indices : int | Sequence[int]
+        Array of multi-dimensional indices with shape (n_indices, dimension),
+        e.g. reflecting a list of vertices.
 
     Returns
     -------
-    numpy.ndarray of shape (n_indices, dimension)
-        selected bin centers
+    numpy.ndarray[float]
+        Selected bin centers with shape (n_indices, dimension)
     """
     bin_centers = _bin_edges_to_bin_centers(bin_edges)
     if len(bin_centers) == 1:
@@ -380,11 +392,12 @@ def _indices_to_bin_centers(bin_edges, indices):
 
 class _BinsFromBoostHistogramAxis:
     """
-    Adapter class for dealing with boost-histogram.axis elements through the `bins` parameter in :class:`Bins`.
+    Adapter class for dealing with `boost-histogram.axis` elements through the
+    `bins` parameter in :class:`Bins`.
 
     Parameters
     ----------
-    bins : :class:`boost_histogram.axis.Axis` or :class:`boost_histogram.axis.AxesTuple`
+    bins : boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple
     """
 
     def __init__(self, bins):
@@ -425,8 +438,8 @@ class _BinsFromEdges:
 
     Parameters
     ----------
-    bin_edges : list, tuple or numpy.ndarray
-        Array with bin edges for all or each dimension.
+    bin_edges : Sequence[float] | Sequence[Sequence[float]]
+        Bin edges for all or each dimension with shape (dimension, n_bin_edges).
     """
 
     def __init__(self, bin_edges):
@@ -452,12 +465,13 @@ class _BinsFromNumber:
 
     Parameters
     ----------
-    n_bins : int or list, tuple or numpy.ndarray of ints
+    n_bins : int | Sequence[int]
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_range : tuple, list, numpy.ndarray of float with shape (2,) or (dimension, 2)
-        Minimum and maximum edge for all or each dimensions.
+    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]]
+        Minimum and maximum edge for all or each dimensions
+        with shape (2,) or (dimension, 2).
     """
 
     def __init__(self, n_bins, bin_range):
@@ -523,24 +537,33 @@ class _BinsFromSize:
 
     Parameters
     ----------
-    bin_size : float, list, tuple or numpy.ndarray of float with shape (dimension,) or (dimension, n_bins)
-        The size of bins for all or each bin and for all or each dimension.
+    bin_size : float | Sequence[float] | Sequence[Sequence[float]]
+        The size of bins for all or each bin and for all or each dimension
+        with shape (dimension,) or (dimension, n_bins).
         5 would describe bin_size of 5 for all bins in all dimensions.
         ((2, 5),) yield bins of size (2, 5) for one dimension.
-        (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
-        ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and (1, 3) for the other dimension.
-    bin_range : tuple, list, numpy.ndarray of float with shape (2,) or (dimension, 2)
-        Minimum and maximum edge for all or each dimensions.
-    extend_range : bool or None
-        If for equally-sized bins the final bin_edge is different from the maximum bin_range,
-        the last bin_edge will be smaller than the maximum bin_range but all bins are equally-sized (None);
-        the last bin_edge will be equal to the maximum bin_range but bins are not equally-sized (False);
-        the last bin_edge will be larger than the maximum bin_range but all bins are equally-sized (True).
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other
+        dimension.
+        ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
+        (1, 3) for the other dimension.
+    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]]
+        Minimum and maximum edge for all or each dimensions
+        with shape (2,) or (dimension, 2).
+    extend_range : bool | None
+        If for equally-sized bins the final bin_edge is different from the
+        maximum bin_range, the last bin_edge will be smaller than the maximum
+        bin_range but all bins are equally-sized (None);
+        the last bin_edge will be equal to the maximum bin_range but bins
+        are not equally-sized (False);
+        the last bin_edge will be larger than the maximum bin_range but all
+        bins are equally-sized (True).
 
-        If for variable-sized bins the final bin_edge is different from the maximum bin_range,
-        the last bin_edge will be smaller than the maximum bin_range (None);
+        If for variable-sized bins the final bin_edge is different from the
+        maximum bin_range, the last bin_edge will be smaller than the maximum
+        bin_range (None);
         the last bin_edge will be equal to the maximum bin_range (False);
-        the last bin_edge will be larger than the maximum bin_range but taken from the input sequence (True).
+        the last bin_edge will be larger than the maximum bin_range but taken
+        from the input sequence (True).
     """
 
     def __init__(self, bin_size, bin_range, extend_range=None):
@@ -688,65 +711,64 @@ class Bins:
 
     Parameters
     ----------
-    bins : `Bins` or `boost_histogram.axis.Axis` or None
+    bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
         Specific class specifying the bins.
-
-    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges) or None
-        Array of bin edges for all or each dimension.
-
-    bin_range : tuple, list, numpy.ndarray of float with shape (2,) or (dimension, 2)
-        Minimum and maximum edge for all or each dimensions.
-
-    n_bins : int, list, tuple or numpy.ndarray or None
+    bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+        Bin edges for all or each dimension
+        with shape (dimension, n_bin_edges).
+    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]]
+        Minimum and maximum edge for all or each dimensions
+        with shape (2,) or (dimension, 2).
+    n_bins : int | Sequence[int] | None
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-
-    bin_size : float, list, tuple or numpy.ndarray of float with shape (dimension,) or (dimension, n_bins)
-        The size of bins in units of locdata coordinate units for all or each bin and for all or each dimension.
+    bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+        The size of bins for all or each bin and for all or each dimension
+        with shape (dimension,) or (dimension, n_bins).
         5 would describe bin_size of 5 for all bins in all dimensions.
         ((2, 5),) yield bins of size (2, 5) for one dimension.
-        (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
-        ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and (1, 3) for the other dimension.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other
+        dimension.
+        ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
+        (1, 3) for the other dimension.
+        To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
+    labels : list[str] | None
+        Names for each bin axis with shape (dimension,)
+    extend_range : bool | None
+        If for equally-sized bins the final bin_edge is different from the
+        maximum bin_range, the last bin_edge will be smaller than the maximum
+        bin_range but all bins are equally-sized (None);
+        the last bin_edge will be equal to the maximum bin_range but bins
+        are not equally-sized (False);
+        the last bin_edge will be larger than the maximum bin_range but all
+        bins are equally-sized (True).
 
-    labels : list of str with shape (dimension,) or None
-        Names for each bin axis.
-
-    extend_range : bool or None
-        Only applicable in combination with bin_size.
-        If for equally-sized bins the final bin_edge is different from the maximum bin_range,
-        the last bin_edge will be smaller than the maximum bin_range but all bins are equally-sized (None);
-        the last bin_edge will be equal to the maximum bin_range but bins are not equally-sized (False);
-        the last bin_edge will be larger than the maximum bin_range but all bins are equally-sized (True).
-
-        If for variable-sized bins the final bin_edge is different from the maximum bin_range,
-        the last bin_edge will be smaller than the maximum bin_range (None);
+        If for variable-sized bins the final bin_edge is different from the
+        maximum bin_range, the last bin_edge will be smaller than the maximum
+        bin_range (None);
         the last bin_edge will be equal to the maximum bin_range (False);
-        the last bin_edge will be larger than the maximum bin_range but taken from the input sequence (True).
+        the last bin_edge will be larger than the maximum bin_range but taken
+        from the input sequence (True).
 
     Attributes
     ----------
     dimension : int
         The number of dimensions for which bins are provided.
-
-    bin_range : tuple of tuples of float with shape (dimension, 2)
-        Minimum and maximum edge for each dimension.
-
-    bin_edges : tuple of numpy.ndarray with shape (dimension,)
-        Array(s) with bin edges for each dimension.
-
-    n_bins : tuple of int with shape (dimension,)
-        Number of bins for each dimension.
-
-    bin_size : tuple of float with shape (dimension,) or tuple of numpy.ndarray with shape (dimension, n_bins)
-        Size of bins for each dimension.
-
-    bin_centers :  tuple of numpy.ndarray with shape (dimension,)
-        Array(s) with bin centers for all or each dimension.
-
-    labels : list of str or None
+    bin_range : tuple[tuple[float, float]
+        Minimum and maximum edge for each dimension with shape (dimension, 2).
+    bin_edges : tuple[numpy.ndarray[float]]
+        Array(s) with bin edges for each dimension with shape (dimension,)
+    n_bins : tuple[int]
+        Number of bins for each dimension with shape (dimension,)
+    bin_size : tuple[float] | tuple[numpy.ndarray[float]]
+        Size of bins for each dimension with shape (dimension,)
+        or with shape (dimension, n_bins).
+    bin_centers :  tuple[numpy.ndarray[float]]
+        Array(s) with bin centers for all or each dimension
+        with shape (dimension,).
+    labels : list[str] | None
         Names for each bin axis.
-
     boost_histogram_axes : boost_histogram.axis.AxesTuple
         Axis definitions for boost-histogram
     """
@@ -768,14 +790,16 @@ class Bins:
         n_inputs = sum(param is not None for param in excluding_parameter)
         if n_inputs != 1:
             raise ValueError(
-                f"One and only one of {excluding_parameter_strings} must be different from None."
+                f"One and only one of {excluding_parameter_strings} "
+                f"must be different from None."
             )
 
         # inject builder class
         if bins is not None:
             if bin_range is not None:
                 raise ValueError(
-                    "The parameter `bin_range` is derived from bins class and must be None."
+                    "The parameter `bin_range` is derived from bins class "
+                    "and must be None."
                 )
             if isinstance(bins, Bins):
                 self._bins = bins
@@ -788,7 +812,8 @@ class Bins:
         elif bin_edges is not None:
             if bin_range is not None:
                 raise ValueError(
-                    "The parameter `bin_range` is derived from `bin_edges` and must be None."
+                    "The parameter `bin_range` is derived from `bin_edges` "
+                    "and must be None."
                 )
             self._bins = _BinsFromEdges(bin_edges)
 
@@ -1061,7 +1086,7 @@ def histogram(
     bin_range=None,
 ):
     """
-    Make histogram of loc_properties (columns in locdata.data)
+    Make histogram of loc_properties (columns in `locdata.data`)
     by binning all localizations
     or averaging other_property within each bin.
 
@@ -1073,30 +1098,34 @@ def histogram(
         Localization properties to be grouped into bins.
         If None The coordinate_values of locdata are used.
     other_property : str | None
-        Localization property that is averaged in each pixel. If None localization counts are
-        shown.
-    bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
+        Localization property that is averaged in each pixel.
+        If None localization counts are shown.
+    bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
         The bin specification as defined in :class:`Bins`
-    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges) or None
-        Array of bin edges for all or each dimension.
-    n_bins : int, list, tuple or numpy.ndarray or None
+    bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+        Bin edges for all or each dimension
+        with shape (dimension, n_bin_edges).
+    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]]
+        Minimum and maximum edge for all or each dimensions
+        with shape (2,) or (dimension, 2).
+    n_bins : int | Sequence[int] | None
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float, list, tuple or numpy.ndarray or None
-        The size of bins in units of locdata coordinate units for all or each dimension.
+    bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+        The size of bins for all or each bin and for all or each dimension
+        with shape (dimension,) or (dimension, n_bins).
         5 would describe bin_size of 5 for all bins in all dimensions.
-        (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
-        To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple or tuple of tuples of float with shape (dimension, 2) or None or 'zero'
-        The data bin_range to be taken into consideration for all or each dimension.
-        ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
-        for None (min, max) bin_range are determined from data;
-        for 'zero' (0, max) bin_range with max determined from data.
+        ((2, 5),) yield bins of size (2, 5) for one dimension.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other
+        dimension.
+        ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
+        (1, 3) for the other dimension.
+        To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
 
     Returns
     -------
-    namedtuple('Histogram', "data bins labels"): (numpy.ndarray, `Bins`, list)
+    namedtuple('Histogram', "data bins labels"): (numpy.ndarray, Bins, list)
     """
     labels_ = _check_loc_properties(locdata, loc_properties)
     data = locdata.data[labels_].values.T
@@ -1158,8 +1187,8 @@ def _accumulate_1d(
 ) -> tuple[np.ndarray, list, list | None, np.ndarray | None]:
     """
     Bin data and collect data elements contained in each bin.
-    The returned `bin_indices` refer to the given bins including index[0] for underflow
-    data and index[n_bins] for overflow data.
+    The returned `bin_indices` refer to the given bins including index[0] for
+    underflow data and index[n_bins] for overflow data.
 
     Parameters
     ----------

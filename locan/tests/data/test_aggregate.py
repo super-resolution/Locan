@@ -1,3 +1,5 @@
+import logging
+
 import boost_histogram as bh
 import numpy as np
 import pytest
@@ -265,6 +267,8 @@ def test__bin_edges_to_bin_size(caplog):
     assert bin_size == (2,)
     bin_size = _bin_edges_to_bin_size([-1, 1, 3.001, 5])
     assert np.array_equal(bin_size[0], [2, 2.001, 1.999])
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
     bin_size = _bin_edges_to_bin_size([-1, 1, 3.00001, 5])
     assert bin_size == (2,)
     assert np.array_equal(
@@ -272,8 +276,8 @@ def test__bin_edges_to_bin_size(caplog):
         [
             (
                 "locan.data.aggregate",
-                30,
-                "bin_sizes differ by floating point instability less than rtol=1.e-6",
+                10,
+                "bin_sizes differ by floating point instability with less than rtol=1.e-5",
             )
         ],
     )

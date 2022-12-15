@@ -7,7 +7,7 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/super-resolution/locan)](https://github.com/super-resolution/Locan)
 [![GitHub last commit](https://img.shields.io/github/last-commit/super-resolution/locan)](https://github.com/super-resolution/Locan/commits/main)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/super-resolution/locan/Tests%20with%20matrix,%20pip)
+![GitHub Workflow Status](http://img.shields.io/github/actions/workflow/status/super-resolution/locan/Test_matrix_pip.yml?branch=main)
 [![codecov](https://codecov.io/gh/super-resolution/Locan/branch/main/graph/badge.svg?token=XTZRIIVOGE)](https://codecov.io/gh/super-resolution/Locan)
 [![Documentation Status](https://readthedocs.org/projects/locan/badge/?version=latest)](https://locan.readthedocs.io/en/latest/?badge=latest)
 

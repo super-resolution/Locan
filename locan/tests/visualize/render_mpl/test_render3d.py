@@ -25,13 +25,12 @@ def test_scatter_3d_mpl_single(locdata_single_localization, caplog):
     fig = plt.figure()
     fig.add_subplot(projection="3d")
     scatter_3d_mpl(locdata_single_localization)
-    assert caplog.record_tuples == [
-        (
-            "locan.visualize.render_mpl.render3d",
-            30,
-            "Locdata carries a single localization.",
-        )
-    ]
+    log_msg = (
+        "locan.visualize.render_mpl.render3d",
+        30,
+        "Locdata carries a single localization.",
+    )
+    assert log_msg in caplog.record_tuples
     # plt.show()
 
     plt.close("all")

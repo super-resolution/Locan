@@ -24,13 +24,12 @@ def test_render_2d_mpl_empty(locdata_empty):
 
 def test_render_2d_mpl_single(locdata_single_localization, caplog):
     render_2d_mpl(locdata_single_localization, bin_size=0.5)
-    assert caplog.record_tuples == [
-        (
-            "locan.visualize.render_mpl.render2d",
-            30,
-            "Locdata carries a single localization.",
-        )
-    ]
+    log_msg = (
+        "locan.visualize.render_mpl.render2d",
+        30,
+        "Locdata carries a single localization.",
+    )
+    assert log_msg in caplog.record_tuples
     # plt.show()
 
     plt.close("all")
@@ -118,13 +117,12 @@ def test_render_2d_scatter_density_empty(locdata_empty):
 )
 def test_render_2d_scatter_density_single(locdata_single_localization, caplog):
     render_2d_scatter_density(locdata_single_localization)
-    assert caplog.record_tuples == [
-        (
-            "locan.visualize.render_mpl.render2d",
-            30,
-            "Locdata carries a single localization.",
-        )
-    ]
+    log_msg = (
+        "locan.visualize.render_mpl.render2d",
+        30,
+        "Locdata carries a single localization.",
+    )
+    assert log_msg in caplog.record_tuples
     # plt.show()
     plt.close("all")
 
@@ -145,13 +143,12 @@ def test_scatter_2d_mpl_empty(locdata_empty):
 
 def test_scatter_2d_mpl_single(locdata_single_localization, caplog):
     scatter_2d_mpl(locdata_single_localization)
-    assert caplog.record_tuples == [
-        (
-            "locan.visualize.render_mpl.render2d",
-            30,
-            "Locdata carries a single localization.",
-        )
-    ]
+    log_msg = (
+        "locan.visualize.render_mpl.render2d",
+        30,
+        "Locdata carries a single localization.",
+    )
+    assert log_msg in caplog.record_tuples
     # plt.show()
 
     plt.close("all")
@@ -183,13 +180,12 @@ def test_render_2d_rgb_mpl_empty(locdata_empty):
 
 def test_render_2d_rgb_mpl_single(locdata_empty, locdata_single_localization, caplog):
     render_2d_rgb_mpl([locdata_empty, locdata_single_localization], bin_size=1)
-    assert caplog.record_tuples == [
-        (
-            "locan.visualize.render_mpl.render2d",
-            30,
-            "Locdata carries a single localization.",
-        )
-    ]
+    log_msg = (
+        "locan.visualize.render_mpl.render2d",
+        30,
+        "Locdata carries a single localization.",
+    )
+    assert log_msg in caplog.record_tuples
     # plt.show()
 
     plt.close("all")

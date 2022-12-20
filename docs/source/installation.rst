@@ -23,23 +23,21 @@ Extra dependencies can be included::
 
     pip install locan[all]
 
-Install from distribution
-------------------------------
+Install from distribution or sources
+-------------------------------------
 
-Download distribution or wheel archive and install with pip::
+In order to get the latest changes install from the GitHub repository
+main branch::
+
+    pip install git+https://github.com/super-resolution/Locan.git@main
+
+or download distribution or wheel archive and install with pip::
 
     pip install <distribution_file>
 
-Install from source directory
-------------------------------
-
-Install from sources without extra requirements::
+Install from local sources::
 
     pip install <locan_directory>
-
-Install from sources with extra requirements::
-
-    pip install <locan_directory>[all]
 
 Run tests
 -----------------------

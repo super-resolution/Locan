@@ -32,7 +32,7 @@ def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None):
         The diffusion constant has the unit of square of localization coordinate unit per frame unit.
     velocity : tuple of float with shape (point_dimension,)
         Drift velocity in units of localization coordinate unit per frame unit
-    seed : int
+    seed : None, int, array_like[int], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -40,12 +40,12 @@ def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None):
     numpy.ndarray with shape (n_points, diffusion_constant.shape)
         Position deltas that have to be added to the original localizations.
     """
-    if seed is not None:
-        np.random.seed(seed)
+    rng = np.random.default_rng(seed)
+
     sigmas = np.sqrt(2 * np.asarray(diffusion_constant))  # * delta_t which is 1 frame
     steps = np.array(
         [
-            np.random.normal(loc=-vel, scale=sigma, size=n_steps)
+            rng.normal(loc=-vel, scale=sigma, size=n_steps)
             for vel, sigma in zip(velocity, sigmas)
         ]
     )
@@ -66,7 +66,7 @@ def _drift(frames, diffusion_constant=None, velocity=None, seed=None):
         If None only linear drift is computed.
     velocity : tuple of float with shape (point_dimension,)
         Drift velocity in units of localization coordinate unit per frame unit
-    seed : int
+    seed : None, int, array_like[int], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
@@ -106,7 +106,7 @@ def add_drift(locdata, diffusion_constant=None, velocity=None, seed=None):
         The diffusion constant has the unit of square of localization coordinate unit per frame unit.
     velocity : tuple of float with shape (point_dimension,)
         Drift velocity in units of localization coordinate unit per frame unit
-    seed : int
+    seed : None, int, array_like[int], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns

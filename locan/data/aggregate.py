@@ -35,7 +35,8 @@ def is_array_like(anything) -> bool:
     Return true if `anything` can be turned into a numpy.ndarray without
     creating elements of type object.
 
-    Catches numpy.VisibleDeprecationWarning.
+    Catches numpy.VisibleDeprecationWarning or ValueError when setting an
+    array element with a sequence.
 
     Parameters
     ----------
@@ -52,6 +53,11 @@ def is_array_like(anything) -> bool:
             return np.asarray(anything).dtype != object
         except np.VisibleDeprecationWarning as e:
             if "Creating an ndarray from ragged nested sequences" in str(e):
+                return False
+            else:
+                raise e
+        except ValueError as e:
+            if "setting an array element with a sequence." in str(e):
                 return False
             else:
                 raise e

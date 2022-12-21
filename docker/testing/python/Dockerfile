@@ -19,6 +19,9 @@ RUN ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 # Install gcc compiler and remove package manager cache
 RUN apt-get update && \
     apt-get install gcc -y && \
+    # the following package is needed for slim-bullseye
+    # when building wheels e.g. for scikit-image
+    apt-get install -yq libgtk2.0-dev libgl1 && \
     # install git for setuptools_scm to deal with locan source distribution versioning
     apt-get install -qqy git && \
     apt-get clean && \

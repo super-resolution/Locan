@@ -2,12 +2,12 @@
 ==================================================
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5722472.svg)](https://doi.org/10.5281/zenodo.5722472)
-![PyPI](https://img.shields.io/pypi/v/locan)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/locan)
+[![PyPI](https://img.shields.io/pypi/v/locan)](https://pypi.org/project/locan/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/locan)](https://www.python.org/)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/super-resolution/locan)](https://github.com/super-resolution/Locan)
 [![GitHub last commit](https://img.shields.io/github/last-commit/super-resolution/locan)](https://github.com/super-resolution/Locan/commits/main)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-![GitHub Workflow Status](http://img.shields.io/github/actions/workflow/status/super-resolution/locan/Test_matrix_pip.yml?branch=main)
+[![Tests](https://github.com/super-resolution/Locan/actions/workflows/Test_matrix_pip.yml/badge.svg?branch=main)](https://github.com/super-resolution/Locan/actions/workflows/Test_matrix_pip.yml)
 [![codecov](https://codecov.io/gh/super-resolution/Locan/branch/main/graph/badge.svg?token=XTZRIIVOGE)](https://codecov.io/gh/super-resolution/Locan)
 [![Documentation Status](https://readthedocs.org/projects/locan/badge/?version=latest)](https://locan.readthedocs.io/en/latest/?badge=latest)
 

@@ -84,6 +84,9 @@ To remember:
    @pytest.mark.skipif(not _has_package,reason="requires optional package")
 
 
+* The length of code and docstring lines should be kept to 88 and
+  75 characters, respectively.
+
 * Use notation `n_something` for `number_of_something`.
 
 

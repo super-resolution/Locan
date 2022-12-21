@@ -39,6 +39,29 @@ def df_other_simple():
 COMMENT_METADATA = metadata_pb2.Metadata(comment="some user comment")
 
 
+# The following test must be the first in the module to ensure no LocData
+# instances are garbage collected after LocData.count = 0 is set.
+def test_LocData_count(df_simple):
+    # The following is commented out because it requires time and is not
+    # needed to ensure correct functionality.
+    # import gc
+    # print("Current number of LocData instances: ",
+    #       len([item
+    #            for item in gc.get_referrers(LocData)
+    #            if isinstance(item, LocData)
+    #            ])
+    #       )
+    LocData.count = 0
+
+    dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
+    assert LocData.count == 1
+    dat_2 = LocData.from_dataframe(dataframe=df_simple)
+    assert dat.properties == dat_2.properties
+    assert LocData.count == 2
+    del dat
+    assert LocData.count == 1
+
+
 def test_LocData(df_simple, caplog):
     dat = LocData(dataframe=df_simple, meta=COMMENT_METADATA)
     assert len(dat) == 5
@@ -49,7 +72,8 @@ def test_LocData(df_simple, caplog):
     for x, y in zip(dat.coordinates, [[0, 0], [0, 1], [1, 3], [4, 4], [5, 1]]):
         assert np.all(x == np.array(y))
     assert dat.meta.comment == COMMENT_METADATA.comment
-    # assert dat.meta.identifier == '1'  # the test runs ok when testing this function alone.
+    # The following test runs ok when testing this function alone.
+    # assert dat.meta.identifier == '1'
     assert dat.bounding_box.region_measure == 20
     assert "region_measure_bb" in dat.properties
     assert "localization_density_bb" in dat.properties
@@ -113,22 +137,6 @@ def test_LocData_from_dataframe_empty(df_empty):
     assert len(dat) == 0
     assert dat.coordinate_labels == []
     # print(dat.data)
-
-
-def test_LocData_count(df_simple):
-    # The following is commented out because it requires time and is not needed to ensure correct functionality.
-    # import gc
-    # print("Current number of LocData instances: ",
-    #       len([item for item in gc.get_referrers(LocData) if isinstance(item, LocData)]))
-    LocData.count = 0
-
-    dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-    assert LocData.count == 1
-    dat_2 = LocData.from_dataframe(dataframe=df_simple)
-    assert dat.properties == dat_2.properties
-    assert LocData.count == 2
-    del dat
-    assert LocData.count == 1
 
 
 def test_LocData_from_dataframe_with_meta_dict(df_simple):

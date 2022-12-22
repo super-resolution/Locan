@@ -45,21 +45,20 @@ def test_LocData_count(df_simple):
     # The following is commented out because it requires time and is not
     # needed to ensure correct functionality.
     # import gc
-    # print("Current number of LocData instances: ",
-    #       len([item
-    #            for item in gc.get_referrers(LocData)
-    #            if isinstance(item, LocData)
-    #            ])
-    #       )
-    LocData.count = 0
+    # gc_counts = sum([isinstance(item, LocData) for item in gc.get_referrers(LocData)])
+    # print(f"Current number of LocData instances: {gc_counts}")
 
+    count_0 = copy.deepcopy(LocData.count)
     dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-    assert LocData.count == 1
+    count_1 = copy.deepcopy(LocData.count)
     dat_2 = LocData.from_dataframe(dataframe=df_simple)
+    count_2 = copy.deepcopy(LocData.count)
     assert dat.properties == dat_2.properties
-    assert LocData.count == 2
     del dat
-    assert LocData.count == 1
+    count_3 = copy.deepcopy(LocData.count)
+    assert count_0 + 1 == count_1
+    assert count_0 + 2 == count_2
+    assert count_2 - 1 == count_3
 
 
 def test_LocData(df_simple, caplog):

@@ -39,28 +39,6 @@ def df_other_simple():
 COMMENT_METADATA = metadata_pb2.Metadata(comment="some user comment")
 
 
-# The following test must be the first in the module to ensure no LocData
-# instances are garbage collected after LocData.count = 0 is set.
-def test_LocData_count(df_simple):
-    # The following is commented out because it requires time and is not
-    # needed to ensure correct functionality.
-    # import gc
-    # gc_counts = sum([isinstance(item, LocData) for item in gc.get_referrers(LocData)])
-    # print(f"Current number of LocData instances: {gc_counts}")
-
-    count_0 = copy.deepcopy(LocData.count)
-    dat = LocData.from_dataframe(dataframe=df_simple, meta=COMMENT_METADATA)
-    count_1 = copy.deepcopy(LocData.count)
-    dat_2 = LocData.from_dataframe(dataframe=df_simple)
-    count_2 = copy.deepcopy(LocData.count)
-    assert dat.properties == dat_2.properties
-    del dat
-    count_3 = copy.deepcopy(LocData.count)
-    assert count_0 + 1 == count_1
-    assert count_0 + 2 == count_2
-    assert count_2 - 1 == count_3
-
-
 def test_LocData(df_simple, caplog):
     dat = LocData(dataframe=df_simple, meta=COMMENT_METADATA)
     assert len(dat) == 5

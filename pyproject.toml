@@ -29,3 +29,6 @@ markers = [
     "requires_datasets: marks tests that require data in locan_datasets directory (skipped by default)",
     "qt: marks tests that require QT",
 ]
+
+[tool.bandit]
+exclude_dirs = ["*/locan/tests/*"]

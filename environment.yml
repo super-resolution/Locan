@@ -28,7 +28,7 @@ dependencies:
 - scikit-image
 - matplotlib
 - networkx
-- shapely!=2.0.0
+- shapely!=2.0.0,!=2.0.1
 - lmfit
 
 # Google

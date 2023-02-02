@@ -18,7 +18,7 @@ scikit-learn
 scikit-image
 matplotlib
 networkx
-shapely!=2.0.0
+shapely!=2.0.0,!=2.0.1
 lmfit
 
 # Google
@@ -28,7 +28,7 @@ protobuf
 ruamel.yaml
 tifffile
 asdf
-tomli >= 1.1.0 ; python_version < "3.11"
+tomli>=1.1.0;python_version<"3.11"
 
 
 # Data analysis tools

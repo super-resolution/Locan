@@ -31,4 +31,16 @@ markers = [
 ]
 
 [tool.bandit]
+# tests:
+# https://bandit.readthedocs.io/en/latest/blacklists/index.html#complete-plugin-listing
+# B301: pickle
+# B307: eval
+# B403: import_pickle
+# B405: import_xml_etree
+# B605: start_process_with_a_shell
+# B607: start_process_with_partial_path
 exclude_dirs = ["*/locan/tests/*"]
+skips = ["B405"]
+# Use the following settings for test functions:
+# assert_used = "skips = ['*/test_*.py']"
+# skips = ["B301", "B307", "B405", "B403", "B605", "B607"]

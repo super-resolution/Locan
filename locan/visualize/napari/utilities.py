@@ -121,7 +121,8 @@ def _shapes_to_regions(shapes_data) -> list[Region]:
     -------
     list[Region]
     """
-    assert shapes_data[2] == "shapes"
+    if shapes_data[2] != "shapes":
+        raise ValueError("shapes_data[2] must equal 'shapes'.")
     data = shapes_data[0]
     shape_types = shapes_data[1]["shape_type"]
     regions = [
@@ -161,7 +162,6 @@ def get_rois(shapes_layer, reference=None, loc_properties=None):
     --------
     :func:`locan.scripts.rois` : script for drawing rois
     """
-    assert isinstance(shapes_layer, napari.layers.Shapes)
     shapes_data = shapes_layer.as_layer_data_tuple()
     regions = _shapes_to_regions(shapes_data=shapes_data)
     rois = [

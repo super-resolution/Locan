@@ -49,7 +49,8 @@ def load_npc(**kwargs):
         DATASETS_DIR.mkdir(exist_ok=True)
         url = "https://raw.github.com/super-resolution/LocanDatasets/main/smlm_data/npc_gp210.asdf"
         response = requests.get(url)
-        assert response.status_code == requests.codes.ok
+        if response.status_code != requests.codes.ok:
+            raise ConnectionError("response.status_code != requests.codes.ok")
         with open(path, "wb") as file:
             for chunk in response.iter_content(chunk_size=128):
                 file.write(chunk)
@@ -87,7 +88,8 @@ def load_tubulin(**kwargs):
         DATASETS_DIR.mkdir(exist_ok=True)
         url = "https://raw.github.com/super-resolution/LocanDatasets/main/smlm_data/tubulin_cos7.asdf"
         response = requests.get(url)
-        assert response.status_code == requests.codes.ok
+        if response.status_code != requests.codes.ok:
+            raise ConnectionError("response.status_code != requests.codes.ok")
         with open(path, "wb") as file:
             for chunk in response.iter_content(chunk_size=128):
                 file.write(chunk)

@@ -65,8 +65,10 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size) -> np.ndarray:
     points_ = np.asarray(points)
     point_indices = np.divide(points_, pixel_size)
 
-    matrix_size = matrix_x.shape
-    assert matrix_size == matrix_y.shape
+    if matrix_x.shape == matrix_y.shape:
+        matrix_size = matrix_x.shape
+    else:
+        raise TypeError("matrix_x and matrix_y must have the same shape.")
 
     x = np.arange(matrix_size[0])
     y = np.arange(matrix_size[1])

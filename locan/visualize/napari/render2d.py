@@ -120,7 +120,8 @@ def render_2d_napari(
         bin_edges=bin_edges,
         bin_range=bin_range,
     )
-    assert all(bins.is_equally_sized)
+    if not all(bins.is_equally_sized):
+        raise ValueError("All bins must be equally sized.")
     data = adjust_contrast(data, rescale)
 
     add_image_kwargs = dict(

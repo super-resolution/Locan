@@ -179,7 +179,7 @@ def manifest_from_locdata(locdata, return_json_string=False):
 
 
 def _change_upper_to_lower_keys(json_string: str) -> str:
-    """ Switch selected key words in json_string from upper to lower letters."""
+    """Switch selected key words in json_string from upper to lower letters."""
     json_string = json_string.replace("BINARY", "binary")
     json_string = json_string.replace("TEXT", "text")
     json_string = json_string.replace("TABLE", "table")
@@ -246,7 +246,8 @@ def save_SMLM(locdata, path, manifest=None):
 
 def load_SMLM_manifest(path):
     """
-    Read manifest.json (version 0.2) from a SMLM single-molecule localization (zip) file.
+    Read manifest.json (version 0.2) from a SMLM single-molecule localization
+    (zip) file.
 
     Parameters
     ----------
@@ -263,7 +264,8 @@ def load_SMLM_manifest(path):
     if "manifest.json" not in file_names:
         raise Exception("invalid file: no manifest.json found in the smlm file.")
     manifest = json.loads(zf.read("manifest.json"))
-    assert manifest["format_version"] == "0.2"
+    if manifest["format_version"] != "0.2":
+        raise NotImplementedError("Not implemented for manifest version unlike 0.2.")
     return manifest
 
 
@@ -286,7 +288,8 @@ def load_SMLM_header(path):
     if "manifest.json" not in file_names:
         raise Exception("invalid file: no manifest.json found in the smlm file.")
     manifest = json.loads(zf.read("manifest.json"))
-    assert manifest["format_version"] == "0.2"
+    if manifest["format_version"] != "0.2":
+        raise NotImplementedError("Not implemented for manifest version unlike 0.2.")
 
     locdata_columns_list = []
     for file_info in manifest["files"]:
@@ -336,7 +339,8 @@ def load_SMLM_file(path, nrows=None, convert=True):
     if "manifest.json" not in file_names:
         raise Exception("invalid file: no manifest.json found in the smlm file.")
     manifest = json.loads(zf.read("manifest.json"))
-    assert manifest["format_version"] == "0.2"
+    if manifest["format_version"] != "0.2":
+        raise NotImplementedError("Not implemented for manifest version unlike 0.2.")
 
     locdatas = []
     for file_info in manifest["files"]:
@@ -367,7 +371,10 @@ def load_SMLM_file(path, nrows=None, convert=True):
 
                     logger.debug("columns: %s", headers)
                     logger.debug("rows: %s, columns: %s", rows, cols)
-                    assert len(headers) == len(dtype) == len(shape)
+                    if not len(headers) == len(dtype) == len(shape):
+                        raise ValueError(
+                            "headers, dtype, and shape have not the same length."
+                        )
 
                     rowLen = sum(
                         dtype2length[dtype[i]] for i, header in enumerate(headers)

@@ -41,20 +41,21 @@ class LocData:
     Parameters
     ----------
     references : LocData, list(LocData), None
-        A `LocData` reference or an array with references to `LocData` objects referring to the selected localizations
-        in dataset.
+        A `LocData` reference or an array with references to `LocData` objects
+        referring to the selected localizations in dataset.
     dataframe : pandas.DataFrame, None
         Dataframe with localization data.
     indices : slice object, list(int), None
-        Indices for dataframe in references that makes up the data. `indices` refers to index label, not position.
+        Indices for dataframe in references that makes up the data.
+        `indices` refers to index label, not position.
     meta : locan.data.metadata_pb2.Metadata, dictionary
         Metadata about the current dataset and its history.
 
     Attributes
     ----------
     references : LocData, list(LocData), None
-        A LocData reference or an array with references to LocData objects referring to the selected localizations
-        in dataframe.
+        A LocData reference or an array with references to LocData objects
+        referring to the selected localizations in dataframe.
     dataframe : pandas.DataFrame, None
         Dataframe with localization data.
     indices : slice object, list(int), None
@@ -66,19 +67,18 @@ class LocData:
     coordinate_labels : list of str
         The available coordinate properties.
     dimension : int
-        Number of coordinates available for each localization (i.e. size of `coordinate_labels`).
+        Number of coordinates available for each localization
+        (i.e. size of `coordinate_labels`).
     """
 
     count = 0
     """int: A counter for counting LocData instantiations (class attribute)."""
 
-    def __init__(
-        self, references=None, dataframe=pd.DataFrame(), indices=None, meta=None
-    ):
+    def __init__(self, references=None, dataframe=None, indices=None, meta=None):
         self.__class__.count += 1
 
         self.references = references
-        self.dataframe = dataframe
+        self.dataframe = pd.DataFrame() if dataframe is None else dataframe
         self.indices = indices
         self.meta = metadata_pb2.Metadata()
         self.properties = {}
@@ -459,15 +459,15 @@ class LocData:
         )
 
     @classmethod
-    def from_dataframe(cls, dataframe=pd.DataFrame(), meta=None):
+    def from_dataframe(cls, dataframe=None, meta=None):
         """
         Create new LocData object from pandas.DataFrame with localization data.
 
         Parameters
         ----------
-        dataframe : pandas.DataFrame
+        dataframe : pandas.DataFrame | None
             Localization data.
-        meta : locan.data.metadata_pb2.Metadata
+        meta : locan.data.metadata_pb2.Metadata | None
             Metadata about the current dataset and its history.
 
         Returns
@@ -475,7 +475,7 @@ class LocData:
         LocData
             A new LocData instance with dataframe representing the concatenated data.
         """
-        dataframe = dataframe
+        dataframe = pd.DataFrame() if dataframe is None else dataframe
         meta_ = metadata_pb2.Metadata()
 
         meta_.source = metadata_pb2.DESIGN
@@ -501,9 +501,9 @@ class LocData:
         ----------
         coordinates : sequence of tuples with shape (n_loclizations, dimension)
             Sequence of tuples with localization coordinates
-        coordinate_labels : sequence of str
+        coordinate_labels : sequence[str] | None
             The available coordinate properties.
-        meta : locan.data.metadata_pb2.Metadata
+        meta : locan.data.metadata_pb2.Metadata | None
             Metadata about the current dataset and its history.
 
         Returns
@@ -549,7 +549,7 @@ class LocData:
         return cls(dataframe=dataframe, meta=meta_)
 
     @classmethod
-    def from_selection(cls, locdata, indices=slice(0, None), meta=None):
+    def from_selection(cls, locdata, indices=None, meta=None):
         """
         Create new LocData object from selected elements in another `LocData`.
 
@@ -559,8 +559,9 @@ class LocData:
             Locdata object from which to select elements.
         indices : slice object, list(int), None
             Index labels for elements in locdata that make up the new data.
-            Note that contrary to usual python slices, both the start and the stop are included
-            (see pandas documentation). `Indices` refer to index value not position in list.
+            Note that contrary to usual python slices, both the start and the
+            stop are included (see pandas documentation).
+            `Indices` refer to index value not position in list.
         meta : locan.data.metadata_pb2.Metadata
             Metadata about the current dataset and its history.
 
@@ -574,7 +575,9 @@ class LocData:
         No error is raised if indices do not exist in locdata.
         """
         references = locdata
-        indices = indices
+        if indices is None:
+            indices = slice(0, None)
+
         meta_ = metadata_pb2.Metadata()
         meta_.CopyFrom(locdata.meta)
         try:

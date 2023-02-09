@@ -165,8 +165,8 @@ def _map_file_type_to_load_function(file_type):
         else:
             raise TypeError
         return look_up_table[function_name]
-    except ValueError:
-        raise ValueError(f"There is no load function for type {file_type}.")
+    except ValueError as exc:
+        raise ValueError(f"There is no load function for type {file_type}.") from exc
 
 
 def load_locdata(path, file_type=1, nrows=None, **kwargs):

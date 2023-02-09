@@ -189,7 +189,7 @@ def make_Poisson(intensity, region=(0, 1), seed=None):
         samples = np.array([])
     elif n_samples == 0:
         samples = np.array([])
-        for i in range(region.dimension):
+        for _i in range(region.dimension):
             samples = samples[..., np.newaxis]
     elif isinstance(
         region, (Interval, Rectangle, AxisOrientedCuboid, AxisOrientedHypercuboid)

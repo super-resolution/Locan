@@ -3,8 +3,13 @@ from copy import deepcopy
 import matplotlib.pyplot as plt  # needed for visual inspection  # noqa: F401
 import pytest
 
-from locan import render_2d_mpl  # needed for visual inspection  # noqa: F401
-from locan import LocalizationProperty2d, LocData, Rectangle, simulate_uniform
+from locan import (
+    LocalizationProperty2d,
+    LocData,
+    Rectangle,
+    render_2d_mpl,  # needed for visual inspection  # noqa: F401
+    simulate_uniform,
+)
 from locan.analysis.localization_property_2d import _gauss_2d
 
 

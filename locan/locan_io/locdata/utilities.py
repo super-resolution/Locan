@@ -80,10 +80,10 @@ def open_path_or_file_like(path_or_file_like, mode="r", encoding=None):
             # if hasattr(path_or_file_like, "__fspath__")
             # or isinstance(path_or_file_like, (str, bytes)):
             file = open(path_or_file_like, mode=mode, encoding=encoding)
-        except TypeError:
+        except TypeError as exc:
             raise TypeError(
                 "path_or_file_like must be str, bytes, os.PathLike or file-like."
-            )
+            ) from exc
     return closing(file)
 
 

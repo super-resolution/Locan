@@ -4,8 +4,7 @@ import pandas as pd
 import pytest
 
 import locan.data.metadata_pb2
-from locan import render_2d_mpl  # needed for visual inspection  # noqa: F401
-from locan import (  # noqa: F401
+from locan import (
     HullType,
     LocData,
     Rectangle,
@@ -14,7 +13,8 @@ from locan import (  # noqa: F401
     exclude_sparse_points,
     localizations_in_cluster_regions,
     random_subset,
-    scatter_2d_mpl,
+    render_2d_mpl,  # needed for visual inspection  # noqa: F401
+    scatter_2d_mpl,  # needed for visual inspection  # noqa: F401
     select_by_condition,
     select_by_region,
     transform_affine,

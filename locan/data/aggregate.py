@@ -449,7 +449,6 @@ class _BinsFromEdges:
     """
 
     def __init__(self, bin_edges):
-
         if _is_1d_array_of_scalar(bin_edges):
             self.bin_edges = (np.array(bin_edges),)
             self.dimension = 1
@@ -481,7 +480,6 @@ class _BinsFromNumber:
     """
 
     def __init__(self, n_bins, bin_range):
-
         if not is_array_like(n_bins) or np.ndim(n_bins) > 1:
             raise TypeError("`n_bins` must be 0- or 1-dimensional.")
 
@@ -573,7 +571,6 @@ class _BinsFromSize:
     """
 
     def __init__(self, bin_size, bin_range, extend_range=None):
-
         if _is_scalar(bin_size):
             if _is_1d_array_of_two_scalar(bin_range):
                 self.dimension = 1
@@ -789,7 +786,6 @@ class Bins:
         labels=None,
         extend_range=None,
     ):
-
         # check for correct inputs
         excluding_parameter = (bins, n_bins, bin_size, bin_edges)
         excluding_parameter_strings = ("bins", "n_bins", "bin_size", "bin_edges")
@@ -1147,8 +1143,10 @@ def histogram(
 
     try:
         bins = Bins(bins, n_bins, bin_size, bin_edges, bin_range_, labels=labels_)
-    except ValueError:
-        raise ValueError("Bin dimension and len of `loc_properties` is incompatible.")
+    except ValueError as exc:
+        raise ValueError(
+            "Bin dimension and len of `loc_properties` is incompatible."
+        ) from exc
 
     if other_property is None:
         # histogram data by counting points

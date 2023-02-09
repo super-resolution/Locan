@@ -22,9 +22,8 @@ dependencies:
 - build
 - twine
 - black
-- isort
 - pre-commit
-- flake8
+- ruff
 
 # Documentation
 - sphinx
@@ -33,6 +32,3 @@ dependencies:
 - sphinx-copybutton
 - sphinx_rtd_theme
 - furo
-
-- pip:
-    - bandit[toml]

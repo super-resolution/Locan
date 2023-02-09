@@ -545,7 +545,10 @@ class Drift(_Analysis):
         return self
 
     def _transformation_models_for_identity_matrix(self):
-        """Return transformation_models (dict) with DriftModels according to unit matrix."""
+        """
+        Return transformation_models (dict) with DriftModels according to unit
+        matrix.
+        """
         dimension = self.locdata.dimension
         transformation_models = []
         for k in np.identity(dimension).flatten():
@@ -556,13 +559,16 @@ class Drift(_Analysis):
         return dict(matrix=transformation_models)
 
     def _transformation_models_for_zero_offset(self):
-        """Return transformation_models (dict) with DriftModels according to zero offset."""
+        """
+        Return transformation_models (dict) with DriftModels according to zero
+        offset.
+        """
         dimension = self.locdata.dimension
         return dict(offset=[DriftComponent("zero") for _ in range(dimension)])
 
     def fit_transformation(
         self,
-        slice_data=slice(None),
+        slice_data=None,
         transformation_component="matrix",
         element=0,
         drift_model="linear",
@@ -573,7 +579,7 @@ class Drift(_Analysis):
 
         Parameters
         ----------
-        slice_data : Slice object
+        slice_data : Slice object | None
             Reduce data to a selection on the localization chunks.
         transformation_component : str
             One of 'matrix' or 'offset'
@@ -590,6 +596,9 @@ class Drift(_Analysis):
         if not self:
             logger.warning("No transformations available to be fitted.")
             return self
+
+        if slice_data is None:
+            slice_data = slice(None)
 
         dimension = self.locdata.dimension
         # frames = np.array([locdata.data.frame.mean() for locdata in self.collection.references[1:]])[slice_data]
@@ -648,7 +657,7 @@ class Drift(_Analysis):
 
     def fit_transformations(
         self,
-        slice_data=slice(None),
+        slice_data=None,
         matrix_models=None,
         offset_models=None,
         verbose=False,
@@ -658,7 +667,7 @@ class Drift(_Analysis):
 
         Parameters
         ----------
-        slice_data : Slice object
+        slice_data : Slice object | None
             Reduce data to a selection on the localization chunks.
         matrix_models : list of DriftComponent, None
             Models to use for fitting each matrix component.
@@ -674,6 +683,9 @@ class Drift(_Analysis):
         if not self:
             logger.warning("No transformations available to be fitted.")
             return self
+
+        if slice_data is None:
+            slice_data = slice(None)
 
         if matrix_models is None:
             self.transformation_models["matrix"] = None
@@ -752,13 +764,15 @@ class Drift(_Analysis):
     def _apply_correction_from_model(self, locdata):
         """
         Correct drift by applying the estimated transformations to locdata.
-        If self.transformation_model['matrix'] is None, no matrix transformation will be carried out when calling
+        If self.transformation_model['matrix'] is None, no matrix
+        transformation will be carried out when calling
         :func:`apply_correction` (same for 'offset').
 
         Parameters
         ----------
         locdata : LocData or None
-            Localization data to apply correction on. If None correction is applied to self.locdata.
+            Localization data to apply correction on. If None correction is
+            applied to self.locdata.
         """
         # check if any models are fitted, otherwise it is likely that the fitting procedure was accidentally omitted.
         if (

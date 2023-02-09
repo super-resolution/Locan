@@ -3,8 +3,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from locan import NearestNeighborDistances  # from locan.analysis.nearest_neighbor
-from locan import LocData, simulate_uniform
+from locan import LocData, NearestNeighborDistances, simulate_uniform
 from locan.analysis.nearest_neighbor import (
     NNDistances_csr_2d,
     NNDistances_csr_3d,

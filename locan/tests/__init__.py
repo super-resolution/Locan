@@ -22,8 +22,8 @@ def test(args=None):
     """
     try:
         import pytest
-    except ImportError:
-        raise ImportError("Need pytest to run tests.")
+    except ImportError as exc:
+        raise ImportError("Need pytest to run tests.") from exc
 
     extra_args = ["-m not gui and not visual and not requires_datasets"]
 

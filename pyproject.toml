@@ -13,10 +13,6 @@ fallback_version = "0.14-fallback"
 [tool.black]
 line_length = 88
 
-[tool.isort]
-profile = "black"
-line_length = 88
-
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
@@ -26,21 +22,58 @@ addopts = "-m 'not gui and not visual and not requires_datasets'"
 markers = [
     "gui: marks tests that require user interaction (skipped by default)",
     "visual: marks tests that require visual inspection (skipped by default)",
-    "requires_datasets: marks tests that require data in locan_datasets directory (skipped by default)",
+    """requires_datasets: marks tests that require data in locan_datasets directory \
+       (skipped by default)""",
     "qt: marks tests that require QT",
 ]
 
-[tool.bandit]
-# tests:
-# https://bandit.readthedocs.io/en/latest/blacklists/index.html#complete-plugin-listing
-# B301: pickle
-# B307: eval
-# B403: import_pickle
-# B405: import_xml_etree
-# B605: start_process_with_a_shell
-# B607: start_process_with_partial_path
-exclude_dirs = ["*/tests/*"]
-skips = ["B405"]
-# Use the following settings for test functions:
-# assert_used = "skips = ['*/test_*.py']"
-# skips = ["B301", "B307", "B405", "B403", "B605", "B607"]
+[tool.ruff]
+line-length = 88
+show-source = false
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "Q",  # flake8-quotes
+    "YTT",  # flake8-2020
+    "S",  # flake8-bandit
+]
+# Rules - https://github.com/charliermarsh/ruff#reference:
+# E402 module-import-not-at-top-of-file
+# E501 line-too-long
+# F403 import-star-used
+# I001 	unsorted-imports
+# B905 `zip()` without an explicit `strict=` parameter - should be used from py310.
+ignore = ["E501", "B905"]
+# automatically exclude files that are ignored by .gitignore
+exclude = [
+    ".*",
+    "dist",
+    "docs",
+    "docker",
+    "*/*_pb2.py"
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["E402", "F403", "F405"]
+"_version.py" = ["Q000"]
+"test_*.py" = ["S101"]
+
+[tool.ruff.flake8-quotes]
+docstring-quotes = "double"
+
+[tool.ruff.flake8-import-conventions]
+[tool.ruff.flake8-import-conventions.aliases]
+numpy = "np"
+pandas = "pd"
+matplotlib = "mpl"
+"matplotlib.pyplot" = "plt"
+open3d = "o3d"
+scipy = "sp"
+networkx = "nx"
+boost_histogram = "bh"
+
+[tool.ruff.pydocstyle]
+convention = "numpy"

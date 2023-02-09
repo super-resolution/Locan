@@ -313,7 +313,7 @@ class Roi:
         """
         yaml = YAML(typ="safe")
         with open(path) as file:
-            yaml_output = yaml.load(file)
+            yaml_output = yaml.load(file)  # noqa: S506
 
         if yaml_output["reference"] is not None:
             reference_ = metadata_pb2.Metadata()
@@ -589,7 +589,7 @@ class RoiLegacy_0:
         """
         yaml = YAML(typ="safe")
         with open(path) as file:
-            yaml_output = yaml.load(file)
+            yaml_output = yaml.load(file)  # noqa: S506
 
         if yaml_output["reference"] is not None:
             reference_ = metadata_pb2.Metadata()

@@ -105,7 +105,7 @@ def test_EmptyRegion():
 
 def test_Interval():
     region = Interval()
-    assert not (2 in region)
+    assert 2 not in region
     assert 0.5 in region
     assert isinstance(region, Region)
     assert repr(region) == "Interval(0, 1)"
@@ -147,7 +147,7 @@ def test_Interval():
 
 def test_Rectangle():
     region = Rectangle((0, 0), 2, 1, 90)
-    assert not ((10, 1) in region)
+    assert (10, 1) not in region
     assert (-0.5, 0.5) in region
     assert isinstance(region, Region)
     assert repr(region) == "Rectangle((0, 0), 2, 1, 90)"
@@ -214,7 +214,7 @@ def test_Rectangle_visual():
 
 def test_Ellipse():
     region = Ellipse((10, 10), 4, 2, 90)
-    assert not ((1, 1) in region)
+    assert (1, 1) not in region
     assert (10, 10) in region
     assert isinstance(region, Region)
     assert repr(region) == "Ellipse((10, 10), 4, 2, 90)"
@@ -269,7 +269,7 @@ def test_Ellipse_visual():
 def test_Polygon():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
     region = Polygon(points)
-    assert not ((10, 1) in region)
+    assert (10, 1) not in region
     assert (0.5, 0.5) in region
     assert np.array_equal(region.points, points)
     assert (
@@ -478,7 +478,7 @@ def test_MultiPolygon():
     ]
     region_1 = Polygon(points, holes)
     region = MultiPolygon([region_0, region_1])
-    assert not ((10, 1) in region)
+    assert (10, 1) not in region
     assert (0.2, 0.8) in region
     assert isinstance(region, Region)
     assert (
@@ -761,7 +761,7 @@ def test_Polygon_difference_visual():
 
 def test_AxisOrientedCuboid():
     region = AxisOrientedCuboid((1, 1, 1), 9, 19, 29)
-    assert not ((-1, 1, 1) in region)
+    assert (-1, 1, 1) not in region
     assert (2, 2, 2) in region
     assert isinstance(region, Region)
     assert isinstance(region, Region3D)
@@ -784,7 +784,7 @@ def test_AxisOrientedCuboid():
     assert region.extent == pytest.approx((9, 19, 29))
     assert len(region.points) == 8
     assert region.centroid == (5.5, 10.5, 15.5)
-    assert region.max_distance == np.sqrt(9 ** 2 + 19 ** 2 + 29 ** 2)
+    assert region.max_distance == np.sqrt(9**2 + 19**2 + 29**2)
     assert region.region_measure == (9 * 19 * 29)
     assert region.subregion_measure == 2 * (9 * 19 + 19 * 29 + 29 * 9)
     assert np.array_equal(
@@ -838,7 +838,7 @@ def test_Cuboid():
     # assert region.extent == pytest.approx((9, 19, 29))
     # assert len(region.points) == 8
     # assert region.centroid == (5.5, 10.5, 15.5)
-    assert region.max_distance == np.sqrt(9 ** 2 + 19 ** 2 + 29 ** 2)
+    assert region.max_distance == np.sqrt(9**2 + 19**2 + 29**2)
     assert region.region_measure == (9 * 19 * 29)
     assert region.subregion_measure == 2 * (9 * 19 + 19 * 29 + 29 * 9)
     # assert np.array_equal(region.contains([[0, 0, 0], [1, 10, 10], [10, 10, 10], [5, 100, 10], [5, 10, 100]]), (1,))
@@ -861,7 +861,7 @@ def test_Cuboid():
 
 def test_AxisOrientedHypercuboid():
     region = AxisOrientedHypercuboid((1, 1, 1), (9, 19, 29))
-    assert not ((-1, 1, 1) in region)
+    assert (-1, 1, 1) not in region
     assert (2, 2, 2) in region
     assert isinstance(region, Region)
     assert repr(region) == "AxisOrientedHypercuboid((1, 1, 1), (9, 19, 29))"
@@ -883,7 +883,7 @@ def test_AxisOrientedHypercuboid():
     assert region.extent == pytest.approx((9, 19, 29))
     assert len(region.points) == 8
     assert region.centroid.tolist() == [5.5, 10.5, 15.5]
-    assert region.max_distance == np.sqrt(9 ** 2 + 19 ** 2 + 29 ** 2)
+    assert region.max_distance == np.sqrt(9**2 + 19**2 + 29**2)
     assert region.region_measure == (9 * 19 * 29)
     with pytest.raises(NotImplementedError):
         region.subregion_measure

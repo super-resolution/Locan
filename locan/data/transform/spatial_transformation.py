@@ -83,7 +83,7 @@ def _transform_affine_numpy(
     return transformed_points
 
 
-def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)) -> np.ndarray:
+def _homogeneous_matrix(matrix=None, offset=None) -> np.ndarray:
     """
     Combine transformation matrix and translation vector for dimension d into
     homogeneous (d+1, d+1) transformation
@@ -91,7 +91,7 @@ def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)) -> np.ndarray
 
     Parameters
     ----------
-    matrix : array-like
+    matrix : array-like | None
         Transformation matrix. If None the unit matrix is used.
         Array with shape (ndim, ndim).
     offset : array-like | None
@@ -104,6 +104,8 @@ def _homogeneous_matrix(matrix=np.identity(3), offset=np.zeros(3)) -> np.ndarray
         Homogeneous transformation matrix to be used with homogeneous
         coordinate vector. Array with shape (ndim+1, ndim+1).
     """
+    matrix = np.identity(3) if matrix is None else matrix
+    offset = np.zeros(3) if offset is None else offset
     dimension = np.shape(matrix)[0]
 
     if dimension != np.shape(matrix)[1]:

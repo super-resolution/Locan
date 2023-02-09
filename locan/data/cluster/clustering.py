@@ -278,8 +278,10 @@ def cluster_by_bin(
         bins = Bins(
             bins, n_bins, bin_size, bin_edges, bin_range_, labels=loc_properties
         )
-    except ValueError:  # this is raised again to add accustomed message
-        raise ValueError("Bin dimension and len of `loc_properties` is incompatible.")
+    except ValueError as exc:
+        raise ValueError(
+            "Bin dimension and len of `loc_properties` is incompatible."
+        ) from exc
 
     bin_indices, data_indices, _, counts = _accumulate_2d(
         data, bin_edges=bins.bin_edges, return_counts=True

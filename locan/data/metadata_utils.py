@@ -169,8 +169,8 @@ def _toml_dict_to_protobuf(toml_dict):
 
     Parameters
     ----------
-    toml_string : str
-        TOML string with metadata.
+    toml_dict : dict
+        Dict from TOML string with metadata.
 
     Returns
     -------
@@ -204,14 +204,17 @@ def metadata_from_toml_string(toml_string):
 
     Parameters
     ----------
-    toml_string : str
+    toml_string : str | None
         TOML string with metadata.
 
     Returns
     -------
-    dict[str, google.protobuf.message.Message]
+    dict[str, google.protobuf.message.Message] | None
         Message instances with name as declared in toml file.
     """
+    if toml_string is None:
+        return None
+
     toml_dict = tomllib.loads(toml_string)
     return _toml_dict_to_protobuf(toml_dict)
 
@@ -227,14 +230,17 @@ def load_metadata_from_toml(path_or_file_like):
 
     Parameters
     ----------
-    path_or_file_like : str | bytes | os.PathLike | BinaryIO
+    path_or_file_like : str | bytes | os.PathLike | BinaryIO | None
         File path or file-like for a TOML file.
 
     Returns
     -------
-    dict[str, google.protobuf.message.Message]
+    dict[str, google.protobuf.message.Message] | None
         Message instances with name as declared in toml file.
     """
+    if path_or_file_like is None:
+        return None
+
     try:
         toml_dict = tomllib.load(path_or_file_like)
     except AttributeError:

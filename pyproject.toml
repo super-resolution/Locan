@@ -39,7 +39,7 @@ markers = [
 # B405: import_xml_etree
 # B605: start_process_with_a_shell
 # B607: start_process_with_partial_path
-exclude_dirs = ["*/locan/tests/*"]
+exclude_dirs = ["*/tests/*"]
 skips = ["B405"]
 # Use the following settings for test functions:
 # assert_used = "skips = ['*/test_*.py']"

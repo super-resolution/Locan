@@ -127,6 +127,16 @@ def test__dict_to_protobuf(meta_dict):
     metadata = metadata_pb2.Metadata()
     metadata.comment = "to be changed"
     metadata.element_count = 1  # will not be touched
+
+    new_metadata = _dict_to_protobuf(dictionary={}, message=metadata)
+    results_string = metadata_to_formatted_string(
+        message=new_metadata, as_one_line=True
+    )
+    results_string_expected = metadata_to_formatted_string(
+        message=metadata, as_one_line=True
+    )
+    assert results_string == results_string_expected
+
     new_metadata = _dict_to_protobuf(dictionary=meta_dict, message=metadata)
     assert isinstance(new_metadata, google.protobuf.message.Message)
     results_string = metadata_to_formatted_string(
@@ -162,6 +172,9 @@ def test__dict_to_protobuf(meta_dict):
 
 
 def test_metadata_from_toml_string(metadata_toml):
+    result = metadata_from_toml_string(toml_string=None)
+    assert result is None
+
     result = metadata_from_toml_string(metadata_toml)
     assert isinstance(result, dict)
     assert isinstance(result["metadata"], google.protobuf.message.Message)
@@ -183,8 +196,11 @@ def test_metadata_from_toml_file(tmp_path, metadata_toml):
     with file_path.open("w", encoding="utf-8") as file:
         file.write(metadata_toml)
 
+    result = load_metadata_from_toml(path_or_file_like=None)
+    assert result is None
+
     # load path-like
-    result = load_metadata_from_toml(file_path)
+    result = load_metadata_from_toml(path_or_file_like=file_path)
 
     assert isinstance(result["metadata"], google.protobuf.message.Message)
     results_string = metadata_to_formatted_string(
@@ -201,7 +217,7 @@ def test_metadata_from_toml_file(tmp_path, metadata_toml):
 
     # load file-like
     with open(file_path, "rb") as f:
-        result = load_metadata_from_toml(f)
+        result = load_metadata_from_toml(path_or_file_like=f)
     assert isinstance(result, dict)
 
 

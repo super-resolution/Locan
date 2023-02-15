@@ -6,6 +6,9 @@ requires = [
     ]
 build-backend = "setuptools.build_meta"
 
+[project]
+dynamic = ["version"]
+
 [tool.setuptools_scm]
 write_to = "locan/_version.py"
 fallback_version = "0.13-fallback"

@@ -2,117 +2,45 @@
 Changelog
 =======================
 
-0.13 (unreleased)
+0.13 - 2023-02-15
 =================
-
 
 New Features
 ------------
--
-
-locan.analysis
-^^^^^^^^^^^^^^^
--
-
-locan.data
-^^^^^^^^^^^^^^^
--
-
-locan.datasets
-^^^^^^^^^^^^^^^
--
-
-locan.gui
-^^^^^^^^^^^^^^^
--
-
-locan.io
-^^^^^^^^^^^^^^^
--
-
-locan.render
-^^^^^^^^^^^^^^^
--
-
-locan.scripts
-^^^^^^^^^^^^^^^
--
-
-locan.simulation
-^^^^^^^^^^^^^^^^^
-
-
+- Add CLI for --info and --version
+- Add overlay function to transform locdatas
+- Add function to standardize locdata.
+- Add function load_metadata_from_toml to read metadata from toml file
+- Add function find_pattern_upstream.
+- Add function transform_counts_to_photons.
 
 API Changes
 -----------
-
-locan.analysis
-^^^^^^^^^^^^^^^
--
-
-locan.data
-^^^^^^^^^^^^^^^
--
-
-locan.datasets
-^^^^^^^^^^^^^^^
--
-
-locan.gui
-^^^^^^^^^^^^^^^
--
-
-locan.io
-^^^^^^^^^^^^^^^
--
-
-locan.render
-^^^^^^^^^^^^^^^
--
-
-locan.scripts
-^^^^^^^^^^^^^^^
--
-
-locan.simulation
-^^^^^^^^^^^^^^^^^^^
--
+- Add boost_histogram_axes property to Bins
 
 Bug Fixes
 ---------
-
-locan.analysis
-^^^^^^^^^^^^^^^
--
-
-locan.data
-^^^^^^^^^^^^^^^
--
-
-locan.gui
-^^^^^^^^^^^^^^^
--
-
-locan.io
-^^^^^^^^^^^^^^^
--
-
-locan.render
-^^^^^^^^^^^^^^^
--
-
-locan.scripts
-^^^^^^^^^^^^^^^
--
-
-locan.simulation
-^^^^^^^^^^^^^^^^^
--
-
+- Fix intensity transform with nan
+- Fix simulation on region being a rotated rectangle
+- Fix Roi.from_yaml for rotated rectangular rois
+- Fix Roi.from_yaml to work with Polygon regions
+- Fix bug in localization_property_2d.
+- Fix bug in localizations_per_frame concerning the time units
+- Fix histogram with bins=Bins_instance as input
+- Fix conversion of bin_edges to bin_size for float numbers
+- Fix tests by excluding shapely 2.0.0 and 2.0.1
+- Use np.random.default_rng for random number generation in simulate_drift.py
 
 Other Changes and Additions
 ---------------------------
--
+- Use of pre-commit
+- Adapt to isort, black, flake8, bandit
+- Integrate qtpy
+- Add benchmark setup for Airspeed Velocity
+- Modify dockerfiles to run with slim-bullseye
+- Add conditional import of tomllib to replace tomli for python>=3.11
+- Add CITATION.cff file
+- Add some type hints
 
 
 0.12 - 2022-06-02

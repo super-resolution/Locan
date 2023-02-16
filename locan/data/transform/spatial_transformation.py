@@ -352,13 +352,6 @@ def overlay(locdatas, centers="centroid", orientations=None):
     -------
     LocData
         Collection with transformed locdatas.
-
-    References
-    ----------
-    .. [1] Broeken J, Johnson H, Lidke DS, et al.
-       "Resolution improvement by 3 D particle averaging in localization microscopy"
-       Methods and applications in fluorescence 3(1), 014003, 2015,
-       doi:10.1088/2050-6120/3/1/014003.
     """
     local_parameter = locals()
 

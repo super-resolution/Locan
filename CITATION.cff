@@ -7,7 +7,7 @@ authors:
 title: "Locan"
 version: "0.x.y"
 doi: "10.5281/zenodo.5722472"
-date-released: 2022
+date-released: 2023
 url: "https://github.com/super-resolution/Locan"
 preferred-citation:
   type: article
@@ -22,4 +22,4 @@ preferred-citation:
   title: "LOCAN: a python library for analyzing single-molecule localization microscopy data"
   issue: 9
   volume: 38
-  year: 2023
+  year: 2022

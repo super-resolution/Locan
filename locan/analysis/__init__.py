@@ -24,6 +24,7 @@ Submodules:
    accumulation_analysis
    blinking
    drift
+   subpixel_bias
 
 """
 
@@ -39,6 +40,7 @@ from locan.analysis.localizations_per_frame import *
 from locan.analysis.nearest_neighbor import *
 from locan.analysis.pipeline import *
 from locan.analysis.ripley import *
+from locan.analysis.subpixel_bias import *
 from locan.analysis.uncertainty import *
 
 __all__ = []
@@ -55,3 +57,4 @@ __all__.extend(cbc.__all__)
 __all__.extend(accumulation_analysis.__all__)
 __all__.extend(blinking.__all__)
 __all__.extend(drift.__all__)
+__all__.extend(subpixel_bias.__all__)

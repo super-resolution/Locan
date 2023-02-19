@@ -7,7 +7,7 @@ Changelog
 
 New Features
 ------------
-- Add ...
+- Add analysis routine for SubpixelBias
 
 API Changes
 -----------

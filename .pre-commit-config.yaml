@@ -9,5 +9,4 @@ repos:
     - id: ruff
       args: [
         --format, grouped,
-        --force-exclude, "true",
       ]

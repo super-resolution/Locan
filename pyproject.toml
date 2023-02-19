@@ -6,9 +6,127 @@ requires = [
     ]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+package-dir = {"" = "locan"}
+
 [tool.setuptools_scm]
 write_to = "locan/_version.py"
 fallback_version = "0.14-fallback"
+
+[project]
+name = "locan"
+description = "Analysis software for single-molecule localization microscopy"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {file = "LICENSE.md"}
+authors = [
+  {name = "Locan Developers"},
+]
+maintainers = [
+  {name = "Sören Doose"}
+]
+keywords = [
+    "fluorescence", "super-resolution", " single-molecule localization microscopy",
+    "smlm", "storm", "dstorm", "palm", "paint"
+]
+classifiers = [
+    "Environment :: Console",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: C",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dynamic = ["version"]
+dependencies = [
+    "asdf",
+    "tifffile",
+    "ruamel.yaml",
+    "fast-histogram",
+    "boost-histogram",
+    "lmfit",
+    "protobuf",
+    "shapely!=2.0.0,!=2.0.1",
+    "networkx",
+    "scikit-learn",
+    "scikit-image",
+    "matplotlib",
+    "scipy",
+    "pandas",
+    "numpy>1.17.0",
+    "tqdm",
+    "cython",
+    "tomli>=1.1.0; python_version<'3.11'",
+    "qtpy!=2.3.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+pytest-qt = ["pytest-qt"]
+pyside2 = ["PySide2"]
+pyqt5 = ["PyQt5"]
+color = ["colorcet"]
+track = ["trackpy"]
+register = ["open3d!=0.12.0"]
+napari = ["napari"]
+scatter_density = ["mpl_scatter_density"]
+html = ["requests"]
+hdf5 = ["h5py"]
+hdbscan = ["hdbscan"]
+all = [
+    "PyQt5",
+    "pytest",
+    "colorcet",
+    "trackpy",
+    "locan[register]",
+    "napari",
+    "mpl_scatter_density",
+    "requests",
+    "h5py",
+    "hdbscan"
+]
+gpu = ["cupy"]
+docs = [
+    "sphinx",
+    "ipython",
+    "myst-nb",
+    "sphinx-copybutton",
+    "sphinx_rtd_theme",
+    "furo",
+    "ray",
+]
+dev = [
+    "coverage",
+    "build",
+    "twine",
+    "black",
+    "pre-commit",
+    "asv",
+    "ruff",
+]
+
+[project.urls]
+homepage = "https://github.com/super-resolution/locan"
+documentation = "https://locan.readthedocs.io/"
+repository = "https://github.com/super-resolution/locan"
+issues = "https://github.com/super-resolution/locan/issues"
+changelog = "https://github.com/super-resolution/locan"
+
+[project.scripts]
+locan = "locan.__main__:main"
+
 
 [tool.black]
 line_length = 88
@@ -25,6 +143,27 @@ markers = [
     """requires_datasets: marks tests that require data in locan_datasets directory \
        (skipped by default)""",
     "qt: marks tests that require QT",
+]
+
+[tool.coverage.run]
+include = "locan/*"
+omit = [
+    "locan/tests/*",
+    "locan/scripts/*",
+    "locan/__main__.py",
+    "locan/data/metadata_pb2.py",
+    "locan/analysis/metadata_analysis_pb2.py",
+    "locan/locan_io/locdata/manifest_pb2.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
 ]
 
 [tool.ruff]

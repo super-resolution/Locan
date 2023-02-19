@@ -19,7 +19,9 @@ Bug Fixes
 
 Other Changes and Additions
 ---------------------------
-- ...
+- Use ruff for linting
+- Use pyproject.toml for all specifications and deprecate use of setup.cfg
+
 
 0.13 - 2023-02-15
 =================

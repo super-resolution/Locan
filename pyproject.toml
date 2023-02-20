@@ -7,7 +7,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-package-dir = {"" = "locan"}
+packages = ["locan"]
 
 [tool.setuptools_scm]
 write_to = "locan/_version.py"

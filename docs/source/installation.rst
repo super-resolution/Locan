@@ -10,7 +10,7 @@ Dependencies
 * python 3
 * standard scipy and other open source libraries
 
-A list with all hard and optional dependencies is given in `setup.cfg`, `environment.yml` and `requirements.txt`.
+A list with all hard and optional dependencies is given in `pyproject.toml`, `environment.yml` and `requirements.txt`.
 
 Install from pypi
 ------------------------------

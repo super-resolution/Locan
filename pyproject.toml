@@ -146,7 +146,9 @@ markers = [
 ]
 
 [tool.coverage.run]
-include = "locan/*"
+include = [
+    "locan/*"
+]
 omit = [
     "locan/tests/*",
     "locan/scripts/*",

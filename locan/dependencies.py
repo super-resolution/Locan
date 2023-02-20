@@ -1,9 +1,10 @@
 """
 Module to deal with required and optional dependencies.
 
-Optional dependencies are defined in setup.cfg as [options.extras_require].
+Optional dependencies are defined in pyproject.toml.
 
-In any module that requires an optional dependency the import should be carried out on top:
+In any module that requires an optional dependency the import should be
+conditioned:
     if HAS_DEPENDENCY["package"]: import package
 
 Any function that makes use of the optional dependency should be decorated with

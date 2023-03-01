@@ -23,7 +23,11 @@ from locan import (  # is required to use locdata_id as global variable  # noqa:
 )
 from locan.constants import PROPERTY_KEYS
 from locan.data import metadata_pb2
-from locan.data.metadata_utils import _modify_meta, metadata_to_formatted_string
+from locan.data.metadata_utils import (
+    _modify_meta,
+    merge_metadata,
+    metadata_to_formatted_string,
+)
 from locan.data.region import Region, RoiRegion
 
 __all__ = ["LocData"]
@@ -48,7 +52,8 @@ class LocData:
     indices : slice object, list(int), None
         Indices for dataframe in references that makes up the data.
         `indices` refers to index label, not position.
-    meta : locan.data.metadata_pb2.Metadata, dictionary
+    meta : (locan.data.metadata_pb2.Metadata | dict |
+            str | bytes | os.PathLike | BinaryIO | None)
         Metadata about the current dataset and its history.
 
     Attributes
@@ -116,13 +121,7 @@ class LocData:
         if "frame" in self.data.columns:
             self.meta.frame_count = len(self.data["frame"].unique())
 
-        if meta is None:
-            pass
-        elif isinstance(meta, dict):
-            for key, value in meta.items():
-                setattr(self.meta, key, value)
-        else:
-            self.meta.MergeFrom(meta)
+        self.meta = merge_metadata(metadata=self.meta, other_metadata=meta)
 
     def _update_properties(self):
         self.properties["localization_count"] = len(self.data.index)
@@ -467,7 +466,8 @@ class LocData:
         ----------
         dataframe : pandas.DataFrame | None
             Localization data.
-        meta : locan.data.metadata_pb2.Metadata | None
+        meta : (locan.data.metadata_pb2.Metadata | dict |
+               str | bytes | os.PathLike | BinaryIO | None)
             Metadata about the current dataset and its history.
 
         Returns
@@ -482,13 +482,7 @@ class LocData:
         meta_.state = metadata_pb2.RAW
         meta_.history.add(name="LocData.from_dataframe")
 
-        if meta is None:
-            pass
-        elif isinstance(meta, dict):
-            for key, value in meta.items():
-                setattr(meta_, key, value)
-        else:
-            meta_.MergeFrom(meta)
+        meta_ = merge_metadata(metadata=meta_, other_metadata=meta)
 
         return cls(dataframe=dataframe, meta=meta_)
 
@@ -503,7 +497,8 @@ class LocData:
             Sequence of tuples with localization coordinates
         coordinate_labels : sequence[str] | None
             The available coordinate properties.
-        meta : locan.data.metadata_pb2.Metadata | None
+        meta : (locan.data.metadata_pb2.Metadata | dict |
+               str | bytes | os.PathLike | BinaryIO | None)
             Metadata about the current dataset and its history.
 
         Returns
@@ -538,13 +533,7 @@ class LocData:
         meta_.state = metadata_pb2.RAW
         meta_.history.add(name="LocData.from_coordinates")
 
-        if meta is None:
-            pass
-        elif isinstance(meta, dict):
-            for key, value in meta.items():
-                setattr(meta_, key, value)
-        else:
-            meta_.MergeFrom(meta)
+        meta_ = merge_metadata(metadata=meta_, other_metadata=meta)
 
         return cls(dataframe=dataframe, meta=meta_)
 
@@ -562,7 +551,8 @@ class LocData:
             Note that contrary to usual python slices, both the start and the
             stop are included (see pandas documentation).
             `Indices` refer to index value not position in list.
-        meta : locan.data.metadata_pb2.Metadata
+        meta : (locan.data.metadata_pb2.Metadata | dict |
+               str | bytes | os.PathLike | BinaryIO | None)
             Metadata about the current dataset and its history.
 
         Returns
@@ -600,13 +590,7 @@ class LocData:
         meta_.ancestor_identifiers.append(locdata.meta.identifier)
         meta_.history.add(name="LocData.from_selection")
 
-        if meta is None:
-            pass
-        elif isinstance(meta, dict):
-            for key, value in meta.items():
-                setattr(meta_, key, value)
-        else:
-            meta_.MergeFrom(meta)
+        meta_ = merge_metadata(metadata=meta_, other_metadata=meta)
 
         new_locdata = cls(references=references, indices=indices, meta=meta_)
         new_locdata.region = references.region
@@ -621,7 +605,8 @@ class LocData:
         ----------
         locdatas : list of LocData
             Locdata objects to collect.
-        meta : locan.data.metadata_pb2.Metadata
+        meta : (locan.data.metadata_pb2.Metadata | dict |
+               str | bytes | os.PathLike | BinaryIO | None)
             Metadata about the current dataset and its history.
 
         Returns
@@ -639,13 +624,7 @@ class LocData:
         meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
         meta_.history.add(name="LocData.from_collection")
 
-        if meta is None:
-            pass
-        elif isinstance(meta, dict):
-            for key, value in meta.items():
-                setattr(meta_, key, value)
-        else:
-            meta_.MergeFrom(meta)
+        meta_ = merge_metadata(metadata=meta_, other_metadata=meta)
 
         return cls(references=references, dataframe=dataframe, meta=meta_)
 
@@ -658,7 +637,8 @@ class LocData:
         ----------
         locdatas : list of LocData
             Locdata objects to concatenate.
-        meta : locan.data.metadata_pb2.Metadata
+        meta : (locan.data.metadata_pb2.Metadata | dict |
+               str | bytes | os.PathLike | BinaryIO | None)
             Metadata about the current dataset and its history.
 
         Returns
@@ -689,13 +669,7 @@ class LocData:
         meta_.ancestor_identifiers[:] = [dat.meta.identifier for dat in locdatas]
         meta_.history.add(name="concat")
 
-        if meta is None:
-            pass
-        elif isinstance(meta, dict):
-            for key, value in meta.items():
-                setattr(meta_, key, value)
-        else:
-            meta_.MergeFrom(meta)
+        meta_ = merge_metadata(metadata=meta_, other_metadata=meta)
 
         return cls(references=references, dataframe=dataframe, meta=meta_)
 
@@ -727,7 +701,8 @@ class LocData:
             The order in which to select localizations. One of 'successive' or 'alternating'.
         drop : bool
             If True the last chunk will be eliminated if it has fewer localizations than the other chunks.
-        meta : locan.data.metadata_pb2.Metadata
+        meta : (locan.data.metadata_pb2.Metadata | dict |
+               str | bytes | os.PathLike | BinaryIO | None)
             Metadata about the current dataset and its history.
 
         Returns
@@ -795,13 +770,7 @@ class LocData:
         meta_.ancestor_identifiers[:] = [ref.meta.identifier for ref in references]
         meta_.history.add(name="LocData.chunks")
 
-        if meta is None:
-            pass
-        elif isinstance(meta, dict):
-            for key, value in meta.items():
-                setattr(meta_, key, value)
-        else:
-            meta_.MergeFrom(meta)
+        meta_ = merge_metadata(metadata=meta_, other_metadata=meta)
 
         return cls(references=references, dataframe=dataframe, meta=meta_)
 
@@ -852,7 +821,8 @@ class LocData:
             Dataframe with localization data.
         reset_index : Bool
             Flag indicating if the index is reset to integer values. If True the previous index values are discarded.
-        meta : locan.data.metadata_pb2.Metadata
+        meta : (locan.data.metadata_pb2.Metadata | dict |
+               str | bytes | os.PathLike | BinaryIO | None)
             Metadata about the current dataset and its history.
 
         Returns
@@ -891,13 +861,7 @@ class LocData:
         if "frame" in self.data.columns:
             self.meta.frame_count = len(self.data["frame"].unique())
 
-        if meta is None:
-            pass
-        elif isinstance(meta, dict):
-            for key, value in meta.items():
-                setattr(self.meta, key, value)
-        else:
-            self.meta.MergeFrom(meta)
+        self.meta = merge_metadata(metadata=self.meta, other_metadata=meta)
 
         return self
 

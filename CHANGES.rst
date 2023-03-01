@@ -7,7 +7,8 @@ Changelog
 
 New Features
 ------------
-- Add analysis routine for SubpixelBias
+- Add analysis routine for `SubpixelBias`
+- Add function `merge_metadata` to merge metadata from class instance or file
 
 API Changes
 -----------

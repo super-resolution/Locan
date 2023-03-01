@@ -5,6 +5,7 @@ import pytest
 
 from locan import (
     load_metadata_from_toml,
+    merge_metadata,
     message_scheme,
     metadata_from_toml_string,
     metadata_to_formatted_string,
@@ -226,3 +227,34 @@ def test_message_scheme(metadata):
     assert isinstance(scheme, dict)
     assert scheme["creation_time"] == "1111-11-11T10:11:11Z"
     assert scheme["modification_time"] == "1970-01-01T00:00:00Z"
+
+
+def test_merge_metadata(tmp_path, metadata_toml):
+    metadata = merge_metadata()
+    assert isinstance(metadata, metadata_pb2.Metadata)
+
+    metadata = metadata_pb2.Metadata()
+    metadata.comment = "test"
+    metadata_2 = dict(comment="other_test")
+    metadata_new = merge_metadata(metadata=metadata, other_metadata=metadata_2)
+    assert isinstance(metadata_new, metadata_pb2.Metadata)
+    assert metadata_new.comment == "other_test"
+
+    metadata = metadata_pb2.Metadata()
+    metadata.comment = "test"
+    metadata_2 = metadata_pb2.Metadata()
+    metadata_2.comment = "other_test"
+    metadata_new = merge_metadata(metadata=metadata, other_metadata=metadata_2)
+    assert isinstance(metadata_new, metadata_pb2.Metadata)
+    assert metadata_new.comment == "other_test"
+
+    file_path = tmp_path / "metadata_toml.toml"
+    with file_path.open("w", encoding="utf-8") as file:
+        file.write(metadata_toml)
+    metadata = metadata_pb2.Metadata()
+    metadata.comment = "test"
+    metadata_new = merge_metadata(
+        metadata=metadata, other_metadata=tmp_path / "metadata_toml.toml"
+    )
+    assert isinstance(metadata_new, metadata_pb2.Metadata)
+    assert metadata_new.comment == "my comment"

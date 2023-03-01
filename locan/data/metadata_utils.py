@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import importlib
 import logging
+import os
 from typing import BinaryIO  # noqa: F401
 
 try:
@@ -26,6 +27,7 @@ __all__ = [
     "metadata_from_toml_string",
     "load_metadata_from_toml",
     "message_scheme",
+    "merge_metadata",
 ]
 
 logger = logging.getLogger(__name__)
@@ -285,3 +287,39 @@ def message_scheme(message) -> dict:
                 message_dict[descriptor.name] = message_scheme(attr_)
 
     return message_dict
+
+
+def merge_metadata(metadata=None, other_metadata=None) -> metadata_pb2.Metadata:
+    """
+    Merge `other_metadata` into Locdata.meta.
+
+    Parameters
+    ----------
+    metadata : locan.data.metadata_pb2.Metadata | None
+        Original LocData metadata before modification
+    other_metadata : (locan.data.metadata_pb2.Metadata | dict |
+            str | bytes | os.PathLike | BinaryIO | None)
+        Metadata to be merged.
+
+    Returns
+    -------
+    locan.data.metadata_pb2.Metadata
+        Merged metadata
+    """
+    if metadata is None:
+        new_metadata = metadata_pb2.Metadata()
+    else:
+        new_metadata = metadata
+
+    if other_metadata is None:
+        pass
+    elif isinstance(other_metadata, (str, bytes, os.PathLike)):
+        meta_ = load_metadata_from_toml(other_metadata)["metadata"]
+        new_metadata.MergeFrom(meta_)
+    elif isinstance(other_metadata, dict):
+        for key, value in other_metadata.items():
+            setattr(new_metadata, key, value)
+    else:
+        new_metadata.MergeFrom(other_metadata)
+
+    return new_metadata

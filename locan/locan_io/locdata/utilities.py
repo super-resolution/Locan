@@ -3,6 +3,8 @@
 Utility functions for file input/output of localization data.
 
 """
+from __future__ import annotations
+
 import io
 import logging
 from contextlib import closing
@@ -21,8 +23,8 @@ def convert_property_types(dataframe, types, loc_properties=None):
     Convert data types according to the column-type mapping in types.
     If the target type is one of 'integer', 'signed', 'unsigned', 'float'
     then :func:`pandas.to_numeric` will be applied.
-    Otherwise, if the target type is any type object like `int`, `str`, `np.float64` or similar
-    then :func:`pandas.astype` will be applied.
+    Otherwise, if the target type is any type object like `int`, `str`,
+    `np.float64` or similar then :func:`pandas.astype` will be applied.
 
     Parameters
     ----------
@@ -30,7 +32,7 @@ def convert_property_types(dataframe, types, loc_properties=None):
         Data to be converted
     types : dict
         Mapping of loc_properties to types
-    loc_properties : list(str), None
+    loc_properties : list[str] | None
         The columns in dataframe to be converted.
         If None, all columns will be converted according to types.
 
@@ -89,7 +91,8 @@ def open_path_or_file_like(path_or_file_like, mode="r", encoding=None):
 
 def convert_property_names(properties, property_mapping=None):
     """
-    Convert property names to standard locan property names if a mapping is provided.
+    Convert property names to standard locan property names if a mapping is
+    provided.
     Otherwise, leave the property name as is and throw a warning.
 
     Parameters

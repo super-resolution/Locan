@@ -10,13 +10,16 @@ Submodules:
 .. autosummary::
    :toctree: ./
 
+   files
    locdata
    utilities
 
 """
+from .files import *
 from .locdata import *
 from .utilities import *
 
 __all__ = []
+__all__.extend(files.__all__)
 __all__.extend(locdata.__all__)
 __all__.extend(utilities.__all__)

@@ -282,8 +282,8 @@ def test_Files_match_file_upstream(test_files, capfd):
 def test_set_group_identifier(test_files, capfd):
     files = Files().from_glob(directory=test_files, pattern="**/*.*")
     # print(files.files.applymap(lambda x: x.name))
-    files.set_group_identifier(name="group_temp", pattern="Temp")
-    assert files.df.group[files.df.group == "group_temp"].count() == 5
+    files.set_group_identifier(name="group_subdir", pattern="sub_directory")
+    assert files.df.group[files.df.group == "group_subdir"].count() == 4
     assert files.df.group.dtype == "category"
     files.set_group_identifier(name="group_data", glob="*.data")
     assert files.df.group[files.df.group == "group_data"].count() == 4
@@ -293,12 +293,12 @@ def test_set_group_identifier(test_files, capfd):
     assert files.df.group.dtype == "category"
     files = Files().from_glob(directory=test_files, pattern="**/*.*")
     files.set_group_identifier(
-        name="group_b", pattern="Temp", glob="*.txt", regex="group_b"
+        name="group_b", pattern="sub_directory", glob="*.txt", regex="group_b"
     )
     assert files.df.group[files.df.group == "group_b"].count() == 0
     assert files.df.group.dtype == "category"
     files.set_group_identifier(
-        name="group_b", pattern="Temp", glob="*.data", regex="group_b"
+        name="group_b", pattern="sub_directory", glob="*.data", regex="group_b"
     )
     assert files.df.group[files.df.group == "group_b"].count() == 1
     assert files.df.group.dtype == "category"

@@ -82,7 +82,7 @@ class _Analysis:
         else:
             return False
 
-    def compute(self):
+    def compute(self, *args, **kwargs):
         """Apply analysis routine with the specified parameters on locdata and return results."""
         raise NotImplementedError
 

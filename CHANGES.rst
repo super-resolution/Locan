@@ -13,7 +13,9 @@ New Features
 
 API Changes
 -----------
-- Change find_pattern_upstream into find_file_upstream
+- Change `find_pattern_upstream` into `find_file_upstream`
+- Add analysis class `LocalizationUncertainty` and
+  deprecate `LocalizationUncertaintyFromIntensity`
 
 Bug Fixes
 ---------

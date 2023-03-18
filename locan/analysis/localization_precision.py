@@ -1,26 +1,30 @@
 """
-
 Compute localization precision from successive nearby localizations.
 
-Localization precision is estimated from spatial variations of all localizations that appear in successive frames
+Localization precision is estimated from spatial variations of all
+localizations that appear in successive frames
 within a specified search radius [1]_.
 
-Localization pair distance distributions are fitted according to the probability density functions in [2]_.
+Localization pair distance distributions are fitted according to the
+probability density functions in [2]_.
 
-The estimated sigmas describe the standard deviation for pair distances. Localization precision is often defined as
-the standard deviation for localization distances from the center position. With that definition, the localization
-precision is equal to sigma / sqrt(2).
+The estimated sigmas describe the standard deviation for pair distances.
+Localization precision is often defined as the standard deviation for
+localization distances from the center position.
+With that definition, the localization precision is equal to sigma / sqrt(2).
 
 References
 ----------
-.. [1] Endesfelder, Ulrike, et al., A simple method to estimate the average localization precision of a single-molecule
-   localization microscopy experiment. Histochemistry and Cell Biology 141.6 (2014): 629-638.
+.. [1] Endesfelder, Ulrike, et al.,
+   A simple method to estimate the average localization precision of a
+   single-molecule localization microscopy experiment.
+   Histochemistry and Cell Biology 141.6 (2014): 629-638.
 
 .. [2] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
-   A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+   A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence
+   Localization Techniques.
    Biophysical Journal 90 (2), 2006, 668-671,
    doi.org/10.1529/biophysj.105.065599.
-
 """
 
 import logging
@@ -62,8 +66,6 @@ def _localization_precision(locdata, radius=50):
         try:
             points = grouped.get_group(i)[locdata.coordinate_labels]
             other_points = grouped.get_group(i + 1)[locdata.coordinate_labels]
-
-            # print(points)
 
             nn = NearestNeighbors(radius=radius, metric="euclidean", n_jobs=N_JOBS).fit(
                 other_points
@@ -155,13 +157,14 @@ class LocalizationPrecision(_Analysis):
 
     def fit_distributions(self, loc_property=None, **kwargs):
         """
-        Fit probability density functions to the distributions of `loc_property` values in the results
-        using MLE (scipy.stats).
+        Fit probability density functions to the distributions of
+        `loc_property` values in the results using MLE (scipy.stats).
 
         Parameters
         ----------
         loc_property : str
-            The LocData property for which to fit an appropriate distribution; if None all plots are shown.
+            The LocData property for which to fit an appropriate distribution;
+            if None all plots are shown.
         kwargs : dict
             Other parameters passed to the `distribution.fit()` method.
         """
@@ -185,14 +188,16 @@ class LocalizationPrecision(_Analysis):
 
     def plot(self, ax=None, loc_property=None, window=1, **kwargs):
         """
-        Provide plot as :class:`matplotlib.axes.Axes` object showing the running average of results over window size.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the
+        running average of results over window size.
 
         Parameters
         ----------
         ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
         loc_property : str, list(str)
-            The property for which to plot localization precision; if None all plots are shown.
+            The property for which to plot localization precision;
+            if None all plots are shown.
         window: int
             Window for running average that is applied before plotting.
         kwargs : dict
@@ -225,7 +230,8 @@ class LocalizationPrecision(_Analysis):
         self, ax=None, loc_property="position_distance", bins="auto", fit=True, **kwargs
     ):
         """
-        Provide histogram as :class:`matplotlib.axes.Axes` object showing the distributions of results.
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing the
+        distributions of results.
 
         Parameters
         ----------
@@ -275,10 +281,12 @@ class LocalizationPrecision(_Analysis):
 class PairwiseDistance1d(stats.rv_continuous):
     """
     A random variable describing the distribution
-    of pair distances for two normal distributed point clouds in 1D (as described in [1]_).
+    of pair distances for two normal distributed point clouds in 1D.
 
-    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
-    overriding the _pdf method.
+    The continuous distribution class inherits from scipy.stats.rv_continuous
+    a set of methods and is defined by overriding the _pdf method.
+
+    For theoretical background see [1]_.
 
     Parameters
     ----------
@@ -294,7 +302,8 @@ class PairwiseDistance1d(stats.rv_continuous):
     References
     ----------
     .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
-       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       A Non-Gaussian Distribution Quantifies Distances Measured with
+       Fluorescence Localization Techniques.
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
@@ -312,10 +321,12 @@ class PairwiseDistance1d(stats.rv_continuous):
 class PairwiseDistance2d(stats.rv_continuous):
     """
     A random variable describing the distribution
-    of pair distances for two normal distributed point clouds in 2D (as described in [1]_).
+    of pair distances for two normal distributed point clouds in 2D.
 
-    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
-    overriding the _pdf method.
+    The continuous distribution class inherits from scipy.stats.rv_continuous
+    a set of methods and is defined by overriding the _pdf method.
+
+    For theoretical background see [1]_.
 
     Parameters
     ----------
@@ -331,7 +342,8 @@ class PairwiseDistance2d(stats.rv_continuous):
     References
     ----------
     .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
-       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       A Non-Gaussian Distribution Quantifies Distances Measured with
+       Fluorescence Localization Techniques.
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
@@ -349,10 +361,12 @@ class PairwiseDistance2d(stats.rv_continuous):
 class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
     """
     A random variable describing the distribution
-    of pair distances for two normal distributed point clouds in 2D (as described in [1]_).
+    of pair distances for two normal distributed point clouds in 2D.
 
-    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
-    overriding the _pdf method.
+    The continuous distribution class inherits from scipy.stats.rv_continuous
+    a set of methods and is defined by overriding the _pdf method.
+
+    For theoretical background see [1]_.
 
     Parameters
     ----------
@@ -366,7 +380,8 @@ class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
     References
     ----------
     .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
-       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       A Non-Gaussian Distribution Quantifies Distances Measured with
+       Fluorescence Localization Techniques.
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
@@ -383,10 +398,12 @@ class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
 class PairwiseDistance3d(stats.rv_continuous):
     """
     A random variable describing the distribution
-    of pair distances for two normal distributed point clouds in 3D (as described in [1]_).
+    of pair distances for two normal distributed point clouds in 3D.
 
-    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
-    overriding the _pdf method.
+    The continuous distribution class inherits from scipy.stats.rv_continuous
+    a set of methods and is defined by overriding the _pdf method.
+
+    For theoretical background see [1]_.
 
     Parameters
     ----------
@@ -402,7 +419,8 @@ class PairwiseDistance3d(stats.rv_continuous):
     References
     ----------
     .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
-       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       A Non-Gaussian Distribution Quantifies Distances Measured with
+       Fluorescence Localization Techniques.
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
@@ -432,10 +450,12 @@ class PairwiseDistance3d(stats.rv_continuous):
 class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
     """
     A random variable describing the distribution
-    of pair distances for two normal distributed point clouds in 1D (as described in [1]_).
+    of pair distances for two normal distributed point clouds in 1D.
 
-    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
-    overriding the _pdf method.
+    The continuous distribution class inherits from scipy.stats.rv_continuous
+    a set of methods and is defined by overriding the _pdf method.
+
+    For theoretical background see [1]_.
 
     Parameters
     ----------
@@ -447,7 +467,8 @@ class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
     References
     ----------
     .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
-       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       A Non-Gaussian Distribution Quantifies Distances Measured with
+       Fluorescence Localization Techniques.
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
@@ -459,10 +480,12 @@ class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
 class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
     """
     A random variable describing the distribution
-    of pair distances for two normal distributed point clouds in 2D (as described in [1]_).
+    of pair distances for two normal distributed point clouds in 2D.
 
-    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
-    overriding the _pdf method.
+    The continuous distribution class inherits from scipy.stats.rv_continuous
+    a set of methods and is defined by overriding the _pdf method.
+
+    For theoretical background see [1]_.
 
     Parameters
     ----------
@@ -474,7 +497,8 @@ class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
     References
     ----------
     .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
-       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       A Non-Gaussian Distribution Quantifies Distances Measured with
+       Fluorescence Localization Techniques.
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
@@ -486,10 +510,12 @@ class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
 class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
     """
     A random variable describing the distribution
-    of pair distances for two normal distributed point clouds in 3D (as described in [1]_).
+    of pair distances for two normal distributed point clouds in 3D.
 
-    The continuous distribution class inherits from scipy.stats.rv_continuous a set of methods and is defined by
-    overriding the _pdf method.
+    The continuous distribution class inherits from scipy.stats.rv_continuous
+    a set of methods and is defined by overriding the _pdf method.
+
+    For theoretical background see [1]_.
 
     Parameters
     ----------
@@ -501,7 +527,8 @@ class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
     References
     ----------
     .. [1] L. Stirling Churchman, Henrik Flyvbjerg, James A. Spudich,
-       A Non-Gaussian Distribution Quantifies Distances Measured with Fluorescence Localization Techniques.
+       A Non-Gaussian Distribution Quantifies Distances Measured with
+       Fluorescence Localization Techniques.
        Biophysical Journal 90 (2), 2006, 668-671,
        doi.org/10.1529/biophysj.105.065599.
     """
@@ -522,7 +549,8 @@ class _DistributionFits:
     Handle for distribution fits.
 
     This class is typically instantiated by LocalizationPrecision methods.
-    It holds the statistical parameters derived by fitting the result distributions using MLE (scipy.stats).
+    It holds the statistical parameters derived by fitting the result
+    distributions using MLE (scipy.stats).
 
     Parameters
     ----------
@@ -540,8 +568,8 @@ class _DistributionFits:
 
     Note
     ----
-    Attributes for fit parameter are generated dynamically, named as loc_property + distribution parameters and listed
-    in parameters.
+    Attributes for fit parameter are generated dynamically, named as
+    loc_property + distribution parameters and listed in parameters.
     """
 
     def __init__(self, analysis_class):
@@ -574,7 +602,8 @@ class _DistributionFits:
 
     def fit(self, loc_property="position_distance", **kwargs):
         """
-        Fit distributions of results using a MLE fit (scipy.stats) and provide fit results.
+        Fit distributions of results using a MLE fit (scipy.stats) and provide
+        fit results.
 
         Parameters
         ----------
@@ -619,8 +648,8 @@ class _DistributionFits:
 
     def plot(self, ax=None, loc_property="position_distance", **kwargs):
         """
-        Provide plot as :class:`matplotlib.axes.Axes` object showing the probability distribution functions of fitted
-        results.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the
+        probability distribution functions of fitted results.
 
         Parameters
         ----------

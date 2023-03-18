@@ -167,7 +167,7 @@ class TestLocalizationsPerFrame:
 
     def test_resample(self, locdata_rapidSTORM_2d):
         lpf = LocalizationsPerFrame(
-            norm="localization_density_bb", time_delta=1, resample="2s"
+            norm="localization_density_bb", time_delta=1000, resample="1s"
         ).compute(locdata=locdata_rapidSTORM_2d)
         assert (
             lpf.results.time_series.name == "n_localizations / localization_density_bb"

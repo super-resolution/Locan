@@ -124,24 +124,23 @@ def localization_precision_model_3(
     -------
     numpy.ndarray
     """
-    # todo: check equation
     intensity = np.asarray(intensity)
     psf_sigma = np.asarray(psf_sigma)
     pixel_size = np.asarray(pixel_size)
     local_background = np.asarray(local_background)
 
-    sigma_a = np.sqrt(psf_sigma**2 + pixel_size**2 / 12)
-    tau = 2 * np.pi * sigma_a**2 * local_background / (intensity * pixel_size**2)
+    sigma_a_squared = psf_sigma**2 + pixel_size**2 / 12
+    tau = 2 * np.pi * sigma_a_squared * local_background / (intensity * pixel_size**2)
 
     sigma_squared = (
-        sigma_a**2 / intensity * (1 + 4 * tau + np.sqrt(2 * tau / (1 + 4 * tau)))
+        sigma_a_squared / intensity * (1 + 4 * tau + np.sqrt(2 * tau / (1 + 4 * tau)))
     )
     sigma = np.sqrt(sigma_squared)
     return sigma
 
 
 def _localization_uncertainty(
-    locdata: Locdata, model: int | LocalizationPrecisionModel
+    locdata: Locdata, model: int | LocalizationPrecisionModel, **kwargs: dict
 ):
     if "intensity" not in locdata.data.columns:
         raise KeyError("Localization property `intensity` is not available.")
@@ -196,6 +195,12 @@ def _localization_uncertainty(
     for key, value in params_dict.items():
         results_key = "uncertainty" + key
         args_ = [locdata.data[item_].to_numpy() for item_ in value]
+
+        for kwarg_key, kwarg_value in kwargs.items():
+            if kwarg_key in params:
+                index = list(params).index(kwarg_key)
+                args_[index] = kwarg_value
+
         results_dict[results_key] = model(*args_)
 
     return pd.DataFrame(results_dict)
@@ -313,7 +318,7 @@ class LocalizationUncertainty(_Analysis):
         Model function for theoretical localization uncertainty.
     kwargs : dict
         kwargs for the chosen model.
-        If None are given the localization properties are taken from locdata.
+        If none are given the localization properties are taken from locdata.
 
 
     Attributes

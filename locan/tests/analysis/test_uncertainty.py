@@ -65,6 +65,14 @@ def test_localization_precision_model_3():
     assert isinstance(uncertainties, np.ndarray)
     np.testing.assert_allclose(uncertainties, [28.8, 9.6, 5.5], rtol=1e-1)
 
+    uncertainties = localization_precision_model_3(
+        intensity=2000,
+        psf_sigma=150,
+        pixel_size=130,
+        local_background=100,
+    )
+    assert uncertainties == pytest.approx(6.32, rel=0.01)
+
 
 def test__localization_uncertainty(locdata_simple, caplog):
     results = _localization_uncertainty(locdata=locdata_simple, model=1)
@@ -84,6 +92,11 @@ def test__localization_uncertainty(locdata_simple, caplog):
 
     results = _localization_uncertainty(locdata=locdata_simple, model=3)
     assert all(key_ in results.columns for key_ in ["uncertainty_x"])
+    assert results.iloc[-1, 0] == pytest.approx(1592.0, rel=0.01)
+
+    results = _localization_uncertainty(locdata=locdata_simple, model=3, pixel_size=130)
+    assert all(key_ in results.columns for key_ in ["uncertainty_x"])
+    assert results.iloc[-1, 0] == pytest.approx(192.8, rel=0.01)
 
     def my_callable():
         return np.array([])
@@ -95,16 +108,21 @@ def test__localization_uncertainty(locdata_simple, caplog):
         _localization_uncertainty(locdata=LocData(), model=1)
 
 
-def test_LocalizationUncertainty_empty(caplog):
-    LocalizationUncertainty().compute(LocData())
-    assert caplog.record_tuples == [
-        ("locan.analysis.uncertainty", 30, "Locdata is empty.")
-    ]
+class TestLocalizationUncertainty:
+    def test_empty_locdata(self, caplog):
+        LocalizationUncertainty().compute(locdata=LocData())
+        assert caplog.record_tuples == [
+            ("locan.analysis.uncertainty", 30, "Locdata is empty.")
+        ]
 
+    def test_init(self, locdata_simple):
+        unc = LocalizationUncertainty(model=3).compute(locdata_simple)
+        assert all(key_ in unc.results.columns for key_ in ["uncertainty_x"])
 
-def test_uncertainty(locdata_simple):
-    unc = LocalizationUncertainty(model=3).compute(locdata_simple)
-    assert all(key_ in unc.results.columns for key_ in ["uncertainty_x"])
+    def test_kwargs(self, locdata_simple):
+        unc = LocalizationUncertainty(model=3, pixel_size=130).compute(locdata_simple)
+        assert all(key_ in unc.results.columns for key_ in ["uncertainty_x"])
+        assert unc.results.iloc[-1, 0] == pytest.approx(192.8, rel=0.01)
 
 
 # todo: deprecate in v0.15

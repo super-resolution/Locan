@@ -869,7 +869,7 @@ class Bins:
         else:
             raise TypeError("`labels` must be str or list of str or None.")
 
-        if self.labels is not None and len(self.labels) != self.dimension:
+        if self._labels is not None and len(self.labels) != self.dimension:
             self._labels = None
             raise ValueError("`labels` must have a length of `dimension`.")
 
@@ -1107,7 +1107,7 @@ def histogram(
 
     try:
         bins = Bins(bins, n_bins, bin_size, bin_edges, bin_range_, labels=labels_)
-    except ValueError as exc:
+    except ValueError as exc:  # the error is raised again only to adapt the message.
         raise ValueError(
             "Bin dimension and len of `loc_properties` is incompatible."
         ) from exc

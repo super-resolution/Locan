@@ -314,6 +314,10 @@ class LocData:
                     self.properties["localization_count"]
                     / self._convex_hull.region_measure
                 )
+            if self._convex_hull.subregion_measure:
+                self.properties[
+                    "subregion_measure_ch"
+                ] = self._convex_hull.subregion_measure
 
     @property
     def oriented_bounding_box(self):

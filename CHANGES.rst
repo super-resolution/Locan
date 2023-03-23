@@ -10,6 +10,7 @@ New Features
 - Add analysis routine for `SubpixelBias`
 - Add function `merge_metadata` to merge metadata from class instance or file
 - Add class `Files` for managing file selections to be used in batch processing
+- Add `utilities/statistics` module with helper function to compute `WeightedMeanVariance`
 
 API Changes
 -----------

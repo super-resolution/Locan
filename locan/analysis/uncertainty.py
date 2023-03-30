@@ -21,6 +21,7 @@ References
 from __future__ import annotations
 
 import logging
+import sys
 import warnings
 from collections.abc import Callable, Iterable
 from inspect import signature
@@ -38,7 +39,10 @@ logger = logging.getLogger(__name__)
 
 # The algorithms
 
-LocalizationPrecisionModel = Callable[[...], np.ndarray]
+if sys.version_info < (3, 9):
+    LocalizationPrecisionModel = Callable
+else:
+    LocalizationPrecisionModel = Callable[[...], np.ndarray]
 
 
 class Locdata(Protocol):

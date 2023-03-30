@@ -198,7 +198,7 @@ def _set_qt_binding(qt_binding: QtBindings | str) -> str:
             )
             os.environ["QT_API"] = API
         qt_api = API
-    except ModuleNotFoundError:
+    except ImportError:
         if qt_api:
             logger.warning("QT_BINDING is not available.")
         qt_api = ""

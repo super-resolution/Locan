@@ -92,7 +92,7 @@ def test_get_rois(make_napari_viewer, locdata_blobs_2d):
     rois = get_rois(
         shapes_layer=layer_shapes,
         reference=locdata_blobs_2d,
-        loc_properties=locdata_blobs_2d.coordinate_labels,
+        loc_properties=locdata_blobs_2d.coordinate_properties,
     )
     for roi in rois:
         assert isinstance(roi, Roi)
@@ -116,7 +116,7 @@ def test_save_rois(make_napari_viewer, locdata_blobs_2d, tmp_path):
     rois = get_rois(
         shapes_layer=layer_shapes,
         reference=locdata_blobs_2d,
-        loc_properties=locdata_blobs_2d.coordinate_labels,
+        loc_properties=locdata_blobs_2d.coordinate_properties,
     )
 
     # files_path is existing directory

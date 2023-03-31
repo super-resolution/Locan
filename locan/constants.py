@@ -74,7 +74,8 @@ class PropertyDescription:
 @unique
 class PropertyKey(Enum):
     """
-    Property descriptions for standard properties used in `locan.LocData` and throughout locan.
+    Property descriptions for standard properties used in `locan.LocData` and
+    throughout locan.
     """
 
     index = PropertyDescription(
@@ -103,67 +104,77 @@ class PropertyKey(Enum):
     frames_missing = PropertyDescription(
         "frames_missing",
         "integer",
-        description="number of frames that occurred between two successive localizations",
+        description="number of frames that occurred between two successive "
+        "localizations",
     )
     time = PropertyDescription("time", "float", unit_SI="s")
     intensity = PropertyDescription(
         "intensity",
         "float",
-        description="intensity or emission strength as estimated by the fitter",
+        description="intensity or emission strength as estimated by the " "fitter",
     )
     local_background = PropertyDescription(
         "local_background",
         "float",
-        description="background in the neighborhood of localization as estimated by the fitter",
+        description="background in the neighborhood of localization as "
+        "estimated by the fitter",
     )
     local_background_sigma = PropertyDescription(
         "local_background_sigma",
         "float",
-        description="variation of local background in terms of standard deviation",
+        description="variation of local background in terms of standard " "deviation",
     )
     signal_noise_ratio = PropertyDescription(
         "signal_noise_ratio",
         "float",
-        description="ratio between mean intensity (i.e. intensity for a single localization) "
+        description="ratio between mean intensity (i.e. intensity for a "
+        "single localization) "
         "and the standard deviation of local_background "
         "(i.e. local_background_sigma for a single localization)",
     )
     signal_background_ratio = PropertyDescription(
         "signal_background_ratio",
         "float",
-        description="ratio between mean intensity (i.e. intensity for a single localization) and the local_background",
+        description="ratio between mean intensity (i.e. intensity for a "
+        "single localization) and the local_background",
     )
     chi_square = PropertyDescription(
         "chi_square",
         "float",
-        description="chi-square value of the fitting procedure as estimated by the fitter",
+        description="chi-square value of the fitting procedure as estimated "
+        "by the fitter",
     )
     two_kernel_improvement = PropertyDescription(
         "two_kernel_improvement",
         "float",
-        description="a rapidSTORM parameter describing the improvement from two kernel fitting",
+        description="a rapidSTORM parameter describing the improvement from "
+        "two kernel fitting",
     )
     psf_amplitude = PropertyDescription("psf_amplitude", "float")
     psf_width = PropertyDescription(
         "psf_width",
         "float",
         description="full-width-half-max of the fitted Gauss-function - "
-        "being isotropic or representing the root-mean-square of psf_width_c for all dimensions",
+        "being isotropic or representing the root-mean-square of psf_width_c "
+        "for all dimensions",
     )
     psf_width_x = PropertyDescription(
         "psf_width_x",
         "float",
-        description="full-width-half-max of the fitted Gauss-function in x-dimension as estimated by the fitter",
+        description="full-width-half-max of the fitted Gauss-function in "
+        "x-dimension as estimated by the fitter",
     )
     psf_width_y = PropertyDescription(
         "psf_width_y",
         "float",
-        description="full-width-half-max of the fitted Gauss-function in y-dimension as estimated by the fitter",
+        description="full-width-half-max of the fitted Gauss-function in "
+        "y-dimension as estimated by the fitter",
     )
     psf_width_z = PropertyDescription(
         "psf_width_z",
         "float",
-        description="full-width-half-max of the fitted Gauss-function in z-dimension as estimated by the fitter",
+        description="full-width-half-max of the fitted Gauss-function in "
+        "z-dimension as estimated by the fitter",
     )
     psf_half_width = PropertyDescription("psf_half_width", "float")
     psf_half_width_x = PropertyDescription("psf_half_width_x", "float")
@@ -173,47 +184,56 @@ class PropertyKey(Enum):
         "psf_sigma",
         "float",
         description="sigma of the fitted Gauss-function - "
-        "being isotropic or representing the root-mean-square of psf_sigma_c for all dimensions",
+        "being isotropic or representing the root-mean-square of psf_sigma_c "
+        "for all dimensions",
     )
     psf_sigma_x = PropertyDescription(
         "psf_sigma_x",
         "float",
-        description="sigma of the fitted Gauss-function in x-dimension as estimated by the fitter",
+        description="sigma of the fitted Gauss-function in x-dimension as "
+        "estimated by the fitter",
     )
     psf_sigma_y = PropertyDescription(
         "psf_sigma_y",
         "float",
-        description="sigma of the fitted Gauss-function in y-dimension as estimated by the fitter",
+        description="sigma of the fitted Gauss-function in y-dimension as "
+        "estimated by the fitter",
     )
     psf_sigma_z = PropertyDescription(
         "psf_sigma_z",
         "float",
-        description="sigma of the fitted Gauss-function in z-dimension as estimated by the fitter",
+        description="sigma of the fitted Gauss-function in z-dimension as "
+        "estimated by the fitter",
     )
     uncertainty = PropertyDescription(
         "uncertainty",
         "float",
-        description="localization error for all dimensions or representing a value proportional to "
+        description="localization error for all dimensions or representing a "
+        "value proportional to "
         "psf_sigma / sqrt(intensity) or "
-        "representing the root-mean-square of uncertainty_c for all dimensions.",
+        "representing the root-mean-square of uncertainty_c for "
+        "all dimensions.",
     )
     uncertainty_x = PropertyDescription(
         "uncertainty_x",
         "float",
         description="localization error in x-dimension estimated by a fitter "
-        "or representing a value proportional to psf_sigma_x / sqrt(intensity)",
+        "or representing a value proportional to "
+        "psf_sigma_x / sqrt(intensity)",
     )
     uncertainty_y = PropertyDescription(
         "uncertainty_y",
         "float",
         description="localization error in y-dimension estimated by a fitter "
-        "or representing a value proportional to psf_sigma_y / sqrt(intensity)",
+        "or representing a value proportional to "
+        "psf_sigma_y / sqrt(intensity)",
     )
     uncertainty_z = PropertyDescription(
         "uncertainty_z",
         "float",
         description="localization error in z-dimension estimated by a fitter "
-        "or representing a value proportional to psf_sigma_z / sqrt(intensity)",
+        "or representing a value proportional to "
+        "psf_sigma_z / sqrt(intensity)",
     )
     channel = PropertyDescription(
         "channel", "integer", description="identifier for an imaging channel"
@@ -229,13 +249,53 @@ class PropertyKey(Enum):
     )
 
     @classmethod
-    def coordinate_labels(cls) -> list[PropertyKey]:
+    def coordinate_properties(cls) -> list[PropertyKey]:
         """Property descriptions for properties representing spatial coordinates"""
         return [cls.position_x, cls.position_y, cls.position_z]
 
     @classmethod
+    def coordinate_labels(cls) -> list[str]:
+        """Property labels for properties representing spatial coordinates"""
+        return [property_.name for property_ in cls.coordinate_properties()]
+
+    @classmethod
+    def uncertainty_properties(cls) -> list[PropertyKey]:
+        """
+        Property descriptions for properties representing spatial coordinate
+        uncertainties
+        """
+        return [
+            cls.uncertainty,
+            cls.uncertainty_x,
+            cls.uncertainty_y,
+            cls.uncertainty_z,
+        ]
+
+    @classmethod
+    def uncertainty_labels(cls) -> list[str]:
+        """Property labels for properties representing spatial coordinate
+        uncertainties"""
+        return [property_.name for property_ in cls.uncertainty_properties()]
+
+    @classmethod
+    def intensity_properties(cls) -> list[PropertyKey]:
+        """
+        Property descriptions for properties representing photon intensities
+        """
+        return [cls.intensity, cls.local_background, cls.local_background_sigma]
+
+    @classmethod
+    def intensity_labels(cls) -> list[str]:
+        """Property labels for properties representing spatial coordinate
+        uncertainties"""
+        return [property_.name for property_ in cls.intensity_properties()]
+
+    @classmethod
     def summary(cls) -> str:
-        """A formatted string representation of PropertyKey showing all elements with attributes."""
+        """
+        A formatted string representation of PropertyKey showing all elements
+        with attributes.
+        """
         lines = []
         for element in cls:
             lines.append(f"{element.value.name}")

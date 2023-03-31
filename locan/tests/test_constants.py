@@ -35,26 +35,65 @@ def test_PropertyDescription():
     assert prop.name == "prop_name"
 
 
-def test_PropertyKey():
-    assert "index" in PropertyKey.__members__
-    for element in PropertyKey:
-        assert element.name == element.value.name
+class TestPropertyKey:
+    def test_PropertyKey(self):
+        assert "index" in PropertyKey.__members__
+        for element in PropertyKey:
+            assert element.name == element.value.name
 
-    assert all(
-        key in PropertyKey.coordinate_labels()
-        for key in [
-            PropertyKey.position_x,
-            PropertyKey.position_y,
-            PropertyKey.position_z,
-        ]
-    )
+        PropertyKey.position_x.value.unit = "nm"
+        assert PropertyKey.position_x.value.unit == "nm"
 
-    PropertyKey.position_x.value.unit = "nm"
-    assert PropertyKey.position_x.value.unit == "nm"
+        assert all(
+            key in PropertyKey.coordinate_properties()
+            for key in [
+                PropertyKey.position_x,
+                PropertyKey.position_y,
+                PropertyKey.position_z,
+            ]
+        )
 
-    string_ = PropertyKey.summary()
-    # print(string_)
-    assert string_[:5] == "index"
+        assert all(
+            key in PropertyKey.uncertainty_properties()
+            for key in [
+                PropertyKey.uncertainty,
+                PropertyKey.uncertainty_x,
+                PropertyKey.uncertainty_y,
+                PropertyKey.uncertainty_z,
+            ]
+        )
+
+        assert all(
+            key in PropertyKey.coordinate_labels()
+            for key in [
+                "position_x",
+                "position_y",
+                "position_z",
+            ]
+        )
+
+        assert all(
+            key in PropertyKey.uncertainty_labels()
+            for key in [
+                "uncertainty",
+                "uncertainty_x",
+                "uncertainty_y",
+                "uncertainty_z",
+            ]
+        )
+
+        assert all(
+            key in PropertyKey.intensity_labels()
+            for key in [
+                "intensity",
+                "local_background",
+                "local_background_sigma",
+            ]
+        )
+
+        string_ = PropertyKey.summary()
+        # print(string_)
+        assert string_[:5] == "index"
 
 
 def test_PROPERTY_KEYS():

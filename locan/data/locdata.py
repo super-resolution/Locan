@@ -21,7 +21,7 @@ import locan.data.hulls
 from locan import (  # is required to use locdata_id as global variable  # noqa: F401
     locdata_id,
 )
-from locan.constants import PROPERTY_KEYS
+from locan.constants import PROPERTY_KEYS, PropertyKey
 from locan.data import metadata_pb2
 from locan.data.metadata_utils import (
     _modify_meta,
@@ -96,14 +96,6 @@ class LocData:
         self._alpha_shape = None
         self._inertia_moments = None
 
-        self.coordinate_labels = sorted(
-            list(
-                set(self.data.columns).intersection(
-                    {"position_x", "position_y", "position_z"}
-                )
-            )
-        )
-
         self.dimension = len(self.coordinate_labels)
 
         self._update_properties()
@@ -122,6 +114,22 @@ class LocData:
             self.meta.frame_count = len(self.data["frame"].unique())
 
         self.meta = merge_metadata(metadata=self.meta, other_metadata=meta)
+
+    @property
+    def coordinate_labels(self):
+        return [
+            label_
+            for label_ in PropertyKey.coordinate_labels()
+            if label_ in self.data.columns
+        ]
+
+    @property
+    def uncertainty_labels(self):
+        return [
+            label_
+            for label_ in PropertyKey.uncertainty_labels()
+            if label_ in self.data.columns
+        ]
 
     def _update_properties(self):
         self.properties["localization_count"] = len(self.data.index)
@@ -813,7 +821,7 @@ class LocData:
         Update the dataframe attribute in place.
 
         Use this function rather than setting locdata.dataframe directly in order to automatically update
-        the attributes for dimension, coordinate_labels, hulls, properties, and metadata.
+        the attributes for dimension, hulls, properties, and metadata.
 
         Parameters
         ----------
@@ -842,13 +850,6 @@ class LocData:
             )
 
         self.dataframe = dataframe
-        self.coordinate_labels = sorted(
-            list(
-                set(self.data.columns).intersection(
-                    {"position_x", "position_y", "position_z"}
-                )
-            )
-        )
         self.dimension = len(self.coordinate_labels)
         self.reset(reset_index=reset_index)  # update hulls and properties
 

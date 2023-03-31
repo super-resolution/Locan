@@ -39,7 +39,7 @@ def test_AlphaComplex_visual(locdata_2d):
     ]
     assert lengths == [8, 2, 0, 6, 2]
 
-    locdata_2d.data.plot(*locdata_2d.coordinate_labels, kind="scatter")
+    locdata_2d.data.plot(*locdata_2d.coordinate_properties, kind="scatter")
     for simp in ac_simplices_all:
         plt.plot(points[simp, 0], points[simp, 1], "-b")
     for simp in ac_simplices_interior:

@@ -23,6 +23,7 @@ from locan import (  # is required to use locdata_id as global variable  # noqa:
 )
 from locan.constants import PROPERTY_KEYS, PropertyKey
 from locan.data import metadata_pb2
+from locan.data.locdata_utils import _get_linked_coordinates
 from locan.data.metadata_utils import (
     _modify_meta,
     merge_metadata,
@@ -131,13 +132,78 @@ class LocData:
             if label_ in self.data.columns
         ]
 
-    def _update_properties(self):
+    def _update_properties_(self):
         self.properties["localization_count"] = len(self.data.index)
 
         # property for mean spatial coordinates (centroids)
         self.properties.update(dict(self.data[self.coordinate_labels].mean()))
 
         self.bounding_box  # update self._bounding_box
+
+    def _update_properties(self, update_function=None):  # -> "Self":
+        """
+        Compute properties from localization data.
+
+        For each loc_property in update_function the supplied callable is used.
+        If None the following functions are used if loc_properties are available:
+
+        coordinates and corresponding uncertainties: weighted_mean_variance
+        `intensity`: sum
+        `local_background`: mean
+        `frame`: min
+
+        Parameters
+        ----------
+        update_function : dict["loc_property", Callable] | None
+            mapping of localization property onto callable to compute
+            property from corresponding localiaztion data
+
+        Returns
+        -------
+        Self
+        """
+        self.properties = dict()
+        self.properties["localization_count"] = len(self.data.index)
+
+        properties_for_update = [
+            loc_property_
+            for loc_property_ in [
+                *self.coordinate_labels,
+                "frame",
+                "intensity",
+                "local_background",
+            ]
+            if loc_property_ in self.data.columns
+        ]
+
+        if update_function is not None:
+            properties_for_update = [
+                loc_property_
+                for loc_property_ in properties_for_update
+                if loc_property_ not in update_function.keys()
+            ]
+
+        # localization coordinates
+        if all(
+            c_label_ in properties_for_update for c_label_ in self.coordinate_labels
+        ):
+            self.properties.update(_get_linked_coordinates(locdata=self.data))
+
+        if "intensity" in properties_for_update:
+            self.properties["intensity"] = np.sum(self.data["intensity"])
+
+        if "local_background" in properties_for_update:
+            self.properties["local_background"] = np.mean(self.data["local_background"])
+
+        if "frame" in properties_for_update:
+            self.properties["frame"] = np.min(self.data["frame"])
+
+        if update_function is not None:
+            for loc_property_, function_ in update_function.items():
+                self.properties[loc_property_] = function_(self.data[loc_property_])
+
+        self.bounding_box  # update self._bounding_box
+        return self
 
     def __del__(self):
         """Updating the counter upon deletion of class instance."""
@@ -213,22 +279,26 @@ class LocData:
         if self._bounding_box is None:
             try:
                 self._bounding_box = locan.data.hulls.BoundingBox(self.coordinates)
-                self.properties["region_measure_bb"] = self._bounding_box.region_measure
-                if self._bounding_box.region_measure:
-                    self.properties["localization_density_bb"] = (
-                        self.properties["localization_count"]
-                        / self._bounding_box.region_measure
-                    )
-                if self._bounding_box.subregion_measure:
-                    self.properties[
-                        "subregion_measure_bb"
-                    ] = self._bounding_box.subregion_measure
             except ValueError:
                 warnings.warn(
                     "Properties related to bounding box could not be computed.",
                     UserWarning,
                 )
+        self._update_properties_bounding_box()
         return self._bounding_box
+
+    def _update_properties_bounding_box(self):
+        if self._bounding_box is not None:
+            self.properties["region_measure_bb"] = self._bounding_box.region_measure
+            if self._bounding_box.region_measure:
+                self.properties["localization_density_bb"] = (
+                    self.properties["localization_count"]
+                    / self._bounding_box.region_measure
+                )
+            if self._bounding_box.subregion_measure:
+                self.properties[
+                    "subregion_measure_bb"
+                ] = self._bounding_box.subregion_measure
 
     @property
     def convex_hull(self):
@@ -236,18 +306,22 @@ class LocData:
         if self._convex_hull is None:
             try:
                 self._convex_hull = locan.data.hulls.ConvexHull(self.coordinates)
-                self.properties["region_measure_ch"] = self._convex_hull.region_measure
-                if self._convex_hull.region_measure:
-                    self.properties["localization_density_ch"] = (
-                        self.properties["localization_count"]
-                        / self._convex_hull.region_measure
-                    )
             except (TypeError, QhullError):
                 warnings.warn(
                     "Properties related to convex hull could not be computed.",
                     UserWarning,
                 )
+        self._update_properties_convex_hull()
         return self._convex_hull
+
+    def _update_properties_convex_hull(self):
+        if self._convex_hull is not None:
+            self.properties["region_measure_ch"] = self._convex_hull.region_measure
+            if self._convex_hull.region_measure:
+                self.properties["localization_density_ch"] = (
+                    self.properties["localization_count"]
+                    / self._convex_hull.region_measure
+                )
 
     @property
     def oriented_bounding_box(self):
@@ -257,24 +331,26 @@ class LocData:
                 self._oriented_bounding_box = locan.data.hulls.OrientedBoundingBox(
                     self.coordinates
                 )
-                self.properties[
-                    "region_measure_obb"
-                ] = self._oriented_bounding_box.region_measure
-                if self._oriented_bounding_box.region_measure:
-                    self.properties["localization_density_obb"] = (
-                        self.properties["localization_count"]
-                        / self._oriented_bounding_box.region_measure
-                    )
-                self.properties["orientation_obb"] = self._oriented_bounding_box.angle
-                self.properties[
-                    "circularity_obb"
-                ] = self._oriented_bounding_box.elongation
             except TypeError:
                 warnings.warn(
                     "Properties related to oriented bounding box could not be computed.",
                     UserWarning,
                 )
+        self._update_properties_oriented_bounding_box()
         return self._oriented_bounding_box
+
+    def _update_properties_oriented_bounding_box(self):
+        if self._oriented_bounding_box is not None:
+            self.properties[
+                "region_measure_obb"
+            ] = self._oriented_bounding_box.region_measure
+            if self._oriented_bounding_box.region_measure:
+                self.properties["localization_density_obb"] = (
+                    self.properties["localization_count"]
+                    / self._oriented_bounding_box.region_measure
+                )
+            self.properties["orientation_obb"] = self._oriented_bounding_box.angle
+            self.properties["circularity_obb"] = self._oriented_bounding_box.elongation
 
     @property
     def alpha_shape(self):
@@ -301,7 +377,15 @@ class LocData:
                 )
             else:
                 self._alpha_shape.alpha = alpha
+        except TypeError:
+            warnings.warn(
+                "Properties related to alpha shape could not be computed.", UserWarning
+            )
+        self._update_properties_alpha_shape()
+        return self
 
+    def _update_properties_alpha_shape(self):
+        if self._alpha_shape is not None:
             self.properties["region_measure_as"] = self._alpha_shape.region_measure
             try:
                 self.properties["localization_density_as"] = (
@@ -310,12 +394,6 @@ class LocData:
                 )
             except ZeroDivisionError:
                 self.properties["localization_density_as"] = float("nan")
-
-        except TypeError:
-            warnings.warn(
-                "Properties related to alpha shape could not be computed.", UserWarning
-            )
-        return self
 
     def update_alpha_shape_in_references(self, alpha):
         """
@@ -349,14 +427,18 @@ class LocData:
                 self._inertia_moments = locan.data.properties.inertia_moments(
                     self.coordinates
                 )
-                self.properties["orientation_im"] = self._inertia_moments.orientation
-                self.properties["circularity_im"] = self._inertia_moments.eccentricity
             except TypeError:
                 warnings.warn(
                     "Properties related to inertia_moments could not be computed.",
                     UserWarning,
                 )
+        self._update_properties_inertia_moments()
         return self._inertia_moments
+
+    def _update_properties_inertia_moments(self):
+        if self._inertia_moments is not None:
+            self.properties["orientation_im"] = self._inertia_moments.orientation
+            self.properties["circularity_im"] = self._inertia_moments.eccentricity
 
     def update_inertia_moments_in_references(self):
         """

@@ -76,6 +76,58 @@ def test_LocData(df_simple, caplog):
     assert "circularity_im" in dat.properties
 
 
+def test_update_properties():
+    df_with_coordinates = pd.DataFrame.from_dict(
+        {
+            "position_y": np.arange(1, 3),
+        }
+    )
+
+    df_with_all = pd.DataFrame.from_dict(
+        {
+            "position_y": np.arange(1, 3),
+            "uncertainty": np.arange(1, 3),
+            "intensity": np.arange(1, 3),
+            "frame": np.arange(1, 3),
+        }
+    )
+
+    locdata = LocData.from_dataframe(df_with_coordinates)
+    assert locdata.properties == {
+        "localization_count": 2,
+        "position_y": 1.5,
+        "uncertainty_y": 0.25,
+        "region_measure_bb": 1,
+        "localization_density_bb": 2.0,
+        "subregion_measure_bb": 2,
+    }
+
+    locdata = LocData.from_dataframe(df_with_all)
+    assert locdata.properties == {
+        "localization_count": 2,
+        "position_y": 1.3333333333333333,
+        "uncertainty_y": 0.19753086419753085,
+        "intensity": 3,
+        "frame": 1,
+        "region_measure_bb": 1,
+        "localization_density_bb": 2.0,
+        "subregion_measure_bb": 2,
+    }
+
+    locdata = LocData.from_dataframe(df_with_all)
+    update_function = {"position_y": np.mean}
+    locdata = locdata._update_properties(update_function=update_function)
+    assert locdata.properties == {
+        "localization_count": 2,
+        "intensity": 3,
+        "frame": 1,
+        "position_y": 1.5,
+        "region_measure_bb": 1,
+        "localization_density_bb": 2.0,
+        "subregion_measure_bb": 2,
+    }
+
+
 def test_LocData_empty(df_empty):
     dat = LocData()
     assert dat.data.empty
@@ -100,7 +152,9 @@ def test_LocData_from_dataframe(df_simple):
     assert list(dat.properties.keys()) == [
         "localization_count",
         "position_x",
+        "uncertainty_x",
         "position_y",
+        "uncertainty_y",
         "region_measure_bb",
         "localization_density_bb",
         "subregion_measure_bb",
@@ -223,6 +277,8 @@ def test_LocData_from_collection(df_simple):
         "position_y",
         "region_measure_bb",
         "subregion_measure_bb",
+        "uncertainty_x",
+        "uncertainty_y",
     }
 
     with pytest.warns(UserWarning):
@@ -236,6 +292,8 @@ def test_LocData_from_collection(df_simple):
         "subregion_measure_bb",
         "region_measure_ch",
         "localization_density_ch",
+        "uncertainty_x",
+        "uncertainty_y",
     }
 
     col.update_oriented_bounding_box_in_references()
@@ -252,6 +310,8 @@ def test_LocData_from_collection(df_simple):
         "region_measure_ch",
         "region_measure_obb",
         "subregion_measure_bb",
+        "uncertainty_x",
+        "uncertainty_y",
     }
     # print(col.properties)
 
@@ -272,6 +332,8 @@ def test_LocData_from_collection(df_simple):
         "subregion_measure_bb",
         "region_measure_as",
         "localization_density_as",
+        "uncertainty_x",
+        "uncertainty_y",
     }
 
     col.update_inertia_moments_in_references()
@@ -292,6 +354,8 @@ def test_LocData_from_collection(df_simple):
         "localization_density_as",
         "circularity_im",
         "orientation_im",
+        "uncertainty_x",
+        "uncertainty_y",
     }
 
 
@@ -513,7 +577,9 @@ def test_LocData_add_column_to_dataframe(df_simple):
             == [
                 "localization_count",
                 "position_x",
+                "uncertainty_x",
                 "position_y",
+                "uncertainty_y",
                 "region_measure_bb",
                 "localization_density_bb",
                 "subregion_measure_bb",

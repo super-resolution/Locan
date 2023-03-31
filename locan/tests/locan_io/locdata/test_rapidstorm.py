@@ -106,15 +106,19 @@ def test_loading_rapidSTORM_track_file():
         [
             "localization_count",
             "position_x",
+            "uncertainty_x",
             "position_y",
+            "uncertainty_y",
+            "intensity",
+            "local_background",
+            "frame",
             "region_measure_bb",
             "localization_density_bb",
             "subregion_measure_bb",
         ],
     )
-    assert (
-        len(dat) == 9
-    )  # len(dat) is 9 and not 10 since one row is filtered out y min_localization_count=2
+    assert len(dat) == 9
+    # len(dat) is 9 and not 10 since one row is filtered out y min_localization_count=2
 
     dat = load_rapidSTORM_track_file(
         path=locan.ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_track_data.txt",

@@ -30,7 +30,7 @@ HAS_NAPARI_AND_PYTESTQT = HAS_DEPENDENCY["napari"] and HAS_DEPENDENCY["pytestqt"
 @pytest.mark.visual
 # this is to check overlay of rendered image and single localization points
 def test_render_2d_napari_new_visual(locdata_blobs_2d):
-    print(locdata_blobs_2d.data[locdata_blobs_2d.coordinate_labels].describe())
+    print(locdata_blobs_2d.data[locdata_blobs_2d.coordinate_properties].describe())
 
     render_2d_mpl(locdata_blobs_2d, bin_size=10, cmap="viridis")
     plt.show()

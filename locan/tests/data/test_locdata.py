@@ -463,7 +463,7 @@ def test_LocData_projection(locdata_3d):
     assert new_locdata.dimension == 1
     assert len(new_locdata) == len(locdata)
 
-    # test with multiple coordinate_labels
+    # test with multiple coordinate_properties
     new_coordinate_labels = ["position_x", "position_y"]
     new_locdata = locdata.projection(coordinate_labels=new_coordinate_labels)
 
@@ -782,3 +782,21 @@ def test_locdata_print_meta(capfd, locdata_2d):
     captured = capfd.readouterr()
     for element in ["identifier", "creation_time", "source", "state", "element_count"]:
         assert element in captured.out
+
+
+def test_locdata_coordinate_labels(locdata_2d):
+    c_labels = locdata_2d.coordinate_labels
+    assert c_labels == ["position_x", "position_y"]
+    c_labels.append("other")
+    assert c_labels == ["position_x", "position_y", "other"]
+    c_labels = locdata_2d.coordinate_labels
+    assert c_labels == ["position_x", "position_y"]
+
+
+def test_locdata_uncertainty_labels(locdata_2d):
+    c_labels = locdata_2d.uncertainty_labels
+    assert c_labels == []
+    c_labels.append("other")
+    assert c_labels == ["other"]
+    c_labels = locdata_2d.uncertainty_labels
+    assert c_labels == []

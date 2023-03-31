@@ -1777,17 +1777,28 @@ def locdata_simple():
         "position_y": [0, 1, 3, 4, 1],
         "position_z": [0, 1, 3, 4, 1],
         "intensity": [0, 1, 3, 4, 1],
-        "uncertainty_x": [10, 30, 100, 300, 0],
         "uncertainty_y": [10, 30, 100, 300, 10],
         "uncertainty_z": [10, 30, 100, 300, 10],
     }
     return LocData(dataframe=pd.DataFrame.from_dict(localization_dict))
 
 
-def test_resample(locdata_simple):
+def test_resample(locdata_simple, caplog):
     dat = resample(locdata=locdata_simple, n_samples=3)
-    # print(dat.data)
     assert len(dat) == 15
+    assert len(locdata_simple) == 5
+    assert all(column_ in dat.data.columns for column_ in locdata_simple.data.columns)
+    assert caplog.record_tuples == [
+        (
+            "locan.simulation.simulate_locdata",
+            30,
+            "No uncertainties available for position_x.",
+        )
+    ]
+
+    dat = resample(locdata=locdata_simple, n_samples=3, loc_properties="position_y")
+    assert len(dat) == 15
+    assert all(column_ in dat.data.columns for column_ in locdata_simple.data.columns)
 
 
 def test_simulate_tracks():
@@ -1851,7 +1862,7 @@ def test_visual_add_drift(locdata_2d):
     new_locdata = add_drift(
         locdata_2d, diffusion_constant=None, velocity=(1, 1), seed=1
     )
-    ax = locdata_2d.data.plot(*locdata_2d.coordinate_labels, kind="scatter")
+    ax = locdata_2d.data.plot(*locdata_2d.coordinate_properties, kind="scatter")
     new_locdata.data.plot(*new_locdata.coordinate_labels, kind="scatter", ax=ax, c="r")
     plt.show()
 

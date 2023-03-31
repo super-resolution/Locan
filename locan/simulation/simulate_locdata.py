@@ -22,6 +22,7 @@ References
    Astrophysical Journal 1952, vol. 116, p.144.
 
 """
+import logging
 import sys
 from itertools import chain
 
@@ -30,6 +31,7 @@ import pandas as pd
 
 from locan.data import metadata_pb2
 from locan.data.locdata import LocData
+from locan.data.locdata_utils import _get_available_coordinate_labels
 from locan.data.region import (
     AxisOrientedCuboid,
     AxisOrientedHypercuboid,
@@ -60,6 +62,8 @@ __all__ = [
     "resample",
     "simulate_frame_numbers",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 def make_uniform(n_samples, region=(0, 1), seed=None):
@@ -1392,13 +1396,15 @@ def simulate_tracks(
     return locdata
 
 
-def resample(locdata, n_samples=10, seed=None):
+def resample(locdata, n_samples=10, loc_properties=None, seed=None):
     """
-    Resample locdata according to localization uncertainty. Per localization *n_samples* new localizations
-    are simulated normally distributed around the localization coordinates with a standard deviation set to the
-    uncertainty in each dimension.
-    The resulting LocData object carries new localizations with the following properties: 'position_x',
-    'position_y'[, 'position_z'], 'origin_index'
+    Resample locdata according to localization uncertainty.
+    Per localization `n_samples` new localizations
+    are simulated normally distributed around the localization coordinates
+    with a standard deviation set to the uncertainty in each dimension.
+    Uncertainties are taken from "uncertainty_c" or "uncertainty".
+    The resulting LocData object carries new localizations with the following
+    new properties: position coordinates, 'original_index'.
 
     Parameters
     ----------
@@ -1406,6 +1412,8 @@ def resample(locdata, n_samples=10, seed=None):
         Localization data to be resampled
     n_samples : int
         The number of localizations generated for each original localization.
+    loc_properties: Iterable[str] | None
+        Coordinate properties that will be resampled
     seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
@@ -1416,38 +1424,24 @@ def resample(locdata, n_samples=10, seed=None):
     """
     rng = np.random.default_rng(seed)
 
-    # generate dataframe
-    list_ = []
-    for i in range(len(locdata)):
-        new_d = {}
-        new_d.update({"origin_index": np.full(n_samples, i)})
-        x_values = rng.normal(
-            loc=locdata.data.iloc[i]["position_x"],
-            scale=locdata.data.iloc[i]["uncertainty_x"],
-            size=n_samples,
-        )
-        new_d.update({"position_x": x_values})
+    (
+        available_coordinate_labels,
+        available_uncertainty_labels,
+    ) = _get_available_coordinate_labels(
+        locdata=locdata.data, coordinate_labels=loc_properties
+    )
 
-        y_values = rng.normal(
-            loc=locdata.data.iloc[i]["position_y"],
-            scale=locdata.data.iloc[i]["uncertainty_y"],
-            size=n_samples,
-        )
-        new_d.update({"position_y": y_values})
+    new_df = locdata.data.loc[locdata.data.index.repeat(n_samples)].reset_index(
+        names="original_index"
+    )
 
-        try:
-            z_values = rng.normal(
-                loc=locdata.data.iloc[i]["position_z"],
-                scale=locdata.data.iloc[i]["uncertainty_z"],
-                size=n_samples,
-            )
-            new_d.update({"position_z": z_values})
-        except KeyError:
-            pass
-
-        list_.append(pd.DataFrame(new_d))
-
-    dataframe = pd.concat(list_, ignore_index=True)
+    for c_label, u_label in zip(
+        available_coordinate_labels, available_uncertainty_labels
+    ):
+        if u_label is None:
+            logger.warning(f"No uncertainties available for {c_label}.")
+        else:
+            new_df[c_label] = rng.normal(loc=new_df[c_label], scale=new_df[u_label])
 
     # metadata
     meta_ = metadata_pb2.Metadata()
@@ -1475,7 +1469,7 @@ def resample(locdata, n_samples=10, seed=None):
     )
 
     # instantiate
-    new_locdata = LocData.from_dataframe(dataframe=dataframe, meta=meta_)
+    new_locdata = LocData.from_dataframe(dataframe=new_df, meta=meta_)
 
     return new_locdata
 

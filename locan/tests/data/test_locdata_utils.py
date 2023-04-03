@@ -4,6 +4,7 @@ import pytest
 
 from locan.data.locdata_utils import (
     _bump_property_label,
+    _check_loc_properties,
     _get_available_coordinate_labels,
     _get_linked_coordinates,
 )
@@ -197,3 +198,19 @@ def test__bump_property_label():
         loc_property="test",
     )
     assert new_property == "test_0_0"
+
+
+def test__check_loc_properties(locdata_2d):
+    with pytest.raises(ValueError):
+        _check_loc_properties(locdata=locdata_2d, loc_properties=["test"])
+
+    result = _check_loc_properties(locdata=locdata_2d, loc_properties="position_x")
+    assert result == ["position_x"]
+
+    result = _check_loc_properties(locdata=locdata_2d, loc_properties=None)
+    assert result == ["position_x", "position_y"]
+
+    result = _check_loc_properties(
+        locdata=locdata_2d, loc_properties=locdata_2d.data.columns
+    )
+    assert result == locdata_2d.data.columns.tolist()

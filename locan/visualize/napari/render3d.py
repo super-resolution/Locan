@@ -13,7 +13,8 @@ from matplotlib import colors as mcolors
 
 from locan import locdata_id
 from locan.data import LocData
-from locan.data.aggregate import Bins, _check_loc_properties, histogram
+from locan.data.aggregate import Bins, histogram
+from locan.data.locdata_utils import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY
 from locan.visualize.transform import adjust_contrast
 

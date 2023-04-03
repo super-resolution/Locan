@@ -23,6 +23,7 @@ import fast_histogram
 import numpy as np
 
 from locan.data.locdata import LocData  # noqa: F401
+from locan.data.locdata_utils import _check_loc_properties
 from locan.data.properties.locdata_statistics import ranges
 
 __all__ = ["Bins", "histogram"]
@@ -1038,43 +1039,6 @@ def _histogram_mean_boost_histogram(data, bins, values) -> np.ndarray:
     mask = hist.counts() == 0
     mean_values[mask] = np.nan
     return mean_values
-
-
-def _check_loc_properties(locdata, loc_properties) -> list[str]:
-    """
-    Check that loc_properties are valid properties in locdata.
-
-    Parameters
-    ----------
-    locdata : LocData
-        Localization data
-    loc_properties : str | Iterable[str] | None
-        LocData property names.
-        If None the coordinate_values of locdata are used.
-
-    Returns
-    -------
-    list[str]
-        Valid localization property names
-    """
-    if loc_properties is None:  # use coordinate_labels
-        labels = locdata.coordinate_labels.copy()
-    elif isinstance(loc_properties, str):
-        if loc_properties not in locdata.data.columns:
-            raise ValueError(
-                f"{loc_properties} is not a valid property in locdata.data."
-            )
-        labels = [loc_properties]
-    elif isinstance(loc_properties, (tuple, list)):
-        labels = list(loc_properties)
-        for loc_property in loc_properties:
-            if loc_property not in locdata.data.columns:
-                raise ValueError(
-                    f"{loc_property} is not a valid property in locdata.data."
-                )
-    else:
-        raise ValueError(f"{loc_properties} is not a valid property in locdata.data.")
-    return labels
 
 
 def histogram(

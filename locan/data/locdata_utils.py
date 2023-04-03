@@ -158,13 +158,12 @@ def _check_loc_properties(locdata, loc_properties) -> list[str]:
                 f"{loc_properties} is not a valid property in locdata.data."
             )
         labels = [loc_properties]
-    elif isinstance(loc_properties, (tuple, list)):
-        labels = list(loc_properties)
+    else:
+        labels = []
         for loc_property in loc_properties:
             if loc_property not in locdata.data.columns:
                 raise ValueError(
                     f"{loc_property} is not a valid property in locdata.data."
                 )
-    else:
-        raise ValueError(f"{loc_properties} is not a valid property in locdata.data.")
+            labels.append(loc_property)
     return labels

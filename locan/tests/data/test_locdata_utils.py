@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 from locan.data.locdata_utils import (
+    _bump_property_label,
     _get_available_coordinate_labels,
     _get_linked_coordinates,
 )
@@ -181,3 +182,18 @@ def test__get_linked_coordinates(
         "position_z": 2,
         "uncertainty_z": 5,
     }
+
+
+def test__bump_property_label():
+    new_property = _bump_property_label(
+        loc_properties=["test", "other_test"],
+        loc_property="test",
+        extension="_extended",
+    )
+    assert new_property == "test_extended"
+
+    new_property = _bump_property_label(
+        loc_properties=["test", "test_0"],
+        loc_property="test",
+    )
+    assert new_property == "test_0_0"

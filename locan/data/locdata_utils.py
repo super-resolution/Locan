@@ -117,3 +117,17 @@ def _get_linked_coordinates(locdata, coordinate_labels=None) -> dict[str, int | 
             results_dict[new_uncertainty_label_] = weighted_variance
 
     return results_dict
+
+
+def _bump_property_label(
+    loc_property: str, loc_properties: Iterable[str], extension: str = "_0"
+) -> str:
+    if loc_property in loc_properties:
+        new_property_label = _bump_property_label(
+            loc_property=loc_property + extension,
+            loc_properties=loc_properties,
+            extension=extension,
+        )
+    else:
+        new_property_label = loc_property
+    return new_property_label

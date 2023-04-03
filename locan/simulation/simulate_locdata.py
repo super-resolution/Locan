@@ -31,7 +31,10 @@ import pandas as pd
 
 from locan.data import metadata_pb2
 from locan.data.locdata import LocData
-from locan.data.locdata_utils import _get_available_coordinate_labels
+from locan.data.locdata_utils import (
+    _bump_property_label,
+    _get_available_coordinate_labels,
+)
 from locan.data.region import (
     AxisOrientedCuboid,
     AxisOrientedHypercuboid,
@@ -1431,8 +1434,11 @@ def resample(locdata, n_samples=10, loc_properties=None, seed=None):
         locdata=locdata.data, coordinate_labels=loc_properties
     )
 
+    original_index_label = _bump_property_label(
+        loc_property="original_index", loc_properties=locdata.data.columns
+    )
     new_df = locdata.data.loc[locdata.data.index.repeat(n_samples)].reset_index(
-        names="original_index"
+        names=original_index_label
     )
 
     for c_label, u_label in zip(

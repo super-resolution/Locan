@@ -9,7 +9,7 @@ from typing import NamedTuple
 
 import numpy as np
 
-__all__ = ["weighted_mean_variance"]
+__all__ = ["weighted_mean_variance", "ratio_fwhm_to_sigma"]
 
 
 class WeightedMeanVariance(NamedTuple):
@@ -70,3 +70,15 @@ def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
     return WeightedMeanVariance(
         weighted_mean=weighted_average, weighted_mean_variance=weighted_mean_variance_
     )
+
+
+def ratio_fwhm_to_sigma() -> float:
+    """
+    The numeric value of the ratio between full-width-half-max (fwhm) width
+    and standard deviation (sigma) of a normal distribution.
+
+    Returns
+    -------
+    float
+    """
+    return 2 * np.sqrt(2 * np.log(2))

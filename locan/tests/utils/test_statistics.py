@@ -1,6 +1,10 @@
 import pytest
 
-from locan.utils.statistics import WeightedMeanVariance, weighted_mean_variance
+from locan.utils.statistics import (
+    WeightedMeanVariance,
+    ratio_fwhm_to_sigma,
+    weighted_mean_variance,
+)
 
 
 def test_weighted_mean_variance():
@@ -18,3 +22,7 @@ def test_weighted_mean_variance():
 
     wmv = weighted_mean_variance(values=[1], weights=[2])
     assert wmv == pytest.approx((1, 0), rel=0.01)
+
+
+def test_ratio_fwhm_to_sigma():
+    assert ratio_fwhm_to_sigma() == pytest.approx(2.355, rel=0.001)

@@ -1444,10 +1444,11 @@ def resample(locdata, n_samples=10, loc_properties=None, seed=None):
     for c_label, u_label in zip(
         available_coordinate_labels, available_uncertainty_labels
     ):
-        if u_label is None:
-            logger.warning(f"No uncertainties available for {c_label}.")
-        else:
-            new_df[c_label] = rng.normal(loc=new_df[c_label], scale=new_df[u_label])
+        if c_label is not None:
+            if u_label is None:
+                logger.warning(f"No uncertainties available for {c_label}.")
+            else:
+                new_df[c_label] = rng.normal(loc=new_df[c_label], scale=new_df[u_label])
 
     # metadata
     meta_ = metadata_pb2.Metadata()

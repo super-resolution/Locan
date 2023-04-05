@@ -64,7 +64,7 @@ class TestPropertyKey:
         )
 
         assert all(
-            key in PropertyKey.coordinate_labels()
+            key in PropertyKey.coordinate_keys()
             for key in [
                 "position_x",
                 "position_y",
@@ -73,7 +73,7 @@ class TestPropertyKey:
         )
 
         assert all(
-            key in PropertyKey.uncertainty_labels()
+            key in PropertyKey.uncertainty_keys()
             for key in [
                 "uncertainty",
                 "uncertainty_x",
@@ -83,7 +83,7 @@ class TestPropertyKey:
         )
 
         assert all(
-            key in PropertyKey.intensity_labels()
+            key in PropertyKey.intensity_keys()
             for key in [
                 "intensity",
                 "local_background",
@@ -114,7 +114,7 @@ def test_HullType():
 
 
 def test_FileType():
-    from locan.data.metadata_pb2 import File_type
+    from locan.data.metadata_pb2 import File_type  # noqa
 
     for ft_enum, ft_pb in zip(FileType, File_type.items()):
         assert ft_enum.name == ft_pb[0]

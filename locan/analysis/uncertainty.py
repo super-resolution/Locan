@@ -23,14 +23,20 @@ from __future__ import annotations
 import logging
 import sys
 import warnings
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 from inspect import signature
 from typing import Any, Protocol
+
+try:
+    from typing import Self
+except ImportError:
+    from typing import TypeVar
 
 import numpy as np
 import pandas as pd
 
 from locan.analysis.analysis_base import _Analysis
+from locan.data.locdata_utils import _get_loc_property_key_per_dimension
 
 __all__ = ["LocalizationUncertainty", "LocalizationUncertaintyFromIntensity"]
 
@@ -44,11 +50,15 @@ if sys.version_info < (3, 9):
 else:
     LocalizationPrecisionModel = Callable[[...], np.ndarray]
 
+try:
+    Self
+except NameError:
+    Self = TypeVar("Self", bound="LocalizationUncertainty")
 
-class Locdata(Protocol):
+
+class LocData(Protocol):
     data: Any
     meta: Any
-    coordinate_labels: Iterable
 
 
 def localization_precision_model_1(intensity) -> np.ndarray:
@@ -144,10 +154,25 @@ def localization_precision_model_3(
 
 
 def _localization_uncertainty(
-    locdata: Locdata, model: int | LocalizationPrecisionModel, **kwargs: dict
-):
-    if "intensity" not in locdata.data.columns:
-        raise KeyError("Localization property `intensity` is not available.")
+    locdata: LocData, model: int | LocalizationPrecisionModel, **kwargs
+) -> pd.DataFrame:
+    if isinstance(model, Callable):
+        pass
+    elif model == 1:
+        model = localization_precision_model_1
+    elif model == 2:
+        model = localization_precision_model_2
+    elif model == 3:
+        model = localization_precision_model_3
+    else:
+        raise TypeError("model must be 1, 2, 3 or callable.")
+
+    params = signature(model).parameters.keys()
+
+    for key_ in kwargs.keys():
+        if key_ not in params:
+            if key_[:-2] not in params:
+                raise KeyError(f"Kwarg {key_} does not fit the models signature.")
 
     # todo: improve checks on localization_property units
     try:
@@ -164,48 +189,41 @@ def _localization_uncertainty(
         logger.warning(
             "The localization property `intensity` does not have the unit photons."
         )
-
     # todo: check if unit psf_sigma and coordinates is the same.
 
-    if isinstance(model, Callable):
-        pass
-    elif model == 1:
-        model = localization_precision_model_1
-    elif model == 2:
-        model = localization_precision_model_2
-    elif model == 3:
-        model = localization_precision_model_3
-    else:
-        raise TypeError("model must be 1, 2, 3 or callable.")
+    available_keys_list = [
+        _get_loc_property_key_per_dimension(locdata=locdata.data, property_key=param_)
+        for param_ in params
+    ]
+    available_coordinate_keys = _get_loc_property_key_per_dimension(
+        locdata=locdata.data, property_key="position"
+    )
+    new_uncertainty_keys = ["uncertainty_x", "uncertainty_y", "uncertainty_z"]
 
-    label_suffixes = [""]
-    label_suffixes.extend([label_[-2:] for label_ in locdata.coordinate_labels])
-
-    params = signature(model).parameters.keys()
-    temp_dict = {}
-    for suffix_ in label_suffixes:
-        temp_dict[suffix_] = [
-            p_ + suffix_
-            if p_ + suffix_ in locdata.data.columns
-            else (p_ if p_ in locdata.data.columns else None)
-            for p_ in params
-        ]
-    params_dict = {} if None in temp_dict[""] else {"": temp_dict[""]}
-    for key, values in temp_dict.items():
-        if None not in values and temp_dict[""] != values:
-            params_dict[key] = values
-
-    results_dict = {}
-    for key, value in params_dict.items():
-        results_key = "uncertainty" + key
-        args_ = [locdata.data[item_].to_numpy() for item_ in value]
-
-        for kwarg_key, kwarg_value in kwargs.items():
-            if kwarg_key in params:
-                index = list(params).index(kwarg_key)
-                args_[index] = kwarg_value
-
-        results_dict[results_key] = model(*args_)
+    results_dict = dict()
+    for i, (c_key, new_u_key) in enumerate(
+        zip(available_coordinate_keys, new_uncertainty_keys)
+    ):
+        # transpose available_keys_list
+        available_keys = [item[i] for item in available_keys_list]
+        if c_key is not None:
+            suffix = "_" + c_key.split("_")[-1]
+            args = []
+            # go through all args for model
+            for key_, param_ in zip(available_keys, params):
+                if key_ in kwargs.keys():
+                    args.append(kwargs[key_])
+                elif key_ is None and param_ in kwargs.keys():
+                    args.append(kwargs[param_])
+                elif key_ is None and param_ + suffix in kwargs.keys():
+                    args.append(kwargs[param_ + suffix])
+                elif key_ is None:
+                    args.append(None)
+                    break
+                else:
+                    args.append(locdata.data[key_])
+            if all(arg_ is not None for arg_ in args):
+                results_dict[new_u_key] = model(*args)
 
     return pd.DataFrame(results_dict)
 
@@ -343,7 +361,7 @@ class LocalizationUncertainty(_Analysis):
         super().__init__(meta=meta, model=model, **kwargs)
         self.results = None
 
-    def compute(self, locdata):
+    def compute(self, locdata) -> Self:
         """
         Run the computation.
 
@@ -354,8 +372,8 @@ class LocalizationUncertainty(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
+            Returns the Analysis class object.
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

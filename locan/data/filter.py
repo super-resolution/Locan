@@ -100,7 +100,7 @@ def select_by_region(locdata, region, loc_properties=None, reduce=True) -> LocDa
     local_parameter = locals()
 
     if loc_properties is None:
-        loc_properties_ = locdata.coordinate_labels[0 : region.dimension]
+        loc_properties_ = locdata.coordinate_keys[0 : region.dimension]
     else:
         loc_properties_ = loc_properties
 

@@ -1806,7 +1806,7 @@ def test_simulate_tracks():
     # print(dat.data)
     # print(dat.meta)
     assert len(dat) == 6
-    assert len(dat.coordinate_labels) == 2
+    assert len(dat.coordinate_keys) == 2
 
 
 def test__random_walk_drift():
@@ -1863,7 +1863,7 @@ def test_visual_add_drift(locdata_2d):
         locdata_2d, diffusion_constant=None, velocity=(1, 1), seed=1
     )
     ax = locdata_2d.data.plot(*locdata_2d.coordinate_properties, kind="scatter")
-    new_locdata.data.plot(*new_locdata.coordinate_labels, kind="scatter", ax=ax, c="r")
+    new_locdata.data.plot(*new_locdata.coordinate_keys, kind="scatter", ax=ax, c="r")
     plt.show()
 
 

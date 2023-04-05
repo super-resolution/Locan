@@ -42,7 +42,7 @@ COMMENT_METADATA = metadata_pb2.Metadata(comment="some user comment")
 def test_LocData(df_simple, caplog):
     dat = LocData(dataframe=df_simple, meta=COMMENT_METADATA)
     assert len(dat) == 5
-    assert dat.coordinate_labels == ["position_x", "position_y"]
+    assert dat.coordinate_keys == ["position_x", "position_y"]
     assert dat.dimension == 2
     assert np.array_equal(dat.centroid, [2.0, 1.8])
     assert dat.centroid[0] == dat.properties["position_x"]
@@ -133,14 +133,14 @@ def test_LocData_empty(df_empty):
     assert dat.data.empty
     assert dat.properties == {"localization_count": 0, "region_measure_bb": 0}
     assert len(dat) == 0
-    assert dat.coordinate_labels == []
+    assert dat.coordinate_keys == []
     assert dat.dimension == 0
 
     dat = LocData(dataframe=df_empty)
     assert dat.data.empty
     assert dat.properties == {"localization_count": 0, "region_measure_bb": 0}
     assert len(dat) == 0
-    assert dat.coordinate_labels == []
+    assert dat.coordinate_keys == []
     assert dat.dimension == 0
     # hulls are tested with locdata fixtures further down.
 
@@ -166,7 +166,7 @@ def test_LocData_from_dataframe(df_simple):
 def test_LocData_from_dataframe_empty(df_empty):
     dat = LocData.from_dataframe(dataframe=df_empty)
     assert len(dat) == 0
-    assert dat.coordinate_labels == []
+    assert dat.coordinate_keys == []
     # print(dat.data)
 
 
@@ -183,14 +183,14 @@ def test_LocData_from_coordinates():
     coordinates = [(200, 500), (200, 600), (900, 650), (1000, 600)]
     dat = LocData.from_coordinates(coordinates=coordinates, meta=COMMENT_METADATA)
     assert np.array_equal(dat.coordinates, np.asarray(coordinates))
-    assert all(item in ["position_x", "position_y"] for item in dat.coordinate_labels)
+    assert all(item in ["position_x", "position_y"] for item in dat.coordinate_keys)
     assert len(dat) == 4
     assert dat.meta.comment == COMMENT_METADATA.comment
 
     coordinates = np.array([(200, 500), (200, 600), (900, 650), (1000, 600)])
     dat = LocData.from_coordinates(coordinates=coordinates, meta=COMMENT_METADATA)
     assert np.array_equal(dat.coordinates, np.asarray(coordinates))
-    assert all(item in ["position_x", "position_y"] for item in dat.coordinate_labels)
+    assert all(item in ["position_x", "position_y"] for item in dat.coordinate_keys)
     assert len(dat) == 4
 
     dat = LocData.from_coordinates(
@@ -199,7 +199,7 @@ def test_LocData_from_coordinates():
         meta=dict(comment="special order"),
     )
     assert np.array_equal(dat.coordinates, np.asarray(coordinates))
-    assert all(item in ["position_x", "position_z"] for item in dat.coordinate_labels)
+    assert all(item in ["position_x", "position_z"] for item in dat.coordinate_keys)
     assert len(dat) == 4
 
     with pytest.raises(ValueError):
@@ -521,9 +521,7 @@ def test_LocData_projection(locdata_3d):
     new_coordinate_labels = "position_x"
     new_locdata = locdata.projection(coordinate_labels=new_coordinate_labels)
 
-    assert all(
-        label in new_coordinate_labels for label in new_locdata.coordinate_labels
-    )
+    assert all(label in new_coordinate_labels for label in new_locdata.coordinate_keys)
     assert new_locdata.dimension == 1
     assert len(new_locdata) == len(locdata)
 
@@ -531,9 +529,7 @@ def test_LocData_projection(locdata_3d):
     new_coordinate_labels = ["position_x", "position_y"]
     new_locdata = locdata.projection(coordinate_labels=new_coordinate_labels)
 
-    assert all(
-        label in new_coordinate_labels for label in new_locdata.coordinate_labels
-    )
+    assert all(label in new_coordinate_labels for label in new_locdata.coordinate_keys)
     assert new_locdata.dimension == len(new_coordinate_labels)
     assert len(new_locdata) == len(locdata)
 
@@ -851,18 +847,18 @@ def test_locdata_print_meta(capfd, locdata_2d):
 
 
 def test_locdata_coordinate_labels(locdata_2d):
-    c_labels = locdata_2d.coordinate_labels
+    c_labels = locdata_2d.coordinate_keys
     assert c_labels == ["position_x", "position_y"]
     c_labels.append("other")
     assert c_labels == ["position_x", "position_y", "other"]
-    c_labels = locdata_2d.coordinate_labels
+    c_labels = locdata_2d.coordinate_keys
     assert c_labels == ["position_x", "position_y"]
 
 
 def test_locdata_uncertainty_labels(locdata_2d):
-    c_labels = locdata_2d.uncertainty_labels
+    c_labels = locdata_2d.uncertainty_keys
     assert c_labels == []
     c_labels.append("other")
     assert c_labels == ["other"]
-    c_labels = locdata_2d.uncertainty_labels
+    c_labels = locdata_2d.uncertainty_keys
     assert c_labels == []

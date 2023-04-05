@@ -7,58 +7,45 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-import pandas as pd
+import pandas as pd  # noqa: F401
 
-from locan.constants import PropertyKey
 from locan.utils.statistics import weighted_mean_variance
 
 __all__ = []
 
 
-def _get_available_coordinate_labels(
-    locdata: pd.DataFrame | pd.Series, coordinate_labels: Iterable[str] | None = None
-) -> tuple[list[str | None], list[str | None]]:
+def _get_loc_property_key_per_dimension(locdata, property_key) -> list[str | None]:
     """
-    Get available coordinate_labels paired with uncertainty_labels including
-    None if the label for certain dimension is not available.
-    If `uncertainty_x` is not available `uncertainty` is taken.
+    Get tuple with property_key as available in each dimension.
+    For the x-coordinates precedence is given as:
+    `position_x` or `position` or None.
+    None if the key is not available for a certain dimension.
 
     Parameters
     ----------
-    locdata
-    coordinate_labels
+    locdata : pd.DataFrame | pd.Series
+        Localization data
+    property_key : str
+        Property key to look for in locdata.
 
     Returns
     -------
-
+    list[str | None]
+        The available property keys in each dimension
     """
-    available_coordinate_labels = []
-    for c_label_ in PropertyKey.coordinate_labels():
-        if c_label_ in locdata.columns and (
-            coordinate_labels is None or c_label_ in coordinate_labels
-        ):
-            available_coordinate_labels.append(c_label_)
+    available_keys = []
+    for extension_ in ["_x", "_y", "_z"]:
+        prop_key = property_key + extension_
+        if prop_key in locdata.columns:
+            available_keys.append(prop_key)
+        elif property_key in locdata.columns:
+            available_keys.append(property_key)
         else:
-            available_coordinate_labels.append(None)
-
-    uncertainty_label = "uncertainty" if "uncertainty" in locdata.columns else None
-
-    uncertainty_labels = []
-    for c_label_, u_label_ in zip(
-        available_coordinate_labels, ["uncertainty_x", "uncertainty_y", "uncertainty_z"]
-    ):
-        if c_label_ is None:
-            uncertainty_labels.append(None)
-        else:
-            if u_label_ in locdata.columns:
-                uncertainty_labels.append(u_label_)
-            else:
-                uncertainty_labels.append(uncertainty_label)
-
-    return available_coordinate_labels, uncertainty_labels
+            available_keys.append(None)
+    return available_keys
 
 
-def _get_linked_coordinates(locdata, coordinate_labels=None) -> dict[str, int | float]:
+def _get_linked_coordinates(locdata, coordinate_keys=None) -> dict[str, int | float]:
     """
     Combine localization properties from locdata:
     (i) apply weighted averages for spatial coordinates if corresponding
@@ -66,7 +53,7 @@ def _get_linked_coordinates(locdata, coordinate_labels=None) -> dict[str, int | 
     (ii) compute uncertainty from weighted average variances for spatial
     coordinates
 
-    If coordinate_labels is None, coordinate_labels and corresponding
+    If coordinate_keys is None, coordinate_keys and corresponding
     coordinate uncertainties from locdata are used.
 
     If `uncertainty_x` is not availabe `uncertainty` is taken.
@@ -76,54 +63,64 @@ def _get_linked_coordinates(locdata, coordinate_labels=None) -> dict[str, int | 
     ----------
     locdata : pd.DataFrame | pd.Series
         dataframe with locdata
-    coordinate_labels : Iterable[str] | None
-        A selection of coordinate labels on which to compute
+    coordinate_keys : Iterable[str] | None
+        A selection of coordinate keys on which to compute
 
     Returns
     -------
     dict[str, int | float]
         New position coordinates and related uncertainties as 'uncertainty_c'.
     """
-    available_coordinate_labels, uncertainty_labels = _get_available_coordinate_labels(
-        locdata=locdata, coordinate_labels=coordinate_labels
+    available_coordinate_keys = _get_loc_property_key_per_dimension(
+        locdata=locdata, property_key="position"
     )
+    available_uncertainty_keys = _get_loc_property_key_per_dimension(
+        locdata=locdata, property_key="uncertainty"
+    )
+    new_uncertainty_keys = ["uncertainty_x", "uncertainty_y", "uncertainty_z"]
 
-    results_dict = {}
-    for coordinate_label_, uncertainty_label_, new_uncertainty_label_ in zip(
-        available_coordinate_labels,
-        uncertainty_labels,
-        ["uncertainty_x", "uncertainty_y", "uncertainty_z"],
+    results_dict = dict()
+    for coordinate_key_, uncertainty_key_, new_uncertainty_key_ in zip(
+        available_coordinate_keys,
+        available_uncertainty_keys,
+        new_uncertainty_keys,
     ):
-        if coordinate_label_ is not None:
+        if coordinate_key_ is not None and (
+            coordinate_keys is None or coordinate_key_ in coordinate_keys
+        ):
             if not len(locdata):
-                return {}
+                return dict()
             elif len(locdata) == 1:
-                weighted_mean = locdata[coordinate_label_].iloc[0]
-                if uncertainty_label_ is None:
+                weighted_mean = locdata[coordinate_key_].iloc[0]
+                if uncertainty_key_ is None:
                     weighted_variance = 0
                 else:
-                    weighted_variance = locdata[uncertainty_label_].iloc[0]
+                    weighted_variance = locdata[uncertainty_key_].iloc[0]
             else:
-                if uncertainty_label_ is None:
+                if uncertainty_key_ is None:
                     weighted_mean, weighted_variance = weighted_mean_variance(
-                        values=locdata[coordinate_label_], weights=None
+                        values=locdata[coordinate_key_], weights=None
                     )
                 else:
                     weighted_mean, weighted_variance = weighted_mean_variance(
-                        values=locdata[coordinate_label_],
-                        weights=1 / locdata[uncertainty_label_].to_numpy(),
+                        values=locdata[coordinate_key_],
+                        weights=1 / locdata[uncertainty_key_].to_numpy(),
                     )
-            results_dict[coordinate_label_] = weighted_mean
-            results_dict[new_uncertainty_label_] = weighted_variance
+            results_dict[coordinate_key_] = weighted_mean
+            results_dict[new_uncertainty_key_] = weighted_variance
 
     return results_dict
 
 
-def _bump_property_label(
+def _bump_property_key(
     loc_property: str, loc_properties: Iterable[str], extension: str = "_0"
 ) -> str:
+    """
+    Add extension to loc_property if loc_property is in loc_properties.
+    Repeat recursively until loc_property and all loc_properties are unique.
+    """
     if loc_property in loc_properties:
-        new_property_label = _bump_property_label(
+        new_property_label = _bump_property_key(
             loc_property=loc_property + extension,
             loc_properties=loc_properties,
             extension=extension,
@@ -135,23 +132,23 @@ def _bump_property_label(
 
 def _check_loc_properties(locdata, loc_properties) -> list[str]:
     """
-    Check that loc_properties are valid properties in locdata.
+    Check that loc_properties are valid property keys in locdata.
 
     Parameters
     ----------
     locdata : LocData
         Localization data
     loc_properties : str | Iterable[str] | None
-        LocData property names.
-        If None the coordinate_values of locdata are used.
+        LocData property keys.
+        If None the coordinate_keys of locdata are used.
 
     Returns
     -------
     list[str]
-        Valid localization property names
+        Valid localization property keys
     """
-    if loc_properties is None:  # use coordinate_labels
-        labels = locdata.coordinate_labels.copy()
+    if loc_properties is None:  # use coordinate_keys
+        labels = locdata.coordinate_keys.copy()
     elif isinstance(loc_properties, str):
         if loc_properties not in locdata.data.columns:
             raise ValueError(

@@ -64,8 +64,8 @@ def _localization_precision(locdata, radius=50):
         disable=TQDM_DISABLE,
     ):
         try:
-            points = grouped.get_group(i)[locdata.coordinate_labels]
-            other_points = grouped.get_group(i + 1)[locdata.coordinate_labels]
+            points = grouped.get_group(i)[locdata.coordinate_keys]
+            other_points = grouped.get_group(i + 1)[locdata.coordinate_keys]
 
             nn = NearestNeighbors(radius=radius, metric="euclidean", n_jobs=N_JOBS).fit(
                 other_points

@@ -157,7 +157,7 @@ def range_from_collection(locdatas, loc_properties=None, special=None, epsilon=1
     Returns
     -------
     namedtuple
-        A namedtuple('Ranges', locdata.coordinate_labels)
+        A namedtuple('Ranges', locdata.coordinate_keys)
         of namedtuple('Range', 'min max').
     """
     ranges_ = [
@@ -174,7 +174,7 @@ def range_from_collection(locdatas, loc_properties=None, special=None, epsilon=1
     maxs = np.max([rand[:, 1] for rand in ranges_], axis=0)
 
     if loc_properties is None:
-        labels = locdatas[0].coordinate_labels
+        labels = locdatas[0].coordinate_keys
     else:
         labels = loc_properties
 

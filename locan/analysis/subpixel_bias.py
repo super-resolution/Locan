@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def _subpixel_bias(locdata, pixel_size: int | float | Sequence[int | float]):
-    coordinate_labels = locdata.coordinate_labels
+    coordinate_labels = locdata.coordinate_keys
     coordinates = locdata.coordinates.T
 
     if np.ndim(pixel_size) == 0:

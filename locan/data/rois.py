@@ -179,7 +179,7 @@ class Roi:
         locan.constants.FileType.
     loc_properties : tuple of str
         Localization properties in LocData object on which the region
-        selection will be applied (for instance the coordinate_labels).
+        selection will be applied (for instance the coordinate_keys).
 
 
     Attributes
@@ -196,7 +196,7 @@ class Roi:
         localization file and an integer indicating the file type.
     loc_properties : tuple of str
         Localization properties in LocData object on which the region
-        selection will be applied (for instance the coordinate_labels).
+        selection will be applied (for instance the coordinate_keys).
     """
 
     def __init__(self, region, reference=None, loc_properties=()):
@@ -345,7 +345,7 @@ class Roi:
 
         The ROI is applied on locdata properties as specified in
         self.loc_properties or by taking the first applicable
-        locdata.coordinate_labels.
+        locdata.coordinate_keys.
 
         Parameters
         ----------
@@ -377,7 +377,7 @@ class Roi:
             if self.loc_properties:
                 pfr = self.loc_properties
             else:
-                pfr = locdata.coordinate_labels[0 : self.region.dimension]
+                pfr = locdata.coordinate_keys[0 : self.region.dimension]
 
             points = locdata.data[list(pfr)].values
             indices_inside = self._region.contains(points)
@@ -386,7 +386,7 @@ class Roi:
             new_locdata = LocData.from_selection(
                 locdata=locdata, indices=locdata_indices_to_keep
             )
-            if pfr == new_locdata.coordinate_labels:
+            if pfr == new_locdata.coordinate_keys:
                 new_locdata.region = self._region
             else:
                 new_locdata.region = None
@@ -440,7 +440,7 @@ class RoiLegacy_0:
         * polyhedron: (...)
     properties_for_roi : tuple of str
         Localization properties in LocData object on which the region selection will be applied (for instance the
-        coordinate_labels).
+        coordinate_keys).
 
 
     Attributes
@@ -456,7 +456,7 @@ class RoiLegacy_0:
         that makes up the region of interest.
     properties_for_roi : tuple of str
         Localization properties in LocData object on which the region selection will be applied (for instance the
-        coordinate_labels).
+        coordinate_keys).
 
     Warnings
     --------
@@ -613,7 +613,7 @@ class RoiLegacy_0:
         Localization data according to roi specifications.
 
         The ROI is applied on locdata properties as specified in self.loc_properties or by taking the first
-        applicable locdata.coordinate_labels.
+        applicable locdata.coordinate_keys.
 
         Parameters
         ----------
@@ -644,7 +644,7 @@ class RoiLegacy_0:
             if self.properties_for_roi:
                 pfr = self.properties_for_roi
             else:
-                pfr = locdata.coordinate_labels[0 : self._region.dimension]
+                pfr = locdata.coordinate_keys[0 : self._region.dimension]
 
             points = locdata.data[list(pfr)].values
             indices_inside = self._region.contains(points)
@@ -653,7 +653,7 @@ class RoiLegacy_0:
             new_locdata = LocData.from_selection(
                 locdata=locdata, indices=locdata_indices_to_keep
             )
-            if pfr == new_locdata.coordinate_labels:
+            if pfr == new_locdata.coordinate_keys:
                 new_locdata.region = self._region
             else:
                 new_locdata.region = None
@@ -701,12 +701,12 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2), loc_properties=()):
     if len(locdata) == 0:
         raise ValueError("Not implemented for empty LocData objects.")
 
-    if not set(loc_properties).issubset(locdata.coordinate_labels):
+    if not set(loc_properties).issubset(locdata.coordinate_keys):
         raise ValueError("loc_properties must be tuple with coordinate labels.")
 
     if loc_properties:
         coordinate_labels_indices = [
-            locdata.coordinate_labels.index(pfr) for pfr in loc_properties
+            locdata.coordinate_keys.index(pfr) for pfr in loc_properties
         ]
     else:
         coordinate_labels_indices = range(len(n_regions))

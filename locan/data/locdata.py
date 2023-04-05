@@ -70,11 +70,13 @@ class LocData:
         Metadata about the current dataset and its history.
     properties : pandas.DataFrame
         List of properties generated from data.
-    coordinate_labels : list of str
+    coordinate_keys : list of str
         The available coordinate properties.
+    uncertainty_keys : list of str
+        The available uncertainty properties.
     dimension : int
         Number of coordinates available for each localization
-        (i.e. size of `coordinate_labels`).
+        (i.e. size of `coordinate_keys`).
     """
 
     count = 0
@@ -97,7 +99,7 @@ class LocData:
         self._alpha_shape = None
         self._inertia_moments = None
 
-        self.dimension = len(self.coordinate_labels)
+        self.dimension = len(self.coordinate_keys)
 
         self._update_properties()
 
@@ -117,28 +119,20 @@ class LocData:
         self.meta = merge_metadata(metadata=self.meta, other_metadata=meta)
 
     @property
-    def coordinate_labels(self):
+    def coordinate_keys(self):
         return [
             label_
-            for label_ in PropertyKey.coordinate_labels()
+            for label_ in PropertyKey.coordinate_keys()
             if label_ in self.data.columns
         ]
 
     @property
-    def uncertainty_labels(self):
+    def uncertainty_keys(self):
         return [
             label_
-            for label_ in PropertyKey.uncertainty_labels()
+            for label_ in PropertyKey.uncertainty_keys()
             if label_ in self.data.columns
         ]
-
-    def _update_properties_(self):
-        self.properties["localization_count"] = len(self.data.index)
-
-        # property for mean spatial coordinates (centroids)
-        self.properties.update(dict(self.data[self.coordinate_labels].mean()))
-
-        self.bounding_box  # update self._bounding_box
 
     def _update_properties(self, update_function=None):  # -> "Self":
         """
@@ -168,7 +162,7 @@ class LocData:
         properties_for_update = [
             loc_property_
             for loc_property_ in [
-                *self.coordinate_labels,
+                *self.coordinate_keys,
                 "frame",
                 "intensity",
                 "local_background",
@@ -184,9 +178,7 @@ class LocData:
             ]
 
         # localization coordinates
-        if all(
-            c_label_ in properties_for_update for c_label_ in self.coordinate_labels
-        ):
+        if all(c_label_ in properties_for_update for c_label_ in self.coordinate_keys):
             self.properties.update(_get_linked_coordinates(locdata=self.data))
 
         if "intensity" in properties_for_update:
@@ -534,7 +526,7 @@ class LocData:
     @property
     def coordinates(self):
         """ndarray: Return all coordinate values."""
-        return self.data[self.coordinate_labels].values
+        return self.data[self.coordinate_keys].values
 
     @property
     def centroid(self):
@@ -543,7 +535,7 @@ class LocData:
         return np.array(
             [
                 self.properties[coordinate_label]
-                for coordinate_label in self.coordinate_labels
+                for coordinate_label in self.coordinate_keys
             ]
         )
 
@@ -608,7 +600,7 @@ class LocData:
                     coordinate_labels = coordinate_labels
                 else:
                     raise ValueError(
-                        "The given coordinate_labels are not standard property keys."
+                        "The given coordinate_keys are not standard property keys."
                     )
 
             dataframe = pd.DataFrame.from_records(
@@ -932,7 +924,7 @@ class LocData:
             )
 
         self.dataframe = dataframe
-        self.dimension = len(self.coordinate_labels)
+        self.dimension = len(self.coordinate_keys)
         self.reset(reset_index=reset_index)  # update hulls and properties
 
         # update meta
@@ -1049,7 +1041,7 @@ class LocData:
 
         # reduce coordinate dimensions
         coordinate_labels_to_drop = [
-            label for label in self.coordinate_labels if label not in coordinate_labels
+            label for label in self.coordinate_keys if label not in coordinate_labels
         ]
         columns = self.data.columns
         new_columns = [

@@ -58,7 +58,7 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs) -> pd.Series:
         locdata.data,
         search_range=search_range,
         memory=memory,
-        pos_columns=locdata.coordinate_labels,
+        pos_columns=locdata.coordinate_keys,
         t_column="frame",
         **kwargs,
     )

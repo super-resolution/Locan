@@ -139,7 +139,7 @@ def render_2d_napari(
         set(
             item.unit
             for item in locdata.meta.localization_properties
-            if item.name in locdata.coordinate_labels
+            if item.name in locdata.coordinate_keys
         )
     )
     if len(names) == 1:

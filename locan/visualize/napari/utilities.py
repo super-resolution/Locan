@@ -152,7 +152,7 @@ def get_rois(shapes_layer, reference=None, loc_properties=None):
         locan.constants.FileType.
     loc_properties : tuple of str
         Localization properties in LocData object on which the region
-        selection will be applied (for instance the coordinate_labels).
+        selection will be applied (for instance the coordinate_keys).
 
     Returns
     -------

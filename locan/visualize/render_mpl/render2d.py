@@ -223,15 +223,13 @@ def render_2d_scatter_density(
 
     if loc_properties is None:
         data = locdata.coordinates.T
-        labels = list(locdata.coordinate_labels)
-    elif (
-        isinstance(loc_properties, str) and loc_properties in locdata.coordinate_labels
-    ):
+        labels = list(locdata.coordinate_keys)
+    elif isinstance(loc_properties, str) and loc_properties in locdata.coordinate_keys:
         data = locdata.data[loc_properties].values.T
         labels = list(loc_properties)
     elif isinstance(loc_properties, (list, tuple)):
         for prop in loc_properties:
-            if prop not in locdata.coordinate_labels:
+            if prop not in locdata.coordinate_keys:
                 raise ValueError(f"{prop} is not a valid property in locdata.")
         data = locdata.data[list(loc_properties)].values.T
         labels = list(loc_properties)

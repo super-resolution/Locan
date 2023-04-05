@@ -32,8 +32,8 @@ import pandas as pd
 from locan.data import metadata_pb2
 from locan.data.locdata import LocData
 from locan.data.locdata_utils import (
-    _bump_property_label,
-    _get_available_coordinate_labels,
+    _bump_property_key,
+    _get_loc_property_key_per_dimension,
 )
 from locan.data.region import (
     AxisOrientedCuboid,
@@ -1427,23 +1427,21 @@ def resample(locdata, n_samples=10, loc_properties=None, seed=None):
     """
     rng = np.random.default_rng(seed)
 
-    (
-        available_coordinate_labels,
-        available_uncertainty_labels,
-    ) = _get_available_coordinate_labels(
-        locdata=locdata.data, coordinate_labels=loc_properties
+    available_coordinate_keys = _get_loc_property_key_per_dimension(
+        locdata=locdata.data, property_key="position"
+    )
+    available_uncertainty_keys = _get_loc_property_key_per_dimension(
+        locdata=locdata.data, property_key="uncertainty"
     )
 
-    original_index_label = _bump_property_label(
+    original_index_label = _bump_property_key(
         loc_property="original_index", loc_properties=locdata.data.columns
     )
     new_df = locdata.data.loc[locdata.data.index.repeat(n_samples)].reset_index(
         names=original_index_label
     )
 
-    for c_label, u_label in zip(
-        available_coordinate_labels, available_uncertainty_labels
-    ):
+    for c_label, u_label in zip(available_coordinate_keys, available_uncertainty_keys):
         if c_label is not None:
             if u_label is None:
                 logger.warning(f"No uncertainties available for {c_label}.")

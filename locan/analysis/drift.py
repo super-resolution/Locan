@@ -848,7 +848,7 @@ class Drift(_Analysis):
         new_dataframe.update(
             pd.DataFrame(
                 transformed_points,
-                columns=locdata_orig.coordinate_labels,
+                columns=locdata_orig.coordinate_keys,
                 index=locdata_orig.data.index,
             )
         )

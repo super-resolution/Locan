@@ -3,10 +3,10 @@ import pandas as pd
 import pytest
 
 from locan.data.locdata_utils import (
-    _bump_property_label,
+    _bump_property_key,
     _check_loc_properties,
-    _get_available_coordinate_labels,
     _get_linked_coordinates,
+    _get_loc_property_key_per_dimension,
 )
 
 
@@ -57,68 +57,21 @@ def df_single():
     )
 
 
-def test__get_available_coordinate_labels(df_only_coordinates, df_with_uncertainty):
-    results = _get_available_coordinate_labels(locdata=df_only_coordinates)
-    assert results == ([None, "position_y", "position_z"], [None, None, None])
+def test__get_loc_property_key_per_dimension(df_with_uncertainty):
+    results = _get_loc_property_key_per_dimension(
+        locdata=df_with_uncertainty, property_key="position"
+    )
+    assert results == [None, "position_y", "position_z"]
 
-    results = _get_available_coordinate_labels(locdata=df_with_uncertainty)
-    assert results == (
-        [None, "position_y", "position_z"],
-        [None, "uncertainty", "uncertainty_z"],
+    results = _get_loc_property_key_per_dimension(
+        locdata=df_with_uncertainty, property_key="uncertainty"
     )
+    assert results == ["uncertainty", "uncertainty", "uncertainty_z"]
 
-    results = _get_available_coordinate_labels(
-        locdata=df_only_coordinates, coordinate_labels="position_y"
+    results = _get_loc_property_key_per_dimension(
+        locdata=df_with_uncertainty, property_key="not_existing"
     )
-    assert results == ([None, "position_y", None], [None, None, None])
-
-    results = _get_available_coordinate_labels(
-        locdata=df_with_uncertainty, coordinate_labels="position_y"
-    )
-    assert results == ([None, "position_y", None], [None, "uncertainty", None])
-
-    results = _get_available_coordinate_labels(
-        locdata=df_only_coordinates, coordinate_labels="position_z"
-    )
-    assert results == ([None, None, "position_z"], [None, None, None])
-
-    results = _get_available_coordinate_labels(
-        locdata=df_with_uncertainty, coordinate_labels="position_z"
-    )
-    assert results == ([None, None, "position_z"], [None, None, "uncertainty_z"])
-
-    results = _get_available_coordinate_labels(
-        locdata=df_only_coordinates, coordinate_labels="position_x"
-    )
-    assert results == ([None, None, None], [None, None, None])
-
-    results = _get_available_coordinate_labels(
-        locdata=df_with_uncertainty, coordinate_labels="position_x"
-    )
-    assert results == ([None, None, None], [None, None, None])
-
-    results = _get_available_coordinate_labels(
-        locdata=df_only_coordinates, coordinate_labels=["position_x", "position_z"]
-    )
-    assert results == ([None, None, "position_z"], [None, None, None])
-
-    results = _get_available_coordinate_labels(
-        locdata=df_with_uncertainty, coordinate_labels=["position_x", "position_z"]
-    )
-    assert results == ([None, None, "position_z"], [None, None, "uncertainty_z"])
-
-    results = _get_available_coordinate_labels(
-        locdata=df_only_coordinates, coordinate_labels=["position_y", "position_z"]
-    )
-    assert results == ([None, "position_y", "position_z"], [None, None, None])
-
-    results = _get_available_coordinate_labels(
-        locdata=df_with_uncertainty, coordinate_labels=["position_y", "position_z"]
-    )
-    assert results == (
-        [None, "position_y", "position_z"],
-        [None, "uncertainty", "uncertainty_z"],
-    )
+    assert results == [None, None, None]
 
 
 def test__get_linked_coordinates(
@@ -148,12 +101,12 @@ def test__get_linked_coordinates(
     }
 
     results = _get_linked_coordinates(
-        locdata=df_only_coordinates, coordinate_labels="position_y"
+        locdata=df_only_coordinates, coordinate_keys="position_y"
     )
     assert results == {"position_y": 1.0, "uncertainty_y": 0.3333333333333333}
 
     results = _get_linked_coordinates(
-        locdata=df_with_uncertainty, coordinate_labels="position_y"
+        locdata=df_with_uncertainty, coordinate_keys="position_y"
     )
     assert results == {
         "position_y": 1.3333333333333333,
@@ -161,12 +114,12 @@ def test__get_linked_coordinates(
     }
 
     results = _get_linked_coordinates(
-        locdata=df_only_coordinates, coordinate_labels="position_z"
+        locdata=df_only_coordinates, coordinate_keys="position_z"
     )
     assert results == {"position_z": 1.0, "uncertainty_z": 0.3333333333333333}
 
     results = _get_linked_coordinates(
-        locdata=df_with_uncertainty, coordinate_labels="position_z"
+        locdata=df_with_uncertainty, coordinate_keys="position_z"
     )
     assert results == {
         "position_z": 1.3333333333333333,
@@ -186,14 +139,14 @@ def test__get_linked_coordinates(
 
 
 def test__bump_property_label():
-    new_property = _bump_property_label(
+    new_property = _bump_property_key(
         loc_properties=["test", "other_test"],
         loc_property="test",
         extension="_extended",
     )
     assert new_property == "test_extended"
 
-    new_property = _bump_property_label(
+    new_property = _bump_property_key(
         loc_properties=["test", "test_0"],
         loc_property="test",
     )

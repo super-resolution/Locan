@@ -134,7 +134,7 @@ def add_drift(locdata, diffusion_constant=None, velocity=None, seed=None):
     new_dataframe.update(
         pd.DataFrame(
             transformed_points,
-            columns=locdata.coordinate_labels,
+            columns=locdata.coordinate_keys,
             index=locdata.data.index,
         )
     )

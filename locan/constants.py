@@ -254,8 +254,8 @@ class PropertyKey(Enum):
         return [cls.position_x, cls.position_y, cls.position_z]
 
     @classmethod
-    def coordinate_labels(cls) -> list[str]:
-        """Property labels for properties representing spatial coordinates"""
+    def coordinate_keys(cls) -> list[str]:
+        """Property keys for properties representing spatial coordinates"""
         return [property_.name for property_ in cls.coordinate_properties()]
 
     @classmethod
@@ -272,22 +272,21 @@ class PropertyKey(Enum):
         ]
 
     @classmethod
-    def uncertainty_labels(cls) -> list[str]:
-        """Property labels for properties representing spatial coordinate
-        uncertainties"""
+    def uncertainty_keys(cls) -> list[str]:
+        """Property keys for properties representing spatial coordinate
+        uncertainties."""
         return [property_.name for property_ in cls.uncertainty_properties()]
 
     @classmethod
     def intensity_properties(cls) -> list[PropertyKey]:
         """
-        Property descriptions for properties representing photon intensities
+        Property descriptions for properties representing photon intensities.
         """
         return [cls.intensity, cls.local_background, cls.local_background_sigma]
 
     @classmethod
-    def intensity_labels(cls) -> list[str]:
-        """Property labels for properties representing spatial coordinate
-        uncertainties"""
+    def intensity_keys(cls) -> list[str]:
+        """Property keys for properties representing  photon intensities."""
         return [property_.name for property_ in cls.intensity_properties()]
 
     @classmethod

@@ -20,7 +20,7 @@ class WeightedMeanVariance(NamedTuple):
 def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
     """
     Compute weighted mean (average)
-    and the corresponding weighted mean variance.
+    and the corresponding weighted mean variance [1]_.
 
     Parameters
     ----------
@@ -29,12 +29,18 @@ def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
     weights : array-like | None
         Weights to use for weighted average.
 
-    # todo Reference
-
     Returns
     -------
     WeightedMeanVariance
         weighted_mean, weighted_mean_variance
+
+    References
+    ----------
+    .. [1] Donald F. Gatz, Luther Smith,
+       The standard error of a weighted mean concentration —
+       I. Bootstrapping vs other methods.
+       Atmospheric Environment 29(11), 1995: 1185-1193,
+       https://doi.org/10.1016/1352-2310(94)00210-C.
     """
     values = np.asarray(values)
     if weights is None:

@@ -10,23 +10,31 @@ New Features
 - Add analysis routine for `SubpixelBias`
 - Add function `merge_metadata` to merge metadata from class instance or file
 - Add class `Files` for managing file selections to be used in batch processing
-- Add `utilities/statistics` module with helper function to compute `WeightedMeanVariance`
+- Add `utilities/statistics` module with helper function to compute
+  `WeightedMeanVariance`
+- Add `locdata.utilities.statistics.ratio_fwhm_to_sigma`
 
 API Changes
 -----------
 - Change `find_pattern_upstream` into `find_file_upstream`
 - Add analysis class `LocalizationUncertainty` and
   deprecate `LocalizationUncertaintyFromIntensity`
+- Refactor `LocData.properties` to include weighted coordinate averages
+  and properties for frame and intensity
+- Refactor `locan.simulation.simulate_locdata.resample`
+- Change `LoData.coordinate_properties` to `LocData.coordinate_keys` and
+  add `LocData.uncertainty_keys` and corresponding functions in
+  `locan.constants.PropertyKeys`
 
 Bug Fixes
 ---------
-- Fix ...
+- Fix use of callables in `LocalizationUncertainty`
 
 Other Changes and Additions
 ---------------------------
 - Use ruff for linting
 - Use pyproject.toml for all specifications and deprecate use of setup.cfg
-
+- Use import open3d-cpu instead of open3d
 
 0.13 - 2023-02-15
 =================

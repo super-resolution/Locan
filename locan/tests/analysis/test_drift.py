@@ -102,14 +102,20 @@ def test_DriftComponent():
     drift_component = DriftComponent(type="zero").fit(x, y, verbose=True)
     assert isinstance(drift_component.model.model, ConstantModel)
     assert isinstance(drift_component.model_result, ModelResult)
-    assert drift_component.model_result.best_fit == 0
+    try:
+        assert all(drift_component.model_result.best_fit == 0)
+    except TypeError:  # needed to work with lmfit<1.2.0
+        assert drift_component.model_result.best_fit == 0
     assert drift_component.eval(4) == 0
     assert len(drift_component.eval([1, 4]) == 2)
 
     drift_component = DriftComponent(type="one").fit(x, y, verbose=True)
     assert isinstance(drift_component.model.model, ConstantModel)
     assert isinstance(drift_component.model_result, ModelResult)
-    assert drift_component.model_result.best_fit == 1
+    try:
+        assert all(drift_component.model_result.best_fit == 1)
+    except TypeError:  # needed to work with lmfit<1.2.0
+        assert drift_component.model_result.best_fit == 1
     assert drift_component.eval(4) == 1
     assert len(drift_component.eval([1, 4]) == 2)
 

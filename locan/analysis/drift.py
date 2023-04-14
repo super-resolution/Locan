@@ -269,10 +269,11 @@ class _ConstantModelFacade:
         return self.model_result
 
     def eval(self, x):
-        if isinstance(x, (tuple, list, np.ndarray)):
-            return np.array([self.model_result.eval()] * len(x))
-        else:
-            return self.model_result.eval(x=x)
+        x = np.asarray(x)
+        result = self.model_result.eval(x=x)
+        if np.shape(result) != np.shape(x):  # needed to work with lmfit<1.2.0
+            result = np.full(shape=np.shape(x), fill_value=result)
+        return result
 
     def plot(self, **kwargs):
         x = self.independent_variable

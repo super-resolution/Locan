@@ -89,10 +89,11 @@ def transform_counts_to_photons(locdata, loc_properties=None, metadata=None) -> 
     # todo: possibly add inplace keyword
     new_locdata = LocData.from_dataframe(dataframe=locdata.data)
 
+    loc_properties_converted = []
     for loc_property in loc_properties:
         if loc_property not in locdata.data.columns:
             logger.warning(f"Localization property {loc_property} is not available.")
-            break
+            continue
 
         try:
             index = [prob.name for prob in locdata.meta.localization_properties].index(
@@ -109,7 +110,7 @@ def transform_counts_to_photons(locdata, loc_properties=None, metadata=None) -> 
                     f"Localization property {loc_property} is already provided with "
                     f"unit photons"
                 )
-                break
+                continue
 
         intensities = getattr(locdata.data, loc_property)
 
@@ -140,6 +141,7 @@ def transform_counts_to_photons(locdata, loc_properties=None, metadata=None) -> 
 
         dataframe = new_locdata.dataframe.assign(**{loc_property: new_intensities})
         new_locdata = new_locdata.update(dataframe=dataframe)
+        loc_properties_converted.append(loc_property)
 
     # update metadata
     meta_ = _modify_meta(
@@ -151,4 +153,5 @@ def transform_counts_to_photons(locdata, loc_properties=None, metadata=None) -> 
     )
     new_locdata.meta = meta_
 
+    logger.info(f"Successfully converted: {loc_properties_converted}.")
     return new_locdata

@@ -1,3 +1,4 @@
+import logging
 from copy import deepcopy
 
 import numpy as np
@@ -22,6 +23,7 @@ def test__transform_counts_to_photons():
 
 
 def test_transform_counts_to_photons(locdata_2d, caplog):
+    caplog.set_level(logging.INFO)
     locdata = deepcopy(locdata_2d)
     df = locdata.dataframe.assign(local_background=[100] * len(locdata))
     locdata.update(dataframe=df)
@@ -85,19 +87,23 @@ def test_transform_counts_to_photons(locdata_2d, caplog):
     assert new_locdata.meta.localization_properties[index].unit == "photons"
 
     new_locdata = transform_counts_to_photons(
-        locdata=locdata, loc_properties="not_present"
+        locdata=locdata, loc_properties=["intensity", "not_present", "local_background"]
     )
-    assert np.array_equal(locdata.data.intensity, locdata.data.intensity)
-    assert caplog.record_tuples[-1] == (
+    assert caplog.record_tuples[-2] == (
         "locan.data.transform.intensity_transformation",
         30,
         "Localization property not_present is not available.",
+    )
+    assert caplog.record_tuples[-1] == (
+        "locan.data.transform.intensity_transformation",
+        20,
+        "Successfully converted: ['intensity', 'local_background'].",
     )
 
     new_locdata = transform_counts_to_photons(locdata=locdata)
     new_locdata_2 = transform_counts_to_photons(locdata=new_locdata)
     assert np.array_equal(new_locdata_2.data.intensity, new_locdata.data.intensity)
-    assert caplog.record_tuples[-1] == (
+    assert caplog.record_tuples[-2] == (
         "locan.data.transform.intensity_transformation",
         30,
         "Localization property intensity is already provided with unit photons",

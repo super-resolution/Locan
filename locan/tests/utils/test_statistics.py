@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 from locan.utils.statistics import (
@@ -13,6 +14,15 @@ def test_weighted_mean_variance():
 
     wmv = weighted_mean_variance(values=[1, 2], weights=None)
     assert wmv == WeightedMeanVariance(weighted_mean=1.5, weighted_mean_variance=0.25)
+
+    wmv = weighted_mean_variance(values=[1, 2], weights=[1, 0])
+    assert wmv == WeightedMeanVariance(weighted_mean=1, weighted_mean_variance=0.0)
+
+    wmv = weighted_mean_variance(values=[1, 2], weights=[1, 1e100])
+    assert wmv == pytest.approx((2, 0), rel=1e-6)
+
+    wmv = weighted_mean_variance(values=[1, 2], weights=[1, np.nan])
+    assert np.isnan([wmv.weighted_mean, wmv.weighted_mean_variance]).all
 
     with pytest.raises(TypeError):
         weighted_mean_variance(values=[1, 2], weights=[1])

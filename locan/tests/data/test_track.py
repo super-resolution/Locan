@@ -38,9 +38,46 @@ def test_link_locdata(locdata_simple):
 
 def test_track(locdata_simple):
     locdata_new, track_series = track(locdata_simple, search_range=5)
-    # print(locdata_new.data)
+    expected = {
+        "localization_count": 3,
+        "position_x": 1.0,
+        "uncertainty_x": 0.3333333333333333,
+        "position_y": 1.0,
+        "uncertainty_y": 0.3333333333333333,
+        "position_z": 1.0,
+        "uncertainty_z": 0.3333333333333333,
+        "frame": 0,
+        "region_measure_bb": 8,
+        "localization_density_bb": 0.375,
+        "subregion_measure_bb": 12,
+    }
+    for value, value_expected, values_in_data in zip(
+        locdata_new.references[0].properties.values(),
+        expected.values(),
+        locdata_new.data.iloc[0].to_numpy(),
+    ):
+        assert value == value_expected == values_in_data
+
+    expected = {
+        "localization_count": 1,
+        "position_x": 10,
+        "uncertainty_x": 0,
+        "position_y": 10,
+        "uncertainty_y": 0,
+        "position_z": 10,
+        "uncertainty_z": 0,
+        "frame": 3,
+        "region_measure_bb": 0,
+    }
+    for value, value_expected, values_in_data in zip(
+        locdata_new.references[1].properties.values(),
+        expected.values(),
+        locdata_new.data.iloc[1].to_numpy(),
+    ):
+        assert value == value_expected == values_in_data
+
     assert "frame" in locdata_new.data.columns
     assert len(locdata_new) == 5
+
     locdata_new, track_series = track(locdata_simple, search_range=5, memory=5)
-    # print(locdata_new.data)
     assert len(locdata_new) == 4

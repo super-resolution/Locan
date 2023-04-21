@@ -111,21 +111,6 @@ def track(locdata, search_range=40, memory=0, **kwargs) -> tuple[LocData, pd.Ser
         LocData.from_selection(locdata=locdata, indices=group.index.values)
         for _, group in grouped
     ]
-
-    for selection in selections:
-        for column in locdata.data.columns:
-            if "position" not in column and "intensity" != column and "frame" != column:
-                column_mean = getattr(selection.data, column).mean()
-                selection.properties.update({column: column_mean})
-            if column == "intensity":
-                intensity_mean = selection.data.intensity.mean()
-                selection.properties.update({"intensity_mean": intensity_mean})
-                intensity_sum = selection.data.intensity.sum()
-                selection.properties.update({"intensity": intensity_sum})
-            if column == "frame":
-                frame = selection.data.frame.iloc[0]
-                selection.properties.update({"frame": frame})
-
     collection = LocData.from_collection(selections)
 
     # metadata

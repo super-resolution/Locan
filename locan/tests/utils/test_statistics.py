@@ -18,6 +18,9 @@ def test_weighted_mean_variance():
     wmv = weighted_mean_variance(values=[1, 2], weights=[1, 0])
     assert wmv == WeightedMeanVariance(weighted_mean=1, weighted_mean_variance=0.0)
 
+    wmv = weighted_mean_variance(values=[1, 2], weights=[1, -2])
+    assert wmv == WeightedMeanVariance(weighted_mean=3, weighted_mean_variance=16.0)
+
     wmv = weighted_mean_variance(values=[1, 2], weights=[1, 1e100])
     assert wmv == pytest.approx((2, 0), rel=1e-6)
 

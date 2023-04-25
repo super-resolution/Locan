@@ -5,6 +5,7 @@ Statistics related tools.
 """
 from __future__ import annotations
 
+import logging
 from typing import NamedTuple
 
 import numpy as np
@@ -72,6 +73,21 @@ def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
                 + weighted_average**2 * sum((weights - weights_mean) ** 2)
             )
         )
+
+        # Check for negative values that should not occur
+        # but did result with some floating values
+        if (
+            weighted_mean_variance_ != 0
+            and weighted_mean_variance_[weighted_mean_variance_ < 0].any()
+        ):
+            if np.ndim(weighted_mean_variance_) == 0:
+                weighted_mean_variance_ = 0
+            else:
+                weighted_mean_variance_[weighted_mean_variance_ < 0] = 0
+            logging.warning(
+                "Negative values for weighted_mean_variance occurred and were set to "
+                "zero."
+            )
 
     return WeightedMeanVariance(
         weighted_mean=weighted_average, weighted_mean_variance=weighted_mean_variance_

@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -85,11 +86,13 @@ def test_distance_to_region_boundary(locdata_2d):
 
 
 def test_max_distance_2d(locdata_2d):
+    locdata_2d = deepcopy(locdata_2d)
     mdist = max_distance(locdata=locdata_2d)
     assert mdist == {"max_distance": 5.656854249492381}
 
 
 def test_max_distance_3d(locdata_3d):
+    locdata_3d = deepcopy(locdata_3d)
     mdist = max_distance(locdata=locdata_3d)
     assert mdist == {"max_distance": 6.164414002968976}
 

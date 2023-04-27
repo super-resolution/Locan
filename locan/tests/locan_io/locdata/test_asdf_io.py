@@ -14,11 +14,8 @@ def test_save_and_load_asdf(locdata_2d):
         save_asdf(locdata_2d, path=file_path)
 
         locdata = load_asdf_file(path=file_path)
-        # print(locdata.data)
         assert_frame_equal(locdata.data, locdata_2d.data)
         assert locdata.meta.identifier == locdata_2d.meta.identifier
-        locdata_2d.properties.pop("localization_density_ch", None)
-        locdata_2d.properties.pop("region_measure_ch", None)
         assert locdata.properties == locdata_2d.properties
 
         dat = load_asdf_file(path=file_path, nrows=5)

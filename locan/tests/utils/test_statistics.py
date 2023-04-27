@@ -3,6 +3,7 @@ import pytest
 
 from locan.utils.statistics import (
     WeightedMeanVariance,
+    biased_variance,
     ratio_fwhm_to_sigma,
     weighted_mean_variance,
 )
@@ -39,3 +40,19 @@ def test_weighted_mean_variance():
 
 def test_ratio_fwhm_to_sigma():
     assert ratio_fwhm_to_sigma() == pytest.approx(2.355, rel=0.001)
+
+
+def test_biased_variance():
+    bv = biased_variance(variance=1, n_samples=3)
+    assert isinstance(bv, float)
+    assert bv == pytest.approx(0.6666666666666667)
+
+    bv = biased_variance(variance=1, n_samples=[2, 3])
+    assert isinstance(bv, np.ndarray)
+    assert bv == pytest.approx([0.5, 0.66666667])
+
+    bv = biased_variance(variance=np.array([1, 2]), n_samples=3)
+    assert bv == pytest.approx([0.66666667, 1.33333333])
+
+    bv = biased_variance(variance=np.array([1, 2]), n_samples=[2, 3])
+    assert bv == pytest.approx([0.5, 1.33333333])

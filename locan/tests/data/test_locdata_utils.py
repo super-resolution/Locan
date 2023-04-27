@@ -84,9 +84,9 @@ def test__get_linked_coordinates(
     results = _get_linked_coordinates(locdata=df_only_coordinates)
     assert results == {
         "position_y": 1.0,
-        "uncertainty_y": 0.3333333333333333,
+        "uncertainty_y": 0.5773502691896257,
         "position_z": 1.0,
-        "uncertainty_z": 0.3333333333333333,
+        "uncertainty_z": 0.5773502691896257,
     }
 
     results = _get_linked_coordinates(locdata=df_with_zero_uncertainty)
@@ -94,36 +94,36 @@ def test__get_linked_coordinates(
 
     results = _get_linked_coordinates(locdata=df_with_uncertainty)
     assert results == {
-        "position_y": 1.3333333333333333,
-        "uncertainty_y": 0.19753086419753085,
-        "position_z": 1.3333333333333333,
-        "uncertainty_z": 0.19753086419753085,
+        "position_y": 1.2,
+        "uncertainty_y": 0.32,
+        "position_z": 1.2,
+        "uncertainty_z": 0.32,
     }
 
     results = _get_linked_coordinates(
         locdata=df_only_coordinates, coordinate_keys="position_y"
     )
-    assert results == {"position_y": 1.0, "uncertainty_y": 0.3333333333333333}
+    assert results == {"position_y": 1.0, "uncertainty_y": 0.5773502691896257}
 
     results = _get_linked_coordinates(
         locdata=df_with_uncertainty, coordinate_keys="position_y"
     )
     assert results == {
-        "position_y": 1.3333333333333333,
-        "uncertainty_y": 0.19753086419753085,
+        "position_y": 1.2,
+        "uncertainty_y": 0.32,
     }
 
     results = _get_linked_coordinates(
         locdata=df_only_coordinates, coordinate_keys="position_z"
     )
-    assert results == {"position_z": 1.0, "uncertainty_z": 0.3333333333333333}
+    assert results == {"position_z": 1.0, "uncertainty_z": 0.5773502691896257}
 
     results = _get_linked_coordinates(
         locdata=df_with_uncertainty, coordinate_keys="position_z"
     )
     assert results == {
-        "position_z": 1.3333333333333333,
-        "uncertainty_z": 0.19753086419753085,
+        "position_z": 1.2,
+        "uncertainty_z": 0.32,
     }
 
     results = _get_linked_coordinates(locdata=df_empty)

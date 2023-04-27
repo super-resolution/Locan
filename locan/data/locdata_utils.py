@@ -6,10 +6,15 @@ Utility functions for working with locdata.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
-import pandas as pd  # noqa: F401
+import numpy as np
 
 from locan.utils.statistics import weighted_mean_variance
+
+if TYPE_CHECKING:
+    import pandas as pd  # noqa F401
+    from locan.data import LocData  # noqa F401
 
 __all__ = []
 
@@ -50,14 +55,19 @@ def _get_linked_coordinates(locdata, coordinate_keys=None) -> dict[str, int | fl
     Combine localization properties from locdata:
     (i) apply weighted averages for spatial coordinates if corresponding
     uncertainties are available;
-    (ii) compute uncertainty from weighted average variances for spatial
-    coordinates
+    (ii) compute uncertainty (as standard deviation with same units as
+    coordinates) from weighted average variances for spatial coordinates.
 
     If coordinate_keys is None, coordinate_keys and corresponding
     coordinate uncertainties from locdata are used.
 
-    If `uncertainty_x` is not availabe `uncertainty` is taken.
+    If `uncertainty_x` is not available `uncertainty` is taken.
     If no uncertainty is available, unweighted coordinate means are taken.
+
+    Notes
+    -----
+    Uncertainties should have the same unit as coordinates;
+    the weights will be 1 / uncertainties^2.
 
     Parameters
     ----------
@@ -93,21 +103,24 @@ def _get_linked_coordinates(locdata, coordinate_keys=None) -> dict[str, int | fl
             elif len(locdata) == 1:
                 weighted_mean = locdata[coordinate_key_].iloc[0]
                 if uncertainty_key_ is None:
-                    weighted_variance = 0
+                    weighted_uncertainty = 0
                 else:
-                    weighted_variance = locdata[uncertainty_key_].iloc[0]
+                    weighted_uncertainty = locdata[uncertainty_key_].iloc[0]
             else:
                 if uncertainty_key_ is None:
                     weighted_mean, weighted_variance = weighted_mean_variance(
                         values=locdata[coordinate_key_], weights=None
                     )
+                    weighted_uncertainty = np.sqrt(weighted_variance)
                 else:
                     weighted_mean, weighted_variance = weighted_mean_variance(
                         values=locdata[coordinate_key_],
-                        weights=1 / locdata[uncertainty_key_].to_numpy(),
+                        weights=np.power(1 / locdata[uncertainty_key_], 2).to_numpy(),
                     )
+                    weighted_uncertainty = np.sqrt(weighted_variance)
+
             results_dict[coordinate_key_] = weighted_mean
-            results_dict[new_uncertainty_key_] = weighted_variance
+            results_dict[new_uncertainty_key_] = weighted_uncertainty
 
     return results_dict
 

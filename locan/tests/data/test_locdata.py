@@ -96,7 +96,7 @@ def test_update_properties():
     assert locdata.properties == {
         "localization_count": 2,
         "position_y": 1.5,
-        "uncertainty_y": 0.25,
+        "uncertainty_y": 0.5,
         "region_measure_bb": 1,
         "localization_density_bb": 2.0,
         "subregion_measure_bb": 2,
@@ -105,8 +105,8 @@ def test_update_properties():
     locdata = LocData.from_dataframe(df_with_all)
     assert locdata.properties == {
         "localization_count": 2,
-        "position_y": 1.3333333333333333,
-        "uncertainty_y": 0.19753086419753085,
+        "position_y": 1.2,
+        "uncertainty_y": 0.32,
         "intensity": 3,
         "frame": 1,
         "region_measure_bb": 1,

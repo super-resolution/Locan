@@ -42,6 +42,7 @@ Tutorials are provided as Jupyter notebooks.
    Drift <./notebooks/Analysis_Drift>
    Nearest neighbor distances <./notebooks/Analysis_nearest_neighbor_distances>
    Ripley <./notebooks/Analysis_Ripley>
+   Grouped cluster properties <./notebooks/Analysis_grouped_cluster_properties>
 
    Example <./notebooks/Analysis_example>
    How to use an analysis class <./notebooks/Analysis_how_to_use_an_analysis_class>

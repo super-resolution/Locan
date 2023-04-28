@@ -100,7 +100,7 @@ def _get_resource(
         resource = importlib_resources.files(resource_directory).joinpath(
             resource.value
         )
-    except ImportError:  # required for python < 3.9
+    except TypeError:  # required for python < 3.9
         resource = importlib_resources.path(
             package=resource_directory, resource=resource.value
         )

@@ -33,7 +33,7 @@ def _check_loc_properties(
         Valid localization property names
     """
     if loc_properties is None:  # use coordinate_labels
-        labels = locdata.coordinate_labels.copy()
+        labels = locdata.coordinate_keys.copy()
     elif isinstance(loc_properties, str):
         if loc_properties not in locdata.data.columns:
             raise ValueError(

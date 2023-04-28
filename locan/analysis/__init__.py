@@ -18,6 +18,7 @@ Submodules:
    cbc
    convex_hull_expectation
    drift
+   grouped_property_expectation
    localization_precision
    localization_property
    localization_property_2d
@@ -36,6 +37,7 @@ from locan.analysis.blinking import *
 from locan.analysis.cbc import *
 from locan.analysis.convex_hull_expectation import *
 from locan.analysis.drift import *
+from locan.analysis.grouped_property_expectation import *
 from locan.analysis.localization_precision import *
 from locan.analysis.localization_property import *
 from locan.analysis.localization_property_2d import *
@@ -54,6 +56,7 @@ __all__.extend(blinking.__all__)
 __all__.extend(cbc.__all__)
 __all__.extend(convex_hull_expectation.__all__)
 __all__.extend(drift.__all__)
+__all__.extend(grouped_property_expectation.__all__)
 __all__.extend(localization_precision.__all__)
 __all__.extend(localization_property.__all__)
 __all__.extend(localization_property_2d.__all__)

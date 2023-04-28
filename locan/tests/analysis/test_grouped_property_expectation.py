@@ -1,5 +1,6 @@
 import boost_histogram as bh
 import matplotlib.pyplot as plt
+import pandas as pd
 import pytest
 
 from locan import LocData
@@ -37,8 +38,8 @@ class TestGroupedPropertyExpectation:
         gpe = GroupedPropertyExpectation(
             loc_property="intensity", other_loc_property="localization_count"
         ).compute(locdata=collection)
-        print(gpe.results.values)
-        print(gpe.results.grouped)
+        # print(gpe.results.values)
+        # print(gpe.results.grouped)
         assert isinstance(gpe.results, GroupedPropertyExpectationResults)
         assert gpe.results.values.index.tolist() == collection.data.index.tolist()
         assert gpe.results.values.columns.tolist() == [
@@ -64,13 +65,12 @@ class TestGroupedPropertyExpectation:
 
     def test_compute_with_expectation(self, locdata_2d):
         collection = LocData.from_collection(locdatas=[locdata_2d, locdata_2d])
-        expected = 1
+        expected = 2
         gpe = GroupedPropertyExpectation(
             loc_property="intensity",
             other_loc_property="localization_count",
             expectation=expected,
         ).compute(locdata=collection)
-        assert isinstance(gpe.results, GroupedPropertyExpectationResults)
         assert gpe.results.values.index.tolist() == collection.data.index.tolist()
         assert gpe.results.values.columns.tolist() == [
             "intensity",
@@ -84,10 +84,49 @@ class TestGroupedPropertyExpectation:
             "intensity_std",
             "expectation",
         ]
-        assert all(gpe.results.grouped.expectation == 1)
+        assert all(gpe.results.grouped.expectation == 2)
         assert all(
             gpe.results.values.value_to_expectation_ratio
             == gpe.results.values.intensity / expected
+        )
+
+        expected = pd.Series(data=[2], index=[6])
+        gpe = GroupedPropertyExpectation(
+            loc_property="intensity",
+            other_loc_property="localization_count",
+            expectation=expected,
+        ).compute(locdata=collection)
+        assert gpe.results.values.index.tolist() == collection.data.index.tolist()
+        assert gpe.results.values.columns.tolist() == [
+            "intensity",
+            "localization_count",
+            "expectation",
+            "value_to_expectation_ratio",
+        ]
+        assert gpe.results.grouped.index.tolist() == [6]
+        assert gpe.results.grouped.columns.tolist() == [
+            "intensity_mean",
+            "intensity_std",
+            "expectation",
+        ]
+        assert all(gpe.results.grouped.expectation == 2)
+        assert all(
+            gpe.results.values.value_to_expectation_ratio
+            == gpe.results.values.intensity / 2
+        )
+
+        expected = {6: 2}
+        gpe = GroupedPropertyExpectation(
+            loc_property="intensity",
+            other_loc_property="localization_count",
+            expectation=expected,
+        ).compute(locdata=collection)
+        assert gpe.results.values.index.tolist() == collection.data.index.tolist()
+        assert gpe.results.grouped.index.tolist() == [6]
+        assert all(gpe.results.grouped.expectation == 2)
+        assert all(
+            gpe.results.values.value_to_expectation_ratio
+            == gpe.results.values.intensity / 2
         )
 
         gpe.plot()

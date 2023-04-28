@@ -15,12 +15,11 @@ See Also
 position_variance_expectation
 convex_hull_expectation
 """
-# todo add fit procedure
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable
-from dataclasses import dataclass
+from collections.abc import Iterable, Mapping
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Protocol
 
 import boost_histogram as bh
@@ -42,13 +41,16 @@ class Collection(Protocol):
     data: pd.DataFrame
     references: Iterable
 
+    def __len__(self):
+        pass
+
 
 @dataclass(repr=False)
 class GroupedPropertyExpectationResults:
-    values: pd.DataFrame = pd.DataFrame()
+    values: pd.DataFrame = field(default_factory=pd.DataFrame)
     # with index being reference_index
     # with columns: loc_property, other_loc_property, value_to_expectation_ratio
-    grouped: pd.DataFrame = pd.DataFrame()
+    grouped: pd.DataFrame = field(default_factory=pd.DataFrame)
     # with index being other_loc_property
     # with columns: loc_property_mean, loc_property_std, expectation
 
@@ -66,8 +68,8 @@ class GroupedPropertyExpectation(_Analysis):
         The localization property to analyze.
     other_loc_property: str
         The localization property to group on.
-    expectation : float | Iterable[float] | None
-        The expected value for all or each localization property.
+    expectation : int | float | Mapping | pd.Series | None
+        The expected value for all or each other localization property.
 
     Attributes
     ----------
@@ -118,21 +120,29 @@ class GroupedPropertyExpectation(_Analysis):
         other_loc_property = self.parameter["other_loc_property"]
 
         self.results = GroupedPropertyExpectationResults()
-        self.results.values = locdata.data[[loc_property, other_loc_property]]
-        self.results.values.set_index(other_loc_property)
+        self.results.values = locdata.data.loc[:, [loc_property, other_loc_property]]
 
         grouped = self.results.values.groupby(other_loc_property)
 
         self.results.grouped[loc_property + "_mean"] = grouped.mean()
         self.results.grouped[loc_property + "_std"] = grouped.std()
-        self.results.grouped["expectation"] = (
-            pd.NA if self.expectation is None else self.expectation
-        )
 
-        expectation_df = self.results.grouped.loc[
-            self.results.values[other_loc_property].tolist(), "expectation"
-        ].reset_index(drop=True)
-        self.results.values["expectation"] = expectation_df
+        if self.expectation is None:
+            self.results.grouped["expectation"] = pd.NA
+        elif isinstance(self.expectation, (int, float)):
+            self.results.grouped["expectation"] = self.expectation
+        elif isinstance(self.expectation, pd.Series):
+            indices = self.results.grouped.index
+            self.results.grouped["expectation"] = self.expectation.loc[indices]
+        elif isinstance(self.expectation, Mapping):
+            self.results.grouped["expectation"] = [
+                self.expectation[index_] for index_ in self.results.grouped.index
+            ]
+
+        self.results.values["expectation"] = self.results.grouped.loc[
+            self.results.values[other_loc_property], "expectation"
+        ].to_numpy()
+
         self.results.values["value_to_expectation_ratio"] = (
             self.results.values[loc_property] / self.results.values["expectation"]
         )

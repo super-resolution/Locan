@@ -22,17 +22,17 @@ References
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable
-from dataclasses import dataclass
+from collections.abc import Iterable, Mapping
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Protocol
 
 import boost_histogram as bh
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 from locan.analysis.analysis_base import _Analysis
 from locan.data.aggregate import Bins, _check_loc_properties
+from locan.utils.statistics import biased_variance
 
 if TYPE_CHECKING:
     import matplotlib as mpl
@@ -46,53 +46,50 @@ class Collection(Protocol):
     data: pd.DataFrame
     references: Iterable
 
+    def __len__(self):
+        pass
+
 
 # The algorithms
 
 
-def _position_variances(
+def _property_variances(
     collection: Collection,
-    loc_properties: Iterable[str] | None = None,
+    loc_property: str,
+    biased: bool = False,
+) -> pd.DataFrame:
+    loc_property = _check_loc_properties(collection, loc_properties=loc_property)[0]
+    loc_property_var = loc_property + "_var"
+
+    ddof = 0 if biased else 1
+    results_df = pd.DataFrame()
+    results_df["localization_count"] = collection.data.loc[:, "localization_count"]
+    results_df[loc_property_var] = [
+        reference_.data[loc_property].var(ddof=ddof)
+        for reference_ in collection.references
+    ]
+
+    return results_df
+
+
+def _property_variances_(
+    collection: Collection,
+    loc_property: str,
     biased: bool = False,
 ) -> dict:
-    loc_properties = _check_loc_properties(collection, loc_properties=loc_properties)
+    loc_property = _check_loc_properties(collection, loc_properties=loc_property)[0]
 
-    ddof_ = 0 if biased else 1
+    ddof = 0 if biased else 1
 
     results_dict = {"localization_count": collection.data.localization_count}
-    for loc_property_ in loc_properties:
-        label = loc_property_ + "_var"
-        results_dict[label] = [
-            reference_.data[loc_property_].var(ddof=ddof_)
-            # provides unbiased variance by default
-            for reference_ in collection.references
-        ]
+
+    label = loc_property + "_var"
+    results_dict[label] = [
+        reference_.data[loc_property].var(ddof=ddof)
+        for reference_ in collection.references
+    ]
 
     return results_dict
-
-
-def _expected_variance_biased(localization_counts, expected_variance) -> np.ndarray:
-    """
-    The expected variance is biased for a limited number of localizations
-    according to
-
-    .. math::
-
-        E(var_{biased})=expected_variance * (1-\frac{1}{localization_counts}).
-
-    Parameters
-    ----------
-    localization_counts : int | Iterable[int]
-        Number of localizations that contributed to expected variance
-    expected_variance : array-like
-        The variance computed from some localization property
-
-    Returns
-    -------
-    numpy.ndarray
-    """
-    localization_counts = np.asarray(localization_counts)
-    return expected_variance * (1 - 1 / localization_counts)
 
 
 # The specific analysis classes
@@ -100,16 +97,12 @@ def _expected_variance_biased(localization_counts, expected_variance) -> np.ndar
 
 @dataclass(repr=False)
 class PositionVarianceExpectationResults:
-    variances: pd.Series | pd.DataFrame | None = None
+    values: pd.DataFrame = field(default_factory=pd.DataFrame)
     # with index being reference_index
-    variances_mean: pd.Series | pd.DataFrame | None = None
-    # with index being n_localizations
-    variances_std: pd.Series | pd.DataFrame | None = None
-    # with index being n_localizations
-    variance_relative_to_expectation_standardized: pd.Series | pd.DataFrame | None = (
-        None
-    )
-    # with index being reference_index
+    # with columns: loc_property, other_loc_property, value_to_expectation_ratio
+    grouped: pd.DataFrame = field(default_factory=pd.DataFrame)
+    # with index being other_loc_property
+    # with columns: loc_property_mean, loc_property_std, expectation
 
 
 class PositionVarianceExpectation(_Analysis):
@@ -121,10 +114,9 @@ class PositionVarianceExpectation(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    loc_properties: Iterable[str] | None
-        The localization properties to analyze.
-        If None the coordinate_labels are used.
-    expected_variance : float | Iterable[float] | None
+    loc_property: str
+        The localization property to analyze.
+    expectation : int | float | Mapping | pd.Series | None
         The expected variance for all or each localization property.
         The expected variance equals the squared localization precision
         for localization position coordinates.
@@ -147,15 +139,14 @@ class PositionVarianceExpectation(_Analysis):
     """
 
     def __init__(
-        self, meta=None, loc_properties=None, expected_variance=None, biased=False
+        self, meta=None, loc_property="position_x", expectation=None, biased=True
     ):
         super().__init__(
             meta=meta,
-            loc_properties=loc_properties,
-            expected_variance=expected_variance,
+            loc_property=loc_property,
+            expectation=expectation,
             biased=biased,
         )
-        self.expected_variance = expected_variance
         self.results = None
         self.distribution_statistics = None
 
@@ -176,26 +167,52 @@ class PositionVarianceExpectation(_Analysis):
         if not len(locdata):
             logger.warning("Locdata is empty.")
             return self
+
+        loc_property = self.parameter["loc_property"] + "_var"
+        other_loc_property = "localization_count"
+
         self.results = PositionVarianceExpectationResults()
 
-        self.results.variances = pd.DataFrame.from_dict(
-            data=_position_variances(
-                collection=locdata,
-                loc_properties=self.parameter["loc_properties"],
-                biased=self.parameter["biased"],
-            )
+        self.results.values = _property_variances(
+            collection=locdata,
+            loc_property=self.parameter["loc_property"],
+            biased=self.parameter["biased"],
         )
 
-        grouped = self.results.variances.groupby("localization_count")
-        self.results.variances_mean = grouped.mean()
-        self.results.variances_std = grouped.std()
+        grouped = self.results.values.groupby(other_loc_property)
 
-        # todo        self.results.variance_relative_to_expectation_standardized = \
-        #            self.results.variances / self.expected_variance / self.expected_variance_std
+        self.results.grouped[loc_property + "_mean"] = grouped.mean()
+        self.results.grouped[loc_property + "_std"] = grouped.std()
+
+        expectation = self.parameter["expectation"]
+        if expectation is None:
+            self.results.grouped["expectation"] = pd.NA
+        elif isinstance(expectation, (int, float)) and self.parameter["biased"] is True:
+            n_samples = self.results.grouped.index
+            expectation = biased_variance(variance=expectation, n_samples=n_samples)
+            expectation = pd.Series(data=expectation, index=n_samples)
+            self.results.grouped["expectation"] = expectation
+        elif isinstance(expectation, (int, float)):
+            self.results.grouped["expectation"] = expectation
+        elif isinstance(expectation, pd.Series):
+            indices = self.results.grouped.index
+            self.results.grouped["expectation"] = expectation.loc[indices]
+        elif isinstance(expectation, Mapping):
+            self.results.grouped["expectation"] = [
+                expectation[index_] for index_ in self.results.grouped.index
+            ]
+
+        self.results.values["expectation"] = self.results.grouped.loc[
+            self.results.values[other_loc_property], "expectation"
+        ].to_numpy()
+
+        self.results.values["value_to_expectation_ratio"] = (
+            self.results.values[loc_property] / self.results.values["expectation"]
+        )
 
         return self
 
-    def plot(self, ax=None, loc_property=None, **kwargs) -> mpl.axes.Axes:
+    def plot(self, ax=None, **kwargs) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         variances as function of localization counts.
@@ -204,9 +221,6 @@ class PositionVarianceExpectation(_Analysis):
         ----------
         ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
-        loc_property : str, list(str)
-            The property for which to plot localization precision;
-            if None all plots are shown.
         kwargs : dict
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
@@ -221,35 +235,38 @@ class PositionVarianceExpectation(_Analysis):
         if not self:
             return ax
 
-        # prepare plot
-        if loc_property is not None and not isinstance(loc_property, Iterable):
-            self.results.variances.plot(
-                kind="scatter",
-                alpha=0.2,
-                x="localization_count",
-                y=loc_property,
-                ax=ax,
-                **dict(dict(legend=False), **kwargs),
-            )
-
-        self.results.variances_mean.plot(
-            kind="line", marker="o", x=None, y=loc_property, ax=ax, legend=False
+        self.results.values.plot(
+            kind="scatter",
+            alpha=0.2,
+            x="localization_count",
+            y=self.parameter["loc_property"] + "_var",
+            color="gray",
+            ax=ax,
+            **dict(dict(legend=False), **kwargs),
         )
 
-        if self.expected_variance is not None:
-            x = self.results.variances_mean.index
-            if self.parameter["biased"]:
-                y = _expected_variance_biased(
-                    localization_counts=x, expected_variance=self.expected_variance
-                )
-            else:
-                y = [self.expected_variance] * len(x)
-            ax.plot(x, y, color="black", **kwargs)
+        self.results.grouped.plot(
+            kind="line",
+            marker=".",
+            x=None,
+            y=self.parameter["loc_property"] + "_var_mean",
+            color="blue",
+            ax=ax,
+        )
+
+        if not self.results.grouped.expectation.isna().all():
+            self.results.grouped.plot(
+                kind="line",
+                x=None,
+                y="expectation",
+                color="black",
+                ax=ax,
+            )
 
         ax.set(
             title="Position Variance Expectation",
             xlabel="localization_count",
-            ylabel="variance",
+            ylabel=self.parameter["loc_property"] + "_var",
         )
 
         return ax
@@ -257,7 +274,6 @@ class PositionVarianceExpectation(_Analysis):
     def hist(
         self,
         ax=None,
-        loc_property=None,
         bins=None,
         n_bins=None,
         bin_size=None,
@@ -275,9 +291,6 @@ class PositionVarianceExpectation(_Analysis):
         ----------
         ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
-        loc_property : str | None
-            The property for which to plot localization precision;
-            if None the first available property is taken.
         bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
             The bin specification as defined in :class:`Bins`
         bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
@@ -322,27 +335,22 @@ class PositionVarianceExpectation(_Analysis):
 
         fig = ax.get_figure()
 
-        if loc_property is None:
-            labels_ = [
-                "localization_count",
-                self.results.variances.columns.drop("localization_count")[0],
-            ]
-        else:
-            labels_ = ["localization_count", loc_property]
+        other_loc_property = "localization_count"
+        loc_property = self.parameter["loc_property"] + "_var"
 
         if all(
             item_ is None for item_ in [bins, n_bins, bin_size, bin_edges, bin_range]
         ):
-            max_localization_count_ = self.results.variances_mean.index.max()
-            max_loc_property_ = self.results.variances[labels_[1]].max()
+            max_other_loc_property_ = self.results.grouped.index.max()
+            max_loc_property_ = self.results.values[loc_property].max()
 
             if log:
                 axes = bh.axis.AxesTuple(
                     (
                         bh.axis.Regular(
-                            max_localization_count_,
+                            max_other_loc_property_,
                             1,
-                            max_localization_count_,
+                            max_other_loc_property_,
                             transform=bh.axis.transform.log,
                         ),
                         bh.axis.Regular(
@@ -354,7 +362,7 @@ class PositionVarianceExpectation(_Analysis):
                 axes = bh.axis.AxesTuple(
                     (
                         bh.axis.Regular(
-                            max_localization_count_, 1, max_localization_count_
+                            max_other_loc_property_, 1, max_other_loc_property_
                         ),
                         bh.axis.Regular(50, 1, max_loc_property_),
                     )
@@ -363,9 +371,15 @@ class PositionVarianceExpectation(_Analysis):
         else:
             try:
                 bins = Bins(
-                    bins, n_bins, bin_size, bin_edges, bin_range, labels=labels_
+                    bins,
+                    n_bins,
+                    bin_size,
+                    bin_edges,
+                    bin_range,
+                    labels=[loc_property, other_loc_property],
                 )
             except ValueError as exc:
+                # todo: check if message is appropriate
                 # the error is raised again only to adapt the message.
                 raise ValueError(
                     "Bin dimension and len of `loc_properties` is incompatible."
@@ -374,24 +388,35 @@ class PositionVarianceExpectation(_Analysis):
         histogram = bh.Histogram(*axes)
         histogram.reset()
         histogram.fill(
-            self.results.variances[labels_[0]], self.results.variances[labels_[1]]
+            self.results.values[other_loc_property], self.results.values[loc_property]
         )
         mesh = ax.pcolormesh(*histogram.axes.edges.T, histogram.view().T, **kwargs)
         fig.colorbar(mesh)
 
-        if self.expected_variance is not None:
-            x = bins.bin_centers[0]
-            if self.parameter["biased"]:
-                y = _expected_variance_biased(
-                    localization_counts=x, expected_variance=self.expected_variance
-                )
-            else:
-                y = [self.expected_variance] * len(x)
-            ax.plot(x, y, color="White", **kwargs)
+        self.results.grouped.plot(
+            kind="line",
+            marker=".",
+            x=None,
+            y=self.parameter["loc_property"] + "_var_mean",
+            color="blue",
+            ax=ax,
+        )
+
+        if not self.results.grouped.expectation.isna().all():
+            self.results.grouped.plot(
+                kind="line",
+                x=None,
+                y="expectation",
+                color="white",
+                ax=ax,
+            )
 
         ax.set(
-            title="Position Variance Expectation", xlabel=labels_[0], ylabel=labels_[1]
+            title="Position Variance Expectation",
+            xlabel=other_loc_property,
+            ylabel=loc_property,
         )
+
         if log:
             ax.set(xscale="log", yscale="log")
 

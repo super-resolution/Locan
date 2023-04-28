@@ -19,7 +19,8 @@ from locan.analysis.convex_hull_expectation import (
 
 
 def test_get_resource():
-    for resource_ in ConvexHullExpectationResource:
+    for convex_hull_property_item in ConvexHullProperty:
+        resource_ = ConvexHullExpectationResource[convex_hull_property_item.name]
         result = _get_resource(
             resource_directory="locan.analysis.resources.convex_hull_expectation",
             resource=resource_,
@@ -31,7 +32,7 @@ def test_compute_convex_hull_region_measure_2d():
     computed = compute_convex_hull_region_measure_2d(n_points=3)
     from_resource = _get_resource(
         resource_directory="locan.analysis.resources.convex_hull_expectation",
-        resource=ConvexHullExpectationResource.REGION_MEASURE_2D,
+        resource=ConvexHullExpectationResource["REGION_MEASURE_2D"],
     ).expectation[0]
     assert pytest.approx(computed, rel=0.01) == from_resource == 0.87
 

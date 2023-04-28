@@ -52,13 +52,6 @@ class Collection(Protocol):
         pass
 
 
-class ConvexHullExpectationResource(Enum):
-    REGION_MEASURE_2D = "lookup_table_area_2d.npy"
-    SUBREGION_MEASURE_2D = "lookup_table_peri_2d.npy"
-    REGION_MEASURE_3D = "lookup_table_vol_3d.npy"
-    SUBREGION_MEASURE_3D = "lookup_table_area_3d.npy"
-
-
 class ConvexHullProperty(Enum):
     REGION_MEASURE_2D = auto()
     SUBREGION_MEASURE_2D = auto()
@@ -68,13 +61,21 @@ class ConvexHullProperty(Enum):
     # but the previous entries must correspond to ConvexHullExpectationResource
 
 
+ConvexHullExpectationResource = dict(
+    REGION_MEASURE_2D="lookup_table_area_2d.npy",
+    SUBREGION_MEASURE_2D="lookup_table_peri_2d.npy",
+    REGION_MEASURE_3D="lookup_table_vol_3d.npy",
+    SUBREGION_MEASURE_3D="lookup_table_area_3d.npy",
+)
+
+
 ConvexHullExpectationValues = namedtuple(
     "ConvexHullExpectationValues", ["n_points", "expectation", "std_pos", "std_neg"]
 )
 
 
 def _get_resource(
-    resource_directory: str, resource: str | ConvexHullExpectationResource
+    resource_directory: str, resource: str
 ) -> ConvexHullExpectationValues:
     """
     Get convex hull property values from resource files produced by
@@ -97,15 +98,14 @@ def _get_resource(
     ConvexHullExpectationValues
     """
     try:
-        resource = importlib_resources.files(resource_directory).joinpath(
-            resource.value
-        )
-    except TypeError:  # required for python < 3.9
-        resource = importlib_resources.path(
-            package=resource_directory, resource=resource.value
-        )
+        resource = importlib_resources.files(resource_directory).joinpath(resource)
+        resource_values = np.load(resource)
+    except (AttributeError, TypeError):  # required for python < 3.9
+        with importlib_resources.path(
+            package=resource_directory, resource=resource
+        ) as resource:
+            resource_values = np.load(resource)
 
-    resource_values = np.load(resource)
     n_points = list(range(3, 201))  # hard coded corresponding to n_points in resources
     if len(n_points) != resource_values.shape[1]:
         raise ValueError("The resource files are not correct.")
@@ -178,7 +178,7 @@ def _get_convex_hull_region_measure_2d_expectation(
 
     convex_hull_expectation_values = _get_resource(
         resource_directory="locan.analysis.resources.convex_hull_expectation",
-        resource=ConvexHullExpectationResource.REGION_MEASURE_2D,
+        resource=ConvexHullExpectationResource["REGION_MEASURE_2D"],
     )
     n_points, _, indices = np.intersect1d(
         n_points, convex_hull_expectation_values.n_points, return_indices=True

@@ -15,8 +15,6 @@ References
    Bioinformatics 38(24), 2022, 5421-5429, doi: 10.1093/bioinformatics/btac700.
 
 """
-# todo compute variance_relative_to_expectation_standardized
-# todo: add std of variance estimates to plot and hist
 # todo add fit procedure to estimate variance_estimate
 from __future__ import annotations
 
@@ -24,7 +22,7 @@ import importlib.resources as importlib_resources
 import logging
 from collections import namedtuple
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Protocol
 
@@ -237,16 +235,12 @@ def _get_convex_hull_property_expectation(
 
 @dataclass(repr=False)
 class ConvexHullExpectationResults:
-    convex_hull_property: pd.Series | pd.DataFrame | None = None
+    values: pd.DataFrame = field(default_factory=pd.DataFrame)
     # with index being reference_index
-    convex_hull_property_mean: pd.Series | pd.DataFrame | None = None
-    # with index being n_localizations
-    convex_hull_property_std: pd.Series | pd.DataFrame | None = None
-    # with index being n_localizations
-    convex_hull_property_expectation: pd.Series | pd.DataFrame | None = None
-    # with index being n_localizations
-    convex_hull_property_relative_to_expectation: pd.Series | pd.DataFrame | None = None
-    # with index being reference_index
+    # with columns: loc_property, other_loc_property, value_to_expectation_ratio
+    grouped: pd.DataFrame = field(default_factory=pd.DataFrame)
+    # with index being other_loc_property
+    # with columns: loc_property_mean, loc_property_std, expectation
 
 
 class ConvexHullExpectation(_Analysis):
@@ -274,7 +268,7 @@ class ConvexHullExpectation(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : PositionVarianceExpectationResults
+    results : ConvexHullExpectationResults
         Computed results.
     distribution_statistics : Distribution_stats, None
         Distribution parameters derived from MLE fitting of results.
@@ -317,38 +311,55 @@ class ConvexHullExpectation(_Analysis):
         if not len(locdata):
             logger.warning("Locdata is empty.")
             return self
+
+        loc_property = self.parameter["convex_hull_property"]
+
         self.results = ConvexHullExpectationResults()
         try:
-            self.results.convex_hull_property = locdata.data[
-                ["localization_count", self.parameter["convex_hull_property"]]
+            self.results.values = locdata.data.loc[
+                :, ["localization_count", loc_property]
             ]
         except KeyError:
             locdata.update_convex_hulls_in_references()
-            self.results.convex_hull_property = locdata.data[
-                ["localization_count", self.parameter["convex_hull_property"]]
+            self.results.values = locdata.data.loc[
+                :, ["localization_count", loc_property]
             ]
 
-        grouped = self.results.convex_hull_property.groupby("localization_count")
-        self.results.convex_hull_property_mean = grouped.mean()
-        self.results.convex_hull_property_std = grouped.std()
+        grouped = self.results.values.groupby("localization_count")
 
-        convex_hull_property_ = (
-            self.parameter["convex_hull_property"][:-2] + f"{locdata.dimension}d"
-        )
+        self.results.grouped[loc_property + "_mean"] = grouped.mean()
+        self.results.grouped[loc_property + "_std"] = grouped.std()
+
+        convex_hull_property_ = loc_property[:-2] + f"{locdata.dimension}d"
         convex_hull_property_ = ConvexHullProperty[convex_hull_property_.upper()]
-        self.results.convex_hull_property_expectation = (
-            _get_convex_hull_property_expectation(
-                n_points=self.results.convex_hull_property_mean.index,
+
+        if self.expected_variance is None:
+            self.results.grouped["expectation"] = pd.NA
+            self.results.grouped["expectation_std_pos"] = pd.NA
+            self.results.grouped["expectation_std_neg"] = pd.NA
+        else:
+            convex_hull_expectation_values = _get_convex_hull_property_expectation(
+                n_points=self.results.grouped.index,
                 convex_hull_property=convex_hull_property_,
                 sigma=np.sqrt(self.expected_variance),
             )
-        )
-        # self.results.convex_hull_property_expectation = pd.DataFrame.from_dict(
-        #     self.results.convex_hull_property_expectation._asdict()
-        # )
+            self.results.grouped[
+                "expectation"
+            ] = convex_hull_expectation_values.expectation
+            self.results.grouped[
+                "expectation_std_pos"
+            ] = convex_hull_expectation_values.std_pos
+            self.results.grouped[
+                "expectation_std_neg"
+            ] = convex_hull_expectation_values.std_neg
 
-        # todo        self.results.variance_relative_to_expectation_standardized = \
-        #            self.results.variances / self.expected_variance / self.expected_variance_std
+        self.results.values["expectation"] = self.results.grouped.loc[
+            self.results.values["localization_count"], "expectation"
+        ].to_numpy()
+
+        self.results.values["value_to_expectation_ratio"] = (
+            self.results.values[loc_property] / self.results.values["expectation"]
+        )
 
         return self
 
@@ -375,31 +386,57 @@ class ConvexHullExpectation(_Analysis):
         if not self:
             return ax
 
-        # prepare plot
-        self.results.convex_hull_property.plot(
+        self.results.values.plot(
             kind="scatter",
             alpha=0.2,
             x="localization_count",
             y=self.parameter["convex_hull_property"],
+            color="gray",
             ax=ax,
             **dict(dict(legend=False), **kwargs),
         )
 
-        self.results.convex_hull_property_mean.plot(
+        self.results.grouped.plot(
             kind="line",
-            marker="o",
+            marker=".",
             x=None,
-            y=self.parameter["convex_hull_property"],
+            y=self.parameter["convex_hull_property"] + "_mean",
+            color="blue",
             ax=ax,
-            legend=False,
         )
 
-        if self.expected_variance is not None:
-            x = self.results.convex_hull_property_mean.index
-            x, y, std_pos, std_neg = self.results.convex_hull_property_expectation
-            ax.plot(x, y, color="black", **kwargs)
-            ax.plot(x, y + std_pos, ":", color="lightgray", **kwargs)
-            ax.plot(x, y - std_neg, ":", color="lightgray", **kwargs)
+        if not self.results.grouped.expectation.isna().all():
+            self.results.grouped.plot(
+                kind="line",
+                x=None,
+                y="expectation",
+                color="black",
+                ax=ax,
+            )
+
+        if not self.results.grouped.expectation_std_pos.isna().all():
+            df = (
+                self.results.grouped.expectation
+                + self.results.grouped.expectation_std_pos
+            )
+            df.plot(
+                kind="line",
+                linestyle=":",
+                color="gray",
+                ax=ax,
+            )
+
+        if not self.results.grouped.expectation_std_neg.isna().all():
+            df = (
+                self.results.grouped.expectation
+                - self.results.grouped.expectation_std_neg
+            )
+            df.plot(
+                kind="line",
+                linestyle=":",
+                color="gray",
+                ax=ax,
+            )
 
         ax.set(
             title="Convex Hull Expectation",
@@ -474,30 +511,26 @@ class ConvexHullExpectation(_Analysis):
 
         fig = ax.get_figure()
 
-        labels_ = ["localization_count", self.parameter["convex_hull_property"]]
+        other_loc_property = "localization_count"
+        loc_property = self.parameter["convex_hull_property"]
 
         if all(
             item_ is None for item_ in [bins, n_bins, bin_size, bin_edges, bin_range]
         ):
-            max_localization_count_ = self.results.convex_hull_property_mean.index.max()
-            max_convex_hull_property_ = self.results.convex_hull_property[
-                labels_[1]
-            ].max()
+            max_other_loc_property_ = self.results.grouped.index.max()
+            max_loc_property_ = self.results.values[loc_property].max()
 
             if log:
                 axes = bh.axis.AxesTuple(
                     (
                         bh.axis.Regular(
-                            max_localization_count_,
+                            max_other_loc_property_,
                             1,
-                            max_localization_count_,
+                            max_other_loc_property_,
                             transform=bh.axis.transform.log,
                         ),
                         bh.axis.Regular(
-                            50,
-                            1,
-                            max_convex_hull_property_,
-                            transform=bh.axis.transform.log,
+                            50, 1, max_loc_property_, transform=bh.axis.transform.log
                         ),
                     )
                 )
@@ -505,18 +538,24 @@ class ConvexHullExpectation(_Analysis):
                 axes = bh.axis.AxesTuple(
                     (
                         bh.axis.Regular(
-                            max_localization_count_, 1, max_localization_count_
+                            max_other_loc_property_, 1, max_other_loc_property_
                         ),
-                        bh.axis.Regular(50, 1, max_convex_hull_property_),
+                        bh.axis.Regular(50, 1, max_loc_property_),
                     )
                 )
             bins = Bins(bins=axes)
         else:
             try:
                 bins = Bins(
-                    bins, n_bins, bin_size, bin_edges, bin_range, labels=labels_
+                    bins,
+                    n_bins,
+                    bin_size,
+                    bin_edges,
+                    bin_range,
+                    labels=[loc_property, other_loc_property],
                 )
             except ValueError as exc:
+                # todo: check if message is appropriate
                 # the error is raised again only to adapt the message.
                 raise ValueError(
                     "Bin dimension and len of `loc_properties` is incompatible."
@@ -525,20 +564,58 @@ class ConvexHullExpectation(_Analysis):
         histogram = bh.Histogram(*axes)
         histogram.reset()
         histogram.fill(
-            self.results.convex_hull_property[labels_[0]],
-            self.results.convex_hull_property[labels_[1]],
+            self.results.values[other_loc_property], self.results.values[loc_property]
         )
         mesh = ax.pcolormesh(*histogram.axes.edges.T, histogram.view().T, **kwargs)
         fig.colorbar(mesh)
 
-        if self.expected_variance is not None:
-            x = bins.bin_centers[0].round()
-            x, y, std_pos, std_neg = self.results.convex_hull_property_expectation
-            ax.plot(x, y, color="White", **kwargs)
-            ax.plot(x, y + std_pos, ":", color="lightgray", **kwargs)
-            ax.plot(x, y - std_neg, ":", color="lightgray", **kwargs)
+        self.results.grouped.plot(
+            kind="line",
+            marker=".",
+            x=None,
+            y=self.parameter["convex_hull_property"] + "_mean",
+            color="blue",
+            ax=ax,
+        )
 
-        ax.set(title="Convex Hull Expectation", xlabel=labels_[0], ylabel=labels_[1])
+        if not self.results.grouped.expectation.isna().all():
+            self.results.grouped.plot(
+                kind="line",
+                x=None,
+                y="expectation",
+                color="white",
+                ax=ax,
+            )
+
+        if not self.results.grouped.expectation_std_pos.isna().all():
+            df = (
+                self.results.grouped.expectation
+                + self.results.grouped.expectation_std_pos
+            )
+            df.plot(
+                kind="line",
+                linestyle=":",
+                color="gray",
+                ax=ax,
+            )
+
+        if not self.results.grouped.expectation_std_neg.isna().all():
+            df = (
+                self.results.grouped.expectation
+                - self.results.grouped.expectation_std_neg
+            )
+            df.plot(
+                kind="line",
+                linestyle=":",
+                color="gray",
+                ax=ax,
+            )
+
+        ax.set(
+            title="Convex Hull Expectation",
+            xlabel=other_loc_property,
+            ylabel=loc_property,
+        )
         if log:
             ax.set(xscale="log", yscale="log")
 

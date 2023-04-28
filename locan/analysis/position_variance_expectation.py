@@ -16,9 +16,7 @@ References
    Bioinformatics 38(24), 2022, 5421-5429, doi: 10.1093/bioinformatics/btac700.
 
 """
-# todo compute variance_relative_to_expectation_standardized
-# todo: add std of variance estimates to plot and hist
-# todo add fit procedure to estimate variance_estimate
+# todo add fit procedure to estimate variances
 from __future__ import annotations
 
 import logging

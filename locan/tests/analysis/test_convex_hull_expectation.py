@@ -77,15 +77,15 @@ def test__get_convex_hull_property_expectation_subregion_measure_2d():
     )
     assert result == ConvexHullExpectationValues(
         n_points=np.array([10]),
-        expectation=np.array([38.68]),
-        std_pos=np.array([7.24]),
-        std_neg=np.array([6.52]),
+        expectation=np.array([19.34]),
+        std_pos=np.array([3.62]),
+        std_neg=np.array([3.26]),
     )
 
     result = _get_convex_hull_property_expectation(
         convex_hull_property="subregion_measure_2d", n_points=[3, 10], sigma=2
     )
-    assert np.array_equal(result.expectation, np.array([21.28, 38.68]))
+    assert np.array_equal(result.expectation, np.array([10.64, 19.34]))
 
 
 def test__get_convex_hull_property_expectation_region_measure_3d():
@@ -94,15 +94,15 @@ def test__get_convex_hull_property_expectation_region_measure_3d():
     )
     assert result == ConvexHullExpectationValues(
         n_points=np.array([10]),
-        expectation=np.array([24.6]),
-        std_pos=np.array([14.04]),
-        std_neg=np.array([9.12]),
+        expectation=np.array([49.2]),
+        std_pos=np.array([28.08]),
+        std_neg=np.array([18.24]),
     )
 
     result = _get_convex_hull_property_expectation(
         convex_hull_property="region_measure_3d", n_points=[4, 10], sigma=2
     )
-    assert np.array_equal(result.expectation, np.array([2.12, 24.6]))
+    assert np.array_equal(result.expectation, np.array([4.24, 49.2]))
 
 
 def test__get_convex_hull_property_expectation_subregion_measure_3d():

@@ -12,7 +12,11 @@ New Features
 - Add class `Files` for managing file selections to be used in batch processing
 - Add `utilities/statistics` module with helper function to compute
   `WeightedMeanVariance`
-- Add `locdata.utilities.statistics.ratio_fwhm_to_sigma`
+- Add `locdata.utilities.statistics.ratio_fwhm_to_sigma` function
+- Add `locdata.utilities.statistics.biased_variance` function
+- Add analysis routine for `ConvexHullExpectation`,
+  `GroupedPropertyExpectation` and `PositionVarianceExpectation`.
+- Add function to standardize locdata.
 
 API Changes
 -----------
@@ -29,12 +33,14 @@ API Changes
 Bug Fixes
 ---------
 - Fix use of callables in `LocalizationUncertainty`
+- Adapt to to bug fixes in lmfit 1.2.0
 
 Other Changes and Additions
 ---------------------------
 - Use ruff for linting
 - Use pyproject.toml for all specifications and deprecate use of setup.cfg
 - Use import open3d-cpu instead of open3d
+- docs: add tutorial for analysis of grouped cluster properties
 
 0.13 - 2023-02-15
 =================

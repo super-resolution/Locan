@@ -97,16 +97,22 @@ def _get_resource(
     -------
     ConvexHullExpectationValues
     """
+
     try:
-        resource = importlib_resources.files(resource_directory).joinpath(resource)
-        resource_values = np.load(resource)
+        resource_ = importlib_resources.files(resource_directory).joinpath(resource)
+        resource_values = np.load(resource_)
     except (AttributeError, TypeError):  # required for python < 3.9
         with importlib_resources.path(
             package=resource_directory, resource=resource
-        ) as resource:
-            resource_values = np.load(resource)
+        ) as resource_:
+            resource_values = np.load(resource_)
 
-    n_points = list(range(3, 201))  # hard coded corresponding to n_points in resources
+    if "2d" in resource:  # hard coded corresponding to n_points in resources
+        n_points = list(range(3, 201))
+    elif "3d" in resource:
+        n_points = list(range(4, 201))
+    else:
+        raise ValueError("resource is neither '2d' nor '3d'")
     if len(n_points) != resource_values.shape[1]:
         raise ValueError("The resource files are not correct.")
     return ConvexHullExpectationValues(
@@ -156,42 +162,6 @@ def compute_convex_hull_region_measure_2d(n_points, sigma=1) -> float:
     return sigma**2 * area
 
 
-def _get_convex_hull_region_measure_2d_expectation(
-    n_points, sigma=1
-) -> ConvexHullExpectationValues:
-    """
-    Return the expected convex hull area together with standard deviations
-    for `n_points` data points that are normal distributed
-    in 2-dimensional space with standard deviation `sigma`.
-
-    Parameters
-    ----------
-    n_points : array-like
-        Number of points of convex hull
-    sigma : float
-        Standard deviation of normal-distributed point coordinates
-
-    Returns
-    -------
-    ConvexHullExpectationValues
-    """
-
-    convex_hull_expectation_values = _get_resource(
-        resource_directory="locan.analysis.resources.convex_hull_expectation",
-        resource=ConvexHullExpectationResource["REGION_MEASURE_2D"],
-    )
-    n_points, _, indices = np.intersect1d(
-        n_points, convex_hull_expectation_values.n_points, return_indices=True
-    )
-    result = ConvexHullExpectationValues(
-        n_points=n_points,
-        expectation=convex_hull_expectation_values.expectation[indices] * sigma**2,
-        std_pos=convex_hull_expectation_values.std_pos[indices] * sigma**2,
-        std_neg=convex_hull_expectation_values.std_neg[indices] * sigma**2,
-    )
-    return result
-
-
 def _get_convex_hull_property_expectation(
     convex_hull_property, n_points, sigma=1
 ) -> ConvexHullExpectationValues:
@@ -214,18 +184,36 @@ def _get_convex_hull_property_expectation(
     ConvexHullExpectationValues
         Expectation values for convex hull property
     """
+    try:
+        convex_hull_property = convex_hull_property.name.upper()
+    except AttributeError:
+        convex_hull_property = convex_hull_property.upper()
     convex_hull_expectation_values = _get_resource(
         resource_directory="locan.analysis.resources.convex_hull_expectation",
-        resource=ConvexHullExpectationResource[convex_hull_property.name],
+        resource=ConvexHullExpectationResource[convex_hull_property],
     )
     n_points, _, indices = np.intersect1d(
         n_points, convex_hull_expectation_values.n_points, return_indices=True
     )
+
+    if convex_hull_property == "REGION_MEASURE_2D":
+        factor = sigma**2
+    elif convex_hull_property == "SUBREGION_MEASURE_2D":
+        factor = sigma
+    elif convex_hull_property == "REGION_MEASURE_3D":
+        factor = sigma**3
+        logging.warning("The expectation is scaled by sigma^2")
+    elif convex_hull_property == "SUBREGION_MEASURE_3D":
+        factor = sigma**2
+        logging.warning("The expectation is scaled by sigma^2")
+    else:
+        raise ValueError("convex_hull_property is undefined")
+
     result = ConvexHullExpectationValues(
         n_points=n_points,
-        expectation=convex_hull_expectation_values.expectation[indices] * sigma**2,
-        std_pos=convex_hull_expectation_values.std_pos[indices] * sigma**2,
-        std_neg=convex_hull_expectation_values.std_neg[indices] * sigma**2,
+        expectation=convex_hull_expectation_values.expectation[indices] * factor,
+        std_pos=convex_hull_expectation_values.std_pos[indices] * factor,
+        std_neg=convex_hull_expectation_values.std_neg[indices] * factor,
     )
     return result
 
@@ -343,20 +331,29 @@ class ConvexHullExpectation(_Analysis):
                 convex_hull_property=convex_hull_property_,
                 sigma=np.sqrt(self.expected_variance),
             )
-            self.results.grouped[
-                "expectation"
-            ] = convex_hull_expectation_values.expectation
-            self.results.grouped[
-                "expectation_std_pos"
-            ] = convex_hull_expectation_values.std_pos
-            self.results.grouped[
-                "expectation_std_neg"
-            ] = convex_hull_expectation_values.std_neg
+            new_dict = dict(
+                expectation=convex_hull_expectation_values.expectation,
+                expectation_std_pos=convex_hull_expectation_values.std_pos,
+                expectation_std_neg=convex_hull_expectation_values.std_neg,
+            )
+            new_df = pd.DataFrame(
+                new_dict, index=convex_hull_expectation_values.n_points
+            )
+            self.results.grouped = pd.merge(
+                self.results.grouped,
+                new_df,
+                how="inner",
+                left_index=True,
+                right_index=True,
+            )
 
-        self.results.values["expectation"] = self.results.grouped.loc[
-            self.results.values["localization_count"], "expectation"
-        ].to_numpy()
-
+        self.results.values = pd.merge(
+            self.results.values,
+            self.results.grouped["expectation"],
+            how="inner",
+            left_on="localization_count",
+            right_index=True,
+        )
         self.results.values["value_to_expectation_ratio"] = (
             self.results.values[loc_property] / self.results.values["expectation"]
         )

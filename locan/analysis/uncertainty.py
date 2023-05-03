@@ -68,7 +68,7 @@ def localization_precision_model_1(intensity) -> np.ndarray:
 
     .. math::
 
-        sigma_{loc} ) = \frac{1}{\\sqrt{I}}
+        \\sigma_{loc} = \\frac{1}{\\sqrt{I}}
 
 
     Parameters
@@ -92,7 +92,7 @@ def localization_precision_model_2(intensity, psf_sigma) -> np.ndarray:
 
     .. math::
 
-        sigma_{loc} ) = \frac{sigma_{PSF}}{\\sqrt{I}}
+        \\sigma_{loc} = \\frac{\\sigma_{PSF}}{\\sqrt{I}}
 
     Parameters
     ----------
@@ -116,12 +116,17 @@ def localization_precision_model_3(
 ) -> np.ndarray:
     """
     Localization precision as function of
-    intensity (I), PSF width (sigma_PSF), pixel size (), background
+    intensity (I), PSF size (\\sigma_{PSF}), pixel size (a), background (b)
     according to:
 
     .. math::
 
-        sigma_{loc} ) = \frac{sigma_{PSF}}{\\sqrt{I}}
+        \\sigma_{a} ^{2} = \\sigma_{PSF} ^{2} + a^{2} / 12
+
+        \\tau = 2 * \\pi * b * \\sigma_{a} ^{2} / (I * a^{2})
+
+        \\sigma_{loc} ^{2} = \\sigma_{a} ^{2} / I * (1 + 4 * \\tau + \\sqrt{2 * \\tau / (1 + 4 * \\tau) } )
+
 
     Parameters
     ----------
@@ -263,6 +268,10 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
 
     Uncertainty is computed as Psf_sigma / Sqrt(Intensity) for each spatial dimension.
     If Psf_sigma is not available Uncertainty is 1 / Sqrt(Intensity).
+
+    .. deprecated:: 0.14
+    LocalizationUncertaintyFromIntensity is deprecated.
+    Use `LocalizationUncertainty` instead.
 
     Parameters
     ----------

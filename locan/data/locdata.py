@@ -3,9 +3,12 @@
 A class to carry localization data.
 
 """
+from __future__ import annotations
+
 import copy
 import logging
 import warnings
+from collections.abc import Iterable  # used in docstring # noqa: F401
 from itertools import accumulate
 
 import numpy as np
@@ -1090,3 +1093,60 @@ class LocData:
         meta_.frame_count = self.meta.frame_count
 
         print(metadata_to_formatted_string(meta_))
+
+    def update_properties_in_references(self, properties=None):
+        """
+        Compute a property for each element in self.references by applying
+        property_function(reference) -> dict
+        and update self.dataframe.
+
+        Parameters
+        ----------
+        self : LocData
+            Localization data
+        properties : dict[str, Iterable] | pd.Sseries | pandas.dataFrame | Callable | None
+            new property values for each reference
+            Function to compute property for LocData object.
+
+        Returns
+        -------
+        Self
+        """
+        if not isinstance(self.references, list):
+            raise TypeError("self.references must be a list of Locdata")
+
+        if properties is None:
+            pass
+        elif isinstance(properties, dict):
+            for key, values in properties.items():
+                for reference, value_ in zip(self.references, values):
+                    reference.properties.update({key: value_})
+        elif isinstance(properties, pd.Series):
+            if any(properties.index != range(len(self.references))):
+                raise ValueError(
+                    f"properties must have a range index of length {len(self.references)}"
+                )
+            for reference, value_ in zip(self.references, properties.to_numpy()):
+                reference.properties.update({properties.name: value_})
+        elif isinstance(properties, pd.DataFrame):
+            if any(properties.index != range(len(self.references))):
+                raise ValueError(
+                    f"properties must have a range index of length {len(self.references)}"
+                )
+            for name in properties.columns:
+                for reference, value_ in zip(
+                    self.references, properties[name].to_numpy()
+                ):
+                    reference.properties.update({name: value_})
+        elif callable(properties):
+            for reference in self.references:
+                reference.properties.update(properties(reference))
+
+        new_df = pd.DataFrame([reference.properties for reference in self.references])
+        new_df.index = self.data.index
+
+        references_ = self.references
+        self.update(dataframe=new_df)
+        self.references = references_
+
+        return self

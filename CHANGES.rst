@@ -17,6 +17,8 @@ New Features
 - Add analysis routine for `ConvexHullExpectation`,
   `GroupedPropertyExpectation` and `PositionVarianceExpectation`.
 - Add function to standardize locdata.
+- add `Locdata.update_properties_in_references` method
+- add analysis class `locdata.analysis.ConvexHullExpectationBatch`.
 
 API Changes
 -----------

@@ -9,6 +9,7 @@ import logging
 from typing import NamedTuple
 
 import numpy as np
+import numpy.typing as npt
 
 __all__ = ["weighted_mean_variance", "ratio_fwhm_to_sigma", "biased_variance"]
 
@@ -25,9 +26,9 @@ def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
 
     Parameters
     ----------
-    values : array-like
+    values : npt.ArrayLike
         Values from which to compute the weighted average.
-    weights : array-like | None
+    weights : npt.ArrayLike | None
         Weights to use for weighted average.
 
     Returns
@@ -106,7 +107,7 @@ def ratio_fwhm_to_sigma() -> float:
     return 2 * np.sqrt(2 * np.log(2))
 
 
-def biased_variance(variance, n_samples) -> np.ndarray:
+def biased_variance(variance, n_samples) -> npt.NDArray:
     """
     The sample variance is biased if not corrected by Bessel's correction.
     This function yields the biased variance by applying the inverse
@@ -118,15 +119,15 @@ def biased_variance(variance, n_samples) -> np.ndarray:
 
     Parameters
     ----------
-    variance : array-like
+    variance : npt.ArrayLike
         An unbiased variance.
-    n_samples : array-like
+    n_samples : npt.ArrayLike
         Number of samples from which the biased sample variance would be
         computed.
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     n_samples = np.asarray(n_samples)
     return variance * (1 - 1 / n_samples)

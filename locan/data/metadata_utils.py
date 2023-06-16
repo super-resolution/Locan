@@ -33,7 +33,9 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-def _modify_meta(locdata, new_locdata, function_name=None, parameter=None, meta=None):
+def _modify_meta(
+    locdata, new_locdata, function_name=None, parameter=None, meta=None
+) -> metadata_pb2.Metadata:
     """
     Update metadata in Locdata after modification of locdata.
 
@@ -43,11 +45,11 @@ def _modify_meta(locdata, new_locdata, function_name=None, parameter=None, meta=
         original locdata before modification
     new_locdata : LocData
         new locdata after modification
-    function_name : str
+    function_name : str | None
         Name of function that was applied for modification.
-    parameter : dict
+    parameter : dict | None
         Parameter for function that was applied for modification.
-    meta : locan.data.metadata_pb2.Metadata
+    meta : locan.data.metadata_pb2.Metadata | None
         Metadata about the current dataset and its history.
 
     Returns
@@ -136,7 +138,7 @@ def _dict_to_protobuf(
         return message
 
 
-def metadata_to_formatted_string(message, **kwargs):
+def metadata_to_formatted_string(message, **kwargs) -> str:
     """
     Get formatted string from Locdata.metadata.
 
@@ -146,7 +148,8 @@ def metadata_to_formatted_string(message, **kwargs):
         Protobuf message like locan.data.metadata_pb2.Metadata
 
     kwargs : dict
-        Other kwargs that are passed to :func:`google.protobuf.text_format.MessageToString`.
+        Other kwargs that are passed to
+        :func:`google.protobuf.text_format.MessageToString`.
 
     Returns
     -------
@@ -165,7 +168,7 @@ def metadata_to_formatted_string(message, **kwargs):
     )
 
 
-def _toml_dict_to_protobuf(toml_dict):
+def _toml_dict_to_protobuf(toml_dict) -> metadata_pb2.Metadata:
     """
     Turn toml dict into protobuf messages.
 

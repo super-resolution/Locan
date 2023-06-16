@@ -11,12 +11,14 @@ import functools
 import logging
 import os
 import re
+import sys
 from pathlib import Path
+from typing import Any, Iterable
 
-try:
-    from typing import Any, Iterable, Self
-except ImportError:
-    from typing import Any, Iterable, TypeVar
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import pandas as pd
 
@@ -25,11 +27,6 @@ from locan.locan_io.utilities import find_file_upstream
 __all__ = ["Files"]
 
 logger = logging.getLogger(__name__)
-
-try:
-    Self
-except NameError:
-    Self = TypeVar("Self", bound="Files")
 
 
 class Files:

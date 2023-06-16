@@ -8,6 +8,7 @@ import logging
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 import pandas as pd
 from scipy import stats
 
@@ -32,7 +33,7 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
 
     Parameters
     ----------
-    locdata : LocData, array-like
+    locdata : LocData, npt.ArrayLike
         Localization data or just the frame values of given localizations.
     memory : int
         The maximum number of intermittent frames without any localization
@@ -168,7 +169,7 @@ class BlinkStatistics(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : dict with numpy.ndarray as values
+    results : dict[str, npt.ArrayLike]
         'on_periods' and 'off_periods' in units of frame numbers.
         'on_periods_frame' and 'off_periods_frame' with the first frame in each on/off-period.
         'on_periods_indices' are groups of indices to the input frames or more precise np.unique(frames)
@@ -189,7 +190,7 @@ class BlinkStatistics(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData, array-like
+        locdata : LocData, npt.ArrayLike
             Localization data or just the frame values of given localizations.
 
         Returns

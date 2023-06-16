@@ -20,15 +20,22 @@ from __future__ import annotations
 
 import importlib.resources as importlib_resources
 import logging
+import sys
 from collections import namedtuple
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Protocol
 
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 import boost_histogram as bh
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 import pandas as pd
 import scipy.integrate as integrate
 import scipy.special as special
@@ -174,7 +181,7 @@ def _get_convex_hull_property_expectation(
     ----------
     convex_hull_property : str | ConvexHullProperty
         Choose property and dimension of convex hull
-    n_points : array-like
+    n_points : npt.ArrayLike
         Number of points of convex hull
     sigma : float
         Standard deviation of normal-distributed point coordinates
@@ -685,7 +692,7 @@ class ConvexHullExpectationBatch(_Analysis):
         )
         self.distribution_statistics = None
 
-    def compute(self, locdatas=None):
+    def compute(self, locdatas=None) -> Self:
         """
         Run the computation.
 
@@ -720,7 +727,7 @@ class ConvexHullExpectationBatch(_Analysis):
 
     def from_batch(
         self, batch: Iterable[ConvexHullExpectation], dimension: int | None = None
-    ):
+    ) -> Self:
         if not bool(batch) or all(item_.results is None for item_ in batch):
             logger.warning("The batch is empty.")
             return self

@@ -27,12 +27,13 @@ from collections.abc import Callable
 from inspect import signature
 from typing import Any, Protocol
 
-try:
+if sys.version_info >= (3, 11):
     from typing import Self
-except ImportError:
-    from typing import TypeVar
+else:
+    from typing_extensions import Self
 
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 import pandas as pd
 
 from locan.analysis.analysis_base import _Analysis
@@ -50,18 +51,13 @@ if sys.version_info < (3, 9):
 else:
     LocalizationPrecisionModel = Callable[[...], np.ndarray]
 
-try:
-    Self
-except NameError:
-    Self = TypeVar("Self", bound="LocalizationUncertainty")
-
 
 class LocData(Protocol):
     data: Any
     meta: Any
 
 
-def localization_precision_model_1(intensity) -> np.ndarray:
+def localization_precision_model_1(intensity) -> npt.NDArray:
     """
     Localization precision as function of
     intensity (I) according to:
@@ -73,19 +69,19 @@ def localization_precision_model_1(intensity) -> np.ndarray:
 
     Parameters
     ----------
-    intensity : array-like
+    intensity : npt.ArrayLike
         Intensity values
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     intensity = np.asarray(intensity)
     sigma = np.sqrt(intensity)
     return sigma
 
 
-def localization_precision_model_2(intensity, psf_sigma) -> np.ndarray:
+def localization_precision_model_2(intensity, psf_sigma) -> npt.NDArray:
     """
     Localization precision as function of
     intensity (I), PSF width (sigma_PSF) according to:
@@ -96,14 +92,14 @@ def localization_precision_model_2(intensity, psf_sigma) -> np.ndarray:
 
     Parameters
     ----------
-    intensity : array-like
+    intensity : npt.ArrayLike
         Intensity values
-    psf_sigma : array-like
+    psf_sigma : npt.ArrayLike
         The PSF size
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     intensity = np.asarray(intensity)
     psf_sigma = np.asarray(psf_sigma)
@@ -113,7 +109,7 @@ def localization_precision_model_2(intensity, psf_sigma) -> np.ndarray:
 
 def localization_precision_model_3(
     intensity, psf_sigma, pixel_size, local_background
-) -> np.ndarray:
+) -> npt.NDArray:
     """
     Localization precision as function of
     intensity (I), PSF size (\\sigma_{PSF}), pixel size (a), background (b)
@@ -130,18 +126,18 @@ def localization_precision_model_3(
 
     Parameters
     ----------
-    intensity : array-like
+    intensity : npt.ArrayLike
         Intensity values
-    psf_sigma : array-like
+    psf_sigma : npt.ArrayLike
         The PSF size
-    pixel_size : array-like
+    pixel_size : npt.ArrayLike
         Size of camera pixel
-    local_background : array-like
+    local_background : npt.ArrayLike
         The local background
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     intensity = np.asarray(intensity)
     psf_sigma = np.asarray(psf_sigma)
@@ -303,7 +299,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
             stacklevel=2,
         )
 
-    def compute(self, locdata):
+    def compute(self, locdata) -> Self:
         """
         Run the computation.
 
@@ -314,8 +310,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")
@@ -343,7 +338,7 @@ class LocalizationUncertainty(_Analysis):
 
     Parameters
     ----------
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
     model : int
         Model function for theoretical localization uncertainty.
@@ -382,7 +377,6 @@ class LocalizationUncertainty(_Analysis):
         Returns
         -------
         Self
-            Returns the Analysis class object.
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

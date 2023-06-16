@@ -70,6 +70,7 @@ dependencies = [
     "cython",
     "tomli>=1.1.0; python_version<'3.11'",
     "qtpy!=2.3.0",
+    "typing_extensions",
 ]
 
 [project.optional-dependencies]

@@ -10,6 +10,7 @@ from collections import namedtuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 from lmfit import Model, Parameters
 
 from locan.analysis.analysis_base import _Analysis
@@ -24,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 # The algorithms
 
+
 # model fit function in 2d
 def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
     """
@@ -31,9 +33,9 @@ def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
 
     Parameters
     ----------
-    x : float, array-like
+    x : float, npt.ArrayLike
         all x values
-    y : float, array-like
+    y : float, npt.ArrayLike
         all y values
     amplitude : float
         amplitude
@@ -70,9 +72,10 @@ def _fit_image(data, bin_range):
 
     Parameters
     ----------
-    data : numpy.ndarray of shape (3, n_image_values)
+    data : npt.ArrayLike
         arrays with corresponding values for x, y, z
-    bin_range : numpy.ndarray
+        of shape (3, n_image_values)
+    bin_range : npt.ArrayLike
         range as returned from histogram().
 
     Returns
@@ -80,6 +83,7 @@ def _fit_image(data, bin_range):
     lmfit.model.ModelResult object
         The fit results.
     """
+
     # prepare 1D lmfit model from 2D model function
     def model_function(
         points, amplitude=1, center_x=0, center_y=0, sigma_x=1, sigma_y=1

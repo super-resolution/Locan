@@ -21,9 +21,9 @@ from typing import Any, Union
 import boost_histogram as bh
 import fast_histogram
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 
 from locan.data.locdata import LocData  # noqa: F401
-from locan.data.locdata_utils import _check_loc_properties
 from locan.data.properties.locdata_statistics import ranges
 from locan.data.validation import _check_loc_properties
 
@@ -113,7 +113,7 @@ def _is_2d_array_of_1d_array_of_scalar(element: Any) -> bool:
     ) or _is_2d_inhomogeneous_array_of_1d_array_of_scalar(element)
 
 
-def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> np.ndarray[float]:
+def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> npt.NDArray[float]:
     """
     Compute bin edges from n_bins and bin_range.
 
@@ -126,7 +126,7 @@ def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> np.ndarray[float]:
 
     Returns
     -------
-    numpy.ndarray[float]
+    npt.NDArray[float]
         Array with bin edges.
     """
     return np.linspace(*bin_range, n_bins + 1, endpoint=True, dtype=float)
@@ -134,7 +134,7 @@ def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> np.ndarray[float]:
 
 def _bin_size_to_bin_edges_one_dimension(
     bin_size, bin_range, extend_range=None
-) -> np.ndarray[float]:
+) -> npt.NDArray[float]:
     """
     Compute bin edges from bin_size and bin_range.
 
@@ -164,7 +164,7 @@ def _bin_size_to_bin_edges_one_dimension(
 
     Returns
     -------
-    numpy.ndarray[float]
+    npt.NDArray[float]
         Array of bin edges
     """
     if _is_scalar(bin_size):
@@ -266,7 +266,7 @@ def _bin_edges_to_n_bins(bin_edges) -> tuple[int, ...]:
     return n_bins
 
 
-def _bin_edges_to_bin_size_one_dimension(bin_edges) -> Union[float, np.ndarray]:
+def _bin_edges_to_bin_size_one_dimension(bin_edges) -> Union[float, npt.NDArray[float]]:
     """
     Compute the sizes of bins.
 
@@ -278,7 +278,7 @@ def _bin_edges_to_bin_size_one_dimension(bin_edges) -> Union[float, np.ndarray]:
 
     Returns
     -------
-    float | numpy.array[float]
+    float | npt.NDArray[float]
         Bin size for all bins or for each bin.
     """
     differences = np.diff(bin_edges)
@@ -296,7 +296,7 @@ def _bin_edges_to_bin_size_one_dimension(bin_edges) -> Union[float, np.ndarray]:
 
 def _bin_edges_to_bin_size(
     bin_edges,
-) -> tuple[float, ...] | tuple[np.ndarray[float], ...]:
+) -> tuple[float, ...] | tuple[npt.NDArray[float], ...]:
     """
     Compute the sizes of bins.
 
@@ -307,7 +307,7 @@ def _bin_edges_to_bin_size(
 
     Returns
     -------
-    tuple[float, ...] | tuple[numpy.array[float], ...]
+    tuple[float, ...] | tuple[npt.NDArray[float], ...]
         Bin size for all bins or for each bin in each dimension.
     """
     if _is_1d_array_of_scalar(bin_edges):
@@ -321,7 +321,7 @@ def _bin_edges_to_bin_size(
     return bin_size
 
 
-def _bin_edges_to_bin_centers(bin_edges) -> tuple[np.ndarray[float], ...]:
+def _bin_edges_to_bin_centers(bin_edges) -> tuple[npt.NDArray[float], ...]:
     """
     Compute bin centers.
 
@@ -332,7 +332,7 @@ def _bin_edges_to_bin_centers(bin_edges) -> tuple[np.ndarray[float], ...]:
 
     Returns
     -------
-    tuple[numpy.ndarray[float], ...]
+    tuple[npt.NDArray[float], ...]
         Array of bin centers for each dimension with shape (n_bins,)
     """
     if _is_1d_array_of_scalar(bin_edges):
@@ -344,7 +344,7 @@ def _bin_edges_to_bin_centers(bin_edges) -> tuple[np.ndarray[float], ...]:
     return bin_centers
 
 
-def _indices_to_bin_centers(bin_edges, indices) -> np.ndarray[float]:
+def _indices_to_bin_centers(bin_edges, indices) -> npt.NDArray[float]:
     """
     Compute bin centers for given indices.
 
@@ -358,7 +358,7 @@ def _indices_to_bin_centers(bin_edges, indices) -> np.ndarray[float]:
 
     Returns
     -------
-    numpy.ndarray[float]
+    npt.NDArray[float]
         Selected bin centers with shape (n_indices, dimension)
     """
     bin_centers = _bin_edges_to_bin_centers(bin_edges)
@@ -930,20 +930,20 @@ class Bins:
         return self._boost_histogram_axes
 
 
-def _histogram_fast_histogram(data, bins) -> np.ndarray:
+def _histogram_fast_histogram(data, bins) -> npt.NDArray:
     """
     Provide histogram with counts in each bin.
 
     Parameters
     ----------
-    data : array-like
+    data : npt.ArrayLike
         Coordinate values with shape (dimensions, n_points) to be binned
     bins : Bins
         The bin specification
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     if data.shape[0] == 1:
         img = fast_histogram.histogram1d(
@@ -956,42 +956,42 @@ def _histogram_fast_histogram(data, bins) -> np.ndarray:
     return img
 
 
-def _histogram_boost_histogram(data, bins) -> np.ndarray:
+def _histogram_boost_histogram(data, bins) -> npt.NDArray:
     """
     Provide histogram with counts in each bin.
 
     Parameters
     ----------
-    data : array-like
+    data : npt.ArrayLike
         Coordinate values with shape (n_dimensions, n_points) to be binned
     bins : Bins
         The bin specification
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     hist = bh.Histogram(*bins.boost_histogram_axes).fill(*data)
     img = hist.view()
     return img
 
 
-def _histogram_mean_fast_histogram(data, bins, values) -> np.ndarray:
+def _histogram_mean_fast_histogram(data, bins, values) -> npt.NDArray:
     """
     Provide histogram with averaged values for all counts in each bin.
 
     Parameters
     ----------
-    data : array-like
+    data : npt.ArrayLike
         Coordinate values with shape (n_dimensions, n_points) to be binned
     bins : Bins
         The bin specification
-    values : array-like
+    values : npt.ArrayLike
         Values with shape (n_points,) to be averaged in each bin
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     if data.shape[0] == 1:
         hist = fast_histogram.histogram1d(
@@ -1015,22 +1015,22 @@ def _histogram_mean_fast_histogram(data, bins, values) -> np.ndarray:
     return hist
 
 
-def _histogram_mean_boost_histogram(data, bins, values) -> np.ndarray:
+def _histogram_mean_boost_histogram(data, bins, values) -> npt.NDArray:
     """
     Provide histogram with averaged values for all counts in each bin.
 
     Parameters
     ----------
-    data : array-like
+    data : npt.ArrayLike
         Coordinate values with shape (n_dimensions, n_points) to be binned
     bins : Bins
         The bin specification
-    values : array-like
+    values : npt.ArrayLike
         Values with shape (n_points,) to be averaged in each bin
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     hist = bh.Histogram(*bins.boost_histogram_axes, storage=bh.storage.Mean()).fill(
         *data, sample=values
@@ -1092,7 +1092,7 @@ def histogram(
 
     Returns
     -------
-    namedtuple('Histogram', "data bins labels"): (numpy.ndarray, Bins, list)
+    namedtuple('Histogram', "data bins labels"): (npt.NDArray, Bins, list)
     """
     labels_ = _check_loc_properties(locdata, loc_properties)
     data = locdata.data[labels_].values.T
@@ -1149,11 +1149,11 @@ def histogram(
 
 
 def _accumulate_1d(
-    data: np.ndarray,
-    bin_edges: np.ndarray,
+    data: npt.ArrayLike,
+    bin_edges: npt.ArrayLike,
     return_data: bool = False,
     return_counts: bool = False,
-) -> tuple[np.ndarray, list, list | None, np.ndarray | None]:
+) -> tuple[npt.NDArray, list, list | None, npt.NDArray | None]:
     """
     Bin data and collect data elements contained in each bin.
     The returned `bin_indices` refer to the given bins including index[0] for
@@ -1178,7 +1178,7 @@ def _accumulate_1d(
 
     Returns
     -------
-    tuple[numpy.ndarray, list, list | None, numpy.ndarray | None]
+    tuple[npt.NDArray, list, list | None, npt.NDArray | None]
         bin_indices, data_indices, collection, counts.
     """
     data_ = np.array(data)
@@ -1209,11 +1209,11 @@ def _accumulate_1d(
 
 
 def _accumulate_2d(
-    data: np.ndarray,
-    bin_edges: tuple[np.ndarray],
+    data: npt.ArrayLike,
+    bin_edges: tuple[npt.ArrayLike],
     return_data: bool = False,
     return_counts: bool = False,
-) -> tuple[np.ndarray, list, list | None, np.ndarray | None]:
+) -> tuple[npt.NDArray, list, list | None, npt.NDArray | None]:
     """
     Bin data and collect data elements contained in each bin.
     All points are binned with regard to the first and second dimension.
@@ -1234,7 +1234,7 @@ def _accumulate_2d(
 
     Returns
     -------
-    tuple[numpy.ndarray, list, list | None, numpy.ndarray | None]
+    tuple[npt.NDArray, list, list | None, npt.NDArray | None]
         bin_indices, data_indices, collection, counts.
     """
     data_ = np.array(data)

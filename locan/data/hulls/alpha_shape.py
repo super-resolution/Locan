@@ -38,6 +38,7 @@ from typing import Generator
 
 import networkx as nx
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 from scipy.spatial import Delaunay
 
 from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance
@@ -111,7 +112,7 @@ class AlphaComplex:
 
     Parameters
     ----------
-    points : array-like
+    points : npt.ArrayLike
         Coordinates of input points. Array with shape (npoints, ndim).
     delaunay : scipy.spatial.Delaunay | None
         Object with attribute `simplices` specifying a list of indices in the
@@ -282,8 +283,9 @@ class AlphaComplex:
 
         Returns
         -------
-        list of list of int
-            The indices to specific d-simplices in `self.delaunay_triangulation.simplices`.
+        list[list[int]]
+            The indices to specific d-simplices in
+            `self.delaunay_triangulation.simplices`.
         """
         if np.size(self.triangles) == 0:
             return []
@@ -396,13 +398,13 @@ class AlphaComplex:
         else:
             return np.max([ac[1] for ac in self.lines])
 
-    def alphas(self):
+    def alphas(self) -> npt.NDArray:
         """
         Return alpha values at which the corresponding alpha shape changes.
 
         Returns
         -------
-        numpy.ndarray
+        npt.NDArray
         """
         if np.size(self.lines) == 0:
             return np.array([])
@@ -426,7 +428,7 @@ class AlphaShape:
     ----------
     alpha : float
         Alpha parameter specifying a unique alpha complex.
-    points : array-like | None
+    points : npt.ArrayLike | None
         Coordinates of input points with shape (npoints, ndim).
         Either `points` or `alpha_complex` have to be specified but not both.
     alpha_complex : AlphaComplex | None
@@ -443,7 +445,7 @@ class AlphaShape:
     ----------
     alpha_complex : AlphaComplex
         The unfiltered alpha complex with computed interval values.
-    alpha_shape : numpy.ndarray
+    alpha_shape : npt.NDArray
         The list of k-simplices (edges) from the alpha complex that make up
         the alpha shape.
         Or: Simplicial subcomplex of the Delaunay triangulation with regular

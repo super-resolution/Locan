@@ -7,9 +7,16 @@ from __future__ import annotations
 
 import copy
 import logging
+import sys
 import warnings
-from collections.abc import Iterable  # used in docstring # noqa: F401
+from collections.abc import Iterable, Sequence  # used in docstring # noqa: F401
 from itertools import accumulate
+from typing import Literal  # used in docstring # noqa: F401
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import numpy as np
 import pandas as pd
@@ -43,39 +50,40 @@ class LocData:
     """
     This class carries localization data, aggregated properties and meta data.
 
-    Data consist of individual elements being either localizations or other `LocData` objects. Both, localizations and
-    `Locdata` objects have properties. Properties come from the original data or are added by analysis procedures.
+    Data consist of individual elements being either localizations or other
+    `LocData` objects.
+    Both, localizations and `Locdata` objects have properties.
+    Properties come from the original data or are added by analysis procedures.
 
     Parameters
     ----------
-    references : LocData, list(LocData), None
+    references : LocData | Iterable[LocData] | None
         A `LocData` reference or an array with references to `LocData` objects
         referring to the selected localizations in dataset.
-    dataframe : pandas.DataFrame, None
+    dataframe : pandas.DataFrame | None
         Dataframe with localization data.
-    indices : slice object, list(int), None
+    indices : slice | Iterable[int] | None
         Indices for dataframe in references that makes up the data.
         `indices` refers to index label, not position.
-    meta : (locan.data.metadata_pb2.Metadata | dict |
-            str | bytes | os.PathLike | BinaryIO | None)
+    meta : locan.data.metadata_pb2.Metadata | dict | str | bytes | os.PathLike | BinaryIO | None
         Metadata about the current dataset and its history.
 
     Attributes
     ----------
-    references : LocData, list(LocData), None
+    references : LocData | list[LocData] | None
         A LocData reference or an array with references to LocData objects
         referring to the selected localizations in dataframe.
-    dataframe : pandas.DataFrame, None
+    dataframe : pandas.DataFrame | None
         Dataframe with localization data.
-    indices : slice object, list(int), None
+    indices : slice | list[int] | None
         Indices for dataframe in references that makes up the data.
     meta : locan.data.metadata_pb2.Metadata
         Metadata about the current dataset and its history.
     properties : pandas.DataFrame
         List of properties generated from data.
-    coordinate_keys : list of str
+    coordinate_keys : list[str]
         The available coordinate properties.
-    uncertainty_keys : list of str
+    uncertainty_keys : list[str]
         The available uncertainty properties.
     dimension : int
         Number of coordinates available for each localization
@@ -137,7 +145,7 @@ class LocData:
             if label_ in self.data.columns
         ]
 
-    def _update_properties(self, update_function=None):  # -> "Self":
+    def _update_properties(self, update_function=None) -> Self:
         """
         Compute properties from localization data.
 
@@ -197,7 +205,7 @@ class LocData:
             for loc_property_, function_ in update_function.items():
                 self.properties[loc_property_] = function_(self.data[loc_property_])
 
-        self.bounding_box  # update self._bounding_box
+        self.bounding_box  # update self._bounding_box  # noqa B018
         return self
 
     def __del__(self):
@@ -205,7 +213,10 @@ class LocData:
         self.__class__.count -= 1
 
     def __len__(self):
-        """Return the length of data, i.e. the number of elements (localizations or collection elements)."""
+        """
+        Return the length of data, i.e. the number of elements
+        (localizations or collection elements).
+        """
         return len(self.data.index)
 
     def __getstate__(self):
@@ -229,9 +240,12 @@ class LocData:
 
     def __copy__(self):
         """
-        Create a shallow copy of locdata (keeping all references) with the following exceptions:
-        (i) The class variable `count` is increased for the copied LocData object.
-        (ii) Metadata keeps the original meta.creation_time while meta.modification_time and meta.history is updated.
+        Create a shallow copy of locdata (keeping all references) with the
+        following exceptions:
+        (i) The class variable `count` is increased for the copied LocData
+        object.
+        (ii) Metadata keeps the original meta.creation_time while
+        meta.modification_time and meta.history is updated.
         """
         new_locdata = LocData(self.references, self.dataframe, self.indices, meta=None)
         new_locdata._region = self._region
@@ -244,9 +258,12 @@ class LocData:
 
     def __deepcopy__(self, memodict=None):
         """
-        Create a deep copy of locdata (including all references) with the following exceptions:
-        (i) The class variable `count` is increased for all deepcopied LocData objects.
-        (ii) Metadata keeps the original meta.creation_time while meta.modification_time and meta.history is updated.
+        Create a deep copy of locdata (including all references) with the
+        following exceptions:
+        (i) The class variable `count` is increased for all deepcopied LocData
+        objects.
+        (ii) Metadata keeps the original meta.creation_time while
+        meta.modification_time and meta.history is updated.
         """
         if memodict is None:
             memodict = {}
@@ -270,7 +287,10 @@ class LocData:
 
     @property
     def bounding_box(self):
-        """Hull object: Return an object representing the axis-aligned minimal bounding box."""
+        """
+        Hull object: Return an object representing the axis-aligned
+        minimal bounding box.
+        """
         if self._bounding_box is None:
             try:
                 self._bounding_box = locan.data.hulls.BoundingBox(self.coordinates)
@@ -278,6 +298,7 @@ class LocData:
                 warnings.warn(
                     "Properties related to bounding box could not be computed.",
                     UserWarning,
+                    stacklevel=2,
                 )
         self._update_properties_bounding_box()
         return self._bounding_box
@@ -297,7 +318,10 @@ class LocData:
 
     @property
     def convex_hull(self):
-        """Hull object: Return an object representing the convex hull of all localizations."""
+        """
+        Hull object: Return an object representing the convex hull of all
+        localizations.
+        """
         if self._convex_hull is None:
             try:
                 self._convex_hull = locan.data.hulls.ConvexHull(self.coordinates)
@@ -305,6 +329,7 @@ class LocData:
                 warnings.warn(
                     "Properties related to convex hull could not be computed.",
                     UserWarning,
+                    stacklevel=2,
                 )
         self._update_properties_convex_hull()
         return self._convex_hull
@@ -324,7 +349,10 @@ class LocData:
 
     @property
     def oriented_bounding_box(self):
-        """Hull object: Return an object representing the oriented minimal bounding box."""
+        """
+        Hull object: Return an object representing the oriented minimal
+        bounding box.
+        """
         if self._oriented_bounding_box is None:
             try:
                 self._oriented_bounding_box = locan.data.hulls.OrientedBoundingBox(
@@ -334,6 +362,7 @@ class LocData:
                 warnings.warn(
                     "Properties related to oriented bounding box could not be computed.",
                     UserWarning,
+                    stacklevel=2,
                 )
         self._update_properties_oriented_bounding_box()
         return self._oriented_bounding_box
@@ -353,11 +382,16 @@ class LocData:
 
     @property
     def alpha_shape(self):
-        """Hull object: Return an object representing the alpha-shape of all localizations."""
+        """
+        Hull object: Return an object representing the alpha-shape of all
+        localizations.
+        """
         return self._alpha_shape
 
     def update_alpha_shape(self, alpha):
-        """Compute the alpha shape for specific `alpha` and update `self.alpha_shape`.
+        """
+        Compute the alpha shape for specific `alpha` and update
+        `self.alpha_shape`.
 
         Parameters
         ----------
@@ -378,7 +412,9 @@ class LocData:
                 self._alpha_shape.alpha = alpha
         except TypeError:
             warnings.warn(
-                "Properties related to alpha shape could not be computed.", UserWarning
+                "Properties related to alpha shape could not be computed.",
+                UserWarning,
+                stacklevel=2,
             )
         self._update_properties_alpha_shape()
         return self
@@ -396,7 +432,13 @@ class LocData:
 
     def update_alpha_shape_in_references(self, alpha):
         """
-        Compute the alpha shape for each element in `locdata.references` and update `locdata.dataframe`.
+        Compute the alpha shape for each element in `locdata.references` and
+        update `locdata.dataframe`.
+
+        Parameters
+        ----------
+        alpha : float
+            Alpha parameter specifying a unique alpha complex.
 
         Returns
         -------
@@ -420,7 +462,10 @@ class LocData:
 
     @property
     def inertia_moments(self):
-        """Inertia moments are returned as computed by :func:`locan.data.properties.inertia_moments`."""
+        """
+        Inertia moments are returned as computed by
+        :func:`locan.data.properties.inertia_moments`.
+        """
         if self._inertia_moments is None:
             try:
                 self._inertia_moments = locan.data.properties.inertia_moments(
@@ -430,6 +475,7 @@ class LocData:
                 warnings.warn(
                     "Properties related to inertia_moments could not be computed.",
                     UserWarning,
+                    stacklevel=2,
                 )
         self._update_properties_inertia_moments()
         return self._inertia_moments
@@ -441,7 +487,8 @@ class LocData:
 
     def update_inertia_moments_in_references(self):
         """
-        Compute inertia_moments for each element in locdata.references and update locdata.dataframe.
+        Compute inertia_moments for each element in locdata.references and
+        update locdata.dataframe.
 
         Returns
         -------
@@ -450,7 +497,7 @@ class LocData:
         """
         if isinstance(self.references, list):
             for reference in self.references:
-                reference.inertia_moments  # request property to update
+                reference.inertia_moments  # request property to update  # noqa B018
             new_df = pd.DataFrame(
                 [reference.properties for reference in self.references]
             )
@@ -509,8 +556,10 @@ class LocData:
 
     @property
     def data(self):
-        """pandas.DataFrame: Return all elements either copied from the reference or referencing the current
-        dataframe."""
+        """
+        pandas.DataFrame: Return all elements either copied from the reference
+        or referencing the current dataframe.
+        """
         if isinstance(self.references, LocData):
             # we refer to the localization data by its index label, not position
             # in other words we decided not to use iloc but loc
@@ -537,8 +586,10 @@ class LocData:
 
     @property
     def centroid(self):
-        """ndarray: Return coordinate values of the centroid
-        (being the property values for all coordinate labels)."""
+        """
+        ndarray: Return coordinate values of the centroid
+        (being the property values for all coordinate labels).
+        """
         return np.array(
             [
                 self.properties[coordinate_label]
@@ -555,14 +606,14 @@ class LocData:
         ----------
         dataframe : pandas.DataFrame | None
             Localization data.
-        meta : (locan.data.metadata_pb2.Metadata | dict |
-               str | bytes | os.PathLike | BinaryIO | None)
+        meta : locan.data.metadata_pb2.Metadata | dict | str | bytes | os.PathLike | BinaryIO | None
             Metadata about the current dataset and its history.
 
         Returns
         -------
         LocData
-            A new LocData instance with dataframe representing the concatenated data.
+            A new LocData instance with dataframe representing the
+            concatenated data.
         """
         dataframe = pd.DataFrame() if dataframe is None else dataframe
         meta_ = metadata_pb2.Metadata()
@@ -582,18 +633,19 @@ class LocData:
 
         Parameters
         ----------
-        coordinates : sequence of tuples with shape (n_loclizations, dimension)
+        coordinates : Sequence[tuple]
             Sequence of tuples with localization coordinates
-        coordinate_labels : sequence[str] | None
+            with shape (n_loclizations, dimension)
+        coordinate_labels : Sequence[str] | None
             The available coordinate properties.
-        meta : (locan.data.metadata_pb2.Metadata | dict |
-               str | bytes | os.PathLike | BinaryIO | None)
+        meta : locan.data.metadata_pb2.Metadata | dict | str | bytes | os.PathLike | BinaryIO | None
             Metadata about the current dataset and its history.
 
         Returns
         -------
         LocData
-            A new LocData instance with dataframe representing the concatenated data.
+            A new LocData instance with dataframe representing the
+            oncatenated data.
         """
         if np.size(coordinates):
             dimension = len(coordinates[0])
@@ -635,19 +687,19 @@ class LocData:
         ----------
         locdata : LocData
             Locdata object from which to select elements.
-        indices : slice object, list(int), None
+        indices : slice | Sequence[int] | None
             Index labels for elements in locdata that make up the new data.
             Note that contrary to usual python slices, both the start and the
             stop are included (see pandas documentation).
             `Indices` refer to index value not position in list.
-        meta : (locan.data.metadata_pb2.Metadata | dict |
-               str | bytes | os.PathLike | BinaryIO | None)
+        meta : locan.data.metadata_pb2.Metadata | dict | str | bytes | os.PathLike | BinaryIO | None
             Metadata about the current dataset and its history.
 
         Returns
         -------
         LocData
-            A new LocData instance with dataframe representing the selected data.
+            A new LocData instance with dataframe representing the selected
+            data.
 
         Note
         ----
@@ -692,10 +744,9 @@ class LocData:
 
         Parameters
         ----------
-        locdatas : list of LocData
+        locdatas : Iterable[LocData]
             Locdata objects to collect.
-        meta : (locan.data.metadata_pb2.Metadata | dict |
-               str | bytes | os.PathLike | BinaryIO | None)
+        meta : locan.data.metadata_pb2.Metadata | dict | str | bytes | os.PathLike | BinaryIO | None
             Metadata about the current dataset and its history.
 
         Returns
@@ -724,10 +775,9 @@ class LocData:
 
         Parameters
         ----------
-        locdatas : list of LocData
+        locdatas : Iterable[LocData]
             Locdata objects to concatenate.
-        meta : (locan.data.metadata_pb2.Metadata | dict |
-               str | bytes | os.PathLike | BinaryIO | None)
+        meta : locan.data.metadata_pb2.Metadata | dict | str | bytes | os.PathLike | BinaryIO | None
             Metadata about the current dataset and its history.
 
         Returns
@@ -778,32 +828,37 @@ class LocData:
 
         Parameters
         ----------
-        locdatas : list of LocData
-            Locdata objects to concatenate.
-        chunks : list[tuples]
+        locdata : LocData
+            Locdata to divide.
+        chunks : Sequence[tuples]
             Localization chunks as defined by a list of index-tuples
-        chunk_size : int, None
-            Number of localizations per chunk. One of `chunk_size` or `n_chunks` must be different from None.
-        n_chunks : int, None
-            Number of chunks. One of `chunk_size` or `n_chunks` must be different from None.
-        order : str
-            The order in which to select localizations. One of 'successive' or 'alternating'.
+        chunk_size : int | None
+            Number of localizations per chunk. One of `chunk_size` or
+            `n_chunks` must be different from None.
+        n_chunks : int | None
+            Number of chunks. One of `chunk_size` or `n_chunks` must be
+            different from None.
+        order : Literal['successive', 'alternating']
+            The order in which to select localizations.
+            One of 'successive' or 'alternating'.
         drop : bool
-            If True the last chunk will be eliminated if it has fewer localizations than the other chunks.
-        meta : (locan.data.metadata_pb2.Metadata | dict |
-               str | bytes | os.PathLike | BinaryIO | None)
+            If True the last chunk will be eliminated if it has fewer
+            localizations than the other chunks.
+        meta : locan.data.metadata_pb2.Metadata | dict | str | bytes | os.PathLike | BinaryIO | None
             Metadata about the current dataset and its history.
 
         Returns
         -------
         LocData
-            A new LocData instance with references and dataframe elements representing the individual chunks.
+            A new LocData instance with references and dataframe elements
+            representing the individual chunks.
         """
         n_nones = sum(element is None for element in [chunks, chunk_size, n_chunks])
 
         if n_nones != 2:
             raise ValueError(
-                "One and only one of `chunks`, `chunk_size` or `n_chunks` must be different from None."
+                "One and only one of `chunks`, `chunk_size` or `n_chunks` must "
+                "be different from None."
             )
         elif chunks is not None:
             index_lists = list(chunks)
@@ -865,18 +920,21 @@ class LocData:
 
     def reset(self, reset_index=False):
         """
-        Reset hulls and properties. This is needed after the dataframe attribute has been modified in place.
+        Reset hulls and properties. This is needed after the dataframe
+        attribute has been modified in place.
 
         Note
         ----
         Should be used with care because metadata is not updated accordingly.
         The region property is not changed.
-        Better to just re-instantiate with `LocData.from_dataframe()` or use `locdata.update()`.
+        Better to just re-instantiate with `LocData.from_dataframe()` or
+        use `locdata.update()`.
 
         Parameters
         ----------
-        reset_index : Bool
-            Flag indicating if the index is reset to integer values. If True the previous index values are discarded.
+        reset_index : bool
+            Flag indicating if the index is reset to integer values.
+            If True the previous index values are discarded.
 
         Returns
         -------
@@ -901,17 +959,18 @@ class LocData:
         """
         Update the dataframe attribute in place.
 
-        Use this function rather than setting locdata.dataframe directly in order to automatically update
+        Use this function rather than setting locdata.dataframe directly in
+        order to automatically update
         the attributes for dimension, hulls, properties, and metadata.
 
         Parameters
         ----------
-        dataframe : pandas.DataFrame, None
+        dataframe : pandas.DataFrame | None
             Dataframe with localization data.
-        reset_index : Bool
-            Flag indicating if the index is reset to integer values. If True the previous index values are discarded.
-        meta : (locan.data.metadata_pb2.Metadata | dict |
-               str | bytes | os.PathLike | BinaryIO | None)
+        reset_index : bool
+            Flag indicating if the index is reset to integer values.
+            If True the previous index values are discarded.
+        meta : locan.data.metadata_pb2.Metadata | dict | str | bytes | os.PathLike | BinaryIO | None
             Metadata about the current dataset and its history.
 
         Returns
@@ -951,12 +1010,14 @@ class LocData:
         """
         Clean up references.
 
-        This includes to update `Locdata.dataframe` and set `LocData.references` and `LocData.indices` to None.
+        This includes to update `Locdata.dataframe` and set
+        `LocData.references` and `LocData.indices` to None.
 
         Parameters
         ----------
-        reset_index : Bool
-            Flag indicating if the index is reset to integer values. If True the previous index values are discarded.
+        reset_index : bool
+            Flag indicating if the index is reset to integer values.
+            If True the previous index values are discarded.
 
         Returns
         -------
@@ -979,7 +1040,8 @@ class LocData:
 
     def update_convex_hulls_in_references(self):
         """
-        Compute the convex hull for each element in locdata.references and update locdata.dataframe.
+        Compute the convex hull for each element in locdata.references and
+        update locdata.dataframe.
 
         Returns
         -------
@@ -988,7 +1050,7 @@ class LocData:
         """
         if isinstance(self.references, list):
             for reference in self.references:
-                reference.convex_hull  # request property to update reference._convex_hull
+                reference.convex_hull  # request property to update reference._convex_hull  # noqa B018
 
             new_df = pd.DataFrame(
                 [reference.properties for reference in self.references]
@@ -1004,7 +1066,8 @@ class LocData:
 
     def update_oriented_bounding_box_in_references(self):
         """
-        Compute the oriented bounding box for each element in locdata.references and update locdata.dataframe.
+        Compute the oriented bounding box for each element in
+        locdata.references and update locdata.dataframe.
 
         Returns
         -------
@@ -1013,7 +1076,7 @@ class LocData:
         """
         if isinstance(self.references, list):
             for reference in self.references:
-                reference.oriented_bounding_box  # request property to update reference._convex_hull
+                reference.oriented_bounding_box  # request property to update reference._convex_hull  # noqa B018
             new_df = pd.DataFrame(
                 [reference.properties for reference in self.references]
             )
@@ -1028,11 +1091,12 @@ class LocData:
 
     def projection(self, coordinate_labels):
         """
-        Reduce dimensions by projecting all localization coordinates onto selected coordinates.
+        Reduce dimensions by projecting all localization coordinates onto
+        selected coordinates.
 
         Parameters
         ----------
-        coordinate_labels : str, list
+        coordinate_labels : str | list[str]
             The coordinate labels to project onto.
 
         Returns
@@ -1094,19 +1158,16 @@ class LocData:
 
         print(metadata_to_formatted_string(meta_))
 
-    def update_properties_in_references(self, properties=None):
+    def update_properties_in_references(self, properties=None) -> Self:
         """
-        Compute a property for each element in self.references by applying
-        property_function(reference) -> dict
+        Add properties for each element in self.references
         and update self.dataframe.
 
         Parameters
         ----------
-        self : LocData
-            Localization data
-        properties : dict[str, Iterable] | pd.Sseries | pandas.dataFrame | Callable | None
-            new property values for each reference
-            Function to compute property for LocData object.
+        properties : dict[str, Iterable] | pd.Series | pandas.dataFrame | Callable | None
+            new property values for each reference or
+            function to compute property for LocData object.
 
         Returns
         -------

@@ -3,11 +3,14 @@
 Compute localizations per frame.
 
 """
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 import pandas as pd
 from scipy import stats
 
@@ -29,7 +32,7 @@ def _localizations_per_frame(
 
     Parameters
     ----------
-    locdata : LocData or array-like
+    locdata : LocData | npt.ArrayLike
        Points in time: either localization data that contains a column `frame`
        or an array with time points.
     norm : int, float, str, None
@@ -181,7 +184,7 @@ class LocalizationsPerFrame(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData or array-like
+        locdata : LocData | npt.ArrayLike
            Points in time: either localization data that contains a column
            `frame` or an array with time points.
 

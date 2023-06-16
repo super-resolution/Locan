@@ -249,7 +249,7 @@ def random_subset(locdata, n_points, replace=True, seed=None) -> LocData:
         Number of localizations to randomly choose from locdata.
     replace : bool
         Indicate if sampling is with or without replacement
-    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         Random number generation seed
 
     Returns

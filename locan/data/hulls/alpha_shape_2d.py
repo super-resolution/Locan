@@ -4,6 +4,7 @@ Alpha shape utility functions for 2d.
 from __future__ import annotations
 
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 
 __all__ = []
 
@@ -14,7 +15,7 @@ def _circumcircle(points, simplex):
 
     Parameters
     -----------
-    points : array-like
+    points : npt.ArrayLike
         Point coordinates with shape (n_points, 2)
     simplex : list
         List with three indices representing a triangle from three points.
@@ -42,7 +43,7 @@ def _half_distance(points):
 
     Parameters
     -----------
-    points : array-like
+    points : npt.ArrayLike
         point coordinates with shape (2, 2) representing a line
 
     Returns

@@ -496,9 +496,9 @@ def overlay(locdatas, centers="centroid", orientations=None):
                     "Rotation has only been implemented for 2 dimensions."
                 )
             if orientation == "orientation_obb":
-                locdata.oriented_bounding_box
+                locdata.oriented_bounding_box  # update oriented_bounding_box  # noqa B018
             elif orientation == "orientation_im":
-                locdata.inertia_moments
+                locdata.inertia_moments  # update inertia_moments  # noqa B018
             else:
                 raise ValueError(f"orientation={orientation} is undefined.")
 

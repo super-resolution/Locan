@@ -15,7 +15,7 @@ from google.protobuf import json_format
 from locan.data.locdata import LocData
 from locan.locan_io.locdata.utilities import convert_property_names
 
-__all__ = ["save_asdf", "load_asdf_file"]
+__all__: list[str] = ["save_asdf", "load_asdf_file"]
 
 logger = logging.getLogger(__name__)
 

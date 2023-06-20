@@ -20,7 +20,7 @@ from locan.dependencies import HAS_DEPENDENCY, needs_package
 if HAS_DEPENDENCY["hdbscan"]:
     from hdbscan import HDBSCAN
 
-__all__ = ["cluster_hdbscan", "cluster_dbscan", "cluster_by_bin"]
+__all__: list[str] = ["cluster_hdbscan", "cluster_dbscan", "cluster_by_bin"]
 
 
 @needs_package("hdbscan")

@@ -22,6 +22,8 @@ References
    Astrophysical Journal 1952, vol. 116, p.144.
 
 """
+from __future__ import annotations
+
 import logging
 import sys
 from itertools import chain
@@ -47,7 +49,7 @@ from locan.data.region import (
 )
 from locan.data.region_utils import expand_region
 
-__all__ = [
+__all__: list[str] = [
     "make_uniform",
     "make_Poisson",
     "make_cluster",

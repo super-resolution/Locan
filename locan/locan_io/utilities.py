@@ -9,7 +9,7 @@ import logging
 import re
 from pathlib import Path
 
-__all__ = ["find_file_upstream"]
+__all__: list[str] = ["find_file_upstream"]
 
 logger = logging.getLogger(__name__)
 

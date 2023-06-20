@@ -18,7 +18,7 @@ from locan.locan_io.locdata.utilities import (
     open_path_or_file_like,
 )
 
-__all__ = ["load_Nanoimager_header", "load_Nanoimager_file"]
+__all__: list[str] = ["load_Nanoimager_header", "load_Nanoimager_file"]
 
 logger = logging.getLogger(__name__)
 

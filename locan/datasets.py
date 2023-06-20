@@ -17,7 +17,7 @@ if HAS_DEPENDENCY["requests"]:
     import requests
 
 
-__all__ = ["load_npc", "load_tubulin"]
+__all__: list[str] = ["load_npc", "load_tubulin"]
 
 
 @needs_package("requests")

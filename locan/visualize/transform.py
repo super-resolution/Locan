@@ -24,7 +24,7 @@ import numpy as np
 import numpy.typing as npt
 from skimage import exposure
 
-__all__ = ["Trafo", "HistogramEqualization", "adjust_contrast"]
+__all__: list[str] = ["Trafo", "HistogramEqualization", "adjust_contrast"]
 
 logger = logging.getLogger(__name__)
 

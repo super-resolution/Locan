@@ -17,7 +17,7 @@ import sys
 from locan import __version__ as locan_version
 from locan.dependencies import EXTRAS_REQUIRE, INSTALL_REQUIRES
 
-__all__ = ["system_info", "dependency_info", "show_versions"]
+__all__: list[str] = ["system_info", "dependency_info", "show_versions"]
 
 
 def system_info(verbose=True):

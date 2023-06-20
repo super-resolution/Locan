@@ -24,7 +24,7 @@ import pandas as pd
 
 from locan.locan_io.utilities import find_file_upstream
 
-__all__ = ["Files"]
+__all__: list[str] = ["Files"]
 
 logger = logging.getLogger(__name__)
 

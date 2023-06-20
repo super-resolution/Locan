@@ -15,6 +15,6 @@ Submodules:
 from locan.data.hulls.alpha_shape import *
 from locan.data.hulls.hull import *
 
-__all__ = []
-__all__.extend(hull.__all__)
-__all__.extend(alpha_shape.__all__)
+__all__: list[str] = []
+__all__.extend(hull.__all__)  # type: ignore
+__all__.extend(alpha_shape.__all__)  # type: ignore

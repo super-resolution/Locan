@@ -23,8 +23,8 @@ from .render import *
 from .render_mpl import *
 from .transform import *
 
-__all__ = []
-__all__.extend(render.__all__)
-__all__.extend(render_mpl.__all__)
-__all__.extend(napari.__all__)
-__all__.extend(transform.__all__)
+__all__: list[str] = []
+__all__.extend(render.__all__)  # type: ignore
+__all__.extend(render_mpl.__all__)  # type: ignore
+__all__.extend(napari.__all__)  # type: ignore
+__all__.extend(transform.__all__)  # type: ignore

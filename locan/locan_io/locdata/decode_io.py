@@ -20,7 +20,7 @@ if HAS_DEPENDENCY["h5py"]:
     import h5py
 
 
-__all__ = ["load_decode_header", "load_decode_file"]
+__all__: list[str] = ["load_decode_header", "load_decode_file"]
 
 logger = logging.getLogger(__name__)
 

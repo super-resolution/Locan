@@ -25,7 +25,7 @@ if HAS_DEPENDENCY["mpl_scatter_density"]:
     import mpl_scatter_density
 
 
-__all__ = [
+__all__: list[str] = [
     "render_2d_mpl",
     "render_2d_scatter_density",
     "scatter_2d_mpl",

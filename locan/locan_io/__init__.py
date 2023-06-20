@@ -19,7 +19,7 @@ from .files import *
 from .locdata import *
 from .utilities import *
 
-__all__ = []
-__all__.extend(files.__all__)
-__all__.extend(locdata.__all__)
-__all__.extend(utilities.__all__)
+__all__: list[str] = []
+__all__.extend(files.__all__)  # type: ignore
+__all__.extend(locdata.__all__)  # type: ignore
+__all__.extend(utilities.__all__)  # type: ignore

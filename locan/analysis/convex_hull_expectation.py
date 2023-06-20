@@ -25,7 +25,7 @@ from collections import namedtuple
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -46,7 +46,7 @@ from locan.data.aggregate import Bins
 if TYPE_CHECKING:
     import matplotlib as mpl
 
-__all__ = ["ConvexHullExpectation", "ConvexHullExpectationBatch"]
+__all__: list[str] = ["ConvexHullExpectation", "ConvexHullExpectationBatch"]
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +57,9 @@ class Collection(Protocol):
 
     def update_convex_hulls_in_references(self):
         pass
+
+
+HullPropertyType = Literal["region_measure_ch", "subregion_measure_ch"]
 
 
 class ConvexHullProperty(Enum):
@@ -104,7 +107,6 @@ def _get_resource(
     -------
     ConvexHullExpectationValues
     """
-
     try:
         resource_ = importlib_resources.files(resource_directory).joinpath(resource)
         resource_values = np.load(resource_)
@@ -247,7 +249,7 @@ class ConvexHullExpectation(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    convex_hull_property : str
+    convex_hull_property : HullPropertyString
         One of 'region_measure_ch' (i.e. area or volume)
         or 'subregion_measure_ch' (i.e. circumference or surface.)
     expected_variance : float | Iterable[float] | None
@@ -290,7 +292,7 @@ class ConvexHullExpectation(_Analysis):
         self.distribution_statistics = None
         self._dimension = None
 
-    def compute(self, locdata=None):
+    def compute(self, locdata=None) -> Self:
         """
         Run the computation.
 
@@ -301,8 +303,7 @@ class ConvexHullExpectation(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

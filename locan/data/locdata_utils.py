@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     import pandas as pd  # noqa F401
     from locan.data import LocData  # noqa F401
 
-__all__ = []
+__all__: list[str] = []
 
 
 def _get_loc_property_key_per_dimension(locdata, property_key) -> list[str | None]:

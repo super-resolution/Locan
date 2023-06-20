@@ -9,6 +9,12 @@ probability distribution.
 
 """
 import logging
+import sys
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,7 +22,7 @@ from scipy import stats
 
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 
-__all__ = ["LocalizationProperty"]
+__all__: list[str] = ["LocalizationProperty"]
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +75,7 @@ class LocalizationProperty(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata=None):
+    def compute(self, locdata=None) -> Self:
         """
         Run the computation.
 
@@ -80,8 +86,7 @@ class LocalizationProperty(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

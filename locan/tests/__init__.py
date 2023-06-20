@@ -8,7 +8,7 @@ The tests are organized following the subpackage structure of locan.
 """
 from locan import ROOT_DIR
 
-__all__ = ["test"]
+__all__: list[str] = ["test"]
 
 
 def test(args=None):

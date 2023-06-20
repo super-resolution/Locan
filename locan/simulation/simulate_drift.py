@@ -12,7 +12,7 @@ import pandas as pd
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 
-__all__ = ["add_drift"]
+__all__: list[str] = ["add_drift"]
 
 
 def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None) -> npt.NDArray:

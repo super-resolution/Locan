@@ -16,7 +16,7 @@ import logging
 
 from locan.analysis.analysis_base import _Analysis
 
-__all__ = ["Pipeline"]
+__all__: list[str] = ["Pipeline"]
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +86,7 @@ class Pipeline(_Analysis):
         return True
 
     def compute(self):
-        """ Run the analysis procedure. All parameters must be given upon Pipeline instantiation."""
+        """Run the analysis procedure. All parameters must be given upon Pipeline instantiation."""
         return self.computation(self, **self.kwargs)
 
     def save_computation(self, path):
@@ -110,7 +110,7 @@ class Pipeline(_Analysis):
 
 
 def computation_test(self, locdata=None, parameter="test"):
-    """ A pipeline definition for testing."""
+    """A pipeline definition for testing."""
     self.locdata = locdata
     something = "changed_value"
     logger.debug(f"something has a : {something}")

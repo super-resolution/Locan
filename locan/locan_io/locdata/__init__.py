@@ -76,14 +76,14 @@ from .smlm_io import *
 from .thunderstorm_io import *
 from .utilities import *
 
-__all__ = []
-__all__.extend(io_locdata.__all__)
-__all__.extend(utilities.__all__)
-__all__.extend(rapidstorm_io.__all__)
-__all__.extend(elyra_io.__all__)
-__all__.extend(thunderstorm_io.__all__)
-__all__.extend(nanoimager_io.__all__)
-__all__.extend(asdf_io.__all__)
-__all__.extend(smlm_io.__all__)
-__all__.extend(decode_io.__all__)
-__all__.extend(smap_io.__all__)
+__all__: list[str] = []
+__all__.extend(io_locdata.__all__)  # type: ignore
+__all__.extend(utilities.__all__)  # type: ignore
+__all__.extend(rapidstorm_io.__all__)  # type: ignore
+__all__.extend(elyra_io.__all__)  # type: ignore
+__all__.extend(thunderstorm_io.__all__)  # type: ignore
+__all__.extend(nanoimager_io.__all__)  # type: ignore
+__all__.extend(asdf_io.__all__)  # type: ignore
+__all__.extend(smlm_io.__all__)  # type: ignore
+__all__.extend(decode_io.__all__)  # type: ignore
+__all__.extend(smap_io.__all__)  # type: ignore

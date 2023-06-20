@@ -18,7 +18,7 @@ from locan.locan_io.locdata.utilities import (
     open_path_or_file_like,
 )
 
-__all__ = [
+__all__: list[str] = [
     "load_thunderstorm_header",
     "load_thunderstorm_file",
     "save_thunderstorm_csv",

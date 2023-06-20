@@ -26,7 +26,7 @@ if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
 
 
-__all__ = ["transform_affine", "randomize", "standardize", "overlay"]
+__all__: list[str] = ["transform_affine", "randomize", "standardize", "overlay"]
 
 logger = logging.getLogger(__name__)
 

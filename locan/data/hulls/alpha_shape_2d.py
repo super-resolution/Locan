@@ -6,7 +6,7 @@ from __future__ import annotations
 import numpy as np
 import numpy.typing as npt  # noqa: F401
 
-__all__ = []
+__all__: list[str] = []
 
 
 def _circumcircle(points, simplex):

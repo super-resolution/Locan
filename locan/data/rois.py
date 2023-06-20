@@ -36,7 +36,7 @@ from locan.data.metadata_utils import _modify_meta
 from locan.data.region import Region, RoiRegion
 from locan.utils.miscellaneous import _get_subclasses
 
-__all__ = ["Roi", "rasterize"]
+__all__: list[str] = ["Roi", "rasterize"]
 
 logger = logging.getLogger(__name__)
 

@@ -65,7 +65,7 @@ dependencies = [
     "matplotlib",
     "scipy",
     "pandas",
-    "numpy>1.17.0",
+    "numpy>1.20.0",
     "tqdm",
     "cython",
     "tomli>=1.1.0; python_version<'3.11'",
@@ -221,3 +221,22 @@ boost_histogram = "bh"
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
+
+[tool.mypy]
+files = ["locan"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    'locan.analysis.metadata_analysis_pb2',
+    'locan.data.metadata_pb2',
+    'locan\locan_io\locdata\manifest_pb2'
+]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+    'locan\tests\data\test_metadata_utils',
+    'locan\tests\locan_io\locdata\test_smlm_file',
+]
+ignore_errors = true  # all concernign library stubs for protobuf

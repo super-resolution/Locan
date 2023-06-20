@@ -41,7 +41,7 @@ from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 from locan.data.transform.spatial_transformation import transform_affine
 
-__all__ = ["bunwarp"]
+__all__: list[str] = ["bunwarp"]
 
 
 def _unwarp(points, matrix_x, matrix_y, pixel_size) -> npt.NDArray:

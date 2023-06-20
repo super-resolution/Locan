@@ -13,7 +13,13 @@ References
 from __future__ import annotations
 
 import logging
+import sys
 from collections.abc import Sequence
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,7 +27,7 @@ import pandas as pd
 
 from locan.analysis.analysis_base import _Analysis
 
-__all__ = ["SubpixelBias"]
+__all__: list[str] = ["SubpixelBias"]
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +94,7 @@ class SubpixelBias(_Analysis):
         super().__init__(meta=meta, pixel_size=pixel_size)
         self.results = None
 
-    def compute(self, locdata):
+    def compute(self, locdata) -> Self:
         """
         Run the computation.
 
@@ -99,8 +105,7 @@ class SubpixelBias(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

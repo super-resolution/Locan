@@ -11,7 +11,7 @@ if HAS_DEPENDENCY["qt"]:
 from locan.configuration import QT_BINDING
 from locan.dependencies import QtBindings
 
-__all__ = ["file_dialog"]
+__all__: list[str] = ["file_dialog"]
 
 
 @needs_package("qt")

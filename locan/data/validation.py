@@ -11,7 +11,7 @@ from collections.abc import Iterable
 
 from locan.data.locdata import LocData
 
-__all__ = []
+__all__: list[str] = []
 
 
 def _check_loc_properties(

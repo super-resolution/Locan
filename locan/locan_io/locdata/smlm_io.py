@@ -27,7 +27,7 @@ from locan.locan_io.locdata.utilities import (
 )
 from locan.utils.format import _time_string
 
-__all__ = [
+__all__: list[str] = [
     "manifest_format_from_locdata",
     "manifest_file_info_from_locdata",
     "manifest_from_locdata",

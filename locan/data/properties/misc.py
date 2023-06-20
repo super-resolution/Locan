@@ -12,7 +12,7 @@ from shapely.geometry import Point
 
 from locan.data.region import Region2D, RoiRegion
 
-__all__ = [
+__all__: list[str] = [
     "distance_to_region",
     "distance_to_region_boundary",
     "max_distance",

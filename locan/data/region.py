@@ -7,6 +7,7 @@ All region classes inherit from the abstract base class `Region`.
 
 """
 # todo: fix docstrings
+from __future__ import annotations
 
 import itertools as it
 from abc import ABC, abstractmethod
@@ -24,7 +25,7 @@ from shapely.geometry import Point as shPoint
 from shapely.geometry import Polygon as shPolygon
 from shapely.prepared import prep
 
-__all__ = [
+__all__: list[str] = [
     "Region",
     "EmptyRegion",
     "Region1D",

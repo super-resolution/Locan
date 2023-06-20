@@ -19,6 +19,6 @@ Submodules:
 from .render2d import *
 from .render3d import *
 
-__all__ = []
-__all__.extend(render2d.__all__)
-__all__.extend(render3d.__all__)
+__all__: list[str] = []
+__all__.extend(render2d.__all__)  # type: ignore
+__all__.extend(render3d.__all__)  # type: ignore

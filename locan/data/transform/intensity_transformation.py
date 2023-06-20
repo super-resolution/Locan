@@ -17,7 +17,7 @@ import numpy as np
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 
-__all__ = ["transform_counts_to_photons"]
+__all__: list[str] = ["transform_counts_to_photons"]
 
 logger = logging.getLogger(__name__)
 

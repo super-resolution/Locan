@@ -6,7 +6,13 @@ E.g. looking at how the local background is distributed over localization coordi
 illumination profile in SMLM experiments.
 """
 import logging
+import sys
 from collections import namedtuple
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,7 +24,7 @@ from locan.configuration import COLORMAP_DIVERGING
 from locan.data.aggregate import histogram
 from locan.visualize.transform import adjust_contrast
 
-__all__ = ["LocalizationProperty2d"]
+__all__: list[str] = ["LocalizationProperty2d"]
 
 logger = logging.getLogger(__name__)
 
@@ -237,7 +243,7 @@ class LocalizationProperty2d(_Analysis):
         )
         self.results = None
 
-    def compute(self, locdata=None):
+    def compute(self, locdata=None) -> Self:
         """
         Run the computation.
 
@@ -248,8 +254,7 @@ class LocalizationProperty2d(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

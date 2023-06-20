@@ -45,7 +45,7 @@ from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance
 from locan.data.region import Polygon
 from locan.data.region_utils import regions_union
 
-__all__ = ["AlphaComplex", "AlphaShape"]
+__all__: list[str] = ["AlphaComplex", "AlphaShape"]
 
 
 def _k_simplex_index_list(

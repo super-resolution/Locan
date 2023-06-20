@@ -30,7 +30,7 @@ from locan.data.filter import random_subset
 from locan.data.hulls import ConvexHull
 from locan.data.locdata import LocData
 
-__all__ = ["AccumulationClusterCheck"]
+__all__: list[str] = ["AccumulationClusterCheck"]
 
 logger = logging.getLogger(__name__)
 

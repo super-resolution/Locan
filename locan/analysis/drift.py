@@ -47,6 +47,11 @@ import logging
 import sys
 from collections import namedtuple
 
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt  # noqa: F401
@@ -61,7 +66,7 @@ from locan.data.register import _register_icp_open3d, register_cc
 from locan.data.transform.spatial_transformation import transform_affine
 from locan.dependencies import needs_package
 
-__all__ = ["Drift", "DriftComponent"]
+__all__: list[str] = ["Drift", "DriftComponent"]
 
 logger = logging.getLogger(__name__)
 
@@ -501,7 +506,7 @@ class Drift(_Analysis):
         else:
             return False
 
-    def compute(self, locdata):
+    def compute(self, locdata) -> Self:
         """
         Run the computation.
 
@@ -512,8 +517,7 @@ class Drift(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

@@ -15,14 +15,14 @@ from typing import BinaryIO  # noqa: F401
 try:
     import tomllib
 except ModuleNotFoundError:
-    import tomli as tomllib
+    import tomli as tomllib  # for sys.version_info < (3, 11):
 
 from google.protobuf import json_format, text_format
 from google.protobuf.message import Message
 
 from locan.data import metadata_pb2
 
-__all__ = [
+__all__: list[str] = [
     "metadata_to_formatted_string",
     "metadata_from_toml_string",
     "load_metadata_from_toml",

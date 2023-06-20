@@ -41,7 +41,7 @@ from locan.data.metadata_utils import (
 )
 from locan.data.region import Region, RoiRegion
 
-__all__ = ["LocData"]
+__all__: list[str] = ["LocData"]
 
 logger = logging.getLogger(__name__)
 

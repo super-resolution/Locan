@@ -14,7 +14,7 @@ from shapely.geometry import MultiPoint as shMultiPoint
 
 from locan.data.region import Polygon, Rectangle
 
-__all__ = ["BoundingBox", "ConvexHull", "OrientedBoundingBox"]
+__all__: list[str] = ["BoundingBox", "ConvexHull", "OrientedBoundingBox"]
 
 
 class BoundingBox:

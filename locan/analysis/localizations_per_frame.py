@@ -6,7 +6,14 @@ Compute localizations per frame.
 from __future__ import annotations
 
 import logging
+import sys
 from dataclasses import dataclass
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,7 +23,7 @@ from scipy import stats
 
 from locan.analysis.analysis_base import _Analysis
 
-__all__ = ["LocalizationsPerFrame"]
+__all__: list[str] = ["LocalizationsPerFrame"]
 
 logger = logging.getLogger(__name__)
 
@@ -178,7 +185,7 @@ class LocalizationsPerFrame(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata):
+    def compute(self, locdata) -> Self:
         """
         Run the computation.
 
@@ -190,8 +197,7 @@ class LocalizationsPerFrame(_Analysis):
 
         Returns
         -------
-        Analysis class
-           Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

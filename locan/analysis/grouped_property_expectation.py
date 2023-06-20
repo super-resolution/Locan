@@ -18,9 +18,15 @@ convex_hull_expectation
 from __future__ import annotations
 
 import logging
+import sys
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Protocol
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import boost_histogram as bh
 import matplotlib.pyplot as plt
@@ -32,7 +38,7 @@ from locan.data.aggregate import Bins
 if TYPE_CHECKING:
     import matplotlib as mpl
 
-__all__ = ["GroupedPropertyExpectation"]
+__all__: list[str] = ["GroupedPropertyExpectation"]
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +104,7 @@ class GroupedPropertyExpectation(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata=None):
+    def compute(self, locdata=None) -> Self:
         """
         Run the computation.
 
@@ -109,8 +115,7 @@ class GroupedPropertyExpectation(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

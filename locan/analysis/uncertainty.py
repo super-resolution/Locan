@@ -39,7 +39,7 @@ import pandas as pd
 from locan.analysis.analysis_base import _Analysis
 from locan.data.locdata_utils import _get_loc_property_key_per_dimension
 
-__all__ = ["LocalizationUncertainty", "LocalizationUncertaintyFromIntensity"]
+__all__: list[str] = ["LocalizationUncertainty", "LocalizationUncertaintyFromIntensity"]
 
 logger = logging.getLogger(__name__)
 

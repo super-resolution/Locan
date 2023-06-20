@@ -5,7 +5,7 @@ Provide standard formats.
 """
 import time
 
-__all__ = []
+__all__: list[str] = []
 
 
 def _time_string(time_value) -> str:

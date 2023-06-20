@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from collections.abc import Generator
 
-__all__ = ["iterate_2d_array"]
+__all__: list[str] = ["iterate_2d_array"]
 
 
 def iterate_2d_array(n_elements=5, n_cols=2) -> Generator[tuple[int, int]]:

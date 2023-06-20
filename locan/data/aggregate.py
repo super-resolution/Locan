@@ -27,7 +27,7 @@ from locan.data.locdata import LocData  # noqa: F401
 from locan.data.properties.locdata_statistics import ranges
 from locan.data.validation import _check_loc_properties
 
-__all__ = ["Bins", "histogram"]
+__all__: list[str] = ["Bins", "histogram"]
 
 logger = logging.getLogger(__name__)
 

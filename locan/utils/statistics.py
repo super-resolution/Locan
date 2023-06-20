@@ -11,7 +11,11 @@ from typing import NamedTuple
 import numpy as np
 import numpy.typing as npt
 
-__all__ = ["weighted_mean_variance", "ratio_fwhm_to_sigma", "biased_variance"]
+__all__: list[str] = [
+    "weighted_mean_variance",
+    "ratio_fwhm_to_sigma",
+    "biased_variance",
+]
 
 
 class WeightedMeanVariance(NamedTuple):

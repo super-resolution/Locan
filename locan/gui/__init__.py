@@ -25,5 +25,5 @@ Submodules:
 """
 from .io import *
 
-__all__ = []
-__all__.extend(io.__all__)
+__all__: list[str] = []
+__all__.extend(io.__all__)  # type: ignore

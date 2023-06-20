@@ -11,7 +11,7 @@ from collections.abc import Callable  # noqa: F401
 
 from locan.data.locdata import LocData
 
-__all__ = ["serial_clustering"]
+__all__: list[str] = ["serial_clustering"]
 
 
 def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):

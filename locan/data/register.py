@@ -25,7 +25,7 @@ if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
 
 
-__all__ = ["register_icp", "register_cc"]
+__all__: list[str] = ["register_icp", "register_cc"]
 
 Transformation = namedtuple("Transformation", "matrix offset")
 

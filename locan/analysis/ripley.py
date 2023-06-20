@@ -41,6 +41,12 @@ References
 
 """
 import logging
+import sys
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -49,7 +55,7 @@ from sklearn.neighbors import NearestNeighbors
 
 from locan.analysis.analysis_base import _Analysis
 
-__all__ = ["RipleysKFunction", "RipleysLFunction", "RipleysHFunction"]
+__all__: list[str] = ["RipleysKFunction", "RipleysLFunction", "RipleysHFunction"]
 
 logger = logging.getLogger(__name__)
 
@@ -157,7 +163,7 @@ class RipleysKFunction(_Analysis):
         super().__init__(meta=meta, radii=radii, region_measure=region_measure)
         self.results = None
 
-    def compute(self, locdata, other_locdata=None):
+    def compute(self, locdata, other_locdata=None) -> Self:
         """
         Run the computation.
 
@@ -171,8 +177,7 @@ class RipleysKFunction(_Analysis):
 
         Returns
         -------
-        Analysis class
-           Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")
@@ -324,7 +329,7 @@ class RipleysHFunction(_Analysis):
         self.results = None
         self._Ripley_h_maximum = None
 
-    def compute(self, locdata, other_locdata=None):
+    def compute(self, locdata, other_locdata=None) -> Self:
         """
         Run the computation.
 
@@ -338,8 +343,7 @@ class RipleysHFunction(_Analysis):
 
         Returns
         -------
-        Analysis class
-           Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

@@ -155,7 +155,9 @@ class AlphaComplex:
             self.triangles = []
 
         elif np.size(self.points) <= 4 and delaunay is None:
-            warnings.warn("Not enough points to construct initial simplex (need 4)")
+            warnings.warn(
+                "Not enough points to construct initial simplex (need 4)", stacklevel=1
+            )
             self.dimension = None
             self.delaunay_triangulation = None
             self.lines = []

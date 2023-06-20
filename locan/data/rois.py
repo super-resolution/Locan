@@ -283,6 +283,7 @@ class Roi:
                     "The localization data has to be saved and the file path provided, "
                     "or the reference is lost.",
                     UserWarning,
+                    stacklevel=1,
                 )
                 reference_for_yaml = None
         else:
@@ -520,6 +521,7 @@ class RoiLegacy_0:
         warnings.warn(
             "RoiLegacy.to_yaml is deprecated, use Roi.to_yaml instead",
             DeprecationWarning,
+            stacklevel=2,
         )
 
         # prepare path
@@ -550,6 +552,7 @@ class RoiLegacy_0:
                     "The localization data has to be saved and the file path provided, "
                     "or the reference is lost.",
                     UserWarning,
+                    stacklevel=1,
                 )
                 reference_for_yaml = None
         else:

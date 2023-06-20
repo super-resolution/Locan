@@ -298,7 +298,7 @@ class LocData:
                 warnings.warn(
                     "Properties related to bounding box could not be computed.",
                     UserWarning,
-                    stacklevel=2,
+                    stacklevel=1,
                 )
         self._update_properties_bounding_box()
         return self._bounding_box
@@ -329,7 +329,7 @@ class LocData:
                 warnings.warn(
                     "Properties related to convex hull could not be computed.",
                     UserWarning,
-                    stacklevel=2,
+                    stacklevel=1,
                 )
         self._update_properties_convex_hull()
         return self._convex_hull
@@ -362,7 +362,7 @@ class LocData:
                 warnings.warn(
                     "Properties related to oriented bounding box could not be computed.",
                     UserWarning,
-                    stacklevel=2,
+                    stacklevel=1,
                 )
         self._update_properties_oriented_bounding_box()
         return self._oriented_bounding_box
@@ -414,7 +414,7 @@ class LocData:
             warnings.warn(
                 "Properties related to alpha shape could not be computed.",
                 UserWarning,
-                stacklevel=2,
+                stacklevel=1,
             )
         self._update_properties_alpha_shape()
         return self
@@ -475,7 +475,7 @@ class LocData:
                 warnings.warn(
                     "Properties related to inertia_moments could not be computed.",
                     UserWarning,
-                    stacklevel=2,
+                    stacklevel=1,
                 )
         self._update_properties_inertia_moments()
         return self._inertia_moments

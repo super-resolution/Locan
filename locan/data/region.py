@@ -98,7 +98,7 @@ class RoiRegion:
         Spatial dimension of region
     centroid : tuple of float
         Centroid coordinates
-    max_distance : npt.NDArray[float]
+    max_distance : npt.NDArray[np.float_]
         Maximum distance between any two points in the region
     region_measure : float
         Hull measure, i.e. area or volume
@@ -166,7 +166,7 @@ class RoiRegion:
 
         return cls(region_type=region_type, region_specs=region_specs)
 
-    def contains(self, points) -> npt.NDArray[int]:
+    def contains(self, points) -> npt.NDArray[np.int_]:
         """
         Return list of indices for all points that are inside the region of interest.
 
@@ -177,7 +177,7 @@ class RoiRegion:
 
         Returns
         -------
-        npt.NDArray[int]
+        npt.NDArray[np.int_]
             Array with indices for all points in original point array that are within the region.
         """
         return self._region.contains(points)
@@ -412,7 +412,7 @@ class Region(ABC):
         return self.symmetric_difference(other)
 
     @abstractmethod
-    def contains(self, points) -> npt.NDArray[int]:
+    def contains(self, points) -> npt.NDArray[np.int_]:
         """
         Return list of indices for all points that are inside the region of interest.
 
@@ -423,7 +423,7 @@ class Region(ABC):
 
         Returns
         -------
-        npt.NDArray[int]
+        npt.NDArray[np.int_]
             Array with indices for all points in original point array that are within the region.
         """
         pass

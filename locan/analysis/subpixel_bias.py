@@ -15,6 +15,7 @@ from __future__ import annotations
 import logging
 import sys
 from collections.abc import Sequence
+from typing import cast
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -35,13 +36,17 @@ logger = logging.getLogger(__name__)
 # The algorithms
 
 
-def _subpixel_bias(locdata, pixel_size: int | float | Sequence[int | float]):
+def _subpixel_bias(
+    locdata, pixel_size: int | float | Sequence[int | float]
+) -> pd.DataFrame:
     coordinate_labels = locdata.coordinate_keys
     coordinates = locdata.coordinates.T
 
     if np.ndim(pixel_size) == 0:
-        pixel_sizes = [pixel_size] * len(coordinate_labels)
+        pixel_size = cast(int | float, pixel_size)
+        pixel_sizes: Sequence[int | float] = [pixel_size] * len(coordinate_labels)
     else:
+        pixel_size = cast(Sequence[int | float], pixel_size)
         if len(pixel_size) != len(coordinate_labels):
             raise TypeError("There must be given a pixel_size for each coordinate.")
         else:

@@ -350,7 +350,7 @@ class FileType(Enum):
 
 class RenderEngine(Enum):
     """
-    Engine to be use for rendering and displaying localization data as 2d or 3d images.
+    Engine to be used for rendering and displaying localization data as 2d or 3d images.
 
     Each engine represents a library to be used as backend for rendering and plotting.
     """
@@ -358,7 +358,7 @@ class RenderEngine(Enum):
     if not HAS_DEPENDENCY["mpl_scatter_density"]:
         _ignore_ = "MPL_SCATTER_DENSITY"
     if not HAS_DEPENDENCY["napari"]:
-        _ignore_ = "NAPARI"
+        _ignore_ = "NAPARI"  # type: ignore
     MPL = 0
     """matplotlib"""
     MPL_SCATTER_DENSITY = 1
@@ -378,9 +378,9 @@ class ColorMaps(Enum):
         COLORMAP_DIVERGING = m_coolwarm
         COLORMAP_CATEGORICAL = m_glasbey_dark
     else:
-        COLORMAP_CONTINUOUS = mcolors.Colormap("viridis")
-        COLORMAP_DIVERGING = mcolors.Colormap("coolwarm")
-        COLORMAP_CATEGORICAL = mcolors.Colormap("tab20")
+        COLORMAP_CONTINUOUS = mcolors.Colormap("viridis")  # type: ignore
+        COLORMAP_DIVERGING = mcolors.Colormap("coolwarm")  # type: ignore
+        COLORMAP_CATEGORICAL = mcolors.Colormap("tab20")  # type: ignore
 
 
 #: Mapping column names in RapidSTORM files to `LocData` property keys

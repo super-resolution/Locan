@@ -105,9 +105,8 @@ class Transform(ABC):
         # new_values = _values
         # return new_values
 
-    @property
     @abstractmethod
-    def inverse(self):
+    def inverse(self, values):
         """A transformation that performs the inverse operation."""
         raise NotImplementedError
 
@@ -164,7 +163,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         self.n_bins = n_bins
         self.mask = mask
 
-    def __call__(self, values) -> npt.NDArray:
+    def __call__(self, values) -> npt.NDArray:  # type: ignore
         """
         Histogram equalization with power intensification.
 
@@ -202,7 +201,6 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         new_values = np.interp(_values, bin_centers, cdf)
         return new_values
 
-    @property
     def inverse(self, values):
         """A Transformation object that performs the inverse operation."""
         raise NotImplementedError

@@ -109,12 +109,12 @@ def _get_resource(
     """
     try:
         resource_ = importlib_resources.files(resource_directory).joinpath(resource)
-        resource_values = np.load(resource_)
+        resource_values = np.load(str(resource_))
     except (AttributeError, TypeError):  # required for python < 3.9
         with importlib_resources.path(
             package=resource_directory, resource=resource
         ) as resource_:
-            resource_values = np.load(resource_)
+            resource_values = np.load(str(resource_))
 
     if "2d" in resource:  # hard coded corresponding to n_points in resources
         n_points = list(range(3, 201))
@@ -276,7 +276,7 @@ class ConvexHullExpectation(_Analysis):
         meta=None,
         convex_hull_property="region_measure_ch",
         expected_variance=None,
-    ):
+    ) -> None:
         if convex_hull_property not in ["region_measure_ch", "subregion_measure_ch"]:
             raise TypeError(
                 "convex_hull_property must be one of "
@@ -290,7 +290,7 @@ class ConvexHullExpectation(_Analysis):
         self.expected_variance = expected_variance
         self.results = None
         self.distribution_statistics = None
-        self._dimension = None
+        self._dimension: int | None = None
 
     def compute(self, locdata=None) -> Self:
         """
@@ -672,7 +672,7 @@ class ConvexHullExpectationBatch(_Analysis):
         meta=None,
         convex_hull_property="region_measure_ch",
         expected_variance=None,
-    ):
+    ) -> None:
         if convex_hull_property not in ["region_measure_ch", "subregion_measure_ch"]:
             raise TypeError(
                 "convex_hull_property must be one of "
@@ -686,7 +686,7 @@ class ConvexHullExpectationBatch(_Analysis):
         self.expected_variance = expected_variance
         self.results = None
         self.batch = None
-        self._dimension = None
+        self._dimension: int | None = None
         self._class = ConvexHullExpectation(
             convex_hull_property=convex_hull_property,
             expected_variance=expected_variance,
@@ -707,7 +707,7 @@ class ConvexHullExpectationBatch(_Analysis):
         Self
         """
         convex_hull_expectation_batch = []
-        dimensions = []
+        dimensions: list[int | None] = []
         for locdata_ in locdatas:
             che = ConvexHullExpectation(
                 convex_hull_property=self.parameter["convex_hull_property"],
@@ -717,9 +717,9 @@ class ConvexHullExpectationBatch(_Analysis):
             dimensions.append(che._dimension)
 
         if bool(locdatas):
-            dimensions = set(dimensions)
-            if len(dimensions) == 1:  # check if all are equal
-                self._dimension = dimensions.pop()
+            dimensions_ = set(dimensions)
+            if len(dimensions_) == 1:  # check if all are equal
+                self._dimension = dimensions_.pop()
             else:
                 raise ValueError("The dimensions of all locdata must be the same.")
 
@@ -738,9 +738,9 @@ class ConvexHullExpectationBatch(_Analysis):
             if dimension is not None:
                 self._dimension = dimension
             else:
-                dimension = set(item_._dimension for item_ in batch)
-                if len(dimension) == 1:
-                    self._dimension = dimension.pop()
+                dimension_ = set(item_._dimension for item_ in batch)
+                if len(dimension_) == 1:
+                    self._dimension = dimension_.pop()
 
         self.results = ConvexHullExpectationResults()
         self.results.values = pd.concat(

@@ -78,7 +78,7 @@ def _k_simplex_index_list(
 def _k_simplex_neighbor_index_list(d: int, k: int) -> tuple[int, ...]:
     """
     Given a d-simplex with d being 2 or 3, indexes for neighbor simplexes in
-    the scipy. Delaunay triangulation are provided for all k-simplices with k<d
+    the scipy.Delaunay triangulation are provided for all k-simplices with k<d
     that are part of the d-simplex.
     """
     if d == 2 and k == 1:
@@ -96,7 +96,7 @@ def _get_k_simplices(simplex, k: int = 1) -> Generator:
     """
     d = len(simplex) - 1
     k_simplices = (
-        [simplex[indx] for indx in indices] for indices in _k_simplex_index_list(d, k)
+        [simplex[indx] for indx in indices] for indices in _k_simplex_index_list(d, k)  # type: ignore
     )
     return k_simplices
 

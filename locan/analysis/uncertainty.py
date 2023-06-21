@@ -25,7 +25,7 @@ import sys
 import warnings
 from collections.abc import Callable
 from inspect import signature
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 if sys.version_info < (3, 9):
     LocalizationPrecisionModel = Callable
 else:
-    LocalizationPrecisionModel = Callable[[...], np.ndarray]
+    LocalizationPrecisionModel = Callable[..., npt.NDArray]
 
 
 class LocData(Protocol):
@@ -157,13 +157,16 @@ def localization_precision_model_3(
 def _localization_uncertainty(
     locdata: LocData, model: int | LocalizationPrecisionModel, **kwargs
 ) -> pd.DataFrame:
-    if isinstance(model, Callable):
-        pass
+    if isinstance(model, Callable):  # type: ignore
+        model = cast(Callable, model)
     elif model == 1:
+        model = cast(Callable, model)
         model = localization_precision_model_1
     elif model == 2:
+        model = cast(Callable, model)
         model = localization_precision_model_2
     elif model == 3:
+        model = cast(Callable, model)
         model = localization_precision_model_3
     else:
         raise TypeError("model must be 1, 2, 3 or callable.")
@@ -211,7 +214,7 @@ def _localization_uncertainty(
             suffix = "_" + c_key.split("_")[-1]
             args = []
             # go through all args for model
-            for key_, param_ in zip(available_keys, params):
+            for key_, param_ in zip(available_keys, params):  # type: ignore
                 if key_ in kwargs.keys():
                     args.append(kwargs[key_])
                 elif key_ is None and param_ in kwargs.keys():

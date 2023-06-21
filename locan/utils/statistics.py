@@ -19,8 +19,8 @@ __all__: list[str] = [
 
 
 class WeightedMeanVariance(NamedTuple):
-    weighted_mean: np.array
-    weighted_mean_variance: np.array
+    weighted_mean: npt.NDArray
+    weighted_mean_variance: npt.NDArray
 
 
 def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
@@ -83,19 +83,19 @@ def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
         # but did result with some floating values
         if (
             weighted_mean_variance_ != 0
-            and weighted_mean_variance_[weighted_mean_variance_ < 0].any()
+            and weighted_mean_variance_[weighted_mean_variance_ < 0].any()  # type: ignore
         ):
             if np.ndim(weighted_mean_variance_) == 0:
                 weighted_mean_variance_ = 0
             else:
-                weighted_mean_variance_[weighted_mean_variance_ < 0] = 0
+                weighted_mean_variance_[weighted_mean_variance_ < 0] = 0  # type: ignore
             logging.warning(
                 "Negative values for weighted_mean_variance occurred and were set to "
                 "zero."
             )
 
     return WeightedMeanVariance(
-        weighted_mean=weighted_average, weighted_mean_variance=weighted_mean_variance_
+        weighted_mean=weighted_average, weighted_mean_variance=weighted_mean_variance_  # type: ignore
     )
 
 

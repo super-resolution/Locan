@@ -35,7 +35,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from locan.analysis.analysis_base import _Analysis
-from locan.data.aggregate import Bins, _check_loc_properties
+from locan.data.aggregate import Bins
+from locan.data.validation import _check_loc_properties
 from locan.utils.statistics import biased_variance
 
 if TYPE_CHECKING:
@@ -49,9 +50,10 @@ logger = logging.getLogger(__name__)
 class Collection(Protocol):
     data: pd.DataFrame
     references: Iterable
+    coordinate_keys: list[str]
 
     def __len__(self):
-        pass
+        ...
 
 
 # The algorithms

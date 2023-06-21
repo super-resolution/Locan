@@ -6,7 +6,7 @@ Functions for user interaction with paths and file names.
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["qt"]:
-    from qtpy.QtWidgets import QApplication, QFileDialog
+    from qtpy.QtWidgets import QApplication, QFileDialog  # type: ignore
 
 from locan.configuration import QT_BINDING
 from locan.dependencies import QtBindings

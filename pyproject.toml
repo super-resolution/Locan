@@ -234,9 +234,34 @@ module = [
 ]
 ignore_errors = true
 
+# todo: elliminate
 [[tool.mypy.overrides]]
 module = [
     'locan\tests\data\test_metadata_utils',
     'locan\tests\locan_io\locdata\test_smlm_file',
+    'locan\simulation\simulate_locdata',
+    'locan\data\metadata_utils',
+    'locan\locan_io\locdata\smlm_io',
+    'locan\locan_io\locdata\asdf_io',
+    'locan\analysis\analysis_base',
+    'locan\data\locdata',
+    'locan\data\rois',
+    'locan\datasets'
 ]
-ignore_errors = true  # all concernign library stubs for protobuf
+ignore_errors = true  # all concerning library stubs for protobuf
+
+# todo: elliminate
+[[tool.mypy.overrides]]
+module = [
+    'locan\tests\*',
+]
+ignore_errors = true  # mostly concerning [attr-defined]
+
+
+# todo: elliminate
+[[tool.mypy.overrides]]
+module = [
+    'locan\analysis\drift_fiducials',
+    'locan\data\locdata_',
+]
+ignore_errors = true  # development

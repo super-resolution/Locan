@@ -250,7 +250,7 @@ class Roi:
 
         Parameters
         ----------
-        path : str, bytes, os.PathLike, None
+        path : str, os.PathLike, None
             Path for yaml file. If None a roi file path is generated from the metadata.
         """
 

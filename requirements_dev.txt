@@ -9,4 +9,5 @@ black
 pre-commit
 asv
 ruff
+mypy
 -r docs/requirements

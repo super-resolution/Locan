@@ -95,7 +95,8 @@ def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
             )
 
     return WeightedMeanVariance(
-        weighted_mean=weighted_average, weighted_mean_variance=weighted_mean_variance_  # type: ignore
+        weighted_mean=weighted_average,
+        weighted_mean_variance=weighted_mean_variance_,  # type: ignore
     )
 
 

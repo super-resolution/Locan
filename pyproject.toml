@@ -118,6 +118,7 @@ dev = [
     "pre-commit",
     "asv",
     "ruff",
+    "mypy",
 ]
 
 [project.urls]
@@ -224,7 +225,28 @@ convention = "numpy"
 
 [tool.mypy]
 files = ["locan"]
+# Aiming at
+strict = true
 ignore_missing_imports = true
+warn_unused_ignores = false
+
+# todo: elliminate
+# Strongly recommend enabling this one as soon as you can
+check_untyped_defs = false
+
+# These shouldn't be too much additional work, but may be tricky to
+# get passing if you use a lot of untyped libraries
+disallow_subclassing_any = false
+disallow_untyped_decorators = false
+disallow_any_generics = false
+
+# These next few are various gradations of forcing use of type annotations
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+disallow_untyped_defs = false
+
+# This one can be tricky to get passing if you use a lot of untyped libraries
+warn_return_any = false
 
 [[tool.mypy.overrides]]
 module = [
@@ -256,12 +278,3 @@ module = [
     'locan\tests\*',
 ]
 ignore_errors = true  # mostly concerning [attr-defined]
-
-
-# todo: elliminate
-[[tool.mypy.overrides]]
-module = [
-    'locan\analysis\drift_fiducials',
-    'locan\data\locdata_',
-]
-ignore_errors = true  # development

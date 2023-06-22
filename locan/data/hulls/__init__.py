@@ -11,6 +11,7 @@ Submodules:
    alpha_shape
 
 """
+from __future__ import annotations
 
 from locan.data.hulls.alpha_shape import *
 from locan.data.hulls.hull import *

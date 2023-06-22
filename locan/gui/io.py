@@ -3,6 +3,8 @@
 Functions for user interaction with paths and file names.
 
 """
+from __future__ import annotations
+
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["qt"]:

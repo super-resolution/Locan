@@ -3,6 +3,8 @@ Simulate drift and apply it to localization data.
 
 Drift can be linear in time or resemble a random walk.
 """
+from __future__ import annotations
+
 import sys
 
 import numpy as np

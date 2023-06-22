@@ -29,6 +29,8 @@ References
    20 December 2001
 
 """
+from __future__ import annotations
+
 import logging
 import sys
 

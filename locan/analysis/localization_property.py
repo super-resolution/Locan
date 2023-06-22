@@ -8,6 +8,8 @@ It is often useful to analyze the properties from all localizations within a sel
 probability distribution.
 
 """
+from __future__ import annotations
+
 import logging
 import sys
 

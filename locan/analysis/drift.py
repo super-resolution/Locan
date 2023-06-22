@@ -43,6 +43,8 @@ References
    Opt Express. 2011 Aug 1;19(16):15009-19.
 
 """
+from __future__ import annotations
+
 import logging
 import sys
 from collections import namedtuple

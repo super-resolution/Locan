@@ -3,6 +3,8 @@ Analyze cross dependencies between localization properties.
 
 Analyze cross dependencies as indicated by the correlation coefficients between any two localization properties.
 """
+from __future__ import annotations
+
 import logging
 import sys
 

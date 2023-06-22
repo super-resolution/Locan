@@ -8,6 +8,8 @@ in registry.
 Parts of this code is adapted from https://github.com/jungmannlab/picasso.
 (MIT license, Copyright (c) 2016 Jungmann Lab, MPI of Biochemistry)
 """
+from __future__ import annotations
+
 from collections import namedtuple
 
 import matplotlib.pyplot as plt

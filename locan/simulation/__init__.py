@@ -14,6 +14,8 @@ Submodules:
    simulate_drift
 
 """
+from __future__ import annotations
+
 from .simulate_drift import *
 from .simulate_locdata import *
 

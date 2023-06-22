@@ -65,6 +65,8 @@ Submodules:
    smap_io
 
 """
+from __future__ import annotations
+
 from .asdf_io import *
 from .decode_io import *
 from .elyra_io import *

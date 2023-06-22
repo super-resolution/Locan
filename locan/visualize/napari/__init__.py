@@ -15,6 +15,7 @@ Submodules:
    utilities
 
 """
+from __future__ import annotations
 
 from .render2d import *
 from .render3d import *

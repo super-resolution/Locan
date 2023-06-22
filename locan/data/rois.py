@@ -13,6 +13,8 @@ The Roi object provides methods for saving all specifications to a
 yaml file, for loading them, and for returning LocData with
 localizations selected to be within the roi region.
 """
+from __future__ import annotations
+
 import logging
 import re
 import sys

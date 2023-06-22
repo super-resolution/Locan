@@ -31,6 +31,7 @@ Submodules:
    subpixel_bias
    uncertainty
 """
+from __future__ import annotations
 
 from locan.analysis.accumulation_analysis import *
 from locan.analysis.blinking import *

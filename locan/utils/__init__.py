@@ -13,6 +13,8 @@ Submodules:
    system_information
 
 """
+from __future__ import annotations
+
 from .miscellaneous import *
 from .statistics import *
 from .system_information import *

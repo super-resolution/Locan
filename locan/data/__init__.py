@@ -26,6 +26,8 @@ Submodules:
    validation
 
 """
+from __future__ import annotations
+
 from locan.data.aggregate import *
 from locan.data.cluster import *
 from locan.data.filter import *

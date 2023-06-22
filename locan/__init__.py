@@ -20,6 +20,8 @@ Locan consists of the following modules:
    visualize
    tests
 """
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 

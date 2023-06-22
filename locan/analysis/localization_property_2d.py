@@ -5,6 +5,8 @@ Analyze the distribution of a localization property as function of two other loc
 E.g. looking at how the local background is distributed over localization coordinates helps to characterize the
 illumination profile in SMLM experiments.
 """
+from __future__ import annotations
+
 import logging
 import sys
 from collections import namedtuple

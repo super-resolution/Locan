@@ -17,6 +17,7 @@ Submodules:
    transform
 
 """
+from __future__ import annotations
 
 from .napari import *
 from .render import *

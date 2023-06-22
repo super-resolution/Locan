@@ -17,6 +17,7 @@ Submodules:
    intensity_transformation
 
 """
+from __future__ import annotations
 
 from locan.data.transform.bunwarpj import *
 from locan.data.transform.intensity_transformation import *

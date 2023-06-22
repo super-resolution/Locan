@@ -14,6 +14,7 @@ Submodules:
    utils
 
 """
+from __future__ import annotations
 
 from locan.data.cluster.clustering import *
 from locan.data.cluster.utils import *

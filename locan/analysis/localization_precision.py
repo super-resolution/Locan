@@ -26,6 +26,7 @@ References
    Biophysical Journal 90 (2), 2006, 668-671,
    doi.org/10.1529/biophysj.105.065599.
 """
+from __future__ import annotations
 
 import logging
 import sys

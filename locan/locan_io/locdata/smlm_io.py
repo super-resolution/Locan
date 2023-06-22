@@ -7,6 +7,7 @@ File specifications are provided at https://github.com/imodpasteur/smlm-file-for
 Code is adapted from https://github.com/imodpasteur/smlm-file-format/blob/master/implementations/Python/smlm_file.py.
 (MIT license)
 """
+from __future__ import annotations
 
 import json
 import logging

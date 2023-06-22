@@ -7,6 +7,8 @@ When calling a function the datasets are expected to reside in a directory speci
 `locan.constants.DATASETS_DIR` variable.
 If the directory does not exist the exemplary files are downloaded from GitHub.
 """
+from __future__ import annotations
+
 from pathlib import Path
 
 from locan.configuration import DATASETS_DIR

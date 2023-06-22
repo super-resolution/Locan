@@ -23,6 +23,8 @@ Submodules:
    io
 
 """
+from __future__ import annotations
+
 from .io import *
 
 __all__: list[str] = []

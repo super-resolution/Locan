@@ -15,6 +15,8 @@ Submodules:
    utilities
 
 """
+from __future__ import annotations
+
 from .files import *
 from .locdata import *
 from .utilities import *

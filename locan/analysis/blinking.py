@@ -4,6 +4,8 @@ Compute on- and off-periods from localization frames.
 Assuming that the provided localizations are acquired from the same label, we analyze the times of recording as
 provided by the `frame` property.
 """
+from __future__ import annotations
+
 import logging
 import sys
 

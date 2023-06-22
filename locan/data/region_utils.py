@@ -8,6 +8,8 @@ See Also
 :func:`locan.data.properties.misc.distance_to_region`
 :func:`locan.data.properties.misc.distance_to_region_boundary`
 """
+from __future__ import annotations
+
 from shapely.ops import unary_union
 
 from locan.data.region import EmptyRegion, Region2D, RoiRegion

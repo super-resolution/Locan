@@ -258,10 +258,10 @@ def _bin_edges_to_n_bins(bin_edges) -> tuple[int] | tuple[int, ...]:
         Number of bins
     """
     if _is_1d_array_of_scalar(bin_edges):
-        bin_edges = cast(Sequence[float], bin_edges)
+        bin_edges = cast("Sequence[float]", bin_edges)
         n_bins = (_bin_edges_to_n_bins_one_dimension(bin_edges),)
     elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
-        bin_edges = cast(Sequence[Sequence[float]], bin_edges)
+        bin_edges = cast("Sequence[Sequence[float]]", bin_edges)
         n_bins = tuple(_bin_edges_to_n_bins_one_dimension(edges) for edges in bin_edges)  # type: ignore
     else:
         raise TypeError("The shape of bin_edges must be (dimension, n_bin_edges).")
@@ -315,10 +315,10 @@ def _bin_edges_to_bin_size(
         Bin size for all bins or for each bin in each dimension.
     """
     if _is_1d_array_of_scalar(bin_edges):
-        bin_edges = cast(Sequence[float], bin_edges)
+        bin_edges = cast("Sequence[float]", bin_edges)
         bin_size = (_bin_edges_to_bin_size_one_dimension(bin_edges),)
     elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
-        bin_edges = cast(Sequence[Sequence[float]], bin_edges)
+        bin_edges = cast("Sequence[Sequence[float]]", bin_edges)
         bin_size = tuple(  # type: ignore
             _bin_edges_to_bin_size_one_dimension(edges) for edges in bin_edges
         )
@@ -342,10 +342,10 @@ def _bin_edges_to_bin_centers(bin_edges) -> tuple[npt.NDArray[np.float_], ...]:
         Array of bin centers for each dimension with shape (n_bins,)
     """
     if _is_1d_array_of_scalar(bin_edges):
-        bin_edges = cast(Sequence[float], bin_edges)
+        bin_edges = cast("Sequence[float]", bin_edges)
         bin_centers = (np.diff(bin_edges) / 2 + bin_edges[0:-1],)
     elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
-        bin_edges = cast(Sequence[Sequence[float]], bin_edges)
+        bin_edges = cast("Sequence[Sequence[float]]", bin_edges)
         bin_centers = tuple(np.diff(edges) / 2 + edges[0:-1] for edges in bin_edges)  # type: ignore
     else:
         raise TypeError("The shape of bin_edges must be (dimension, n_bin_edges).")
@@ -460,12 +460,12 @@ class _BinsFromEdges:
 
     def __init__(self, bin_edges):
         if _is_1d_array_of_scalar(bin_edges):
-            bin_edges = cast(Sequence[float], bin_edges)
+            bin_edges = cast("Sequence[float]", bin_edges)
             self.bin_edges = (np.array(bin_edges),)
             self.dimension = 1
             self.bin_range = ((bin_edges[0], bin_edges[-1]),)
         elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
-            bin_edges = cast(Sequence[Sequence[float]], bin_edges)
+            bin_edges = cast("Sequence[Sequence[float]]", bin_edges)
             self.bin_edges = tuple(np.array(edges) for edges in bin_edges)
             self.dimension = len(self.bin_edges)
             self.bin_range = tuple((edges[0], edges[-1]) for edges in self.bin_edges)
@@ -1199,7 +1199,7 @@ def _accumulate_1d(
     # bin_identifier 0 and n_bins represent out of bounds data
 
     # sort data
-    sorted_indices = np.argsort(bin_identifier)
+    sorted_indices = np.argsort(bin_identifier, kind="stable")
 
     # group data
     bin_indices, n_elements = np.unique(bin_identifier, return_counts=True)

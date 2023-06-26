@@ -7,13 +7,13 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Sequence  # noqa: F401
 from dataclasses import dataclass
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
-
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -288,7 +288,7 @@ class LocalizationsPerFrame(_Analysis):
         ----------
         ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
-        bins : float
+        bins : int | Sequence | str
             Bin specifications (passed to matplotlib.hist).
         fit: Bool
             Flag indicating if distributions fit are shown.

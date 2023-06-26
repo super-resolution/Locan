@@ -30,14 +30,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install pip-tools
       - name: "Run locan with extra requirements"
-        if: ${{ matrix.python-version != '3.11' }}
         run: |
           pip install .[all]
-      - name: "Run locan with extra requirements"
-        if: ${{ matrix.python-version == '3.11' }}
-        run: |
-          # exclude those not compatible with latest python: open3d, hdf5
-          pip install .[pyqt5,test,color,track,napari,scatter_density,html,hdbscan]
       - name: "Run tests"
         run:  pytest
       - name: "Freeze requirements"

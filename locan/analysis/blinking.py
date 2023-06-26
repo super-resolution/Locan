@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Sequence  # noqa: F401
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -272,7 +273,7 @@ class BlinkStatistics(_Analysis):
             'on_periods' or 'off_periods'.
         ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
-        bins : float
+        bins : int | Sequence | str
             Bin specifications (passed to :func:`matplotlib.hist`).
         log : Bool
             Flag for plotting on a log scale.

@@ -12,7 +12,7 @@ typing_extensions
 pytest
 
 # Scientific python
-numpy>1.17.0
+numpy>1.20.0
 pandas
 scipy
 scikit-learn
@@ -40,7 +40,7 @@ fast-histogram
 pyside2>=5.12.3
 colorcet
 trackpy
-open3d!=0.12.0
+open3d!=0.12.0;python_version<"3.11"
 mpl_scatter_density
 napari
 requests

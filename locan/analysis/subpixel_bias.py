@@ -43,10 +43,10 @@ def _subpixel_bias(
     coordinates = locdata.coordinates.T
 
     if np.ndim(pixel_size) == 0:
-        pixel_size = cast(int | float, pixel_size)
+        pixel_size = cast("int | float", pixel_size)
         pixel_sizes: Sequence[int | float] = [pixel_size] * len(coordinate_labels)
     else:
-        pixel_size = cast(Sequence[int | float], pixel_size)
+        pixel_size = cast("Sequence[int | float]", pixel_size)
         if len(pixel_size) != len(coordinate_labels):
             raise TypeError("There must be given a pixel_size for each coordinate.")
         else:
@@ -127,7 +127,7 @@ class SubpixelBias(_Analysis):
         ----------
         ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
-        bins : float
+        bins : int | Sequence | str
             Bin specifications (passed to :func:`matplotlib.hist`).
         log : Bool
             Flag for plotting on a log scale.

@@ -211,10 +211,10 @@ def _get_convex_hull_property_expectation(
         factor = sigma
     elif convex_hull_property == "REGION_MEASURE_3D":
         factor = sigma**3
-        logging.warning("The expectation is scaled by sigma^2")
+        logger.warning("The expectation is scaled by sigma^2")
     elif convex_hull_property == "SUBREGION_MEASURE_3D":
         factor = sigma**2
-        logging.warning("The expectation is scaled by sigma^2")
+        logger.warning("The expectation is scaled by sigma^2")
     else:
         raise ValueError("convex_hull_property is undefined")
 

@@ -17,10 +17,12 @@ __all__: list[str] = [
     "biased_variance",
 ]
 
+logger = logging.getLogger(__name__)
+
 
 class WeightedMeanVariance(NamedTuple):
-    weighted_mean: npt.NDArray
-    weighted_mean_variance: npt.NDArray
+    weighted_mean: float | npt.NDArray
+    weighted_mean_variance: float | npt.NDArray
 
 
 def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
@@ -49,6 +51,8 @@ def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
        https://doi.org/10.1016/1352-2310(94)00210-C.
     """
     values = np.asarray(values)
+    if values.ndim > 1:
+        raise ValueError("values must be 1-dimensional.")
     if weights is None:
         weights = np.ones(shape=values.shape)
     else:
@@ -89,14 +93,14 @@ def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
                 weighted_mean_variance_ = 0
             else:
                 weighted_mean_variance_[weighted_mean_variance_ < 0] = 0  # type: ignore
-            logging.warning(
+            logger.warning(
                 "Negative values for weighted_mean_variance occurred and were set to "
                 "zero."
             )
 
     return WeightedMeanVariance(
         weighted_mean=weighted_average,
-        weighted_mean_variance=weighted_mean_variance_,  # type: ignore
+        weighted_mean_variance=weighted_mean_variance_,
     )
 
 

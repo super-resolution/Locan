@@ -109,7 +109,7 @@ def _dict_to_protobuf(
         try:
             attr_ = getattr(message, key)
         except AttributeError as e:
-            logging.warning(f"AttributeError while parsing: {e}")
+            logger.warning(f"AttributeError while parsing: {e}")
             break
 
         if isinstance(value, dict):

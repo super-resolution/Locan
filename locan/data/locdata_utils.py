@@ -5,6 +5,7 @@ Utility functions for working with locdata.
 """
 from __future__ import annotations
 
+import logging
 from collections.abc import Iterable
 from typing import TYPE_CHECKING
 
@@ -17,6 +18,8 @@ if TYPE_CHECKING:
     from locan.data import LocData  # noqa F401
 
 __all__: list[str] = []
+
+logger = logging.getLogger(__name__)
 
 
 def _get_loc_property_key_per_dimension(locdata, property_key) -> list[str | None]:
@@ -111,13 +114,20 @@ def _get_linked_coordinates(locdata, coordinate_keys=None) -> dict[str, int | fl
                     weighted_mean, weighted_variance = weighted_mean_variance(
                         values=locdata[coordinate_key_], weights=None
                     )
-                    weighted_uncertainty = np.sqrt(weighted_variance)
+                    weighted_uncertainty = np.sqrt(weighted_variance)  # type: ignore
                 else:
-                    weighted_mean, weighted_variance = weighted_mean_variance(
-                        values=locdata[coordinate_key_],
-                        weights=np.power(1 / locdata[uncertainty_key_], 2).to_numpy(),
-                    )
-                    weighted_uncertainty = np.sqrt(weighted_variance)
+                    if (locdata[uncertainty_key_] == 0).any():
+                        logger.warning(
+                            "Zero uncertainties occurred resulting in nan for weighted_mean and weighted_variance."
+                        )
+                    with np.errstate(invalid="ignore"):
+                        weighted_mean, weighted_variance = weighted_mean_variance(
+                            values=locdata[coordinate_key_],
+                            weights=np.power(
+                                1 / locdata[uncertainty_key_], 2
+                            ).to_numpy(),
+                        )
+                        weighted_uncertainty = np.sqrt(weighted_variance)  # type: ignore
 
             results_dict[coordinate_key_] = weighted_mean
             results_dict[new_uncertainty_key_] = weighted_uncertainty

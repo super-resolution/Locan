@@ -25,8 +25,13 @@ def test_weighted_mean_variance():
     wmv = weighted_mean_variance(values=[1, 2], weights=[1, 1e100])
     assert wmv == pytest.approx((2, 0), rel=1e-6)
 
+    wmv = weighted_mean_variance(values=[1, np.nan], weights=None)
+    assert np.isnan(wmv.weighted_mean)
+    assert np.isnan(wmv.weighted_mean_variance)
+
     wmv = weighted_mean_variance(values=[1, 2], weights=[1, np.nan])
-    assert np.isnan([wmv.weighted_mean, wmv.weighted_mean_variance]).all
+    assert np.isnan(wmv.weighted_mean)
+    assert np.isnan(wmv.weighted_mean_variance)
 
     with pytest.raises(TypeError):
         weighted_mean_variance(values=[1, 2], weights=[1])
@@ -36,6 +41,10 @@ def test_weighted_mean_variance():
 
     wmv = weighted_mean_variance(values=[1], weights=[2])
     assert wmv == pytest.approx((1, 0), rel=0.01)
+
+    data = np.arange(6).reshape((3, 2))
+    with pytest.raises(ValueError):
+        weighted_mean_variance(values=data, weights=None)
 
 
 def test_ratio_fwhm_to_sigma():

@@ -38,13 +38,14 @@ from typing import Generator
 
 import networkx as nx
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 from scipy.spatial import Delaunay
 
 from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance
 from locan.data.region import Polygon
 from locan.data.region_utils import regions_union
 
-__all__ = ["AlphaComplex", "AlphaShape"]
+__all__: list[str] = ["AlphaComplex", "AlphaShape"]
 
 
 def _k_simplex_index_list(
@@ -77,7 +78,7 @@ def _k_simplex_index_list(
 def _k_simplex_neighbor_index_list(d: int, k: int) -> tuple[int, ...]:
     """
     Given a d-simplex with d being 2 or 3, indexes for neighbor simplexes in
-    the scipy. Delaunay triangulation are provided for all k-simplices with k<d
+    the scipy.Delaunay triangulation are provided for all k-simplices with k<d
     that are part of the d-simplex.
     """
     if d == 2 and k == 1:
@@ -95,7 +96,7 @@ def _get_k_simplices(simplex, k: int = 1) -> Generator:
     """
     d = len(simplex) - 1
     k_simplices = (
-        [simplex[indx] for indx in indices] for indices in _k_simplex_index_list(d, k)
+        [simplex[indx] for indx in indices] for indices in _k_simplex_index_list(d, k)  # type: ignore
     )
     return k_simplices
 
@@ -111,7 +112,7 @@ class AlphaComplex:
 
     Parameters
     ----------
-    points : array-like
+    points : npt.ArrayLike
         Coordinates of input points. Array with shape (npoints, ndim).
     delaunay : scipy.spatial.Delaunay | None
         Object with attribute `simplices` specifying a list of indices in the
@@ -154,7 +155,9 @@ class AlphaComplex:
             self.triangles = []
 
         elif np.size(self.points) <= 4 and delaunay is None:
-            warnings.warn("Not enough points to construct initial simplex (need 4)")
+            warnings.warn(
+                "Not enough points to construct initial simplex (need 4)", stacklevel=1
+            )
             self.dimension = None
             self.delaunay_triangulation = None
             self.lines = []
@@ -282,8 +285,9 @@ class AlphaComplex:
 
         Returns
         -------
-        list of list of int
-            The indices to specific d-simplices in `self.delaunay_triangulation.simplices`.
+        list[list[int]]
+            The indices to specific d-simplices in
+            `self.delaunay_triangulation.simplices`.
         """
         if np.size(self.triangles) == 0:
             return []
@@ -396,13 +400,13 @@ class AlphaComplex:
         else:
             return np.max([ac[1] for ac in self.lines])
 
-    def alphas(self):
+    def alphas(self) -> npt.NDArray:
         """
         Return alpha values at which the corresponding alpha shape changes.
 
         Returns
         -------
-        numpy.ndarray
+        npt.NDArray
         """
         if np.size(self.lines) == 0:
             return np.array([])
@@ -426,7 +430,7 @@ class AlphaShape:
     ----------
     alpha : float
         Alpha parameter specifying a unique alpha complex.
-    points : array-like | None
+    points : npt.ArrayLike | None
         Coordinates of input points with shape (npoints, ndim).
         Either `points` or `alpha_complex` have to be specified but not both.
     alpha_complex : AlphaComplex | None
@@ -443,7 +447,7 @@ class AlphaShape:
     ----------
     alpha_complex : AlphaComplex
         The unfiltered alpha complex with computed interval values.
-    alpha_shape : numpy.ndarray
+    alpha_shape : npt.NDArray
         The list of k-simplices (edges) from the alpha complex that make up
         the alpha shape.
         Or: Simplicial subcomplex of the Delaunay triangulation with regular

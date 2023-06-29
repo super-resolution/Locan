@@ -16,7 +16,7 @@ from locan.visualize.napari.render2d import render_2d_napari
 from locan.visualize.napari.render3d import render_3d_napari
 from locan.visualize.render_mpl import render_2d_mpl, render_2d_scatter_density
 
-__all__ = [
+__all__: list[str] = [
     "render_2d",
     "render_3d",
 ]

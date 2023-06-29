@@ -886,7 +886,7 @@ def test_AxisOrientedHypercuboid():
     assert region.max_distance == np.sqrt(9**2 + 19**2 + 29**2)
     assert region.region_measure == (9 * 19 * 29)
     with pytest.raises(NotImplementedError):
-        region.subregion_measure
+        region.subregion_measure  # noqa B018
     assert np.array_equal(
         region.contains(
             [[0, 0, 0], [1, 10, 10], [10, 10, 10], [5, 100, 10], [5, 10, 100]]
@@ -935,5 +935,5 @@ def test_pickling_Region():
             with open(file_path, "wb") as file:
                 pickle.dump(region, file, pickle.HIGHEST_PROTOCOL)
             with open(file_path, "rb") as file:
-                region_pickled = pickle.load(file)
+                region_pickled = pickle.load(file)  # noqa S301
             assert type(region_pickled) == type(region)

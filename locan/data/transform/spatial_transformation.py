@@ -12,6 +12,7 @@ import logging
 import sys
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from locan.data.locdata import LocData
@@ -25,38 +26,38 @@ if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
 
 
-__all__ = ["transform_affine", "randomize", "standardize", "overlay"]
+__all__: list[str] = ["transform_affine", "randomize", "standardize", "overlay"]
 
 logger = logging.getLogger(__name__)
 
 
 def _transform_affine_numpy(
     points, matrix=None, offset=None, pre_translation=None
-) -> np.ndarray:
+) -> npt.NDArray:
     """
     Transform `points` by an affine transformation using standard numpy
     procedures.
 
     Parameters
     ----------
-    points : array-like
+    points : npt.ArrayLike
         Points on which to perform the manipulation.
-    matrix : array-like | None
+    matrix : npt.ArrayLike | None
         Transformation matrix. If None the unit matrix is used.
         Array with shape (ndim, ndim).
         If None the unit matrix is used.
-    offset : array-like | None
+    offset : npt.ArrayLike | None
         Translation vector.
         Array with shape (ndim,).
         If None a vector of zeros is used.
-    pre_translation : array-like | None
+    pre_translation : npt.ArrayLike | None
         Translation vector for coordinates applied before affine
         transformation. Array with shape (ndim,).
         The reverse translation is applied after the affine transformation.
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
         Transformed coordinates.
     """
     points_ = np.asarray(points)
@@ -84,7 +85,7 @@ def _transform_affine_numpy(
     return transformed_points
 
 
-def _homogeneous_matrix(matrix=None, offset=None) -> np.ndarray:
+def _homogeneous_matrix(matrix=None, offset=None) -> npt.NDArray:
     """
     Combine transformation matrix and translation vector for dimension d into
     homogeneous (d+1, d+1) transformation
@@ -92,16 +93,16 @@ def _homogeneous_matrix(matrix=None, offset=None) -> np.ndarray:
 
     Parameters
     ----------
-    matrix : array-like | None
+    matrix : npt.ArrayLike | None
         Transformation matrix. If None the unit matrix is used.
         Array with shape (ndim, ndim).
-    offset : array-like | None
+    offset : npt.ArrayLike | None
         Translation vector.
         Array with shape (ndim,).
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
         Homogeneous transformation matrix to be used with homogeneous
         coordinate vector. Array with shape (ndim+1, ndim+1).
     """
@@ -124,31 +125,31 @@ def _homogeneous_matrix(matrix=None, offset=None) -> np.ndarray:
 
 def _transform_affine_open3d(
     points, matrix=None, offset=None, pre_translation=None
-) -> np.ndarray:
+) -> npt.NDArray:
     """
     Transform `points` or coordinates in `locdata` by an affine
     transformation using open3d.
 
     Parameters
     ----------
-    points : array-like
+    points : npt.ArrayLike
         Points on which to perform the manipulation.
-    matrix : array-like | None
+    matrix : npt.ArrayLike | None
         Transformation matrix. If None the unit matrix is used.
         Array with shape (ndim, ndim).
         If None the unit matrix is used.
-    offset : array-like | None
+    offset : npt.ArrayLike | None
         Translation vector.
         Array with shape (ndim,).
         If None a vector of zeros is used.
-    pre_translation : array-like | None
+    pre_translation : npt.ArrayLike | None
         Translation vector for coordinates applied before affine
         transformation. Array with shape (ndim,).
         The reverse translation is applied after the affine transformation.
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
         Transformed coordinates.
     """
     if not HAS_DEPENDENCY["open3d"]:
@@ -199,23 +200,23 @@ def _transform_affine_open3d(
 
 def transform_affine(
     locdata, matrix=None, offset=None, pre_translation=None, method="numpy"
-) -> np.ndarray | LocData:
+) -> npt.NDArray | LocData:
     """
     Transform `points` or coordinates in `locdata` by an affine transformation.
 
     Parameters
     ----------
-    locdata : numpy.ndarray | LocData
+    locdata : npt.ArrayLike | LocData
         Localization data on which to perform the manipulation.
-    matrix : array-like | None
+    matrix : npt.ArrayLike | None
         Transformation matrix. If None the unit matrix is used.
         Array with shape (ndim, ndim).
         If None the unit matrix is used.
-    offset : array-like | None
+    offset : npt.ArrayLike | None
         Translation vector.
         Array with shape (ndim,).
         If None a vector of zeros is used.
-    pre_translation : array-like | None
+    pre_translation : npt.ArrayLike | None
         Translation vector for coordinates applied before affine
         transformation. Array with shape (ndim,).
         The reverse translation is applied after the affine transformation.
@@ -225,7 +226,7 @@ def transform_affine(
 
     Returns
     -------
-    numpy.ndarray | LocData
+    npt.NDArray | LocData
         New localization data with transformed coordinates.
     """
     local_parameter = locals()
@@ -291,12 +292,12 @@ def randomize(locdata, hull_region="bb", seed=None):
     hull_region : Region | str
         Region of interest. String identifier can be one of 'bb', 'ch', 'as',
         'obb' referring to the corresponding hull.
-    seed : None, int, array_like[int], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : None, int, npt.ArrayLike[int], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         random number generation seed
 
     Returns
     -------
-    locdata : LocData
+    LocData
         New localization data with randomized coordinates.
     """
     local_parameter = locals()
@@ -355,7 +356,7 @@ def standardize(locdata, loc_properties=None, with_mean=True, with_std=True):
 
     Returns
     -------
-    locdata : LocData
+    LocData
         New localization data with standardized properties.
     """
     local_parameter = locals()
@@ -495,9 +496,9 @@ def overlay(locdatas, centers="centroid", orientations=None):
                     "Rotation has only been implemented for 2 dimensions."
                 )
             if orientation == "orientation_obb":
-                locdata.oriented_bounding_box
+                locdata.oriented_bounding_box  # update oriented_bounding_box  # noqa B018
             elif orientation == "orientation_im":
-                locdata.inertia_moments
+                locdata.inertia_moments  # update inertia_moments  # noqa B018
             else:
                 raise ValueError(f"orientation={orientation} is undefined.")
 

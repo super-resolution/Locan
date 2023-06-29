@@ -7,6 +7,8 @@ Team, Copyright (c) 2011-2021, Open source contributors.)
 and from :func:`scikit-learn.show_versions` (`locan/licences/SCIKIT-LEARN.rst`)
 (BSD 3-Clause License, Copyright (c) 2007-2020 The scikit-learn developers.)
 """
+from __future__ import annotations
+
 import importlib
 import locale
 import os
@@ -17,7 +19,7 @@ import sys
 from locan import __version__ as locan_version
 from locan.dependencies import EXTRAS_REQUIRE, INSTALL_REQUIRES
 
-__all__ = ["system_info", "dependency_info", "show_versions"]
+__all__: list[str] = ["system_info", "dependency_info", "show_versions"]
 
 
 def system_info(verbose=True):

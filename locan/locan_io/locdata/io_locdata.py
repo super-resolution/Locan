@@ -29,7 +29,7 @@ from locan.locan_io.locdata.utilities import (
     convert_property_types,
 )
 
-__all__ = ["load_txt_file", "load_locdata"]
+__all__: list[str] = ["load_txt_file", "load_locdata"]
 
 logger = logging.getLogger(__name__)
 

@@ -99,7 +99,7 @@ def test_pickling_locdata_from_Roi(locdata_2d):
         with open(file_path, "wb") as file:
             pickle.dump(new_dat, file, pickle.HIGHEST_PROTOCOL)
         with open(file_path, "rb") as file:
-            locdata = pickle.load(file)
+            locdata = pickle.load(file)  # noqa S301
         assert len(new_dat) == len(locdata)
         assert isinstance(locdata.meta, metadata_pb2.Metadata)
 

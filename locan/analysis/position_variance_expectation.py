@@ -20,22 +20,29 @@ References
 from __future__ import annotations
 
 import logging
+import sys
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Protocol
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import boost_histogram as bh
 import matplotlib.pyplot as plt
 import pandas as pd
 
 from locan.analysis.analysis_base import _Analysis
-from locan.data.aggregate import Bins, _check_loc_properties
+from locan.data.aggregate import Bins
+from locan.data.validation import _check_loc_properties
 from locan.utils.statistics import biased_variance
 
 if TYPE_CHECKING:
     import matplotlib as mpl
 
-__all__ = ["PositionVarianceExpectation"]
+__all__: list[str] = ["PositionVarianceExpectation"]
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +50,10 @@ logger = logging.getLogger(__name__)
 class Collection(Protocol):
     data: pd.DataFrame
     references: Iterable
+    coordinate_keys: list[str]
 
     def __len__(self):
-        pass
+        ...
 
 
 # The algorithms
@@ -148,7 +156,7 @@ class PositionVarianceExpectation(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata=None):
+    def compute(self, locdata=None) -> Self:
         """
         Run the computation.
 
@@ -159,8 +167,7 @@ class PositionVarianceExpectation(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

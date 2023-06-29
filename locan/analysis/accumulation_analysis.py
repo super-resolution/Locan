@@ -18,6 +18,8 @@ References
    Nat Methods. 2016 Nov 29;13(12):963-964. doi: 10.1038/nmeth.406
 
 """
+from __future__ import annotations
+
 import logging
 
 import matplotlib.pyplot as plt
@@ -30,7 +32,7 @@ from locan.data.filter import random_subset
 from locan.data.hulls import ConvexHull
 from locan.data.locdata import LocData
 
-__all__ = ["AccumulationClusterCheck"]
+__all__: list[str] = ["AccumulationClusterCheck"]
 
 logger = logging.getLogger(__name__)
 

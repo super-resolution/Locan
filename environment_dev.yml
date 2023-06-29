@@ -24,6 +24,7 @@ dependencies:
 - black
 - pre-commit
 - ruff
+- mypy
 
 # Documentation
 - sphinx

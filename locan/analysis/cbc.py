@@ -11,7 +11,15 @@ References
    Histochem Cell Biol. 2012, 137(1):1-10.
    doi: 10.1007/s00418-011-0880-5
 """
+from __future__ import annotations
+
 import logging
+import sys
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,7 +29,7 @@ from sklearn.neighbors import NearestNeighbors
 
 from locan.analysis.analysis_base import _Analysis
 
-__all__ = ["CoordinateBasedColocalization"]
+__all__: list[str] = ["CoordinateBasedColocalization"]
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +142,7 @@ class CoordinateBasedColocalization(_Analysis):
         super().__init__(meta=meta, radius=radius, n_steps=n_steps)
         self.results = None
 
-    def compute(self, locdata, other_locdata=None):
+    def compute(self, locdata, other_locdata=None) -> Self:
         """
         Run the computation.
 
@@ -147,8 +155,7 @@ class CoordinateBasedColocalization(_Analysis):
 
         Returns
         -------
-        Analysis class
-           Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

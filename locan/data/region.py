@@ -7,6 +7,7 @@ All region classes inherit from the abstract base class `Region`.
 
 """
 # todo: fix docstrings
+from __future__ import annotations
 
 import itertools as it
 from abc import ABC, abstractmethod
@@ -15,6 +16,7 @@ import matplotlib.patches as mpl_patches
 import matplotlib.path as mpl_path
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 from scipy.spatial.distance import pdist
 from shapely.affinity import rotate, scale, translate
 from shapely.geometry import MultiPoint as shMultiPoint
@@ -23,7 +25,7 @@ from shapely.geometry import Point as shPoint
 from shapely.geometry import Polygon as shPolygon
 from shapely.prepared import prep
 
-__all__ = [
+__all__: list[str] = [
     "Region",
     "EmptyRegion",
     "Region1D",
@@ -96,7 +98,7 @@ class RoiRegion:
         Spatial dimension of region
     centroid : tuple of float
         Centroid coordinates
-    max_distance : array-like of float
+    max_distance : npt.NDArray[np.float_]
         Maximum distance between any two points in the region
     region_measure : float
         Hull measure, i.e. area or volume
@@ -164,18 +166,18 @@ class RoiRegion:
 
         return cls(region_type=region_type, region_specs=region_specs)
 
-    def contains(self, points):
+    def contains(self, points) -> npt.NDArray[np.int_]:
         """
         Return list of indices for all points that are inside the region of interest.
 
         Parameters
         ----------
-        points : array
+        points : npt.ArrayLike
             2D or 3D coordinates of oints that are tested for being inside the specified region.
 
         Returns
         -------
-        numpy.ndarray of ints
+        npt.NDArray[np.int_]
             Array with indices for all points in original point array that are within the region.
         """
         return self._region.contains(points)
@@ -209,8 +211,8 @@ class RoiRegion:
 
 class Region(ABC):
     """
-       Abstract Region class to define the interface for Region-derived classes that specify geometric objects
-       to represent regions of interest.
+    Abstract Region class to define the interface for Region-derived classes that specify geometric objects
+    to represent regions of interest.
     """
 
     def __repr__(self):
@@ -224,7 +226,7 @@ class Region(ABC):
 
         Parameters
         ----------
-        intervals : array-like of shape (2,)
+        intervals : npt.ArrayLike of shape (2,)
             The region bounds for each dimension
 
         Returns
@@ -410,18 +412,18 @@ class Region(ABC):
         return self.symmetric_difference(other)
 
     @abstractmethod
-    def contains(self, points):
+    def contains(self, points) -> npt.NDArray[np.int_]:
         """
         Return list of indices for all points that are inside the region of interest.
 
         Parameters
         ----------
-        points : array-like
+        points : npt.ArrayLike
             Coordinates of points that are tested for being inside the specified region.
 
         Returns
         -------
-        numpy.ndarray of ints
+        npt.NDArray[np.int_]
             Array with indices for all points in original point array that are within the region.
         """
         pass
@@ -449,7 +451,7 @@ class Region(ABC):
 
 class Region1D(Region):
     """
-       Abstract Region class to define the interface for 1-dimensional Region classes.
+    Abstract Region class to define the interface for 1-dimensional Region classes.
     """
 
     @property
@@ -463,7 +465,7 @@ class Region1D(Region):
 
         Parameters
         ----------
-        origin : array_like
+        origin : npt.ArrayLike
             The (x, y) pixel position of the origin of the displayed image.
             Default is (0, 0).
         kwargs : dict
@@ -488,7 +490,7 @@ class Region1D(Region):
 
 class Region2D(Region):
     """
-       Abstract Region class to define the interface for 2-dimensional Region classes.
+    Abstract Region class to define the interface for 2-dimensional Region classes.
     """
 
     def __getstate__(self):
@@ -558,7 +560,7 @@ class Region2D(Region):
 
         Parameters
         ----------
-        origin : array_like
+        origin : npt.ArrayLike
             The (x, y) pixel position of the origin of the displayed image.
             Default is (0, 0).
         kwargs : dict
@@ -631,7 +633,7 @@ class Region2D(Region):
 
 class Region3D(Region):
     """
-       Abstract Region class to define the interface for 3-dimensional Region classes.
+    Abstract Region class to define the interface for 3-dimensional Region classes.
     """
 
     @property
@@ -645,7 +647,7 @@ class Region3D(Region):
 
         Parameters
         ----------
-        origin : array_like
+        origin : npt.ArrayLike
             The (x, y) pixel position of the origin of the displayed image.
             Default is (0, 0).
         kwargs : dict
@@ -697,7 +699,7 @@ class Region3D(Region):
 
 class RegionND(Region):
     """
-       Abstract Region class to define the interface for n-dimensional Region classes.
+    Abstract Region class to define the interface for n-dimensional Region classes.
     """
 
     def as_artist(self):
@@ -715,7 +717,7 @@ class RegionND(Region):
 
 class EmptyRegion(Region):
     """
-       Region class to define an empty region that has no dimension.
+    Region class to define an empty region that has no dimension.
     """
 
     def __init__(self):
@@ -813,12 +815,13 @@ class Interval(Region1D):
     def from_intervals(cls, intervals):
         """
         Constructor for instantiating Region from list of (min, max) bounds.
-        Takes array-like intervals instead of interval to be consistent with `Rectangle.from_intervals`.
+        Takes array-like intervals instead of interval to be consistent with
+        `Rectangle.from_intervals`.
 
         Parameters
         ----------
-        intervals : array-like of shape (2,)
-            The region bounds for each dimension
+        intervals : npt.ArrayLike
+            The region bounds for each dimension of shape (2,)
 
         Returns
         -------
@@ -864,8 +867,8 @@ class Interval(Region1D):
 
         Returns
         -------
-        Tuple of shape(dimension, 2)
-            ((min_x, max_x), ...).
+        Tuple
+            ((min_x, max_x), ...) of shape(dimension, 2).
         """
         return (self.bounds,)
 
@@ -929,8 +932,8 @@ class Rectangle(Region2D):
 
     Parameters
     ----------
-    corner : array-like with shape (2,)
-        A point that defines the lower left corner.
+    corner : npt.ArrayLike
+        A point that defines the lower left corner with shape (2,).
     width : float
         The length of a vector describing the edge in x-direction.
     height : float
@@ -965,8 +968,8 @@ class Rectangle(Region2D):
 
         Parameters
         ----------
-        intervals : tuple, list, np.ndarray of shape (2, 2)
-            The region bounds for each dimension
+        intervals : tuple | list | npt.ArrayLike
+            The region bounds for each dimension of shape (2, 2)
 
         Returns
         -------
@@ -981,18 +984,19 @@ class Rectangle(Region2D):
         return cls(corner, width, height, angle)
 
     @property
-    def corner(self):
+    def corner(self) -> npt.NDArray:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        array-like with shape (2,)
+        npt.NDArray
+            with shape (2,)
         """
         return self._corner
 
     @property
-    def width(self):
+    def width(self) -> float:
         """
         The length of a vector describing the edge in x-direction.
 
@@ -1003,7 +1007,7 @@ class Rectangle(Region2D):
         return self._width
 
     @property
-    def height(self):
+    def height(self) -> float:
         """
         The length of a vector describing the edge in y-direction.
 
@@ -1014,9 +1018,10 @@ class Rectangle(Region2D):
         return self._height
 
     @property
-    def angle(self):
+    def angle(self) -> float:
         """
-        The angle (in degrees) by which the rectangle is rotated counterclockwise around the corner point.
+        The angle (in degrees) by which the rectangle is rotated
+        counterclockwise around the corner point.
 
         Returns
         -------
@@ -1025,14 +1030,14 @@ class Rectangle(Region2D):
         return self._angle
 
     @property
-    def intervals(self):
+    def intervals(self) -> tuple:
         """
         Provide bounds in a tuple (min, max) arrangement.
 
         Returns
         -------
-        Tuple of shape(dimension, 2)
-            ((min_x, max_x), ...).
+        tuple
+            ((min_x, max_x), ...) of shape(dimension, 2)
         """
         lower_bounds = self.bounds[: self.dimension]
         upper_bounds = self.bounds[self.dimension :]
@@ -1081,7 +1086,7 @@ class Rectangle(Region2D):
 
     @property
     def max_distance(self):
-        return np.sqrt(self.width ** 2 + self.height ** 2)
+        return np.sqrt(self.width**2 + self.height**2)
 
     @property
     def region_measure(self):
@@ -1112,8 +1117,8 @@ class Ellipse(Region2D):
 
     Parameters
     ----------
-    center : array-like with shape (2,)
-        A point that defines the center of the ellipse.
+    center : npt.ArrayLike
+        A point that defines the center of the ellipse with shape (2,).
     width : float
         The length of a vector describing the principal axis in x-direction (before rotation).
     height : float
@@ -1148,12 +1153,13 @@ class Ellipse(Region2D):
 
         Returns
         -------
-        array-like with shape (2,)
+        npt.NDArray
+            with shape (2,)
         """
         return self._center
 
     @property
-    def width(self):
+    def width(self) -> float:
         """
         The length of a vector describing the principal axis in x-direction (before rotation).
 
@@ -1164,7 +1170,7 @@ class Ellipse(Region2D):
         return self._width
 
     @property
-    def height(self):
+    def height(self) -> float:
         """
         The length of a vector describing the principal axis in y-direction (before rotation).
 
@@ -1175,7 +1181,7 @@ class Ellipse(Region2D):
         return self._height
 
     @property
-    def angle(self):
+    def angle(self) -> float:
         """
         The angle (in degrees) by which the ellipse is rotated counterclockwise around the center point.
 
@@ -1247,8 +1253,8 @@ class Ellipse(Region2D):
         xct = xc * cos_angle - yc * sin_angle
         yct = xc * sin_angle + yc * cos_angle
 
-        rad_cc = (xct ** 2 / (self.width / 2.0) ** 2) + (
-            yct ** 2 / (self.height / 2.0) ** 2
+        rad_cc = (xct**2 / (self.width / 2.0) ** 2) + (
+            yct**2 / (self.height / 2.0) ** 2
         )
 
         inside_indices = np.nonzero(rad_cc < 1.0)[0]
@@ -1271,10 +1277,12 @@ class Polygon(Region2D):
 
     Parameters
     ----------
-    points  : array-like with shape (n_points, 2)
-        Points that define the exterior boundary of a polygon.
-    holes  : array-like with shape (n_holes, n_points, 2)
-        Points that define holes within the polygon.
+    points  : npt.ArrayLike
+        Points with shape (n_points, 2)
+        that define the exterior boundary of a polygon.
+    holes  : npt.ArrayLike
+        Points with shape (n_holes, n_points, 2)
+        that define holes within the polygon.
     """
 
     def __init__(self, points=((0, 0), (0, 1), (1, 1), (1, 0)), holes=None):
@@ -1318,13 +1326,14 @@ class Polygon(Region2D):
             return cls(points, holes)
 
     @property
-    def points(self):
+    def points(self) -> npt.NDArray:
         """
         Exterior polygon points.
 
         Returns
         -------
-        numpy.array of shape(n_points, dimension)
+        npt.NDArray
+            of shape(n_points, dimension)
         """
         return self._points
 
@@ -1335,7 +1344,8 @@ class Polygon(Region2D):
 
         Returns
         -------
-        list of numpy.array of shape(n_holes, n_points, dimension)
+        list[npt.NDArray]
+            of shape(n_holes, n_points, dimension)
         """
         return self._holes
 
@@ -1406,7 +1416,7 @@ class MultiPolygon(Region2D):
 
     Parameters
     ----------
-    polygons  : list of Polygon
+    polygons  : list[Polygon]
         Polygons that define the individual polygons.
     """
 
@@ -1436,7 +1446,8 @@ class MultiPolygon(Region2D):
 
         Returns
         -------
-        list of numpy.array of shape(n_polygons, n_points, dimension)
+        list[npt.NDArray]
+            of shape(n_polygons, n_points, dimension)
         """
         return [pol.points for pol in self.polygons]
 
@@ -1459,7 +1470,7 @@ class MultiPolygon(Region2D):
 
         Returns
         -------
-        list of Polygon
+        list[Polygon]
         """
         return self._polygons
 
@@ -1531,7 +1542,7 @@ class AxisOrientedCuboid(Region3D):
 
     Parameters
     ----------
-    corner : array-like with shape (3,)
+    corner : npt.ArrayLike with shape (3,)
         A point that defines the lower left corner.
     length : float
         The length of a vector describing the edge in x-direction.
@@ -1560,8 +1571,8 @@ class AxisOrientedCuboid(Region3D):
 
         Parameters
         ----------
-        intervals : array-like of shape (3, 2)
-            The region bounds for each dimension
+        intervals : npt.ArrayLike
+            The region bounds for each dimension of shape (3, 2)
 
         Returns
         -------
@@ -1577,18 +1588,19 @@ class AxisOrientedCuboid(Region3D):
         return cls(corner, length, width, height)
 
     @property
-    def corner(self):
+    def corner(self) -> npt.NDArray:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        array-like with shape (2,)
+        npt.NDArray
+            with shape (2,)
         """
         return self._corner
 
     @property
-    def length(self):
+    def length(self) -> float:
         """
         The length of a vector describing the edge in x-direction.
 
@@ -1599,7 +1611,7 @@ class AxisOrientedCuboid(Region3D):
         return self._length
 
     @property
-    def width(self):
+    def width(self) -> float:
         """
         The length of a vector describing the edge in y-direction.
 
@@ -1610,7 +1622,7 @@ class AxisOrientedCuboid(Region3D):
         return self._width
 
     @property
-    def height(self):
+    def height(self) -> float:
         """
         The length of a vector describing the edge in z-direction.
 
@@ -1645,14 +1657,14 @@ class AxisOrientedCuboid(Region3D):
         return min_x, min_y, min_z, max_x, max_y, max_z
 
     @property
-    def intervals(self):
+    def intervals(self) -> tuple:
         """
         Provide bounds in a tuple (min, max) arrangement.
 
         Returns
         -------
-        Tuple of shape(dimension, 2)
-            ((min_x, max_x), ...).
+        Tuple
+            ((min_x, max_x), ...) of shape(dimension, 2)
         """
         min_x, min_y, min_z, max_x, max_y, max_z = self.bounds
         return ((min_x, max_x), (min_y, max_y), (min_z, max_z))
@@ -1667,7 +1679,7 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def max_distance(self):
-        return np.sqrt(self.length ** 2 + self.width ** 2 + self.height ** 2)
+        return np.sqrt(self.length**2 + self.width**2 + self.height**2)
 
     @property
     def region_measure(self):
@@ -1719,8 +1731,8 @@ class Cuboid(Region3D):
 
     Parameters
     ----------
-    corner : array-like with shape (2,)
-        A point that defines the lower left corner.
+    corner : npt.ArrayLike
+        A point that defines the lower left corner with shape (2,).
     length : float
         The length of a vector describing the edge in x-direction.
     width : float
@@ -1753,13 +1765,14 @@ class Cuboid(Region3D):
         )
 
     @property
-    def corner(self):
+    def corner(self) -> npt.NDArray:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        array-like with shape (2,)
+        npt.NDArray
+            with shape (2,)
         """
         return self._corner
 
@@ -1847,7 +1860,7 @@ class Cuboid(Region3D):
 
     @property
     def max_distance(self):
-        return np.sqrt(self.length ** 2 + self.width ** 2 + self.height ** 2)
+        return np.sqrt(self.length**2 + self.width**2 + self.height**2)
 
     @property
     def region_measure(self):
@@ -1885,10 +1898,11 @@ class AxisOrientedHypercuboid(RegionND):
 
     Parameters
     ----------
-    corner : array-like with shape (dimension,)
-        A point that defines the lower left corner.
-    lengths : array-like of shape(dimension,)
-        Array of length values for the 1-dimensional edge vectors.
+    corner : npt.ArrayLike
+        A point with shape (dimension,) that defines the lower left corner.
+    lengths : npt.ArrayLike
+        Array of shape(dimension,) of length values for the 1-dimensional
+        edge vectors.
     """
 
     def __init__(self, corner=(0, 0, 0), lengths=(1, 1, 1)):
@@ -1907,8 +1921,8 @@ class AxisOrientedHypercuboid(RegionND):
 
         Parameters
         ----------
-        intervals : array-like of shape (dimension, 2)
-            The region bounds for each dimension
+        intervals : npt.ArrayLike
+            The region bounds for each dimension of shape (dimension, 2)
 
         Returns
         -------
@@ -1920,24 +1934,26 @@ class AxisOrientedHypercuboid(RegionND):
         return cls(corner, lengths)
 
     @property
-    def corner(self):
+    def corner(self) -> npt.NDArray:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        array-like with shape (dimension,)
+        npt.NDArray
+            with shape (dimension,)
         """
         return self._corner
 
     @property
-    def lengths(self):
+    def lengths(self) -> npt.NDArray:
         """
         Array of length values for the 1-dimensional edge vectors.
 
         Returns
         -------
-        array-like of shape(dimension,)
+        npt.NDArray
+            of shape(dimension,)
         """
         return self._lengths
 
@@ -1980,7 +1996,7 @@ class AxisOrientedHypercuboid(RegionND):
 
     @property
     def max_distance(self):
-        return np.sqrt(np.sum(self.lengths ** 2))
+        return np.sqrt(np.sum(self.lengths**2))
 
     @property
     def region_measure(self):

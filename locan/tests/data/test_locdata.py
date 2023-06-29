@@ -866,3 +866,41 @@ def test_locdata_uncertainty_labels(locdata_2d):
     assert c_labels == ["other"]
     c_labels = locdata_2d.uncertainty_keys
     assert c_labels == []
+
+
+def test_update_properties_in_references(df_simple, caplog):
+    locdata = LocData(dataframe=df_simple)
+    other_locdata = LocData(dataframe=df_simple)
+    collection = LocData.from_collection([locdata, other_locdata])
+    collection.dataframe.index = [1, 3]
+
+    # test dict
+    new_collection = copy.deepcopy(collection)
+
+    new_properties = {"new_property": [111, 222]}
+
+    new_collection.update_properties_in_references(properties=new_properties)
+
+    for reference_ in new_collection.references:
+        assert "new_property" in reference_.properties
+    assert new_collection.data.index.tolist() == collection.data.index.tolist()
+    assert "new_property" in new_collection.data.columns
+    assert new_collection.data.new_property.tolist() == [111, 222]
+    for key, value in collection.properties.items():
+        assert value == new_collection.properties[key]
+
+    # test Series with custom index
+    new_collection = copy.deepcopy(collection)
+    new_properties = pd.Series(name="new_property", data=[111, 222])
+    new_properties.index = [3, 1]
+    with pytest.raises(ValueError):
+        new_collection.update_properties_in_references(properties=new_properties)
+
+    # test DataFrame with custom index
+    new_collection = copy.deepcopy(collection)
+    new_properties = pd.DataFrame.from_dict(
+        {"new_property": [111, 222], "new_property_2": [1111, 2222]}
+    )
+    new_properties.index = [3, 1]
+    with pytest.raises(ValueError):
+        new_collection.update_properties_in_references(properties=new_properties)

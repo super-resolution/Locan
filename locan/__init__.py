@@ -20,6 +20,8 @@ Locan consists of the following modules:
    visualize
    tests
 """
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 
@@ -32,10 +34,10 @@ except ImportError:
 
 
 # Root directory for path operations.
-ROOT_DIR = Path(__file__).parent
+ROOT_DIR: Path = Path(__file__).parent
 
 # Identifier for LocData objects that is reset for each locan session and incremented with each LocData instantiation.
-locdata_id = 0
+locdata_id: int = 0
 
 
 # isort: off
@@ -54,16 +56,16 @@ from locan.tests import *
 
 # isort: on
 
-__all__ = ["__version__", "ROOT_DIR"]
-__all__.extend(dependencies.__all__)
-__all__.extend(constants.__all__)
-__all__.extend(configuration.__all__)
-__all__.extend(analysis.__all__)
-__all__.extend(data.__all__)
-__all__.extend(datasets.__all__)
-__all__.extend(gui.__all__)
-__all__.extend(locan_io.__all__)
-__all__.extend(simulation.__all__)
-__all__.extend(utils.__all__)
-__all__.extend(visualize.__all__)
-__all__.extend(tests.__all__)
+__all__: list[str] = ["__version__", "ROOT_DIR"]
+__all__.extend(dependencies.__all__)  # type: ignore
+__all__.extend(constants.__all__)  # type: ignore
+__all__.extend(configuration.__all__)  # type: ignore
+__all__.extend(analysis.__all__)  # type: ignore
+__all__.extend(data.__all__)  # type: ignore
+__all__.extend(datasets.__all__)  # type: ignore
+__all__.extend(gui.__all__)  # type: ignore
+__all__.extend(locan_io.__all__)  # type: ignore
+__all__.extend(simulation.__all__)  # type: ignore
+__all__.extend(utils.__all__)  # type: ignore
+__all__.extend(visualize.__all__)  # type: ignore
+__all__.extend(tests.__all__)  # type: ignore

@@ -8,10 +8,13 @@ in registry.
 Parts of this code is adapted from https://github.com/jungmannlab/picasso.
 (MIT license, Copyright (c) 2016 Jungmann Lab, MPI of Biochemistry)
 """
+from __future__ import annotations
+
 from collections import namedtuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 from lmfit import Model, Parameters
 
 from locan.data.aggregate import histogram
@@ -24,7 +27,9 @@ if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
 
 
-__all__ = ["register_icp", "register_cc"]
+__all__: list[str] = ["register_icp", "register_cc"]
+
+Transformation = namedtuple("Transformation", "matrix offset")
 
 
 @needs_package("open3d")
@@ -38,18 +43,19 @@ def _register_icp_open3d(
     max_iteration=10_000,
     with_scaling=True,
     verbose=True,
-):
+) -> Transformation:
     """
     Register `points` by an "Iterative Closest Point" algorithm using open3d.
 
     Parameters
     ----------
-    points : array-like
+    points : npt.ArrayLike
         Points representing the source on which to perform the manipulation.
-    other_points : array-like
+    other_points : npt.ArrayLike
         Points representing the target.
-    matrix : tuple with shape (d, d)
-        Transformation matrix used as initial value. If None the unit matrix is used.
+    matrix : tuple
+        Transformation matrix with shape (d, d)used as initial value.
+        If None the unit matrix is used.
     offset : tuple of int or float with shape (d,)
         Translation vector used as initial value. If None a vector of zeros is used.
     pre_translation : tuple of int or float
@@ -65,7 +71,7 @@ def _register_icp_open3d(
 
     Returns
     -------
-    namedtuple('Transformation', 'matrix offset')
+    Transformation
         Matrix and offset representing the optimized transformation.
     """
     points_ = np.asarray(points)
@@ -134,7 +140,6 @@ def _register_icp_open3d(
     if verbose:
         print(registration)
 
-    Transformation = namedtuple("Transformation", "matrix offset")
     return Transformation(new_matrix, new_offset)
 
 
@@ -147,21 +152,23 @@ def register_icp(
     max_correspondence_distance=1_000,
     max_iteration=10_000,
     verbose=True,
-):
+) -> Transformation:
     """
     Register `points` or coordinates in `locdata` by an "Iterative Closest Point" algorithm using open3d.
 
     Parameters
     ----------
-    locdata : array-like or LocData
+    locdata : npt.ArrayLike | LocData
         Localization data representing the source on which to perform the manipulation.
-    other_locdata : array-like or LocData
+    other_locdata : npt.ArrayLike | LocData
         Localization data representing the target.
-    matrix : tuple with shape (d, d)
-        Transformation matrix used as initial value. If None the unit matrix is used.
-    offset : tuple of int or float with shape (d,)
-        Translation vector used as initial value. If None a vector of zeros is used.
-    pre_translation : tuple of int or float
+    matrix : tuple
+        Transformation matrix with shape (d, d) used as initial value.
+        If None the unit matrix is used.
+    offset : tuple[int | float]
+        Translation vector with shape (d,) used as initial value.
+        If None a vector of zeros is used.
+    pre_translation : tuple[int | float]
         Values for translation of coordinates before registration.
     max_correspondence_distance : float
         Threshold distance for the icp algorithm. Parameter is passed to open3d algorithm.
@@ -172,7 +179,7 @@ def register_icp(
 
     Returns
     -------
-    namedtuple('Transformation', 'matrix offset')
+    Transformation
         Matrix and offset representing the optimized transformation.
     """
     local_parameter = locals()
@@ -307,46 +314,46 @@ def register_cc(
     bin_range=None,
     verbose=False,
     **kwargs,
-):
+) -> Transformation:
     """
-    Register `points` or coordinates in `locdata` by a cross-correlation algorithm.
+     Register `points` or coordinates in `locdata` by a cross-correlation algorithm.
 
-    This function is based on code from picasso/imageprocess by Joerg Schnitzbauer, MPI of Biochemistry
-    https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
+     This function is based on code from picasso/imageprocess by Joerg Schnitzbauer, MPI of Biochemistry
+     https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
 
-    Parameters
-    ----------
-    locdata : array-like or LocData
-        Localization data representing the source on which to perform the manipulation.
-    other_locdata : array-like or LocData
-        Localization data representing the target.
-    max_offset : int or float or None
-        Maximum possible offset.
-    bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
-        The bin specification as defined in :class:`Bins`
-    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges) or None
-        Array of bin edges for all or each dimension.
-    n_bins : int, list, tuple or numpy.ndarray or None
-        The number of bins for all or each dimension.
-        5 yields 5 bins in all dimensions.
-        (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float, list, tuple or numpy.ndarray or None
-        The size of bins in units of locdata coordinate units for all or each dimension.
-        5 would describe bin_size of 5 for all bins in all dimensions.
-        (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
-        To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple or tuple of tuples of float with shape (dimension, 2) or None or 'zero'
-        The data bin_range to be taken into consideration for all or each dimension.
-        ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
-        for None (min, max) bin_range are determined from data;
-        for 'zero' (0, max) bin_range with max determined from data.
-    verbose : bool
-        Flag indicating if transformation results are printed out.
+     Parameters
+     ----------
+     locdata : npt.ArrayLike | LocData
+         Localization data representing the source on which to perform the manipulation.
+     other_locdata : npt.ArrayLike | LocData
+         Localization data representing the target.
+     max_offset : int | float | None
+         Maximum possible offset.
+     bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
+         The bin specification as defined in :class:`Bins`
+     bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges) or None
+         Array of bin edges for all or each dimension.
+     n_bins : int, list, tuple or numpy.ndarray or None
+         The number of bins for all or each dimension.
+         5 yields 5 bins in all dimensions.
+         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
+     bin_size : float, list, tuple or numpy.ndarray or None
+         The size of bins in units of locdata coordinate units for all or each dimension.
+         5 would describe bin_size of 5 for all bins in all dimensions.
+         (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
+         To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
+     bin_range : tuple or tuple of tuples of float with shape (dimension, 2) or None or 'zero'
+         The data bin_range to be taken into consideration for all or each dimension.
+         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
+         for None (min, max) bin_range are determined from data;
+         for 'zero' (0, max) bin_range with max determined from data.
+     verbose : bool
+         Flag indicating if transformation results are printed out.
 
-    Returns
-    -------
-    namedtuple('Transformation', 'matrix offset')
-        Matrix and offset representing the optimized transformation.
+     Returns
+     -------
+    Transformation
+         Matrix and offset representing the optimized transformation.
     """
     if isinstance(locdata, LocData) and isinstance(other_locdata, LocData):
         if bin_range is None:
@@ -383,5 +390,4 @@ def register_cc(
     )
     offset = tuple(np.asarray(offset) * bin_size)
 
-    Transformation = namedtuple("Transformation", "matrix offset")
     return Transformation(matrix, offset)

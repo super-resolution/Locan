@@ -8,14 +8,26 @@ This module provides functions to validate LocData properties.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import Protocol
+
+import pandas as pd
 
 from locan.data.locdata import LocData
 
-__all__ = []
+__all__: list[str] = []
+
+
+class Collection(Protocol):
+    data: pd.DataFrame
+    references: Iterable
+    coordinate_keys: list[str]
+
+    def __len__(self):
+        ...
 
 
 def _check_loc_properties(
-    locdata: LocData, loc_properties: str | Iterable | None = None
+    locdata: LocData | Collection, loc_properties: str | Iterable | None = None
 ) -> list[str]:
     """
     Check that loc_properties are valid properties in locdata.

@@ -7,6 +7,7 @@ File specifications are provided at https://github.com/imodpasteur/smlm-file-for
 Code is adapted from https://github.com/imodpasteur/smlm-file-format/blob/master/implementations/Python/smlm_file.py.
 (MIT license)
 """
+from __future__ import annotations
 
 import json
 import logging
@@ -27,7 +28,7 @@ from locan.locan_io.locdata.utilities import (
 )
 from locan.utils.format import _time_string
 
-__all__ = [
+__all__: list[str] = [
     "manifest_format_from_locdata",
     "manifest_file_info_from_locdata",
     "manifest_from_locdata",

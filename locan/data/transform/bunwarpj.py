@@ -33,6 +33,7 @@ import sys
 from itertools import islice
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from scipy import interpolate
 
@@ -40,26 +41,26 @@ from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 from locan.data.transform.spatial_transformation import transform_affine
 
-__all__ = ["bunwarp"]
+__all__: list[str] = ["bunwarp"]
 
 
-def _unwarp(points, matrix_x, matrix_y, pixel_size) -> np.ndarray:
+def _unwarp(points, matrix_x, matrix_y, pixel_size) -> npt.NDArray:
     """
     Transform points with raw matrix from BunwarpJ.
 
     Parameters
     ----------
-    points : array_like
+    points : npt.ArrayLike
         Point coordinates to be transformed.
         Array with shape (n_points, 2).
-    matrix_x, matrix_y : array-like
+    matrix_x, matrix_y : npt.ArrayLike
         Transformation matrix for x and y coordinates
     pixel_size : tuple[float, float]
         Pixel size for x and y component as used in ImageJ for registration
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
         Transformed point coordinates with shape (n_points, 2).
     """
     points_ = np.asarray(points)
@@ -84,7 +85,7 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size) -> np.ndarray:
     return new_points
 
 
-def _read_matrix(path) -> tuple[np.ndarray, np.ndarray]:
+def _read_matrix(path) -> tuple[npt.NDArray, npt.NDArray]:
     """
     Read file with raw matrix from BunwarpJ.
 
@@ -95,7 +96,7 @@ def _read_matrix(path) -> tuple[np.ndarray, np.ndarray]:
 
     Returns
     -------
-    tuple[numpy.ndarray, numpy.ndarray]
+    tuple[npt.NDArray, npt.NDArray]
         x transformation array, y transformation array
     """
     with open(path) as file:
@@ -134,7 +135,7 @@ def bunwarp(locdata, matrix_path, pixel_size, flip=False) -> LocData:
 
     Returns
     -------
-    locdata : LocData
+    LocData
         New localization data with transformed coordinates.
     """
     local_parameter = locals()

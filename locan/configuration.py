@@ -31,7 +31,7 @@ from locan.dependencies import QtBindings, _set_qt_binding
 
 logger = logging.getLogger(__name__)
 
-__all__ = [
+__all__: list[str] = [
     "DATASETS_DIR",
     "RENDER_ENGINE",
     "N_JOBS",

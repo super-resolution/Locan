@@ -3,6 +3,8 @@
 File input/output for localization data in rapidSTORM files.
 
 """
+from __future__ import annotations
+
 import logging
 import xml.etree.ElementTree as etree
 
@@ -18,7 +20,7 @@ from locan.locan_io.locdata.utilities import (
     open_path_or_file_like,
 )
 
-__all__ = [
+__all__: list[str] = [
     "load_rapidSTORM_header",
     "load_rapidSTORM_file",
     "load_rapidSTORM_track_header",

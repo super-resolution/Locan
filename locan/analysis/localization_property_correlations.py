@@ -3,7 +3,15 @@ Analyze cross dependencies between localization properties.
 
 Analyze cross dependencies as indicated by the correlation coefficients between any two localization properties.
 """
+from __future__ import annotations
+
 import logging
+import sys
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,7 +19,7 @@ import numpy as np
 from locan.analysis.analysis_base import _Analysis
 from locan.configuration import COLORMAP_DIVERGING
 
-__all__ = ["LocalizationPropertyCorrelations"]
+__all__: list[str] = ["LocalizationPropertyCorrelations"]
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +65,7 @@ class LocalizationPropertyCorrelations(_Analysis):
         super().__init__(meta=meta, loc_properties=loc_properties)
         self.results = None
 
-    def compute(self, locdata=None):
+    def compute(self, locdata=None) -> Self:
         """
         Run the computation.
 
@@ -68,8 +76,7 @@ class LocalizationPropertyCorrelations(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")
@@ -117,7 +124,7 @@ class LocalizationPropertyCorrelations(_Analysis):
 
         im = ax.imshow(
             self.results,
-            **dict(dict(vmin=-1, vmax=1, cmap=COLORMAP_DIVERGING), **kwargs)
+            **dict(dict(vmin=-1, vmax=1, cmap=COLORMAP_DIVERGING), **kwargs),
         )
         columns = self.results.columns
 

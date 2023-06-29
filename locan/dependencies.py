@@ -35,7 +35,7 @@ from functools import wraps
 
 logger = logging.getLogger(__name__)
 
-__all__ = [
+__all__: list[str] = [
     "needs_package",
     "IMPORT_NAMES",
     "INSTALL_REQUIRES",
@@ -106,23 +106,30 @@ def _get_dependencies(package: str) -> tuple[set[str], set[str]]:
         PyPI names
     """
     requires = importlib.metadata.requires(package)
-
-    pattern = r"[\w-]+"
-    required_dependencies = {
-        re.match(pattern, item).group() for item in requires if "extra ==" not in item
-    }
-    extra_dependencies = {
-        re.match(pattern, item).group() for item in requires if "extra ==" in item
-    }
-
+    if requires is None:
+        required_dependencies: set = set()
+        extra_dependencies: set = set()
+    else:
+        pattern = r"[\w-]+"
+        required_dependencies = set()
+        extra_dependencies = set()
+        for item in requires:
+            match = re.match(pattern, item)
+            if match is None:
+                pass
+            else:
+                if "extra ==" in item:
+                    extra_dependencies.add(match.group())
+                else:
+                    required_dependencies.add(match.group())
     return required_dependencies, extra_dependencies
 
 
 #: List of required dependencies (PyPi package names)
-INSTALL_REQUIRES = set()
+INSTALL_REQUIRES: set = set()
 
 #: List of optional dependencies (PyPi package names)
-EXTRAS_REQUIRE = set()
+EXTRAS_REQUIRE: set = set()
 INSTALL_REQUIRES, EXTRAS_REQUIRE = _get_dependencies(package="locan")
 
 #: A dictionary mapping PyPi package names to import names if they are different

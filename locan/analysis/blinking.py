@@ -4,17 +4,27 @@ Compute on- and off-periods from localization frames.
 Assuming that the provided localizations are acquired from the same label, we analyze the times of recording as
 provided by the `frame` property.
 """
+from __future__ import annotations
+
 import logging
+import sys
+from collections.abc import Sequence  # noqa: F401
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 import pandas as pd
 from scipy import stats
 
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 from locan.data.locdata import LocData
 
-__all__ = ["BlinkStatistics"]
+__all__: list[str] = ["BlinkStatistics"]
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +42,7 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
 
     Parameters
     ----------
-    locdata : LocData, array-like
+    locdata : LocData, npt.ArrayLike
         Localization data or just the frame values of given localizations.
     memory : int
         The maximum number of intermittent frames without any localization
@@ -168,7 +178,7 @@ class BlinkStatistics(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : dict with numpy.ndarray as values
+    results : dict[str, npt.ArrayLike]
         'on_periods' and 'off_periods' in units of frame numbers.
         'on_periods_frame' and 'off_periods_frame' with the first frame in each on/off-period.
         'on_periods_indices' are groups of indices to the input frames or more precise np.unique(frames)
@@ -183,19 +193,18 @@ class BlinkStatistics(_Analysis):
         self.results = None
         self.distribution_statistics = {}
 
-    def compute(self, locdata):
+    def compute(self, locdata) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
-        locdata : LocData, array-like
+        locdata : LocData, npt.ArrayLike
             Localization data or just the frame values of given localizations.
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")
@@ -264,7 +273,7 @@ class BlinkStatistics(_Analysis):
             'on_periods' or 'off_periods'.
         ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
-        bins : float
+        bins : int | Sequence | str
             Bin specifications (passed to :func:`matplotlib.hist`).
         log : Bool
             Flag for plotting on a log scale.

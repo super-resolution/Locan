@@ -26,8 +26,16 @@ References
    Biophysical Journal 90 (2), 2006, 668-671,
    doi.org/10.1529/biophysj.105.065599.
 """
+from __future__ import annotations
 
 import logging
+import sys
+from collections.abc import Sequence  # noqa: F401
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -39,7 +47,7 @@ from tqdm import tqdm
 from locan.analysis.analysis_base import _Analysis
 from locan.configuration import N_JOBS, TQDM_DISABLE, TQDM_LEAVE
 
-__all__ = ["LocalizationPrecision"]
+__all__: list[str] = ["LocalizationPrecision"]
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +139,7 @@ class LocalizationPrecision(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata):
+    def compute(self, locdata) -> Self:
         """
         Run the computation.
 
@@ -142,8 +150,7 @@ class LocalizationPrecision(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")
@@ -239,7 +246,7 @@ class LocalizationPrecision(_Analysis):
             The axes on which to show the image
         loc_property : str
             The property for which to plot localization precision.
-        bins : float
+        bins : int | Sequence | str
             Bin specifications (passed to :func:`matplotlib.hist`).
         fit: Bool
             Flag indicating if distributions fit are shown.

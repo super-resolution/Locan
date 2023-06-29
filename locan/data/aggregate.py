@@ -16,18 +16,18 @@ import warnings
 from collections import namedtuple
 from collections.abc import Iterable, Sequence  # noqa: F401
 from math import isclose
-from typing import Any, Union
+from typing import Any, Union, cast
 
 import boost_histogram as bh
 import fast_histogram
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 
 from locan.data.locdata import LocData  # noqa: F401
-from locan.data.locdata_utils import _check_loc_properties
 from locan.data.properties.locdata_statistics import ranges
 from locan.data.validation import _check_loc_properties
 
-__all__ = ["Bins", "histogram"]
+__all__: list[str] = ["Bins", "histogram"]
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +113,7 @@ def _is_2d_array_of_1d_array_of_scalar(element: Any) -> bool:
     ) or _is_2d_inhomogeneous_array_of_1d_array_of_scalar(element)
 
 
-def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> np.ndarray[float]:
+def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> npt.NDArray[np.float_]:
     """
     Compute bin edges from n_bins and bin_range.
 
@@ -126,15 +126,15 @@ def _n_bins_to_bin_edges_one_dimension(n_bins, bin_range) -> np.ndarray[float]:
 
     Returns
     -------
-    numpy.ndarray[float]
+    npt.NDArray[np.float_]
         Array with bin edges.
     """
-    return np.linspace(*bin_range, n_bins + 1, endpoint=True, dtype=float)
+    return np.linspace(*bin_range, n_bins + 1, endpoint=True, dtype=float)  # type: ignore
 
 
 def _bin_size_to_bin_edges_one_dimension(
     bin_size, bin_range, extend_range=None
-) -> np.ndarray[float]:
+) -> npt.NDArray[np.float_]:
     """
     Compute bin edges from bin_size and bin_range.
 
@@ -164,11 +164,11 @@ def _bin_size_to_bin_edges_one_dimension(
 
     Returns
     -------
-    numpy.ndarray[float]
+    npt.NDArray[np.float_]
         Array of bin edges
     """
     if _is_scalar(bin_size):
-        bin_edges = np.arange(*bin_range, bin_size, dtype=float)
+        bin_edges = np.arange(*bin_range, bin_size, dtype=float)  # type: ignore
         if (
             bin_edges.size == 1
         ):  # this is the case if bin_size is greater than the bin_range
@@ -243,7 +243,7 @@ def _bin_edges_to_n_bins_one_dimension(bin_edges) -> int:
     return n_bins
 
 
-def _bin_edges_to_n_bins(bin_edges) -> tuple[int, ...]:
+def _bin_edges_to_n_bins(bin_edges) -> tuple[int] | tuple[int, ...]:
     """
     Check if bins are equally sized and return the number of bins.
 
@@ -254,19 +254,23 @@ def _bin_edges_to_n_bins(bin_edges) -> tuple[int, ...]:
 
     Returns
     -------
-    tuple[int, ...]
+    tuple[int] | tuple[int, ...]
         Number of bins
     """
     if _is_1d_array_of_scalar(bin_edges):
+        bin_edges = cast("Sequence[float]", bin_edges)
         n_bins = (_bin_edges_to_n_bins_one_dimension(bin_edges),)
     elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
-        n_bins = tuple(_bin_edges_to_n_bins_one_dimension(edges) for edges in bin_edges)
+        bin_edges = cast("Sequence[Sequence[float]]", bin_edges)
+        n_bins = tuple(_bin_edges_to_n_bins_one_dimension(edges) for edges in bin_edges)  # type: ignore
     else:
         raise TypeError("The shape of bin_edges must be (dimension, n_bin_edges).")
     return n_bins
 
 
-def _bin_edges_to_bin_size_one_dimension(bin_edges) -> Union[float, np.ndarray]:
+def _bin_edges_to_bin_size_one_dimension(
+    bin_edges,
+) -> Union[float, npt.NDArray[np.float_]]:
     """
     Compute the sizes of bins.
 
@@ -278,7 +282,7 @@ def _bin_edges_to_bin_size_one_dimension(bin_edges) -> Union[float, np.ndarray]:
 
     Returns
     -------
-    float | numpy.array[float]
+    float | npt.NDArray[np.float_]
         Bin size for all bins or for each bin.
     """
     differences = np.diff(bin_edges)
@@ -296,7 +300,7 @@ def _bin_edges_to_bin_size_one_dimension(bin_edges) -> Union[float, np.ndarray]:
 
 def _bin_edges_to_bin_size(
     bin_edges,
-) -> tuple[float, ...] | tuple[np.ndarray[float], ...]:
+) -> tuple[float, ...] | tuple[npt.NDArray[np.float_], ...]:
     """
     Compute the sizes of bins.
 
@@ -307,21 +311,23 @@ def _bin_edges_to_bin_size(
 
     Returns
     -------
-    tuple[float, ...] | tuple[numpy.array[float], ...]
+    tuple[float, ...] | tuple[npt.NDArray[np.float_], ...]
         Bin size for all bins or for each bin in each dimension.
     """
     if _is_1d_array_of_scalar(bin_edges):
+        bin_edges = cast("Sequence[float]", bin_edges)
         bin_size = (_bin_edges_to_bin_size_one_dimension(bin_edges),)
     elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
-        bin_size = tuple(
+        bin_edges = cast("Sequence[Sequence[float]]", bin_edges)
+        bin_size = tuple(  # type: ignore
             _bin_edges_to_bin_size_one_dimension(edges) for edges in bin_edges
         )
     else:
         raise TypeError("The shape of bin_edges must be (dimension, n_bin_edges).")
-    return bin_size
+    return bin_size  # type: ignore
 
 
-def _bin_edges_to_bin_centers(bin_edges) -> tuple[np.ndarray[float], ...]:
+def _bin_edges_to_bin_centers(bin_edges) -> tuple[npt.NDArray[np.float_], ...]:
     """
     Compute bin centers.
 
@@ -332,19 +338,21 @@ def _bin_edges_to_bin_centers(bin_edges) -> tuple[np.ndarray[float], ...]:
 
     Returns
     -------
-    tuple[numpy.ndarray[float], ...]
+    tuple[npt.NDArray[np.float_], ...]
         Array of bin centers for each dimension with shape (n_bins,)
     """
     if _is_1d_array_of_scalar(bin_edges):
+        bin_edges = cast("Sequence[float]", bin_edges)
         bin_centers = (np.diff(bin_edges) / 2 + bin_edges[0:-1],)
     elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
-        bin_centers = tuple(np.diff(edges) / 2 + edges[0:-1] for edges in bin_edges)
+        bin_edges = cast("Sequence[Sequence[float]]", bin_edges)
+        bin_centers = tuple(np.diff(edges) / 2 + edges[0:-1] for edges in bin_edges)  # type: ignore
     else:
         raise TypeError("The shape of bin_edges must be (dimension, n_bin_edges).")
     return bin_centers
 
 
-def _indices_to_bin_centers(bin_edges, indices) -> np.ndarray[float]:
+def _indices_to_bin_centers(bin_edges, indices) -> npt.NDArray[np.float_]:
     """
     Compute bin centers for given indices.
 
@@ -358,12 +366,12 @@ def _indices_to_bin_centers(bin_edges, indices) -> np.ndarray[float]:
 
     Returns
     -------
-    numpy.ndarray[float]
+    npt.NDArray[np.float_]
         Selected bin centers with shape (n_indices, dimension)
     """
     bin_centers = _bin_edges_to_bin_centers(bin_edges)
     if len(bin_centers) == 1:
-        bin_centers = bin_centers[0]
+        bin_centers = bin_centers[0]  # type: ignore
     indices = np.asarray(indices)
 
     if _is_1d_array_of_scalar(bin_centers):
@@ -452,10 +460,12 @@ class _BinsFromEdges:
 
     def __init__(self, bin_edges):
         if _is_1d_array_of_scalar(bin_edges):
+            bin_edges = cast("Sequence[float]", bin_edges)
             self.bin_edges = (np.array(bin_edges),)
             self.dimension = 1
             self.bin_range = ((bin_edges[0], bin_edges[-1]),)
         elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
+            bin_edges = cast("Sequence[Sequence[float]]", bin_edges)
             self.bin_edges = tuple(np.array(edges) for edges in bin_edges)
             self.dimension = len(self.bin_edges)
             self.bin_range = tuple((edges[0], edges[-1]) for edges in self.bin_edges)
@@ -762,14 +772,14 @@ class Bins:
         The number of dimensions for which bins are provided.
     bin_range : tuple[tuple[float, float]
         Minimum and maximum edge for each dimension with shape (dimension, 2).
-    bin_edges : tuple[numpy.ndarray[float]]
+    bin_edges : tuple[npt.NDArray[np.float_]]
         Array(s) with bin edges for each dimension with shape (dimension,)
     n_bins : tuple[int]
         Number of bins for each dimension with shape (dimension,)
-    bin_size : tuple[float] | tuple[numpy.ndarray[float]]
+    bin_size : tuple[float] | tuple[npt.NDArray[np.float_]]
         Size of bins for each dimension with shape (dimension,)
         or with shape (dimension, n_bins).
-    bin_centers :  tuple[numpy.ndarray[float]]
+    bin_centers :  tuple[npt.NDArray[np.float_]]
         Array(s) with bin centers for all or each dimension
         with shape (dimension,).
     labels : list[str] | None
@@ -882,7 +892,7 @@ class Bins:
         return getattr(self._bins, attr)
 
     @property
-    def is_equally_sized(self) -> tuple[bool]:
+    def is_equally_sized(self) -> tuple[bool, ...]:
         """True for each dimension if all bins are of the same size."""
         if _is_1d_array_of_scalar(self.bin_size):
             return tuple(True for _ in self.bin_size)
@@ -923,27 +933,27 @@ class Bins:
                 if self.is_equally_sized[index]:
                     axis = bh.axis.Regular(self.n_bins[index], *self.bin_range[index])
                 else:
-                    axis = bh.axis.Variable(self.bin_edges[index])
+                    axis = bh.axis.Variable(self.bin_edges[index])  # type: ignore
                 axes.append(axis)
             self._boost_histogram_axes = bh.axis.AxesTuple(axes)
 
         return self._boost_histogram_axes
 
 
-def _histogram_fast_histogram(data, bins) -> np.ndarray:
+def _histogram_fast_histogram(data, bins) -> npt.NDArray:
     """
     Provide histogram with counts in each bin.
 
     Parameters
     ----------
-    data : array-like
+    data : npt.ArrayLike
         Coordinate values with shape (dimensions, n_points) to be binned
     bins : Bins
         The bin specification
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     if data.shape[0] == 1:
         img = fast_histogram.histogram1d(
@@ -956,42 +966,42 @@ def _histogram_fast_histogram(data, bins) -> np.ndarray:
     return img
 
 
-def _histogram_boost_histogram(data, bins) -> np.ndarray:
+def _histogram_boost_histogram(data, bins) -> npt.NDArray:
     """
     Provide histogram with counts in each bin.
 
     Parameters
     ----------
-    data : array-like
+    data : npt.ArrayLike
         Coordinate values with shape (n_dimensions, n_points) to be binned
     bins : Bins
         The bin specification
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     hist = bh.Histogram(*bins.boost_histogram_axes).fill(*data)
     img = hist.view()
     return img
 
 
-def _histogram_mean_fast_histogram(data, bins, values) -> np.ndarray:
+def _histogram_mean_fast_histogram(data, bins, values) -> npt.NDArray:
     """
     Provide histogram with averaged values for all counts in each bin.
 
     Parameters
     ----------
-    data : array-like
+    data : npt.ArrayLike
         Coordinate values with shape (n_dimensions, n_points) to be binned
     bins : Bins
         The bin specification
-    values : array-like
+    values : npt.ArrayLike
         Values with shape (n_points,) to be averaged in each bin
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     if data.shape[0] == 1:
         hist = fast_histogram.histogram1d(
@@ -1015,22 +1025,22 @@ def _histogram_mean_fast_histogram(data, bins, values) -> np.ndarray:
     return hist
 
 
-def _histogram_mean_boost_histogram(data, bins, values) -> np.ndarray:
+def _histogram_mean_boost_histogram(data, bins, values) -> npt.NDArray:
     """
     Provide histogram with averaged values for all counts in each bin.
 
     Parameters
     ----------
-    data : array-like
+    data : npt.ArrayLike
         Coordinate values with shape (n_dimensions, n_points) to be binned
     bins : Bins
         The bin specification
-    values : array-like
+    values : npt.ArrayLike
         Values with shape (n_points,) to be averaged in each bin
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     hist = bh.Histogram(*bins.boost_histogram_axes, storage=bh.storage.Mean()).fill(
         *data, sample=values
@@ -1092,7 +1102,7 @@ def histogram(
 
     Returns
     -------
-    namedtuple('Histogram', "data bins labels"): (numpy.ndarray, Bins, list)
+    namedtuple('Histogram', "data bins labels"): (npt.NDArray, Bins, list)
     """
     labels_ = _check_loc_properties(locdata, loc_properties)
     data = locdata.data[labels_].values.T
@@ -1149,11 +1159,11 @@ def histogram(
 
 
 def _accumulate_1d(
-    data: np.ndarray,
-    bin_edges: np.ndarray,
+    data: npt.ArrayLike,
+    bin_edges: npt.ArrayLike,
     return_data: bool = False,
     return_counts: bool = False,
-) -> tuple[np.ndarray, list, list | None, np.ndarray | None]:
+) -> tuple[npt.NDArray, list, list | None, npt.NDArray | None]:
     """
     Bin data and collect data elements contained in each bin.
     The returned `bin_indices` refer to the given bins including index[0] for
@@ -1178,18 +1188,18 @@ def _accumulate_1d(
 
     Returns
     -------
-    tuple[numpy.ndarray, list, list | None, numpy.ndarray | None]
+    tuple[npt.NDArray, list, list | None, npt.NDArray | None]
         bin_indices, data_indices, collection, counts.
     """
     data_ = np.array(data)
     if data_.ndim > 1:
         data_ = data_[:, 0]
     # identify bins indices
-    bin_identifier = np.digitize(data_, bins=bin_edges)
+    bin_identifier = np.digitize(data_, bins=bin_edges)  # type: ignore
     # bin_identifier 0 and n_bins represent out of bounds data
 
     # sort data
-    sorted_indices = np.argsort(bin_identifier)
+    sorted_indices = np.argsort(bin_identifier, kind="stable")
 
     # group data
     bin_indices, n_elements = np.unique(bin_identifier, return_counts=True)
@@ -1202,18 +1212,18 @@ def _accumulate_1d(
         sorted_indices[start:stop] for start, stop in zip(start_indices, stop_indices)
     ]
 
-    collection = [data[indices_] for indices_ in data_indices] if return_data else None
+    collection = [data[indices_] for indices_ in data_indices] if return_data else None  # type: ignore
     counts = n_elements if return_counts else None
 
     return bin_indices, data_indices, collection, counts
 
 
 def _accumulate_2d(
-    data: np.ndarray,
-    bin_edges: tuple[np.ndarray],
+    data: npt.ArrayLike,
+    bin_edges: tuple[npt.ArrayLike],
     return_data: bool = False,
     return_counts: bool = False,
-) -> tuple[np.ndarray, list, list | None, np.ndarray | None]:
+) -> tuple[npt.NDArray, list, list | None, npt.NDArray | None]:
     """
     Bin data and collect data elements contained in each bin.
     All points are binned with regard to the first and second dimension.
@@ -1234,14 +1244,14 @@ def _accumulate_2d(
 
     Returns
     -------
-    tuple[numpy.ndarray, list, list | None, numpy.ndarray | None]
+    tuple[npt.NDArray, list[int], list | None, npt.NDArray | None]
         bin_indices, data_indices, collection, counts.
     """
     data_ = np.array(data)
     if data_.size == 0:
         bin_indices = np.array([])
-        data_indices = []
-        collection = [] if return_data else None
+        data_indices: list[int] = []
+        collection: list | None = [] if return_data else None
         counts = np.array([]) if return_counts else None
         return bin_indices, data_indices, collection, counts
 
@@ -1251,22 +1261,22 @@ def _accumulate_2d(
     )
 
     # traverse groups
-    bin_indices = []
+    bin_indices_ = []
     data_indices = []
-    counts = []
+    counts_ = []
     for bin_index_first_dim_, data_indices_first_dim_ in zip(
         bin_indices_first_dim, data_indices_first_dim
     ):
         grouped_data_ = data_[:, 1][data_indices_first_dim_]
         bin_indices_group, data_indices_group, _, counts_group = _accumulate_1d(
-            data=grouped_data_, bin_edges=bin_edges[1], return_counts=return_counts
+            data=grouped_data_, bin_edges=bin_edges[1], return_counts=return_counts  # type: ignore
         )
 
         # form multi-dimensional bin_indices
         first = np.repeat(bin_index_first_dim_, len(bin_indices_group))
         new_bin_indices = np.vstack([first, bin_indices_group]).T
-        bin_indices.append(new_bin_indices)
-        counts.append(counts_group)
+        bin_indices_.append(new_bin_indices)
+        counts_.append(counts_group)
 
         # form multi-dimensional data_indices
         new_data_indices = [
@@ -1274,8 +1284,8 @@ def _accumulate_2d(
         ]
         data_indices.extend(new_data_indices)
 
-    bin_indices = np.concatenate(bin_indices)
-    counts = np.concatenate(counts) if return_counts else None
+    bin_indices = np.concatenate(bin_indices_)
+    counts = np.concatenate(counts_) if return_counts else None  # type: ignore
     collection = [data_[idxs] for idxs in data_indices] if return_data else None
 
     return bin_indices, data_indices, collection, counts

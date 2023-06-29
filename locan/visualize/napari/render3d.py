@@ -21,7 +21,7 @@ from locan.visualize.transform import adjust_contrast
 if HAS_DEPENDENCY["napari"]:
     import napari
 
-__all__ = ["render_3d_napari", "render_3d_rgb_napari"]
+__all__: list[str] = ["render_3d_napari", "render_3d_rgb_napari"]
 
 logger = logging.getLogger(__name__)
 

@@ -5,11 +5,20 @@ Analyze the distribution of a localization property as function of two other loc
 E.g. looking at how the local background is distributed over localization coordinates helps to characterize the
 illumination profile in SMLM experiments.
 """
+from __future__ import annotations
+
 import logging
+import sys
 from collections import namedtuple
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 from lmfit import Model, Parameters
 
 from locan.analysis.analysis_base import _Analysis
@@ -17,12 +26,13 @@ from locan.configuration import COLORMAP_DIVERGING
 from locan.data.aggregate import histogram
 from locan.visualize.transform import adjust_contrast
 
-__all__ = ["LocalizationProperty2d"]
+__all__: list[str] = ["LocalizationProperty2d"]
 
 logger = logging.getLogger(__name__)
 
 
 # The algorithms
+
 
 # model fit function in 2d
 def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
@@ -31,9 +41,9 @@ def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
 
     Parameters
     ----------
-    x : float, array-like
+    x : float, npt.ArrayLike
         all x values
-    y : float, array-like
+    y : float, npt.ArrayLike
         all y values
     amplitude : float
         amplitude
@@ -70,9 +80,10 @@ def _fit_image(data, bin_range):
 
     Parameters
     ----------
-    data : numpy.ndarray of shape (3, n_image_values)
+    data : npt.ArrayLike
         arrays with corresponding values for x, y, z
-    bin_range : numpy.ndarray
+        of shape (3, n_image_values)
+    bin_range : npt.ArrayLike
         range as returned from histogram().
 
     Returns
@@ -80,6 +91,7 @@ def _fit_image(data, bin_range):
     lmfit.model.ModelResult object
         The fit results.
     """
+
     # prepare 1D lmfit model from 2D model function
     def model_function(
         points, amplitude=1, center_x=0, center_y=0, sigma_x=1, sigma_y=1
@@ -233,7 +245,7 @@ class LocalizationProperty2d(_Analysis):
         )
         self.results = None
 
-    def compute(self, locdata=None):
+    def compute(self, locdata=None) -> Self:
         """
         Run the computation.
 
@@ -244,8 +256,7 @@ class LocalizationProperty2d(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

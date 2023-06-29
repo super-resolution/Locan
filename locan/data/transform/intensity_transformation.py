@@ -8,6 +8,7 @@ This module provides often used transformation functions.
 """
 from __future__ import annotations
 
+import copy
 import logging
 import sys
 
@@ -16,7 +17,7 @@ import numpy as np
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 
-__all__ = ["transform_counts_to_photons"]
+__all__: list[str] = ["transform_counts_to_photons"]
 
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ def transform_counts_to_photons(locdata, loc_properties=None, metadata=None) -> 
 
     # instantiate
     # todo: possibly add inplace keyword
-    new_locdata = LocData.from_dataframe(dataframe=locdata.data)
+    new_locdata = copy.copy(locdata)
 
     loc_properties_converted = []
     for loc_property in loc_properties:

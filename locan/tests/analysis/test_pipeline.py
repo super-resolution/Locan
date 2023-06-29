@@ -53,7 +53,7 @@ def test_Pipeline(locdata_2d):
         with open(file_path, "wb") as file:
             pickle.dump(pipe, file, pickle.HIGHEST_PROTOCOL)
         with open(file_path, "rb") as file:
-            pipe_pickled = pickle.load(file)
+            pipe_pickled = pickle.load(file)  # noqa S301
         assert len(pipe_pickled.parameter) == len(pipe.parameter)
         assert isinstance(pipe_pickled.meta, metadata_analysis_pb2.AMetadata)
         assert pipe_pickled.meta == pipe.meta

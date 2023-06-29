@@ -29,7 +29,15 @@ References
    20 December 2001
 
 """
+from __future__ import annotations
+
 import logging
+import sys
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -40,7 +48,7 @@ from sklearn.neighbors import NearestNeighbors
 from locan.analysis.analysis_base import _Analysis
 from locan.configuration import N_JOBS
 
-__all__ = ["NearestNeighborDistances"]
+__all__: list[str] = ["NearestNeighborDistances"]
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +98,6 @@ def pdf_nnDistances_csr_3D(x, density):
 
 
 def _nearest_neighbor_distances(points, k=1, other_points=None):
-
     if other_points is None:
         nn = NearestNeighbors(n_neighbors=k, metric="euclidean", n_jobs=N_JOBS).fit(
             points
@@ -147,7 +154,7 @@ class NearestNeighborDistances(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata, other_locdata=None):
+    def compute(self, locdata, other_locdata=None) -> Self:
         """
         Run the computation.
 
@@ -160,8 +167,7 @@ class NearestNeighborDistances(_Analysis):
 
         Returns
         -------
-        Analysis class
-           Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")

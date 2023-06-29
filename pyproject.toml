@@ -65,11 +65,12 @@ dependencies = [
     "matplotlib",
     "scipy",
     "pandas",
-    "numpy>1.17.0",
+    "numpy>1.20.0",
     "tqdm",
     "cython",
     "tomli>=1.1.0; python_version<'3.11'",
     "qtpy!=2.3.0",
+    "typing_extensions",
 ]
 
 [project.optional-dependencies]
@@ -80,8 +81,8 @@ pyqt5 = ["PyQt5"]
 color = ["colorcet"]
 track = ["trackpy"]
 register = [
-    "open3d-cpu!=0.12.0; platform_system=='Linux'",
-    "open3d!=0.12.0; platform_system!='Linux'"]
+    "open3d-cpu!=0.12.0; platform_system=='Linux' and python_version<'3.11'",
+    "open3d!=0.12.0; platform_system!='Linux' and python_version<'3.11'"]
 napari = ["napari"]
 scatter_density = ["mpl_scatter_density"]
 html = ["requests"]
@@ -99,7 +100,10 @@ all = [
     "h5py",
     "hdbscan"
 ]
-gpu = ["cupy", "open3d!=0.12.0"]
+gpu = [
+    "cupy",
+    "open3d!=0.12.0; python_version<'3.11'"
+]
 docs = [
     "sphinx",
     "ipython",
@@ -117,6 +121,7 @@ dev = [
     "pre-commit",
     "asv",
     "ruff",
+    "mypy",
 ]
 
 [project.urls]
@@ -220,3 +225,59 @@ boost_histogram = "bh"
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
+
+[tool.mypy]
+files = ["locan"]
+# Aiming at
+strict = true
+ignore_missing_imports = true
+warn_unused_ignores = false
+
+# todo: elliminate
+# Strongly recommend enabling this one as soon as you can
+check_untyped_defs = false
+
+# These shouldn't be too much additional work, but may be tricky to
+# get passing if you use a lot of untyped libraries
+disallow_subclassing_any = false
+disallow_untyped_decorators = false
+disallow_any_generics = false
+
+# These next few are various gradations of forcing use of type annotations
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+disallow_untyped_defs = false
+
+# This one can be tricky to get passing if you use a lot of untyped libraries
+warn_return_any = false
+
+[[tool.mypy.overrides]]
+module = [
+    'locan.analysis.metadata_analysis_pb2',
+    'locan.data.metadata_pb2',
+    'locan\locan_io\locdata\manifest_pb2'
+]
+ignore_errors = true
+
+# todo: elliminate
+[[tool.mypy.overrides]]
+module = [
+    'locan\tests\data\test_metadata_utils',
+    'locan\tests\locan_io\locdata\test_smlm_file',
+    'locan\simulation\simulate_locdata',
+    'locan\data\metadata_utils',
+    'locan\locan_io\locdata\smlm_io',
+    'locan\locan_io\locdata\asdf_io',
+    'locan\analysis\analysis_base',
+    'locan\data\locdata',
+    'locan\data\rois',
+    'locan\datasets'
+]
+ignore_errors = true  # all concerning library stubs for protobuf
+
+# todo: elliminate
+[[tool.mypy.overrides]]
+module = [
+    'locan\tests\*',
+]
+ignore_errors = true  # mostly concerning [attr-defined]

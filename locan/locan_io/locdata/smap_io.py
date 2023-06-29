@@ -3,6 +3,8 @@
 File input/output for localization data in SMAP files.
 
 """
+from __future__ import annotations
+
 import logging
 
 import pandas as pd
@@ -20,7 +22,7 @@ if HAS_DEPENDENCY["h5py"]:
     import h5py
 
 
-__all__ = ["load_SMAP_header", "load_SMAP_file", "save_SMAP_csv"]
+__all__: list[str] = ["load_SMAP_header", "load_SMAP_file", "save_SMAP_csv"]
 
 logger = logging.getLogger(__name__)
 

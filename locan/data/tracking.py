@@ -21,7 +21,7 @@ if HAS_DEPENDENCY["trackpy"]:
     from trackpy import link_df
 
 
-__all__ = ["link_locdata", "track"]
+__all__: list[str] = ["link_locdata", "track"]
 
 
 @needs_package("trackpy")

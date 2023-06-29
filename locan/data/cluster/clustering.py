@@ -12,15 +12,16 @@ import numpy as np
 from sklearn.cluster import DBSCAN
 
 from locan.configuration import N_JOBS
-from locan.data.aggregate import Bins, _accumulate_2d, ranges
+from locan.data.aggregate import Bins, _accumulate_2d
 from locan.data.locdata import LocData
 from locan.data.locdata_utils import _check_loc_properties
+from locan.data.properties.locdata_statistics import ranges
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["hdbscan"]:
     from hdbscan import HDBSCAN
 
-__all__ = ["cluster_hdbscan", "cluster_dbscan", "cluster_by_bin"]
+__all__: list[str] = ["cluster_hdbscan", "cluster_dbscan", "cluster_by_bin"]
 
 
 @needs_package("hdbscan")

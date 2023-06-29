@@ -23,7 +23,9 @@ Submodules:
    io
 
 """
+from __future__ import annotations
+
 from .io import *
 
-__all__ = []
-__all__.extend(io.__all__)
+__all__: list[str] = []
+__all__.extend(io.__all__)  # type: ignore

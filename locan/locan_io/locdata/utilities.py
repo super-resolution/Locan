@@ -13,7 +13,7 @@ import pandas as pd
 
 from locan.constants import PROPERTY_KEYS
 
-__all__ = ["convert_property_types", "convert_property_names"]
+__all__: list[str] = ["convert_property_types", "convert_property_names"]
 
 logger = logging.getLogger(__name__)
 

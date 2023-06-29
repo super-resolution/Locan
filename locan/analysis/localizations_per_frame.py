@@ -3,17 +3,27 @@
 Compute localizations per frame.
 
 """
+from __future__ import annotations
+
 import logging
+import sys
+from collections.abc import Sequence  # noqa: F401
 from dataclasses import dataclass
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 import pandas as pd
 from scipy import stats
 
 from locan.analysis.analysis_base import _Analysis
 
-__all__ = ["LocalizationsPerFrame"]
+__all__: list[str] = ["LocalizationsPerFrame"]
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +39,7 @@ def _localizations_per_frame(
 
     Parameters
     ----------
-    locdata : LocData or array-like
+    locdata : LocData | npt.ArrayLike
        Points in time: either localization data that contains a column `frame`
        or an array with time points.
     norm : int, float, str, None
@@ -175,20 +185,19 @@ class LocalizationsPerFrame(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata):
+    def compute(self, locdata) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
-        locdata : LocData or array-like
+        locdata : LocData | npt.ArrayLike
            Points in time: either localization data that contains a column
            `frame` or an array with time points.
 
         Returns
         -------
-        Analysis class
-           Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")
@@ -279,7 +288,7 @@ class LocalizationsPerFrame(_Analysis):
         ----------
         ax : :class:`matplotlib.axes.Axes`
             The axes on which to show the image
-        bins : float
+        bins : int | Sequence | str
             Bin specifications (passed to matplotlib.hist).
         fit: Bool
             Flag indicating if distributions fit are shown.

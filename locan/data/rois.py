@@ -13,6 +13,8 @@ The Roi object provides methods for saving all specifications to a
 yaml file, for loading them, and for returning LocData with
 localizations selected to be within the roi region.
 """
+from __future__ import annotations
+
 import logging
 import re
 import sys
@@ -36,7 +38,7 @@ from locan.data.metadata_utils import _modify_meta
 from locan.data.region import Region, RoiRegion
 from locan.utils.miscellaneous import _get_subclasses
 
-__all__ = ["Roi", "rasterize"]
+__all__: list[str] = ["Roi", "rasterize"]
 
 logger = logging.getLogger(__name__)
 
@@ -250,7 +252,7 @@ class Roi:
 
         Parameters
         ----------
-        path : str, bytes, os.PathLike, None
+        path : str, os.PathLike, None
             Path for yaml file. If None a roi file path is generated from the metadata.
         """
 
@@ -283,6 +285,7 @@ class Roi:
                     "The localization data has to be saved and the file path provided, "
                     "or the reference is lost.",
                     UserWarning,
+                    stacklevel=1,
                 )
                 reference_for_yaml = None
         else:
@@ -520,6 +523,7 @@ class RoiLegacy_0:
         warnings.warn(
             "RoiLegacy.to_yaml is deprecated, use Roi.to_yaml instead",
             DeprecationWarning,
+            stacklevel=2,
         )
 
         # prepare path
@@ -550,6 +554,7 @@ class RoiLegacy_0:
                     "The localization data has to be saved and the file path provided, "
                     "or the reference is lost.",
                     UserWarning,
+                    stacklevel=1,
                 )
                 reference_for_yaml = None
         else:

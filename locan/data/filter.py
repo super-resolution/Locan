@@ -11,6 +11,7 @@ from __future__ import annotations
 import sys
 
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 from sklearn.neighbors import NearestNeighbors
 
 from locan.configuration import N_JOBS
@@ -19,7 +20,7 @@ from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 from locan.data.region import Region2D, RoiRegion
 
-__all__ = [
+__all__: list[str] = [
     "select_by_condition",
     "select_by_region",
     "select_by_image_mask",
@@ -249,7 +250,7 @@ def random_subset(locdata, n_points, replace=True, seed=None) -> LocData:
         Number of localizations to randomly choose from locdata.
     replace : bool
         Indicate if sampling is with or without replacement
-    seed : None, int, array_like[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : None, int, npt.ArrayLike[int], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
         Random number generation seed
 
     Returns

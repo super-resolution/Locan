@@ -11,25 +11,22 @@ import functools
 import logging
 import os
 import re
+import sys
 from pathlib import Path
+from typing import Any, Iterable
 
-try:
-    from typing import Any, Iterable, Self
-except ImportError:
-    from typing import Any, Iterable, TypeVar
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import pandas as pd
 
 from locan.locan_io.utilities import find_file_upstream
 
-__all__ = ["Files"]
+__all__: list[str] = ["Files"]
 
 logger = logging.getLogger(__name__)
-
-try:
-    Self
-except NameError:
-    Self = TypeVar("Self", bound="Files")
 
 
 class Files:
@@ -48,7 +45,7 @@ class Files:
     ----------
     df : pd.DataFrame | dict[str, str] | None
         file names
-    directory: str | bytes | os.PathLike | None
+    directory: str | os.PathLike | None
         base directory
     exists : bool
         raise `FileExistsError` if file in `df` does not exist
@@ -72,7 +69,7 @@ class Files:
     ) -> None:
         if directory is None:
             self.directory = None
-        elif isinstance(directory, (str, bytes, os.PathLike)):
+        elif isinstance(directory, (str, os.PathLike)):
             self.directory = Path(directory)
             if not self.directory.exists():
                 raise ValueError(f"The directory {directory} does not exist.")
@@ -125,7 +122,7 @@ class Files:
         ----------
         files : Iterable[Files] | None
             sequence with File instances
-        directory: str | bytes | os.PathLike | None
+        directory: str | os.PathLike | None
             new base directory
         exists : bool
             raise `FileExistsError` if file in files does not exist
@@ -154,9 +151,9 @@ class Files:
 
         Parameters
         ----------
-        files : Iterable[str | bytes | os.PathLike] | str | bytes | os.PathLike | None
+        files : Iterable[str | os.PathLike] | str | os.PathLike | None
             sequence with File instances
-        directory : str | bytes | os.PathLike
+        directory : str | os.PathLike
             new base directory
         column : str
             Name of column in `Files.df` carrying these files
@@ -165,7 +162,7 @@ class Files:
         -------
         Files
         """
-        if isinstance(files, (str, bytes, os.PathLike)):
+        if isinstance(files, (str, os.PathLike)):
             df = pd.DataFrame(data=[files], columns=[column])
         elif isinstance(files, Iterable):
             df = pd.DataFrame(data=files, columns=[column])
@@ -191,7 +188,7 @@ class Files:
         regex : str | None
             regex pattern passed to :func:`re.search` and applied in addition
             to glob pattern
-        directory : str | bytes | os.PathLike
+        directory : str | os.PathLike
             new base directory in which to search
         column : str
             Name of column in `Files.df` carrying these files
@@ -241,7 +238,7 @@ class Files:
         -------
         Self
         """
-        files = self.directory.glob(pattern)
+        files = self.directory.glob(pattern)  # type: ignore
 
         if regex is None:
             files = list(files)
@@ -265,7 +262,7 @@ class Files:
 
         Parameters
         ----------
-        stoplist : Files | Iterable[bool | str | bytes | os.PathLike] | None
+        stoplist : Files | Iterable[bool | str | os.PathLike] | None
             Files to be excluded
         column : str
             key/column in `df` from which to exclude files
@@ -336,7 +333,7 @@ class Files:
         column: str = "file_path",
         pattern: str = "*.toml",
         regex=None,
-        directory: str | bytes | os.PathLike = None,
+        directory: str | os.PathLike | None = None,
         other_column="metadata",
     ) -> Self:
         """

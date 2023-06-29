@@ -146,6 +146,6 @@ def test_pickling_locdata(locdata_2d):
         with open(file_path, "wb") as file:
             pickle.dump(locdata_2d, file, pickle.HIGHEST_PROTOCOL)
         with open(file_path, "rb") as file:
-            locdata = pickle.load(file)
+            locdata = pickle.load(file)  # noqa S301
         assert len(locdata_2d) == len(locdata)
         assert isinstance(locdata.meta, metadata_pb2.Metadata)

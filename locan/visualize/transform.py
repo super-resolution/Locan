@@ -21,9 +21,10 @@ from enum import Enum
 
 import matplotlib.colors as mcolors
 import numpy as np
+import numpy.typing as npt
 from skimage import exposure
 
-__all__ = ["Trafo", "HistogramEqualization", "adjust_contrast"]
+__all__: list[str] = ["Trafo", "HistogramEqualization", "adjust_contrast"]
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +74,7 @@ class Transform(ABC):
 
         Parameters
         ----------
-        values : array-like
+        values : npt.ArrayLike
             The input values
         clip : bool
             If `True` values outside the [0:1] range are
@@ -81,7 +82,7 @@ class Transform(ABC):
 
         Returns
         -------
-        numpy.ndarray
+        npt.NDArray
             The transformed values.
         """
         raise NotImplementedError
@@ -104,9 +105,8 @@ class Transform(ABC):
         # new_values = _values
         # return new_values
 
-    @property
     @abstractmethod
-    def inverse(self):
+    def inverse(self, values):
         """A transformation that performs the inverse operation."""
         raise NotImplementedError
 
@@ -140,14 +140,14 @@ class HistogramEqualization(mcolors.Normalize, Transform):
 
     Parameters
     ----------
-    reference : array-like
+    reference : npt.ArrayLike
         The data values to define the transformation function. If None then
         the values in `__call__` are used.
     power : float
         The `power` intensification parameter.
     n_bins : int
         Number of bins used to compute the intensity histogram.
-    mask : array-like[bool]
+    mask : npt.ArrayLike[bool]
         A bool mask with shape equal to that of values. If reference is None,
         reference is set to values[mask].
         The transformation determined from reference is then applied to all
@@ -163,18 +163,18 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         self.n_bins = n_bins
         self.mask = mask
 
-    def __call__(self, values):
+    def __call__(self, values) -> npt.NDArray:  # type: ignore
         """
         Histogram equalization with power intensification.
 
         Parameters
         ----------
-        values : array-like
+        values : npt.ArrayLike
             The input values.
 
         Returns
         -------
-        numpy.ndarray
+        npt.NDArray
         """
         if np.any(np.isnan(values)):
             raise ValueError("HistogramEqualization does not work with nan values.")
@@ -201,19 +201,18 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         new_values = np.interp(_values, bin_centers, cdf)
         return new_values
 
-    @property
     def inverse(self, values):
         """A Transformation object that performs the inverse operation."""
         raise NotImplementedError
 
 
-def adjust_contrast(image, rescale=True, **kwargs):
+def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray:
     """
     Adjust contrast of image by a predefined transformation:
 
     Parameters
     ----------
-    image : array-like
+    image : npt.ArrayLike
         Values to be adjusted
     rescale : int, str, Trafo, callable, bool, None
         Transformation as defined in :class:`locan.constants.Trafo` or by
@@ -229,7 +228,7 @@ def adjust_contrast(image, rescale=True, **kwargs):
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     if rescale is None or rescale is False or rescale is Trafo.NONE or rescale == 0:
         new_image = image

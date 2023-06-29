@@ -22,7 +22,7 @@ if HAS_DEPENDENCY["napari"]:
 
 logger = logging.getLogger(__name__)
 
-__all__ = [
+__all__: list[str] = [
     "select_by_drawing_napari",
     "get_rois",
     "save_rois",

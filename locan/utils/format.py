@@ -3,9 +3,11 @@
 Provide standard formats.
 
 """
+from __future__ import annotations
+
 import time
 
-__all__ = []
+__all__: list[str] = []
 
 
 def _time_string(time_value) -> str:

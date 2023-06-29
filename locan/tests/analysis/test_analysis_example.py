@@ -55,7 +55,7 @@ def test_pickling_Analysis():
         with open(file_path, "wb") as file:
             pickle.dump(ae, file, pickle.HIGHEST_PROTOCOL)
         with open(file_path, "rb") as file:
-            ae_pickled = pickle.load(file)
+            ae_pickled = pickle.load(file)  # noqa S301
         assert ae_pickled.parameter == ae.parameter
         assert isinstance(ae_pickled.meta, metadata_analysis_pb2.AMetadata)
         assert ae_pickled.meta == ae.meta

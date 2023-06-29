@@ -3,12 +3,12 @@ Miscellaneous functions without a home.
 """
 from __future__ import annotations
 
-from collections.abc import Generator
+from collections.abc import Iterator
 
-__all__ = ["iterate_2d_array"]
+__all__: list[str] = ["iterate_2d_array"]
 
 
-def iterate_2d_array(n_elements=5, n_cols=2) -> Generator[tuple[int, int]]:
+def iterate_2d_array(n_elements=5, n_cols=2) -> Iterator[tuple[int, int]]:
     """
     Iterator for 2-dimensional array iterating first over columns then over rows.
 
@@ -21,7 +21,7 @@ def iterate_2d_array(n_elements=5, n_cols=2) -> Generator[tuple[int, int]]:
 
     Returns
     -------
-    Generator[tuple[int, int]]
+    Iterator[tuple[int, int]]
         Indices for (row, column) in each iteration.
     """
     n_rows = -(-n_elements // n_cols)

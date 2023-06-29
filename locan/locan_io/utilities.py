@@ -9,7 +9,7 @@ import logging
 import re
 from pathlib import Path
 
-__all__ = ["find_file_upstream"]
+__all__: list[str] = ["find_file_upstream"]
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +53,10 @@ def find_file_upstream(
 
         if regex is not None:
             file_list = [
-                file_ for file_ in file_list if regex_.search(str(file_)) is not None
+                file_ for file_ in file_list if regex_.search(str(file_)) is not None  # type: ignore
             ]
         if file_list:
             return file_list[0]
         if parent == top_directory:
             return None
+    return None

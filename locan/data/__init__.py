@@ -26,6 +26,8 @@ Submodules:
    validation
 
 """
+from __future__ import annotations
+
 from locan.data.aggregate import *
 from locan.data.cluster import *
 from locan.data.filter import *
@@ -41,18 +43,18 @@ from locan.data.tracking import *
 from locan.data.transform import *
 from locan.data.validation import *
 
-__all__ = []
-__all__.extend(aggregate.__all__)
-__all__.extend(cluster.__all__)
-__all__.extend(filter.__all__)
-__all__.extend(hulls.__all__)
-__all__.extend(locdata.__all__)
-__all__.extend(metadata_utils.__all__)
-__all__.extend(properties.__all__)
-__all__.extend(region.__all__)
-__all__.extend(region_utils.__all__)
-__all__.extend(register.__all__)
-__all__.extend(rois.__all__)
-__all__.extend(tracking.__all__)
-__all__.extend(transform.__all__)
-__all__.extend(validation.__all__)
+__all__: list[str] = []
+__all__.extend(aggregate.__all__)  # type: ignore
+__all__.extend(cluster.__all__)  # type: ignore
+__all__.extend(filter.__all__)  # type: ignore
+__all__.extend(hulls.__all__)  # type: ignore
+__all__.extend(locdata.__all__)  # type: ignore
+__all__.extend(metadata_utils.__all__)  # type: ignore
+__all__.extend(properties.__all__)  # type: ignore
+__all__.extend(region.__all__)  # type: ignore
+__all__.extend(region_utils.__all__)  # type: ignore
+__all__.extend(register.__all__)  # type: ignore
+__all__.extend(rois.__all__)  # type: ignore
+__all__.extend(tracking.__all__)  # type: ignore
+__all__.extend(transform.__all__)  # type: ignore
+__all__.extend(validation.__all__)  # type: ignore

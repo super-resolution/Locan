@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 
 from locan.data import LocData  # noqa: F401 # for typing
 
-__all__ = ["scatter_3d_mpl"]
+__all__: list[str] = ["scatter_3d_mpl"]
 
 logger = logging.getLogger(__name__)
 

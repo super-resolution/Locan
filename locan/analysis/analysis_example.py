@@ -4,6 +4,12 @@ Example for a specialized analysis class.
 It includes two algorithms for specific analysis routines.
 And it provides standard interface functions modified for the specific analysis routine like report.
 """
+import sys
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -89,7 +95,7 @@ class AnalysisExampleAlgorithm_1(_Analysis):
     def __init__(self, meta=None, limits=(0, 10)):
         super().__init__(meta=meta, limits=limits)
 
-    def compute(self, locdata=None):
+    def compute(self, locdata=None) -> Self:
         """
         Run the computation.
 
@@ -100,8 +106,7 @@ class AnalysisExampleAlgorithm_1(_Analysis):
 
         Returns
         -------
-        Analysis class
-          Returns the Analysis class object (self).
+        Self
         """
         data = locdata  # take certain elements from locdata
         self.results = _algorithm_1(
@@ -295,7 +300,6 @@ def plot_histogram_fit(self, ax=None):
 
 
 def fit_histogram(self, data, id_):
-
     # MLE fit of distribution on data
     loc, scale = stats.norm.fit(data)
 

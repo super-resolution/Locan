@@ -20,15 +20,22 @@ from __future__ import annotations
 
 import importlib.resources as importlib_resources
 import logging
+import sys
 from collections import namedtuple
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import boost_histogram as bh
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 import pandas as pd
 import scipy.integrate as integrate
 import scipy.special as special
@@ -39,7 +46,7 @@ from locan.data.aggregate import Bins
 if TYPE_CHECKING:
     import matplotlib as mpl
 
-__all__ = ["ConvexHullExpectation"]
+__all__: list[str] = ["ConvexHullExpectation", "ConvexHullExpectationBatch"]
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +57,9 @@ class Collection(Protocol):
 
     def update_convex_hulls_in_references(self):
         pass
+
+
+HullPropertyType = Literal["region_measure_ch", "subregion_measure_ch"]
 
 
 class ConvexHullProperty(Enum):
@@ -100,12 +110,13 @@ def _get_resource(
 
     try:
         resource_ = importlib_resources.files(resource_directory).joinpath(resource)
-        resource_values = np.load(resource_)
+        resource_values = np.load(str(resource_))
+
     except (AttributeError, TypeError):  # required for python < 3.9
         with importlib_resources.path(
             package=resource_directory, resource=resource
         ) as resource_:
-            resource_values = np.load(resource_)
+            resource_values = np.load(str(resource_))
 
     if "2d" in resource:  # hard coded corresponding to n_points in resources
         n_points = list(range(3, 201))
@@ -174,7 +185,7 @@ def _get_convex_hull_property_expectation(
     ----------
     convex_hull_property : str | ConvexHullProperty
         Choose property and dimension of convex hull
-    n_points : array-like
+    n_points : npt.ArrayLike
         Number of points of convex hull
     sigma : float
         Standard deviation of normal-distributed point coordinates
@@ -202,10 +213,10 @@ def _get_convex_hull_property_expectation(
         factor = sigma
     elif convex_hull_property == "REGION_MEASURE_3D":
         factor = sigma**3
-        logging.warning("The expectation is scaled by sigma^2")
+        logger.warning("The expectation is scaled by sigma^2")
     elif convex_hull_property == "SUBREGION_MEASURE_3D":
         factor = sigma**2
-        logging.warning("The expectation is scaled by sigma^2")
+        logger.warning("The expectation is scaled by sigma^2")
     else:
         raise ValueError("convex_hull_property is undefined")
 
@@ -240,7 +251,7 @@ class ConvexHullExpectation(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    convex_hull_property : str
+    convex_hull_property : HullPropertyString
         One of 'region_measure_ch' (i.e. area or volume)
         or 'subregion_measure_ch' (i.e. circumference or surface.)
     expected_variance : float | Iterable[float] | None
@@ -267,7 +278,7 @@ class ConvexHullExpectation(_Analysis):
         meta=None,
         convex_hull_property="region_measure_ch",
         expected_variance=None,
-    ):
+    ) -> None:
         if convex_hull_property not in ["region_measure_ch", "subregion_measure_ch"]:
             raise TypeError(
                 "convex_hull_property must be one of "
@@ -281,8 +292,9 @@ class ConvexHullExpectation(_Analysis):
         self.expected_variance = expected_variance
         self.results = None
         self.distribution_statistics = None
+        self._dimension: int | None = None
 
-    def compute(self, locdata=None):
+    def compute(self, locdata=None) -> Self:
         """
         Run the computation.
 
@@ -293,16 +305,16 @@ class ConvexHullExpectation(_Analysis):
 
         Returns
         -------
-        Analysis class
-            Returns the Analysis class object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")
             return self
 
-        loc_property = self.parameter["convex_hull_property"]
-
         self.results = ConvexHullExpectationResults()
+        loc_property = self.parameter["convex_hull_property"]
+        self._dimension = locdata.dimension
+
         try:
             self.results.values = locdata.data.loc[
                 :, ["localization_count", loc_property]
@@ -318,7 +330,7 @@ class ConvexHullExpectation(_Analysis):
         self.results.grouped[loc_property + "_mean"] = grouped.mean()
         self.results.grouped[loc_property + "_std"] = grouped.std()
 
-        convex_hull_property_ = loc_property[:-2] + f"{locdata.dimension}d"
+        convex_hull_property_ = loc_property[:-2] + f"{self._dimension}d"
         convex_hull_property_ = ConvexHullProperty[convex_hull_property_.upper()]
 
         if self.expected_variance is None:
@@ -342,7 +354,7 @@ class ConvexHullExpectation(_Analysis):
             self.results.grouped = pd.merge(
                 self.results.grouped,
                 new_df,
-                how="inner",
+                how="outer",
                 left_index=True,
                 right_index=True,
             )
@@ -350,7 +362,7 @@ class ConvexHullExpectation(_Analysis):
         self.results.values = pd.merge(
             self.results.values,
             self.results.grouped["expectation"],
-            how="inner",
+            how="outer",
             left_on="localization_count",
             right_index=True,
         )
@@ -522,7 +534,7 @@ class ConvexHullExpectation(_Analysis):
                     (
                         bh.axis.Regular(
                             max_other_loc_property_,
-                            1,
+                            3,
                             max_other_loc_property_,
                             transform=bh.axis.transform.log,
                         ),
@@ -535,7 +547,7 @@ class ConvexHullExpectation(_Analysis):
                 axes = bh.axis.AxesTuple(
                     (
                         bh.axis.Regular(
-                            max_other_loc_property_, 1, max_other_loc_property_
+                            max_other_loc_property_, 3, max_other_loc_property_
                         ),
                         bh.axis.Regular(50, 1, max_loc_property_),
                     )
@@ -620,3 +632,185 @@ class ConvexHullExpectation(_Analysis):
             raise NotImplementedError
 
         return ax
+
+
+class ConvexHullExpectationBatch(_Analysis):
+    """
+    Analyze geometrical properties of the convex hull of localization
+    coordinates in relation to expected values.
+
+    See Also
+    --------
+    :class:`ConvexHullExpectation`
+
+    Parameters
+    ----------
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+        Metadata about the current analysis routine.
+    convex_hull_property : str
+        One of 'region_measure_ch' (i.e. area or volume)
+        or 'subregion_measure_ch' (i.e. circumference or surface.)
+    expected_variance : float | Iterable[float] | None
+        The expected variance for all or each localization property.
+        The expected variance equals the squared localization precision
+        for localization position coordinates.
+
+    Attributes
+    ----------
+    count : int
+        A counter for counting instantiations (class attribute).
+    parameter : dict
+        A dictionary with all settings for the current computation.
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+        Metadata about the current analysis routine.
+    results : ConvexHullExpectationResults
+        Computed results.
+    distribution_statistics : Distribution_stats, None
+        Distribution parameters derived from MLE fitting of results.
+    """
+
+    def __init__(
+        self,
+        meta=None,
+        convex_hull_property="region_measure_ch",
+        expected_variance=None,
+    ) -> None:
+        if convex_hull_property not in ["region_measure_ch", "subregion_measure_ch"]:
+            raise TypeError(
+                "convex_hull_property must be one of "
+                "[region_measure_ch, subregion_measure_ch]"
+            )
+        super().__init__(
+            meta=meta,
+            convex_hull_property=convex_hull_property,
+            expected_variance=expected_variance,
+        )
+        self.expected_variance = expected_variance
+        self.results = None
+        self.batch = None
+        self._dimension: int | None = None
+        self._class = ConvexHullExpectation(
+            convex_hull_property=convex_hull_property,
+            expected_variance=expected_variance,
+        )
+        self.distribution_statistics = None
+
+    def compute(self, locdatas=None) -> Self:
+        """
+        Run the computation.
+
+        Parameters
+        ----------
+        locdatas : Iterable[LocData] | None
+            Localization data.
+
+        Returns
+        -------
+        Self
+        """
+        convex_hull_expectation_batch = []
+        dimensions: list[int | None] = []
+        for locdata_ in locdatas:
+            che = ConvexHullExpectation(
+                convex_hull_property=self.parameter["convex_hull_property"],
+                expected_variance=self.parameter["expected_variance"],
+            ).compute(locdata_)
+            convex_hull_expectation_batch.append(che)
+            dimensions.append(che._dimension)
+
+        if bool(locdatas):
+            dimensions_ = set(dimensions)
+            if len(dimensions_) == 1:  # check if all are equal
+                self._dimension = dimensions_.pop()
+            else:
+                raise ValueError("The dimensions of all locdata must be the same.")
+
+        self.from_batch(batch=convex_hull_expectation_batch)
+        return self
+
+    def from_batch(
+        self, batch: Iterable[ConvexHullExpectation], dimension: int | None = None
+    ) -> Self:
+        if not bool(batch) or all(item_.results is None for item_ in batch):
+            logger.warning("The batch is empty.")
+            return self
+
+        loc_property = self.parameter["convex_hull_property"]
+        if self._dimension is None:
+            if dimension is not None:
+                self._dimension = dimension
+            else:
+                dimension_ = set(item_._dimension for item_ in batch)
+                if len(dimension_) == 1:
+                    self._dimension = dimension_.pop()
+
+        self.results = ConvexHullExpectationResults()
+        self.results.values = pd.concat(
+            [item_.results.values for item_ in batch if item_ is not None],
+            ignore_index=True,
+        )
+
+        grouped = self.results.values.groupby("localization_count")
+
+        self.results.grouped.loc[:, loc_property + "_mean"] = grouped[
+            loc_property
+        ].mean()
+        self.results.grouped.loc[:, loc_property + "_std"] = grouped[loc_property].std()
+
+        convex_hull_property_ = loc_property[:-2] + f"{self._dimension}d"
+        convex_hull_property_ = ConvexHullProperty[convex_hull_property_.upper()]
+
+        if self.expected_variance is None:
+            self.results.grouped.loc[:, "expectation"] = pd.NA
+            self.results.grouped.loc[:, "expectation_std_pos"] = pd.NA
+            self.results.grouped.loc[:, "expectation_std_neg"] = pd.NA
+        else:
+            convex_hull_expectation_values = _get_convex_hull_property_expectation(
+                n_points=self.results.grouped.index,
+                convex_hull_property=convex_hull_property_,
+                sigma=np.sqrt(self.expected_variance),
+            )
+            new_dict = dict(
+                expectation=convex_hull_expectation_values.expectation,
+                expectation_std_pos=convex_hull_expectation_values.std_pos,
+                expectation_std_neg=convex_hull_expectation_values.std_neg,
+            )
+            new_df = pd.DataFrame(
+                new_dict, index=convex_hull_expectation_values.n_points
+            )
+            self.results.grouped = pd.merge(
+                self.results.grouped,
+                new_df,
+                how="outer",
+                left_index=True,
+                right_index=True,
+            )
+        self._class.results = self.results
+        return self
+
+    def plot(self, ax=None, **kwargs) -> mpl.axes.Axes:
+        self._class.plot(ax=ax, **kwargs)
+
+    def hist(
+        self,
+        ax=None,
+        bins=None,
+        n_bins=None,
+        bin_size=None,
+        bin_edges=None,
+        bin_range=None,
+        log=True,
+        fit=False,
+        **kwargs,
+    ) -> mpl.axes.Axes:
+        self._class.hist(
+            ax=ax,
+            bins=bins,
+            n_bins=n_bins,
+            bin_size=bin_size,
+            bin_edges=bin_edges,
+            bin_range=bin_range,
+            log=log,
+            fit=fit,
+            **kwargs,
+        )

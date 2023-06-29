@@ -9,13 +9,20 @@ import logging
 from typing import NamedTuple
 
 import numpy as np
+import numpy.typing as npt
 
-__all__ = ["weighted_mean_variance", "ratio_fwhm_to_sigma", "biased_variance"]
+__all__: list[str] = [
+    "weighted_mean_variance",
+    "ratio_fwhm_to_sigma",
+    "biased_variance",
+]
+
+logger = logging.getLogger(__name__)
 
 
 class WeightedMeanVariance(NamedTuple):
-    weighted_mean: np.array
-    weighted_mean_variance: np.array
+    weighted_mean: float | npt.NDArray
+    weighted_mean_variance: float | npt.NDArray
 
 
 def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
@@ -25,9 +32,9 @@ def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
 
     Parameters
     ----------
-    values : array-like
+    values : npt.ArrayLike
         Values from which to compute the weighted average.
-    weights : array-like | None
+    weights : npt.ArrayLike | None
         Weights to use for weighted average.
 
     Returns
@@ -44,6 +51,8 @@ def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
        https://doi.org/10.1016/1352-2310(94)00210-C.
     """
     values = np.asarray(values)
+    if values.ndim > 1:
+        raise ValueError("values must be 1-dimensional.")
     if weights is None:
         weights = np.ones(shape=values.shape)
     else:
@@ -78,19 +87,20 @@ def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
         # but did result with some floating values
         if (
             weighted_mean_variance_ != 0
-            and weighted_mean_variance_[weighted_mean_variance_ < 0].any()
+            and weighted_mean_variance_[weighted_mean_variance_ < 0].any()  # type: ignore
         ):
             if np.ndim(weighted_mean_variance_) == 0:
                 weighted_mean_variance_ = 0
             else:
-                weighted_mean_variance_[weighted_mean_variance_ < 0] = 0
-            logging.warning(
+                weighted_mean_variance_[weighted_mean_variance_ < 0] = 0  # type: ignore
+            logger.warning(
                 "Negative values for weighted_mean_variance occurred and were set to "
                 "zero."
             )
 
     return WeightedMeanVariance(
-        weighted_mean=weighted_average, weighted_mean_variance=weighted_mean_variance_
+        weighted_mean=weighted_average,
+        weighted_mean_variance=weighted_mean_variance_,
     )
 
 
@@ -106,7 +116,7 @@ def ratio_fwhm_to_sigma() -> float:
     return 2 * np.sqrt(2 * np.log(2))
 
 
-def biased_variance(variance, n_samples) -> np.ndarray:
+def biased_variance(variance, n_samples) -> npt.NDArray:
     """
     The sample variance is biased if not corrected by Bessel's correction.
     This function yields the biased variance by applying the inverse
@@ -118,15 +128,15 @@ def biased_variance(variance, n_samples) -> np.ndarray:
 
     Parameters
     ----------
-    variance : array-like
+    variance : npt.ArrayLike
         An unbiased variance.
-    n_samples : array-like
+    n_samples : npt.ArrayLike
         Number of samples from which the biased sample variance would be
         computed.
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray
     """
     n_samples = np.asarray(n_samples)
     return variance * (1 - 1 / n_samples)

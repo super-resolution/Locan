@@ -95,7 +95,7 @@ def test__get_linked_coordinates(
     assert caplog.record_tuples[-1] == (
         "locan.data.locdata_utils",
         30,
-        "Zero uncertainties occurred resulting in nan results.",
+        "Zero uncertainties occurred resulting in nan for weighted_mean and weighted_variance.",
     )
 
     results = _get_linked_coordinates(locdata=df_with_uncertainty)

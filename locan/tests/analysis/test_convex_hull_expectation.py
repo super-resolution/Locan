@@ -292,19 +292,19 @@ class TestConvexHullPropertyExpectation:
         cpe = ConvexHullExpectation(
             convex_hull_property="subregion_measure_ch", expected_variance=100
         ).compute(locdata=collection)
-        # print(cpe.results.values)
+        # print(cpe.results.values.)
         # print(cpe.results.grouped)
         assert cpe.results.values.index.tolist() == collection.data.index.tolist()
         assert cpe.results.values.columns.tolist() == [
             "localization_count",
-            "subregion_measure_ch",
+            "region_measure_ch",
             "expectation",
             "value_to_expectation_ratio",
         ]
         assert cpe.results.grouped.index.tolist() == [6]
         assert cpe.results.grouped.columns.tolist() == [
-            "subregion_measure_ch_mean",
-            "subregion_measure_ch_std",
+            "region_measure_ch_mean",
+            "region_measure_ch_std",
             "expectation",
             "expectation_std_pos",
             "expectation_std_neg",
@@ -395,6 +395,68 @@ class TestConvexHullPropertyExpectation:
         assert cpe.results.values.value_to_expectation_ratio.tolist() == pytest.approx(
             [0.04361370716510903, 0.05577689243027889, np.nan], rel=1e-3, nan_ok=True
         )
+
+        cpe.plot()
+        # plt.show()
+        cpe.hist()
+        # plt.show()
+
+        plt.close("all")
+
+    def test_compute_with_expectation_subregion(self, locdata_2d):
+        locdata_2d = deepcopy(locdata_2d)
+        collection = LocData.from_collection(locdatas=[locdata_2d, locdata_2d])
+        cpe = ConvexHullExpectation(
+            convex_hull_property="subregion_measure_ch", expected_variance=100
+        ).compute(locdata=collection)
+        # print(cpe.results.values)
+        # print(cpe.results.grouped)
+        assert cpe.results.values.index.tolist() == collection.data.index.tolist()
+        assert cpe.results.values.columns.tolist() == [
+            "localization_count",
+            "subregion_measure_ch",
+            "expectation",
+            "value_to_expectation_ratio",
+        ]
+        assert cpe.results.grouped.index.tolist() == [6]
+        assert cpe.results.grouped.columns.tolist() == [
+            "subregion_measure_ch_mean",
+            "subregion_measure_ch_std",
+            "expectation",
+            "expectation_std_pos",
+            "expectation_std_neg",
+        ]
+
+        cpe.plot()
+        # plt.show()
+        cpe.hist()
+        # plt.show()
+
+        plt.close("all")
+
+    def test_compute_with_expectation_region_measure_3d(self, locdata_3d):
+        locdata_3d = deepcopy(locdata_3d)
+        collection = LocData.from_collection(locdatas=[locdata_3d, locdata_3d])
+        cpe = ConvexHullExpectation(
+            convex_hull_property="region_measure_ch", expected_variance=100
+        ).compute(locdata=collection)
+        # print(cpe.results.values)
+        # print(cpe.results.grouped)
+        assert cpe.results.values.index.tolist() == collection.data.index.tolist()
+        assert cpe.results.values.columns.tolist() == [
+            "localization_count",
+            "region_measure_ch",
+            "expectation",
+            "value_to_expectation_ratio",
+        ]
+        assert cpe.results.grouped.index.tolist() == [6]
+        assert cpe.results.grouped.columns.tolist() == [
+            "region_measure_ch_mean",
+            "region_measure_ch_std",
+            "expectation",
+            "expectation_std_pos",
+            "expectation_std_neg",
+        ]
 
         cpe.plot()
         # plt.show()

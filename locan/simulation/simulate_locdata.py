@@ -48,6 +48,7 @@ from locan.data.region import (
     Region,
 )
 from locan.data.region_utils import expand_region
+from locan.locan_types import RandomGeneratorSeed  # noqa: F401
 
 __all__: list[str] = [
     "make_uniform",
@@ -84,7 +85,7 @@ def make_uniform(n_samples, region=(0, 1), seed=None) -> npt.NDArray:
     region : Region, npt.ArrayLike
         The region (or support) for all features.
         If array-like it must provide upper and lower bounds for each feature.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         Random number generation seed
 
     Returns
@@ -146,7 +147,7 @@ def simulate_uniform(n_samples, region=(0, 1), seed=None) -> LocData:
     region : Region, npt.ArrayLike
         The region (or support) for each feature.
         If array-like it must provide upper and lower bounds for each feature.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -180,7 +181,7 @@ def make_Poisson(intensity, region=(0, 1), seed=None) -> npt.NDArray:
     region : Region | npt.ArrayLike
         The region (or support) for all features.
         If array-like it must provide upper and lower bounds for each feature.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -248,7 +249,7 @@ def simulate_Poisson(intensity, region=(0, 1), seed=None) -> LocData:
     region : Region | npt.ArrayLike
         The region (or support) for each feature.
         If array-like it must provide upper and lower bounds for each feature.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -304,7 +305,7 @@ def make_cluster(
         If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -442,7 +443,7 @@ def simulate_cluster(
         If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -501,7 +502,7 @@ def make_NeymanScott(
         If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -633,7 +634,7 @@ def simulate_NeymanScott(
         If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -690,7 +691,7 @@ def make_Matern(
         If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -812,7 +813,7 @@ def simulate_Matern(
         If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -875,7 +876,7 @@ def make_Thomas(
         If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -1022,7 +1023,7 @@ def simulate_Thomas(
         If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -1095,7 +1096,7 @@ def make_dstorm(
         If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -1253,7 +1254,7 @@ def simulate_dstorm(
         If True the result will be clipped to 'region'. If False the extended region will be kept.
     shuffle : boolean
         Shuffle the samples.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -1305,7 +1306,7 @@ def _random_walk(
         Diffusion constant in units length per seconds^2
     time_step : float
         Time per frame (or simulation step) in seconds.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -1354,7 +1355,7 @@ def simulate_tracks(
         Diffusion constant with unit length per seconds^2
     time_step : float
         Time per frame (or simulation step) in seconds.
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -1419,9 +1420,7 @@ def resample(locdata, n_samples=10, loc_properties=None, seed=None) -> LocData:
         Localization data to be resampled
     n_samples : int
         The number of localizations generated for each original localization.
-    loc_properties: Iterable[str] | None
-        Coordinate properties that will be resampled
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -1494,7 +1493,7 @@ def _random_poisson_repetitions(n_samples, lam, seed=None):
         number of elements to be returned
     lam : float
         mean of the Poisson distribution (lambda)
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -1539,7 +1538,7 @@ def simulate_frame_numbers(n_samples, lam, seed=None):
         number of elements to be returned
     lam : float
         mean of the Poisson distribution (lambda)
-    seed : None, int, npt.ArrayLike[ints], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns

@@ -292,7 +292,7 @@ def randomize(locdata, hull_region="bb", seed=None):
     hull_region : Region | str
         Region of interest. String identifier can be one of 'bb', 'ch', 'as',
         'obb' referring to the corresponding hull.
-    seed : None, int, npt.ArrayLike[int], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns

@@ -35,7 +35,7 @@ def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None) -> npt.
         The diffusion constant has the unit of square of localization coordinate unit per frame unit.
     velocity : tuple[float]
         Drift velocity in units of localization coordinate unit per frame unit with shape (point_dimension,)
-    seed : None, int, npt.ArrayLike[int], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -70,7 +70,7 @@ def _drift(frames, diffusion_constant=None, velocity=None, seed=None) -> npt.NDA
         If None only linear drift is computed.
     velocity : tuple[float]
         Drift velocity in units of localization coordinate unit per frame unit with shape (point_dimension,)
-    seed : None | int | npt.ArrayLike[int] | numpy.random.SeedSequence | numpy.random.BitGenerator | numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns
@@ -113,7 +113,7 @@ def add_drift(locdata, diffusion_constant=None, velocity=None, seed=None) -> Loc
     velocity : tuple[float]
         Drift velocity in units of localization coordinate unit per frame
         unit with shape (point_dimension,)
-    seed : None, int, npt.ArrayLike[int], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         random number generation seed
 
     Returns

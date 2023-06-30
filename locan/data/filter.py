@@ -19,6 +19,7 @@ from locan.constants import HullType
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 from locan.data.region import Region2D, RoiRegion
+from locan.locan_types import RandomGeneratorSeed  # noqa: F401
 
 __all__: list[str] = [
     "select_by_condition",
@@ -250,7 +251,7 @@ def random_subset(locdata, n_points, replace=True, seed=None) -> LocData:
         Number of localizations to randomly choose from locdata.
     replace : bool
         Indicate if sampling is with or without replacement
-    seed : None, int, npt.ArrayLike[int], numpy.random.SeedSequence, numpy.random.BitGenerator, numpy.random.Generator
+    seed : RandomGeneratorSeed
         Random number generation seed
 
     Returns

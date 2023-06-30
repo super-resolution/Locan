@@ -2,7 +2,27 @@
 Changelog
 =======================
 
-0.14 - dev
+0.15 - dev
+=================
+
+New Features
+------------
+-
+
+API Changes
+-----------
+-
+
+Bug Fixes
+---------
+-
+
+Other Changes and Additions
+---------------------------
+-
+
+
+0.14 - 2023-06-30
 =================
 
 New Features

@@ -104,6 +104,8 @@ def test_bunwarp_raw_transformation():
         dat_green_flipped.coordinates, matrix_x, matrix_y, pixel_size=(10, 10)
     )
     assert len(new_points) == len(dat_green)
+    assert new_points[0].tolist() == pytest.approx([719.42151268, 744.8724311])
+    assert new_points[-1].tolist() == pytest.approx([710.75245448, 751.69111475])
 
     dat_green_transformed = bunwarp(
         locdata=dat_green, matrix_path=matrix_path, pixel_size=(10, 10), flip=True
@@ -143,7 +145,7 @@ def test_bunwarp_raw_transformation():
         cmap="Blues",
         alpha=0.5,
     )
-    #  plt.show()
+    # plt.show()
 
     render_2d_rgb_mpl(
         [dat_red, dat_green_transformed], bin_size=5, bin_range=((0, 1000), (0, 1400))

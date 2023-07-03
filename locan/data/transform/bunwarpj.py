@@ -53,8 +53,10 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size) -> npt.NDArray:
     points : npt.ArrayLike
         Point coordinates to be transformed.
         Array with shape (n_points, 2).
-    matrix_x, matrix_y : npt.ArrayLike
-        Transformation matrix for x and y coordinates
+    matrix_x : npt.NDArray
+        Transformation matrix for x coordinates
+    matrix_y : npt.NDArray
+        Transformation matrix for y coordinates
     pixel_size : tuple[float, float]
         Pixel size for x and y component as used in ImageJ for registration
 
@@ -73,15 +75,13 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size) -> npt.NDArray:
 
     x = np.arange(matrix_size[0])
     y = np.arange(matrix_size[1])
-    z_x = matrix_x.T
-    f_x = interpolate.interp2d(x, y, z_x, kind="linear")
-    z_y = matrix_y.T
-    f_y = interpolate.interp2d(x, y, z_y, kind="linear")
+    rgi_x = interpolate.RegularGridInterpolator(points=(x, y), values=matrix_x)
+    rgi_y = interpolate.RegularGridInterpolator(points=(x, y), values=matrix_y)
+    matrix_x_interpolated = rgi_x(point_indices, method="linear")
+    matrix_y_interpolated = rgi_y(point_indices, method="linear")
 
-    new_points = np.array(
-        [np.concatenate((f_x(*pind), f_y(*pind))) for pind in point_indices]
-    )
-    new_points = np.multiply(new_points, pixel_size)
+    new_point_indices = np.stack([matrix_x_interpolated, matrix_y_interpolated], axis=1)
+    new_points = np.multiply(new_point_indices, pixel_size)
     return new_points
 
 
@@ -91,7 +91,7 @@ def _read_matrix(path) -> tuple[npt.NDArray, npt.NDArray]:
 
     Parameters
     ----------
-    path : str | bytes | os.PathLike
+    path : str | os.PathLike
         Path to file with a raw matrix from BunwarpJ.
 
     Returns
@@ -126,7 +126,7 @@ def bunwarp(locdata, matrix_path, pixel_size, flip=False) -> LocData:
     ----------
     locdata : LocData
         specifying the localization data on which to perform the manipulation.
-    matrix_path : str | bytes | os.PathLike
+    matrix_path : str | os.PathLike
         Path to file with a raw matrix from BunwarpJ.
     pixel_size : tuple[float, float]
         Pixel sizes used to determine transition matrix in ImageJ

@@ -25,6 +25,8 @@ dependencies:
 - pre-commit
 - ruff
 - mypy
+- types-requests
+- types-protobuf
 
 # Documentation
 - sphinx

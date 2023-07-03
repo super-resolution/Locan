@@ -18,6 +18,7 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import Callable  # noqa: F401
 
 import matplotlib.colors as mcolors
 import numpy as np
@@ -106,7 +107,7 @@ class Transform(ABC):
         # return new_values
 
     @abstractmethod
-    def inverse(self, values):
+    def inverse(self, values: npt.ArrayLike) -> npt.NDArray:
         """A transformation that performs the inverse operation."""
         raise NotImplementedError
 
@@ -147,7 +148,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         The `power` intensification parameter.
     n_bins : int
         Number of bins used to compute the intensity histogram.
-    mask : npt.ArrayLike[bool]
+    mask : npt.ArrayLike
         A bool mask with shape equal to that of values. If reference is None,
         reference is set to values[mask].
         The transformation determined from reference is then applied to all
@@ -214,7 +215,7 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray:
     ----------
     image : npt.ArrayLike
         Values to be adjusted
-    rescale : int, str, Trafo, callable, bool, None
+    rescale : int | str | Trafo | Callable | bool | None
         Transformation as defined in :class:`locan.constants.Trafo` or by
         transformation function.
         For None or False no rescaling occurs.

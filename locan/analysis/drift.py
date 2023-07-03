@@ -184,7 +184,7 @@ def _estimate_drift_cc(
     ----------
     locdata : LocData
        Localization data with properties for coordinates and frame.
-    chunks : list[tuples]
+    chunks : Sequence[tuples]
         Localization chunks as defined by a list of index-tuples
     chunk_size : int
        Number of consecutive localizations to form a single chunk of data.

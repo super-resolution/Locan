@@ -27,7 +27,7 @@ def file_dialog(
 
     Parameters
     ----------
-    directory : str or None
+    directory : str | None
         directory path to start dialog in. If None the current directory is used.
 
     message : str
@@ -38,7 +38,7 @@ def file_dialog(
 
     Returns
     -------
-    list of str
+    list[str]
         list with file names or empty list
     """
     if directory is None:

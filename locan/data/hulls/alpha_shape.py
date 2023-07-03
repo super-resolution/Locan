@@ -113,7 +113,7 @@ class AlphaComplex:
     Parameters
     ----------
     points : npt.ArrayLike
-        Coordinates of input points. Array with shape (npoints, ndim).
+        Coordinates of input points with shape (npoints, ndim).
     delaunay : scipy.spatial.Delaunay | None
         Object with attribute `simplices` specifying a list of indices in the
         array of points that define the simplexes in the Delaunay
@@ -243,7 +243,7 @@ class AlphaComplex:
         ----------
         alpha : float
             Alpha parameter specifying a unique alpha complex.
-        type : str
+        type : Literal['all', 'regular', 'singular', 'interior', 'exterior']
             Type of alpha complex edges to be included in the graph.
             One of 'all', 'regular', 'singular', 'interior', 'exterior'.
 
@@ -279,7 +279,7 @@ class AlphaComplex:
         ----------
         alpha : float
             Alpha parameter specifying a unique alpha complex.
-        type : str
+        type : Literal['all', 'regular', 'singular', 'interior', 'exterior']
             Type of alpha complex edges to be included in the graph.
             One of 'all', 'regular', 'singular', 'interior', 'exterior'.
 
@@ -314,7 +314,7 @@ class AlphaComplex:
         ----------
         alpha : float
             Alpha parameter specifying a unique alpha complex.
-        type : str
+        type : Literal['all', 'regular', 'singular', 'interior', 'exterior']
             Type of alpha complex edges to be included in the graph.
             One of 'all', 'regular', 'singular', 'interior', 'exterior'.
 
@@ -342,7 +342,7 @@ class AlphaComplex:
         ----------
         alpha : float
             Alpha parameter specifying a unique alpha complex.
-        type : str
+        type : Literal['all', 'regular', 'singular', 'interior', 'exterior']
             Type of alpha complex edges to be included in the graph.
             One of 'all', 'regular', 'singular', 'interior', 'exterior'.
 
@@ -460,14 +460,15 @@ class AlphaShape:
     dimension : int
         Spatial dimension of the hull as determined from the dimension of
         `points`
-    vertices : array of (2,) tuples
-        Coordinates of points that make up the hull
+    vertices : npt.NDArray
+        Coordinates of points that make up the hull with shape (n_points, 2).
         (regular alpha_shape line-simplices).
     vertex_indices : list[int]
         Indices identifying a polygon of all points that make up the hull
         (regular alpha_shape line-simplices).
-    vertices_alpha_shape : array of (2,) tuples
-        Coordinates of points that make up the interior and boundary of the
+    vertices_alpha_shape : npt.NDArray
+        Coordinates of points with shape (n_points, 2)
+        that make up the interior and boundary of the
         hull (regular, singular and interior alpha_shape line-simplices).
     vertex_alpha_shape_indices : list[int]
         Indices to all points that make up the interior and boundary of the hull.

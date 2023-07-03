@@ -4,9 +4,10 @@ Functions to compute locdata properties.
 from __future__ import annotations
 
 import logging
-from collections import namedtuple
+from typing import NamedTuple
 
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 from scipy.spatial.distance import pdist
 from shapely.geometry import Point
 
@@ -20,6 +21,14 @@ __all__: list[str] = [
 ]
 
 logger = logging.getLogger(__name__)
+
+
+class InertiaMoments(NamedTuple):
+    eigenvalues: npt.NDArray
+    eigenvectors: npt.NDArray
+    variance_explained: list
+    orientation: float
+    eccentricity: float
 
 
 def distance_to_region(locdata, region):
@@ -38,7 +47,7 @@ def distance_to_region(locdata, region):
 
     Returns
     --------
-    numpy.ndarray
+    npt.NDArray
         Distance for each localization.
     """
     distances = np.full(len(locdata), 0.0)
@@ -68,7 +77,7 @@ def distance_to_region_boundary(locdata, region):
 
     Returns
     --------
-    numpy.ndarray
+    npt.NDArray
         Distance for each localization.
     """
     distances = np.full(len(locdata), 0.0)
@@ -92,7 +101,7 @@ def max_distance(locdata):
 
     Returns
     -------
-    dict
+    dict[str, float]
         A dict with key `max_distance` and the corresponding value being the
         maximum distance.
     """
@@ -117,13 +126,12 @@ def inertia_moments(points):
 
     Parameters
     ----------
-    points : tuple | list | numpy.ndarray[float]
-        Coordinates of input points. Array with shape (npoints, ndim).
+    points : npt.ArrayLike
+        Coordinates of input points with shape (npoints, ndim).
 
     Returns
     -------
-    namedtuple(InertiaMoments, 'eigenvalues eigenvectors variance_explained
-    orientation eccentricity')
+    InertiaMoments
         A tuple with eigenvalues, eigenvectors, variance_explained,
         orientation, eccentricity
 
@@ -154,11 +162,7 @@ def inertia_moments(points):
         orientation = np.nan
         eccentricity = np.nan
 
-    InertiaMoments = namedtuple(
-        "InertiaMoments",
-        "eigenvalues eigenvectors variance_explained orientation eccentricity",
-    )
-    inertia_moments = InertiaMoments(
+    inertia_moments_ = InertiaMoments(
         eigen_values, eigen_vectors, variance_explained, orientation, eccentricity
     )
-    return inertia_moments
+    return inertia_moments_

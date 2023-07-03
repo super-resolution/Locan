@@ -33,7 +33,7 @@ def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
 
     Returns
     -------
-    tuple[LocData]
+    tuple[LocData, ...]
         The first element is a LocData object with a selection of all
         localizations that are defined as noise.
         If noise is false this element will be None.

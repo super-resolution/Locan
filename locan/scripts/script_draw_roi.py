@@ -3,8 +3,10 @@
 """
 Define regions of interest with matplotlib and save as roi files.
 
-With this script you can choose a file name, open the localization file and draw a rectangular region of interest.
-Within the matplotlib image draw a rectange, type '+' to add the roi to the list, then type 'q' to quit.
+With this script you can choose a file name, open the localization file and
+draw a rectangular region of interest.
+Within the matplotlib image draw a rectange, type '+' to add the roi to the
+list, then type 'q' to quit.
 The roi is then saved as _roi.yaml file.
 
 To run the script::
@@ -37,14 +39,15 @@ def sc_draw_roi_mpl(
 
     Parameters
     ----------
-    file_path : str, bytes, os.PathLike
+    file_path : str, os.PathLike
         File path to localization data.
-    file_type : int, str, locan.constants.FileType, locan.data.metadata_pb2.Metadata
+    file_type : int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata
         Indicator for the file type.
         Integer or string should be according to locan.constants.FileType.
     roi_file_indicator : str
-        Indicator to add to the localization file name and use as roi file name (with further extension .yaml).
-    region_type : str
+        Indicator to add to the localization file name and use as roi file
+        name (with further extension .yaml).
+    region_type : Literal["rectangle", "ellipse", "polygon"]
         rectangle, ellipse, or polygon specifying the selection widget to use.
     """
 
@@ -109,7 +112,6 @@ def _add_arguments(parser):
 
 
 def main(args=None):
-
     parser = argparse.ArgumentParser(description="Set roi by drawing a boundary.")
     _add_arguments(parser)
     returned_args = parser.parse_args(args)

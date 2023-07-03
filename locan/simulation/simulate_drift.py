@@ -22,19 +22,24 @@ def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None) -> npt.
     Transform locdata coordinates according to a simulated drift.
 
     Position deltas are computed as function of frame number.
-    Within a single time unit delta_t the probability for a diffusion step of length delta_x is:
+    Within a single time unit delta_t the probability for a diffusion step of
+    length delta_x is:
 
-    p(delta_x, delta_t) = Norm(-velocity*delta_t, sigma**2) where the standard deviation sigma**2 = 2 * D * delta_t
+    p(delta_x, delta_t) = Norm(-velocity*delta_t, sigma**2) where the standard
+    deviation sigma**2 = 2 * D * delta_t
 
     Parameters
     ----------
     n_steps : int
         The number of time steps for the random walk.
-    diffusion_constant : tuple[float]
-        Diffusion constant for each dimension specifying the drift velocity with shape (point_dimension,).
-        The diffusion constant has the unit of square of localization coordinate unit per frame unit.
-    velocity : tuple[float]
-        Drift velocity in units of localization coordinate unit per frame unit with shape (point_dimension,)
+    diffusion_constant : tuple[float, ...]
+        Diffusion constant for each dimension specifying the drift velocity
+        with shape (point_dimension,).
+        The diffusion constant has the unit of square of localization
+        coordinate unit per frame unit.
+    velocity : tuple[float, ...]
+        Drift velocity in units of localization coordinate unit per frame unit
+        with shape (point_dimension,)
     seed : RandomGeneratorSeed
         random number generation seed
 
@@ -62,14 +67,17 @@ def _drift(frames, diffusion_constant=None, velocity=None, seed=None) -> npt.NDA
 
      Parameters
     ----------
-    frames : npt.ArrayLike[int]
+    frames : npt.ArrayLike
         array with frame numbers
-    diffusion_constant : tuple[float] | None
-        Diffusion constant for each dimension specifying the drift velocity with shape (point_dimension,).
-        The diffusion constant has the unit of square of localization coordinate unit per frame unit.
+    diffusion_constant : tuple[float, ...] | None
+        Diffusion constant for each dimension specifying the drift velocity
+        with shape (point_dimension,).
+        The diffusion constant has the unit of square of localization
+        coordinate unit per frame unit.
         If None only linear drift is computed.
-    velocity : tuple[float]
-        Drift velocity in units of localization coordinate unit per frame unit with shape (point_dimension,)
+    velocity : tuple[float, ...]
+        Drift velocity in units of localization coordinate unit per frame
+        unit with shape (point_dimension,)
     seed : RandomGeneratorSeed
         random number generation seed
 
@@ -106,11 +114,12 @@ def add_drift(locdata, diffusion_constant=None, velocity=None, seed=None) -> Loc
     ----------
     locdata : LocData
         Original localization data
-    diffusion_constant : tuple[float] | None
-        Diffusion constant for each dimension specifying the drift velocity with shape (point_dimension,).
+    diffusion_constant : tuple[float, ...] | None
+        Diffusion constant for each dimension specifying the drift velocity
+        with shape (point_dimension,).
         The diffusion constant has the unit of square of
         localization coordinate unit per frame unit.
-    velocity : tuple[float]
+    velocity : tuple[float, ...]
         Drift velocity in units of localization coordinate unit per frame
         unit with shape (point_dimension,)
     seed : RandomGeneratorSeed

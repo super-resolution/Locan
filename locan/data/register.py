@@ -2,8 +2,8 @@
 
 Register localization data.
 
-This module registers localization data and provides transformation parameters to put other localization data
-in registry.
+This module registers localization data and provides transformation parameters
+to put other localization data in registry.
 
 Parts of this code is adapted from https://github.com/jungmannlab/picasso.
 (MIT license, Copyright (c) 2016 Jungmann Lab, MPI of Biochemistry)
@@ -56,12 +56,14 @@ def _register_icp_open3d(
     matrix : tuple
         Transformation matrix with shape (d, d)used as initial value.
         If None the unit matrix is used.
-    offset : tuple of int or float with shape (d,)
-        Translation vector used as initial value. If None a vector of zeros is used.
-    pre_translation : tuple of int or float
+    offset : tuple[int | float]
+        Translation vector with shape (d,) used as initial value.
+        If None a vector of zeros is used.
+    pre_translation : tuple[int | float]
         Values for translation of coordinates before registration.
     max_correspondence_distance : float
-        Threshold distance for the icp algorithm. Parameter is passed to open3d algorithm.
+        Threshold distance for the icp algorithm. Parameter is passed to
+        open3d algorithm.
     max_iteration : int
         Maximum number of iterations. Parameter is passed to open3d algorithm.
     with_scaling : bool
@@ -154,12 +156,14 @@ def register_icp(
     verbose=True,
 ) -> Transformation:
     """
-    Register `points` or coordinates in `locdata` by an "Iterative Closest Point" algorithm using open3d.
+    Register `points` or coordinates in `locdata` by an
+    "Iterative Closest Point" algorithm using open3d.
 
     Parameters
     ----------
     locdata : npt.ArrayLike | LocData
-        Localization data representing the source on which to perform the manipulation.
+        Localization data representing the source on which to perform the
+        manipulation.
     other_locdata : npt.ArrayLike | LocData
         Localization data representing the target.
     matrix : tuple
@@ -171,7 +175,8 @@ def register_icp(
     pre_translation : tuple[int | float]
         Values for translation of coordinates before registration.
     max_correspondence_distance : float
-        Threshold distance for the icp algorithm. Parameter is passed to open3d algorithm.
+        Threshold distance for the icp algorithm. Parameter is passed to
+        open3d algorithm.
     max_iteration : int
         Maximum number of iterations. Parameter is passed to open3d algorithm.
     verbose : bool
@@ -210,7 +215,8 @@ def register_icp(
 
 def _xcorr(imageA, imageB):
     """
-    This function is adapted from picasso/imageprocess by Joerg Schnitzbauer, MPI of Biochemistry
+    This function is adapted from picasso/imageprocess
+    by Joerg Schnitzbauer, MPI of Biochemistry
     https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
     (MIT license, Copyright (c) 2016 Jungmann Lab, MPI of Biochemistry)
     """
@@ -225,7 +231,8 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
     """
     Computes the shift from imageA to imageB.
 
-    This function is adapted from picasso/imageprocess by Joerg Schnitzbauer, MPI of Biochemistry
+    This function is adapted from picasso/imageprocess
+    by Joerg Schnitzbauer, MPI of Biochemistry
     https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
     (MIT license, Copyright (c) 2016 Jungmann Lab, MPI of Biochemistry)
     """
@@ -316,44 +323,55 @@ def register_cc(
     **kwargs,
 ) -> Transformation:
     """
-     Register `points` or coordinates in `locdata` by a cross-correlation algorithm.
+    Register `points` or coordinates in `locdata` by a
+    cross-correlation algorithm.
 
-     This function is based on code from picasso/imageprocess by Joerg Schnitzbauer, MPI of Biochemistry
-     https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
+    This function is based on code from picasso/imageprocess
+    by Joerg Schnitzbauer, MPI of Biochemistry
+    https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
 
-     Parameters
-     ----------
-     locdata : npt.ArrayLike | LocData
-         Localization data representing the source on which to perform the manipulation.
-     other_locdata : npt.ArrayLike | LocData
-         Localization data representing the target.
-     max_offset : int | float | None
-         Maximum possible offset.
-     bins : int or sequence or `Bins` or `boost_histogram.axis.Axis` or None
-         The bin specification as defined in :class:`Bins`
-     bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges) or None
-         Array of bin edges for all or each dimension.
-     n_bins : int, list, tuple or numpy.ndarray or None
-         The number of bins for all or each dimension.
-         5 yields 5 bins in all dimensions.
-         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-     bin_size : float, list, tuple or numpy.ndarray or None
-         The size of bins in units of locdata coordinate units for all or each dimension.
-         5 would describe bin_size of 5 for all bins in all dimensions.
-         (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
-         To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-     bin_range : tuple or tuple of tuples of float with shape (dimension, 2) or None or 'zero'
-         The data bin_range to be taken into consideration for all or each dimension.
-         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
-         for None (min, max) bin_range are determined from data;
-         for 'zero' (0, max) bin_range with max determined from data.
-     verbose : bool
-         Flag indicating if transformation results are printed out.
+    Parameters
+    ----------
+    locdata : npt.ArrayLike | LocData
+        Localization data representing the source on which to perform the
+        manipulation.
+    other_locdata : npt.ArrayLike | LocData
+        Localization data representing the target.
+    max_offset : int | float | None
+        Maximum possible offset.
+    bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
+        Specific class specifying the bins.
+    bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+        Bin edges for all or each dimension
+        with shape (dimension, n_bin_edges).
+    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+        Minimum and maximum edge for all or each dimensions
+        with shape (2,) or (dimension, 2).
+        If None (min, max) ranges are determined from data and returned;
+        if 'zero' (0, max) ranges with max determined from data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from
+        all combined data are returned.
+    n_bins : int | Sequence[int] | None
+        The number of bins for all or each dimension.
+        5 yields 5 bins in all dimensions.
+        (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
+    bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+        The size of bins for all or each bin and for all or each dimension
+        with shape (dimension,) or (dimension, n_bins).
+        5 would describe bin_size of 5 for all bins in all dimensions.
+        ((2, 5),) yield bins of size (2, 5) for one dimension.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other
+        dimension.
+        ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
+        (1, 3) for the other dimension.
+        To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
+    verbose : bool
+        Flag indicating if transformation results are printed out.
 
-     Returns
-     -------
+    Returns
+    -------
     Transformation
-         Matrix and offset representing the optimized transformation.
+        Matrix and offset representing the optimized transformation.
     """
     if isinstance(locdata, LocData) and isinstance(other_locdata, LocData):
         if bin_range is None:

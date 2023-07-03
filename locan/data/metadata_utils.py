@@ -168,7 +168,7 @@ def metadata_to_formatted_string(message, **kwargs) -> str:
     )
 
 
-def _toml_dict_to_protobuf(toml_dict) -> metadata_pb2.Metadata:
+def _toml_dict_to_protobuf(toml_dict) -> dict[str, Message]:
     """
     Turn toml dict into protobuf messages.
 
@@ -300,8 +300,7 @@ def merge_metadata(metadata=None, other_metadata=None) -> metadata_pb2.Metadata:
     ----------
     metadata : locan.data.metadata_pb2.Metadata | None
         Original LocData metadata before modification
-    other_metadata : (locan.data.metadata_pb2.Metadata | dict |
-            str | bytes | os.PathLike | BinaryIO | None)
+    other_metadata : locan.data.metadata_pb2.Metadata | dict | str | bytes | os.PathLike | BinaryIO | None
         Metadata to be merged.
 
     Returns

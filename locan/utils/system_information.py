@@ -67,7 +67,7 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
     extra_dependencies : bool
         Include extra dependencies as specified in setup.py
 
-    other_dependencies : list or None
+    other_dependencies : list | None
         Include other module names.
 
     Returns
@@ -118,7 +118,7 @@ def show_versions(
         Show main dependencies
     extra_dependencies : bool
         Include extra dependencies as specified in setup.py if True.
-    other_dependencies : list or None
+    other_dependencies : list | None
         Include other module names.
 
     Returns

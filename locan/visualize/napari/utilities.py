@@ -6,10 +6,12 @@ Utility functions for interacting with napari.
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable  # noqa: F401
 from pathlib import Path
-from typing import Iterable  # noqa: F401
+from typing import Literal  # noqa: F401
 
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 
 from locan.data.region import Ellipse, Polygon, Rectangle, Region
 from locan.data.rois import Roi
@@ -29,7 +31,7 @@ __all__: list[str] = [
 ]
 
 
-def select_by_drawing_napari(locdata, napari_run=True, **kwargs):
+def select_by_drawing_napari(locdata, napari_run=True, **kwargs) -> list[Roi]:
     """
     Select region of interest from rendered image by drawing rois in napari.
 
@@ -64,13 +66,13 @@ def select_by_drawing_napari(locdata, napari_run=True, **kwargs):
     return roi_list
 
 
-def _shape_to_region(vertices, shape_type):
+def _shape_to_region(vertices, shape_type) -> Region:
     """
     Convert napari shape to `locan.Region`.
 
     Parameters
     ----------
-    vertices : np.array[float]
+    vertices : npt.ArrayLike
         Sequence of point coordinates as returned by napari.
     shape_type : str
         One of rectangle, ellipse, or polygon.
@@ -87,7 +89,7 @@ def _shape_to_region(vertices, shape_type):
         corner_x, corner_y = mins
         width, height = maxs - mins
         angle = 0
-        region = Rectangle((corner_x, corner_y), width, height, angle)
+        region: Region = Rectangle((corner_x, corner_y), width, height, angle)
 
     elif shape_type == "ellipse":
         if len(set(vertices[:, 0].astype(int))) != 2:
@@ -132,7 +134,7 @@ def _shapes_to_regions(shapes_data) -> list[Region]:
     return regions
 
 
-def get_rois(shapes_layer, reference=None, loc_properties=None):
+def get_rois(shapes_layer, reference=None, loc_properties=None) -> list[Roi]:
     """
     Create rois from shapes in napari.viewer.Shapes.
 
@@ -140,7 +142,7 @@ def get_rois(shapes_layer, reference=None, loc_properties=None):
     ----------
     shapes_layer: napari.layers.Shapes
         Napari shapes layer like `viewer.layers["Shapes"]`
-    reference : LocData, dict, locan.data.metadata_pb2.Metadata, locan.data.metadata_pb2.File, None
+    reference : LocData | dict | locan.data.metadata_pb2.Metadata | locan.data.metadata_pb2.File | None
         Reference to localization data for which the region of interest
         is defined. It can be a LocData object, a reference to a saved
         SMLM file, or None for indicating no specific reference.
@@ -150,7 +152,7 @@ def get_rois(shapes_layer, reference=None, loc_properties=None):
         integer or string indicating the file type.
         Integer or string should be according to
         locan.constants.FileType.
-    loc_properties : tuple of str
+    loc_properties : tuple[str]
         Localization properties in LocData object on which the region
         selection will be applied (for instance the coordinate_keys).
 
@@ -171,7 +173,7 @@ def get_rois(shapes_layer, reference=None, loc_properties=None):
     return rois
 
 
-def save_rois(rois, file_path=None, roi_file_indicator="_roi"):
+def save_rois(rois, file_path=None, roi_file_indicator="_roi") -> list[Path]:
     """
     Save list of Roi objects.
 
@@ -179,7 +181,7 @@ def save_rois(rois, file_path=None, roi_file_indicator="_roi"):
     ----------
     rois : Iterable[Rois]
         The rois to be saved.
-    file_path : str | bytes | os.PathLike | "roi_reference" | None
+    file_path : str | os.PathLike | Literal["roi_reference"] | None
         Base name for roi files or existing directory to save rois in.
         If "roi_reference", roi.reference.file.path is used.
         If None, a file dialog is opened.
@@ -189,7 +191,7 @@ def save_rois(rois, file_path=None, roi_file_indicator="_roi"):
 
     Returns
     -------
-    list[str]
+    list[Path]
         New created roi file paths.
     """
     # choose file interactively

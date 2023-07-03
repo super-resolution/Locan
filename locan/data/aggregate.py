@@ -770,16 +770,16 @@ class Bins:
     ----------
     dimension : int
         The number of dimensions for which bins are provided.
-    bin_range : tuple[tuple[float, float]
+    bin_range : tuple[tuple[float, float], ...]
         Minimum and maximum edge for each dimension with shape (dimension, 2).
-    bin_edges : tuple[npt.NDArray[np.float_]]
+    bin_edges : tuple[npt.NDArray[np.float_], ...]
         Array(s) with bin edges for each dimension with shape (dimension,)
-    n_bins : tuple[int]
+    n_bins : tuple[int, ...]
         Number of bins for each dimension with shape (dimension,)
-    bin_size : tuple[float] | tuple[npt.NDArray[np.float_]]
+    bin_size : tuple[float, ...] | tuple[npt.NDArray[np.float_], ...]
         Size of bins for each dimension with shape (dimension,)
         or with shape (dimension, n_bins).
-    bin_centers :  tuple[npt.NDArray[np.float_]]
+    bin_centers :  tuple[npt.NDArray[np.float_], ...]
         Array(s) with bin centers for all or each dimension
         with shape (dimension,).
     labels : list[str] | None
@@ -1082,9 +1082,13 @@ def histogram(
     bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
         Bin edges for all or each dimension
         with shape (dimension, n_bin_edges).
-    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]]
+    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
         Minimum and maximum edge for all or each dimensions
         with shape (2,) or (dimension, 2).
+        If None (min, max) ranges are determined from data and returned;
+        if 'zero' (0, max) ranges with max determined from data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from
+        all combined data are returned.
     n_bins : int | Sequence[int] | None
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
@@ -1220,7 +1224,7 @@ def _accumulate_1d(
 
 def _accumulate_2d(
     data: npt.ArrayLike,
-    bin_edges: tuple[npt.ArrayLike],
+    bin_edges: tuple[npt.ArrayLike, ...],
     return_data: bool = False,
     return_counts: bool = False,
 ) -> tuple[npt.NDArray, list, list | None, npt.NDArray | None]:

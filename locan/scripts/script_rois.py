@@ -42,13 +42,14 @@ def sc_draw_roi_napari(
 
     Parameters
     ----------
-    file_path : str, bytes, os.PathLike
+    file_path : str, os.PathLike
         File path to localization data.
-    file_type : int, str, locan.constants.FileType, metadata_pb2
+    file_type : int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata
         Indicator for the file type.
         Integer or string should be according to locan.constants.FileType.
     roi_file_indicator : str
-        Indicator to add to the localization file name and use as roi file name (with further extension .yaml).
+        Indicator to add to the localization file name and use as roi file
+        name (with further extension .yaml).
     kwargs : dict
         Other parameters passed to :func:`render_2d_napari`.
     """
@@ -139,7 +140,6 @@ def _add_arguments(parser):
 
 
 def main(args=None):
-
     parser = argparse.ArgumentParser(description="Set roi by drawing a boundary.")
     _add_arguments(parser)
     returned_args = parser.parse_args(args)

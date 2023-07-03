@@ -9,6 +9,7 @@ import sys
 from copy import copy
 
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 from sklearn.cluster import DBSCAN
 
 from locan.configuration import N_JOBS
@@ -230,21 +231,21 @@ def cluster_by_bin(
         The minimum number of samples per bin to be considered as cluster.
     bins : int | sequence | Bins | boost_histogram.axis.Axis | None
         The bin specification as defined in :class:`Bins`
-    bin_edges : tuple | list | numpy.ndarray[float] | None
+    bin_edges : tuple[float, ...] | list | npt.ArrayLike | None
         Array of bin edges with shape (n_bin_edges,)
         or (dimension, n_bin_edges) for all or each dimension.
-    n_bins : int | list[int] | tuple[int] | numpy.ndarray[int] | None
+    n_bins : int | list[int] | tuple[int, ...] | npt.ArrayLike | None
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float | list[float] | tuple[float] | numpy.ndarray[float] | None
+    bin_size : float | list[float] | tuple[float, ...] | npt.ArrayLike | None
         The size of bins in units of locdata coordinate units for all or each
         dimension.
         5 would describe bin_size of 5 for all bins in all dimensions.
         (2, 5) yields bins of size 2 for one dimension and 5 for the other
         dimension.
         To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple[float] | tuple[tuple[float]] | str | None
+    bin_range : tuple[float, ...] | tuple[tuple[float, float], ...] | str | None
         The data bin_range to be taken into consideration for all or each
         dimension.
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
@@ -255,7 +256,7 @@ def cluster_by_bin(
 
     Returns
     -------
-    tuple[Bins, numpy.ndarray, LocData, numpy.ndarray | None]
+    tuple[Bins, npt.NDArray, LocData, npt.NDArray | None]
         Tuple with bins, bin_indices,
         collection of all generated selections (i.e. localization clusters),
         and counts per bin.

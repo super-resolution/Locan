@@ -10,4 +10,6 @@ pre-commit
 asv
 ruff
 mypy
+types-requests
+types-protobuf
 -r docs/requirements

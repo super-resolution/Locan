@@ -8,7 +8,10 @@ oriented bounding box and related properties for LocData objects.
 """
 from __future__ import annotations
 
+from typing import Literal  # noqa: F401
+
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 import scipy.spatial as spat
 from shapely.geometry import MultiPoint as shMultiPoint
 
@@ -23,20 +26,20 @@ class BoundingBox:
 
     Parameters
     ----------
-    points : numpy.ndarray[float]
-        Coordinates of input points. Array with shape (npoints, ndim).
+    points : npt.ArrayLike
+        Coordinates of input points with shape (npoints, ndim).
 
     Attributes
     ----------
-    hull : numpy.ndarray
+    hull : npt.NDArray[np.float_]
         Array of point coordinates of shape (2, ndim) that represent
         [[min_coordinates], [max_coordinates]].
     dimension : int
         Spatial dimension of hull
-    vertices : numpy.ndarray
+    vertices : npt.NDArray[np.float_]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
-    width : numpy.ndarray[float]
+    width : npt.NDArray[np.float_]
         Array with differences between max and min for each coordinate.
     region_measure : float
         Hull measure, i.e. area or volume
@@ -95,10 +98,10 @@ class _ConvexHullScipy:
         hull object from the corresponding algorithm
     dimension : int
         spatial dimension of hull
-    vertices : numpy.ndarray
+    vertices : npt.NDArray[np.float_]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
-    vertex_indices : numpy.ndarray
+    vertex_indices : npt.NDArray[np.int_]
         Indices identifying a polygon of all points that make up the hull.
     points_on_boundary : int
         absolute number of points that are part of the convex hull.
@@ -150,19 +153,19 @@ class _ConvexHullShapely:
 
     Parameters
     ----------
-    points : numpy.ndarray
-        Coordinates of input points. Array with shape (npoints, ndim).
+    points : npt.ArrayLike
+        Coordinates of input points with shape (npoints, ndim).
 
     Attributes
     ----------
-    hull : Hull object
+    hull : Hull
         Polygon object from the .convex_hull method
     dimension : int
         Spatial dimension of hull
-    vertices : numpy.ndarray
+    vertices : npt.NDArray[np.float_]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
-    vertex_indices : numpy.ndarray
+    vertex_indices : npt.NDArray[np.int_]
         indices identifying a polygon of all points that make up the hull
     points_on_boundary : int
         The absolute number of points on the hull
@@ -222,25 +225,25 @@ class ConvexHull:
 
     Parameters
     ----------
-    points : numpy.ndarray
+    points : npt.ArrayLike
         Coordinates of input points. Array with shape (npoints, ndim).
-    method : str
+    method : Literal['scipy', 'shapely']
         Specific class to compute the convex hull and attributes.
         One of 'scipy', 'shapely'.
 
     Attributes
     ----------
-    method : str
+    method : Literal['scipy', 'shapely']
         Specific class to compute the convex hull and attributes.
         One of 'scipy', 'shapely'.
-    hull : Hull object
+    hull : Hull
         Polygon object from the .convex_hull method
     dimension : int
         Spatial dimension of hull
-    vertices : numpy.ndarray
+    vertices : npt.NDArray[np.float_]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
-    vertex_indices : numpy.ndarray
+    vertex_indices : npt.NDArray[np.int_]
         indices identifying a polygon of all points that make up the hull
     points_on_boundary : int
         The absolute number of points on the hull
@@ -281,13 +284,12 @@ class OrientedBoundingBox:
 
     Parameters
     ----------
-    ----------
-    points : numpy.ndarray
-        Coordinates of input points. Array with shape (npoints, ndim).
+    points : npt.ArrayLike
+        Coordinates of input points with shape (npoints, ndim).
 
     Attributes
     ----------
-    hull : hull object
+    hull : Polygon
         Polygon object from the minimum_rotated_rectangle method
     dimension : int
         Spatial dimension of hull

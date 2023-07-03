@@ -8,7 +8,7 @@
 // protoc --proto_path="." --python_out="."  "./locan/data/metadata.proto"
 //
 // Update all *.proto files from Locan root directory:
-// protoc --proto_path="." --proto_path="./locan/locan_io/locdata" --python_out="." "./locan/data/metadata.proto" "./locan/locan_io/locdata/manifest.proto"
+// protoc --proto_path="." --proto_path="./locan/locan_io/locdata" --python_out="." --pyi_out="." "./locan/data/metadata.proto" "./locan/analysis/metadata_analysis.proto" "./locan/locan_io/locdata/manifest.proto"
 syntax = "proto2";
 
 import "google/protobuf/timestamp.proto";

@@ -1,12 +1,14 @@
 """
 Localization-density variation analysis to characterize localization cluster.
 
-The existence of clusters is tested by analyzing variations in cluster area and localization density within clusters.
+The existence of clusters is tested by analyzing variations in cluster area and
+localization density within clusters.
 The analysis routine follows the ideas in [1]_ and [2]_.
 
 Note
 ----
-The analysis procedure is in an exploratory state and has not been fully developed and tested.
+The analysis procedure is in an exploratory state and has not been fully
+developed and tested.
 
 References
 ----------
@@ -21,6 +23,14 @@ References
 from __future__ import annotations
 
 import logging
+import sys
+from collections.abc import Callable, Sequence  # noqa: F401
+from typing import Literal
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -40,10 +50,15 @@ logger = logging.getLogger(__name__)
 
 
 def _accumulation_cluster_check_for_single_dataset(
-    locdata, region_measure, algorithm=cluster_hdbscan, algo_parameter=None, hull="bb"
-):
+    locdata: LocData,
+    region_measure: float,
+    algorithm: Callable = cluster_hdbscan,
+    algo_parameter: dict | None = None,
+    hull: Literal["bb", "ch"] = "bb",
+) -> tuple[float, float, float]:
     """
-    Compute localization density, relative area coverage by the clusters (eta), average density of localizations
+    Compute localization density, relative area coverage by the clusters
+    (eta), average density of localizations
     within apparent clusters (rho) for a single localization dataset.
     """
     # localization density
@@ -99,18 +114,19 @@ def _accumulation_cluster_check_for_single_dataset(
 
 
 def _accumulation_cluster_check(
-    locdata,
-    region_measure="bb",
-    algorithm=cluster_hdbscan,
-    algo_parameter=None,
-    hull="bb",
-    n_loc=10,
-    divide="random",
-    n_extrapolate=5,
-):
+    locdata: LocData,
+    region_measure: Literal["bb", "ch"] = "bb",
+    algorithm: Callable = cluster_hdbscan,
+    algo_parameter: dict | None = None,
+    hull: Literal["bb", "ch"] = "bb",
+    n_loc: int = 10,
+    divide: Literal["random", "sequential"] = "random",
+    n_extrapolate: int = 5,
+) -> pd.DataFrame:
     """
-    Compute localization density, relative area coverage by the clusters (eta), average density of localizations
-    within apparent clusters (rho) for the sequence of divided localization datasets.
+    Compute localization density, relative area coverage by the clusters
+    (eta), average density of localizations within apparent clusters (rho)
+    for the sequence of divided localization datasets.
     """
     # total region
     if isinstance(region_measure, str):
@@ -155,10 +171,12 @@ def _accumulation_cluster_check(
     ]
 
     # linear regression to extrapolate rho_0
-    results_ = np.asarray(results_)
+    results_ = np.asarray(results_)  # type: ignore
     idx = np.all(np.isfinite(results_), axis=1)
-    x = results_[idx, 0]  # position 0 being localization_density
-    y = results_[idx, 2]  # position 2 being rho
+    x = results_[idx, 0]  # type: ignore
+    # position 0 being localization_density
+    y = results_[idx, 2]  # type: ignore
+    # position 2 being rho
 
     fit_coefficients = np.polyfit(x[0:n_extrapolate], y[0:n_extrapolate], deg=1)
     rho_zero = fit_coefficients[-1]
@@ -168,7 +186,7 @@ def _accumulation_cluster_check(
         rho_zero = 1
 
     # combine results
-    results_ = [np.append(entry, [rho_zero, entry[2] / rho_zero]) for entry in results_]
+    results_ = [np.append(entry, [rho_zero, entry[2] / rho_zero]) for entry in results_]  # type: ignore
     results = pd.DataFrame(
         data=results_,
         columns=["localization_density", "eta", "rho", "rho_0", "rho/rho_0"],
@@ -181,30 +199,36 @@ def _accumulation_cluster_check(
 
 class AccumulationClusterCheck(_Analysis):
     """
-    Check for the presence of clusters in localization data by analyzing variations in cluster area and localization
+    Check for the presence of clusters in localization data by analyzing
+    variations in cluster area and localization
     density within clusters.
 
     Parameters
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    region_measure : float, str
-        Region measure (area or volume) for the support of locdata. String can be any of standard hull identifiere.
-    algorithm : callable
+    region_measure : float | Literal["bb", "ch"]
+        Region measure (area or volume) for the support of locdata. String can
+         be any of standard hull identifier.
+    algorithm : Callable
         Clustering algorithm.
     algo_parameter : dict
         Dictionary with kwargs for `algorithm`.
-    hull : str
-        Hull computation that is used to compute cluster region measures (area or volume). The identifier string can
-        be one of the defined hulls.
-    n_loc : int, sequence of scalars
-        If n_loc is an int, it defines the number of localization subsets into which the total number of localizations
+    hull : Literal["bb", "ch"]
+        Hull computation that is used to compute cluster region measures
+        (area or volume).
+        The identifier string can be one of the defined hulls.
+    n_loc : int | Sequence[int]
+        If n_loc is an int, it defines the number of localization subsets into
+        which the total number of localizations
         are distributed.
-        If n_loc is a sequence, it defines the number of localizations used for each localization subset.
-    divide: str
-        Identifier to choose how to partition the localization data. For `random` localizations are selected randomly.
-        For `sequential` localizations are selected as chuncks of increasing size always starting from the first
-        element.
+        If n_loc is a sequence, it defines the number of localizations used
+        for each localization subset.
+    divide: Literal["random", "sequential"]
+        Identifier to choose how to partition the localization data.
+        For `random` localizations are selected randomly.
+        For `sequential` localizations are selected as chuncks of increasing
+        size always starting from the first element.
     n_extrapolate : int
         The number of rho values taken to extrapolate rho_zero.
 
@@ -217,9 +241,11 @@ class AccumulationClusterCheck(_Analysis):
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     results : pandas.DataFrame
-        Data frame with  localization density, relative area coverage by the clusters (eta), average density of
-        localizations within apparent clusters (rho), and rho normalized to the extrapolated value of rho for
-        localization_density=0 (rho_zero). If the extrapolation of rho yields a negative value rho_zero is set to 1.
+        Data frame with  localization density, relative area coverage by the
+        clusters (eta), average density of localizations within apparent
+        clusters (rho), and rho normalized to the extrapolated value of rho for
+        localization_density=0 (rho_zero). If the extrapolation of rho yields
+        a negative value rho_zero is set to 1.
     """
 
     count = 0
@@ -246,7 +272,7 @@ class AccumulationClusterCheck(_Analysis):
             n_extrapolate=n_extrapolate,
         )
 
-    def compute(self, locdata):
+    def compute(self, locdata) -> Self:
         """
         Run the computation.
 
@@ -257,8 +283,7 @@ class AccumulationClusterCheck(_Analysis):
 
         Returns
         -------
-        AccumulationClusterCheck
-          Returns the `Analysis` object (self).
+        Self
         """
         if not len(locdata):
             logger.warning("Locdata is empty.")
@@ -273,14 +298,14 @@ class AccumulationClusterCheck(_Analysis):
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         kwargs : dict
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

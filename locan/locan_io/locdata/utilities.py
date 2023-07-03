@@ -97,9 +97,9 @@ def convert_property_names(properties, property_mapping=None):
 
     Parameters
     ----------
-    properties : list[str], tuple[str]
+    properties : list[str] | tuple[str, ...]
         Properties to be converted
-    property_mapping : dict[str: str], list[dict]
+    property_mapping : dict[str: str] | list[dict]
         Mappings between other property names and locan property names
 
     Returns

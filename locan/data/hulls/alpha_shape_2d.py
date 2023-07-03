@@ -22,7 +22,7 @@ def _circumcircle(points, simplex):
 
     Returns
     -------
-    tuple[float]
+    tuple[float, float]
         Center and radius of circumcircle
     """
     A = np.asarray(points)[simplex]

@@ -30,7 +30,8 @@ logger = logging.getLogger(__name__)
 @needs_package("h5py")
 def _read_decode_header(file):
     """
-    Read header from a DECODE single-molecule localization file and identify column names.
+    Read header from a DECODE single-molecule localization file and identify
+    column names.
 
     Parameters
     ----------

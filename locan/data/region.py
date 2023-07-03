@@ -52,13 +52,15 @@ class RoiRegion:
     """
     Deprecated Region object to specify regions of interest.
 
-    A region that defines a region of interest with methods for getting a printable representation (that can also be
-    saved in a yaml file), for returning a matplotlib patch that can be shown in a graph, for finding points within
-    the region.
+    A region that defines a region of interest with methods for getting a
+    printable representation (that can also be saved in a yaml file),
+    for returning a matplotlib patch that can be shown in a graph,
+    for finding points within the region.
 
     Warnings
     ________
-    This class is to be deprecated and should only be used to deal with legacy _roi.yaml files.
+    This class is to be deprecated and should only be used to deal with
+    legacy _roi.yaml files.
     Use Region classes instead.
 
     Parameters
@@ -68,19 +70,26 @@ class RoiRegion:
         In 1D it can be `interval`.
         In 2D it can be either `rectangle`, `ellipse`, or closed `polygon`.
         In 2D it can also be `shapelyPolygon` or `shapelyMultiPolygon`.
-        In 3D it can be either `cuboid` or `ellipsoid` or `polyhedron` (not implemented yet).
+        In 3D it can be either `cuboid` or `ellipsoid` or `polyhedron`
+        (not implemented yet).
     region_specs : tuple
         1D rois are defined by the following tuple:
         * interval: (start, stop)
         2D rois are defined by the following tuples:
-        * rectangle: ((corner_x, corner_y), width, height, angle) with angle in degree
-        * ellipse: ((center_x, center_y), width, height, angle) with angle in degree
-        * polygon: ((point1_x, point1_y), (point2_x, point2_y), ..., (point1_x, point1_y))
+        * rectangle: ((corner_x, corner_y), width, height, angle)
+        with angle in degree
+        * ellipse: ((center_x, center_y), width, height, angle)
+        with angle in degree
+        * polygon: ((point1_x, point1_y), (point2_x, point2_y), ...,
+        (point1_x, point1_y))
         * shapelyPolygon: ((point_tuples), ((hole_tuples), ...))
-        * shapelyMultiPolygon: (shapelyPolygon_specs_1, shapelyPolygon_specs_2, ...)
+        * shapelyMultiPolygon: (shapelyPolygon_specs_1, shapelyPolygon_specs_2,
+        ...)
         3D rois are defined by the following tuples:
-        * cuboid: ((corner_x, corner_y, corner_z), length, width, height, angle_1, angle_2, angle_3)
-        * ellipsoid: ((center_x, center_y, center_z), length, width, height, angle_1, angle_2, angle_3)
+        * cuboid: ((corner_x, corner_y, corner_z), length, width, height,
+        angle_1, angle_2, angle_3)
+        * ellipsoid: ((center_x, center_y, center_z), length, width, height,
+        angle_1, angle_2, angle_3)
         * polyhedron: (...)
 
     Attributes
@@ -91,12 +100,13 @@ class RoiRegion:
         Specifications for region
     _region : RoiRegion
         RoiRegion instance for the specified region type.
-    polygon : numpy.ndarray of tuples
-        Array of points for a closed polygon approximating the region of interest in clockwise orientation. The first
-        and last point must be identical.
+    polygon : tuple[npt.ArrayLike, ...]
+        Array of points for a closed polygon approximating the region of
+        interest in clockwise orientation.
+        The first and last point must be identical.
     dimension : int
         Spatial dimension of region
-    centroid : tuple of float
+    centroid : tuple[float, ...]
         Centroid coordinates
     max_distance : npt.NDArray[np.float_]
         Maximum distance between any two points in the region
@@ -168,23 +178,27 @@ class RoiRegion:
 
     def contains(self, points) -> npt.NDArray[np.int_]:
         """
-        Return list of indices for all points that are inside the region of interest.
+        Return list of indices for all points that are inside the region of
+        interest.
 
         Parameters
         ----------
         points : npt.ArrayLike
-            2D or 3D coordinates of oints that are tested for being inside the specified region.
+            2D or 3D coordinates of oints that are tested for being inside the
+            specified region.
 
         Returns
         -------
         npt.NDArray[np.int_]
-            Array with indices for all points in original point array that are within the region.
+            Array with indices for all points in original point array that are
+            within the region.
         """
         return self._region.contains(points)
 
-    def as_artist(self, **kwargs):
+    def as_artist(self, **kwargs) -> mpl_patches:
         """
-        Matplotlib patch object for this region (e.g. `matplotlib.patches.Ellipse`).
+        Matplotlib patch object for this region
+        (e.g. `matplotlib.patches.Ellipse`).
 
         Parameters
         ----------
@@ -193,7 +207,7 @@ class RoiRegion:
 
         Returns
         -------
-        patch : matplotlib.patches
+        matplotlib.patches
             Matplotlib patch for the specified region.
         """
         return self._region.as_artist(**kwargs)
@@ -211,8 +225,8 @@ class RoiRegion:
 
 class Region(ABC):
     """
-    Abstract Region class to define the interface for Region-derived classes that specify geometric objects
-    to represent regions of interest.
+    Abstract Region class to define the interface for Region-derived classes
+    that specify geometric objects to represent regions of interest.
     """
 
     def __repr__(self):
@@ -222,16 +236,17 @@ class Region(ABC):
     def from_intervals(cls, intervals):
         """
         Constructor for instantiating Region from list of (min, max) bounds.
-        Takes array-like intervals instead of interval to be consistent with `Rectangle.from_intervals`.
+        Takes array-like intervals instead of interval to be consistent with
+        `Rectangle.from_intervals`.
 
         Parameters
         ----------
-        intervals : npt.ArrayLike of shape (2,)
-            The region bounds for each dimension
+        intervals : npt.ArrayLike
+            The region bounds for each dimension of shape (2,).
 
         Returns
         -------
-            Interval
+        Region
         """
         if np.shape(intervals) == (2,):
             return Interval.from_intervals(intervals)
@@ -264,7 +279,8 @@ class Region(ABC):
 
         Returns
         -------
-        tuple of shape (2 * dimension,)
+        tuple
+            of shape (2 * dimension,)
         """
         pass
 
@@ -276,7 +292,8 @@ class Region(ABC):
 
         Returns
         -------
-        tuple or numpy-array of shape (dimension,)
+        tuple | npt.NDArray
+            of shape (dimension,)
         """
         pass
 
@@ -288,7 +305,8 @@ class Region(ABC):
 
         Returns
         -------
-        tuple or numpy-array of shape (n_points, dimension)
+        tuple | npt.NDArray
+            of shape (n_points, dimension)
         """
         pass
 
@@ -300,7 +318,8 @@ class Region(ABC):
 
         Returns
         -------
-        tuple or numpy-array of shape (dimension,)
+        tuple | npt.NDArray
+            of shape (dimension,)
         """
         pass
 
@@ -332,7 +351,8 @@ class Region(ABC):
     @abstractmethod
     def subregion_measure(self):
         """
-        Measure of the sub-dimensional region, i.e. circumference (for 2d) or surface (for 3d).
+        Measure of the sub-dimensional region, i.e. circumference (for 2d)
+        or surface (for 3d).
 
         Returns
         -------
@@ -344,7 +364,8 @@ class Region(ABC):
     @abstractmethod
     def bounding_box(self):
         """
-        A region describing the minimum axis-aligned bounding box that encloses the original region.
+        A region describing the minimum axis-aligned bounding box that
+        encloses the original region.
 
         Returns
         -------
@@ -414,17 +435,20 @@ class Region(ABC):
     @abstractmethod
     def contains(self, points) -> npt.NDArray[np.int_]:
         """
-        Return list of indices for all points that are inside the region of interest.
+        Return list of indices for all points that are inside the region
+        of interest.
 
         Parameters
         ----------
         points : npt.ArrayLike
-            Coordinates of points that are tested for being inside the specified region.
+            Coordinates of points that are tested for being inside the
+            specified region.
 
         Returns
         -------
         npt.NDArray[np.int_]
-            Array with indices for all points in original point array that are within the region.
+            Array with indices for all points in original point array that are
+            within the region.
         """
         pass
 
@@ -459,9 +483,10 @@ class Region1D(Region):
         return 1
 
     @abstractmethod
-    def as_artist(self, origin=(0, 0), **kwargs):
+    def as_artist(self, origin=(0, 0), **kwargs) -> mpl_patches:
         """
-        Matplotlib patch object for this region (e.g. `matplotlib.patches.Ellipse`).
+        Matplotlib patch object for this region
+        (e.g. `matplotlib.patches.Ellipse`).
 
         Parameters
         ----------
@@ -473,7 +498,7 @@ class Region1D(Region):
 
         Returns
         -------
-        patch : matplotlib.patches
+        matplotlib.patches
             Matplotlib patch for the specified region.
         """
         pass
@@ -490,7 +515,8 @@ class Region1D(Region):
 
 class Region2D(Region):
     """
-    Abstract Region class to define the interface for 2-dimensional Region classes.
+    Abstract Region class to define the interface for 2-dimensional
+    Region classes.
     """
 
     def __getstate__(self):
@@ -540,7 +566,7 @@ class Region2D(Region):
 
         Parameters
         ----------
-        shapely_object `shapely`
+        shapely_object : Polygon | MultiPolygon
             Geometric object to be converted into Region
 
         Returns
@@ -554,9 +580,10 @@ class Region2D(Region):
             return MultiPolygon.from_shapely(shapely_object)
 
     @abstractmethod
-    def as_artist(self, origin=(0, 0), **kwargs):
+    def as_artist(self, origin=(0, 0), **kwargs) -> mpl_patches:
         """
-        Matplotlib patch object for this region (e.g. `matplotlib.patches.Ellipse`).
+        Matplotlib patch object for this region
+        (e.g. `matplotlib.patches.Ellipse`).
 
         Parameters
         ----------
@@ -568,7 +595,7 @@ class Region2D(Region):
 
         Returns
         -------
-        patch : matplotlib.patches
+        matplotlib.patches
             Matplotlib patch for the specified region.
         """
         pass
@@ -579,14 +606,14 @@ class Region2D(Region):
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         kwargs : dict
             Other parameters passed to the `matplotlib.patches` object.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -600,15 +627,15 @@ class Region2D(Region):
 
         return ax
 
-    def intersection(self, other):
+    def intersection(self, other: Region2D):
         shapely_obj = self.shapely_object.intersection(other.shapely_object)
         return Region2D.from_shapely(shapely_obj)
 
-    def symmetric_difference(self, other):
+    def symmetric_difference(self, other: Region2D):
         shapely_obj = self.shapely_object.symmetric_difference(other.shapely_object)
         return Region2D.from_shapely(shapely_obj)
 
-    def union(self, other):
+    def union(self, other: Region2D):
         shapely_obj = self.shapely_object.union(other.shapely_object)
         return Region2D.from_shapely(shapely_obj)
 
@@ -641,7 +668,7 @@ class Region3D(Region):
         return 3
 
     @abstractmethod
-    def as_artist(self, origin=(0, 0), **kwargs):
+    def as_artist(self, origin=(0, 0), **kwargs) -> mpl_patches:
         """
         Matplotlib patch object for this region (e.g. `matplotlib.patches.Ellipse`).
 
@@ -655,7 +682,7 @@ class Region3D(Region):
 
         Returns
         -------
-        patch : matplotlib.patches
+        matplotlib.patches
             Matplotlib patch for the specified region.
         """
         pass
@@ -666,14 +693,14 @@ class Region3D(Region):
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         kwargs : dict
             Other parameters passed to the `matplotlib.patches` object.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -699,7 +726,8 @@ class Region3D(Region):
 
 class RegionND(Region):
     """
-    Abstract Region class to define the interface for n-dimensional Region classes.
+    Abstract Region class to define the interface for n-dimensional Region
+    classes.
     """
 
     def as_artist(self):
@@ -788,7 +816,7 @@ class EmptyRegion(Region):
         if polygon.is_empty:
             return cls()
         else:
-            raise TypeError("Shapely object must be an empty.")
+            raise TypeError("Shapely object must be empty.")
 
 
 class Interval(Region1D):
@@ -867,7 +895,7 @@ class Interval(Region1D):
 
         Returns
         -------
-        Tuple
+        tuple
             ((min_x, max_x), ...) of shape(dimension, 2).
         """
         return (self.bounds,)
@@ -939,7 +967,8 @@ class Rectangle(Region2D):
     height : float
         The length of a vector describing the edge in y-direction.
     angle : float
-        The angle (in degrees) by which the rectangle is rotated counterclockwise around the corner point.
+        The angle (in degrees) by which the rectangle is rotated
+        counterclockwise around the corner point.
     """
 
     def __init__(self, corner=(0, 0), width=1, height=1, angle=0):
@@ -973,7 +1002,7 @@ class Rectangle(Region2D):
 
         Returns
         -------
-            Interval
+        Rectangle
         """
         min_x, max_x = intervals[0]
         min_y, max_y = intervals[1]
@@ -1120,11 +1149,14 @@ class Ellipse(Region2D):
     center : npt.ArrayLike
         A point that defines the center of the ellipse with shape (2,).
     width : float
-        The length of a vector describing the principal axis in x-direction (before rotation).
+        The length of a vector describing the principal axis in x-direction
+        (before rotation).
     height : float
-        The length of a vector describing the principal axis in y-direction (before rotation).
+        The length of a vector describing the principal axis in y-direction
+        (before rotation).
     angle : float
-        The angle (in degrees) by which the ellipse is rotated counterclockwise around the center point.
+        The angle (in degrees) by which the ellipse is rotated
+        counterclockwise around the center point.
     """
 
     def __init__(self, center=(0, 0), width=1, height=1, angle=0):
@@ -1161,7 +1193,8 @@ class Ellipse(Region2D):
     @property
     def width(self) -> float:
         """
-        The length of a vector describing the principal axis in x-direction (before rotation).
+        The length of a vector describing the principal axis in x-direction
+        (before rotation).
 
         Returns
         -------
@@ -1172,7 +1205,8 @@ class Ellipse(Region2D):
     @property
     def height(self) -> float:
         """
-        The length of a vector describing the principal axis in y-direction (before rotation).
+        The length of a vector describing the principal axis in y-direction
+        (before rotation).
 
         Returns
         -------
@@ -1183,7 +1217,8 @@ class Ellipse(Region2D):
     @property
     def angle(self) -> float:
         """
-        The angle (in degrees) by which the ellipse is rotated counterclockwise around the center point.
+        The angle (in degrees) by which the ellipse is rotated
+        counterclockwise around the center point.
 
         Returns
         -------
@@ -1345,7 +1380,7 @@ class Polygon(Region2D):
         Returns
         -------
         list[npt.NDArray]
-            of shape(n_holes, n_points, dimension)
+            n_holes of shape(n_points, dimension)
         """
         return self._holes
 
@@ -1412,7 +1447,8 @@ class Polygon(Region2D):
 
 class MultiPolygon(Region2D):
     """
-    Region class to define a region that represents the union of multiple polygons.
+    Region class to define a region that represents the union of multiple
+    polygons.
 
     Parameters
     ----------
@@ -1447,7 +1483,7 @@ class MultiPolygon(Region2D):
         Returns
         -------
         list[npt.NDArray]
-            of shape(n_polygons, n_points, dimension)
+            n_polygons of shape(n_points, dimension)
         """
         return [pol.points for pol in self.polygons]
 
@@ -1542,8 +1578,8 @@ class AxisOrientedCuboid(Region3D):
 
     Parameters
     ----------
-    corner : npt.ArrayLike with shape (3,)
-        A point that defines the lower left corner.
+    corner : npt.ArrayLike
+        A point that defines the lower left corner with shape (3,)
     length : float
         The length of a vector describing the edge in x-direction.
     width : float
@@ -1576,7 +1612,7 @@ class AxisOrientedCuboid(Region3D):
 
         Returns
         -------
-            Interval
+        AxisOrientedCuboid
         """
         min_x, max_x = intervals[0]
         min_y, max_y = intervals[1]
@@ -1663,7 +1699,7 @@ class AxisOrientedCuboid(Region3D):
 
         Returns
         -------
-        Tuple
+        tuple
             ((min_x, max_x), ...) of shape(dimension, 2)
         """
         min_x, min_y, min_z, max_x, max_y, max_z = self.bounds
@@ -1926,7 +1962,7 @@ class AxisOrientedHypercuboid(RegionND):
 
         Returns
         -------
-            Interval
+        AxisOrientedHypercuboid
         """
         intervals = np.array(intervals)
         corner = intervals[:, 0]
@@ -1968,8 +2004,8 @@ class AxisOrientedHypercuboid(RegionND):
 
         Returns
         -------
-        Tuple of shape(dimension, 2)
-            ((min_x, max_x), ...).
+        tuple
+            ((min_x, max_x), ...) of shape(dimension, 2).
         """
         return tuple(
             (lower, upper)
@@ -2036,7 +2072,8 @@ class AxisOrientedHypercuboid(RegionND):
 def _polygon_path(polygon):
     """
     Constructs a compound matplotlib path from a Shapely geometric object.
-    Adapted from https://pypi.org/project/descartes/ (BSD license, copyright Sean Gillies)
+    Adapted from https://pypi.org/project/descartes/
+    (BSD license, copyright Sean Gillies)
     """
 
     def coding(ob):

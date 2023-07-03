@@ -20,6 +20,7 @@ import re
 import sys
 import warnings
 from ast import literal_eval
+from collections.abc import Iterable, Sequence  # noqa: F401
 from inspect import isabstract
 from itertools import product
 from pathlib import Path
@@ -51,7 +52,7 @@ class _MplSelector:  # pragma: no cover
 
     Parameters
     ----------
-    ax : :class:`matplotlib.axes.Axes`
+    ax : matplotlib.axes.Axes
         Axes to use the widget on.
     type : str
         Type is a string specifying the selector widget that can be
@@ -59,7 +60,7 @@ class _MplSelector:  # pragma: no cover
 
     Attributes
     ----------
-    rois : List of dict
+    rois : list[dict]
         A list of rois where each element is a dict with keys
         `region_specs` and 'region'.
         `region_specs` contain a tuple with specifications for the
@@ -169,7 +170,7 @@ class Roi:
     ----------
     region : Region
         Geometrical region of interest.
-    reference : LocData, dict, locan.data.metadata_pb2.Metadata, locan.data.metadata_pb2.File, None
+    reference : LocData | dict | locan.data.metadata_pb2.Metadata | locan.data.metadata_pb2.File | None
         Reference to localization data for which the region of interest
         is defined. It can be a LocData object, a reference to a saved
         SMLM file, or None for indicating no specific reference.
@@ -179,7 +180,7 @@ class Roi:
         integer or string indicating the file type.
         Integer or string should be according to
         locan.constants.FileType.
-    loc_properties : tuple of str
+    loc_properties : Sequence[str]
         Localization properties in LocData object on which the region
         selection will be applied (for instance the coordinate_keys).
 
@@ -188,7 +189,7 @@ class Roi:
     ----------
     region : Region
         Geometrical region of interest.
-    reference : LocData, locan.data.metadata_pb2.Metadata, None
+    reference : LocData | locan.data.metadata_pb2.Metadata | None
         Reference to localization data for which the region of interest
         is defined. It can be a LocData object, a reference
         to a saved SMLM file, or
@@ -196,7 +197,7 @@ class Roi:
         When referencing a saved SMLM file, reference has attributes
         `file.path` and `file.type` for a path pointing to a
         localization file and an integer indicating the file type.
-    loc_properties : tuple of str
+    loc_properties : tuple[str, ...]
         Localization properties in LocData object on which the region
         selection will be applied (for instance the coordinate_keys).
     """
@@ -252,7 +253,7 @@ class Roi:
 
         Parameters
         ----------
-        path : str, os.PathLike, None
+        path : str | os.PathLike | None
             Path for yaml file. If None a roi file path is generated from the metadata.
         """
 
@@ -311,7 +312,7 @@ class Roi:
 
         Parameters
         ----------
-        path : str, bytes, os.PathLike
+        path : str | os.PathLike
             Path for yaml file.
         """
         yaml = YAML(typ="safe")
@@ -337,6 +338,8 @@ class Roi:
                 region_ = getattr(region, cls_name)(*parameters)
             else:
                 region_ = getattr(region, cls_name)(parameters)
+        else:
+            raise ValueError("Region is not specified in yaml file.")
 
         loc_properties_ = yaml_output["loc_properties"]
 
@@ -352,7 +355,7 @@ class Roi:
 
         Parameters
         ----------
-        reduce : Bool
+        reduce : bool
             Return the reduced LocData object or keep references alive.
 
         Returns
@@ -420,50 +423,66 @@ class RoiLegacy_0:
     Parameters
     ----------
     reference : LocData, dict, locan.data.metadata_pb2.Metadata, None
-        Reference to localization data for which the region of interests are defined. It can be a LocData object,
-        a reference to a saved SMLM file, or None for indicating no specific reference.
-        When referencing a saved SMLM file, reference must be a dict or locan.data.metadata_pb2.Metadata with keys `file_path`
-        and `file_type` for a path pointing to a localization file and an integer or string indicating the file type.
+        Reference to localization data for which the region of interests are
+        defined. It can be a LocData object,
+        a reference to a saved SMLM file, or None for indicating no specific
+        reference.
+        When referencing a saved SMLM file, reference must be a dict or
+        locan.data.metadata_pb2.Metadata with keys `file_path`
+        and `file_type` for a path pointing to a localization file and an
+        integer or string indicating the file type.
         Integer or string should be according to locan.constants.FileType.
     region_type : str
         A string indicating the roi shape.
         In 1D it can be `interval`.
         In 2D it can be either `rectangle`, `ellipse`, or closed `polygon`.
-        In 3D it can be either `cuboid` or `ellipsoid` or `polyhedron` (not implemented yet).
+        In 3D it can be either `cuboid` or `ellipsoid` or `polyhedron`
+        (not implemented yet).
     region_specs : tuple
         1D rois are defined by the following tuple:
         * interval: (start, stop)
         2D rois are defined by the following tuples:
         * rectangle: ((corner_x, corner_y), width, height, angle)
         * ellipse: ((center_x, center_y), width, height, angle)
-        * polygon: ((point1_x, point1_y), (point2_x, point2_y), ..., (point1_x, point1_y))
+        * polygon: ((point1_x, point1_y), (point2_x, point2_y), ...,
+        (point1_x, point1_y))
         3D rois are defined by the following tuples:
-        * cuboid: ((corner_x, corner_y, corner_z), length, width, height, angle_1, angle_2, angle_3)
-        * ellipsoid: ((center_x, center_y, center_z), length, width, height, angle_1, angle_2, angle_3)
+        * cuboid: ((corner_x, corner_y, corner_z), length, width, height,
+        angle_1, angle_2, angle_3)
+        * ellipsoid: ((center_x, center_y, center_z), length, width, height,
+        angle_1, angle_2, angle_3)
         * polyhedron: (...)
-    properties_for_roi : tuple of str
-        Localization properties in LocData object on which the region selection will be applied (for instance the
+    properties_for_roi : tuple[str, ...]
+        Localization properties in LocData object on which the region
+        selection will be applied (for instance the
         coordinate_keys).
 
 
     Attributes
     ----------
-    reference : LocData, locan.data.metadata_pb2.Metadata, None
-        Reference to localization data for which the region of interests are defined. It can be a LocData object,
-        a reference (locan.data.metadata_pb2.Metadata) to a saved SMLM file, or None for indicating no specific reference.
+    reference : LocData | locan.data.metadata_pb2.Metadata | None
+        Reference to localization data for which the regions of interest are
+        defined. It can be a LocData object,
+        a reference (locan.data.metadata_pb2.Metadata) to a saved SMLM file,
+        or None for indicating no specific reference.
         When referencing a saved SMLM file, reference as attributes `file_path`
-        and `file_type` for a path pointing to a localization file and an integer indicating the file type.
-        The integer should be according to locan.data.metadata_pb2.Metadata.file_type.
-    _region : RoiRegion, list of RoiRegion
-        Object specifying the geometrical region of interest. In case a list of RoiRegion is provided it is the union
+        and `file_type` for a path pointing to a localization file and an
+        integer indicating the file type.
+        The integer should be according to
+        locan.data.metadata_pb2.Metadata.file_type.
+    _region : RoiRegion | list[RoiRegion]
+        Object specifying the geometrical region of interest. In case a list
+        of RoiRegion is provided it is the union
         that makes up the region of interest.
-    properties_for_roi : tuple of str
-        Localization properties in LocData object on which the region selection will be applied (for instance the
+    properties_for_roi : tuple[str, ...]
+        Localization properties in LocData object on which the region
+        selection will be applied (for instance the
         coordinate_keys).
 
     Warnings
     --------
-    `RoiLegacy` is deprecated and should only be used to read legacy _roi.yaml files. Use :class:`locan.Roi` instead.
+    `RoiLegacy` is deprecated and should only be used to read legacy _roi.yaml
+    files. Use :class:`locan.Roi` instead.
     """
 
     def __init__(
@@ -517,8 +536,9 @@ class RoiLegacy_0:
 
         Parameters
         ----------
-        path : str, bytes, os.PathLike, None
-            Path for yaml file. If None a roi file path is generated from the metadata.
+        path : str | os.PathLike | None
+            Path for yaml file. If None a roi file path is generated from
+            the metadata.
         """
         warnings.warn(
             "RoiLegacy.to_yaml is deprecated, use Roi.to_yaml instead",
@@ -589,7 +609,7 @@ class RoiLegacy_0:
 
         Parameters
         ----------
-        path : str, bytes, os.PathLike
+        path : str | os.PathLike
             Path for yaml file.
         """
         yaml = YAML(typ="safe")
@@ -617,18 +637,20 @@ class RoiLegacy_0:
         """
         Localization data according to roi specifications.
 
-        The ROI is applied on locdata properties as specified in self.loc_properties or by taking the first
+        The ROI is applied on locdata properties as specified in
+        self.loc_properties or by taking the first
         applicable locdata.coordinate_keys.
 
         Parameters
         ----------
-        reduce : Bool
+        reduce : bool
             Return the reduced LocData object or keep references alive.
 
         Returns
         -------
         LocData
-            A new instance of LocData with all localizations within region of interest.
+            A new instance of LocData with all localizations within region of
+            interest.
         """
         local_parameter = locals()
 
@@ -681,26 +703,31 @@ class RoiLegacy_0:
 
 
 # todo generalize to take all loc_properties
-def rasterize(locdata, support=None, n_regions=(2, 2, 2), loc_properties=()):
+def rasterize(
+    locdata, support=None, n_regions=(2, 2, 2), loc_properties=()
+) -> tuple[Roi, ...]:
     """
-    Provide regions of interest by dividing the locdata support in equally sized rectangles.
+    Provide regions of interest by dividing the locdata support in equally
+    sized rectangles.
 
     Parameters
     ----------
     locdata : LocData
         The localization data from which to select localization data.
-    support : tuple of tuples, None
+    support : tuple[tuple, ...] | None
         Coordinate intervals that are divided in `n_regions` subintervals.
         For None intervals are taken from the bounding box.
-    n_regions : tuple with size 2 or 3.
-        Number of regions in each dimension. E.g. `n_regions` = (2, 2) returns 4 rectangular Roi objects.
-    loc_properties : tuple of str
-        Localization properties in LocData object on which the region selection will be applied.
+    n_regions : tuple[int, ...]
+        Number of regions in each dimension.
+        E.g. `n_regions` = (2, 2) returns 4 rectangular Roi objects.
+    loc_properties : tuple[str, ...]
+        Localization properties in LocData object on which the region
+        selection will be applied.
         (Only implemented for coordinates labels)
 
     Returns
     -------
-    tuple(locan.data.rois.Roi)
+    tuple[Roi, ...]
         A sequence of Roi objects
     """
     if len(locdata) == 0:
@@ -710,7 +737,7 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2), loc_properties=()):
         raise ValueError("loc_properties must be tuple with coordinate labels.")
 
     if loc_properties:
-        coordinate_labels_indices = [
+        coordinate_labels_indices: Iterable = [
             locdata.coordinate_keys.index(pfr) for pfr in loc_properties
         ]
     else:
@@ -728,15 +755,15 @@ def rasterize(locdata, support=None, n_regions=(2, 2, 2), loc_properties=()):
         widths = np.diff(support_).flatten() / n_regions
 
     # specify interval corners
-    corners = [
-        np.linspace(*support_d, n_regions_d, endpoint=False)
+    corners_ = [
+        np.linspace(*support_d, n_regions_d, endpoint=False)  # type: ignore
         for support_d, n_regions_d in zip(support_, n_regions)
     ]
-    corners = product(*corners)
+    corners = product(*corners_)
 
     # specify regions
     if len(n_regions) == 2:
-        regions = [region.Rectangle(corner, *widths, 0) for corner in corners]
+        regions = [region.Rectangle(corner, *widths, 0) for corner in corners]  # type: ignore
 
     elif len(n_regions) == 3:
         raise NotImplementedError("Computation for 3D has not been implemented, yet.")

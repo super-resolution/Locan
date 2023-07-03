@@ -6,6 +6,8 @@ This module provides functions for rendering locdata objects in 2D.
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable  # noqa: F401
+from typing import Callable  # noqa: F401
 
 import matplotlib.colors as mcolors
 import numpy as np
@@ -54,48 +56,62 @@ def render_2d_mpl(
     **kwargs,
 ):
     """
-    Render localization data into a 2D image by binning x,y-coordinates into regular bins.
+    Render localization data into a 2D image by binning x,y-coordinates into
+    regular bins.
 
     Parameters
     ----------
     locdata : LocData
         Localization data.
-    loc_properties : list, None
-        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
-    other_property : str, None
-        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
-        shown.
-    bins : int, sequence, Bins, boost_histogram.axis.Axis, None
+    loc_properties : list[str] | None
+        Localization properties to be grouped into bins.
+        If None The coordinate_values of `locdata` are used.
+    other_property : str | None
+        Localization property (columns in `locdata.data`) that is averaged
+        in each pixel.
+        If None, localization counts are shown.
+    bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
         The bin specification as defined in :class:`Bins`
-    bin_edges : tuple, list, numpy.ndarray of float with shape (dimension, n_bin_edges), None
-        Array of bin edges for all or each dimension.
-    n_bins : int, list, tuple, numpy.ndarray, None
+    bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+        Bin edges for all or each dimension
+        with shape (dimension, n_bin_edges).
+    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+        Minimum and maximum edge for all or each dimensions
+        with shape (2,) or (dimension, 2).
+        If None (min, max) ranges are determined from data and returned;
+        if 'zero' (0, max) ranges with max determined from data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from
+        all combined data are returned.
+    n_bins : int | Sequence[int] | None
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float, list, tuple, numpy.ndarray, None
-        The size of bins in units of locdata coordinate units for all or each dimension.
+    bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+        The size of bins for all or each bin and for all or each dimension
+        with shape (dimension,) or (dimension, n_bins).
         5 would describe bin_size of 5 for all bins in all dimensions.
-        (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
-        To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple, tuple of tuples of float with shape (dimension, 2), None, 'zero'
-        The data bin_range to be taken into consideration for all or each dimension.
-        ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
-        for None (min, max) bin_range are determined from data;
-        for 'zero' (0, max) bin_range with max determined from data.
-    rescale : int, str, locan.Trafo, callable, bool, None
-        Transformation as defined in Trafo or by transformation function.
+        ((2, 5),) yield bins of size (2, 5) for one dimension.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other
+        dimension.
+        ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
+        (1, 3) for the other dimension.
+        To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
+    rescale : int | str | locan.Trafo | Callable | bool | None
+        Transformation as defined in :class:`locan.Trafo` or by
+        transformation function.
         For None or False no rescaling occurs.
         Legacy behavior:
         For tuple with upper and lower bounds provided in percent,
-        rescale intensity values to be within percentile of max and min intensities
+        rescale intensity values to be within percentile of max and min
+        intensities.
         For 'equal' intensity values are rescaled by histogram equalization.
     ax : matplotlib.axes.Axes
         The axes on which to show the image
-    cmap : str or Colormap instance
-        The colormap used to map normalized data values to RGBA colors.
+    cmap : str | Colormap
+        The Colormap object used to map normalized data values to RGBA colors.
     cbar : bool
-        If true draw a colorbar. The colobar axes is accessible using the cax property.
+        If true draw a colorbar.
+        The colobar axes is accessible using the cax property.
     colorbar_kws : dict
         Keyword arguments for :func:`matplotlib.pyplot.colorbar`.
     interpolation : str
@@ -178,21 +194,27 @@ def render_2d_scatter_density(
     ----------
     locdata : LocData
         Localization data.
-    loc_properties : list or None
-        Localization properties to be grouped into bins. If None The coordinate_values of locdata are used.
-    other_property : str or None
-        Localization property (columns in locdata.data) that is averaged in each pixel. If None localization counts are
-        shown.
-    bin_range : tuple with shape (dimension, 2) or None or 'zero'
-        ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
-        for None (min, max) bin_range are determined from data;
-        for 'zero' (0, max) bin_range with max determined from data.
+    loc_properties : list[str] | None
+        Localization properties to be grouped into bins.
+        If None The coordinate_values of `locdata` are used.
+    other_property : str | None
+        Localization property (columns in `locdata.data`) that is averaged
+        in each pixel.
+        If None, localization counts are shown.
+    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+        Minimum and maximum edge for all or each dimensions
+        with shape (2,) or (dimension, 2).
+        If None (min, max) ranges are determined from data and returned;
+        if 'zero' (0, max) ranges with max determined from data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from
+        all combined data are returned.
     ax : matplotlib.axes.Axes
         The axes on which to show the image
-    cmap : str or Colormap instance
-        The colormap used to map normalized data values to RGBA colors.
+    cmap : str | Colormap
+        The Colormap object used to map normalized data values to RGBA colors.
     cbar : bool
-        If true draw a colorbar. The colobar axes is accessible using the cax property.
+        If true draw a colorbar.
+        The colobar axes is accessible using the cax property.
     colorbar_kws : dict
         Keyword arguments for :func:`matplotlib.pyplot.colorbar`.
     kwargs : dict
@@ -436,7 +458,7 @@ def render_2d_rgb_mpl(
         5 would describe bin_size of 5 for all bins in all dimensions.
         (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
         To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple, tuple[tuples[float]] with shape (dimension, 2), str, None
+    bin_range : tuple, tuple[tuple[float, float], ...] with shape (dimension, 2), str, None
         The data bin_range to be taken into consideration for all or each dimension.
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;

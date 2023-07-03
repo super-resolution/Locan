@@ -24,8 +24,9 @@ def save_asdf(locdata, path):
     """
     Save LocData attributes in an asdf file.
 
-    In the Advanced Scientific Data Format (ASDF) file format we store metadata, properties and column names as human-
-    readable yaml header. The data is stored as binary numpy.ndarray.
+    In the Advanced Scientific Data Format (ASDF) file format we store
+    metadata, properties and column names as human-readable yaml header.
+    The data is stored as binary numpy.ndarray.
 
     Note
     ----
@@ -36,7 +37,7 @@ def save_asdf(locdata, path):
     ----------
     locdata : LocData
         The LocData object to be saved.
-    path : str, bytes, os.PathLike, file-like
+    path : str | os.PathLike | file-like
         File path including file name to save to.
     """
     # Prepare tree
@@ -63,10 +64,11 @@ def load_asdf_file(path, nrows=None):
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | os.PathLike | file-like
         File path for a rapidSTORM file to load.
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded.
+    nrows : int | None
+        The number of localizations to load from file.
+        None means that all available rows are loaded.
 
     Returns
     -------

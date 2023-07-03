@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from typing import Literal  # noqa: F401
 
 import numpy as np
 import numpy.typing as npt
@@ -220,7 +221,7 @@ def transform_affine(
         Translation vector for coordinates applied before affine
         transformation. Array with shape (ndim,).
         The reverse translation is applied after the affine transformation.
-    method : str
+    method : Literal["numpy", "open3d"]
         The method (i.e. library or algorithm) used for computation.
         One of 'numpy', 'open3d'.
 

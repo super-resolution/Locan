@@ -122,6 +122,8 @@ dev = [
     "asv",
     "ruff",
     "mypy",
+    "types-requests",
+    "types-protobuf",
 ]
 
 [project.urls]
@@ -161,8 +163,11 @@ omit = [
     "locan/scripts/*",
     "locan/__main__.py",
     "locan/data/metadata_pb2.py",
+    "locan/data/metadata_pb2.pyi",
     "locan/analysis/metadata_analysis_pb2.py",
+    "locan/analysis/metadata_analysis_pb2.pyi",
     "locan/locan_io/locdata/manifest_pb2.py",
+    "locan/locan_io/locdata/manifest_pb2.pyi",
 ]
 
 [tool.coverage.report]
@@ -201,13 +206,14 @@ exclude = [
     "dist",
     "docs",
     "docker",
-    "*/*_pb2.py"
+    "*/*_pb2.py",
+    "*/*_pb2.pyi"
 ]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["E402", "F403", "F405"]
 "_version.py" = ["Q000"]
-"test_*.py" = ["S101"]
+"test_*.py" = ["S101", "S605", "S607"]
 
 [tool.ruff.flake8-quotes]
 docstring-quotes = "double"
@@ -227,7 +233,9 @@ boost_histogram = "bh"
 convention = "numpy"
 
 [tool.mypy]
+plugins = ['numpy.typing.mypy_plugin']
 files = ["locan"]
+exclude = ['_pb2\.py$']
 # Aiming at
 strict = true
 ignore_missing_imports = true
@@ -255,29 +263,14 @@ warn_return_any = false
 module = [
     'locan.analysis.metadata_analysis_pb2',
     'locan.data.metadata_pb2',
-    'locan\locan_io\locdata\manifest_pb2'
+    'locan.locan_io.locdata.manifest_pb2',
 ]
 ignore_errors = true
 
 # todo: elliminate
 [[tool.mypy.overrides]]
 module = [
-    'locan\tests\data\test_metadata_utils',
-    'locan\tests\locan_io\locdata\test_smlm_file',
-    'locan\simulation\simulate_locdata',
-    'locan\data\metadata_utils',
-    'locan\locan_io\locdata\smlm_io',
-    'locan\locan_io\locdata\asdf_io',
-    'locan\analysis\analysis_base',
-    'locan\data\locdata',
-    'locan\data\rois',
-    'locan\datasets'
-]
-ignore_errors = true  # all concerning library stubs for protobuf
-
-# todo: elliminate
-[[tool.mypy.overrides]]
-module = [
     'locan\tests\*',
 ]
-ignore_errors = true  # mostly concerning [attr-defined]
+disable_error_code = ["attr-defined"]
+check_untyped_defs = false

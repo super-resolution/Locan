@@ -28,7 +28,7 @@ def statistics(
     locdata : LocData | pandas.DataFrame | pandas.Series
         Localization data
 
-    statistic_keys : str | tuple[str]
+    statistic_keys : str | tuple[str, ...]
         Pandas statistic functions.
         Default: ('count', 'min', 'max', 'mean', 'median', 'std', 'sem')
 

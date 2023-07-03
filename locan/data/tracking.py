@@ -35,7 +35,7 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs) -> pd.Series:
     ----------
     locdata : LocData
         Localization data on which to perform the manipulation.
-    search_range : float, tuple
+    search_range : float | tuple
         The maximum distance features can move between frames,
         optionally per dimension
     memory : int
@@ -82,7 +82,7 @@ def track(locdata, search_range=40, memory=0, **kwargs) -> tuple[LocData, pd.Ser
     ----------
     locdata : LocData
         Localization data on which to perform the manipulation.
-    search_range : float | tuple[float]
+    search_range : float | tuple[float, ...]
         The maximum distance features can move between frames, optionally per
         dimension
     memory : int

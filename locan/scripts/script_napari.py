@@ -38,9 +38,9 @@ def sc_napari(file_path=None, file_type=FileType.CUSTOM, **kwargs):
 
     Parameters
     ----------
-    file_path : str, bytes, os.PathLike
+    file_path : str, os.PathLike
         File path to localization data.
-    file_type : int, str, locan.constants.FileType, locan.data.metadata_pb2.Metadata
+    file_type : int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata
         Indicator for the file type.
         Integer or string should be according to locan.constants.FileType.
     kwargs : dict
@@ -119,7 +119,6 @@ def _add_arguments(parser):
 
 
 def main(args=None):
-
     parser = argparse.ArgumentParser(description="Render localization data in napari.")
     _add_arguments(parser)
     returned_args = parser.parse_args(args)

@@ -1796,7 +1796,7 @@ def test_resample(locdata_simple, caplog):
         )
     ]
 
-    dat = resample(locdata=locdata_simple, n_samples=3, loc_properties="position_y")
+    dat = resample(locdata=locdata_simple, n_samples=3)
     assert len(dat) == 15
     assert all(column_ in dat.data.columns for column_ in locdata_simple.data.columns)
 

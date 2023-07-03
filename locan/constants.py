@@ -18,6 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum, unique
+from typing import Final
 
 import matplotlib.colors as mcolors
 
@@ -330,8 +331,10 @@ class FileType(Enum):
     """
     File types for localization files.
 
-    The listed file types are supported with input/output functions in :func:`io.io_locdata`.
-    The types correspond to the metadata keys for LocData objects. That is they are equal to the file types in
+    The listed file types are supported with input/output functions in
+    :func:`io.io_locdata`.
+    The types correspond to the metadata keys for LocData objects.
+    That is, they are equal to the file types in
     the protobuf message `locan.data.metadata_pb2.Metadata`.
     """
 
@@ -384,7 +387,7 @@ class ColorMaps(Enum):
 
 
 #: Mapping column names in RapidSTORM files to `LocData` property keys
-RAPIDSTORM_KEYS = {
+RAPIDSTORM_KEYS: Final[dict] = {
     "Position-0-0": "position_x",
     "Position-1-0": "position_y",
     "Position-2-0": "position_z",
@@ -400,7 +403,7 @@ RAPIDSTORM_KEYS = {
 
 
 #: Mapping column names in Zeiss Elyra files to `LocData` property keys
-ELYRA_KEYS = {
+ELYRA_KEYS: Final[dict] = {
     "Index": "original_index",
     "First Frame": "frame",
     "Number Frames": "frames_number",
@@ -420,7 +423,7 @@ ELYRA_KEYS = {
 
 
 #: Mapping column names in Thunderstorm files to `LocData` property keys
-THUNDERSTORM_KEYS = {
+THUNDERSTORM_KEYS: Final[dict] = {
     "id": "original_index",
     "frame": "frame",
     "x [nm]": "position_x",
@@ -441,7 +444,7 @@ THUNDERSTORM_KEYS = {
 
 
 #: Mapping column names in Nanoimager files to `LocData` property keys
-NANOIMAGER_KEYS = {
+NANOIMAGER_KEYS: Final[dict] = {
     "Channel": "channel",
     "Frame": "frame",
     "X (nm)": "position_x",
@@ -453,7 +456,7 @@ NANOIMAGER_KEYS = {
 
 
 #: Mapping column names in SMLM files to `LocData` property keys
-SMLM_KEYS = {
+SMLM_KEYS: Final[dict] = {
     "id": "original_index",
     "frame": "frame",
     "x": "position_x",
@@ -473,7 +476,7 @@ SMLM_KEYS = {
 }
 
 #: Mapping column names in DECODE files to `LocData` property keys
-DECODE_KEYS = {
+DECODE_KEYS: Final[dict] = {
     "id": "original_index",
     "frame_ix": "frame",
     "x": "position_x",
@@ -484,7 +487,7 @@ DECODE_KEYS = {
 }
 
 #: Mapping column names in SMAP files to `LocData` property keys
-SMAP_KEYS = {
+SMAP_KEYS: Final[dict] = {
     "frame": "frame",
     "xnm": "position_x",
     "ynm": "position_y",

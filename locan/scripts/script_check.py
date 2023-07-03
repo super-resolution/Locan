@@ -15,6 +15,7 @@ Try for instance::
 import argparse
 
 import numpy as np
+import numpy.typing as npt  # noqa: F401
 import tifffile as tif
 
 from locan import locdata_id
@@ -41,15 +42,15 @@ def render_locs_per_frame_napari(
 
     Parameters
     ---------
-    images : np.array
+    images : npt.ArrayLike
         Stack of raw data as recorded by camera.
-    pixel_size : float, tuple of float with shape (2,)
-        Pixel size for images (in locdata units).
+    pixel_size : float | tuple[float]
+        Pixel size for images (in locdata units) with shape (2,).
     transpose : bool
         If True transpose x and y axis of `images`.
     locdata : LocData
         Localization data that corresponds to `images` raw data.
-    viewer : napari viewer
+    viewer : napari.Viewer
         The viewer object on which to add the image
     kwargs_image : dict
         Other parameters passed to napari.Viewer().add_image().
@@ -58,7 +59,7 @@ def render_locs_per_frame_napari(
 
     Returns
     -------
-    napari Viewer object
+    napari.Viewer
         Viewer with the image.
     """
     if kwargs_image is None:
@@ -117,13 +118,13 @@ def sc_check(
 
     Parameters
     ---------
-    pixel_size : float or tuple of float with shape (2,)
-        Pixel size for images (in locdata units).
-    file_images : str, bytes, os.PathLike
+    pixel_size : float | tuple[float]
+        Pixel size for images (in locdata units) with shape (2,).
+    file_images : str, os.PathLike
         File path for stack of raw data as recorded by camera.
-    file_locdata : str, bytes, os.PathLike
+    file_locdata : str, os.PathLike
         File path for localization data that corresponds to `images` raw data.
-    file_type : int, str, locan.constants.FileType, locan.data.metadata_pb2.Metadata
+    file_type : int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata
         Indicator for the file type.
         Integer or string should be according to locan.constants.FileType.
     transpose : bool
@@ -213,7 +214,6 @@ def _add_arguments(parser):
 
 
 def main(args=None):
-
     parser = argparse.ArgumentParser(
         description="Show localizations in original recording."
     )

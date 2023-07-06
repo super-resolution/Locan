@@ -135,7 +135,8 @@ class LocalizationPrecision(_Analysis):
     """
 
     def __init__(self, meta=None, radius=50):
-        super().__init__(meta=meta, radius=radius)
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.results = None
         self.distribution_statistics = None
 

@@ -74,7 +74,8 @@ class Pipeline(_Analysis):
     """
 
     def __init__(self, computation, meta=None, **kwargs):
-        super().__init__(meta=meta, computation=computation, **kwargs)
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
 
         if not callable(computation):
             raise TypeError(

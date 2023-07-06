@@ -284,11 +284,8 @@ class ConvexHullExpectation(_Analysis):
                 "convex_hull_property must be one of "
                 "[region_measure_ch, subregion_measure_ch]"
             )
-        super().__init__(
-            meta=meta,
-            convex_hull_property=convex_hull_property,
-            expected_variance=expected_variance,
-        )
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.expected_variance = expected_variance
         self.results = None
         self.distribution_statistics = None
@@ -680,11 +677,8 @@ class ConvexHullExpectationBatch(_Analysis):
                 "convex_hull_property must be one of "
                 "[region_measure_ch, subregion_measure_ch]"
             )
-        super().__init__(
-            meta=meta,
-            convex_hull_property=convex_hull_property,
-            expected_variance=expected_variance,
-        )
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.expected_variance = expected_variance
         self.results = None
         self.batch = None

@@ -148,7 +148,8 @@ class NearestNeighborDistances(_Analysis):
     count = 0
 
     def __init__(self, meta=None, k=1):
-        super().__init__(meta=meta, k=k)
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.dimension = None
         self.localization_density = None
         self.results = None

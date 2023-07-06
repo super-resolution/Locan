@@ -96,7 +96,8 @@ class SubpixelBias(_Analysis):
     count = 0
 
     def __init__(self, meta=None, pixel_size=None):
-        super().__init__(meta=meta, pixel_size=pixel_size)
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.results = None
 
     def compute(self, locdata) -> Self:

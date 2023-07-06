@@ -62,7 +62,8 @@ class LocalizationPropertyCorrelations(_Analysis):
     """
 
     def __init__(self, meta=None, loc_properties=None):
-        super().__init__(meta=meta, loc_properties=loc_properties)
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.results = None
 
     def compute(self, locdata=None) -> Self:

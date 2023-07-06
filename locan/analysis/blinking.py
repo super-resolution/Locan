@@ -1,7 +1,8 @@
 """
 Compute on- and off-periods from localization frames.
 
-Assuming that the provided localizations are acquired from the same label, we analyze the times of recording as
+Assuming that the provided localizations are acquired from the same label,
+we analyze the times of recording as
 provided by the `frame` property.
 """
 from __future__ import annotations
@@ -32,17 +33,22 @@ logger = logging.getLogger(__name__)
 # The algorithms
 
 
-def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
+def _blink_statistics(
+    locdata, memory=0, remove_heading_off_periods=True
+) -> dict[str, npt.NDArray | list]:
     """
     Estimate on and off times from the frame values provided.
 
-    On and off-periods and the first frame of each period are determined from the sorted frame values.
-    A series of frame values that constantly increase by one is considered a on-period.
-    Each series of missing frame values between two given frame values is considered an off-period.
+    On and off-periods and the first frame of each period are determined from
+    the sorted frame values.
+    A series of frame values that constantly increase by one is considered an
+    on-period.
+    Each series of missing frame values between two given frame values is
+    considered an off-period.
 
     Parameters
     ----------
-    locdata : LocData, npt.ArrayLike
+    locdata : LocData | npt.ArrayLike
         Localization data or just the frame values of given localizations.
     memory : int
         The maximum number of intermittent frames without any localization
@@ -50,10 +56,12 @@ def _blink_statistics(locdata, memory=0, remove_heading_off_periods=True):
 
     Returns
     -------
-    dict with numpy.ndarray as values
+    dict[str, npt.NDArray | list]
         'on_periods' and 'off_periods' in units of frame numbers.
-        'on_periods_frame' and 'off_periods_frame' with the first frame in each on/off-period.
-        'on_periods_indices' are groups of indices to the input frames or more precise np.unique(frames)
+        'on_periods_frame' and 'off_periods_frame' with the first frame in
+        each on/off-period.
+        'on_periods_indices' are groups of indices to the input frames or
+        more precise np.unique(frames)
     """
     if isinstance(locdata, LocData):
         frames = locdata.data.frame.values
@@ -151,13 +159,17 @@ class BlinkStatistics(_Analysis):
     """
     Estimate on and off times from the frame values provided.
 
-    On and off-periods and the first frame of each period are determined from the sorted frame values.
-    A series of frame values that constantly increase by one is considered a on-period.
-    Each series of missing frame values between two given frame values is considered an off-period.
+    On and off-periods and the first frame of each period are determined from
+    the sorted frame values.
+    A series of frame values that constantly increase by one is considered an
+    on-period.
+    Each series of missing frame values between two given frame values is
+    considered an off-period.
 
     A log warning is provided if a frame number occurs multiple times.
 
-    Missing localizations within an on-period can be taken into account by increasing the `memory` parameter.
+    Missing localizations within an on-period can be taken into account by
+    increasing the `memory` parameter.
     There is no way to correct for false positive localizations.
 
     Parameters
@@ -166,7 +178,8 @@ class BlinkStatistics(_Analysis):
         The maximum number of intermittent frames without any localization
         that are still considered to belong to the same on-period.
     remove_heading_off_periods : bool
-        Flag to indicate if off-periods at the beginning of the series are excluded.
+        Flag to indicate if off-periods at the beginning of the series are
+        excluded.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
 
@@ -178,20 +191,24 @@ class BlinkStatistics(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : dict[str, npt.ArrayLike]
+    results : dict[str, npt.NDArray | list]
         'on_periods' and 'off_periods' in units of frame numbers.
-        'on_periods_frame' and 'off_periods_frame' with the first frame in each on/off-period.
-        'on_periods_indices' are groups of indices to the input frames or more precise np.unique(frames)
+        'on_periods_frame' and 'off_periods_frame' with the first frame in
+        each on/off-period.
+        'on_periods_indices' are groups of indices to the input frames or more
+         precise np.unique(frames)
+    distribution_statistics : dict
+        Distribution parameters derived from MLE fitting of results.
     """
 
     count = 0
 
-    def __init__(self, meta=None, memory=0, remove_heading_off_periods=True):
-        super().__init__(
-            meta, memory=memory, remove_heading_off_periods=remove_heading_off_periods
-        )
+    def __init__(self, meta=None, memory=0, remove_heading_off_periods=True) -> None:
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
+
         self.results = None
-        self.distribution_statistics = {}
+        self.distribution_statistics: dict = {}
 
     def compute(self, locdata) -> Self:
         """

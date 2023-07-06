@@ -232,17 +232,8 @@ class LocalizationProperty2d(_Analysis):
         bin_range=None,
         rescale=None,
     ):
-        super().__init__(
-            meta=meta,
-            loc_properties=loc_properties,
-            other_property=other_property,
-            bins=bins,
-            n_bins=n_bins,
-            bin_size=bin_size,
-            bin_edges=bin_edges,
-            bin_range=bin_range,
-            rescale=rescale,
-        )
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.results = None
 
     def compute(self, locdata=None) -> Self:

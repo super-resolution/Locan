@@ -365,7 +365,8 @@ class LocalizationUncertainty(_Analysis):
     count = 0
 
     def __init__(self, meta=None, model=1, **kwargs):
-        super().__init__(meta=meta, model=model, **kwargs)
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.results = None
 
     def compute(self, locdata) -> Self:

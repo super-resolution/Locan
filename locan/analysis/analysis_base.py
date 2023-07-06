@@ -3,6 +3,16 @@ Base class that serves as template for a specialized analysis class.
 
 It also provides helper functions to be used in specialized analysis classes.
 """
+from __future__ import annotations
+
+import sys
+from copy import copy
+from typing import Any  # noqa: F401
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 from google.protobuf import json_format
 from scipy import stats
@@ -20,7 +30,7 @@ class _Analysis:
         Localization data.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    kwargs :
+    kwargs : dict
         Parameter that are passed to the algorithm.
 
     Attributes
@@ -31,20 +41,31 @@ class _Analysis:
         A dictionary with all settings (i.e. the kwargs) for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : any
+    results : Any | None
         Computed results.
     """
 
-    count = 0
-    """int: A counter for counting Analysis class instantiations (class attribute)."""
+    count: int = 0
+    """A counter for counting Analysis class instantiations (class attribute)."""
 
     def __init__(self, meta, **kwargs):
         self.__class__.count += 1
 
         self.parameter = kwargs
-        self.meta = _init_meta(self)
-        self.meta = _update_meta(self, meta)
+        self.meta = self._init_meta()
+        self.meta = self._update_meta(meta)
         self.results = None
+
+    @staticmethod
+    def _get_parameters(locals):
+        """Get parameters from curated locals."""
+        parameters = copy(locals)
+        for key in ["self", "__class__"]:
+            parameters.pop(key)
+        if "kwargs" in parameters:
+            parameters.update(parameters["kwargs"])
+            parameters.pop("kwargs")
+        return parameters
 
     def __del__(self):
         """Update the counter upon deletion of class instance."""
@@ -82,56 +103,56 @@ class _Analysis:
         else:
             return False
 
-    def compute(self, *args, **kwargs):
-        """Apply analysis routine with the specified parameters on locdata and return results."""
+    def compute(self, *args, **kwargs) -> Self:
+        """
+        Apply analysis routine with the specified parameters on locdata and
+        return results.
+        """
         raise NotImplementedError
 
     def report(self):
         """Show a report about analysis results."""
         raise NotImplementedError
 
+    def _init_meta(self) -> metadata_analysis_pb2.AMetadata:
+        meta_ = metadata_analysis_pb2.AMetadata()
+        meta_.identifier = str(self.__class__.count)
+        meta_.creation_time.GetCurrentTime()
+        meta_.method.name = str(self.__class__.__name__)
+        meta_.method.parameter = str(self.parameter)
+        return meta_
 
-# Dealing with metadata
+    def _update_meta(
+        self, meta: metadata_analysis_pb2.AMetadata | dict | None = None
+    ) -> metadata_analysis_pb2.AMetadata:
+        meta_ = self.meta
+        if meta is None:
+            pass
+        else:
+            try:
+                meta_.MergeFrom(meta)
+            except TypeError:
+                for key, value in meta.items():  # type: ignore
+                    setattr(meta_, key, value)
 
-
-def _init_meta(self):
-    meta_ = metadata_analysis_pb2.AMetadata()
-    meta_.identifier = str(self.__class__.count)
-    meta_.creation_time.GetCurrentTime()
-    meta_.method.name = str(self.__class__.__name__)
-    meta_.method.parameter = str(self.parameter)
-    return meta_
-
-
-def _update_meta(self, meta=None):
-    meta_ = self.meta
-    if meta is None:
-        pass
-    else:
-        try:
-            meta_.MergeFrom(meta)
-        except TypeError:
-            for key, value in meta.items():
-                setattr(meta_, key, value)
-
-    return meta_
+        return meta_
 
 
 # Dealing with scipy.stats
 
 
-def _list_parameters(distribution):
+def _list_parameters(distribution) -> list[str]:
     """
     List parameters for scipy.stats.distribution.
 
     Parameters
     ----------
-    distribution : str, scipy.stats.distribution
+    distribution : str | scipy.stats.distribution
         Distribution of choice.
 
     Returns
     -------
-    list of str
+    list[str]
         A list of distribution parameter strings.
     """
     if isinstance(distribution, str):

@@ -147,12 +147,8 @@ class PositionVarianceExpectation(_Analysis):
     def __init__(
         self, meta=None, loc_property="position_x", expectation=None, biased=True
     ):
-        super().__init__(
-            meta=meta,
-            loc_property=loc_property,
-            expectation=expectation,
-            biased=biased,
-        )
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.results = None
         self.distribution_statistics = None
 

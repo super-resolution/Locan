@@ -94,12 +94,8 @@ class GroupedPropertyExpectation(_Analysis):
     def __init__(
         self, meta=None, loc_property=None, other_loc_property=None, expectation=None
     ):
-        super().__init__(
-            meta=meta,
-            loc_property=loc_property,
-            other_loc_property=other_loc_property,
-            expectation=expectation,
-        )
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.expectation = expectation
         self.results = None
         self.distribution_statistics = None

@@ -261,16 +261,8 @@ class AccumulationClusterCheck(_Analysis):
         divide="random",
         n_extrapolate=5,
     ):
-        super().__init__(
-            meta=meta,
-            region_measure=region_measure,
-            algorithm=algorithm,
-            algo_parameter=algo_parameter,
-            hull=hull,
-            n_loc=n_loc,
-            divide=divide,
-            n_extrapolate=n_extrapolate,
-        )
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
 
     def compute(self, locdata) -> Self:
         """

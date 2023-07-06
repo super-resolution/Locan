@@ -487,15 +487,8 @@ class Drift(_Analysis):
         kwargs_chunk=None,
         kwargs_register=None,
     ):
-        super().__init__(
-            meta,
-            chunks=chunks,
-            chunk_size=chunk_size,
-            target=target,
-            method=method,
-            kwargs_chunk=kwargs_chunk,
-            kwargs_register=kwargs_register,
-        )
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.locdata = None
         self.collection = None
         self.transformations = None

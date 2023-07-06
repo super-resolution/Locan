@@ -179,9 +179,8 @@ class LocalizationsPerFrame(_Analysis):
         resample=None,
         **kwargs,
     ):
-        super().__init__(
-            meta=meta, norm=norm, time_delta=time_delta, resample=resample, **kwargs
-        )
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.results = None
         self.distribution_statistics = None
 

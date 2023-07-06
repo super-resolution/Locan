@@ -139,7 +139,8 @@ class CoordinateBasedColocalization(_Analysis):
     count = 0
 
     def __init__(self, meta=None, radius=100, n_steps=10):
-        super().__init__(meta=meta, radius=radius, n_steps=n_steps)
+        parameters = self._get_parameters(locals())
+        super().__init__(**parameters)
         self.results = None
 
     def compute(self, locdata, other_locdata=None) -> Self:

@@ -1,8 +1,9 @@
 """
 Coordinate-based colocalization.
 
-Colocalization is estimated by computing a colocalization index for each localization
-using the so-called coordinate-based colocalization algorithm [1]_.
+Colocalization is estimated by computing a colocalization index for each
+localization using the so-called coordinate-based colocalization
+algorithm [1]_.
 
 References
 ----------
@@ -15,14 +16,19 @@ from __future__ import annotations
 
 import logging
 import sys
+from typing import TYPE_CHECKING
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
 
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
+
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from scipy.stats import spearmanr
 from sklearn.neighbors import NearestNeighbors
@@ -37,20 +43,24 @@ logger = logging.getLogger(__name__)
 # The algorithm
 
 
-def _coordinate_based_colocalization(points, other_points=None, radius=100, n_steps=10):
+def _coordinate_based_colocalization(
+    points, other_points=None, radius=100, n_steps=10
+) -> npt.NDArray:
     """
-    Compute a colocalization index for each localization by coordinate-based colocalization.
+    Compute a colocalization index for each localization by coordinate-based
+    colocalization.
 
     Parameters
     ----------
-    points : array of tuple
-        Array of points (each point represented by a tuple with coordinates) for which CBC values are computed.
+    points : npt.ArrayLike
+        Array of points with shape (n_points, dimensions)
+        for which CBC values are computed.
 
-    other_points : array of tuple, None
-        Array of points (each represented by a tuple with coordinates) to be compared with points. If None other_points
-        are set to points.
+    other_points : npt.ArrayLike | None
+        Array of points with shape (n_points, dimensions) to be
+        compared with points. If None other_points are set to points.
 
-    radius : int, float
+    radius : int | float
         The maximum radius up to which nearest neighbors are determined
 
     n_steps : int
@@ -58,8 +68,9 @@ def _coordinate_based_colocalization(points, other_points=None, radius=100, n_st
 
     Returns
     -------
-    np.array
-        An array with coordinate-based colocalization coefficients for each input point.
+    npt.NDArray
+        An array with coordinate-based colocalization coefficients for each
+        input point.
     """
     # sampled radii
     radii = np.linspace(0, radius, n_steps + 1)
@@ -107,19 +118,22 @@ def _coordinate_based_colocalization(points, other_points=None, radius=100, n_st
 
 class CoordinateBasedColocalization(_Analysis):
     """
-    Compute a colocalization index for each localization by coordinate-based colocalization (CBC).
+    Compute a colocalization index for each localization by coordinate-based
+    colocalization (CBC).
 
-    The colocalization index is calculated for each localization in `locdata` by finding nearest neighbors in
-    `locdata` or `other_locdata` within `radius`. A normalized number of nearest neighbors at a certain radius is
-    computed for `n_steps` equally-sized steps of increasing radii ranging from 0 to `radius`.
-    The Spearman rank correlation coefficent is computed for these values and weighted by
-    Exp[-nearestNeighborDistance/distanceMax].
+    The colocalization index is calculated for each localization in `locdata`
+    by finding nearest neighbors in `locdata` or `other_locdata` within
+    `radius`. A normalized number of nearest neighbors at a certain radius is
+    computed for `n_steps` equally-sized steps of increasing radii ranging
+    from 0 to `radius`.
+    The Spearman rank correlation coefficent is computed for these values and
+    weighted by Exp[-nearestNeighborDistance/distanceMax].
 
     Parameters
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    radius : int, float
+    radius : int | float
         The maximum radius up to which nearest neighbors are determined
     n_steps : int
         The number of bins from which Spearman correlation is computed.
@@ -138,12 +152,12 @@ class CoordinateBasedColocalization(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, radius=100, n_steps=10):
+    def __init__(self, meta=None, radius=100, n_steps=10) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
 
-    def compute(self, locdata, other_locdata=None) -> Self:
+    def compute(self, locdata: LocData, other_locdata=None) -> Self:
         """
         Run the computation.
 
@@ -151,8 +165,9 @@ class CoordinateBasedColocalization(_Analysis):
         ----------
         locdata : LocData
             Localization data for which CBC values are computed.
-        other_locdata : LocData, None
-            Localization data to be colocalized. If None other_locdata is set to locdata.
+        other_locdata : LocData | None
+            Localization data to be colocalized.
+            If None other_locdata is set to locdata.
 
         Returns
         -------
@@ -179,23 +194,29 @@ class CoordinateBasedColocalization(_Analysis):
         )
         return self
 
-    def hist(self, ax=None, bins=(-1, -0.3333, 0.3333, 1), density=True, **kwargs):
+    def hist(
+        self, ax=None, bins=(-1, -0.3333, 0.3333, 1), density=True, **kwargs
+    ) -> plt.axes.Axes:
         """
-        Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing
+        hist(results).
 
         Parameters
         ----------
+        ax : matplotlib.axes.Axes
+            The axes on which to show the image
         bins : int, list, 'auto'
             Bin specification as used in :func:`matplotlib.hist`.
         density : bool
-            Flag for normalization as used in :func:`matplotlib.hist`. True returns probability density function; None returns
-            counts.
+            Flag for normalization as used in :func:`matplotlib.hist`.
+            True returns probability density function;
+            None returns counts.
         kwargs : dict
-            Other parameters passed to :func:`matplotlib.plot`.
+            Other parameters passed to :func:`matplotlib.hist`.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -204,7 +225,13 @@ class CoordinateBasedColocalization(_Analysis):
         if not self:
             return ax
 
-        ax.hist(self.results.iloc[:, 0].values, bins=bins, density=density, label="cbc")
+        ax.hist(
+            self.results.iloc[:, 0].values,
+            bins=bins,
+            density=density,
+            label="cbc",
+            **kwargs,
+        )
 
         ax.set(
             title="CBC histogram",

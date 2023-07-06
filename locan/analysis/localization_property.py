@@ -91,7 +91,7 @@ class LocalizationProperty(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata=None) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 
@@ -126,7 +126,7 @@ class LocalizationProperty(_Analysis):
 
         Parameters
         ----------
-        distribution : str | scipy.stats.distribution
+        distribution : str | scipy.stats.rv_continuous
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
@@ -141,7 +141,7 @@ class LocalizationProperty(_Analysis):
         else:
             logger.warning("No results available to fit.")
 
-    def plot(self, ax=None, window=1, **kwargs):
+    def plot(self, ax=None, window=1, **kwargs) -> plt.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         running average of results over window size.
@@ -177,7 +177,7 @@ class LocalizationProperty(_Analysis):
 
         return ax
 
-    def hist(self, ax=None, bins="auto", log=True, fit=True, **kwargs):
+    def hist(self, ax=None, bins="auto", log=True, fit=True, **kwargs) -> plt.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing
         hist(results). Nan entries are ignored.
@@ -253,7 +253,7 @@ class _DistributionFits:
         The analysis class with result data to fit.
     loc_property : str
         The LocData property for which to fit an appropriate distribution.
-    distribution : str | scipy.stats.distribution
+    distribution : str | scipy.stats.rv_continuous
         Distribution model to fit.
     parameters : list[str]
         Distribution parameters.
@@ -267,7 +267,7 @@ class _DistributionFits:
 
     def fit(self, distribution, with_constraints=True, **kwargs):
         """
-        Fit scipy.stats.distribution to analysis_class.results[loc_property].
+        Fit scipy.stats.rv_continuous to analysis_class.results[loc_property].
 
         If with_constraints is true we put the following constraints on the
         fit procedure:
@@ -276,12 +276,12 @@ class _DistributionFits:
 
         Parameters
         ----------
-        distribution : str | scipy.stats.distribution
+        distribution : str | scipy.stats.rv_continuous
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
         kwargs : dict
-            Other parameters are passed to `scipy.stat.distribution.fit()`.
+            Other parameters are passed to `scipy.stats.rv_continuous.fit()`.
         """
         self.distribution = distribution
         for param in _list_parameters(distribution):
@@ -309,7 +309,7 @@ class _DistributionFits:
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
 
-    def plot(self, ax=None, **kwargs):
+    def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         probability distribution functions of fitted results.

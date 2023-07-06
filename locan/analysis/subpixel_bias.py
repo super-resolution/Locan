@@ -15,12 +15,15 @@ from __future__ import annotations
 import logging
 import sys
 from collections.abc import Sequence
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -95,12 +98,12 @@ class SubpixelBias(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, pixel_size=None):
+    def __init__(self, meta=None, pixel_size=None) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
 
-    def compute(self, locdata) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 
@@ -120,13 +123,14 @@ class SubpixelBias(_Analysis):
         self.results = _subpixel_bias(locdata=locdata, **self.parameter)
         return self
 
-    def hist(self, ax=None, bins="auto", log=True, **kwargs):
+    def hist(self, ax=None, bins="auto", log=True, **kwargs) -> plt.axes.Axes:
         """
-        Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results). Nan entries are ignored.
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing
+        hist(results). Nan entries are ignored.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes`
             The axes on which to show the image
         bins : int | Sequence | str
             Bin specifications (passed to :func:`matplotlib.hist`).
@@ -137,7 +141,7 @@ class SubpixelBias(_Analysis):
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

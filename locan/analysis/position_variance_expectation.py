@@ -21,9 +21,9 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -42,25 +42,18 @@ from locan.utils.statistics import biased_variance
 if TYPE_CHECKING:
     import matplotlib as mpl
 
+    from locan.data.locdata import LocData
+
 __all__: list[str] = ["PositionVarianceExpectation"]
 
 logger = logging.getLogger(__name__)
-
-
-class Collection(Protocol):
-    data: pd.DataFrame
-    references: Iterable
-    coordinate_keys: list[str]
-
-    def __len__(self):
-        ...
 
 
 # The algorithms
 
 
 def _property_variances(
-    collection: Collection,
+    collection: LocData,
     loc_property: str,
     biased: bool = False,
 ) -> pd.DataFrame:
@@ -79,7 +72,7 @@ def _property_variances(
 
 
 def _property_variances_(
-    collection: Collection,
+    collection: LocData,
     loc_property: str,
     biased: bool = False,
 ) -> dict:
@@ -146,13 +139,13 @@ class PositionVarianceExpectation(_Analysis):
 
     def __init__(
         self, meta=None, loc_property="position_x", expectation=None, biased=True
-    ):
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata=None) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 
@@ -220,7 +213,7 @@ class PositionVarianceExpectation(_Analysis):
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         kwargs : dict
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
@@ -290,7 +283,7 @@ class PositionVarianceExpectation(_Analysis):
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
             The bin specification as defined in :class:`Bins`

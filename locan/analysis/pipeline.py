@@ -1,20 +1,26 @@
 """
 Building an analysis pipeline.
 
-Pipeline refers to sequential analysis steps that are applied to a single LocData object.
-An analysis pipeline here includes true piped analysis, where a preliminary result serves as input to the next analysis
+Pipeline refers to sequential analysis steps that are applied to a single
+LocData object.
+An analysis pipeline here includes true piped analysis, where a preliminary
+result serves as input to the next analysis
 step, but also workflows that provide different results in parallel.
 
-A batch process is a procedure for running a pipeline over multiple LocData objects while collecting and combing
+A batch process is a procedure for running a pipeline over multiple LocData
+objects while collecting and combing
 results.
 
-This module provides a class `Pipeline` to combine the analysis procedure, parameters and results
-in a single pickleable object.
+This module provides a class `Pipeline` to combine the analysis procedure,
+parameters and results in a single pickleable object.
 """
 from __future__ import annotations
 
 import inspect
 import logging
+import os
+from collections.abc import Callable  # noqa: F401
+from typing import Any
 
 from locan.analysis.analysis_base import _Analysis
 
@@ -25,13 +31,17 @@ logger = logging.getLogger(__name__)
 
 class Pipeline(_Analysis):
     """
-    The base class for a specialized analysis pipeline to be used on LocData objects.
+    The base class for a specialized analysis pipeline to be used on LocData
+    objects.
 
-    The custom analysis routine has to be added by implementing the method `computation(self, **kwargs)`.
-    Keyword arguments must include the locdata reference and optional parameters.
+    The custom analysis routine has to be added by implementing the method
+    `computation(self, **kwargs)`.
+    Keyword arguments must include the locdata reference and optional
+    parameters.
 
     Results are provided as customized attributes.
-    We suggest abbreviated standard names for the most common procedures such as:
+    We suggest abbreviated standard names for the most common procedures
+     such as:
 
     * lp - Localization Precision
     * lprop - Localization Property
@@ -42,11 +52,13 @@ class Pipeline(_Analysis):
     Parameters
     ----------
     computation : callable
-        A function `computation(self, **kwargs)` specifying the analysis procedure.
+        A function `computation(self, **kwargs)` specifying the analysis
+        procedure.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     kwargs : dict
-        Locdata reference and optional parameters passed to `computation(self, **kwargs)`.
+        Locdata reference and optional parameters passed to
+        `computation(self, **kwargs)`.
 
     Attributes
     ----------
@@ -56,24 +68,30 @@ class Pipeline(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    computation : callable
-        A function `computation(self, **kwargs)` specifying the analysis procedure.
+    computation : Callable
+        A function `computation(self, **kwargs)` specifying the analysis
+        procedure.
     kwargs : dict
-        All parameters including the locdata reference that are passed to `computation(self, **kwargs)`.
+        All parameters including the locdata reference that are passed to
+        `computation(self, **kwargs)`.
 
     Note
     ----
-    The class variable `Pipeline.count` is only incremented in a single process. In multiprocessing `Pipeline.count` and
-    `Pipeline.meta.identifier` (which is set using `count`) cannot be used to identify distinct Pipeline objects.
+    The class variable `Pipeline.count` is only incremented in a single
+    process. In multiprocessing `Pipeline.count` and
+    `Pipeline.meta.identifier` (which is set using `count`) cannot be used to
+    identify distinct Pipeline objects.
 
     Note
     ----
-    For the Pipeline object to be pickleable attention has to be paid to the :func:`computation` method.
-    With multiprocessing it will have to be re-injected for each Pipeline object by `pipeline.computation = computation`
+    For the Pipeline object to be pickleable attention has to be paid to the
+    :func:`computation` method.
+    With multiprocessing it will have to be re-injected for each Pipeline
+    object by `pipeline.computation = computation`
     after computation and before pickling.
     """
 
-    def __init__(self, computation, meta=None, **kwargs):
+    def __init__(self, computation, meta=None, **kwargs) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
 
@@ -88,17 +106,21 @@ class Pipeline(_Analysis):
     def __bool__(self):
         return True
 
-    def compute(self):
-        """Run the analysis procedure. All parameters must be given upon Pipeline instantiation."""
+    def compute(self) -> Any:
+        """
+        Run the analysis procedure. All parameters must be given upon Pipeline
+        instantiation.
+        """
         return self.computation(self, **self.kwargs)
 
-    def save_computation(self, path):
+    def save_computation(self, path: str | os.PathLike):
         """
-        Save the analysis procedure (i.e. the computation() method) as human readable text.
+        Save the analysis procedure (i.e. the computation() method) as human
+        readable text.
 
         Parameters
         ----------
-        path : str, bytes, os.PathLike
+        path : str | os.PathLike
             Path and file name for saving the text file.
         """
         with open(path, "w") as handle:

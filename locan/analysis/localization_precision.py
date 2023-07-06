@@ -31,11 +31,15 @@ from __future__ import annotations
 import logging
 import sys
 from collections.abc import Sequence  # noqa: F401
+from typing import TYPE_CHECKING
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -55,7 +59,7 @@ logger = logging.getLogger(__name__)
 # The algorithms
 
 
-def _localization_precision(locdata, radius=50):
+def _localization_precision(locdata: LocData, radius=50) -> pd.DataFrame:
     # group localizations
     grouped = locdata.data.groupby("frame")
 
@@ -117,7 +121,7 @@ class LocalizationPrecision(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    radius : int, float
+    radius : int | float
         Search radius for nearest-neighbor searches.
 
     Attributes
@@ -128,9 +132,9 @@ class LocalizationPrecision(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy.ndarray, pandas.DataFrame
+    results : pandas.DataFrame
         Computed results.
-    distribution_statistics : Distribution_fits object, None
+    distribution_statistics : Distribution_fits | None
         Distribution parameters derived from MLE fitting of results.
     """
 
@@ -140,7 +144,7 @@ class LocalizationPrecision(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 
@@ -163,7 +167,7 @@ class LocalizationPrecision(_Analysis):
 
         return self
 
-    def fit_distributions(self, loc_property=None, **kwargs):
+    def fit_distributions(self, loc_property=None, **kwargs) -> None:
         """
         Fit probability density functions to the distributions of
         `loc_property` values in the results using MLE (scipy.stats).
@@ -194,16 +198,16 @@ class LocalizationPrecision(_Analysis):
         else:
             self.distribution_statistics.fit(loc_property=loc_property, **kwargs)
 
-    def plot(self, ax=None, loc_property=None, window=1, **kwargs):
+    def plot(self, ax=None, loc_property=None, window=1, **kwargs) -> plt.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         running average of results over window size.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
-        loc_property : str, list(str)
+        loc_property : str | list[str]
             The property for which to plot localization precision;
             if None all plots are shown.
         window: int
@@ -213,7 +217,7 @@ class LocalizationPrecision(_Analysis):
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -236,14 +240,14 @@ class LocalizationPrecision(_Analysis):
 
     def hist(
         self, ax=None, loc_property="position_distance", bins="auto", fit=True, **kwargs
-    ):
+    ) -> plt.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing the
         distributions of results.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         loc_property : str
             The property for which to plot localization precision.
@@ -256,7 +260,7 @@ class LocalizationPrecision(_Analysis):
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -562,16 +566,16 @@ class _DistributionFits:
 
     Parameters
     ----------
-    analyis_class : LocalizationPrecision object
+    analyis_class : LocalizationPrecision
         The analysis class with result data to fit.
 
     Attributes
     ----------
-    analyis_class : LocalizationPrecision object
+    analysis_class : LocalizationPrecision
         The analysis class with result data to fit.
     pairwise_distribution : Pairwise_distance_distribution_2d
         Continuous distribution function used to fit Position_distances
-    parameters : list of str
+    parameters : list[str]
         Distribution parameters.
 
     Note
@@ -580,11 +584,11 @@ class _DistributionFits:
     loc_property + distribution parameters and listed in parameters.
     """
 
-    def __init__(self, analysis_class):
-        self.analysis_class = analysis_class
-        self.distribution = None
-        self._dist_parameters = None
-        self.parameters = []
+    def __init__(self, analysis_class) -> None:
+        self.analysis_class: LocalizationPrecision = analysis_class
+        self.distribution: stats.rv_continuous | None = None
+        self._dist_parameters: list | None = None
+        self.parameters: list = []
 
         # continuous distributions
         if self.analysis_class.results is None:
@@ -608,7 +612,7 @@ class _DistributionFits:
             # a is the lower bound of the support of the distribution
             # self.pairwise_distribution = PairwiseDistance2dIdenticalSigma(name='pairwise') also works but is very slow.
 
-    def fit(self, loc_property="position_distance", **kwargs):
+    def fit(self, loc_property="position_distance", **kwargs) -> None:
         """
         Fit distributions of results using a MLE fit (scipy.stats) and provide
         fit results.
@@ -654,14 +658,16 @@ class _DistributionFits:
         for parameter, result in zip(self._dist_parameters, fit_results):
             setattr(self, parameter, result)
 
-    def plot(self, ax=None, loc_property="position_distance", **kwargs):
+    def plot(
+        self, ax=None, loc_property="position_distance", **kwargs
+    ) -> plt.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         probability distribution functions of fitted results.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image.
         loc_property : str
             The property for which to plot the distribution fit.
@@ -703,8 +709,8 @@ class _DistributionFits:
             if isinstance(
                 self.pairwise_distribution, PairwiseDistance2dIdenticalSigma
             ):  # pragma: no cover
-                _sigma = self.position_distance_sigma
-                _mu = self.position_distance_mu
+                _sigma = self.position_distance_sigma  # type: ignore
+                _mu = self.position_distance_mu  # type: ignore
                 x_values = np.linspace(
                     self.pairwise_distribution.ppf(0.01, mu=_mu, sigma=_sigma),
                     self.pairwise_distribution.ppf(0.99, mu=_mu, sigma=_sigma),
@@ -727,7 +733,7 @@ class _DistributionFits:
                     PairwiseDistance3dIdenticalSigmaZeroMu,
                 ),
             ):
-                _sigma = self.position_distance_sigma
+                _sigma = self.position_distance_sigma  # type: ignore
                 x_values = np.linspace(
                     self.pairwise_distribution.ppf(0.01, sigma=_sigma),
                     self.pairwise_distribution.ppf(0.99, sigma=_sigma),
@@ -750,6 +756,6 @@ class _DistributionFits:
 
         return ax
 
-    def parameter_dict(self):
+    def parameter_dict(self) -> dict:
         """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

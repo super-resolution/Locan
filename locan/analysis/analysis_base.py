@@ -143,11 +143,11 @@ class _Analysis:
 
 def _list_parameters(distribution) -> list[str]:
     """
-    List parameters for scipy.stats.distribution.
+    List parameters for scipy.stats.rv_continuous.
 
     Parameters
     ----------
-    distribution : str | scipy.stats.distribution
+    distribution : str | scipy.stats.rv_continuous
         Distribution of choice.
 
     Returns

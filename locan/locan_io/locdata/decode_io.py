@@ -6,6 +6,11 @@ File input/output for localization data in DECODE files.
 from __future__ import annotations
 
 import logging
+import os
+from typing import TYPE_CHECKING, Mapping
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead
 
 import pandas as pd
 
@@ -28,21 +33,22 @@ logger = logging.getLogger(__name__)
 
 
 @needs_package("h5py")
-def _read_decode_header(file):
+def _read_decode_header(file: Mapping) -> tuple[list[str], dict, dict]:
     """
     Read header from a DECODE single-molecule localization file and identify
     column names.
 
     Parameters
     ----------
-    file : file-like
-        File to read.
+    file : Mapping
+        HDF5 file object.
 
     Returns
     -------
-    Tuple[list[str], Dict, Dict]
+    Tuple[list[str], dict, dict]
         Tuple with identifiers, meta and decode sections.
-        Identifiers are list of valid dataset property keys as derived from the DECODE identifiers.
+        Identifiers are list of valid dataset property keys as derived from
+        the DECODE identifiers.
     """
     meta_data = dict(file["meta"].attrs)
     meta_decode = dict(file["decode"].attrs)
@@ -69,40 +75,45 @@ def _read_decode_header(file):
 
 
 @needs_package("h5py")
-def load_decode_header(path):
+def load_decode_header(path: str | os.PathLike | SupportsRead):
     """
-    Load header from a DECODE single-molecule localization file and identify column names.
+    Load header from a DECODE single-molecule localization file and identify
+    column names.
 
-    The hdf5 file should contain the following keys: <KeysViewHDF5 ['data', 'decode', 'meta']>
+    The hdf5 file should contain the following keys:
+    <KeysViewHDF5 ['data', 'decode', 'meta']>
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
-        File path for a DECODE file to load.
+    path : str | os.PathLike | SupportsRead
+        File path or file-like object for a DECODE file to load.
 
     Returns
     -------
     Tuple[list[str], Dict, Dict]
         Tuple with identifiers, meta and decode sections.
-        Identifiers are list of valid dataset property keys as derived from the DECODE identifiers.
+        Identifiers are list of valid dataset property keys as derived from
+        the DECODE identifiers.
     """
     with h5py.File(path, "r") as file:
         return _read_decode_header(file)
 
 
 @needs_package("h5py")
-def load_decode_file(path, nrows=None, convert=True):
+def load_decode_file(path, nrows=None, convert=True) -> LocData:
     """
     Load data from a DECODE single-molecule localization file.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
-        File path for a Thunderstorm file to load.
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded.
+    path : str | os.PathLike | SupportsRead
+        File path or file-like object for a Thunderstorm file to load.
+    nrows : int | None
+        The number of localizations to load from file.
+        None means that all available rows are loaded.
     convert : bool
-        If True convert types by applying type specifications in locan.constants.PROPERTY_KEYS.
+        If True convert types by applying type specifications in
+        locan.constants.PROPERTY_KEYS.
 
     Returns
     -------

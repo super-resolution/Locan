@@ -21,16 +21,18 @@ from __future__ import annotations
 import importlib.resources as importlib_resources
 import logging
 import sys
-from collections import namedtuple
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Literal, Protocol
+from typing import TYPE_CHECKING, Literal, NamedTuple
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
 
 import boost_histogram as bh
 import matplotlib.pyplot as plt
@@ -49,14 +51,6 @@ if TYPE_CHECKING:
 __all__: list[str] = ["ConvexHullExpectation", "ConvexHullExpectationBatch"]
 
 logger = logging.getLogger(__name__)
-
-
-class Collection(Protocol):
-    data: pd.DataFrame
-    references: Iterable
-
-    def update_convex_hulls_in_references(self):
-        pass
 
 
 HullPropertyType = Literal["region_measure_ch", "subregion_measure_ch"]
@@ -79,9 +73,11 @@ ConvexHullExpectationResource = dict(
 )
 
 
-ConvexHullExpectationValues = namedtuple(
-    "ConvexHullExpectationValues", ["n_points", "expectation", "std_pos", "std_neg"]
-)
+class ConvexHullExpectationValues(NamedTuple):
+    n_points: list | npt.NDArray
+    expectation: npt.NDArray
+    std_pos: npt.NDArray
+    std_neg: npt.NDArray
 
 
 def _get_resource(
@@ -251,7 +247,7 @@ class ConvexHullExpectation(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    convex_hull_property : HullPropertyString
+    convex_hull_property : HullPropertyType
         One of 'region_measure_ch' (i.e. area or volume)
         or 'subregion_measure_ch' (i.e. circumference or surface.)
     expected_variance : float | Iterable[float] | None
@@ -291,7 +287,7 @@ class ConvexHullExpectation(_Analysis):
         self.distribution_statistics = None
         self._dimension: int | None = None
 
-    def compute(self, locdata=None) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 
@@ -463,7 +459,7 @@ class ConvexHullExpectation(_Analysis):
         log=True,
         fit=False,
         **kwargs,
-    ) -> mpl.axes.Axes:
+    ) -> plt.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         2-dimensional histogram of convex_hull_property
@@ -471,7 +467,7 @@ class ConvexHullExpectation(_Analysis):
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
             The bin specification as defined in :class:`Bins`
@@ -689,20 +685,20 @@ class ConvexHullExpectationBatch(_Analysis):
         )
         self.distribution_statistics = None
 
-    def compute(self, locdatas=None) -> Self:
+    def compute(self, locdatas: Iterable[LocData]) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
-        locdatas : Iterable[LocData] | None
+        locdatas : Iterable[LocData]
             Localization data.
 
         Returns
         -------
         Self
         """
-        convex_hull_expectation_batch = []
+        convex_hull_expectation_batch: list = []
         dimensions: list[int | None] = []
         for locdata_ in locdatas:
             che = ConvexHullExpectation(
@@ -796,7 +792,7 @@ class ConvexHullExpectationBatch(_Analysis):
         log=True,
         fit=False,
         **kwargs,
-    ) -> mpl.axes.Axes:
+    ) -> plt.axes.Axes:
         self._class.hist(
             ax=ax,
             bins=bins,

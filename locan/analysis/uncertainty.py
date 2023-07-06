@@ -25,12 +25,15 @@ import sys
 import warnings
 from collections.abc import Callable
 from inspect import signature
-from typing import Any, Protocol, cast
+from typing import TYPE_CHECKING, cast
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
 
 import numpy as np
 import numpy.typing as npt  # noqa: F401
@@ -50,11 +53,6 @@ if sys.version_info < (3, 9):
     LocalizationPrecisionModel = Callable
 else:
     LocalizationPrecisionModel = Callable[..., npt.NDArray]
-
-
-class LocData(Protocol):
-    data: Any
-    meta: Any
 
 
 def localization_precision_model_1(intensity) -> npt.NDArray:
@@ -232,7 +230,7 @@ def _localization_uncertainty(
     return pd.DataFrame(results_dict)
 
 
-def _localization_uncertainty_from_intensity(locdata):
+def _localization_uncertainty_from_intensity(locdata: LocData) -> pd.DataFrame:
     results = {}
     for v in ["x", "y", "z"]:
         if (
@@ -292,7 +290,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None):
+    def __init__(self, meta=None) -> None:
         super().__init__(meta=meta)
         self.results = None
         warnings.warn(
@@ -302,7 +300,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
             stacklevel=2,
         )
 
-    def compute(self, locdata) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 
@@ -364,12 +362,12 @@ class LocalizationUncertainty(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, model=1, **kwargs):
+    def __init__(self, meta=None, model=1, **kwargs) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
 
-    def compute(self, locdata) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 

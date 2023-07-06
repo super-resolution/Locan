@@ -2,14 +2,19 @@
 
 Nearest-neighbor distance distribution analysis
 
-Nearest-neighbor distance distributions provide information about deviations from a spatial homogeneous Poisson process
+Nearest-neighbor distance distributions provide information about deviations
+from a spatial homogeneous Poisson process
 (i.e. complete spatial randomness, CSR).
-Point-event distances are given by the distance between a random point (not being an event) and the nearest event.
-The point-event distance distribution is estimated from a number of random sample points and plotted in comparison to
+Point-event distances are given by the distance between a random point
+(not being an event) and the nearest event.
+The point-event distance distribution is estimated from a number of random
+sample points and plotted in comparison to
 the analytical function for equal localization density.
 
-For a homogeneous 2D Poisson process with intensity :math:`\\rho` (expected number of points per unit area) the distance
-from a randomly chosen event to the nearest other event (nearest-neighbor distance) is distributed according to the
+For a homogeneous 2D Poisson process with intensity :math:`\\rho` (expected
+number of points per unit area) the distance
+from a randomly chosen event to the nearest other event (nearest-neighbor
+distance) is distributed according to the
 following probability density (pdf) or cumulative density function (cdf) [1]_:
 
 .. math::
@@ -19,7 +24,8 @@ following probability density (pdf) or cumulative density function (cdf) [1]_:
    cdf(w) &= 1 - exp (- \\rho \\pi w^2)
 
 
-The same distribution holds for point-event distances if events are distributed as a homogeneous Poisson process with
+The same distribution holds for point-event distances if events are distributed
+as a homogeneous Poisson process with
 intensity :math:`\\rho`.
 
 References
@@ -33,11 +39,15 @@ from __future__ import annotations
 
 import logging
 import sys
+from typing import TYPE_CHECKING, Literal  # noqa: F401
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -56,10 +66,10 @@ logger = logging.getLogger(__name__)
 # The algorithms
 
 
-def pdf_nnDistances_csr_2D(x, density):
+def pdf_nnDistances_csr_2D(x, density) -> float:
     """
-    Probability density function for nearest-neighbor distances of points distributed in 2D with complete spatial
-    randomness.
+    Probability density function for nearest-neighbor distances of points
+    distributed in 2D with complete spatial randomness.
 
     Parameters
     ----------
@@ -76,9 +86,10 @@ def pdf_nnDistances_csr_2D(x, density):
     return 2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
 
 
-def pdf_nnDistances_csr_3D(x, density):
+def pdf_nnDistances_csr_3D(x, density) -> float:
     """
-    Probability density function for nearest-neighbor distances of points distributed in 3D with complete spatial
+    Probability density function for nearest-neighbor distances of points
+    distributed in 3D with complete spatial
     randomness.
 
     Parameters
@@ -97,7 +108,7 @@ def pdf_nnDistances_csr_3D(x, density):
     return 3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
 
 
-def _nearest_neighbor_distances(points, k=1, other_points=None):
+def _nearest_neighbor_distances(points, k=1, other_points=None) -> pd.DataFrame:
     if other_points is None:
         nn = NearestNeighbors(n_neighbors=k, metric="euclidean", n_jobs=N_JOBS).fit(
             points
@@ -119,7 +130,8 @@ def _nearest_neighbor_distances(points, k=1, other_points=None):
 
 class NearestNeighborDistances(_Analysis):
     """
-    Compute the k-nearest-neighbor distances within data or between data and other_data.
+    Compute the k-nearest-neighbor distances within data or between data and
+    other_data.
 
     The algorithm relies on sklearn.neighbors.NearestNeighbors.
 
@@ -139,9 +151,9 @@ class NearestNeighborDistances(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : numpy.ndarray, pandas.DataFrame
+    results : pandas.DataFrame
         Computed results.
-    distribution_statistics : Distribution_stats, None
+    distribution_statistics : Distribution_stats | None
         Distribution parameters derived from MLE fitting of results.
     """
 
@@ -155,7 +167,7 @@ class NearestNeighborDistances(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata, other_locdata=None) -> Self:
+    def compute(self, locdata: LocData, other_locdata=None) -> Self:
         """
         Run the computation.
 
@@ -163,7 +175,7 @@ class NearestNeighborDistances(_Analysis):
         ----------
         locdata : LocData
            Localization data.
-        other_locdata : LocData
+        other_locdata : LocData | None
             Other localization data from which nearest neighbors are taken.
 
         Returns
@@ -198,17 +210,20 @@ class NearestNeighborDistances(_Analysis):
         )
         return self
 
-    def fit_distributions(self, with_constraints=True):
+    def fit_distributions(self, with_constraints=True) -> None:
         """
-        Fit probability density functions to the distributions of `loc_property` values in the results
+        Fit probability density functions to the distributions of
+        `loc_property` values in the results
         using MLE (scipy.stats).
 
-        If with_constraints is true we put the following constraints on the fit procedure:
-        If distribution is expon then floc=np.min(self.analysis_class.results[self.loc_property].values).
+        If with_constraints is true we put the following constraints on the
+        fit procedure:
+        If distribution is expon then
+        floc=np.min(self.analysis_class.results[self.loc_property].values).
 
         Parameters
         ----------
-        distribution : str, scipy.stats.distribution
+        distribution : str | scipy.stats.rv_continuous
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
@@ -219,27 +234,31 @@ class NearestNeighborDistances(_Analysis):
         else:
             logger.warning("No results available to fit.")
 
-    def hist(self, ax=None, bins="auto", density=True, fit=False, **kwargs):
+    def hist(
+        self, ax=None, bins="auto", density=True, fit=False, **kwargs
+    ) -> plt.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results).
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image.
-        bins : int, list, 'auto'
+        bins : int | list | Literal['auto']
             Bin specification as used in :func:`matplotlib.hist`
         density : bool
-            Flag for normalization as used in matplotlib.hist. True returns probability density function; None returns
+            Flag for normalization as used in matplotlib.hist.
+            True returns probability density function; None returns
             counts.
         fit : bool
-            Flag indicating to fit pdf of nearest-neighbor distances under complete spatial randomness.
+            Flag indicating to fit pdf of nearest-neighbor distances under
+            complete spatial randomness.
         kwargs : dict
             Other parameters passed to :func:`matplotlib.plot`.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -300,7 +319,8 @@ class NearestNeighborDistances(_Analysis):
 
 class NNDistances_csr_2d(stats.rv_continuous):
     """
-    Continuous distribution function for nearest-neighbor distances of points distributed in 2D
+    Continuous distribution function for nearest-neighbor distances of points
+    distributed in 2D
     under complete spatial randomness.
 
     Parameters
@@ -309,7 +329,7 @@ class NNDistances_csr_2d(stats.rv_continuous):
         Shape parameter `density`, being the density of points.
     """
 
-    def _pdf(self, x, density):
+    def _pdf(self, x, density) -> float:
         return 2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
 
 
@@ -324,7 +344,7 @@ class NNDistances_csr_3d(stats.rv_continuous):
         Shape parameter `density`, being the density of points.
     """
 
-    def _pdf(self, x, density):
+    def _pdf(self, x, density) -> float:
         a = (3 / 4 / np.pi / density) ** (1 / 3)
         return 3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
 
@@ -334,24 +354,25 @@ class _DistributionFits:
     Handle for distribution fits.
 
     This class is typically instantiated by LocalizationProperty methods.
-    It holds the statistical parameters derived by fitting the result distributions using MLE (scipy.stats).
+    It holds the statistical parameters derived by fitting the result
+    distributions using MLE (scipy.stats).
     Statistical parameters are defined as described in
     :ref:(https://docs.scipy.org/doc/scipy/reference/tutorial/stats/continuous.html)
 
     Parameters
     ----------
-    analyis_class : LocalizationPrecision
+    analyis_class : NearestNeighborDistances
         The analysis class with result data to fit.
 
     Attributes
     ----------
-    analyis_class : LocalizationPrecision
+    analyis_class : NearestNeighborDistances
         The analysis class with result data to fit.
     loc_property : str
         The LocData property for which to fit an appropriate distribution
-    distribution : str, scipy.stats.distribution
+    distribution : str | scipy.stats.rv_continuous
         Distribution model to fit.
-    parameters : list of str
+    parameters : list[str]
         Free parameters in `distribution`.
     """
 
@@ -365,12 +386,13 @@ class _DistributionFits:
         """
         Fit model function to analysis_class.results.
 
-        If with_constraints is true (default) we put the following constraints on the fit procedure:
+        If with_constraints is true (default) we put the following constraints
+        on the fit procedure:
         loc=0, scale=1
 
         Parameters
         ----------
-        distribution : str, scipy.stats.distribution
+        distribution : str | scipy.stats.rv_continuous
             Distribution model to fit.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
@@ -401,21 +423,22 @@ class _DistributionFits:
         for parameter, result in zip(self.parameters, fit_results):
             setattr(self, parameter, result)
 
-    def plot(self, ax=None, **kwargs):
+    def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
         """
-        Provide plot as :class:`matplotlib.axes.Axes` object showing the probability distribution functions of fitted
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the
+        probability distribution functions of fitted
         results.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image.
         kwargs : dict
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -441,6 +464,6 @@ class _DistributionFits:
         )
         return ax
 
-    def parameter_dict(self):
+    def parameter_dict(self) -> dict:
         """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

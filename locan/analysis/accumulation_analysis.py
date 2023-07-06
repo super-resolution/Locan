@@ -264,7 +264,7 @@ class AccumulationClusterCheck(_Analysis):
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
 
-    def compute(self, locdata) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 

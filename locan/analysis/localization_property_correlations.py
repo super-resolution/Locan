@@ -7,11 +7,15 @@ from __future__ import annotations
 
 import logging
 import sys
+from typing import TYPE_CHECKING
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -40,13 +44,14 @@ def _localization_property_correlations(locdata, loc_properties=None):
 
 class LocalizationPropertyCorrelations(_Analysis):
     """
-    Compute and analyze correlation coefficients between any two localization properties.
+    Compute and analyze correlation coefficients between any two localization
+     properties.
 
     Parameters
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    loc_properties : list, None
+    loc_properties : list | None
         Localization properties to be analyzed. If None all are used.
 
     Attributes
@@ -66,7 +71,7 @@ class LocalizationPropertyCorrelations(_Analysis):
         super().__init__(**parameters)
         self.results = None
 
-    def compute(self, locdata=None) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 
@@ -88,7 +93,7 @@ class LocalizationPropertyCorrelations(_Analysis):
         )
         return self
 
-    def report(self):
+    def report(self) -> None:
         if not self:
             logger.warning("No results available")
             return
@@ -97,13 +102,14 @@ class LocalizationPropertyCorrelations(_Analysis):
         print(self.results.model_result.fit_report(min_correl=0.25))
         # print(self.results.fit_results.best_values)
 
-    def plot(self, ax=None, cbar=True, colorbar_kws=None, **kwargs):
+    def plot(self, ax=None, cbar=True, colorbar_kws=None, **kwargs) -> plt.axes.Axes:
         """
-        Provide heatmap of all correlation values as :class:`matplotlib.axes.Axes` object.
+        Provide heatmap of all correlation values as
+        :class:`matplotlib.axes.Axes` object.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         cbar : bool
             If true draw a colorbar.
@@ -114,7 +120,7 @@ class LocalizationPropertyCorrelations(_Analysis):
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

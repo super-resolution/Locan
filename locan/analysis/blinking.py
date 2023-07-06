@@ -210,20 +210,20 @@ class BlinkStatistics(_Analysis):
         self.results = None
         self.distribution_statistics: dict = {}
 
-    def compute(self, locdata) -> Self:
+    def compute(self, locdata: LocData | npt.ArrayLike) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
-        locdata : LocData, npt.ArrayLike
+        locdata : LocData | npt.ArrayLike
             Localization data or just the frame values of given localizations.
 
         Returns
         -------
         Self
         """
-        if not len(locdata):
+        if not len(locdata):  # type: ignore
             logger.warning("Locdata is empty.")
             return self
 
@@ -236,25 +236,33 @@ class BlinkStatistics(_Analysis):
         data_identifier=("on_periods", "off_periods"),
         with_constraints=True,
         **kwargs,
-    ):
+    ) -> None:
         """
-        Fit probability density functions to the distributions of on- and off-periods in the results
-        using MLE (scipy.stats).
+        Fit probability density functions to the distributions of on- and
+        off-periods in the results using MLE (scipy.stats).
 
-        If with_constraints is true we put the following constraints on the fit procedure:
-        If distribution is expon then floc=np.min(self.analysis_class.results[self.loc_property].values).
+        If with_constraints is true we put the following constraints on the
+        fit procedure:
+        If distribution is expon then
+        floc=np.min(self.analysis_class.results[self.loc_property].values).
 
         Parameters
         ----------
-        distribution : str, scipy.stats.distribution
+        distribution : str | scipy.stats.rv_continuous
             Distribution model to fit.
         data_identifier : str
-            String to identify the data in `results` for which to fit an appropriate distribution, here
+            String to identify the data in `results` for which to fit an
+            appropriate distribution, here
             'on_periods' or 'off_periods'. For True all are fitted.
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
         kwargs : dict
-            Other parameters are passed to the `scipy.stat.distribution.fit()` function.
+            Other parameters are passed to the `scipy.stat.distribution.fit()`
+            function.
+
+        Returns
+        -------
+        None
         """
         if not self:
             logger.warning("No results available to fit.")
@@ -280,29 +288,30 @@ class BlinkStatistics(_Analysis):
         log=True,
         fit=True,
         **kwargs,
-    ):
+    ) -> plt.axes.Axes:
         """
-        Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing
+        hist(results).
 
         Parameters
         ----------
         data_identifier : str
             'on_periods' or 'off_periods'.
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         bins : int | Sequence | str
             Bin specifications (passed to :func:`matplotlib.hist`).
         log : Bool
             Flag for plotting on a log scale.
         fit: bool, None
-            Flag indicating if distribution fit is shown. The fit will only be computed if `distribution_statistics`
-             is None.
+            Flag indicating if distribution fit is shown.
+            The fit will only be computed if `distribution_statistics` is None.
         kwargs : dict
             Other parameters passed to :func:`matplotlib.pyplot.hist`.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -340,7 +349,8 @@ class _DistributionFits:
     Handle for distribution fits.
 
     This class is typically instantiated by specific Analysis methods.
-    It holds the statistical parameters derived by fitting the result distributions using MLE (scipy.stats).
+    It holds the statistical parameters derived by fitting the result
+    distributions using MLE (scipy.stats).
     Statistical parameters are defined as described in
     :ref:(https://docs.scipy.org/doc/scipy/reference/tutorial/stats/continuous.html)
 
@@ -348,20 +358,22 @@ class _DistributionFits:
     ----------
     analyis_class : Analysis object
         The analysis class with result data to fit.
-    distribution : str, scipy.stats.distribution
+    distribution : str, scipy.stats.rv_continuous
         Distribution model to fit.
     data_identifier : str
-        String to identify the data in `results` for which to fit an appropriate distribution
+        String to identify the data in `results` for which to fit an
+        appropriate distribution
 
     Attributes
     ----------
     analyis_class : Analysis object
         The analysis class with result data to fit.
-    distribution : str, scipy.stats.distribution
+    distribution : str, scipy.stats.rv_continuous
         Distribution model to fit.
     data_identifier : str
-        String to identify the data in `results` for which to fit an appropriate distribution
-    parameters : list of str
+        String to identify the data in `results` for which to fit an
+        appropriate distribution
+    parameters : list[str]
         Distribution parameters.
     """
 
@@ -383,17 +395,20 @@ class _DistributionFits:
 
     def fit(self, with_constraints=True, **kwargs):
         """
-        Fit scipy.stats.distribution to analysis_class.results[data_identifier].
+        Fit scipy.stats.rv_continuous to analysis_class.results[data_identifier].
 
-        If with_constraints is true we put the following constraints on the fit procedure:
-        If distribution is expon then floc=np.min(self.analysis_class.results[self.data_identifier].values).
+        If with_constraints is true we put the following constraints on the
+        fit procedure:
+        If distribution is expon then
+        floc=np.min(self.analysis_class.results[self.data_identifier].values).
 
         Parameters
         ----------
         with_constraints : bool
             Flag to use predefined constraints on fit parameters.
         kwargs : dict
-            Other parameters are passed to the `scipy.stat.distribution.fit()` function.
+            Other parameters are passed to the `scipy.stat.distribution.fit()`
+            function.
         """
         # set data
         if isinstance(self.analysis_class.results, pd.DataFrame):
@@ -420,19 +435,19 @@ class _DistributionFits:
 
     def plot(self, ax=None, **kwargs):
         """
-        Provide plot as :class:`matplotlib.axes.Axes` object showing the probability distribution functions of fitted
-        results.
+        Provide plot as :class:`matplotlib.axes.Axes` object showing the
+        probability distribution functions of fitted results.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image.
         kwargs : dict
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -460,6 +475,6 @@ class _DistributionFits:
 
         return ax
 
-    def parameter_dict(self):
+    def parameter_dict(self) -> dict:
         """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

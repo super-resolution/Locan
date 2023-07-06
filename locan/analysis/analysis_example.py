@@ -4,12 +4,18 @@ Example for a specialized analysis class.
 It includes two algorithms for specific analysis routines.
 And it provides standard interface functions modified for the specific analysis routine like report.
 """
+from __future__ import annotations
+
 import sys
+from typing import TYPE_CHECKING
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
+
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -95,20 +101,20 @@ class AnalysisExampleAlgorithm_1(_Analysis):
     def __init__(self, meta=None, limits=(0, 10)):
         super().__init__(meta=meta, limits=limits)
 
-    def compute(self, locdata=None) -> Self:
+    def compute(self, locdata: LocData | None) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
-        locdata : LocData
+        locdata : LocData | None
           Localization data that might be clustered.
 
         Returns
         -------
         Self
         """
-        data = locdata  # take certain elements from locdata
+        data = None  # take certain elements from locdata
         self.results = _algorithm_1(
             data=data, **self.parameter
         )  # some complicated algorithm
@@ -160,7 +166,7 @@ class AnalysisExampleAlgorithm_2(_Analysis):
     def __init__(self, meta=None, n_sample=100, seed=None):
         super().__init__(meta=meta, n_sample=n_sample, seed=seed)
 
-    def compute(self, locdata=None):
+    def compute(self, locdata: LocData):
         """
         Run the computation.
 

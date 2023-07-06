@@ -1,25 +1,31 @@
 """
 Analyze the distribution of a localization property in 2D.
 
-Analyze the distribution of a localization property as function of two other localization properties in 2D.
-E.g. looking at how the local background is distributed over localization coordinates helps to characterize the
+Analyze the distribution of a localization property as function of two other
+localization properties in 2D.
+E.g. looking at how the local background is distributed over localization
+coordinates helps to characterize the
 illumination profile in SMLM experiments.
 """
 from __future__ import annotations
 
 import logging
 import sys
-from collections import namedtuple
+from typing import TYPE_CHECKING, Any, NamedTuple  # noqa: F401
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
 
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
+
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 from lmfit import Model, Parameters
+from lmfit.model import ModelResult
 
 from locan.analysis.analysis_base import _Analysis
 from locan.configuration import COLORMAP_DIVERGING
@@ -32,6 +38,13 @@ logger = logging.getLogger(__name__)
 
 
 # The algorithms
+
+
+class FitImageResults(NamedTuple):
+    image: npt.NDArray
+    bins: npt.NDArray
+    label: list
+    model_result: ModelResult
 
 
 # model fit function in 2d
@@ -58,7 +71,7 @@ def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
 
     Returns
     -------
-    float, numpy.ndarray
+    float | npt.NDArray[np.float_]
     """
     x_ = np.asarray(x)
     y_ = np.asarray(y)
@@ -88,7 +101,7 @@ def _fit_image(data, bin_range):
 
     Returns
     -------
-    lmfit.model.ModelResult object
+    lmfit.model.ModelResult
         The fit results.
     """
 
@@ -156,9 +169,7 @@ def _localization_property2d(
     data = np.stack((data_0, data_1, data_2))
 
     model_result = _fit_image(data, np.array(bins.bin_range))
-
-    Results = namedtuple("Results", "image bins label model_result")
-    results = Results(img, bins, label, model_result)
+    results = FitImageResults(img, bins, label, model_result)
     return results
 
 
@@ -181,31 +192,40 @@ class LocalizationProperty2d(_Analysis):
     other_property : str, None
         Localization property (columns in locdata.data) that is averaged in each pixel.
         If None, the localization counts are shown.
-    bins : int, sequence, Bins, boost_histogram.axis.Axis, None
+    bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
         The bin specification as defined in :class:`Bins`
-    bin_edges : tuple | list | numpy.ndarray[float] | None
-        Array of bin edges with shape (dimension, n_bin_edges)
-        for all or each dimension.
-    n_bins : int, list, tuple, numpy.ndarray, None
+    bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+        Bin edges for all or each dimension
+        with shape (dimension, n_bin_edges).
+    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+        Minimum and maximum edge for all or each dimensions
+        with shape (2,) or (dimension, 2).
+        If None (min, max) ranges are determined from data and returned;
+        if 'zero' (0, max) ranges with max determined from data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from
+        all combined data are returned.
+    n_bins : int | Sequence[int] | None
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float, list, tuple, numpy.ndarray, None
-        The size of bins in units of locdata coordinate units for all or each dimension.
+    bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+        The size of bins for all or each bin and for all or each dimension
+        with shape (dimension,) or (dimension, n_bins).
         5 would describe bin_size of 5 for all bins in all dimensions.
-        (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
-        To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple, tuple of tuples of float with shape (dimension, 2), None, 'zero'
-        The data bin_range to be taken into consideration for all or each dimension.
-        ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
-        for None (min, max) bin_range are determined from data;
-        for 'zero' (0, max) bin_range with max determined from data.
-    rescale : int, str, locan.constants.Trafo, callable, bool, None
-        Transformation as defined in Trafo or by transformation function.
+        ((2, 5),) yield bins of size (2, 5) for one dimension.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other
+        dimension.
+        ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
+        (1, 3) for the other dimension.
+        To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
+    rescale : int | str | locan.Trafo | Callable | bool | None
+        Transformation as defined in :class:`locan.Trafo` or by
+        transformation function.
         For None or False no rescaling occurs.
         Legacy behavior:
         For tuple with upper and lower bounds provided in percent,
-        rescale intensity values to be within percentile of max and min intensities
+        rescale intensity values to be within percentile of max and min
+        intensities.
         For 'equal' intensity values are rescaled by histogram equalization.
 
     Attributes
@@ -216,7 +236,7 @@ class LocalizationProperty2d(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : lmfit.model.ModelResult object
+    results : lmfit.model.ModelResult
         Computed fit results.
     """
 
@@ -236,7 +256,7 @@ class LocalizationProperty2d(_Analysis):
         super().__init__(**parameters)
         self.results = None
 
-    def compute(self, locdata=None) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 
@@ -256,7 +276,7 @@ class LocalizationProperty2d(_Analysis):
         self.results = _localization_property2d(locdata=locdata, **self.parameter)
         return self
 
-    def report(self):
+    def report(self) -> None:
         if not self:
             logger.warning("No results available")
             return
@@ -273,20 +293,20 @@ class LocalizationProperty2d(_Analysis):
         print(f"Minimum fit value in image: {min_fit_value:.3f}")
         print(f"Fit value variation over image range: {ratio:.2f}")
 
-    def plot(self, ax=None, **kwargs):
+    def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         kwargs : dict
             Other parameters passed to :func:`matplotlib.pyplot.contour`.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -304,7 +324,7 @@ class LocalizationProperty2d(_Analysis):
 
         x, y = self.results.bins.bin_centers
         xx, yy = np.meshgrid(x, y, indexing="ij")
-        zz = np.stack((xx, yy), axis=-1).reshape((np.product(xx.shape), 2))
+        zz = np.stack((xx, yy), axis=-1).reshape((np.prod(xx.shape), 2))
         z = self.results.model_result.eval(points=zz)
 
         contourset = ax.contour(
@@ -319,20 +339,20 @@ class LocalizationProperty2d(_Analysis):
 
         return ax
 
-    def plot_residuals(self, ax=None, **kwargs):
+    def plot_residuals(self, ax=None, **kwargs) -> plt.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         kwargs : dict
             Other parameters passed to :func:`matplotlib.pyplot.contour`.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -343,7 +363,7 @@ class LocalizationProperty2d(_Analysis):
 
         x, y = self.results.bins.bin_centers
         xx, yy = np.meshgrid(x, y, indexing="ij")
-        zz = np.stack((xx, yy), axis=-1).reshape((np.product(xx.shape), 2))
+        zz = np.stack((xx, yy), axis=-1).reshape((np.prod(xx.shape), 2))
         z = self.results.model_result.eval(points=zz)
 
         residuals = np.where(
@@ -374,18 +394,19 @@ class LocalizationProperty2d(_Analysis):
 
         return ax
 
-    def plot_deviation_from_mean(self, ax=None):
+    def plot_deviation_from_mean(self, ax=None) -> plt.axes.Axes:
         """
-        Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing
+        plot(results).
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -419,9 +440,10 @@ class LocalizationProperty2d(_Analysis):
 
         return ax
 
-    def plot_deviation_from_median(self, ax=None):
+    def plot_deviation_from_median(self, ax=None) -> plt.axes.Axes:
         """
-        Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
+        Provide histogram as :class:`matplotlib.axes.Axes` object showing
+        plot(results).
 
         Parameters
         ----------
@@ -430,7 +452,7 @@ class LocalizationProperty2d(_Analysis):
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

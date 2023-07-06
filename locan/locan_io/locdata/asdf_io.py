@@ -6,6 +6,11 @@ File input/output for localization data in ASDF files
 from __future__ import annotations
 
 import logging
+import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead, SupportsWrite
 
 import pandas as pd
 from asdf import AsdfFile
@@ -20,7 +25,7 @@ __all__: list[str] = ["save_asdf", "load_asdf_file"]
 logger = logging.getLogger(__name__)
 
 
-def save_asdf(locdata, path):
+def save_asdf(locdata: LocData, path: str | os.PathLike | SupportsWrite):
     """
     Save LocData attributes in an asdf file.
 
@@ -37,7 +42,7 @@ def save_asdf(locdata, path):
     ----------
     locdata : LocData
         The LocData object to be saved.
-    path : str | os.PathLike | file-like
+    path : str | os.PathLike | SupportsWrite
         File path including file name to save to.
     """
     # Prepare tree
@@ -58,13 +63,13 @@ def save_asdf(locdata, path):
     af.write_to(path)
 
 
-def load_asdf_file(path, nrows=None):
+def load_asdf_file(path: str | os.PathLike | SupportsRead, nrows=None) -> LocData:
     """
     Load data from ASDF localization file.
 
     Parameters
     ----------
-    path : str | os.PathLike | file-like
+    path : str | os.PathLike | SupportsRead
         File path for a rapidSTORM file to load.
     nrows : int | None
         The number of localizations to load from file.

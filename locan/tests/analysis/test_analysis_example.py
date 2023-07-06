@@ -35,7 +35,7 @@ def test_Analysis_example():
 def test_Analysis_example_2():
     ae = AnalysisExampleAlgorithm_2()
     assert repr(ae) == "AnalysisExampleAlgorithm_2(n_sample=100, seed=None)"
-    ae.compute()
+    ae.compute(locdata=None)
     assert len(ae.results) == 100
     ae.plot()
     ae.plot_2()

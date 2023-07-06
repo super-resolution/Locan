@@ -1,11 +1,15 @@
 """
 Drift analysis for localization coordinates.
 
-This module provides functions for estimating spatial drift in localization data.
+This module provides functions for estimating spatial drift in localization
+data.
 
-Software based drift correction using image correlation has been described in several publications .
-Methods employed for drift estimation comprise single molecule localization analysis (an iterative closest point (icp)
-algorithm as implemented in the open3d library [1]_, [2]_) or image cross-correlation analysis [3]_, [4]_, [5]_.
+Software based drift correction using image correlation has been described in
+several publications .
+Methods employed for drift estimation comprise single molecule localization
+analysis (an iterative closest point (icp)
+algorithm as implemented in the open3d library [1]_, [2]_) or image
+cross-correlation analysis [3]_, [4]_, [5]_.
 
 Examples
 --------
@@ -35,11 +39,13 @@ References
    Optics Express. 2012, 20(7):7274-89.
 
 .. [4] Yina Wang et al.,
-   Localization events-based sample drift correction for localization microscopy with redundant cross-correlation
+   Localization events-based sample drift correction for localization
+   microscopy with redundant cross-correlation
    algorithm, Optics Express 2014, 22(13):15982-91.
 
 .. [5] Michael J. Mlodzianoski et al.,
-   Sample drift correction in 3D fluorescence photoactivation localization microscopy,
+   Sample drift correction in 3D fluorescence photoactivation localization
+   microscopy,
    Opt Express. 2011 Aug 1;19(16):15009-19.
 
 """
@@ -47,7 +53,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections import namedtuple
+from typing import Literal, NamedTuple
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -76,17 +82,23 @@ logger = logging.getLogger(__name__)
 # The algorithms
 
 
+class Transformation(NamedTuple):
+    matrix: npt.NDArray
+    offset: npt.NDArray
+
+
 @needs_package("open3d")
 def _estimate_drift_icp(
     locdata,
     chunks=None,
     chunk_size=None,
-    target="first",
+    target: Literal["first", "previous"] = "first",
     kwargs_chunk=None,
     kwargs_register=None,
-):
+) -> tuple[LocData, list[Transformation]]:
     """
-    Estimate drift from localization coordinates by registering points in successive time-chunks of localization
+    Estimate drift from localization coordinates by registering points in
+    successive time-chunks of localization
     data using an "Iterative Closest Point" algorithm.
 
     Parameters
@@ -97,7 +109,7 @@ def _estimate_drift_icp(
         Localization chunks as defined by a list of index-tuples
     chunk_size : int
        Number of consecutive localizations to form a single chunk of data.
-    target : str
+    target : Literal["first", "previous"]
        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
     kwargs_chunk : dict
         Other parameter passed to :meth:`LocData.from_chunks`.
@@ -106,7 +118,7 @@ def _estimate_drift_icp(
 
     Returns
     -------
-    tuple(LocData, list of namedtuple('Transformation', 'matrix offset'))
+    tuple[LocData, list[Transformation]]
         Collection and corresponding transformations.
     """
     if kwargs_chunk is None:
@@ -121,7 +133,6 @@ def _estimate_drift_icp(
 
     # register locdatas
     # initialize with identity transformation for chunk zero.
-    Transformation = namedtuple("Transformation", "matrix offset")
     transformations = [
         Transformation(np.identity(locdata.dimension), np.zeros(locdata.dimension))
     ]
@@ -215,7 +226,6 @@ def _estimate_drift_cc(
 
     # register images
     # initialize with identity transformation for chunk zero.
-    Transformation = namedtuple("Transformation", "matrix offset")
     transformations = [
         Transformation(np.identity(locdata.dimension), np.zeros(locdata.dimension))
     ]
@@ -338,24 +348,27 @@ class _SplineModelFacade:
 
 class DriftComponent:
     """
-    Class carrying model functions to describe drift over time (in unit of frames). DriftComponent provides
-    a transformation to apply a drift correction.
+    Class carrying model functions to describe drift over time
+    (in unit of frames).
+    DriftComponent provides a transformation to apply a drift correction.
 
-    Standard models for constant, linear or polynomial drift correction are taken from :mod:`lmfit.models`.
+    Standard models for constant, linear or polynomial drift correction are
+    taken from :mod:`lmfit.models`.
     For fitting splines we use the scipy function :func:`scipy.interpolate.splrep`.
 
     Parameters
     ----------
-    type : str, lmfit.models.Model, None
+    type : str | lmfit.models.Model | None
         Model class or indicator for setting up the corresponding model class.
-        String can be one of `zero`, `one`, `constant`, `linear`, `polynomial`, `spline`.
+        String can be one of `zero`, `one`, `constant`, `linear`,
+        `polynomial`, `spline`.
 
     Attributes
     ----------
     type : str
         String indicator for model.
-    model : lmfit.models.Model, return value of :func:`scipy.interpolate.splrep`
-        The model definition
+    model : lmfit.models.Model
+        The model definition (return value of :func:`scipy.interpolate.splrep`)
     model_result : lmfit.model.ModelResult, collection of model results.
         The results collected from fitting the model to specified data.
     """
@@ -387,7 +400,7 @@ class DriftComponent:
         else:
             raise TypeError(f"DriftComponent cannot handle type={type}.")
 
-    def fit(self, x, y, verbose=False, **kwargs):
+    def fit(self, x, y, verbose=False, **kwargs) -> Self:
         """
         Fit model to the given data and create `self.model_results`.
 
@@ -400,17 +413,18 @@ class DriftComponent:
         verbose : bool
             show plot
         kwargs : dict
-            Other parameters passed to :func:`lmfit.model.fit` or to :func:`scipy.interpolate.splrep`
+            Other parameters passed to :func:`lmfit.model.fit` or to
+            :func:`scipy.interpolate.splrep`
             Use the parameter `s` to set the amount of smoothing.
 
         Returns
         -------
-        self
+        Self
         """
         self.model_result = self.model.fit(x, y, verbose=verbose, **kwargs)
         return self
 
-    def eval(self, x):
+    def eval(self, x) -> npt.NDArray[np.float_]:
         """
         Compute a transformation for time `x` from the drift model.
 
@@ -421,15 +435,17 @@ class DriftComponent:
 
         Returns
         -------
-        Array of float.
+        npt.NDArray[np.float_].
         """
         return self.model.eval(x)
 
 
 class Drift(_Analysis):
     """
-    Estimate drift from localization coordinates by registering points in successive time-chunks of localization
-    data using an iterative closest point algorithm (icp) or image cross-correlation algorithm (cc).
+    Estimate drift from localization coordinates by registering points in
+    successive time-chunks of localization
+    data using an iterative closest point algorithm (icp) or image
+    cross-correlation algorithm (cc).
 
     Parameters
     ----------
@@ -440,13 +456,15 @@ class Drift(_Analysis):
     chunk_size : int
         Number of consecutive localizations to form a single chunk of data.
     target : str
-        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
+        The chunk on which all other chunks are aligned.
+        One of 'first', 'previous'.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     method : str
         The method used for computation.
-        One of iterative closest point algorithm 'icp' or image cross-correlation algorithm 'cc'.
-    bin_size : tuple of int, float
+        One of iterative closest point algorithm 'icp' or image
+        cross-correlation algorithm 'cc'.
+    bin_size : tuple
         Only for method='cc': Size per image pixel
     kwargs_chunk : dict
         Other parameter passed to :meth:`LocData.from_chunks`.
@@ -467,9 +485,9 @@ class Drift(_Analysis):
         Localization data representing the source on which to perform the manipulation.
     collection : Locdata object
         Collection of locdata chunks
-    transformations : list of namedtuple('Transformation', 'matrix offset')
+    transformations : list[Transformation]
         Transformations for locdata chunks
-    transformation_models : namedtuple('Transformation_models', 'matrix offset') with lists of lmfit.ModelResult objects.
+    transformation_models : dict[str, list]
         The fitted model objects.
     locdata_corrected : LocData
         Localization data with drift-corrected coordinates.
@@ -501,14 +519,15 @@ class Drift(_Analysis):
         else:
             return False
 
-    def compute(self, locdata) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
         locdata : LocData
-            Localization data representing the source on which to perform the manipulation.
+            Localization data representing the source on which to perform the
+            manipulation.
 
         Returns
         -------
@@ -545,7 +564,7 @@ class Drift(_Analysis):
         self.locdata_corrected = None
         return self
 
-    def _transformation_models_for_identity_matrix(self):
+    def _transformation_models_for_identity_matrix(self) -> dict[str, list]:
         """
         Return transformation_models (dict) with DriftModels according to unit
         matrix.
@@ -559,7 +578,7 @@ class Drift(_Analysis):
                 transformation_models.append(DriftComponent("one"))
         return dict(matrix=transformation_models)
 
-    def _transformation_models_for_zero_offset(self):
+    def _transformation_models_for_zero_offset(self) -> dict[str, list]:
         """
         Return transformation_models (dict) with DriftModels according to zero
         offset.
@@ -574,7 +593,7 @@ class Drift(_Analysis):
         element=0,
         drift_model="linear",
         verbose=False,
-    ):
+    ) -> Self:
         """
         Fit drift model to selected component of the estimated transformations.
 
@@ -582,17 +601,23 @@ class Drift(_Analysis):
         ----------
         slice_data : Slice object | None
             Reduce data to a selection on the localization chunks.
-        transformation_component : str
+        transformation_component : Literal["matrix", "offset"]
             One of 'matrix' or 'offset'
-        element : int, None
+        element : int | None
             The element of flattened transformation matrix or offset
-        drift_model : DriftComponent, str, None
+        drift_model : DriftComponent | str | None
             A drift model as defined by a :class:`DriftComponent` instance
             or the parameter `type` as defined in :class:`DriftComponent`.
-            For None no change will occur. To reset transformation_models set the transformation_component to None:
-            e.g. self.transformation_components = None or self.transformation_components['matrix'] = None.
+            For None no change will occur. To reset transformation_models set
+            the transformation_component to None:
+            e.g. self.transformation_components = None or
+            self.transformation_components['matrix'] = None.
         verbose : bool
             Print the fitted model curves using lmfit.
+
+        Returns
+        -------
+        Self
         """
         if not self:
             logger.warning("No transformations available to be fitted.")
@@ -662,7 +687,7 @@ class Drift(_Analysis):
         matrix_models=None,
         offset_models=None,
         verbose=False,
-    ):
+    ) -> Self:
         """
         Fit model parameter to all estimated transformation components.
 
@@ -670,16 +695,24 @@ class Drift(_Analysis):
         ----------
         slice_data : Slice object | None
             Reduce data to a selection on the localization chunks.
-        matrix_models : list of DriftComponent, None
+        matrix_models : list[DriftComponent] | None
             Models to use for fitting each matrix component.
-            Length of list must be equal to the square of the transformations dimension (4 or 9).
-            If None, no matrix transformation will be carried out when calling :func:`apply_correction`.
-        offset_models : list of DriftComponent, None
+            Length of list must be equal to the square of the transformations
+            dimension (4 or 9).
+            If None, no matrix transformation will be carried out when calling
+            :func:`apply_correction`.
+        offset_models : list[DriftComponent] | None
             Models to use for fitting each offset component.
-            Length of list must be equal to the transformations dimension (2 or 3).
-            If None, no offset transformation will be carried out when calling :func:`apply_correction`.
+            Length of list must be equal to the transformations dimension
+            (2 or 3).
+            If None, no offset transformation will be carried out when calling
+            :func:`apply_correction`.
         verbose : bool
             Print the fitted model curves.
+
+        Returns
+        -------
+        Self
         """
         if not self:
             logger.warning("No transformations available to be fitted.")
@@ -733,7 +766,7 @@ class Drift(_Analysis):
 
         return self
 
-    def _apply_correction_on_chunks(self):
+    def _apply_correction_on_chunks(self) -> LocData:
         """
         Correct drift by applying the estimated transformations to locdata chunks.
         """
@@ -762,7 +795,7 @@ class Drift(_Analysis):
         )
         return new_locdata
 
-    def _apply_correction_from_model(self, locdata):
+    def _apply_correction_from_model(self, locdata: LocData) -> npt.NDArray:
         """
         Correct drift by applying the estimated transformations to locdata.
         If self.transformation_model['matrix'] is None, no matrix
@@ -775,7 +808,8 @@ class Drift(_Analysis):
             Localization data to apply correction on. If None correction is
             applied to self.locdata.
         """
-        # check if any models are fitted, otherwise it is likely that the fitting procedure was accidentally omitted.
+        # check if any models are fitted,
+        # otherwise it is likely that the fitting procedure was accidentally omitted.
         if (
             self.transformation_models["matrix"] is None
             and self.transformation_models["offset"] is None
@@ -807,17 +841,24 @@ class Drift(_Analysis):
 
         return transformed_points
 
-    def apply_correction(self, locdata=None, from_model=True):
+    def apply_correction(self, locdata=None, from_model=True) -> Self:
         """
         Correct drift by applying the estimated transformations to locdata.
 
         Parameters
         ----------
-        locdata : LocData or None
-            Localization data to apply correction on. If None correction is applied to self.locdata.
+        locdata : LocData | None
+            Localization data to apply correction on. If None correction is
+            applied to self.locdata.
         from_model : bool
-            If `True` compute transformation matrix from fitted transformation models and apply interpolated
-            transformations. If False use the estimated transformation matrix for each data chunk.
+            If `True` compute transformation matrix from fitted transformation
+            models and apply interpolated
+            transformations. If False use the estimated transformation matrix
+            for each data chunk.
+
+        Returns
+        -------
+        Self
         """
         if not self:
             logger.warning("No transformations available to be applied.")
@@ -875,18 +916,20 @@ class Drift(_Analysis):
         element=None,
         window=1,
         **kwargs,
-    ):
+    ) -> plt.axes.Axes:
         """
-        Plot the transformation components as function of average frame for each locdata chunk.
+        Plot the transformation components as function of average frame for
+        each locdata chunk.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         transformation_component : str
             One of 'matrix' or 'offset'
-        element : int or None
-            The element of flattened transformation matrix or offset to be plotted; if None all plots are shown.
+        element : int | None
+            The element of flattened transformation matrix or offset to be
+            plotted; if None all plots are shown.
         window: int
             Window for running average that is applied before plotting.
             Not implemented yet.
@@ -895,7 +938,7 @@ class Drift(_Analysis):
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

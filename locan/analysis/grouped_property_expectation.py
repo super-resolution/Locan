@@ -19,9 +19,9 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -38,17 +38,11 @@ from locan.data.aggregate import Bins
 if TYPE_CHECKING:
     import matplotlib as mpl
 
+    from locan.data.locdata import LocData
+
 __all__: list[str] = ["GroupedPropertyExpectation"]
 
 logger = logging.getLogger(__name__)
-
-
-class Collection(Protocol):
-    data: pd.DataFrame
-    references: Iterable
-
-    def __len__(self):
-        pass
 
 
 @dataclass(repr=False)
@@ -100,13 +94,13 @@ class GroupedPropertyExpectation(_Analysis):
         self.results = None
         self.distribution_statistics = None
 
-    def compute(self, locdata=None) -> Self:
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
-        locdata : Collection
+        locdata : LocData
             Localization data.
 
         Returns
@@ -227,7 +221,7 @@ class GroupedPropertyExpectation(_Analysis):
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax : matplotlib.axes.Axes
             The axes on which to show the image
         bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
             The bin specification as defined in :class:`Bins`

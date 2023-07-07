@@ -7,6 +7,11 @@ from __future__ import annotations
 
 import io
 import logging
+import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead, SupportsReadline
 
 import pandas as pd
 
@@ -24,19 +29,21 @@ __all__: list[str] = ["load_Elyra_header", "load_Elyra_file"]
 logger = logging.getLogger(__name__)
 
 
-def _read_Elyra_header(file):
+def _read_Elyra_header(file: SupportsReadline) -> list[str]:
     """
-    Read xml header from a Zeiss Elyra single-molecule localization file and identify column names.
+    Read xml header from a Zeiss Elyra single-molecule localization file and
+    identify column names.
 
     Parameters
     ----------
-    file : file-like
+    file :
         A rapidSTORM file to load.
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
+
+        A list of valid dataset property keys as derived from the rapidSTORM
+        identifiers.
     """
     header = file.readline().split("\n")[0]
 
@@ -50,37 +57,48 @@ def _read_Elyra_header(file):
     return column_keys
 
 
-def load_Elyra_header(path):
+def load_Elyra_header(
+    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+) -> list[str]:
     """
-    Load xml header from a Zeiss Elyra single-molecule localization file and identify column names.
+    Load xml header from a Zeiss Elyra single-molecule localization file and
+    identify column names.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
         File path for a rapidSTORM file to load.
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
+    list[str]
+        A list of valid dataset property keys as derived from the rapidSTORM
+        identifiers.
     """
 
     with open_path_or_file_like(path, encoding="latin-1") as file:
         return _read_Elyra_header(file)
 
 
-def load_Elyra_file(path, nrows=None, convert=True, **kwargs):
+def load_Elyra_file(
+    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    nrows: int | None = None,
+    convert: bool = True,
+    **kwargs,
+) -> LocData:
     """
     Load data from a rapidSTORM single-molecule localization file.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
         File path for a rapidSTORM file to load.
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded.
+    nrows : int | None
+        The number of localizations to load from file. None means that all
+        available rows are loaded.
     convert : bool
-        If True convert types by applying type specifications in locan.constants.PROPERTY_KEYS.
+        If True convert types by applying type specifications in
+        locan.constants.PROPERTY_KEYS.
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -91,7 +109,8 @@ def load_Elyra_file(path, nrows=None, convert=True, **kwargs):
 
     Note
     ----
-    Data is loaded with encoding = 'latin-1' and only data before the first NUL character is returned.
+    Data is loaded with encoding = 'latin-1' and only data before the first
+    NUL character is returned.
     Additional information appended at the end of the file is thus ignored.
     """
     with open_path_or_file_like(path, encoding="latin-1") as file:
@@ -119,7 +138,8 @@ def load_Elyra_file(path, nrows=None, convert=True, **kwargs):
 
     del dat.meta.history[:]
     dat.meta.history.add(
-        name="load_Elyra_file", parameter="path={}, nrows={}".format(path, nrows)
+        name="load_Elyra_file",
+        parameter=f"path={str(path)}, nrows={nrows}",
     )
 
     return dat

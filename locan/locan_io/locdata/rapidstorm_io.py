@@ -6,7 +6,12 @@ File input/output for localization data in rapidSTORM files.
 from __future__ import annotations
 
 import logging
+import os
 import xml.etree.ElementTree as etree
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead, SupportsReadline
 
 import numpy as np
 import pandas as pd
@@ -30,19 +35,21 @@ __all__: list[str] = [
 logger = logging.getLogger(__name__)
 
 
-def _read_rapidSTORM_header(file):
+def _read_rapidSTORM_header(file: SupportsReadline) -> list[str]:
     """
-    Read xml header from a rapidSTORM single-molecule localization file and identify column names.
+    Read xml header from a rapidSTORM single-molecule localization file and
+    identify column names.
 
     Parameters
     ----------
-    file : file-like
+    file : SupportsReadline
         A rapidSTORM file to load.
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
+    list[str]
+        A list of valid dataset property keys as derived from the rapidSTORM
+        identifiers.
     """
     # read xml part in header
     header = file.readline()
@@ -65,19 +72,23 @@ def _read_rapidSTORM_header(file):
     return column_keys
 
 
-def load_rapidSTORM_header(path):
+def load_rapidSTORM_header(
+    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+) -> list[str]:
     """
-    Load xml header from a rapidSTORM single-molecule localization file and identify column names.
+    Load xml header from a rapidSTORM single-molecule localization file and
+    identify column names.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
         File path for a rapidSTORM file to load.
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
+    list[str]
+        A list of valid dataset property keys as derived from the rapidSTORM
+        identifiers.
     """
 
     # read xml part in header
@@ -85,18 +96,25 @@ def load_rapidSTORM_header(path):
         return _read_rapidSTORM_header(file)
 
 
-def load_rapidSTORM_file(path, nrows=None, convert=True, **kwargs):
+def load_rapidSTORM_file(
+    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    nrows: int | None = None,
+    convert: bool = True,
+    **kwargs,
+) -> LocData:
     """
     Load data from a rapidSTORM single-molecule localization file.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
         File path for a rapidSTORM file to load.
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded.
+    nrows : int | None
+        The number of localizations to load from file. None means that all
+        available rows are loaded.
     convert : bool
-        If True convert types by applying type specifications in locan.constants.PROPERTY_KEYS.
+        If True convert types by applying type specifications in
+        locan.constants.PROPERTY_KEYS.
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -130,25 +148,29 @@ def load_rapidSTORM_file(path, nrows=None, convert=True, **kwargs):
 
     del dat.meta.history[:]
     dat.meta.history.add(
-        name="load_rapidSTORM_file", parameter="path={}, nrows={}".format(path, nrows)
+        name="load_rapidSTORM_file", parameter=f"path={str(path)}, nrows={nrows}"
     )
 
     return dat
 
 
-def _read_rapidSTORM_track_header(file):
+def _read_rapidSTORM_track_header(
+    file: SupportsReadline,
+) -> tuple[list[str], list[str]]:
     """
-    Read xml header from a rapidSTORM (track) single-molecule localization file and identify column names.
+    Read xml header from a rapidSTORM (track) single-molecule localization
+    file and identify column names.
 
     Parameters
     ----------
-    file : file-like
+    file : SupportsReadline
         A rapidSTORM file to load.
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
+    tuple[list[str], list[str]]
+        A list of valid dataset property keys as derived from the rapidSTORM
+        identifiers.
     """
     # read xml part in header
     header = file.readline()
@@ -180,19 +202,23 @@ def _read_rapidSTORM_track_header(file):
     return column_keys, column_keys_tracks
 
 
-def load_rapidSTORM_track_header(path):
+def load_rapidSTORM_track_header(
+    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+) -> tuple[list[str], list[str]]:
     """
-    Load xml header from a rapidSTORM (track) single-molecule localization file and identify column names.
+    Load xml header from a rapidSTORM (track) single-molecule localization
+    file and identify column names.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
         File path for a rapidSTORM file to load.
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
+    tuple[list[str], list[str]]
+        A list of valid dataset property keys as derived from the rapidSTORM
+        identifiers.
     """
 
     # read xml part in header
@@ -201,30 +227,41 @@ def load_rapidSTORM_track_header(path):
 
 
 def load_rapidSTORM_track_file(
-    path, nrows=None, convert=True, collection=True, min_localization_count=1, **kwargs
-):
+    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    nrows: int | None = None,
+    convert: bool = True,
+    collection: bool = True,
+    min_localization_count: int = 1,
+    **kwargs,
+) -> LocData:
     """
-    Load data from a rapidSTORM single-molecule localization file with tracked localizations.
+    Load data from a rapidSTORM single-molecule localization file with
+    tracked localizations.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
         File path for a rapidSTORM file to load.
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded.
+    nrows : int | None
+        The number of localizations to load from file. None means that all
+        available rows are loaded.
     convert : bool
-        If True convert types by applying type specifications in locan.constants.PROPERTY_KEYS.
+        If True convert types by applying type specifications in
+        locan.constants.PROPERTY_KEYS.
     collection : bool
-        If True a collection of all tracks is returned. If False LocData with center positions is returned.
+        If True a collection of all tracks is returned.
+        If False LocData with center positions is returned.
     min_localization_count : int
-        If collection is True, only clusters with at least `min_localization_count` localizations are loaded.
+        If collection is True, only clusters with at least
+        `min_localization_count` localizations are loaded.
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
     Returns
     -------
     LocData
-        A new instance of LocData with all localizations/tracks as a collection.
+        A new instance of LocData with all localizations/tracks as a
+        collection.
     """
     with open_path_or_file_like(path) as file:
         columns, columns_track = _read_rapidSTORM_track_header(file)
@@ -254,12 +291,12 @@ def load_rapidSTORM_track_file(
             dat = LocData.from_dataframe(dataframe=dataframe)
             track_list.append(dat)
 
-        collection = LocData.from_collection(track_list)
+        new_collection = LocData.from_collection(track_list)
 
-        collection.meta.source = metadata_pb2.EXPERIMENT
-        collection.meta.state = metadata_pb2.RAW
-        collection.meta.file.type = metadata_pb2.RAPIDSTORMTRACK
-        collection.meta.file.path = str(path)
+        new_collection.meta.source = metadata_pb2.EXPERIMENT
+        new_collection.meta.state = metadata_pb2.RAW
+        new_collection.meta.file.type = metadata_pb2.RAPIDSTORMTRACK
+        new_collection.meta.file.path = str(path)
 
         for property in sorted(
             list(
@@ -268,17 +305,17 @@ def load_rapidSTORM_track_file(
                 )
             )
         ):
-            collection.meta.localization_properties.add(
+            new_collection.meta.localization_properties.add(
                 name=property, unit="nm", type="float"
             )
 
-        del collection.meta.history[:]
-        collection.meta.history.add(
+        del new_collection.meta.history[:]
+        new_collection.meta.history.add(
             name="load_rapidSTORM_track_file",
-            parameter="path={}, nrows={}".format(path, nrows),
+            parameter=f"path={str(path)}, nrows={nrows}",
         )
 
-        return collection
+        return new_collection
 
     else:
         # prepare dataframe with center track positions
@@ -309,7 +346,7 @@ def load_rapidSTORM_track_file(
         del locdata.meta.history[:]
         locdata.meta.history.add(
             name="load_rapidSTORM_track_file",
-            parameter="path={}, nrows={}".format(path, nrows),
+            parameter=f"path={str(path)}, nrows={nrows}",
         )
 
         return locdata

@@ -6,6 +6,11 @@ File input/output for localization data in SMAP files.
 from __future__ import annotations
 
 import logging
+import os
+from typing import TYPE_CHECKING, Mapping
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead, SupportsWrite
 
 import pandas as pd
 
@@ -28,19 +33,20 @@ logger = logging.getLogger(__name__)
 
 
 @needs_package("h5py")
-def _read_SMAP_header(file):
+def _read_SMAP_header(file: Mapping) -> list[str]:
     """
     Identify column names from a SMAP single-molecule localization file.
 
     Parameters
     ----------
-    file : file-like
-        File to read.
+    file : Mapping
+        HDF5 file object.
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
+    list[str]
+        A list of valid dataset property keys as derived from the rapidSTORM
+        identifiers.
     """
     # list identifiers
     identifiers = list(file["saveloc"]["loc"].keys())
@@ -51,37 +57,44 @@ def _read_SMAP_header(file):
 
 
 @needs_package("h5py")
-def load_SMAP_header(path):
+def load_SMAP_header(path: str | os.PathLike | SupportsRead) -> list[str]:
     """
     Identify column names from a SMAP single-molecule localization file.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | os.PathLike | SupportsRead
         File path for a file to load.
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the rapidSTORM identifiers.
+    list[str]
+        A list of valid dataset property keys as derived from the rapidSTORM
+        identifiers.
     """
     with h5py.File(path, "r") as file:
         return _read_SMAP_header(file)
 
 
 @needs_package("h5py")
-def load_SMAP_file(path, nrows=None, convert=True):
+def load_SMAP_file(
+    path: str | os.PathLike | SupportsRead,
+    nrows: int | None = None,
+    convert: bool = True,
+) -> LocData:
     """
     Load data from a SMAP single-molecule localization file.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | os.PathLike | SupportsRead
         File path for a Thunderstorm file to load.
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded.
+    nrows : int | None
+        The number of localizations to load from file. None means that all
+        available rows are loaded.
     convert : bool
-        If True convert types by applying type specifications in locan.constants.PROPERTY_KEYS.
+        If True convert types by applying type specifications in
+        locan.constants.PROPERTY_KEYS.
 
     Returns
     -------
@@ -133,17 +146,18 @@ def load_SMAP_file(path, nrows=None, convert=True):
     return locdata
 
 
-def save_SMAP_csv(locdata, path):
+def save_SMAP_csv(locdata: LocData, path: str | os.PathLike | SupportsWrite) -> None:
     """
     Save LocData to SMAP-readable csv-file.
 
-    In the csv-file file format we store only localization data with SMAP-readable column names.
+    In the csv-file file format we store only localization data with
+    SMAP-readable column names.
 
     Parameters
     ----------
     locdata : LocData
         The LocData object to be saved.
-    path : str, bytes, os.PathLike, file-like
+    path : str | os.PathLike | SupportsWrite
         File path including file name to save to.
     """
     # get data from locdata object

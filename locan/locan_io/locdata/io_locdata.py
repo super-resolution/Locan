@@ -6,7 +6,13 @@ File input/output for localization data.
 from __future__ import annotations
 
 import logging
+import os
+from collections.abc import Callable
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead
 
 import pandas as pd
 
@@ -35,14 +41,14 @@ logger = logging.getLogger(__name__)
 
 
 def load_txt_file(
-    path,
+    path: str | os.PathLike | SupportsRead,
     sep=",",
-    columns=None,
-    nrows=None,
-    property_mapping=None,
-    convert=True,
+    columns: list[str] | None = None,
+    nrows: int | None = None,
+    property_mapping: dict[str, str] | list[dict] | None = None,
+    convert: bool = True,
     **kwargs,
-):
+) -> LocData:
     """
     Load localization data from a txt file.
 
@@ -50,18 +56,21 @@ def load_txt_file(
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | os.PathLike | SupportsRead
         File path for a localization file to load.
     sep : str
         separator between column values (Default: ',')
-    columns : list of str, None
-        Locan column names. If None the first line is interpreted as header (Default: None).
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded (Default: None).
-    property_mapping : dict[str: str] or list[dict]
+    columns : list[str] | None
+        Locan column names. If None the first line is interpreted as header
+        (Default: None).
+    nrows : int | None
+        The number of localizations to load from file. None means that all
+        available rows are loaded (Default: None).
+    property_mapping : dict[str, str] | list[dict] | None
         Mappings between column names and locan property names
     convert : bool
-        If True convert types by applying type specifications in locan.constants.PROPERTY_KEYS.
+        If True convert types by applying type specifications in
+        locan.constants.PROPERTY_KEYS.
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -112,18 +121,21 @@ def load_txt_file(
     return dat
 
 
-def _map_file_type_to_load_function(file_type):
+def _map_file_type_to_load_function(
+    file_type: int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata,
+) -> Callable:
     """
     Interpret user input for file_type.
 
     Parameters
     ----------
-    file_type : int, str, locan.constants.FileType, locan.data.metadata_pb2.Metadata
-        Identifier for the file type. Integer or string should be according to locan.constants.FileType.
+    file_type :
+        Identifier for the file type. Integer or string should be according to
+        locan.constants.FileType.
 
     Returns
     -------
-    callable
+    Callable
         Name of function for loading the localization file of `type`.
     """
     look_up_table = dict(
@@ -160,7 +172,7 @@ def _map_file_type_to_load_function(file_type):
             ).name
         elif isinstance(file_type, locan.constants.FileType):
             function_name = LoadFunction(file_type.value).name
-        elif isinstance(file_type, metadata_pb2):
+        elif isinstance(file_type, metadata_pb2):  # type: ignore
             function_name = LoadFunction(file_type).name
         else:
             raise TypeError
@@ -169,7 +181,15 @@ def _map_file_type_to_load_function(file_type):
         raise ValueError(f"There is no load function for type {file_type}.") from exc
 
 
-def load_locdata(path, file_type=1, nrows=None, **kwargs):
+def load_locdata(
+    path: str | os.PathLike | SupportsRead,
+    file_type: int
+    | str
+    | locan.constants.FileType
+    | locan.data.metadata_pb2.Metadata = 1,
+    nrows: int | None = None,
+    **kwargs,
+):
     """
     Load data from localization file as specified by type.
 
@@ -177,13 +197,16 @@ def load_locdata(path, file_type=1, nrows=None, **kwargs):
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | os.PathLike | SupportsRead
         File path for a localization data file to load.
-    file_type : int, str, locan.constants.FileType, locan.data.metadata_pb2.Metadata
+    file_type : int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata
         Indicator for the file type.
         Integer or string should be according to locan.constants.FileType.
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded.
+    nrows : int | None
+        The number of localizations to load from file. None means that all
+        available rows are loaded.
+    kwargs : dict
+        kwargs passed to the specific load function.
 
     Returns
     -------

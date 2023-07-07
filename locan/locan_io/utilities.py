@@ -6,6 +6,7 @@ Utility functions for file input/output.
 from __future__ import annotations
 
 import logging
+import os
 import re
 from pathlib import Path
 
@@ -15,7 +16,10 @@ logger = logging.getLogger(__name__)
 
 
 def find_file_upstream(
-    sub_directory, pattern, regex=None, top_directory=None
+    sub_directory: str | os.PathLike[str],
+    pattern: str | None,
+    regex: str | None = None,
+    top_directory: str | os.PathLike[str] | None = None,
 ) -> Path | None:
     """
     Search for first upstream parent of sub_directory that contains pattern.
@@ -24,14 +28,14 @@ def find_file_upstream(
 
     Parameters
     ----------
-    sub_directory : str | bytes | os.PathLike
+    sub_directory :
         Directory or file path to start with.
-    pattern : str | None
+    pattern :
         glob pattern passed to :func:`Path.glob`
-    regex : str | None
+    regex :
         regex pattern passed to :func:`re.search` and applied in addition
         to glob pattern
-    top_directory : str | bytes | os.PathLike
+    top_directory :
         Directory in which to stop the search.
 
     Returns
@@ -39,6 +43,9 @@ def find_file_upstream(
     Path | None
     """
     sub_directory = Path(sub_directory).resolve(strict=True)
+
+    if pattern is None:
+        pattern = "*.*"
 
     if top_directory is None:
         top_directory = sub_directory.anchor
@@ -51,9 +58,9 @@ def find_file_upstream(
     for parent in sub_directory.parents:
         file_list = list(parent.glob(pattern))
 
-        if regex is not None:
+        if regex_ is not None:
             file_list = [
-                file_ for file_ in file_list if regex_.search(str(file_)) is not None  # type: ignore
+                file_ for file_ in file_list if regex_.search(str(file_)) is not None
             ]
         if file_list:
             return file_list[0]

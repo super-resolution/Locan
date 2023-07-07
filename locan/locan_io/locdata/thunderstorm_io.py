@@ -6,6 +6,11 @@ File input/output for localization data in Thunderstorm files.
 from __future__ import annotations
 
 import logging
+import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead, SupportsReadline, SupportsWrite
 
 import pandas as pd
 
@@ -27,19 +32,21 @@ __all__: list[str] = [
 logger = logging.getLogger(__name__)
 
 
-def _read_thunderstorm_header(file):
+def _read_thunderstorm_header(file: SupportsReadline) -> list[str]:
     """
-    Read csv header from a Thunderstorm single-molecule localization file and identify column names.
+    Read csv header from a Thunderstorm single-molecule localization file and
+    identify column names.
 
     Parameters
     ----------
-    file : file-like
+    file : SupportsReadline
         Thunderstorm file to read.
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the Thunderstorm identifiers.
+    list[str]
+        A list of valid dataset property keys as derived from the Thunderstorm
+        identifiers.
     """
     # read csv header
     header = file.readline().split("\n")[0]
@@ -53,37 +60,48 @@ def _read_thunderstorm_header(file):
     return column_keys
 
 
-def load_thunderstorm_header(path):
+def load_thunderstorm_header(
+    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+) -> list[str]:
     """
-    Load csv header from a Thunderstorm single-molecule localization file and identify column names.
+    Load csv header from a Thunderstorm single-molecule localization file and
+    identify column names.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
         File path for a Thunderstorm file to load.
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the Thunderstorm identifiers.
+    list[str]
+        A list of valid dataset property keys as derived from the Thunderstorm
+        identifiers.
     """
     # read csv header
     with open_path_or_file_like(path) as file:
         return _read_thunderstorm_header(file)
 
 
-def load_thunderstorm_file(path, nrows=None, convert=True, **kwargs):
+def load_thunderstorm_file(
+    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    nrows: int | None = None,
+    convert: bool = True,
+    **kwargs,
+) -> LocData:
     """
     Load data from a Thunderstorm single-molecule localization file.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
         File path for a Thunderstorm file to load.
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded.
+    nrows : int | None
+        The number of localizations to load from file. None means that all
+        available rows are loaded.
     convert : bool
-        If True convert types by applying type specifications in locan.constants.PROPERTY_KEYS.
+        If True convert types by applying type specifications in
+        locan.constants.PROPERTY_KEYS.
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -117,23 +135,26 @@ def load_thunderstorm_file(path, nrows=None, convert=True, **kwargs):
 
     del dat.meta.history[:]
     dat.meta.history.add(
-        name="load_thundestorm_file", parameter="path={}, nrows={}".format(path, nrows)
+        name="load_thundestorm_file", parameter=f"path={str(path)}, nrows={nrows}"
     )
 
     return dat
 
 
-def save_thunderstorm_csv(locdata, path):
+def save_thunderstorm_csv(
+    locdata: LocData, path: str | os.PathLike | SupportsWrite
+) -> None:
     """
     Save LocData attributes Thunderstorm-readable csv-file.
 
-    In the Thunderstorm csv-file file format we store only localization data with Thunderstorm-readable column names.
+    In the Thunderstorm csv-file file format we store only localization data
+    with Thunderstorm-readable column names.
 
     Parameters
     ----------
     locdata : LocData
         The LocData object to be saved.
-    path : str, bytes, os.PathLike, file-like
+    path : str | os.PathLike | SupportsWrite
         File path including file name to save to.
     """
     # get data from locdata object

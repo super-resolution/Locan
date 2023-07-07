@@ -358,10 +358,8 @@ class DriftComponent:
 
     Parameters
     ----------
-    type : str | lmfit.models.Model | None
+    type : Literal["none", "zero", "one", "constant", "linear", "polynomial", "spline"] | lmfit.models.Model | None
         Model class or indicator for setting up the corresponding model class.
-        String can be one of `zero`, `one`, `constant`, `linear`,
-        `polynomial`, `spline`.
 
     Attributes
     ----------
@@ -393,7 +391,7 @@ class DriftComponent:
                 PolynomialModel(**dict(dict(degree=3), **kwargs))
             )
         elif getattr(type, "__module__", None) == "lmfit.models":
-            self.type = type.name
+            self.type = type.name  # type: ignore
             self.model = _LmfitModelFacade(model=type)
         elif type == "spline":
             self.model = _SplineModelFacade(**kwargs)
@@ -460,7 +458,7 @@ class Drift(_Analysis):
         One of 'first', 'previous'.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    method : str
+    method : Literal["cc", "icp"]
         The method used for computation.
         One of iterative closest point algorithm 'icp' or image
         cross-correlation algorithm 'cc'.
@@ -804,7 +802,7 @@ class Drift(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData or None
+        locdata : LocData | None
             Localization data to apply correction on. If None correction is
             applied to self.locdata.
         """
@@ -925,7 +923,7 @@ class Drift(_Analysis):
         ----------
         ax : matplotlib.axes.Axes
             The axes on which to show the image
-        transformation_component : str
+        transformation_component : Literal["matrix", "offset"]
             One of 'matrix' or 'offset'
         element : int | None
             The element of flattened transformation matrix or offset to be

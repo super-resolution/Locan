@@ -13,6 +13,11 @@ import logging
 import sys
 from typing import TYPE_CHECKING, Any, NamedTuple  # noqa: F401
 
+if sys.version_info >= (3, 9):
+    from collections.abc import Sequence  # noqa: F401
+else:
+    from typing import Sequence  # noqa: F401
+
 if sys.version_info >= (3, 11):
     from typing import Self
 else:

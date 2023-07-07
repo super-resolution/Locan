@@ -10,7 +10,7 @@ Parts of this code is adapted from https://github.com/jungmannlab/picasso.
 """
 from __future__ import annotations
 
-from collections import namedtuple
+from typing import NamedTuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,7 +29,10 @@ if HAS_DEPENDENCY["open3d"]:
 
 __all__: list[str] = ["register_icp", "register_cc"]
 
-Transformation = namedtuple("Transformation", "matrix offset")
+
+class Transformation(NamedTuple):
+    matrix: npt.NDArray
+    offset: npt.NDArray
 
 
 @needs_package("open3d")

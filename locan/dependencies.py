@@ -32,6 +32,12 @@ import sys
 from collections.abc import Iterable
 from enum import Enum
 from functools import wraps
+from typing import Any, Callable, TypeVar
+
+if sys.version_info >= (3, 10):
+    from typing import ParamSpec
+else:
+    from typing_extensions import ParamSpec
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +49,10 @@ __all__: list[str] = [
     "HAS_DEPENDENCY",
     "QtBindings",
 ]
+
+F = TypeVar("F", bound=Callable[..., Any])
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
 def _has_dependency_factory(
@@ -58,7 +68,11 @@ def _has_dependency_factory(
     return has_dependency
 
 
-def needs_package(package, import_names=None, has_dependency=None):
+def needs_package(
+    package: str,
+    import_names: dict[str, str] | None = None,
+    has_dependency: dict | None = None,
+) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """
     Function that returns a decorator to check for optional dependency.
 
@@ -82,10 +96,10 @@ def needs_package(package, import_names=None, has_dependency=None):
         has_dependency = HAS_DEPENDENCY
     import_name = import_names.get(package, package)
 
-    def decorator(func):
+    def decorator(func: Callable[P, T]) -> Callable[P, T]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
-            if not has_dependency[import_name]:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+            if not has_dependency[import_name]:  # type: ignore
                 raise ImportError(
                     f"Function {func} needs {import_name} which cannot be imported."
                 )

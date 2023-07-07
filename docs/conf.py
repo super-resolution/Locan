@@ -35,7 +35,7 @@ copyright = "2018-2023, Locan Developers"
 release = version("locan")
 # take major/minor
 # version = '.'.join(release.split('.')[:2])
-version = release
+version = release  # type: ignore
 
 
 # -- General configuration ---------------------------------------------------
@@ -48,6 +48,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",
     "sphinx.ext.inheritance_diagram",
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
@@ -75,9 +76,12 @@ napoleon_use_admonition_for_references = False
 napoleon_use_ivar = True
 napoleon_use_param = True
 napoleon_use_rtype = True
+napoleon_preprocess_types = False
+napoleon_type_aliases = None
+napoleon_attr_annotations = True
 
 # myST-NB settings
-nb_execution_mode = "force"  # 'off' 'cache'
+nb_execution_mode = "off"  # "force"  # 'off' 'cache'
 
 # copybutton settings
 copybutton_prompt_text = ">>> "
@@ -118,7 +122,7 @@ html_theme = "furo"
 
 # Theme options
 # for furo
-html_theme_options = {
+html_theme_options: dict = {
     # 'sidebar_hide_name': True,
 }
 

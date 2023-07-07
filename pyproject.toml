@@ -110,6 +110,7 @@ docs = [
     "myst-nb",
     "sphinx-copybutton",
     "sphinx_rtd_theme",
+    "sphinx_autodoc_typehints",
     "furo",
     "ray",
 ]

@@ -100,24 +100,28 @@ def load_decode_header(path: str | os.PathLike | SupportsRead):
 
 
 @needs_package("h5py")
-def load_decode_file(path, nrows=None, convert=True) -> LocData:
+def load_decode_file(
+    path: str | os.PathLike | SupportsRead,
+    nrows: int | None = None,
+    convert: bool = True,
+) -> LocData:
     """
     Load data from a DECODE single-molecule localization file.
 
     Parameters
     ----------
-    path : str | os.PathLike | SupportsRead
+    path :
         File path or file-like object for a Thunderstorm file to load.
-    nrows : int | None
+    nrows :
         The number of localizations to load from file.
         None means that all available rows are loaded.
-    convert : bool
+    convert :
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
 
     Returns
     -------
-    LocData
+
         A new instance of LocData with all localizations.
     """
     with h5py.File(path, "r") as file:

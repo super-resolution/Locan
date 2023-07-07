@@ -6,6 +6,7 @@ ipython
 myst-nb
 sphinx-copybutton
 sphinx_rtd_theme
+sphinx_autodoc_typehints
 furo
 
 # requirements for running all tutorial notebooks

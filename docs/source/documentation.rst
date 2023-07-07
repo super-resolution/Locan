@@ -21,12 +21,28 @@ To update the documentation from sources delete ``/docs/sources/generated`` and 
 
     sphinx-build -b html -E YOUR_PATH\Locan\docs YOUR_PATH\Locan\docs\_build
 
+Type hints
+----------
+
+We try to make use of type checking using mypy as much as possible.
+
+Type hints should be given as annotations to enable type checking.
+
+Using the sphinx extension sphinx_autodoc_typehints (and napoleon),
+we convert type hints from function annotations automatically into the
+numpy-style documentation.
+
+In case of duplicate documentation (annotation and docstring) the docstring is
+transferred into the sphinx-generated documentation but annotations are used
+for type-checking.
 
 Example docstring
 -----------------
 We try to follow standard docstrings as illustrated here::
 
-    def function(par=None, **kwargs):
+    def function(
+        par: None | UserClass = None, **kwargs
+    ) -> None:
         """
         Short title.
 
@@ -40,7 +56,7 @@ We try to follow standard docstrings as illustrated here::
 
         Parameters
         ----------
-        par : None, other type, UserClass
+        par : None | UserClass
             Description
         kwargs : dict
             Parameters passed to some other documented function :func:`function_name`

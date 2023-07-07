@@ -53,7 +53,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Literal, NamedTuple
+from typing import Literal
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -70,7 +70,7 @@ from scipy.interpolate import splev, splrep
 from locan.analysis.analysis_base import _Analysis
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
-from locan.data.register import _register_icp_open3d, register_cc
+from locan.data.register import Transformation, _register_icp_open3d, register_cc
 from locan.data.transform.spatial_transformation import transform_affine
 from locan.dependencies import needs_package
 
@@ -80,11 +80,6 @@ logger = logging.getLogger(__name__)
 
 
 # The algorithms
-
-
-class Transformation(NamedTuple):
-    matrix: npt.NDArray
-    offset: npt.NDArray
 
 
 @needs_package("open3d")

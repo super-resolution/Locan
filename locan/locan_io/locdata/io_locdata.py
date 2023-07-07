@@ -176,7 +176,7 @@ def _map_file_type_to_load_function(
             function_name = LoadFunction(file_type).name
         else:
             raise TypeError
-        return look_up_table[function_name]
+        return look_up_table[function_name]  # type: ignore
     except ValueError as exc:
         raise ValueError(f"There is no load function for type {file_type}.") from exc
 

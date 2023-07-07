@@ -4,6 +4,12 @@ from locan import ROOT_DIR, find_file_upstream
 def test_find_file_upstream():
     # find file
     sub_directory = ROOT_DIR / "tests/test_data/Elyra_dstorm_data.txt"
+    pattern = None
+    pattern_found = find_file_upstream(sub_directory=sub_directory, pattern=pattern)
+    assert pattern_found.parent == sub_directory.parent
+
+    # find file
+    sub_directory = ROOT_DIR / "tests/test_data/Elyra_dstorm_data.txt"
     pattern = "*.txt"
     pattern_found = find_file_upstream(sub_directory=sub_directory, pattern=pattern)
     assert pattern_found.parent == sub_directory.parent

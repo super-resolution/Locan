@@ -6,6 +6,11 @@ File input/output for localization data Nanoimager files.
 from __future__ import annotations
 
 import logging
+import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead, SupportsReadline
 
 import pandas as pd
 
@@ -23,19 +28,21 @@ __all__: list[str] = ["load_Nanoimager_header", "load_Nanoimager_file"]
 logger = logging.getLogger(__name__)
 
 
-def _read_Nanoimager_header(file):
+def _read_Nanoimager_header(file: SupportsReadline) -> list[str]:
     """
-    Read csv header from a Nanoimager single-molecule localization file and identify column names.
+    Read csv header from a Nanoimager single-molecule localization file and
+    identify column names.
 
     Parameters
     ----------
-    file : file-like
+    file : SupportsReadline
         Nanoimager file to read.
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the Nanoimager identifiers.
+    list[str]
+        A list of valid dataset property keys as derived from the Nanoimager
+        identifiers.
     """
     # read csv header
     header = file.readline().split("\n")[0]
@@ -49,9 +56,12 @@ def _read_Nanoimager_header(file):
     return column_keys
 
 
-def load_Nanoimager_header(path):
+def load_Nanoimager_header(
+    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+) -> list[str]:
     """
-    Load csv header from a Nanoimager single-molecule localization file and identify column names.
+    Load csv header from a Nanoimager single-molecule localization file and
+    identify column names.
 
     Parameters
     ----------
@@ -60,26 +70,34 @@ def load_Nanoimager_header(path):
 
     Returns
     -------
-    list of str
-        A list of valid dataset property keys as derived from the Nanoimager identifiers.
+    list[str]
+        A list of valid dataset property keys as derived from the Nanoimager
+        identifiers.
     """
     # read csv header
     with open_path_or_file_like(path) as file:
         return _read_Nanoimager_header(file)
 
 
-def load_Nanoimager_file(path, nrows=None, convert=True, **kwargs):
+def load_Nanoimager_file(
+    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    nrows: int | None = None,
+    convert: bool = True,
+    **kwargs,
+) -> LocData:
     """
     Load data from a Nanoimager single-molecule localization file.
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path :  str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
         File path for a Nanoimager file to load.
-    nrows : int, None
-        The number of localizations to load from file. None means that all available rows are loaded.
+    nrows : int | None
+        The number of localizations to load from file. None means that all
+        available rows are loaded.
     convert : bool
-        If True convert types by applying type specifications in locan.constants.PROPERTY_KEYS.
+        If True convert types by applying type specifications in
+        locan.constants.PROPERTY_KEYS.
     kwargs : dict
         Other parameters passed to `pandas.read_csv()`.
 
@@ -113,7 +131,8 @@ def load_Nanoimager_file(path, nrows=None, convert=True, **kwargs):
 
     del dat.meta.history[:]
     dat.meta.history.add(
-        name="load_Nanoimager_file", parameter="path={}, nrows={}".format(path, nrows)
+        name="load_Nanoimager_file",
+        parameter=f"path={str(path)}, nrows={nrows}",
     )
 
     return dat

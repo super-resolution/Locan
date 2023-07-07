@@ -24,7 +24,7 @@ import sys
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Literal, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -51,9 +51,6 @@ if TYPE_CHECKING:
 __all__: list[str] = ["ConvexHullExpectation", "ConvexHullExpectationBatch"]
 
 logger = logging.getLogger(__name__)
-
-
-HullPropertyType = Literal["region_measure_ch", "subregion_measure_ch"]
 
 
 class ConvexHullProperty(Enum):
@@ -247,7 +244,7 @@ class ConvexHullExpectation(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    convex_hull_property : HullPropertyType
+    convex_hull_property : Literal["region_measure_ch", "subregion_measure_ch"]
         One of 'region_measure_ch' (i.e. area or volume)
         or 'subregion_measure_ch' (i.e. circumference or surface.)
     expected_variance : float | Iterable[float] | None

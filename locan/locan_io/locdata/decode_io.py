@@ -121,7 +121,7 @@ def load_decode_file(
 
     Returns
     -------
-
+    LocData
         A new instance of LocData with all localizations.
     """
     with h5py.File(path, "r") as file:

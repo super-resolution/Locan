@@ -7,7 +7,12 @@ from __future__ import annotations
 
 import io
 import logging
+import os
 from contextlib import closing
+from typing import TYPE_CHECKING, Union, cast
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead
 
 import pandas as pd
 
@@ -18,7 +23,7 @@ __all__: list[str] = ["convert_property_types", "convert_property_names"]
 logger = logging.getLogger(__name__)
 
 
-def convert_property_types(dataframe, types, loc_properties=None):
+def convert_property_types(dataframe, types, loc_properties=None) -> pd.DataFrame:
     """
     Convert data types according to the column-type mapping in types.
     If the target type is one of 'integer', 'signed', 'unsigned', 'float'
@@ -57,13 +62,22 @@ def convert_property_types(dataframe, types, loc_properties=None):
     return new_df
 
 
-def open_path_or_file_like(path_or_file_like, mode="r", encoding=None):
+def open_path_or_file_like(
+    path_or_file_like: str
+    | bytes
+    | os.PathLike[str]
+    | os.PathLike[bytes]
+    | int
+    | SupportsRead,
+    mode: str = "r",
+    encoding: str | None = None,
+):
     """
     Provide open-file context from `path_or_file_like` input.
 
     Parameters
     ----------
-    path_or_file_like : str, bytes, os.PathLike, file-like
+    path_or_file_like :
         Identifier for file
     mode
         same as in `open()`
@@ -81,7 +95,14 @@ def open_path_or_file_like(path_or_file_like, mode="r", encoding=None):
         try:
             # if hasattr(path_or_file_like, "__fspath__")
             # or isinstance(path_or_file_like, (str, bytes)):
-            file = open(path_or_file_like, mode=mode, encoding=encoding)
+            file = open(
+                cast(
+                    Union[str, bytes, os.PathLike[str], os.PathLike[bytes], int],
+                    path_or_file_like,
+                ),
+                mode=mode,
+                encoding=encoding,
+            )
         except TypeError as exc:
             raise TypeError(
                 "path_or_file_like must be str, bytes, os.PathLike or file-like."

@@ -2036,7 +2036,7 @@ class AxisOrientedHypercuboid(RegionND):
 
     @property
     def region_measure(self):
-        return np.product(self.lengths)
+        return np.prod(self.lengths)
 
     @property
     def subregion_measure(self):

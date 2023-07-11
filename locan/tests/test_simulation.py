@@ -725,7 +725,7 @@ def test_make_NeymanScott():
     def offspring(parent):
         from math import sin
 
-        return [sin(parent)]
+        return [sin(parent[0])]
 
     samples, labels, parent_samples, region = make_NeymanScott(
         parent_intensity=10,

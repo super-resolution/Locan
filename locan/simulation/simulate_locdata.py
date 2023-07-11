@@ -1553,7 +1553,7 @@ def resample(locdata, n_samples=10, seed=None) -> LocData:
     meta_.state = metadata_pb2.MODIFIED
     meta_.ancestor_identifiers.append(locdata.meta.identifier)
     meta_.history.add(
-        name="resample", parameter="locdata={}, n_samples={}".format(locdata, n_samples)
+        name="resample", parameter=f"locdata={locdata}, n_samples={n_samples}"
     )
 
     # instantiate

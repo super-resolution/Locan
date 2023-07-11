@@ -124,7 +124,7 @@ class Pipeline(_Analysis):
             Path and file name for saving the text file.
         """
         with open(path, "w") as handle:
-            handle.write("Analysis Pipeline: {}\n\n".format(self.__class__.__name__))
+            handle.write(f"Analysis Pipeline: {self.__class__.__name__}\n\n")
             handle.write(inspect.getsource(self.computation))
 
     def computation_as_string(self):

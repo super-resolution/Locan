@@ -1686,7 +1686,7 @@ class AxisOrientedCuboid(Region3D):
     @property
     def bounds(self):
         min_x, min_y, min_z = self.corner
-        max_x, max_y, max_z = [
+        max_x, max_y, max_z = [  # noqa: UP027
             cor + dist
             for cor, dist in zip(self.corner, (self.length, self.width, self.height))
         ]

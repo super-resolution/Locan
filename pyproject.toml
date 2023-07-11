@@ -193,6 +193,7 @@ select = [
     "Q",  # flake8-quotes
     "YTT",  # flake8-2020
     "S",  # flake8-bandit
+    "UP",  # pyupgrade
 ]
 # Rules - https://github.com/charliermarsh/ruff#reference:
 # E402 module-import-not-at-top-of-file

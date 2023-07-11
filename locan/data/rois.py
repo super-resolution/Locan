@@ -92,17 +92,19 @@ class _MplSelector:  # pragma: no cover
         #     self.type = type
 
         else:
-            raise TypeError("Type {} is not defined.".format(type))
+            raise TypeError(f"Type {type} is not defined.")
 
         plt.connect("key_press_event", self.key_pressed_callback)
 
     def selector_callback(self, eclick, erelease):
         """eclick and erelease are matplotlib events at press and release."""
-        print("startposition: {}".format((eclick.xdata, eclick.ydata)))
-        print("endposition  : {}".format((erelease.xdata, erelease.ydata)))
+        print("startposition: {}".format((eclick.xdata, eclick.ydata)))  # noqa: UP032
+        print(
+            "endposition  : {}".format((erelease.xdata, erelease.ydata))  # noqa: UP032
+        )  # noqa: UP032
 
     def p_selector_callback(self, vertices):
-        print("Vertices: {}".format(vertices))
+        print(f"Vertices: {vertices}")
 
     def key_pressed_callback(self, event):
         print("Key pressed.")
@@ -137,7 +139,7 @@ class _MplSelector:  # pragma: no cover
                 0.0,
             )
             self.rois.append({"region_specs": region_specs, "region": self.type})
-            print("rois: {}".format(self.rois))
+            print(f"rois: {self.rois}")
 
         elif event.key in ["+"] and self.selector.active and self.type == "ellipse":
             print("Roi was added.")
@@ -149,13 +151,13 @@ class _MplSelector:  # pragma: no cover
             )
 
             self.rois.append({"region_specs": region_specs, "region": self.type})
-            print("rois: {}".format(self.rois))
+            print(f"rois: {self.rois}")
 
         elif event.key in ["+"] and self.selector.active and self.type == "polygon":
             print("Roi was added.")
             vertices_ = self.selector.verts.append(self.selector.verts[0])
             self.rois.append({"region_specs": vertices_, "region": self.type})
-            print("rois: {}".format(self.rois))
+            print(f"rois: {self.rois}")
 
         else:
             pass

@@ -44,8 +44,8 @@ def _algorithm_1(data=None, limits=(0, 10)):
 
 def _algorithm_2(data=None, n_sample=100, seed=None):
     """Provides random normal distributed data. data would be input data that is currently not used."""
-    np.random.seed(seed)
-    dict_ = {"a": np.random.normal(size=n_sample), "b": np.random.normal(size=n_sample)}
+    rng = np.random.default_rng(seed)
+    dict_ = {"a": rng.normal(size=n_sample), "b": rng.normal(size=n_sample)}
     results = pd.DataFrame.from_dict(dict_)
     return results
 

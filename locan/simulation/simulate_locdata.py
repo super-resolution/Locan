@@ -1445,8 +1445,10 @@ def simulate_tracks(
     """
     parameter = locals()
 
+    rng = np.random.default_rng(seed)
+
     start_positions = np.array(
-        [np.random.uniform(*_range, size=n_walks) for _range in ranges]  # type: ignore
+        [rng.uniform(*_range, size=n_walks) for _range in ranges]  # type: ignore
     ).T
 
     times, positions = _random_walk(
@@ -1455,7 +1457,7 @@ def simulate_tracks(
         dimensions=len(ranges),
         diffusion_constant=diffusion_constant,
         time_step=time_step,
-        seed=seed,
+        seed=rng,
     )
 
     new_positions = np.concatenate(

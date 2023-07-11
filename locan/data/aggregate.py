@@ -16,7 +16,7 @@ import warnings
 from collections import namedtuple
 from collections.abc import Iterable, Sequence  # noqa: F401
 from math import isclose
-from typing import Any, Union, cast
+from typing import Any, cast
 
 import boost_histogram as bh
 import fast_histogram
@@ -270,7 +270,7 @@ def _bin_edges_to_n_bins(bin_edges) -> tuple[int] | tuple[int, ...]:
 
 def _bin_edges_to_bin_size_one_dimension(
     bin_edges,
-) -> Union[float, npt.NDArray[np.float_]]:
+) -> float | npt.NDArray[np.float_]:
     """
     Compute the sizes of bins.
 

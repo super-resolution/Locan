@@ -56,7 +56,7 @@ data_lists = {
 }
 
 data_ndarrays = {
-    "np.array((1))": np.array((1)),
+    "np.array((1))": np.array(1),
     "np.array((1,))": np.array((1,)),
     "np.array((1, 2))": np.array((1, 2)),
     "np.array([(1, 2)])": np.array([(1, 2)]),

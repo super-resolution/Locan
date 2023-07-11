@@ -174,7 +174,7 @@ def load_decode_file(
 
     del locdata.meta.history[:]
     locdata.meta.history.add(
-        name="load_decode_file", parameter="path={}, nrows={}".format(path, nrows)
+        name="load_decode_file", parameter=f"path={path}, nrows={nrows}"
     )
 
     return locdata

@@ -225,7 +225,7 @@ def _xcorr(imageA, imageB):
     """
     FimageA = np.fft.fft2(imageA)
     CFimageB = np.conj(np.fft.fft2(imageB))
-    return np.fft.fftshift(np.real(np.fft.ifft2((FimageA * CFimageB)))) / np.sqrt(
+    return np.fft.fftshift(np.real(np.fft.ifft2(FimageA * CFimageB))) / np.sqrt(
         imageA.size
     )
 

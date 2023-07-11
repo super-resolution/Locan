@@ -75,7 +75,8 @@ def test_cluster_hdbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
 def test_cluster_hdbscan_with_shuffled_index(locdata_two_cluster_with_noise_2d):
     locdata = deepcopy(locdata_two_cluster_with_noise_2d)
     new_index = list(locdata.data.index)
-    np.random.shuffle(new_index)
+    rng = np.random.default_rng()
+    rng.shuffle(new_index)
     locdata.data.index = new_index
     noise, clust = cluster_hdbscan(
         locdata, min_cluster_size=2, allow_single_cluster=False
@@ -169,7 +170,8 @@ def test_cluster_dbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
 def test_cluster_dbscan_with_shuffled_index(locdata_two_cluster_with_noise_2d):
     locdata = deepcopy(locdata_two_cluster_with_noise_2d)
     new_index = list(locdata.data.index)
-    np.random.shuffle(new_index)
+    rng = np.random.default_rng()
+    rng.shuffle(new_index)
     locdata.data.index = new_index
     noise, clust = cluster_dbscan(locdata, eps=2, min_samples=2)
     assert len(noise) == 1

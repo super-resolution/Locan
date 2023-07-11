@@ -196,6 +196,7 @@ select = [
     "UP",  # pyupgrade
     "BLE",  # flake8-blind-exception
     "ISC",  # flake8-implicit-str-concat
+    "NPY",  # numpy-specific rules
 ]
 # Rules - https://github.com/charliermarsh/ruff#reference:
 # E402 module-import-not-at-top-of-file

@@ -1,2 +1,0 @@
-include LICENSE.md
-graft locan/tests/test_data

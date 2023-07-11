@@ -194,6 +194,8 @@ select = [
     "YTT",  # flake8-2020
     "S",  # flake8-bandit
     "UP",  # pyupgrade
+    "BLE",  # flake8-blind-exception
+    "ISC",  # flake8-implicit-str-concat
 ]
 # Rules - https://github.com/charliermarsh/ruff#reference:
 # E402 module-import-not-at-top-of-file

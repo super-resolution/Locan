@@ -302,7 +302,7 @@ class NearestNeighborDistances(_Analysis):
                 self.distribution_statistics.plot(ax=ax)
 
         ax.set(
-            title="k-Nearest Neigbor Distances\n"
+            title="k-Nearest Neighbor Distances\n"  # noqa: ISC003
             + " (k = "
             + str(self.parameter["k"])
             + ")",

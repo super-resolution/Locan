@@ -112,7 +112,7 @@ class PropertyKey(Enum):
     intensity = PropertyDescription(
         "intensity",
         "float",
-        description="intensity or emission strength as estimated by the " "fitter",
+        description="intensity or emission strength as estimated by the fitter",
     )
     local_background = PropertyDescription(
         "local_background",
@@ -123,7 +123,7 @@ class PropertyKey(Enum):
     local_background_sigma = PropertyDescription(
         "local_background_sigma",
         "float",
-        description="variation of local background in terms of standard " "deviation",
+        description="variation of local background in terms of standard deviation",
     )
     signal_noise_ratio = PropertyDescription(
         "signal_noise_ratio",

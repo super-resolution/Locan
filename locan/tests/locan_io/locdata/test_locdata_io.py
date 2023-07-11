@@ -28,7 +28,7 @@ def test_loading_txt_file(caplog):
     # print(dat.data)
     assert len(dat) == 10
 
-    file_like = StringIO("index,position_x,position_y,cluster_label\n" "0,624,919,3")
+    file_like = StringIO("index,position_x,position_y,cluster_label\n0,624,919,3")
     dat = load_txt_file(
         path=file_like,
         columns=["index", "position_x", "position_y", "cluster_label"],

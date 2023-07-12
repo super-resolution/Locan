@@ -21,7 +21,7 @@ dependencies:
 # Development
 - build
 - twine
-- black
+- black~=23.0
 - pre-commit
 - ruff
 - mypy

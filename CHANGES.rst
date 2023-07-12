@@ -19,7 +19,9 @@ Bug Fixes
 
 Other Changes and Additions
 ---------------------------
--
+- Add type hints
+- Add type checking with mypy in pre-commit and GitHub actions CI workflow
+- Extend ruff linting
 
 
 0.14 - 2023-06-30

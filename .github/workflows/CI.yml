@@ -11,10 +11,8 @@ jobs:
     name: "CI with ubuntu, py3.10, pip-environment"
     runs-on: ubuntu-latest
     steps:
-      - name: "Checkout repository"
-        uses: actions/checkout@v3
-      - name: "Setup python"
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: "Install and upgrade"

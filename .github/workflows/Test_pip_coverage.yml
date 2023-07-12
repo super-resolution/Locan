@@ -17,8 +17,8 @@ jobs:
     name: "Tests with ubuntu, py3.10, pip-environment"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: "Install and upgrade"

@@ -13,7 +13,7 @@ env:
 
 jobs:
   check:
-    name: "CI with ubuntu, py3.10, pip-environment"
+    name: "CI with ubuntu, py3.10, pip"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

@@ -1,0 +1,27 @@
+name:  CI
+
+on:
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.10"
+
+jobs:
+  check:
+    name: "CI with ubuntu, py3.10, pip-environment"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: "Install and upgrade"
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install black~=23.0 ruff mypy
+      - name: "Format with black"
+        run: black --check --diff "."
+      - name: "Lint with ruff"
+        run: ruff --format=github "."
+      - name: "Type check with mypy"
+        run: mypy

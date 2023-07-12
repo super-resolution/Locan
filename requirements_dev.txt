@@ -2,7 +2,7 @@
 # Tools for locan development
 #
 -r ./requirements
-coverage
+coverage[toml]
 build
 twine
 black~=23.0
@@ -10,6 +10,7 @@ pre-commit
 asv
 ruff
 mypy
-types-requests
-types-protobuf
+numpy>1.20.0  # required by mypy
+types-requests  # required by mypy
+types-protobuf  # required by mypy
 -r docs/requirements

@@ -3,6 +3,8 @@ name: Tests with matrix, pip and extra dependencies
 on:
   schedule:
     - cron: "47 4 * * 4"
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:

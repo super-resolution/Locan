@@ -26,4 +26,4 @@ jobs:
       - name: "Lint with ruff"
         run: ruff --format=github "."
       - name: "Type check with mypy"
-        run: mypy --verbose "."
+        run: mypy

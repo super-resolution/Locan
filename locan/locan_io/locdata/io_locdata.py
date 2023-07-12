@@ -113,9 +113,7 @@ def load_txt_file(
     del dat.meta.history[:]
     dat.meta.history.add(
         name="load_txt_file",
-        parameter="path={}, sep={}, columns={}, nrows={}".format(
-            path, sep, columns, nrows
-        ),
+        parameter=f"path={path}, sep={sep}, columns={columns}, nrows={nrows}",
     )
 
     return dat

@@ -1,8 +1,6 @@
 name: Tests with ubuntu, current python, Mambaforge
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:

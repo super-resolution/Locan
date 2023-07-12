@@ -18,6 +18,7 @@ jobs:
       matrix:
         os: ["ubuntu", "macos", "windows"]
         python-version: ["3.8", "3.9", "3.10"]
+        if: ${{ github.event_name != "schedule" }}
         exclude:
           # The following is tested in separate workflow
           - os: "ubuntu"

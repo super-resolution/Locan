@@ -24,9 +24,12 @@ jobs:
         run: |
           pip install .[all,dev]
       - name: "Format with black"
-        run: black .
+        run: black --check --verbose "."
+        with:
+          fail_ci_if_error: true
       - name: "Lint with ruff"
-        run: ruff --format=github .
+        run: ruff --format=github "."
+        with:
+          fail_ci_if_error: true
       - name: "Type check with mypy"
-        run: mypy .
-
+        run: mypy --verbose "."

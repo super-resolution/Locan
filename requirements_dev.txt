@@ -5,7 +5,7 @@
 coverage
 build
 twine
-black
+black~=23.0
 pre-commit
 asv
 ruff

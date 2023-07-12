@@ -282,7 +282,7 @@ ignore_errors = true
 # all attr-defined errors are due to star imports
 [[tool.mypy.overrides]]
 module = [
-    'locan\tests\*',
+    'locan.tests.*',
 ]
 disable_error_code = ["attr-defined"]
 check_untyped_defs = false

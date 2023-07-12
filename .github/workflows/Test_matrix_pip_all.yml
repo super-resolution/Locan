@@ -18,8 +18,7 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
         exclude:
           # The following is tested in separate workflow
-          - if: github.event.pull_request
-            os: "ubuntu"
+          - os: "ubuntu"
             python-version: "3.10"
     env:
       REQUIREMENTS_FILE: "requirements-all-${{ matrix.os }}-py${{ matrix.python-version }}.yml"

@@ -77,7 +77,6 @@ def main(args=None):
         show_versions()
 
     elif returned_args.command:
-
         if returned_args.command == "draw_roi_mpl":
             from .scripts.script_draw_roi import sc_draw_roi_mpl
 

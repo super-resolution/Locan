@@ -25,6 +25,7 @@ dependencies:
 - pre-commit
 - ruff
 - mypy
+- numpy
 - types-requests
 - types-protobuf
 

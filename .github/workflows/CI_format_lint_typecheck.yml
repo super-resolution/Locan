@@ -18,7 +18,8 @@ jobs:
       - name: "Install and upgrade"
         run: |
           python -m pip install --upgrade pip
-          python -m pip install black~=23.0 ruff mypy
+          python -m pip install black~=23.0 ruff
+          python -m pip install mypy numpy types-requests types-protobuf
       - name: "Format with black"
         run: black --check --diff "."
       - name: "Lint with ruff"

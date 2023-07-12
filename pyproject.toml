@@ -115,7 +115,7 @@ docs = [
     "ray",
 ]
 dev = [
-    "coverage",
+    "coverage[toml]",
     "build",
     "twine",
     "black~=23.0",
@@ -123,8 +123,9 @@ dev = [
     "asv",
     "ruff",
     "mypy",
-    "types-requests",
-    "types-protobuf",
+    "numpy>1.20.0",  # required by mypy
+    "types-requests",  # required by mypy
+    "types-protobuf",  # required by mypy
 ]
 
 [project.urls]

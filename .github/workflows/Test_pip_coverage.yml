@@ -1,10 +1,6 @@
 name:  Tests with ubuntu, current python, pip and coverage
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -34,7 +30,7 @@ jobs:
       - name: "Prepare coverage reports"
         run: coverage xml
       - name: "Check coverage"
-        run: coverage report --fail-under=80
+        run: coverage report --fail-under=90
       - name: "Upload coverage to CodeCov"
         uses: codecov/codecov-action@v2
         with:

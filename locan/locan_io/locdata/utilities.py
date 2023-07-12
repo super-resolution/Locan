@@ -8,6 +8,7 @@ from __future__ import annotations
 import io
 import logging
 import os
+import sys
 from contextlib import closing
 from typing import TYPE_CHECKING, Union, cast
 
@@ -95,11 +96,18 @@ def open_path_or_file_like(
         try:
             # if hasattr(path_or_file_like, "__fspath__")
             # or isinstance(path_or_file_like, (str, bytes)):
-            file = open(
-                cast(
+            if sys.version_info >= (3, 9):
+                path_or_file_like = cast(
                     Union[str, bytes, os.PathLike[str], os.PathLike[bytes], int],
                     path_or_file_like,
-                ),
+                )  # noqa: F401
+            else:
+                path_or_file_like = cast(
+                    Union[str, bytes, os.PathLike, int],
+                    path_or_file_like,
+                )
+            file = open(
+                path_or_file_like,
                 mode=mode,
                 encoding=encoding,
             )

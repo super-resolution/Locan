@@ -2,8 +2,6 @@ name:  CI
 
 on:
   push:
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -60,7 +58,7 @@ jobs:
 
       - name: "Upload coverage to CodeCov"
         if: ${{ github.ref == 'refs/heads/main' }}
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: true
           files: coverage.xml

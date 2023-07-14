@@ -1,7 +1,6 @@
-name:  CI
+name:  CI_qt
 
 on:
-  push:
   workflow_dispatch:
 
 env:
@@ -32,11 +31,16 @@ jobs:
       - name: "Type check with mypy"
         run: mypy
 
+      # For testing with Qt on linux
+      - uses: tlambert03/setup-qt-libs@v1
+
       - name: "Install locan[test]"
-        run: pip install .[test]
+        run: pip install .[test-qt]
       - name: "Run tests"
         if: runner.os != 'Windows'
-        run: pytest
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: pytest
       - name: "Run tests on Windows"
         if: runner.os == 'Windows'
         env:
@@ -50,7 +54,9 @@ jobs:
         run: |
           pip install .[all]
       - name: "Run tests"
-        run: coverage run -m pytest --junitxml=./test-results-${{ env.PYTHON_VERSION }}.xml
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: coverage run -m pytest --junitxml=./test-results-${{ env.PYTHON_VERSION }}.xml
       - name: "Prepare coverage reports"
         run: coverage xml
       - name: "Check coverage"

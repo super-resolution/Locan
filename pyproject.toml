@@ -76,10 +76,12 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest",
+]
+test-qt = [
+    "pytest",
     "PyQt5",
     "pytest-qt;python_version<'3.11'"
 ]
-pytest-qt = ["pytest-qt"]
 pyside2 = ["PySide2"]
 pyqt5 = ["PyQt5"]
 color = ["colorcet"]

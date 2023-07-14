@@ -35,7 +35,9 @@ jobs:
         run: |
           pip install .[all]
       - name: "Run tests"
-        run:  pytest
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: pytest
       - name: "Freeze requirements"
         run: pip-compile pyproject.toml --extra test --output-file ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"

@@ -50,7 +50,9 @@ jobs:
         run: |
           pip install .[all]
       - name: "Run tests"
-        run: coverage run -m pytest --junitxml=./test-results-${{ env.PYTHON_VERSION }}.xml
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: coverage run -m pytest --junitxml=./test-results-${{ env.PYTHON_VERSION }}.xml
       - name: "Prepare coverage reports"
         run: coverage xml
       - name: "Check coverage"

@@ -1,16 +1,31 @@
 import numpy as np
 import pytest
 
-from locan import render_3d_napari, render_3d_rgb_napari, transform_affine
+from locan import (
+    render_3d_napari,
+    render_3d_napari_image,
+    render_3d_rgb_napari,
+    transform_affine,
+)
 from locan.dependencies import HAS_DEPENDENCY
 
 if HAS_DEPENDENCY["napari"]:
     import napari
 
+pytestmark = [
+    pytest.mark.qt,
+    pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="requires napari"),
+]
+
+HAS_NAPARI_AND_PYTESTQT = HAS_DEPENDENCY["napari"] and HAS_DEPENDENCY["pytestqt"]
+# pytestqt is not a requested or extra dependency.
+# If napari and pytest-qt is installed, all tests run.
+# Tests in docker or GitHub actions on linux require xvfb
+# for tests with pytest-qt to run.
+
 
 @pytest.mark.visual
 # this is to check overlay of rendered image and single localization points
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
 def test_render_3d_napari_coordinates(locdata_blobs_3d):
     viewer, histogram = render_3d_napari(
         locdata_blobs_3d, bin_size=10, cmap="viridis", gamma=0.1
@@ -21,14 +36,29 @@ def test_render_3d_napari_coordinates(locdata_blobs_3d):
     napari.run()
 
 
-@pytest.mark.gui
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
-def test_render_3d_napari(locdata_blobs_3d):
-    render_3d_napari(locdata_blobs_3d, bin_size=100, cmap="viridis", gamma=0.1)
-    # napari.run()
+def test_render_3d_napari_image(locdata_blobs_3d):
+    with pytest.raises(ValueError):
+        render_3d_napari_image(
+            locdata_blobs_3d, bin_edges=((0, 10, 100), (0, 10, 100), (0, 10, 100))
+        )
 
-    viewer = render_3d_napari(locdata_blobs_3d, bin_size=50, cmap="magenta", gamma=0.1)
-    render_3d_napari(
+    data, image_kwargs, layer_type = render_3d_napari_image(
+        locdata_blobs_3d, bin_size=100, cmap="viridis", gamma=0.1
+    )
+    assert layer_type == "image"
+    assert all(
+        key in ["name", "colormap", "scale", "translate", "metadata", "gamma"]
+        for key in image_kwargs
+    )
+    assert data.shape == (7, 6, 8)
+
+
+@pytest.mark.skipif(
+    not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
+)
+def test_render_3d_napari(make_napari_viewer, locdata_blobs_3d):
+    viewer = make_napari_viewer()
+    viewer_ = render_3d_napari(
         locdata_blobs_3d,
         viewer=viewer,
         bin_size=100,
@@ -37,21 +67,26 @@ def test_render_3d_napari(locdata_blobs_3d):
         scale=(2, 2),
         blending="additive",
     )
-    napari.run()
+    assert viewer_ is viewer
+    viewer.close()
 
 
-@pytest.mark.gui
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
-def test_render_3d_napari_empty(locdata_empty):
-    render_3d_napari(locdata_empty, bin_size=100, cmap="viridis", gamma=0.1)
-    napari.run()
-
-
-@pytest.mark.gui
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
-def test_render_3d_napari_single(locdata_single_localization, caplog):
+@pytest.mark.skipif(
+    not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
+)
+def test_render_3d_napari_empty(make_napari_viewer, locdata_empty):
+    viewer = make_napari_viewer()
     render_3d_napari(
-        locdata_single_localization, bin_size=100, cmap="viridis", gamma=0.1
+        locdata_empty, viewer=viewer, bin_size=100, cmap="viridis", gamma=0.1
+    )
+    assert viewer.layers == []
+    viewer.close()
+
+
+@pytest.mark.gui
+def test_render_3d_napari_single_gui(locdata_single_localization_3d, caplog):
+    render_3d_napari(
+        locdata_single_localization_3d, bin_size=100, cmap="viridis", gamma=0.1
     )
     assert caplog.record_tuples[1] == (
         "locan.render.render3d",
@@ -61,11 +96,43 @@ def test_render_3d_napari_single(locdata_single_localization, caplog):
     napari.run()
 
 
+@pytest.mark.skipif(
+    not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
+)
+def test_render_3d_napari_single(
+    make_napari_viewer, locdata_single_localization_3d, caplog
+):
+    viewer = make_napari_viewer()
+    render_3d_napari(
+        locdata_single_localization_3d,
+        viewer=viewer,
+        bin_size=100,
+        cmap="viridis",
+        gamma=0.1,
+    )
+    viewer.close()
+    assert caplog.record_tuples[0] == (
+        "locan.visualize.napari.render3d",
+        30,
+        "Locdata carries a single localization.",
+    )
+
+
 @pytest.mark.gui
-@pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
-def test_render_3d_rgb_napari(locdata_blobs_3d):
+def test_render_3d_rgb_napari_gui(locdata_blobs_3d):
     locdata_0 = locdata_blobs_3d
     locdata_1 = transform_affine(locdata_blobs_3d, offset=(20, 0, 0))
     render_3d_rgb_napari([locdata_0, locdata_1], bin_size=20)
 
     napari.run()
+
+
+@pytest.mark.skipif(
+    not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
+)
+def test_render_3d_rgb_napari(make_napari_viewer, locdata_blobs_3d):
+    viewer = make_napari_viewer()
+    locdata_0 = locdata_blobs_3d
+    locdata_1 = transform_affine(locdata_blobs_3d, offset=(20, 0, 0))
+    render_3d_rgb_napari([locdata_0, locdata_1], viewer=viewer, bin_size=20)
+    viewer.close()

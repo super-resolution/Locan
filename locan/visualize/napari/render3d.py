@@ -17,17 +17,125 @@ from locan import locdata_id
 from locan.data import LocData
 from locan.data.aggregate import Bins, histogram
 from locan.data.locdata_utils import _check_loc_properties
-from locan.dependencies import HAS_DEPENDENCY
+from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.visualize.transform import adjust_contrast
 
 if HAS_DEPENDENCY["napari"]:
     import napari
 
-__all__: list[str] = ["render_3d_napari", "render_3d_rgb_napari"]
+__all__: list[str] = [
+    "render_3d_napari",
+    "render_3d_napari_image",
+    "render_3d_rgb_napari",
+]
 
 logger = logging.getLogger(__name__)
 
 
+@needs_package("napari")
+def render_3d_napari_image(
+    locdata,
+    loc_properties=None,
+    other_property=None,
+    bins=None,
+    n_bins=None,
+    bin_size=10,
+    bin_edges=None,
+    bin_range=None,
+    rescale=None,
+    cmap="viridis",
+    **kwargs,
+) -> napari.types.LayerData:
+    """
+    Render localization data into a 3D image by binning x,y,z-coordinates into
+    regular bins.
+     Provide layer data for napari.
+
+    Parameters
+    ----------
+    locdata : LocData
+        Localization data.
+    loc_properties : list[str] | None
+        Localization properties to be grouped into bins.
+        If None The coordinate_values of `locdata` are used.
+    other_property : str | None
+        Localization property (columns in `locdata.data`) that is averaged
+        in each pixel.
+        If None, localization counts are shown.
+    bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
+        The bin specification as defined in :class:`Bins`
+    bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+        Bin edges for all or each dimension
+        with shape (dimension, n_bin_edges).
+    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+        Minimum and maximum edge for all or each dimensions
+        with shape (2,) or (dimension, 2).
+        If None (min, max) ranges are determined from data and returned;
+        if 'zero' (0, max) ranges with max determined from data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from
+        all combined data are returned.
+    n_bins : int | Sequence[int] | None
+        The number of bins for all or each dimension.
+        5 yields 5 bins in all dimensions.
+        (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
+    bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+        The size of bins for all or each bin and for all or each dimension
+        with shape (dimension,) or (dimension, n_bins).
+        5 would describe bin_size of 5 for all bins in all dimensions.
+        ((2, 5),) yield bins of size (2, 5) for one dimension.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other
+        dimension.
+        ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
+        (1, 3) for the other dimension.
+        To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
+    rescale : int | str | locan.Trafo | Callable | bool | None
+        Transformation as defined in :class:`locan.Trafo` or by
+        transformation function.
+        For None or False no rescaling occurs.
+        Legacy behavior:
+        For tuple with upper and lower bounds provided in percent,
+        rescale intensity values to be within percentile of max and min
+        intensities.
+        For 'equal' intensity values are rescaled by histogram equalization.
+    viewer : napari.Viewer
+        The viewer object on which to add the image
+    cmap : str | Colormap
+        The Colormap object used to map normalized data values to RGBA colors.
+    kwargs : dict
+        Other parameters passed to :func:`napari.Viewer.add_image`.
+
+    Returns
+    -------
+    napari.types.LayerData
+        Tuple with data, image_kwargs, "image"
+    """
+    # raise if no or single point in locdata
+    if len(locdata) < 2:
+        if len(locdata) == 1:
+            logger.warning("Locdata carries a single localization.")
+        raise ValueError(
+            "Locdata has zero or one localizations - must have more than one."
+        )
+
+    hist = histogram(
+        locdata=locdata,
+        loc_properties=loc_properties,
+        other_property=other_property,
+        bins=bins,
+        n_bins=n_bins,
+        bin_size=bin_size,
+        bin_edges=bin_edges,
+        bin_range=bin_range,
+    )
+    add_image_kwargs = dict(
+        name=f"LocData {locdata_id}",
+        colormap=cmap,
+    )
+    layer_data = (hist.data, dict(add_image_kwargs, **kwargs), "image")
+    return layer_data
+
+
+@needs_package("napari")
 def render_3d_napari(
     locdata,
     loc_properties=None,
@@ -43,7 +151,8 @@ def render_3d_napari(
     **kwargs,
 ):
     """
-    Render localization data into a 3D image by binning x,y,z-coordinates into regular bins.
+    Render localization data into a 3D image by binning x,y,z-coordinates into
+    regular bins.
     Render the data using napari.
 
     Parameters
@@ -103,34 +212,38 @@ def render_3d_napari(
     -------
     napari.Viewer
     """
-    if not HAS_DEPENDENCY["napari"]:
-        raise ImportError("Function requires napari.")
-
     # Provide napari viewer if not provided
     if viewer is None:
         viewer = napari.Viewer()
 
-    # return ax if no or single point in locdata
-    if len(locdata) < 2:
-        if len(locdata) == 1:
-            logger.warning("Locdata carries a single localization.")
-        return viewer
-
-    hist = histogram(
-        locdata=locdata,
-        loc_properties=loc_properties,
-        other_property=other_property,
-        bins=bins,
-        n_bins=n_bins,
-        bin_size=bin_size,
-        bin_edges=bin_edges,
-        bin_range=bin_range,
-    )
-
-    viewer.add_image(hist.data, name=f"LocData {locdata_id}", colormap=cmap, **kwargs)
+    try:
+        data, image_kwargs, layer_type = render_3d_napari_image(
+            locdata=locdata,
+            loc_properties=loc_properties,
+            other_property=other_property,
+            bins=bins,
+            n_bins=n_bins,
+            bin_size=bin_size,
+            bin_edges=bin_edges,
+            bin_range=bin_range,
+            rescale=rescale,
+            cmap=cmap,
+            **kwargs,
+        )
+        viewer.add_image(data=data, **dict(image_kwargs, **kwargs))
+    except ValueError as e:
+        if (
+            len(e.args) > 0
+            and e.args[0]
+            == "Locdata has zero or one localizations - must have more than one."
+        ):
+            pass
+        else:
+            raise e
     return viewer
 
 
+@needs_package("napari")
 def render_3d_rgb_napari(
     locdatas,
     loc_properties=None,
@@ -145,14 +258,17 @@ def render_3d_rgb_napari(
     **kwargs,
 ):
     """
-    Render localization data into a 3D RGB image by binning x,y,z-coordinates into regular bins.
+    Render localization data into a 3D RGB image by binning x,y,z-coordinates
+    into regular bins.
 
     Note
     ----
-    For rescale=False no normalization is carried out image intensities are clipped to (0, 1) for float value
-    or (0, 255) for integer values according to the matplotlib.imshow behavior.
-    For rescale=None we apply a normalization to (min, max) of all intensity values.
-    For all other rescale options the normalization is applied to each individual image.
+    For rescale=False no normalization is carried out image intensities are
+    clipped to (0, 1) for float value or (0, 255) for integer values according
+    to the matplotlib.imshow behavior.
+    For rescale=None we apply a normalization to (min, max) of all intensity
+    values. For all other rescale options the normalization is applied to each
+    individual image.
 
     Parameters
     ----------
@@ -209,9 +325,6 @@ def render_3d_rgb_napari(
     -------
     napari.Viewer
     """
-    if not HAS_DEPENDENCY["napari"]:
-        raise ImportError("Function requires napari.")
-
     # Provide napari viewer if not provided
     if viewer is None:
         viewer = napari.Viewer()

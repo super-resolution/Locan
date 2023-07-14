@@ -1,4 +1,5 @@
-name:  CI_qt
+name:  CI with qt, py3.10
+# includes qt-related tests
 
 on:
   workflow_dispatch:

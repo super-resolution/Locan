@@ -1,4 +1,5 @@
 name: Tests with matrix, pip
+# skips qt-related tests
 
 on:
   schedule:

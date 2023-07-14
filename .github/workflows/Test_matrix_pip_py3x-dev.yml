@@ -1,4 +1,5 @@
 name: Tests with matrix, pip, py3.12
+# skips qt-related tests
 
 on:
   workflow_dispatch:

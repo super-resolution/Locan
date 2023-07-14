@@ -1,9 +1,9 @@
 name: Tests with matrix, pip, extra dependencies, qt
-# skips qt-related tests
+# includes qt-related tests
 
 on:
-  pull_request:
-    branches: [ main ]
+  schedule:
+    - cron: "47 4 * * 4"
   workflow_dispatch:
 
 jobs:
@@ -15,10 +15,6 @@ jobs:
       matrix:
         os: ["ubuntu", "macos", "windows"]
         python-version: ["3.8", "3.9", "3.10", "3.11"]
-        exclude:
-          # The following is tested in separate workflow
-          - os: "ubuntu"
-            python-version: "3.10"
     env:
       REQUIREMENTS_FILE: "requirements-all-${{ matrix.os }}-py${{ matrix.python-version }}.yml"
     steps:
@@ -26,6 +22,9 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+
+      # For testing with Qt on linux
+      - uses: tlambert03/setup-qt-libs@v1
 
       - name: "Install and upgrade"
         run: |
@@ -35,7 +34,9 @@ jobs:
         run: |
           pip install .[all]
       - name: "Run tests"
-        run: pytest
+        uses: coactions/setup-xvfb@v1
+        with:
+          run: pytest
       - name: "Freeze requirements"
         run: pip-compile pyproject.toml --extra test --output-file ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"

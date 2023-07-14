@@ -1,4 +1,5 @@
 name: Tests with matrix, Mambaforge
+# skips qt-related tests
 
 on:
   schedule:

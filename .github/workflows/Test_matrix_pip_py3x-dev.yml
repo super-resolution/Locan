@@ -5,7 +5,7 @@ on:
 
 jobs:
   test-on-python:
-    name: "Tests with ${{ matrix.os }}, py${{ matrix.python-version }}, pip-environment"
+    name: "Tests with ${{ matrix.os }}, py${{ matrix.python-version }}, pip"
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false

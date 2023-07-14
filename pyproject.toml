@@ -76,6 +76,7 @@ dependencies = [
 [project.optional-dependencies]
 test = [
     "pytest",
+    "PyQt5",
     "pytest-qt;python_version<'3.11'"
 ]
 pytest-qt = ["pytest-qt"]

@@ -105,7 +105,7 @@ def render_2d_napari_image(
     Returns
     -------
     napari.types.LayerData
-        Tuple with data, image_kwargs, "image"
+        Tuple with data, image_kwargs, layer_type="image"
     """
     # raise if no or single point in locdata
     if len(locdata) < 2:

@@ -10,6 +10,11 @@ from __future__ import annotations
 
 import sys
 
+if sys.version_info >= (3, 9):
+    from collections.abc import Iterable, Sequence  # noqa: F401
+else:
+    from typing import Iterable, Sequence  # noqa: F401
+
 import numpy as np
 import numpy.typing as npt  # noqa: F401
 from sklearn.neighbors import NearestNeighbors
@@ -18,10 +23,12 @@ from locan.configuration import N_JOBS
 from locan.constants import HullType
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
-from locan.data.region import Region2D, RoiRegion
+from locan.data.region import Interval, Region2D, RoiRegion
 from locan.locan_types import RandomGeneratorSeed  # noqa: F401
 
 __all__: list[str] = [
+    "Selector",
+    "filter_condition",
     "select_by_condition",
     "select_by_region",
     "select_by_image_mask",
@@ -29,6 +36,105 @@ __all__: list[str] = [
     "random_subset",
     "localizations_in_cluster_regions",
 ]
+
+
+class Selector:
+    """
+    Define selection interval for a single localization property.
+
+    Parameters
+    ----------
+    loc_property
+        Localization property
+    activate
+        Indicator to apply the selection or not
+    lower_bound
+        min fo selection interval
+    upper_bound
+        max of selection interval
+
+    Attributes
+    ----------
+    loc_property : str
+        Localization property
+    activate : bool
+        Indicator to apply the selection or not
+    lower_bound : int | float
+        min fo selection interval
+    upper_bound: int | float
+        max of selection interval
+    interval : Interval
+        Class with interval specifications
+    condition : str
+        specification turned into condition string
+    """
+
+    def __init__(
+        self,
+        loc_property: str,
+        activate: bool,
+        lower_bound: int | float,
+        upper_bound: int | float,
+    ) -> None:
+        self.loc_property = loc_property
+        self.activate = activate
+        self._lower_bound = lower_bound
+        self._upper_bound = upper_bound
+        self.interval = Interval(lower_bound=lower_bound, upper_bound=upper_bound)
+
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}("
+            f"loc_property='{self.loc_property}', "
+            f"activate={self.activate}, "
+            f"lower_bound={self.lower_bound}, "
+            f"upper_bound={self.upper_bound}"
+            f")"
+        )
+
+    @property
+    def lower_bound(self):
+        return self._lower_bound
+
+    @lower_bound.setter
+    def lower_bound(self, value: int | float):
+        self._lower_bound = value
+        self.interval = Interval(lower_bound=value, upper_bound=self.upper_bound)
+
+    @property
+    def upper_bound(self):
+        return self._upper_bound
+
+    @upper_bound.setter
+    def upper_bound(self, value: int | float):
+        self._upper_bound = value
+        self.interval = Interval(lower_bound=self.lower_bound, upper_bound=value)
+
+    @property
+    def condition(self) -> str:
+        if self.activate is True:
+            condition = f"{self.lower_bound} < {self.loc_property} < {self.upper_bound}"
+        else:
+            condition = ""
+        return condition
+
+
+def filter_condition(selectors: Iterable[Selector]) -> str:
+    """
+    Get a condition string from selection specifications.
+
+    Parameters
+    ----------
+    selectors
+        Specifications for loc_property selections
+
+    Returns
+    -------
+    str
+    """
+    iterable = (selector.condition for selector in selectors if selector.activate)
+    condition = " and ".join(iterable)
+    return condition
 
 
 def select_by_condition(locdata, condition) -> LocData:

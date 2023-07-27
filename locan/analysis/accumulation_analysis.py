@@ -24,13 +24,12 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections.abc import Callable  # noqa: F401
 from typing import Literal
 
 if sys.version_info >= (3, 9):
-    from collections.abc import Sequence  # noqa: F401
+    from collections.abc import Callable, Sequence  # noqa: F401
 else:
-    from typing import Sequence  # noqa: F401
+    from typing import Callable, Sequence  # noqa: F401
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -57,7 +56,7 @@ logger = logging.getLogger(__name__)
 def _accumulation_cluster_check_for_single_dataset(
     locdata: LocData,
     region_measure: float,
-    algorithm: Callable = cluster_hdbscan,
+    algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,  # type: ignore
     algo_parameter: dict | None = None,
     hull: Literal["bb", "ch"] = "bb",
 ) -> tuple[float, float, float]:
@@ -121,7 +120,7 @@ def _accumulation_cluster_check_for_single_dataset(
 def _accumulation_cluster_check(
     locdata: LocData,
     region_measure: Literal["bb", "ch"] = "bb",
-    algorithm: Callable = cluster_hdbscan,
+    algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,  # type: ignore
     algo_parameter: dict | None = None,
     hull: Literal["bb", "ch"] = "bb",
     n_loc: int = 10,
@@ -215,7 +214,7 @@ class AccumulationClusterCheck(_Analysis):
     region_measure : float | Literal["bb", "ch"]
         Region measure (area or volume) for the support of locdata. String can
          be any of standard hull identifier.
-    algorithm : Callable
+    algorithm : Callable[..., tuple[LocData, LocData]]
         Clustering algorithm.
     algo_parameter : dict
         Dictionary with kwargs for `algorithm`.

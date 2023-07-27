@@ -19,7 +19,7 @@ def test_cluster_hdbscan_2d(locdata_two_cluster_2d):
     noise, clust = cluster_hdbscan(
         locdata_two_cluster_2d, min_cluster_size=2, allow_single_cluster=False
     )
-    assert noise is None
+    assert noise.data.empty
     assert len(clust) == 2
     assert all(clust.data.localization_count == [3, 3])
     assert all(clust.references[0].data.cluster_label == 1)
@@ -39,7 +39,7 @@ def test_cluster_hdbscan_2d(locdata_two_cluster_2d):
         min_cluster_size=2,
         allow_single_cluster=False,
     )
-    assert noise is None
+    assert noise.data.empty
     assert len(clust) == 2
     assert all(clust.data.localization_count == [3, 3])
     assert all(clust.references[0].data.cluster_label == 1)
@@ -108,7 +108,7 @@ def test_cluster_hdbscan_empty_locdata(
 
 def test_cluster_dbscan_2d(locdata_two_cluster_2d):
     noise, clust = cluster_dbscan(locdata_two_cluster_2d, eps=2, min_samples=1)
-    assert noise is None
+    assert noise.data.empty
     assert len(clust) == 2
     assert all(clust.data.localization_count == [3, 3])
     assert all(clust.references[0].data.cluster_label == 1)
@@ -123,7 +123,7 @@ def test_cluster_dbscan_2d(locdata_two_cluster_2d):
     noise, clust = cluster_dbscan(
         locdata_two_cluster_2d, loc_properties=["position_x"], eps=2, min_samples=1
     )
-    assert noise is None
+    assert noise.data.empty
     assert len(clust) == 2
     assert all(clust.data.localization_count == [3, 3])
     assert all(clust.references[0].data.cluster_label == 1)
@@ -140,7 +140,7 @@ def test_cluster_dbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
     noise, clust = cluster_dbscan(
         locdata_two_cluster_with_noise_2d, eps=2, min_samples=1
     )
-    assert noise is None
+    assert noise.data.empty
     assert len(clust) == 3
     assert all(clust.data.localization_count == [3, 3, 1])
     assert all(clust.references[0].data.cluster_label == 1)

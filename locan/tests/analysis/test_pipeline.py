@@ -35,7 +35,7 @@ def test_Pipeline(locdata_2d):
     assert pipe.test == "my_test"
 
     # print(pipe.computation_as_string())
-    assert type(pipe.computation_as_string()) is str
+    assert isinstance(pipe.computation_as_string(), str)
 
     # save compute as text
     with tempfile.TemporaryDirectory() as tmp_directory:

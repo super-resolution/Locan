@@ -43,7 +43,6 @@ def render_2d_napari_image(
     bin_edges=None,
     bin_range=None,
     rescale=None,
-    viewer=None,
     cmap="viridis",
     **kwargs,
 ) -> napari.types.LayerData:

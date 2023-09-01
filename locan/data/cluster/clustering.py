@@ -32,7 +32,7 @@ def cluster_hdbscan(
     loc_properties=None,
     allow_single_cluster=False,
     **kwargs,
-):
+) -> tuple[LocData, LocData]:
     """
     Cluster localizations in locdata using the hdbscan clustering algorithm.
 
@@ -97,7 +97,7 @@ def cluster_hdbscan(
             locdata_noise = selections[0]
             collection = LocData.from_collection(selections[1:])
         except KeyError:
-            locdata_noise = None
+            locdata_noise = LocData()
             collection = LocData.from_collection(selections)
 
     # set regions
@@ -120,7 +120,9 @@ def cluster_hdbscan(
     return locdata_noise, collection
 
 
-def cluster_dbscan(locdata, eps=20, min_samples=5, loc_properties=None, **kwargs):
+def cluster_dbscan(
+    locdata, eps=20, min_samples=5, loc_properties=None, **kwargs
+) -> tuple[LocData, LocData]:
     """
     Cluster localizations in locdata using the dbscan clustering algorithm as
     implemented in sklearn.
@@ -182,7 +184,7 @@ def cluster_dbscan(locdata, eps=20, min_samples=5, loc_properties=None, **kwargs
             locdata_noise = selections[0]
             collection = LocData.from_collection(selections[1:])
         except KeyError:
-            locdata_noise = None
+            locdata_noise = LocData()
             collection = LocData.from_collection(selections)
 
     # set regions
@@ -215,7 +217,7 @@ def cluster_by_bin(
     bin_edges=None,
     bin_range=None,
     return_counts=False,
-):
+) -> tuple[Bins | None, npt.NDArray, LocData, npt.NDArray | None]:
     """
     Cluster localizations in locdata by binning all localizations with regard
     to `loc_properties` and collecting all localizations per bin as cluster.
@@ -256,7 +258,7 @@ def cluster_by_bin(
 
     Returns
     -------
-    tuple[Bins, npt.NDArray, LocData, npt.NDArray | None]
+    tuple[Bins | None, npt.NDArray, LocData, npt.NDArray | None]
         Tuple with bins, bin_indices,
         collection of all generated selections (i.e. localization clusters),
         and counts per bin.
@@ -292,7 +294,7 @@ def cluster_by_bin(
 
     if min_samples > 1:
         mask = counts >= min_samples
-        counts = counts[mask]
+        counts = counts[mask]  # type: ignore
         bin_indices = bin_indices[mask]
         data_indices = [
             data_indices_e

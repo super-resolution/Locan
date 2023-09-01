@@ -9,8 +9,10 @@ from locan import (
     LocData,
     Rectangle,
     RoiRegion,
+    Selector,
     cluster_dbscan,
     exclude_sparse_points,
+    filter_condition,
     localizations_in_cluster_regions,
     random_subset,
     render_2d_mpl,  # needed for visual inspection  # noqa: F401
@@ -43,6 +45,55 @@ def locdata_simple():
     meta_ = locan.data.metadata_pb2.Metadata()
     meta_.creation_time.FromSeconds(1)
     return LocData.from_dataframe(dataframe=df, meta=meta_)
+
+
+class TestSelector:
+    def test_selector_init(self, locdata_simple):
+        selector = Selector(
+            loc_property="position_x",
+            activate=False,
+            lower_bound=1,
+            upper_bound=10,
+        )
+        assert (
+            repr(selector) == "Selector(loc_property='position_x', activate=False, "
+            "lower_bound=1, upper_bound=10)"
+        )
+        assert selector.interval.bounds == (1, 10)
+        assert selector.activate is False
+        assert selector.condition == ""
+
+        selector.lower_bound = 2
+        selector.activate = True
+        assert selector.interval.bounds == (2, 10)
+        assert selector.activate is True
+        assert selector.condition == "2 < position_x < 10"
+
+        with pytest.raises(TypeError):
+            Selector()
+
+
+def test_filter_condition():
+    selectors = [
+        Selector(
+            loc_property="position_x", activate=False, lower_bound=0, upper_bound=10
+        ),
+        Selector(
+            loc_property="position_y", activate=True, lower_bound=0, upper_bound=10
+        ),
+        Selector(
+            loc_property="intensity", activate=True, lower_bound=0, upper_bound=10
+        ),
+    ]
+    condition = filter_condition(selectors=selectors)
+    assert condition == "0 < position_y < 10 and 0 < intensity < 10"
+
+    selectors[0].activate = True
+    condition = filter_condition(selectors=selectors)
+    assert (
+        condition
+        == "0 < position_x < 10 and 0 < position_y < 10 and 0 < intensity < 10"
+    )
 
 
 def test_select_by_condition(locdata_simple):

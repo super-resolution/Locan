@@ -1,8 +1,8 @@
 [build-system]
 requires = [
-    "setuptools>=42",
+    "setuptools>=45",
     "wheel",
-    "setuptools_scm[toml]>=3.4"
+    "setuptools_scm[toml]>=6.2"
     ]
 build-backend = "setuptools.build_meta"
 
@@ -74,8 +74,14 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest"]
-pytest-qt = ["pytest-qt"]
+test = [
+    "pytest",
+]
+test-qt = [
+    "pytest",
+    "PyQt5",
+    "pytest-qt;python_version<'3.11'"
+]
 pyside2 = ["PySide2"]
 pyqt5 = ["PyQt5"]
 color = ["colorcet"]
@@ -90,7 +96,7 @@ hdf5 = ["h5py"]
 hdbscan = ["hdbscan"]
 all = [
     "PyQt5",
-    "pytest",
+    "locan[test]",
     "colorcet",
     "trackpy",
     "locan[register]",

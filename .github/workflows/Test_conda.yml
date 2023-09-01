@@ -1,4 +1,5 @@
-name: Tests with ubuntu, current python, Mambaforge
+name: Tests with ubuntu, Mambaforge, py3.10
+# skips qt-related tests
 
 on:
   pull_request:

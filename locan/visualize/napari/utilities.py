@@ -6,7 +6,7 @@ Utility functions for interacting with napari.
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable  # noqa: F401
+from collections.abc import Iterable, Sequence  # noqa: F401
 from pathlib import Path
 from typing import Literal  # noqa: F401
 
@@ -152,7 +152,7 @@ def get_rois(shapes_layer, reference=None, loc_properties=None) -> list[Roi]:
         integer or string indicating the file type.
         Integer or string should be according to
         locan.constants.FileType.
-    loc_properties : tuple[str]
+    loc_properties : Sequence[str]
         Localization properties in LocData object on which the region
         selection will be applied (for instance the coordinate_keys).
 

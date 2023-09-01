@@ -231,7 +231,13 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray:
     -------
     npt.NDArray
     """
-    if rescale is None or rescale is False or rescale is Trafo.NONE or rescale == 0:
+    if (
+        rescale is None
+        or rescale is False
+        or rescale is Trafo.NONE
+        or rescale == 0
+        or (isinstance(rescale, str) and rescale.upper() == Trafo.NONE.name)
+    ):
         new_image = image
 
     elif (

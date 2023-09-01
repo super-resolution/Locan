@@ -7,6 +7,7 @@ from locan import (  # noqa: F401  # this import is needed for interactive tests
     RenderEngine,
     render_2d_mpl,
     render_2d_napari,
+    render_2d_napari_image,
     render_2d_rgb_napari,
     transform_affine,
 )
@@ -59,13 +60,30 @@ def test_render_2d_napari_new_visual(locdata_blobs_2d):
     plt.close("all")
 
 
+def test_render_2d_napari_image(locdata_blobs_2d):
+    with pytest.raises(ValueError):
+        # bins that are not equally sized cannot be displayed in napari.
+        render_2d_napari_image(locdata_blobs_2d, bin_edges=((0, 10, 100), (0, 10, 100)))
+
+    data, image_kwargs, layer_type = render_2d_napari_image(
+        locdata_blobs_2d, bin_size=100, cmap="viridis", gamma=0.1
+    )
+    assert layer_type == "image"
+    assert all(
+        key in ["name", "colormap", "scale", "translate", "metadata", "gamma"]
+        for key in image_kwargs
+    )
+    assert data.shape == (8, 5)
+
+
 @pytest.mark.skipif(
     not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
 )
 def test_render_2d_napari(make_napari_viewer, locdata_blobs_2d):
     viewer = make_napari_viewer()
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
+        # bins that are not equally sized cannot be displayed in napari.
         render_2d_napari(
             locdata_blobs_2d, viewer=viewer, bin_edges=((0, 10, 100), (0, 10, 100))
         )
@@ -144,7 +162,6 @@ def test_render_2d_rgb_napari_gui(locdata_blobs_2d):
     locdata_0 = locdata_blobs_2d
     locdata_1 = transform_affine(locdata_blobs_2d, offset=(20, 0))
     render_2d_rgb_napari([locdata_0, locdata_1], bin_size=20)
-
     napari.run()
 
 

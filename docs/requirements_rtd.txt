@@ -238,8 +238,6 @@ lmfit==1.2.2
     # via
     #   locan
     #   locan (pyproject.toml)
-locan[register,test] @ file:///locan
-    # via locan (pyproject.toml)
 locket==1.0.0
     # via partd
 looseversion==1.3.0

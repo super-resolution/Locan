@@ -81,7 +81,7 @@ napoleon_type_aliases = None
 napoleon_attr_annotations = True
 
 # myST-NB settings
-nb_execution_mode = "off"  # "force"  # 'off' 'cache'
+nb_execution_mode = "force"  # 'off' 'cache' 'force'
 
 # copybutton settings
 copybutton_prompt_text = ">>> "

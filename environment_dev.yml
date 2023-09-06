@@ -35,4 +35,5 @@ dependencies:
 - myst-nb
 - sphinx-copybutton
 - sphinx_rtd_theme
+- sphinx-autodoc-typehints
 - furo

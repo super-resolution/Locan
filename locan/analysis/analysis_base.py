@@ -130,7 +130,7 @@ class _Analysis:
             pass
         else:
             try:
-                meta_.MergeFrom(meta)
+                meta_.MergeFrom(meta)  # type: ignore[arg-type]
             except TypeError:
                 for key, value in meta.items():  # type: ignore
                     setattr(meta_, key, value)

@@ -83,7 +83,7 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
     if other_dependencies:
         deps = deps.union(other_dependencies)
 
-    deps_info = {}
+    deps_info: dict[str, str | None] = {}
     for modname in deps:
         try:
             deps_info[modname] = importlib.metadata.version(modname)

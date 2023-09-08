@@ -268,7 +268,7 @@ class BlinkStatistics(_Analysis):
         -------
         None
         """
-        if not self:
+        if self.results is None:
             logger.warning("No results available to fit.")
         else:
             if isinstance(data_identifier, (tuple, list)):
@@ -321,7 +321,7 @@ class BlinkStatistics(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         ax.hist(

@@ -132,6 +132,15 @@ def test_Localization_precision_plot(locdata_rapidSTORM_2d):
     print(lp.meta)
 
 
+class Test_Distribution_fits:
+    def test_init(self):
+        lp = LocalizationPrecision()
+        distribution_statistics = _DistributionFits(lp)
+        with pytest.raises(ValueError):
+            distribution_statistics.fit()
+        distribution_statistics.plot()
+
+
 def test_Distribution_fits_1d(locdata_simple_1d):
     # print(locdata_simple.data)
     lp = LocalizationPrecision().compute(locdata=locdata_simple_1d)

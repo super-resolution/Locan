@@ -789,7 +789,7 @@ class LocData:
         dataframe = pd.concat([i.data for i in locdatas], ignore_index=True, sort=False)
 
         # concatenate references also if None
-        references = []
+        references: list = []
         for locdata in locdatas:
             try:
                 references.extend(locdata.references)
@@ -797,8 +797,7 @@ class LocData:
                 references.append(locdata.references)
 
         # check if all elements are None
-        if not any(references):
-            references = None
+        new_references = None if not any(references) else references
 
         meta_ = metadata_pb2.Metadata()
 
@@ -810,7 +809,7 @@ class LocData:
 
         meta_ = merge_metadata(metadata=meta_, other_metadata=meta)
 
-        return cls(references=references, dataframe=dataframe, meta=meta_)
+        return cls(references=new_references, dataframe=dataframe, meta=meta_)
 
     @classmethod
     def from_chunks(

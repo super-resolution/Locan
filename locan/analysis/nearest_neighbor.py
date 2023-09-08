@@ -264,7 +264,7 @@ class NearestNeighborDistances(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         values, bin_values, patches = ax.hist(
@@ -295,11 +295,13 @@ class NearestNeighborDistances(_Analysis):
 
         # fit distributions:
         if fit:
-            if isinstance(self.distribution_statistics, _DistributionFits):
-                self.distribution_statistics.plot(ax=ax)
-            else:
+            if self.distribution_statistics is None:
                 self.fit_distributions()
-                self.distribution_statistics.plot(ax=ax)
+
+            assert (  # type narrowing # noqa: S101
+                self.distribution_statistics is not None
+            )
+            self.distribution_statistics.plot(ax=ax)
 
         ax.set(
             title="k-Nearest Neighbor Distances\n"  # noqa: ISC003
@@ -409,7 +411,7 @@ class _DistributionFits:
             )
             return
 
-        self.parameters = [name.strip() for name in self.distribution.shapes.split(",")]
+        self.parameters = [name.strip() for name in self.distribution.shapes.split(",")]  # type: ignore[attr-defined]
         self.parameters += ["loc", "scale"]
 
         if with_constraints:
@@ -417,7 +419,7 @@ class _DistributionFits:
         else:
             kwargs_ = kwargs
 
-        fit_results = self.distribution.fit(
+        fit_results = self.distribution.fit(  # type: ignore[attr-defined]
             data=self.analysis_class.results[self.loc_property].values, **kwargs_
         )
         for parameter, result in zip(self.parameters, fit_results):

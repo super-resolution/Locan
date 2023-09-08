@@ -128,7 +128,7 @@ def convert_property_names(properties, property_mapping=None):
     ----------
     properties : list[str] | tuple[str, ...]
         Properties to be converted
-    property_mapping : dict[str: str] | list[dict]
+    property_mapping : dict[str: str] | list[dict] | None
         Mappings between other property names and locan property names
 
     Returns
@@ -137,7 +137,7 @@ def convert_property_names(properties, property_mapping=None):
         Converted property names
     """
     if property_mapping is None:
-        property_mapping_ = {}
+        property_mapping_: dict = {}
     elif isinstance(property_mapping, (list, tuple)):
         property_mapping_ = {}
         for mapping in property_mapping:

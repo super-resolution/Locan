@@ -94,7 +94,7 @@ class LocalizationPropertyCorrelations(_Analysis):
         return self
 
     def report(self) -> None:
-        if not self:
+        if self.results is None:
             logger.warning("No results available")
             return
 
@@ -126,7 +126,7 @@ class LocalizationPropertyCorrelations(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         im = ax.imshow(

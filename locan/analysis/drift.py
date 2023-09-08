@@ -53,7 +53,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Literal
+from typing import Literal, Protocol
 
 if sys.version_info >= (3, 9):
     from collections.abc import Sequence  # noqa: F401
@@ -82,6 +82,17 @@ from locan.dependencies import needs_package
 __all__: list[str] = ["Drift", "DriftComponent"]
 
 logger = logging.getLogger(__name__)
+
+
+class DriftModel(Protocol):
+    def fit(self, *args, **kwargs):
+        ...
+
+    def eval(self, *args, **kwargs):
+        ...
+
+    def plot(self, *args, **kwargs):
+        ...
 
 
 # The algorithms
@@ -267,9 +278,13 @@ class _LmfitModelFacade:
 
     def eval(self, x):
         x = np.asarray(x)
+        if self.model_result is None:
+            raise AttributeError("No model_result available. Run fit method first.")
         return self.model_result.eval(x=x)
 
     def plot(self, **kwargs):
+        if self.model_result is None:
+            raise AttributeError("No model_result available. Run fit method first.")
         return self.model_result.plot(**kwargs)
 
 
@@ -288,12 +303,16 @@ class _ConstantModelFacade:
 
     def eval(self, x):
         x = np.asarray(x)
+        if self.model_result is None:
+            raise AttributeError("No model_result available. Run fit method first.")
         result = self.model_result.eval(x=x)
         if np.shape(result) != np.shape(x):  # needed to work with lmfit<1.2.0
             result = np.full(shape=np.shape(x), fill_value=result)
         return result
 
     def plot(self, **kwargs):
+        if self.model_result is None:
+            raise AttributeError("No model_result available. Run fit method first.")
         x = self.independent_variable
         y = self.model_result.data
         return plt.plot(x, y, "o", x, self.eval(x=x), **kwargs)
@@ -333,6 +352,8 @@ class _SplineModelFacade:
 
     def eval(self, x):
         np.asarray(x)
+        if self.model_result is None:
+            raise AttributeError("No model_result available. Run fit method first.")
         results = splev(x, self.model_result)
         if isinstance(x, (tuple, list, np.ndarray)):
             return results
@@ -340,9 +361,11 @@ class _SplineModelFacade:
             return float(results)
 
     def plot(self, **kwargs):
+        if self.model_result is None:
+            raise AttributeError("No model_result available. Run fit method first.")
         x = self.independent_variable
         y = self.data
-        x_ = np.linspace(np.min(x), np.max(x), 100)
+        x_ = np.linspace(np.min(x), np.max(x), 100)  # type: ignore[arg-type]
         return plt.plot(x, y, "o", x_, self.eval(x=x_), **kwargs)
 
 
@@ -363,16 +386,17 @@ class DriftComponent:
 
     Attributes
     ----------
-    type : str
+    type
         String indicator for model.
-    model : lmfit.models.Model
+    model : lmfit.models.Model | None
         The model definition (return value of :func:`scipy.interpolate.splrep`)
     model_result : lmfit.model.ModelResult, collection of model results.
         The results collected from fitting the model to specified data.
     """
 
     def __init__(self, type=None, **kwargs):
-        self.type = type
+        self.type: str = type
+        self.model: DriftModel | None
         self.model_result = None
 
         if type is None:
@@ -419,6 +443,9 @@ class DriftComponent:
         -------
         Self
         """
+        if self.model is None:
+            raise ValueError("No model available.")
+
         self.model_result = self.model.fit(x, y, verbose=verbose, **kwargs)
         return self
 
@@ -435,6 +462,8 @@ class DriftComponent:
         -------
         npt.NDArray[np.float_].
         """
+        if self.model is None:
+            raise ValueError("No model available.")
         return self.model.eval(x)
 
 
@@ -453,7 +482,7 @@ class Drift(_Analysis):
         Localization chunks as defined by a list of index-tuples
     chunk_size : int
         Number of consecutive localizations to form a single chunk of data.
-    target : str
+    target : Literal["first", "previous"]
         The chunk on which all other chunks are aligned.
         One of 'first', 'previous'.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
@@ -479,15 +508,15 @@ class Drift(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    locdata : LocData
+    locdata : LocData | None
         Localization data representing the source on which to perform the manipulation.
-    collection : Locdata object
+    collection : LocData | None
         Collection of locdata chunks
-    transformations : list[Transformation]
+    transformations : list[Transformation] | None
         Transformations for locdata chunks
-    transformation_models : dict[str, list]
+    transformation_models : dict[str, list | None]
         The fitted model objects.
-    locdata_corrected : LocData
+    locdata_corrected : LocData | None
         Localization data with drift-corrected coordinates.
     """
 
@@ -507,8 +536,10 @@ class Drift(_Analysis):
         super().__init__(**parameters)
         self.locdata = None
         self.collection = None
-        self.transformations = None
-        self.transformation_models = dict(matrix=None, offset=None)
+        self.transformations: list[Transformation] | None = None
+        self.transformation_models: dict[str, list | None] = dict(
+            matrix=None, offset=None
+        )
         self.locdata_corrected = None
 
     def __bool__(self):
@@ -567,7 +598,7 @@ class Drift(_Analysis):
         Return transformation_models (dict) with DriftModels according to unit
         matrix.
         """
-        dimension = self.locdata.dimension
+        dimension = self.locdata.dimension  # type: ignore[union-attr]
         transformation_models = []
         for k in np.identity(dimension).flatten():
             if k == 0:
@@ -581,7 +612,7 @@ class Drift(_Analysis):
         Return transformation_models (dict) with DriftModels according to zero
         offset.
         """
-        dimension = self.locdata.dimension
+        dimension = self.locdata.dimension  # type: ignore[union-attr]
         return dict(offset=[DriftComponent("zero") for _ in range(dimension)])
 
     def fit_transformation(
@@ -597,7 +628,7 @@ class Drift(_Analysis):
 
         Parameters
         ----------
-        slice_data : Slice object | None
+        slice_data : Slice | None
             Reduce data to a selection on the localization chunks.
         transformation_component : Literal["matrix", "offset"]
             One of 'matrix' or 'offset'
@@ -617,17 +648,17 @@ class Drift(_Analysis):
         -------
         Self
         """
-        if not self:
+        if self.transformations is None:
             logger.warning("No transformations available to be fitted.")
             return self
 
         if slice_data is None:
             slice_data = slice(None)
 
-        dimension = self.locdata.dimension
+        dimension = self.locdata.dimension  # type: ignore[union-attr]
         # frames = np.array([locdata.data.frame.mean() for locdata in self.collection.references[1:]])[slice_data]
         frames = np.array(
-            [locdata.data.frame.mean() for locdata in self.collection.references]
+            [locdata.data.frame.mean() for locdata in self.collection.references]  # type: ignore[union-attr]
         )[slice_data]
 
         if drift_model is None:
@@ -664,13 +695,13 @@ class Drift(_Analysis):
                     "transformation_component must be 'matrix' or 'offset'."
                 )
 
-            self.transformation_models[transformation_component][element] = drift_model
-            self.transformation_models[transformation_component][element].fit(
+            self.transformation_models[transformation_component][element] = drift_model  # type: ignore[index]
+            self.transformation_models[transformation_component][element].fit(  # type: ignore[index]
                 frames, y, verbose=False
             )
 
             if verbose:
-                self.transformation_models[transformation_component][
+                self.transformation_models[transformation_component][  # type: ignore[index]
                     element
                 ].model.plot()
 
@@ -691,7 +722,7 @@ class Drift(_Analysis):
 
         Parameters
         ----------
-        slice_data : Slice object | None
+        slice_data : Slice | None
             Reduce data to a selection on the localization chunks.
         matrix_models : list[DriftComponent] | None
             Models to use for fitting each matrix component.
@@ -712,7 +743,7 @@ class Drift(_Analysis):
         -------
         Self
         """
-        if not self:
+        if self.transformations is None:
             logger.warning("No transformations available to be fitted.")
             return self
 
@@ -722,7 +753,7 @@ class Drift(_Analysis):
         if matrix_models is None:
             self.transformation_models["matrix"] = None
         else:
-            if len(matrix_models) != self.locdata.dimension**2:
+            if len(matrix_models) != self.locdata.dimension**2:  # type: ignore[union-attr]
                 raise ValueError(
                     "Length of matrix_models must be equal to the square of the "
                     "transformations dimension (4 or 9)."
@@ -732,7 +763,7 @@ class Drift(_Analysis):
             )
             for n, matrix_model in enumerate(matrix_models):
                 if matrix_model is None:
-                    matrix_model = self.transformation_models["matrix"][n]
+                    matrix_model = self.transformation_models["matrix"][n]  # type: ignore[index]
                 self.fit_transformation(
                     slice_data=slice_data,
                     transformation_component="matrix",
@@ -744,7 +775,7 @@ class Drift(_Analysis):
         if offset_models is None:
             self.transformation_models["offset"] = None
         else:
-            if len(offset_models) != self.locdata.dimension:
+            if len(offset_models) != self.locdata.dimension:  # type: ignore[union-attr]
                 raise ValueError(
                     "Length of offset_models must be equal to the the transformations dimension (2 or 3)."
                 )
@@ -753,7 +784,7 @@ class Drift(_Analysis):
             )
             for n, offset_model in enumerate(offset_models):
                 if offset_model is None:
-                    offset_model = self.transformation_models["offset"][n]
+                    offset_model = self.transformation_models["offset"][n]  # type: ignore[index]
                 self.fit_transformation(
                     slice_data=slice_data,
                     transformation_component="offset",
@@ -773,14 +804,14 @@ class Drift(_Analysis):
             transformed_locdatas = [
                 transform_affine(locdata, transformation.matrix, transformation.offset)
                 for locdata, transformation in zip(
-                    self.collection.references[1:], self.transformations
+                    self.collection.references[1:], self.transformations  # type: ignore[union-attr,arg-type]
                 )
             ]
 
         elif self.parameter["target"] == "previous":
-            for n, locdata in enumerate(self.collection.references[1:]):
+            for n, locdata in enumerate(self.collection.references[1:]):  # type: ignore[union-attr]
                 transformed_locdata = locdata
-                for transformation in reversed(self.transformations[:n]):
+                for transformation in reversed(self.transformations[:n]):  # type: ignore[index]
                     transformed_locdata = transform_affine(
                         transformed_locdata,
                         transformation.matrix,
@@ -789,7 +820,7 @@ class Drift(_Analysis):
                 transformed_locdatas.append(transformed_locdata)
 
         new_locdata = LocData.concat(
-            [self.collection.references[0]] + transformed_locdatas
+            [self.collection.references[0]] + transformed_locdatas  # type: ignore[union-attr]
         )
         return new_locdata
 
@@ -858,14 +889,14 @@ class Drift(_Analysis):
         -------
         Self
         """
-        if not self:
+        if self.transformations is None:
             logger.warning("No transformations available to be applied.")
             return self
 
         local_parameter = locals()
 
         if locdata is None:
-            locdata_orig = self.locdata
+            locdata_orig: LocData = self.locdata  # type: ignore[assignment]
         else:
             locdata_orig = locdata
 
@@ -942,12 +973,12 @@ class Drift(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.transformations is None:
             return ax
 
         n_transformations = len(self.transformations)
         # prepare plot
-        x = [reference.data.frame.mean() for reference in self.collection.references]
+        x = [reference.data.frame.mean() for reference in self.collection.references]  # type: ignore[union-attr]
         results = np.array(
             [
                 getattr(transformation, transformation_component)

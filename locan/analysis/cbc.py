@@ -222,7 +222,7 @@ class CoordinateBasedColocalization(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         ax.hist(

@@ -259,6 +259,7 @@ class ConvexHull:
 
     def __init__(self, points, method="scipy"):
         self.method = method
+        self._special_class: _ConvexHullScipy | _ConvexHullShapely
         if method == "scipy":
             self._special_class = _ConvexHullScipy(points)
         elif method == "shapely":
@@ -331,8 +332,8 @@ class OrientedBoundingBox:
             self.width = np.array(
                 [np.linalg.norm(difference[0]), np.linalg.norm(difference[1])]
             )
-            self.region_measure = self.hull.area
-            self.subregion_measure = self.hull.length
+            self.region_measure = self.hull.area  # type: ignore[attr-defined]
+            self.subregion_measure = self.hull.length  # type: ignore[attr-defined]
             self.angle = float(
                 np.degrees(np.arctan2(difference[0][1], difference[0][0]))
             )
@@ -341,7 +342,7 @@ class OrientedBoundingBox:
 
     @property
     def vertices(self):
-        return np.array(self.hull.exterior.coords)
+        return np.array(self.hull.exterior.coords)  # type: ignore[attr-defined]
 
     @property
     def region(self):

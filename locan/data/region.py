@@ -119,6 +119,7 @@ class RoiRegion:
     def __init__(self, region_type, region_specs):
         self.region_specs = region_specs
         self.region_type = region_type
+        self._region: Region
 
         if region_type == "interval":
             self._region = Interval(*region_specs)
@@ -210,7 +211,7 @@ class RoiRegion:
         matplotlib.patches
             Matplotlib patch for the specified region.
         """
-        return self._region.as_artist(**kwargs)
+        return self._region.as_artist(**kwargs)  # type: ignore
 
     def to_shapely(self):
         """
@@ -220,7 +221,7 @@ class RoiRegion:
         -------
         shapely.Polygon
         """
-        return self._region.shapely_object
+        return self._region.shapely_object  # type: ignore
 
 
 class Region(ABC):

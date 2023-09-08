@@ -265,7 +265,7 @@ class LocalizationsPerFrame(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         series = self.results.time_series
@@ -314,7 +314,7 @@ class LocalizationsPerFrame(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         series = self.results.time_series
@@ -325,11 +325,13 @@ class LocalizationsPerFrame(_Analysis):
         ax.set(title="Localizations per Frame", xlabel=series.name, ylabel="PDF")
 
         if fit:
-            if isinstance(self.distribution_statistics, _DistributionFits):
-                self.distribution_statistics.plot(ax=ax)
-            else:
+            if self.distribution_statistics is None:
                 self.fit_distributions()
-                self.distribution_statistics.plot(ax=ax)
+
+            assert (  # type narrowing # noqa: S101
+                self.distribution_statistics is not None
+            )
+            self.distribution_statistics.plot(ax=ax)
 
         return ax
 

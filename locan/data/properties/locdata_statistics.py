@@ -8,6 +8,7 @@ These values can represent new properties of locdata.
 from __future__ import annotations
 
 from collections import namedtuple
+from collections.abc import Iterable  # noqa: F401
 
 import numpy as np
 import pandas as pd
@@ -75,7 +76,7 @@ def ranges(locdata, loc_properties=None, special=None, epsilon=1):
     ----------
     locdata : LocData
         Localization data.
-    loc_properties : str | tuple[str, ...] | list[str] | True | None
+    loc_properties : str | Iterable[str] | True | None
         Localization properties for which the range is determined.
         If None the ranges for all spatial coordinates are returned.
         If True the ranges for all localization properties are returned.
@@ -142,7 +143,7 @@ def range_from_collection(locdatas, loc_properties=None, special=None, epsilon=1
     ----------
     locdatas : list[LocData]
         Collection of localization datasets.
-    loc_properties : str | tuple[str, ...] | list[str] | True | None
+    loc_properties : str | Iterable[str] | True | None
         Localization properties for which the range is determined.
         If None the ranges for all spatial coordinates are returned.
         If True the ranges for all locdata.data properties are returned.
@@ -175,10 +176,14 @@ def range_from_collection(locdatas, loc_properties=None, special=None, epsilon=1
 
     if loc_properties is None:
         labels = locdatas[0].coordinate_keys
+    elif loc_properties is True:
+        labels = locdatas[0].data.columns
+    elif isinstance(loc_properties, str):
+        labels = [loc_properties]
     else:
         labels = loc_properties
 
-    Ranges = namedtuple("Ranges", labels)
+    Ranges = namedtuple("Ranges", labels)  # type: ignore[misc]
     Range = namedtuple("Range", "min max")
     result = Ranges(
         *(Range(min_value, max_value) for min_value, max_value in zip(mins, maxs))

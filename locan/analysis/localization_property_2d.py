@@ -115,7 +115,7 @@ def _fit_image(data, bin_range):
         points, amplitude=1, center_x=0, center_y=0, sigma_x=1, sigma_y=1
     ):
         return np.ravel(
-            _gauss_2d(*points.T, amplitude, center_x, center_y, sigma_x, sigma_y)
+            _gauss_2d(*points.T, amplitude, center_x, center_y, sigma_x, sigma_y)  # type: ignore[call-arg]
         )
 
     model = Model(model_function, nan_policy="omit")
@@ -282,7 +282,7 @@ class LocalizationProperty2d(_Analysis):
         return self
 
     def report(self) -> None:
-        if not self:
+        if self.results is None:
             logger.warning("No results available")
             return
 
@@ -317,7 +317,7 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         ax.imshow(
@@ -363,7 +363,7 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         x, y = self.results.bins.bin_centers
@@ -417,7 +417,7 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         positions = np.nonzero(self.results.image)
@@ -463,7 +463,7 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         positions = np.nonzero(self.results.image)

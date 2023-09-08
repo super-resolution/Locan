@@ -387,7 +387,7 @@ class ConvexHullExpectation(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         self.results.values.plot(
@@ -510,7 +510,7 @@ class ConvexHullExpectation(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         fig = ax.get_figure()
@@ -738,7 +738,7 @@ class ConvexHullExpectationBatch(_Analysis):
 
         self.results = ConvexHullExpectationResults()
         self.results.values = pd.concat(
-            [item_.results.values for item_ in batch if item_ is not None],
+            [item_.results.values for item_ in batch if item_.results is not None],
             ignore_index=True,
         )
 

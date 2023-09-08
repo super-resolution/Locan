@@ -146,6 +146,12 @@ class AlphaComplex:
     """
 
     def __init__(self, points, delaunay=None):
+        self.lines: list[tuple]
+        self.triangles: list[tuple]
+        self.dimension: int | None
+        self.delaunay_triangulation: Delaunay | None
+        # self.tetrahedrons: list[tuple]  # todo: implement 3d computation
+
         self.points = np.asarray(points)
 
         if np.size(self.points) == 0:
@@ -183,6 +189,7 @@ class AlphaComplex:
 
     def _compute_2d(self):
         """Compute the alpha complex for 2d data."""
+        assert self.delaunay_triangulation is not None  # type narrowing # noqa: S101
         n_simplices = len(self.delaunay_triangulation.simplices)
 
         # circumference for d-simplexes
@@ -231,7 +238,8 @@ class AlphaComplex:
             alpha_complex_triangles.append(
                 (n, max(interval_a_list), max(interval_b_list), max(interval_c_list))
             )
-        alpha_complex_lines = set(alpha_complex_lines)
+        alpha_complex_lines = set(alpha_complex_lines)  # type: ignore[assignment]
+        alpha_complex_lines = list(alpha_complex_lines)
         return alpha_complex_lines, alpha_complex_triangles
 
     def get_alpha_complex_lines(self, alpha, type="all"):
@@ -252,7 +260,7 @@ class AlphaComplex:
         list[list[int]]
             The indices to specific points in `self.points`.
         """
-        if np.size(self.lines) == 0:
+        if len(self.lines) == 0:
             return []
 
         if type == "exterior":
@@ -289,7 +297,7 @@ class AlphaComplex:
             The indices to specific d-simplices in
             `self.delaunay_triangulation.simplices`.
         """
-        if np.size(self.triangles) == 0:
+        if len(self.triangles) == 0:
             return []
 
         if type == "exterior":
@@ -324,7 +332,7 @@ class AlphaComplex:
         """
         G = nx.Graph()
 
-        if np.size(self.lines) == 0:
+        if len(self.lines) == 0:
             return G
 
         # positions for all nodes:
@@ -352,8 +360,9 @@ class AlphaComplex:
         """
         G = nx.MultiGraph()
 
-        if np.size(self.triangles) == 0:
+        if len(self.triangles) == 0:
             return G
+        assert self.delaunay_triangulation is not None  # type narrowing # noqa: S101
 
         # positions for all nodes:
         # positions = {i: tuple(point) for i, point in enumerate(self.points)}
@@ -395,7 +404,7 @@ class AlphaComplex:
         -------
         float
         """
-        if np.size(self.lines) == 0:
+        if len(self.lines) == 0:
             return None
         else:
             return np.max([ac[1] for ac in self.lines])
@@ -408,7 +417,7 @@ class AlphaComplex:
         -------
         npt.NDArray
         """
-        if np.size(self.lines) == 0:
+        if len(self.lines) == 0:
             return np.array([])
         else:
             return np.unique([ac[1:] for ac in self.lines])
@@ -554,6 +563,9 @@ class AlphaShape:
             if not triangles:
                 vertices = []
             else:
+                assert (  # type narrowing # noqa: S101
+                    self.alpha_complex.delaunay_triangulation is not None
+                )
                 vertices = self.alpha_complex.delaunay_triangulation.simplices[
                     triangles
                 ]
@@ -572,7 +584,7 @@ class AlphaShape:
                 subgraph = graph.subgraph(cc)
                 self._vertices_connected_components_indices.append(list(subgraph.nodes))
                 triangles = list({edge[2] for edge in subgraph.edges.data("triangle")})
-                vertices = self.alpha_complex.delaunay_triangulation.simplices[
+                vertices = self.alpha_complex.delaunay_triangulation.simplices[  # type: ignore
                     triangles
                 ]
                 region = regions_union([Polygon(pts) for pts in self.points[vertices]])

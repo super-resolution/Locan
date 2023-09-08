@@ -231,7 +231,7 @@ class PositionVarianceExpectation(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         self.results.values.plot(
@@ -329,7 +329,7 @@ class PositionVarianceExpectation(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         fig = ax.get_figure()

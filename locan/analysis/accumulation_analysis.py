@@ -307,7 +307,7 @@ class AccumulationClusterCheck(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         self.results.plot(x="eta", y="rho/rho_0", ax=ax, **kwargs)

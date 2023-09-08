@@ -186,7 +186,6 @@ class Roi:
         Localization properties in LocData object on which the region
         selection will be applied (for instance the coordinate_keys).
 
-
     Attributes
     ----------
     region : Region
@@ -199,12 +198,12 @@ class Roi:
         When referencing a saved SMLM file, reference has attributes
         `file.path` and `file.type` for a path pointing to a
         localization file and an integer indicating the file type.
-    loc_properties : tuple[str, ...]
+    loc_properties : tuple[str, ...] | None
         Localization properties in LocData object on which the region
         selection will be applied (for instance the coordinate_keys).
     """
 
-    def __init__(self, region, reference=None, loc_properties=()):
+    def __init__(self, region, reference=None, loc_properties=None):
         if isinstance(reference, dict):
             self.reference = metadata_pb2.Metadata()
             self.reference.file.path = str(reference["file_path"])
@@ -213,10 +212,10 @@ class Roi:
             if isinstance(reference["file_type"], int):
                 self.reference.file.type = ft_
             elif isinstance(reference["file_type"], str):
-                self.reference.file.type = locan.constants.FileType[ft_.upper()].value
+                self.reference.file.type = locan.constants.FileType[ft_.upper()].value  # type: ignore[assignment]
             elif isinstance(reference["file_type"], locan.constants.FileType):
                 self.reference.file.type = ft_
-            elif isinstance(reference["file_type"], metadata_pb2):
+            elif isinstance(reference["file_type"], metadata_pb2):  # type: ignore
                 self.reference.file.type = ft_.file.type
             else:
                 raise TypeError
@@ -230,7 +229,10 @@ class Roi:
             self.reference = reference
 
         self.region = region
-        self.loc_properties = loc_properties
+        if loc_properties is None:
+            self.loc_properties = ()
+        else:
+            self.loc_properties = loc_properties
 
     def __repr__(self):
         return (
@@ -325,7 +327,7 @@ class Roi:
             reference_ = metadata_pb2.Metadata()
             reference_ = json_format.Parse(yaml_output["reference"], reference_)
         else:
-            reference_ = yaml_output["reference"]
+            reference_ = yaml_output["reference"]  # type: ignore[assignment]
 
         region_names = [
             cls.__name__ for cls in _get_subclasses(Region) if not isabstract(cls)
@@ -498,10 +500,10 @@ class RoiLegacy_0:
             if isinstance(reference["file_type"], int):
                 self.reference.file.type = ft_
             elif isinstance(reference["file_type"], str):
-                self.reference.file.type = locan.constants.FileType[ft_.upper()].value
+                self.reference.file.type = locan.constants.FileType[ft_.upper()].value  # type: ignore[assignment]
             elif isinstance(reference["file_type"], locan.constants.FileType):
                 self.reference.file.type = ft_
-            elif isinstance(reference["file_type"], metadata_pb2):
+            elif isinstance(reference["file_type"], metadata_pb2):  # type: ignore
                 self.reference.file.type = ft_.file.type
             else:
                 raise TypeError
@@ -622,7 +624,7 @@ class RoiLegacy_0:
             reference_ = metadata_pb2.Metadata()
             reference_ = json_format.Parse(yaml_output["reference"], reference_)
         else:
-            reference_ = yaml_output["reference"]
+            reference_ = yaml_output["reference"]  # type: ignore[assignment]
 
         region_type_ = yaml_output["region_type"]
         region_specs_ = yaml_output["region_specs"]
@@ -660,7 +662,7 @@ class RoiLegacy_0:
             locdata = self.reference
         elif isinstance(self.reference, metadata_pb2.Metadata):
             locdata = io.load_locdata(
-                self.reference.file_path, self.reference.file_type
+                self.reference.file_path, self.reference.file_type  # type: ignore
             )
         else:
             raise AttributeError("Valid reference to locdata is missing.")

@@ -122,7 +122,7 @@ def main(args=None):
             )
 
         elif returned_args.command == "show_versions":
-            from .scripts.script_show_versions import sc_show_versions
+            from .scripts.script_show_versions import sc_show_versions  # type: ignore[attr-defined]  # noqa
 
             sc_show_versions(
                 verbose=returned_args.verbose,
@@ -131,7 +131,7 @@ def main(args=None):
             )
 
         elif returned_args.command == "test":
-            from .scripts.script_test import sc_test
+            from .scripts.script_test import sc_test  # type: ignore[attr-defined]
 
             sc_test(args=returned_args.pytest_args)
 

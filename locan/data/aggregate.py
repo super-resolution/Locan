@@ -417,11 +417,19 @@ class _BinsFromBoostHistogramAxis:
     """
 
     def __init__(self, bins):
+        self.dimension: int
+        self.bin_range: tuple[tuple[float, float], ...]
+        self.bin_edges: tuple[npt.NDArray[np.float_], ...]
+        self.n_bins: tuple[int, ...]
+        self.bin_size: tuple[float, ...] | tuple[npt.NDArray[np.float_], ...]
+        self.bin_centers: tuple[npt.NDArray[np.float_], ...]
+        self._bins: bh.axis.Axis | bh.axis.AxesTuple
+
         if isinstance(bins, bh.axis.Axis):
             self._bins = bins
             self.dimension = 1
             self.n_bins = (self._bins.size,)
-            self.bin_size = (tuple(self._bins.widths),)
+            self.bin_size = (np.asarray(self._bins.widths),)
             self.bin_edges = (self._bins.edges,)
             self.bin_range = ((self._bins.edges[0], self._bins.edges[-1]),)
             self.bin_centers = (self._bins.centers,)
@@ -430,7 +438,9 @@ class _BinsFromBoostHistogramAxis:
             self._bins = bins
             self.dimension = len(self._bins)
             self.n_bins = self._bins.size
-            self.bin_size = tuple(tuple(arr) for arr in self._bins.widths.flatten())
+            self.bin_size = tuple(
+                np.asarray(arr) for arr in self._bins.widths.flatten()
+            )
             self.bin_edges = self._bins.edges.flatten()
             self.bin_range = tuple(
                 (axis.edges[0], axis.edges[-1]) for axis in self._bins
@@ -459,13 +469,17 @@ class _BinsFromEdges:
     """
 
     def __init__(self, bin_edges):
+        self.dimension: int
+        self.bin_range: tuple[tuple[float, float], ...]
+        self.bin_edges: tuple[npt.NDArray[np.float_], ...]
+        self.n_bins: tuple[int, ...]
+        self.bin_size: tuple[float, ...] | tuple[npt.NDArray[np.float_], ...]
+
         if _is_1d_array_of_scalar(bin_edges):
-            bin_edges = cast("Sequence[float]", bin_edges)
             self.bin_edges = (np.array(bin_edges),)
             self.dimension = 1
             self.bin_range = ((bin_edges[0], bin_edges[-1]),)
         elif _is_2d_array_of_1d_array_of_scalar(bin_edges):
-            bin_edges = cast("Sequence[Sequence[float]]", bin_edges)
             self.bin_edges = tuple(np.array(edges) for edges in bin_edges)
             self.dimension = len(self.bin_edges)
             self.bin_range = tuple((edges[0], edges[-1]) for edges in self.bin_edges)
@@ -492,6 +506,12 @@ class _BinsFromNumber:
     """
 
     def __init__(self, n_bins, bin_range):
+        self.dimension: int
+        self.bin_range: tuple[tuple[float, float], ...]
+        self.bin_edges: tuple[npt.NDArray[np.float_], ...]
+        self.n_bins: tuple[int, ...]
+        self.bin_size: tuple[float, ...] | tuple[npt.NDArray[np.float_], ...]
+
         if not is_array_like(n_bins) or np.ndim(n_bins) > 1:
             raise TypeError("`n_bins` must be 0- or 1-dimensional.")
 
@@ -583,6 +603,12 @@ class _BinsFromSize:
     """
 
     def __init__(self, bin_size, bin_range, extend_range=None):
+        self.dimension: int
+        self.bin_range: tuple[tuple[float, float], ...]
+        self.bin_edges: tuple[npt.NDArray[np.float_], ...]
+        self.n_bins: tuple[int, ...]
+        self.bin_size: tuple[float, ...] | tuple[npt.NDArray[np.float_], ...]
+
         if _is_scalar(bin_size):
             if _is_1d_array_of_two_scalar(bin_range):
                 self.dimension = 1
@@ -798,6 +824,9 @@ class Bins:
         labels=None,
         extend_range=None,
     ):
+        self._bins: Bins | _BinsFromBoostHistogramAxis | _BinsFromNumber | _BinsFromSize | _BinsFromEdges
+        self._labels: list[str] | None
+
         # check for correct inputs
         excluding_parameter = (bins, n_bins, bin_size, bin_edges)
         excluding_parameter_strings = ("bins", "n_bins", "bin_size", "bin_edges")

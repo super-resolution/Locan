@@ -405,10 +405,7 @@ def select_by_drawing_mpl(locdata, region_type="rectangle", **kwargs):
     render_2d_mpl(locdata, ax=ax, **kwargs)
     selector = _MplSelector(ax, type=region_type)
     plt.show()
-    roi_list = [
-        Roi(reference=locdata, region_specs=roi["region_specs"], region=roi["region"])
-        for roi in selector.rois
-    ]
+    roi_list = [Roi(reference=locdata, region=roi["region"]) for roi in selector.rois]
     return roi_list
 
 

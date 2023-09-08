@@ -344,7 +344,7 @@ class RipleysHFunction(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas.DataFrame
+    results : pandas.DataFrame | None
         Data frame with radii as provided and Ripley's H function.
     Ripley_h_maximum : pandas.DataFrame
         Data frame with radius and Ripley's H value for the radius at which
@@ -412,14 +412,14 @@ class RipleysHFunction(_Analysis):
 
     @property
     def Ripley_h_maximum(self):
-        if self._Ripley_h_maximum is None:
+        if self.results is None:
+            self._Ripley_h_maximum = None
+        elif self._Ripley_h_maximum is None:
             index = self.results["Ripley_h_data"].idxmax()
             self._Ripley_h_maximum = pd.DataFrame(
                 {"radius": index, "Ripley_h_maximum": self.results.loc[index]}
             )
-            return self._Ripley_h_maximum
-        else:
-            return self._Ripley_h_maximum
+        return self._Ripley_h_maximum
 
     @Ripley_h_maximum.deleter
     def Ripley_h_maximum(self):
@@ -451,7 +451,7 @@ def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
     if ax is None:
         ax = plt.gca()
 
-    if not self:
+    if self.results is None:
         return ax
 
     self.results.plot(ax=ax, **kwargs)

@@ -184,7 +184,7 @@ class LocalizationPrecision(_Analysis):
         kwargs : dict
             Other parameters passed to the `distribution.fit()` method.
         """
-        if not self:
+        if self.results is None:
             logger.warning("No results available to be fitted.")
             return
 
@@ -227,7 +227,7 @@ class LocalizationPrecision(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         # prepare plot
@@ -270,7 +270,7 @@ class LocalizationPrecision(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         # prepare plot
@@ -282,11 +282,13 @@ class LocalizationPrecision(_Analysis):
         ax.set(title="Localization Precision", xlabel=loc_property, ylabel="PDF")
 
         if fit:
-            if isinstance(self.distribution_statistics, _DistributionFits):
-                self.distribution_statistics.plot(ax=ax, loc_property=loc_property)
-            else:
+            if self.distribution_statistics is None:
                 self.fit_distributions()
-                self.distribution_statistics.plot(ax=ax, loc_property=loc_property)
+
+            assert (  # type narrowing # noqa: S101
+                self.distribution_statistics is not None
+            )
+            self.distribution_statistics.plot(ax=ax, loc_property=loc_property)
 
         return ax
 
@@ -628,6 +630,9 @@ class _DistributionFits:
         kwargs : dict
             Other parameters passed to the `distribution.fit()` method.
         """
+        if self.analysis_class.results is None:
+            raise ValueError("Compute results before fitting.")
+
         # prepare parameters
         if "position_delta_" in loc_property:
             self.distribution = stats.norm

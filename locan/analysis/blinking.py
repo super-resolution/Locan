@@ -192,17 +192,17 @@ class BlinkStatistics(_Analysis):
     ----------
     count : int
         A counter for counting instantiations.
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : dict[str, npt.NDArray | list]
+    results : dict[str, npt.NDArray[np.int_ | np.float_] | list[int | float]] | None
         'on_periods' and 'off_periods' in units of frame numbers.
         'on_periods_frame' and 'off_periods_frame' with the first frame in
         each on/off-period.
         'on_periods_indices' are groups of indices to the input frames or more
          precise np.unique(frames)
-    distribution_statistics : dict
+    distribution_statistics : dict[str, Any]
         Distribution parameters derived from MLE fitting of results.
     """
 
@@ -212,7 +212,9 @@ class BlinkStatistics(_Analysis):
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
 
-        self.results = None
+        self.results: dict[
+            str, npt.NDArray[np.int_ | np.float_] | list[int | float]
+        ] | None = None
         self.distribution_statistics: dict[str, Any] = {}
 
     def compute(self, locdata: LocData | npt.ArrayLike) -> Self:

@@ -26,9 +26,7 @@ class _Analysis:
 
     Parameters
     ----------
-    locdata : LocData
-        Localization data.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : metadata_analysis_pb2.AMetadata | dict[str, Any] | None
         Metadata about the current analysis routine.
     kwargs : dict
         Parameter that are passed to the algorithm.
@@ -37,9 +35,9 @@ class _Analysis:
     ----------
     locdata : LocData
         Localization data.
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings (i.e. the kwargs) for the current computation.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
     results : Any | None
         Computed results.
@@ -48,16 +46,18 @@ class _Analysis:
     count: int = 0
     """A counter for counting Analysis class instantiations (class attribute)."""
 
-    def __init__(self, meta, **kwargs):
+    def __init__(
+        self, meta: metadata_analysis_pb2.AMetadata | dict[str, Any] | None, **kwargs
+    ) -> None:
         self.__class__.count += 1
 
-        self.parameter = kwargs
-        self.meta = self._init_meta()
+        self.parameter: dict[str, Any] = kwargs
+        self.meta: metadata_analysis_pb2.AMetadata = self._init_meta()
         self.meta = self._update_meta(meta)
-        self.results = None
+        self.results: Any | None = None
 
     @staticmethod
-    def _get_parameters(locals):
+    def _get_parameters(locals) -> dict[str, Any]:
         """Get parameters from curated locals."""
         parameters = copy(locals)
         for key in ["self", "__class__"]:
@@ -67,18 +67,18 @@ class _Analysis:
             parameters.pop("kwargs")
         return parameters
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Update the counter upon deletion of class instance."""
         self.__class__.count -= 1
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation of the Analysis class."""
         parameter_string = ", ".join(
             (f"{key}={value}" for key, value in self.parameter.items())
         )
         return f"{self.__class__.__name__}({parameter_string})"
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict[str, Any]:
         """Modify pickling behavior."""
         # Copy the object's state from self.__dict__ to avoid modifying the original state.
         state = self.__dict__.copy()
@@ -89,7 +89,7 @@ class _Analysis:
         state["meta"] = json_string
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict[str, Any]) -> None:
         """Modify pickling behavior."""
         # Restore instance attributes.
         self.__dict__.update(state)
@@ -97,7 +97,7 @@ class _Analysis:
         self.meta = metadata_analysis_pb2.AMetadata()
         self.meta = json_format.Parse(state["meta"], self.meta)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         if self.results is not None:
             return True
         else:

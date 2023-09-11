@@ -24,7 +24,7 @@ import sys
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 if sys.version_info >= (3, 9):
     from collections.abc import Sequence  # noqa: F401
@@ -247,7 +247,7 @@ class ConvexHullExpectation(_Analysis):
 
     Parameters
     ----------
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
     convex_hull_property : Literal["region_measure_ch", "subregion_measure_ch"]
         One of 'region_measure_ch' (i.e. area or volume)
@@ -261,13 +261,13 @@ class ConvexHullExpectation(_Analysis):
     ----------
     count : int
         A counter for counting instantiations (class attribute).
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : ConvexHullExpectationResults
+    results : ConvexHullExpectationResults | None
         Computed results.
-    distribution_statistics : Distribution_stats, None
+    distribution_statistics : dict[str, Any] | None
         Distribution parameters derived from MLE fitting of results.
     """
 
@@ -275,7 +275,7 @@ class ConvexHullExpectation(_Analysis):
         self,
         meta=None,
         convex_hull_property="region_measure_ch",
-        expected_variance=None,
+        expected_variance: float | Iterable[float] | None = None,
     ) -> None:
         if convex_hull_property not in ["region_measure_ch", "subregion_measure_ch"]:
             raise TypeError(
@@ -285,8 +285,8 @@ class ConvexHullExpectation(_Analysis):
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.expected_variance = expected_variance
-        self.results = None
-        self.distribution_statistics = None
+        self.results: ConvexHullExpectationResults | None = None
+        self.distribution_statistics: dict[str, Any] | None = None
         self._dimension: int | None = None
 
     def compute(self, locdata: LocData) -> Self:
@@ -307,6 +307,7 @@ class ConvexHullExpectation(_Analysis):
             return self
 
         self.results = ConvexHullExpectationResults()
+        assert self.results is not None  # type narrowing # noqa: S101
         loc_property = self.parameter["convex_hull_property"]
         self._dimension = locdata.dimension
 
@@ -336,7 +337,7 @@ class ConvexHullExpectation(_Analysis):
             convex_hull_expectation_values = _get_convex_hull_property_expectation(
                 n_points=self.results.grouped.index,
                 convex_hull_property=convex_hull_property_,
-                sigma=np.sqrt(self.expected_variance),
+                sigma=np.sqrt(self.expected_variance),  # type: ignore[arg-type]
             )
             new_dict = dict(
                 expectation=convex_hull_expectation_values.expectation,

@@ -113,7 +113,7 @@ class Pipeline(_Analysis):
         """
         return self.computation(self, **self.kwargs)
 
-    def save_computation(self, path: str | os.PathLike):
+    def save_computation(self, path: str | os.PathLike[Any]):
         """
         Save the analysis procedure (i.e. the computation() method) as human
         readable text.

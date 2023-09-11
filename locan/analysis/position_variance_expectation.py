@@ -80,7 +80,7 @@ def _property_variances_(
     collection: LocData,
     loc_property: str,
     biased: bool = False,
-) -> dict:
+) -> dict[str, list[pd.Series | None]]:
     loc_property = _check_loc_properties(collection, loc_properties=loc_property)[0]
 
     ddof = 0 if biased else 1

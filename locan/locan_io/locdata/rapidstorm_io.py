@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 import os
 import xml.etree.ElementTree as etree
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead, SupportsReadline
@@ -35,7 +35,7 @@ __all__: list[str] = [
 logger = logging.getLogger(__name__)
 
 
-def _read_rapidSTORM_header(file: SupportsReadline) -> list[str]:
+def _read_rapidSTORM_header(file: SupportsReadline[Any]) -> list[str]:
     """
     Read xml header from a rapidSTORM single-molecule localization file and
     identify column names.
@@ -73,7 +73,7 @@ def _read_rapidSTORM_header(file: SupportsReadline) -> list[str]:
 
 
 def load_rapidSTORM_header(
-    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
 ) -> list[str]:
     """
     Load xml header from a rapidSTORM single-molecule localization file and
@@ -81,7 +81,7 @@ def load_rapidSTORM_header(
 
     Parameters
     ----------
-    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
+    path
         File path for a rapidSTORM file to load.
 
     Returns
@@ -97,7 +97,7 @@ def load_rapidSTORM_header(
 
 
 def load_rapidSTORM_file(
-    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
     nrows: int | None = None,
     convert: bool = True,
     **kwargs,
@@ -107,12 +107,12 @@ def load_rapidSTORM_file(
 
     Parameters
     ----------
-    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
+    path
         File path for a rapidSTORM file to load.
-    nrows : int | None
+    nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.
-    convert : bool
+    convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
     kwargs : dict
@@ -155,7 +155,7 @@ def load_rapidSTORM_file(
 
 
 def _read_rapidSTORM_track_header(
-    file: SupportsReadline,
+    file: SupportsReadline[Any],
 ) -> tuple[list[str], list[str]]:
     """
     Read xml header from a rapidSTORM (track) single-molecule localization
@@ -163,7 +163,7 @@ def _read_rapidSTORM_track_header(
 
     Parameters
     ----------
-    file : SupportsReadline
+    file
         A rapidSTORM file to load.
 
     Returns
@@ -203,7 +203,7 @@ def _read_rapidSTORM_track_header(
 
 
 def load_rapidSTORM_track_header(
-    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
 ) -> tuple[list[str], list[str]]:
     """
     Load xml header from a rapidSTORM (track) single-molecule localization
@@ -211,7 +211,7 @@ def load_rapidSTORM_track_header(
 
     Parameters
     ----------
-    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path
         File path for a rapidSTORM file to load.
 
     Returns
@@ -227,7 +227,7 @@ def load_rapidSTORM_track_header(
 
 
 def load_rapidSTORM_track_file(
-    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
     nrows: int | None = None,
     convert: bool = True,
     collection: bool = True,
@@ -240,18 +240,18 @@ def load_rapidSTORM_track_file(
 
     Parameters
     ----------
-    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path
         File path for a rapidSTORM file to load.
-    nrows : int | None
+    nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.
-    convert : bool
+    convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
-    collection : bool
+    collection
         If True a collection of all tracks is returned.
         If False LocData with center positions is returned.
-    min_localization_count : int
+    min_localization_count
         If collection is True, only clusters with at least
         `min_localization_count` localizations are loaded.
     kwargs : dict

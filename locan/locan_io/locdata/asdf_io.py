@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead, SupportsWrite
@@ -25,7 +25,7 @@ __all__: list[str] = ["save_asdf", "load_asdf_file"]
 logger = logging.getLogger(__name__)
 
 
-def save_asdf(locdata: LocData, path: str | os.PathLike | SupportsWrite):
+def save_asdf(locdata: LocData, path: str | os.PathLike[Any] | SupportsWrite[Any]):
     """
     Save LocData attributes in an asdf file.
 
@@ -40,9 +40,9 @@ def save_asdf(locdata: LocData, path: str | os.PathLike | SupportsWrite):
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         The LocData object to be saved.
-    path : str | os.PathLike | SupportsWrite
+    path
         File path including file name to save to.
     """
     # Prepare tree
@@ -63,15 +63,17 @@ def save_asdf(locdata: LocData, path: str | os.PathLike | SupportsWrite):
     af.write_to(path)
 
 
-def load_asdf_file(path: str | os.PathLike | SupportsRead, nrows=None) -> LocData:
+def load_asdf_file(
+    path: str | os.PathLike[Any] | SupportsRead[Any], nrows: int | None = None
+) -> LocData:
     """
     Load data from ASDF localization file.
 
     Parameters
     ----------
-    path : str | os.PathLike | SupportsRead
+    path
         File path for a rapidSTORM file to load.
-    nrows : int | None
+    nrows
         The number of localizations to load from file.
         None means that all available rows are loaded.
 

@@ -10,7 +10,7 @@ import logging
 import os
 import sys
 from contextlib import closing
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, Any, Union, cast
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -64,12 +64,7 @@ def convert_property_types(dataframe, types, loc_properties=None) -> pd.DataFram
 
 
 def open_path_or_file_like(
-    path_or_file_like: str
-    | bytes
-    | os.PathLike[str]
-    | os.PathLike[bytes]
-    | int
-    | SupportsRead,
+    path_or_file_like: str | bytes | os.PathLike[Any] | int | SupportsRead[Any],
     mode: str = "r",
     encoding: str | None = None,
 ):
@@ -128,7 +123,7 @@ def convert_property_names(properties, property_mapping=None):
     ----------
     properties : list[str] | tuple[str, ...]
         Properties to be converted
-    property_mapping : dict[str: str] | list[dict] | None
+    property_mapping : dict[str, str] | list[dict] | None
         Mappings between other property names and locan property names
 
     Returns
@@ -137,7 +132,7 @@ def convert_property_names(properties, property_mapping=None):
         Converted property names
     """
     if property_mapping is None:
-        property_mapping_: dict = {}
+        property_mapping_: dict[str, str] = {}
     elif isinstance(property_mapping, (list, tuple)):
         property_mapping_ = {}
         for mapping in property_mapping:

@@ -333,7 +333,7 @@ class Files:
         column: str = "file_path",
         pattern: str = "*.toml",
         regex=None,
-        directory: str | os.PathLike | None = None,
+        directory: str | os.PathLike[Any] | None = None,
         other_column="metadata",
     ) -> Self:
         """

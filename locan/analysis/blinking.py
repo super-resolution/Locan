@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from typing import Any
 
 if sys.version_info >= (3, 9):
     from collections.abc import Sequence  # noqa: F401
@@ -39,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 def _blink_statistics(
     locdata, memory=0, remove_heading_off_periods=True
-) -> dict[str, npt.NDArray | list]:
+) -> dict[str, npt.NDArray[np.int_ | np.float_] | list[int | float]]:
     """
     Estimate on and off times from the frame values provided.
 
@@ -60,7 +61,7 @@ def _blink_statistics(
 
     Returns
     -------
-    dict[str, npt.NDArray | list]
+    dict[str, npt.NDArray[int | float] | list[int | float]]
         'on_periods' and 'off_periods' in units of frame numbers.
         'on_periods_frame' and 'off_periods_frame' with the first frame in
         each on/off-period.
@@ -212,7 +213,7 @@ class BlinkStatistics(_Analysis):
         super().__init__(**parameters)
 
         self.results = None
-        self.distribution_statistics: dict = {}
+        self.distribution_statistics: dict[str, Any] = {}
 
     def compute(self, locdata: LocData | npt.ArrayLike) -> Self:
         """
@@ -360,7 +361,7 @@ class _DistributionFits:
 
     Parameters
     ----------
-    analyis_class : Analysis object
+    analysis_class : _Analysis
         The analysis class with result data to fit.
     distribution : str, scipy.stats.rv_continuous
         Distribution model to fit.
@@ -370,7 +371,7 @@ class _DistributionFits:
 
     Attributes
     ----------
-    analyis_class : Analysis object
+    analysis_class : _Analysis
         The analysis class with result data to fit.
     distribution : str, scipy.stats.rv_continuous
         Distribution model to fit.
@@ -479,6 +480,6 @@ class _DistributionFits:
 
         return ax
 
-    def parameter_dict(self) -> dict:
+    def parameter_dict(self) -> dict[str, int | float]:
         """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

@@ -443,7 +443,7 @@ class _DistributionFits:
         )
         return ax
 
-    def parameter_dict(self) -> dict:
+    def parameter_dict(self) -> dict[str, float]:
         """Dictionary of fitted parameters."""
         if self.parameters is None:
             return dict()

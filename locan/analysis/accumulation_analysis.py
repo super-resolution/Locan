@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Literal
+from typing import Any, Literal
 
 if sys.version_info >= (3, 9):
     from collections.abc import Callable, Sequence  # noqa: F401
@@ -57,7 +57,7 @@ def _accumulation_cluster_check_for_single_dataset(
     locdata: LocData,
     region_measure: float,
     algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,  # type: ignore
-    algo_parameter: dict | None = None,
+    algo_parameter: dict[str, Any] | None = None,
     hull: Literal["bb", "ch"] = "bb",
 ) -> tuple[float, float, float]:
     """
@@ -121,7 +121,7 @@ def _accumulation_cluster_check(
     locdata: LocData,
     region_measure: Literal["bb", "ch"] = "bb",
     algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,  # type: ignore
-    algo_parameter: dict | None = None,
+    algo_parameter: dict[str, Any] | None = None,
     hull: Literal["bb", "ch"] = "bb",
     n_loc: int = 10,
     divide: Literal["random", "sequential"] = "random",

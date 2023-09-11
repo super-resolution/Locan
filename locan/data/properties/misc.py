@@ -4,7 +4,7 @@ Functions to compute locdata properties.
 from __future__ import annotations
 
 import logging
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 import numpy as np
 import numpy.typing as npt  # noqa: F401
@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 
 
 class InertiaMoments(NamedTuple):
-    eigenvalues: npt.NDArray
-    eigenvectors: npt.NDArray
-    variance_explained: list
+    eigenvalues: npt.NDArray[Any]
+    eigenvectors: npt.NDArray[Any]
+    variance_explained: list[float]
     orientation: float
     eccentricity: float
 
@@ -47,7 +47,7 @@ def distance_to_region(locdata, region):
 
     Returns
     --------
-    npt.NDArray
+    npt.NDArray[np.float_]
         Distance for each localization.
     """
     distances = np.full(len(locdata), 0.0)
@@ -77,7 +77,7 @@ def distance_to_region_boundary(locdata, region):
 
     Returns
     --------
-    npt.NDArray
+    npt.NDArray[np.float_]
         Distance for each localization.
     """
     distances = np.full(len(locdata), 0.0)

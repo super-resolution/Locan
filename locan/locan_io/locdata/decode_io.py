@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING, Mapping
+from typing import TYPE_CHECKING, Any, Mapping
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -33,19 +33,21 @@ logger = logging.getLogger(__name__)
 
 
 @needs_package("h5py")
-def _read_decode_header(file: Mapping) -> tuple[list[str], dict, dict]:
+def _read_decode_header(
+    file: Mapping[str, Any]
+) -> tuple[list[str], dict[str, Any], dict[str, Any]]:
     """
     Read header from a DECODE single-molecule localization file and identify
     column names.
 
     Parameters
     ----------
-    file : Mapping
+    file
         HDF5 file object.
 
     Returns
     -------
-    Tuple[list[str], dict, dict]
+    tuple[list[str], dict[str, Any], dict[str, Any]]
         Tuple with identifiers, meta and decode sections.
         Identifiers are list of valid dataset property keys as derived from
         the DECODE identifiers.
@@ -75,7 +77,9 @@ def _read_decode_header(file: Mapping) -> tuple[list[str], dict, dict]:
 
 
 @needs_package("h5py")
-def load_decode_header(path: str | os.PathLike | SupportsRead):
+def load_decode_header(
+    path: str | os.PathLike[Any] | SupportsRead[Any],
+) -> tuple[list[str], dict[str, Any], dict[str, Any]]:
     """
     Load header from a DECODE single-molecule localization file and identify
     column names.
@@ -90,7 +94,7 @@ def load_decode_header(path: str | os.PathLike | SupportsRead):
 
     Returns
     -------
-    Tuple[list[str], Dict, Dict]
+    tuple[list[str], dict[str, Any], dict[str, Any]]
         Tuple with identifiers, meta and decode sections.
         Identifiers are list of valid dataset property keys as derived from
         the DECODE identifiers.
@@ -101,7 +105,7 @@ def load_decode_header(path: str | os.PathLike | SupportsRead):
 
 @needs_package("h5py")
 def load_decode_file(
-    path: str | os.PathLike | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
     nrows: int | None = None,
     convert: bool = True,
 ) -> LocData:
@@ -110,12 +114,12 @@ def load_decode_file(
 
     Parameters
     ----------
-    path :
+    path
         File path or file-like object for a Thunderstorm file to load.
-    nrows :
+    nrows
         The number of localizations to load from file.
         None means that all available rows are loaded.
-    convert :
+    convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
 

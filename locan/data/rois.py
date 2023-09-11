@@ -741,7 +741,7 @@ def rasterize(
         raise ValueError("loc_properties must be tuple with coordinate labels.")
 
     if loc_properties:
-        coordinate_labels_indices: Iterable = [
+        coordinate_labels_indices: Iterable[int] = [
             locdata.coordinate_keys.index(pfr) for pfr in loc_properties
         ]
     else:

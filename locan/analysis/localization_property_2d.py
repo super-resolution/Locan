@@ -46,9 +46,9 @@ logger = logging.getLogger(__name__)
 
 
 class FitImageResults(NamedTuple):
-    image: npt.NDArray
-    bins: npt.NDArray
-    label: list
+    image: npt.NDArray[Any]
+    bins: npt.NDArray[Any]
+    label: list[str]
     model_result: ModelResult
 
 

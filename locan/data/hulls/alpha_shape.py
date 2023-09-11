@@ -34,7 +34,7 @@ References
 from __future__ import annotations
 
 import warnings
-from typing import Generator
+from typing import Any, Generator
 
 import networkx as nx
 import numpy as np
@@ -89,7 +89,7 @@ def _k_simplex_neighbor_index_list(d: int, k: int) -> tuple[int, ...]:
         raise ValueError
 
 
-def _get_k_simplices(simplex, k: int = 1) -> Generator:
+def _get_k_simplices(simplex, k: int = 1) -> Generator[list[Any], Any, None]:
     """
     Function to extract k-simplices (e.g. edges) from a d-simplex
     (e.g. triangle; d>k).
@@ -124,9 +124,9 @@ class AlphaComplex:
 
     Attributes
     ----------
-    lines : list[tuple]
+    lines : list[tuple[int, int, int]]
         1-simplices (lines) that represent a simplicial subcomplex of the
-        Delaunay triangulation with intervals. Array with shape (n_lines, 3).
+        Delaunay triangulation with intervals. Array with shape (n_lines, 2).
     triangles : list[tuple]
         2-simplices (triangles) that represent a simplicial subcomplex of the
         Delaunay triangulation with intervals.
@@ -134,7 +134,7 @@ class AlphaComplex:
     tetrahedrons : list[tuple]
         3-simplices (tetrahedrons) that represent a simplicial subcomplex of
         the Delaunay triangulation with intervals.
-        Array with shape (n_tetrahedrons, 3).
+        Array with shape (n_tetrahedrons, 4).
     dimension : int
         Spatial dimension of the hull.
     delaunay_triangulation : scipy.spatial.Delaunay
@@ -146,11 +146,11 @@ class AlphaComplex:
     """
 
     def __init__(self, points, delaunay=None):
-        self.lines: list[tuple]
-        self.triangles: list[tuple]
+        self.lines: list[tuple[Any, ...]]
+        self.triangles: list[tuple[Any, ...]]
         self.dimension: int | None
         self.delaunay_triangulation: Delaunay | None
-        # self.tetrahedrons: list[tuple]  # todo: implement 3d computation
+        # self.tetrahedrons: list[tuple[int, int, int, int]]  # todo: implement 3d computation
 
         self.points = np.asarray(points)
 
@@ -242,7 +242,7 @@ class AlphaComplex:
         alpha_complex_lines = list(alpha_complex_lines)
         return alpha_complex_lines, alpha_complex_triangles
 
-    def get_alpha_complex_lines(self, alpha, type="all"):
+    def get_alpha_complex_lines(self, alpha, type="all") -> list[list[int]]:
         """
         Simplicial subcomplex (lines) of the Delaunay triangulation for the
         specific alpha complex for the given `alpha`.
@@ -278,7 +278,7 @@ class AlphaComplex:
         # a list of lists and not of tuples should be returned since the return value
         # will be used for indexing arrays.
 
-    def get_alpha_complex_triangles(self, alpha, type="all"):
+    def get_alpha_complex_triangles(self, alpha, type="all") -> list[list[int]]:
         """
         Simplicial subcomplex (triangles) of the Delaunay triangulation for
         the specific alpha complex for the given `alpha`.
@@ -312,9 +312,10 @@ class AlphaComplex:
             return [ac[0] for ac in self.triangles if ac[3] <= alpha]
         else:
             raise AttributeError(f"Parameter type: {type} is not valid.")
-        # a list of lists and not of tuples should be returned since the return value will be used for indexing arrays.
+        # a list of lists and not of tuples should be returned since the return value
+        # will be used for indexing arrays.
 
-    def graph_from_lines(self, alpha, type="all"):
+    def graph_from_lines(self, alpha, type="all") -> nx.Graph:
         """
         Return networkx Graph object with nodes and edges from selected lines.
 
@@ -342,7 +343,7 @@ class AlphaComplex:
         G.add_edges_from(ac_simplices, type=type)
         return G
 
-    def graph_from_triangles(self, alpha, type="all"):
+    def graph_from_triangles(self, alpha, type="all") -> nx.Graph:
         """
         Return networkx Graph object with nodes and edges from selected triangles.
 
@@ -375,7 +376,7 @@ class AlphaComplex:
             G.add_edges_from(edges, triangle=triangle)
         return G
 
-    def alpha_shape(self, alpha):
+    def alpha_shape(self, alpha) -> AlphaShape:
         """
         Return the unique alpha shape for `alpha`.
 
@@ -395,7 +396,7 @@ class AlphaComplex:
             delaunay=self.delaunay_triangulation,
         )
 
-    def optimal_alpha(self):
+    def optimal_alpha(self) -> float | None:
         """
         Find the minimum alpha value for which all points belong to the alpha shape,
         in other words, no edges of the Delaunay triangulation are exterior.
@@ -409,13 +410,13 @@ class AlphaComplex:
         else:
             return np.max([ac[1] for ac in self.lines])
 
-    def alphas(self) -> npt.NDArray:
+    def alphas(self) -> npt.NDArray[np.float_]:
         """
         Return alpha values at which the corresponding alpha shape changes.
 
         Returns
         -------
-        npt.NDArray
+        npt.NDArray[np.float_]
         """
         if len(self.lines) == 0:
             return np.array([])

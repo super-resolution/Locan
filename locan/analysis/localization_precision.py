@@ -593,8 +593,8 @@ class _DistributionFits:
     def __init__(self, analysis_class) -> None:
         self.analysis_class: LocalizationPrecision = analysis_class
         self.distribution: stats.rv_continuous | None = None
-        self._dist_parameters: list | None = None
-        self.parameters: list = []
+        self._dist_parameters: list[str] | None = None
+        self.parameters: list[str] = []
 
         # continuous distributions
         if self.analysis_class.results is None:
@@ -765,6 +765,6 @@ class _DistributionFits:
 
         return ax
 
-    def parameter_dict(self) -> dict:
+    def parameter_dict(self) -> dict[str, float]:
         """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

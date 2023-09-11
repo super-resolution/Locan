@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead, SupportsReadline, SupportsWrite
@@ -32,7 +32,7 @@ __all__: list[str] = [
 logger = logging.getLogger(__name__)
 
 
-def _read_thunderstorm_header(file: SupportsReadline) -> list[str]:
+def _read_thunderstorm_header(file: SupportsReadline[Any]) -> list[str]:
     """
     Read csv header from a Thunderstorm single-molecule localization file and
     identify column names.
@@ -61,7 +61,7 @@ def _read_thunderstorm_header(file: SupportsReadline) -> list[str]:
 
 
 def load_thunderstorm_header(
-    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
 ) -> list[str]:
     """
     Load csv header from a Thunderstorm single-molecule localization file and
@@ -69,7 +69,7 @@ def load_thunderstorm_header(
 
     Parameters
     ----------
-    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
+    path
         File path for a Thunderstorm file to load.
 
     Returns
@@ -84,7 +84,7 @@ def load_thunderstorm_header(
 
 
 def load_thunderstorm_file(
-    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
     nrows: int | None = None,
     convert: bool = True,
     **kwargs,
@@ -94,12 +94,12 @@ def load_thunderstorm_file(
 
     Parameters
     ----------
-    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
+    path
         File path for a Thunderstorm file to load.
-    nrows : int | None
+    nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.
-    convert : bool
+    convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
     kwargs : dict
@@ -142,7 +142,8 @@ def load_thunderstorm_file(
 
 
 def save_thunderstorm_csv(
-    locdata: LocData, path: str | os.PathLike | SupportsWrite
+    locdata: LocData,
+    path: str | os.PathLike[Any] | SupportsWrite[Any],
 ) -> None:
     """
     Save LocData attributes Thunderstorm-readable csv-file.
@@ -152,9 +153,9 @@ def save_thunderstorm_csv(
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         The LocData object to be saved.
-    path : str | os.PathLike | SupportsWrite
+    path
         File path including file name to save to.
     """
     # get data from locdata object

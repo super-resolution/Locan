@@ -123,7 +123,7 @@ class _Analysis:
         return meta_
 
     def _update_meta(
-        self, meta: metadata_analysis_pb2.AMetadata | dict | None = None
+        self, meta: metadata_analysis_pb2.AMetadata | dict[str, Any] | None = None
     ) -> metadata_analysis_pb2.AMetadata:
         meta_ = self.meta
         if meta is None:

@@ -17,7 +17,9 @@ from locan.data.metadata_utils import _modify_meta
 __all__: list[str] = ["add_drift"]
 
 
-def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None) -> npt.NDArray:
+def _random_walk_drift(
+    n_steps, diffusion_constant, velocity, seed=None
+) -> npt.NDArray[np.float_]:
     """
     Transform locdata coordinates according to a simulated drift.
 
@@ -45,7 +47,7 @@ def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None) -> npt.
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         Position deltas with shape (n_points, diffusion_constant.shape)
         that have to be added to the original localizations.
     """
@@ -61,7 +63,9 @@ def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None) -> npt.
     return np.cumsum(steps, axis=1)
 
 
-def _drift(frames, diffusion_constant=None, velocity=None, seed=None) -> npt.NDArray:
+def _drift(
+    frames, diffusion_constant=None, velocity=None, seed=None
+) -> npt.NDArray[np.float_]:
     """
     Compute position deltas as function of frame number.
 
@@ -83,7 +87,7 @@ def _drift(frames, diffusion_constant=None, velocity=None, seed=None) -> npt.NDA
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         Position deltas with shape (n_points, diffusion_constant.shape)
         that have to be added to the original localizations.
     """

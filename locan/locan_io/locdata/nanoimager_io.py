@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead, SupportsReadline
@@ -28,14 +28,14 @@ __all__: list[str] = ["load_Nanoimager_header", "load_Nanoimager_file"]
 logger = logging.getLogger(__name__)
 
 
-def _read_Nanoimager_header(file: SupportsReadline) -> list[str]:
+def _read_Nanoimager_header(file: SupportsReadline[Any]) -> list[str]:
     """
     Read csv header from a Nanoimager single-molecule localization file and
     identify column names.
 
     Parameters
     ----------
-    file : SupportsReadline
+    file
         Nanoimager file to read.
 
     Returns
@@ -57,7 +57,7 @@ def _read_Nanoimager_header(file: SupportsReadline) -> list[str]:
 
 
 def load_Nanoimager_header(
-    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
 ) -> list[str]:
     """
     Load csv header from a Nanoimager single-molecule localization file and
@@ -65,7 +65,7 @@ def load_Nanoimager_header(
 
     Parameters
     ----------
-    path : str, bytes, os.PathLike, file-like
+    path
         File path for a Nanoimager file to load.
 
     Returns
@@ -80,7 +80,7 @@ def load_Nanoimager_header(
 
 
 def load_Nanoimager_file(
-    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
     nrows: int | None = None,
     convert: bool = True,
     **kwargs,
@@ -90,12 +90,12 @@ def load_Nanoimager_file(
 
     Parameters
     ----------
-    path :  str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
+    path
         File path for a Nanoimager file to load.
-    nrows : int | None
+    nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.
-    convert : bool
+    convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
     kwargs : dict

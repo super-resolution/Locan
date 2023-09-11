@@ -8,7 +8,7 @@ from __future__ import annotations
 import io
 import logging
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead, SupportsReadline
@@ -29,19 +29,19 @@ __all__: list[str] = ["load_Elyra_header", "load_Elyra_file"]
 logger = logging.getLogger(__name__)
 
 
-def _read_Elyra_header(file: SupportsReadline) -> list[str]:
+def _read_Elyra_header(file: SupportsReadline[Any]) -> list[str]:
     """
     Read xml header from a Zeiss Elyra single-molecule localization file and
     identify column names.
 
     Parameters
     ----------
-    file :
+    file
         A rapidSTORM file to load.
 
     Returns
     -------
-
+    list[str]
         A list of valid dataset property keys as derived from the rapidSTORM
         identifiers.
     """
@@ -58,7 +58,7 @@ def _read_Elyra_header(file: SupportsReadline) -> list[str]:
 
 
 def load_Elyra_header(
-    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
 ) -> list[str]:
     """
     Load xml header from a Zeiss Elyra single-molecule localization file and
@@ -66,7 +66,7 @@ def load_Elyra_header(
 
     Parameters
     ----------
-    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
+    path
         File path for a rapidSTORM file to load.
 
     Returns
@@ -81,7 +81,7 @@ def load_Elyra_header(
 
 
 def load_Elyra_file(
-    path: str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
     nrows: int | None = None,
     convert: bool = True,
     **kwargs,
@@ -91,15 +91,15 @@ def load_Elyra_file(
 
     Parameters
     ----------
-    path : str | bytes | os.PathLike[str] | os.PathLike[bytes] | int | SupportsRead
+    path
         File path for a rapidSTORM file to load.
-    nrows : int | None
+    nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.
-    convert : bool
+    convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
-    kwargs : dict
+    kwargs : dict[str, Any]
         Other parameters passed to `pandas.read_csv()`.
 
     Returns

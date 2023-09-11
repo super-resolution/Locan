@@ -9,7 +9,7 @@ import logging
 import os
 from collections.abc import Callable
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -41,11 +41,11 @@ logger = logging.getLogger(__name__)
 
 
 def load_txt_file(
-    path: str | os.PathLike | SupportsRead,
-    sep=",",
+    path: str | os.PathLike[Any] | SupportsRead[Any],
+    sep: str = ",",
     columns: list[str] | None = None,
     nrows: int | None = None,
-    property_mapping: dict[str, str] | list[dict] | None = None,
+    property_mapping: dict[str, str] | list[dict[str, str]] | None = None,
     convert: bool = True,
     **kwargs,
 ) -> LocData:
@@ -56,19 +56,19 @@ def load_txt_file(
 
     Parameters
     ----------
-    path : str | os.PathLike | SupportsRead
+    path
         File path for a localization file to load.
-    sep : str
+    sep
         separator between column values (Default: ',')
-    columns : list[str] | None
+    columns
         Locan column names. If None the first line is interpreted as header
         (Default: None).
-    nrows : int | None
+    nrows
         The number of localizations to load from file. None means that all
         available rows are loaded (Default: None).
-    property_mapping : dict[str, str] | list[dict] | None
+    property_mapping
         Mappings between column names and locan property names
-    convert : bool
+    convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
     kwargs : dict
@@ -121,19 +121,19 @@ def load_txt_file(
 
 def _map_file_type_to_load_function(
     file_type: int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata,
-) -> Callable:
+) -> Callable[..., Any]:
     """
     Interpret user input for file_type.
 
     Parameters
     ----------
-    file_type :
+    file_type
         Identifier for the file type. Integer or string should be according to
         locan.constants.FileType.
 
     Returns
     -------
-    Callable
+    Callable[..., Any]
         Name of function for loading the localization file of `type`.
     """
     look_up_table = dict(
@@ -180,14 +180,14 @@ def _map_file_type_to_load_function(
 
 
 def load_locdata(
-    path: str | os.PathLike | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
     file_type: int
     | str
     | locan.constants.FileType
     | locan.data.metadata_pb2.Metadata = 1,
     nrows: int | None = None,
     **kwargs,
-):
+) -> LocData:
     """
     Load data from localization file as specified by type.
 
@@ -195,12 +195,12 @@ def load_locdata(
 
     Parameters
     ----------
-    path : str | os.PathLike | SupportsRead
+    path
         File path for a localization data file to load.
-    file_type : int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata
+    file_type
         Indicator for the file type.
         Integer or string should be according to locan.constants.FileType.
-    nrows : int | None
+    nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.
     kwargs : dict

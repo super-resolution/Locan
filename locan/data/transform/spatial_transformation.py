@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 def _transform_affine_numpy(
     points, matrix=None, offset=None, pre_translation=None
-) -> npt.NDArray:
+) -> npt.NDArray[np.float_]:
     """
     Transform `points` by an affine transformation using standard numpy
     procedures.
@@ -58,7 +58,7 @@ def _transform_affine_numpy(
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         Transformed coordinates.
     """
     points_ = np.asarray(points)
@@ -86,7 +86,7 @@ def _transform_affine_numpy(
     return transformed_points
 
 
-def _homogeneous_matrix(matrix=None, offset=None) -> npt.NDArray:
+def _homogeneous_matrix(matrix=None, offset=None) -> npt.NDArray[np.float_]:
     """
     Combine transformation matrix and translation vector for dimension d into
     homogeneous (d+1, d+1) transformation
@@ -103,7 +103,7 @@ def _homogeneous_matrix(matrix=None, offset=None) -> npt.NDArray:
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         Homogeneous transformation matrix to be used with homogeneous
         coordinate vector. Array with shape (ndim+1, ndim+1).
     """
@@ -126,7 +126,7 @@ def _homogeneous_matrix(matrix=None, offset=None) -> npt.NDArray:
 
 def _transform_affine_open3d(
     points, matrix=None, offset=None, pre_translation=None
-) -> npt.NDArray:
+) -> npt.NDArray[np.float_]:
     """
     Transform `points` or coordinates in `locdata` by an affine
     transformation using open3d.
@@ -150,7 +150,7 @@ def _transform_affine_open3d(
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         Transformed coordinates.
     """
     if not HAS_DEPENDENCY["open3d"]:
@@ -201,7 +201,7 @@ def _transform_affine_open3d(
 
 def transform_affine(
     locdata, matrix=None, offset=None, pre_translation=None, method="numpy"
-) -> npt.NDArray | LocData:
+) -> npt.NDArray[np.float_] | LocData:
     """
     Transform `points` or coordinates in `locdata` by an affine transformation.
 
@@ -227,7 +227,7 @@ def transform_affine(
 
     Returns
     -------
-    npt.NDArray | LocData
+    npt.NDArray[np.float_] | LocData
         New localization data with transformed coordinates.
     """
     local_parameter = locals()

@@ -52,10 +52,10 @@ logger = logging.getLogger(__name__)
 if sys.version_info < (3, 9):
     LocalizationPrecisionModel = Callable
 else:
-    LocalizationPrecisionModel = Callable[..., npt.NDArray]
+    LocalizationPrecisionModel = Callable[..., npt.NDArray[np.float_]]
 
 
-def localization_precision_model_1(intensity) -> npt.NDArray:
+def localization_precision_model_1(intensity) -> npt.NDArray[np.float_]:
     """
     Localization precision as function of
     intensity (I) according to:
@@ -72,14 +72,14 @@ def localization_precision_model_1(intensity) -> npt.NDArray:
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
     """
     intensity = np.asarray(intensity)
     sigma = np.sqrt(intensity)
     return sigma
 
 
-def localization_precision_model_2(intensity, psf_sigma) -> npt.NDArray:
+def localization_precision_model_2(intensity, psf_sigma) -> npt.NDArray[np.float_]:
     """
     Localization precision as function of
     intensity (I), PSF width (sigma_PSF) according to:
@@ -97,7 +97,7 @@ def localization_precision_model_2(intensity, psf_sigma) -> npt.NDArray:
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
     """
     intensity = np.asarray(intensity)
     psf_sigma = np.asarray(psf_sigma)
@@ -107,7 +107,7 @@ def localization_precision_model_2(intensity, psf_sigma) -> npt.NDArray:
 
 def localization_precision_model_3(
     intensity, psf_sigma, pixel_size, local_background
-) -> npt.NDArray:
+) -> npt.NDArray[np.float_]:
     """
     Localization precision as function of
     intensity (I), PSF size (\\sigma_{PSF}), pixel size (a), background (b)
@@ -135,7 +135,7 @@ def localization_precision_model_3(
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
     """
     intensity = np.asarray(intensity)
     psf_sigma = np.asarray(psf_sigma)
@@ -156,15 +156,15 @@ def _localization_uncertainty(
     locdata: LocData, model: int | LocalizationPrecisionModel, **kwargs
 ) -> pd.DataFrame:
     if isinstance(model, Callable):  # type: ignore
-        model = cast(Callable, model)
+        model = cast(Callable, model)  # type: ignore[type-arg]
     elif model == 1:
-        model = cast(Callable, model)
+        model = cast(Callable, model)  # type: ignore[type-arg]
         model = localization_precision_model_1
     elif model == 2:
-        model = cast(Callable, model)
+        model = cast(Callable, model)  # type: ignore[type-arg]
         model = localization_precision_model_2
     elif model == 3:
-        model = cast(Callable, model)
+        model = cast(Callable, model)  # type: ignore[type-arg]
         model = localization_precision_model_3
     else:
         raise TypeError("model must be 1, 2, 3 or callable.")

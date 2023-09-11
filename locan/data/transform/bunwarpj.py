@@ -44,7 +44,7 @@ from locan.data.transform.spatial_transformation import transform_affine
 __all__: list[str] = ["bunwarp"]
 
 
-def _unwarp(points, matrix_x, matrix_y, pixel_size) -> npt.NDArray:
+def _unwarp(points, matrix_x, matrix_y, pixel_size) -> npt.NDArray[np.float_]:
     """
     Transform points with raw matrix from BunwarpJ.
 
@@ -62,7 +62,7 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size) -> npt.NDArray:
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         Transformed point coordinates with shape (n_points, 2).
     """
     points_ = np.asarray(points)
@@ -85,7 +85,7 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size) -> npt.NDArray:
     return new_points
 
 
-def _read_matrix(path) -> tuple[npt.NDArray, npt.NDArray]:
+def _read_matrix(path) -> tuple[npt.NDArray[np.float_], npt.NDArray[np.float_]]:
     """
     Read file with raw matrix from BunwarpJ.
 
@@ -96,7 +96,7 @@ def _read_matrix(path) -> tuple[npt.NDArray, npt.NDArray]:
 
     Returns
     -------
-    tuple[npt.NDArray, npt.NDArray]
+    tuple[npt.NDArray[np.float_], npt.NDArray[np.float_]]
         x transformation array, y transformation array
     """
     with open(path) as file:

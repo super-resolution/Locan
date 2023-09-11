@@ -19,7 +19,7 @@ __all__: list[str] = []
 
 class Collection(Protocol):
     data: pd.DataFrame
-    references: Iterable
+    references: Iterable[LocData]
     coordinate_keys: list[str]
 
     def __len__(self):
@@ -27,7 +27,7 @@ class Collection(Protocol):
 
 
 def _check_loc_properties(
-    locdata: LocData | Collection, loc_properties: str | Iterable | None = None
+    locdata: LocData | Collection, loc_properties: str | Iterable[str] | None = None
 ) -> list[str]:
     """
     Check that loc_properties are valid properties in locdata.

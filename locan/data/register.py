@@ -31,8 +31,8 @@ __all__: list[str] = ["register_icp", "register_cc"]
 
 
 class Transformation(NamedTuple):
-    matrix: npt.NDArray
-    offset: npt.NDArray
+    matrix: npt.NDArray[np.float_]
+    offset: npt.NDArray[np.float_]
 
 
 @needs_package("open3d")

@@ -4,6 +4,7 @@ Miscellaneous functions without a home.
 from __future__ import annotations
 
 from collections.abc import Iterator
+from typing import Any
 
 __all__: list[str] = ["iterate_2d_array"]
 
@@ -29,13 +30,18 @@ def iterate_2d_array(n_elements=5, n_cols=2) -> Iterator[tuple[int, int]]:
     return (item for item, _ in zip(iterator, range(n_elements)))
 
 
-def _get_subclasses(cls) -> set:
+def _get_subclasses(cls: Any) -> set[Any]:
     """
     Recursively identify all classes that inherit from `cls`.
 
+    Parameters
+    ----------
+    cls
+        class object
+
     Returns
     -------
-    set
+    set[Any]
     """
     return set(cls.__subclasses__()).union(
         [s for c in cls.__subclasses__() for s in _get_subclasses(c)]

@@ -18,7 +18,7 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Callable  # noqa: F401
+from typing import Any, Callable  # noqa: F401
 
 import matplotlib.colors as mcolors
 import numpy as np
@@ -107,7 +107,7 @@ class Transform(ABC):
         # return new_values
 
     @abstractmethod
-    def inverse(self, values: npt.ArrayLike) -> npt.NDArray:
+    def inverse(self, values: npt.ArrayLike) -> npt.NDArray[Any]:
         """A transformation that performs the inverse operation."""
         raise NotImplementedError
 
@@ -207,7 +207,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         raise NotImplementedError
 
 
-def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray:
+def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray[np.float_]:
     """
     Adjust contrast of image by a predefined transformation:
 
@@ -229,7 +229,7 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray:
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
     """
     if (
         rescale is None

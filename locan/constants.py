@@ -387,7 +387,7 @@ class ColorMaps(Enum):
 
 
 #: Mapping column names in RapidSTORM files to `LocData` property keys
-RAPIDSTORM_KEYS: Final[dict] = {
+RAPIDSTORM_KEYS: Final[dict[str, str]] = {
     "Position-0-0": "position_x",
     "Position-1-0": "position_y",
     "Position-2-0": "position_z",
@@ -403,7 +403,7 @@ RAPIDSTORM_KEYS: Final[dict] = {
 
 
 #: Mapping column names in Zeiss Elyra files to `LocData` property keys
-ELYRA_KEYS: Final[dict] = {
+ELYRA_KEYS: Final[dict[str, str]] = {
     "Index": "original_index",
     "First Frame": "frame",
     "Number Frames": "frames_number",
@@ -423,7 +423,7 @@ ELYRA_KEYS: Final[dict] = {
 
 
 #: Mapping column names in Thunderstorm files to `LocData` property keys
-THUNDERSTORM_KEYS: Final[dict] = {
+THUNDERSTORM_KEYS: Final[dict[str, str]] = {
     "id": "original_index",
     "frame": "frame",
     "x [nm]": "position_x",
@@ -444,7 +444,7 @@ THUNDERSTORM_KEYS: Final[dict] = {
 
 
 #: Mapping column names in Nanoimager files to `LocData` property keys
-NANOIMAGER_KEYS: Final[dict] = {
+NANOIMAGER_KEYS: Final[dict[str, str]] = {
     "Channel": "channel",
     "Frame": "frame",
     "X (nm)": "position_x",
@@ -456,7 +456,7 @@ NANOIMAGER_KEYS: Final[dict] = {
 
 
 #: Mapping column names in SMLM files to `LocData` property keys
-SMLM_KEYS: Final[dict] = {
+SMLM_KEYS: Final[dict[str, str]] = {
     "id": "original_index",
     "frame": "frame",
     "x": "position_x",
@@ -476,7 +476,7 @@ SMLM_KEYS: Final[dict] = {
 }
 
 #: Mapping column names in DECODE files to `LocData` property keys
-DECODE_KEYS: Final[dict] = {
+DECODE_KEYS: Final[dict[str, str]] = {
     "id": "original_index",
     "frame_ix": "frame",
     "x": "position_x",
@@ -487,7 +487,7 @@ DECODE_KEYS: Final[dict] = {
 }
 
 #: Mapping column names in SMAP files to `LocData` property keys
-SMAP_KEYS: Final[dict] = {
+SMAP_KEYS: Final[dict[str, str]] = {
     "frame": "frame",
     "xnm": "position_x",
     "ynm": "position_y",

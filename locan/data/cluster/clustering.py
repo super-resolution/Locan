@@ -217,7 +217,7 @@ def cluster_by_bin(
     bin_edges=None,
     bin_range=None,
     return_counts=False,
-) -> tuple[Bins | None, npt.NDArray, LocData, npt.NDArray | None]:
+) -> tuple[Bins | None, npt.NDArray[np.int_], LocData, npt.NDArray[np.int_] | None]:
     """
     Cluster localizations in locdata by binning all localizations with regard
     to `loc_properties` and collecting all localizations per bin as cluster.
@@ -258,7 +258,7 @@ def cluster_by_bin(
 
     Returns
     -------
-    tuple[Bins | None, npt.NDArray, LocData, npt.NDArray | None]
+    tuple[Bins | None, npt.NDArray[np.int_], LocData, npt.NDArray[np.int_] | None]
         Tuple with bins, bin_indices,
         collection of all generated selections (i.e. localization clusters),
         and counts per bin.

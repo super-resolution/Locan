@@ -78,7 +78,7 @@ __all__: list[str] = [
 logger = logging.getLogger(__name__)
 
 
-def make_uniform(n_samples, region=(0, 1), seed=None) -> npt.NDArray:
+def make_uniform(n_samples, region=(0, 1), seed=None) -> npt.NDArray[np.float_]:
     """
     Provide points that are distributed by a uniform
     (complete spatial randomness) point process
@@ -96,7 +96,7 @@ def make_uniform(n_samples, region=(0, 1), seed=None) -> npt.NDArray:
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         The generated samples of shape (n_samples, n_features).
     """
     rng = np.random.default_rng(seed)
@@ -177,7 +177,7 @@ def simulate_uniform(n_samples, region=(0, 1), seed=None) -> LocData:
     return locdata
 
 
-def make_Poisson(intensity, region=(0, 1), seed=None) -> npt.NDArray:
+def make_Poisson(intensity, region=(0, 1), seed=None) -> npt.NDArray[np.float_]:
     """
     Provide points that are distributed by a uniform Poisson point process
     within the boundaries given by `region`.
@@ -194,7 +194,7 @@ def make_Poisson(intensity, region=(0, 1), seed=None) -> npt.NDArray:
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         The generated samples of shape (n_samples, n_features).
     """
     rng = np.random.default_rng(seed)
@@ -289,7 +289,9 @@ def make_cluster(
     clip=True,
     shuffle=True,
     seed=None,
-) -> tuple[npt.NDArray, npt.NDArray, npt.NDArray, Region]:
+) -> tuple[
+    npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region
+]:
     """
     Parent positions are taken from `centers`
     or are distributed according to a homogeneous Poisson process with
@@ -324,7 +326,7 @@ def make_cluster(
 
     Returns
     -------
-    tuple[npt.NDArray, npt.NDArray, npt.NDArray, Region]
+    tuple[npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region]
        The generated samples, labels, parent_samples
        of shape (n_samples, n_features) and region
     """
@@ -493,7 +495,9 @@ def make_NeymanScott(
     clip=True,
     shuffle=True,
     seed=None,
-) -> tuple[npt.NDArray, npt.NDArray, npt.NDArray, Region]:
+) -> tuple[
+    npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region
+]:
     """
     Generate clustered point data following a Neyman-Scott random point
     process.
@@ -530,7 +534,7 @@ def make_NeymanScott(
 
     Returns
     -------
-    tuple[npt.NDArray, npt.NDArray, npt.NDArray, Region]
+    tuple[npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region]
        The generated samples, labels, parent_samples of shape
        (n_samples, n_features) and region
     """
@@ -699,7 +703,9 @@ def make_Matern(
     clip=True,
     shuffle=True,
     seed=None,
-) -> tuple[npt.NDArray, npt.NDArray, npt.NDArray, Region]:
+) -> tuple[
+    npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region
+]:
     """
     Generate clustered point data following a Matern cluster random point
     process.
@@ -735,7 +741,7 @@ def make_Matern(
 
     Returns
     -------
-    tuple[npt.NDArray, npt.NDArray, npt.NDArray, Region]
+    tuple[npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region]
        The generated samples, labels, parent_samples
        of shape (n_samples, n_features) and region
     """
@@ -896,7 +902,9 @@ def make_Thomas(
     clip=True,
     shuffle=True,
     seed=None,
-) -> tuple[npt.NDArray, npt.NDArray, npt.NDArray, Region]:
+) -> tuple[
+    npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region
+]:
     """
     Generate clustered point data following a Thomas random point process.
     Parent positions are distributed according to a homogeneous Poisson
@@ -936,7 +944,7 @@ def make_Thomas(
 
     Returns
     -------
-    tuple[npt.NDArray, npt.NDArray, npt.NDArray, Region]
+    tuple[npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region]
        The generated samples, labels, parent_samples
        of shape (n_samples, n_features) and region
     """
@@ -1129,7 +1137,9 @@ def make_dstorm(
     clip=True,
     shuffle=True,
     seed=None,
-) -> tuple[npt.NDArray, npt.NDArray, npt.NDArray, Region]:
+) -> tuple[
+    npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region
+]:
     """
     Generate clustered point data following a Thomas-like random point process.
     Parent positions are distributed according to a homogeneous Poisson
@@ -1171,7 +1181,7 @@ def make_dstorm(
 
     Returns
     -------
-    tuple[npt.NDArray, npt.NDArray, npt.NDArray, Region]
+    tuple[npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region]
        The generated samples, labels, parent_samples
         of shape (n_samples, n_features) and region
     """
@@ -1368,7 +1378,7 @@ def simulate_dstorm(
 
 def _random_walk(
     n_walks=1, n_steps=10, dimensions=2, diffusion_constant=1, time_step=10, seed=None
-) -> tuple[npt.NDArray, npt.NDArray]:
+) -> tuple[npt.NDArray[np.float_], npt.NDArray[np.float_]]:
     """
     Random walk simulation
 
@@ -1389,7 +1399,7 @@ def _random_walk(
 
     Returns
     -------
-    tuple[npt.NDArray, npt.NDArray]
+    tuple[npt.NDArray[np.float_], npt.NDArray[np.float_]]
         (times, positions), where shape(times) is 1 and shape of positions
         is (n_walks, n_steps, dimensions)
     """

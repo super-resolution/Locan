@@ -357,6 +357,6 @@ class _DistributionFits:
 
         return ax
 
-    def parameter_dict(self) -> dict:
+    def parameter_dict(self) -> dict[str, float]:
         """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 
 def _coordinate_based_colocalization(
     points, other_points=None, radius=100, n_steps=10
-) -> npt.NDArray:
+) -> npt.NDArray[np.float_]:
     """
     Compute a colocalization index for each localization by coordinate-based
     colocalization.
@@ -68,7 +68,7 @@ def _coordinate_based_colocalization(
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         An array with coordinate-based colocalization coefficients for each
         input point.
     """

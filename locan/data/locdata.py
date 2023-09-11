@@ -789,7 +789,7 @@ class LocData:
         dataframe = pd.concat([i.data for i in locdatas], ignore_index=True, sort=False)
 
         # concatenate references also if None
-        references: list = []
+        references: list[LocData] = []
         for locdata in locdatas:
             try:
                 references.extend(locdata.references)

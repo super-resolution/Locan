@@ -10,7 +10,7 @@ from __future__ import annotations
 import importlib
 import logging
 import os
-from typing import BinaryIO  # noqa: F401
+from typing import Any, BinaryIO  # noqa: F401
 
 try:
     import tomllib
@@ -95,7 +95,7 @@ def _modify_meta(
 
 
 def _dict_to_protobuf(
-    dictionary: dict, message: Message, inplace: bool = False
+    dictionary: dict[str, Any], message: Message, inplace: bool = False
 ) -> Message | None:
     """
     Parse dictionary with message attributes and their values in message.
@@ -255,7 +255,7 @@ def load_metadata_from_toml(path_or_file_like):
     return _toml_dict_to_protobuf(toml_dict)
 
 
-def message_scheme(message) -> dict:
+def message_scheme(message) -> dict[str, Any]:
     """
     Provide message scheme with defaults including nested messages.
 
@@ -266,7 +266,7 @@ def message_scheme(message) -> dict:
 
     Returns
     -------
-    dict
+    dict[str, Any]
         A nested dictionary with all message fields including default values.
     """
 

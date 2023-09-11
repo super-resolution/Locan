@@ -53,7 +53,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
 if sys.version_info >= (3, 9):
     from collections.abc import Sequence  # noqa: F401
@@ -514,7 +514,7 @@ class Drift(_Analysis):
         Collection of locdata chunks
     transformations : list[Transformation] | None
         Transformations for locdata chunks
-    transformation_models : dict[str, list | None]
+    transformation_models : dict[str, list[DriftModel | DriftComponent] | None]
         The fitted model objects.
     locdata_corrected : LocData | None
         Localization data with drift-corrected coordinates.
@@ -537,9 +537,9 @@ class Drift(_Analysis):
         self.locdata = None
         self.collection = None
         self.transformations: list[Transformation] | None = None
-        self.transformation_models: dict[str, list | None] = dict(
-            matrix=None, offset=None
-        )
+        self.transformation_models: dict[
+            str, list[DriftModel | DriftComponent] | None
+        ] = dict(matrix=None, offset=None)
         self.locdata_corrected = None
 
     def __bool__(self):
@@ -593,13 +593,15 @@ class Drift(_Analysis):
         self.locdata_corrected = None
         return self
 
-    def _transformation_models_for_identity_matrix(self) -> dict[str, list]:
+    def _transformation_models_for_identity_matrix(
+        self,
+    ) -> dict[str, list[DriftModel | DriftComponent]]:
         """
         Return transformation_models (dict) with DriftModels according to unit
         matrix.
         """
         dimension = self.locdata.dimension  # type: ignore[union-attr]
-        transformation_models = []
+        transformation_models: list[DriftModel | DriftComponent] = []
         for k in np.identity(dimension).flatten():
             if k == 0:
                 transformation_models.append(DriftComponent("zero"))
@@ -607,7 +609,9 @@ class Drift(_Analysis):
                 transformation_models.append(DriftComponent("one"))
         return dict(matrix=transformation_models)
 
-    def _transformation_models_for_zero_offset(self) -> dict[str, list]:
+    def _transformation_models_for_zero_offset(
+        self,
+    ) -> dict[str, list[DriftModel | DriftComponent]]:
         """
         Return transformation_models (dict) with DriftModels according to zero
         offset.
@@ -824,7 +828,7 @@ class Drift(_Analysis):
         )
         return new_locdata
 
-    def _apply_correction_from_model(self, locdata: LocData) -> npt.NDArray:
+    def _apply_correction_from_model(self, locdata: LocData) -> npt.NDArray[Any]:
         """
         Correct drift by applying the estimated transformations to locdata.
         If self.transformation_model['matrix'] is None, no matrix

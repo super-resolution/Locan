@@ -1014,13 +1014,13 @@ class Rectangle(Region2D):
         return cls(corner, width, height, angle)
 
     @property
-    def corner(self) -> npt.NDArray:
+    def corner(self) -> npt.NDArray[np.float_]:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        npt.NDArray
+        npt.NDArray[np.float_]
             with shape (2,)
         """
         return self._corner
@@ -1060,13 +1060,13 @@ class Rectangle(Region2D):
         return self._angle
 
     @property
-    def intervals(self) -> tuple:
+    def intervals(self) -> tuple[tuple[float, float], ...]:
         """
         Provide bounds in a tuple (min, max) arrangement.
 
         Returns
         -------
-        tuple
+        tuple[tuple[float, float], ...]
             ((min_x, max_x), ...) of shape(dimension, 2)
         """
         lower_bounds = self.bounds[: self.dimension]
@@ -1362,13 +1362,13 @@ class Polygon(Region2D):
             return cls(points, holes)
 
     @property
-    def points(self) -> npt.NDArray:
+    def points(self) -> npt.NDArray[np.float_]:
         """
         Exterior polygon points.
 
         Returns
         -------
-        npt.NDArray
+        npt.NDArray[np.float_]
             of shape(n_points, dimension)
         """
         return self._points
@@ -1380,7 +1380,7 @@ class Polygon(Region2D):
 
         Returns
         -------
-        list[npt.NDArray]
+        list[npt.NDArray[np.float_]]
             n_holes of shape(n_points, dimension)
         """
         return self._holes
@@ -1396,7 +1396,7 @@ class Polygon(Region2D):
 
         Returns
         -------
-        dict
+        dict[str, Any]
         """
         return self._region_specs
 
@@ -1625,13 +1625,13 @@ class AxisOrientedCuboid(Region3D):
         return cls(corner, length, width, height)
 
     @property
-    def corner(self) -> npt.NDArray:
+    def corner(self) -> npt.NDArray[np.float_]:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        npt.NDArray
+        npt.NDArray[np.float_]
             with shape (2,)
         """
         return self._corner
@@ -1694,13 +1694,13 @@ class AxisOrientedCuboid(Region3D):
         return min_x, min_y, min_z, max_x, max_y, max_z
 
     @property
-    def intervals(self) -> tuple:
+    def intervals(self) -> tuple[tuple[float, float], ...]:
         """
         Provide bounds in a tuple (min, max) arrangement.
 
         Returns
         -------
-        tuple
+        tuple[tuple[float, float], ...]
             ((min_x, max_x), ...) of shape(dimension, 2)
         """
         min_x, min_y, min_z, max_x, max_y, max_z = self.bounds
@@ -1802,13 +1802,13 @@ class Cuboid(Region3D):
         )
 
     @property
-    def corner(self) -> npt.NDArray:
+    def corner(self) -> npt.NDArray[np.float_]:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        npt.NDArray
+        npt.NDArray[np.float_]
             with shape (2,)
         """
         return self._corner
@@ -1971,25 +1971,25 @@ class AxisOrientedHypercuboid(RegionND):
         return cls(corner, lengths)
 
     @property
-    def corner(self) -> npt.NDArray:
+    def corner(self) -> npt.NDArray[np.float_]:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        npt.NDArray
+        npt.NDArray[np.float_]
             with shape (dimension,)
         """
         return self._corner
 
     @property
-    def lengths(self) -> npt.NDArray:
+    def lengths(self) -> npt.NDArray[np.float_]:
         """
         Array of length values for the 1-dimensional edge vectors.
 
         Returns
         -------
-        npt.NDArray
+        npt.NDArray[np.float_]
             of shape(dimension,)
         """
         return self._lengths

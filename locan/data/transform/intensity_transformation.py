@@ -13,6 +13,7 @@ import logging
 import sys
 
 import numpy as np
+import numpy.typing as npt
 
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
@@ -24,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 def _transform_counts_to_photons(
     intensities, offset=0, gain=1, electrons_per_count=1
-) -> np.ndarray:
+) -> npt.NDArray[np.float_]:
     """
     Convert camera analog-to-digital converter (ADC) counts into photo
     electrons.
@@ -44,7 +45,7 @@ def _transform_counts_to_photons(
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray[np.float_]
         Photo electrons
     """
     intensities = np.asarray(intensities)

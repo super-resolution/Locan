@@ -76,10 +76,10 @@ ConvexHullExpectationResource = dict(
 
 
 class ConvexHullExpectationValues(NamedTuple):
-    n_points: list | npt.NDArray
-    expectation: npt.NDArray
-    std_pos: npt.NDArray
-    std_neg: npt.NDArray
+    n_points: list[int] | npt.NDArray[np.int_]
+    expectation: npt.NDArray[np.int_ | np.float_]
+    std_pos: npt.NDArray[np.float_]
+    std_neg: npt.NDArray[np.float_]
 
 
 def _get_resource(
@@ -700,7 +700,7 @@ class ConvexHullExpectationBatch(_Analysis):
         -------
         Self
         """
-        convex_hull_expectation_batch: list = []
+        convex_hull_expectation_batch: list[ConvexHullExpectation] = []
         dimensions: list[int | None] = []
         for locdata_ in locdatas:
             che = ConvexHullExpectation(

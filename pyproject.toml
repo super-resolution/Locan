@@ -132,6 +132,7 @@ dev = [
     "numpy>1.20.0",  # required by mypy
     "types-requests",  # required by mypy
     "types-protobuf",  # required by mypy
+    "pandas-stubs",  # required by mypy
 ]
 
 [project.urls]
@@ -256,7 +257,7 @@ files = ["locan"]
 exclude = ['_pb2\.py$']
 # Aiming at
 strict = true
-ignore_missing_imports = true
+#ignore_missing_imports = true
 warn_unused_ignores = false
 
 # todo: should all be true
@@ -293,3 +294,25 @@ module = [
 ]
 disable_error_code = ["attr-defined"]
 check_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = [
+    'matplotlib.*',
+    'skimage',
+    'scipy.*',
+    'shapely.*',
+    'networkx',
+    'colorcet',
+    'lmfit.*',
+    'open3d',
+    'fast_histogram',
+    'trackpy',
+    'asdf',
+    'sklearn.*',
+    'napari',
+    'h5py',
+    'tqdm',
+    'mpl_scatter_density',
+    'hdbscan',
+]
+ignore_missing_imports = true

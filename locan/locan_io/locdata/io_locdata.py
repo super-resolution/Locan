@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 
 def load_txt_file(
-    path: str | os.PathLike[Any] | SupportsRead[Any],
+    path: str | os.PathLike[str] | SupportsRead[Any],
     sep: str = ",",
     columns: list[str] | None = None,
     nrows: int | None = None,
@@ -81,8 +81,11 @@ def load_txt_file(
     """
     # define columns
     if columns is None:
-        dataframe = pd.read_csv(
-            path, sep=sep, nrows=nrows, **dict(dict(skiprows=0), **kwargs)
+        dataframe: pd.DataFrame = pd.read_csv(  # type:ignore[assignment]
+            path,  # type:ignore[arg-type]
+            sep=sep,
+            nrows=nrows,
+            **dict(dict(skiprows=0), **kwargs),
         )
 
         column_keys = convert_property_names(
@@ -91,8 +94,8 @@ def load_txt_file(
         dataframe.columns = column_keys
     else:
         column_keys = convert_property_names(columns, property_mapping=property_mapping)
-        dataframe = pd.read_csv(
-            path,
+        dataframe = pd.read_csv(  # type:ignore[assignment]
+            path,  # type:ignore[arg-type]
             sep=sep,
             nrows=nrows,
             **dict(dict(skiprows=1, names=column_keys), **kwargs),

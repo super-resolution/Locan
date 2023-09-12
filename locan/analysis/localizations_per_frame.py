@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 import sys
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if sys.version_info >= (3, 9):
     from collections.abc import Sequence  # noqa: F401
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 def _localizations_per_frame(
     locdata, norm=None, time_delta="integration_time", resample=None, **kwargs
-) -> pd.Series:
+) -> pd.Series[Any]:
     """
     Compute localizations per frame.
 
@@ -133,7 +133,7 @@ def _localizations_per_frame(
 
 @dataclass(repr=False)
 class _Results:
-    time_series: pd.Series
+    time_series: pd.Series[Any]
 
     def accumulation_time(self, fraction=0.5) -> int:
         normalized_cumulative_time_trace = (

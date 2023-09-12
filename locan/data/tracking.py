@@ -11,6 +11,7 @@ It makes use of the trackpy package.
 from __future__ import annotations
 
 import sys
+from typing import Any
 
 import pandas as pd
 
@@ -25,7 +26,7 @@ __all__: list[str] = ["link_locdata", "track"]
 
 
 @needs_package("trackpy")
-def link_locdata(locdata, search_range=40, memory=0, **kwargs) -> pd.Series:
+def link_locdata(locdata, search_range=40, memory=0, **kwargs) -> pd.Series[Any]:
     """
     Track localizations, i.e. cluster localizations in time when nearby in
     successive frames.
@@ -46,7 +47,7 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs) -> pd.Series:
 
     Returns
     -------
-    pandas.Series
+    pandas.Series[Any]
         A series named 'Track' referring to the track number.
 
     Note
@@ -67,7 +68,9 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs) -> pd.Series:
     return return_series
 
 
-def track(locdata, search_range=40, memory=0, **kwargs) -> tuple[LocData, pd.Series]:
+def track(
+    locdata, search_range=40, memory=0, **kwargs
+) -> tuple[LocData, pd.Series[Any]]:
     """
     Cluster (in time) localizations in LocData that are nearby in successive
     frames. Clustered localizations are identified by the trackpy linking
@@ -93,7 +96,7 @@ def track(locdata, search_range=40, memory=0, **kwargs) -> tuple[LocData, pd.Ser
 
     Returns
     -------
-    tuple[Locdata, pandas.Series]
+    tuple[Locdata, pandas.Series[Any]]
         A new LocData instance assembling all generated selections
         (i.e. localization cluster).
         A series named 'Track' referring to the track number.

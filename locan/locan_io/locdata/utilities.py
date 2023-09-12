@@ -36,7 +36,7 @@ def convert_property_types(dataframe, types, loc_properties=None) -> pd.DataFram
     ----------
     dataframe : pandas.DataFrame
         Data to be converted
-    types : dict
+    types : dict[str, str]
         Mapping of loc_properties to types
     loc_properties : list[str] | None
         The columns in dataframe to be converted.
@@ -56,7 +56,7 @@ def convert_property_types(dataframe, types, loc_properties=None) -> pd.DataFram
 
     for key, value in selected_property_keys.items():
         if isinstance(value, str):
-            new_df[key] = pd.to_numeric(dataframe[key], downcast=value, errors="coerce")
+            new_df[key] = pd.to_numeric(dataframe[key], downcast=value, errors="coerce")  # type: ignore
         else:
             new_df[key] = dataframe[key].astype(value)
 

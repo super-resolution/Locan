@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if sys.version_info >= (3, 9):
     from collections.abc import Sequence  # noqa: F401
@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 def _localization_property(
     locdata: LocData, loc_property: str = "intensity", index=None
-) -> pd.Series:
+) -> pd.Series[Any]:
     if index is None:
         results = locdata.data[[loc_property]]
     else:
@@ -78,11 +78,11 @@ class LocalizationProperty(_Analysis):
     ----------
     count : int
         A counter for counting instantiations (class attribute).
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas.Series
+    results : pandas.Series[Any]
         Computed results.
     distribution_statistics : Distribution_stats | None
         Distribution parameters derived from MLE fitting of results.

@@ -80,7 +80,7 @@ class Files:
             self.df = pd.DataFrame(columns=[column])
         elif isinstance(df, (pd.DataFrame, pd.Series)):
             if hasattr(df, column):
-                self.df = df
+                self.df = df  # type: ignore[assignment]
             else:
                 raise AttributeError(f"Dataframe must have column {column}.")
         else:
@@ -262,7 +262,7 @@ class Files:
 
         Parameters
         ----------
-        stoplist : Files | Iterable[bool | str | os.PathLike] | None
+        stoplist : Files | Iterable[bool | str | os.PathLike[Any]] | None
             Files to be excluded
         column : str
             key/column in `df` from which to exclude files
@@ -312,7 +312,7 @@ class Files:
 
         Parameters
         ----------
-        files : pd.Series
+        files : pd.Series[Any]
             New file list
         column : str
             Name of column in `Files.df` carrying files to match
@@ -393,7 +393,7 @@ class Files:
         """
         return self.df.group.cat.categories
 
-    def grouped(self) -> pd.core.groupby.DataFrameGroupBy:
+    def grouped(self) -> pd.core.groupby.DataFrameGroupBy:  # type: ignore[name-defined]
         """
         Get groupby instance based on group_identifiers.
 

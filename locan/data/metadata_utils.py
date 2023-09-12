@@ -13,7 +13,7 @@ import os
 from typing import Any, BinaryIO  # noqa: F401
 
 try:
-    import tomllib
+    import tomllib  # type: ignore[import]
 except ModuleNotFoundError:
     import tomli as tomllib  # for sys.version_info < (3, 11):
 

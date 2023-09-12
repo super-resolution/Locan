@@ -73,14 +73,14 @@ class GroupedPropertyExpectation(_Analysis):
         The localization property to analyze.
     other_loc_property: str
         The localization property to group on.
-    expectation : int | float | Mapping | pd.Series | None
+    expectation : int | float | Mapping | pd.Series[Any] | None
         The expected value for all or each other localization property.
 
     Attributes
     ----------
     count : int
         A counter for counting instantiations (class attribute).
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.

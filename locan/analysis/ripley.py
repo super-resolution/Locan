@@ -51,7 +51,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -340,13 +340,13 @@ class RipleysHFunction(_Analysis):
     ----------
     count : int
         A counter for counting instantiations.
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas.DataFrame | None
+    results : pd.DataFrame | None
         Data frame with radii as provided and Ripley's H function.
-    Ripley_h_maximum : pandas.DataFrame
+    Ripley_h_maximum : pd.DataFrame | None
         Data frame with radius and Ripley's H value for the radius at which
         the H function has its maximum.
     """
@@ -355,10 +355,10 @@ class RipleysHFunction(_Analysis):
 
     def __init__(self, meta=None, radii=None, region_measure="bb") -> None:
         radii = np.linspace(0, 100, 10) if radii is None else radii
-        parameters = self._get_parameters(locals())
+        parameters: dict[str, Any] = self._get_parameters(locals())
         super().__init__(**parameters)
-        self.results = None
-        self._Ripley_h_maximum = None
+        self.results: pd.DataFrame | None = None
+        self._Ripley_h_maximum: pd.DataFrame | None = None
 
     def compute(self, locdata: LocData, other_locdata=None) -> Self:
         """

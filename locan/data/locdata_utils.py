@@ -31,7 +31,7 @@ def _get_loc_property_key_per_dimension(locdata, property_key) -> list[str | Non
 
     Parameters
     ----------
-    locdata : pd.DataFrame | pd.Series
+    locdata : pd.DataFrame | pd.Series[Any]
         Localization data
     property_key : str
         Property key to look for in locdata.
@@ -74,7 +74,7 @@ def _get_linked_coordinates(locdata, coordinate_keys=None) -> dict[str, int | fl
 
     Parameters
     ----------
-    locdata : pd.DataFrame | pd.Series
+    locdata : pd.DataFrame | pd.Series[Any]
         dataframe with locdata
     coordinate_keys : Iterable[str] | None
         A selection of coordinate keys on which to compute

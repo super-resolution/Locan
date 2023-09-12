@@ -754,9 +754,9 @@ class ConvexHullExpectationBatch(_Analysis):
         convex_hull_property_ = ConvexHullProperty[convex_hull_property_.upper()]
 
         if self.expected_variance is None:
-            self.results.grouped.loc[:, "expectation"] = pd.NA
-            self.results.grouped.loc[:, "expectation_std_pos"] = pd.NA
-            self.results.grouped.loc[:, "expectation_std_neg"] = pd.NA
+            self.results.grouped.loc[:, "expectation"] = pd.NA  # type: ignore
+            self.results.grouped.loc[:, "expectation_std_pos"] = pd.NA  # type: ignore
+            self.results.grouped.loc[:, "expectation_std_neg"] = pd.NA  # type: ignore
         else:
             convex_hull_expectation_values = _get_convex_hull_property_expectation(
                 n_points=self.results.grouped.index,

@@ -23,7 +23,7 @@ import logging
 import sys
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if sys.version_info >= (3, 9):
     from collections.abc import Sequence  # noqa: F401
@@ -80,7 +80,7 @@ def _property_variances_(
     collection: LocData,
     loc_property: str,
     biased: bool = False,
-) -> dict[str, list[pd.Series | None]]:
+) -> dict[str, list[pd.Series[Any] | None]]:
     loc_property = _check_loc_properties(collection, loc_properties=loc_property)[0]
 
     ddof = 0 if biased else 1
@@ -120,7 +120,7 @@ class PositionVarianceExpectation(_Analysis):
         Metadata about the current analysis routine.
     loc_property: str
         The localization property to analyze.
-    expectation : int | float | Mapping | pd.Series | None
+    expectation : int | float | Mapping | pd.Series[Any] | None
         The expected variance for all or each localization property.
         The expected variance equals the squared localization precision
         for localization position coordinates.

@@ -38,8 +38,8 @@ from locan.analysis.analysis_base import _Analysis
 def _algorithm_1(data=None, limits=(0, 10)):
     """Provides a list of data values. data would be input data that is currently not used."""
     results = [i for i in range(*limits)]  # some complicated algorithm
-    results = pd.DataFrame.from_dict(dict(a=results))
-    return results
+    results_df = pd.DataFrame.from_dict(dict(a=results))
+    return results_df
 
 
 def _algorithm_2(data=None, n_sample=100, seed=None):

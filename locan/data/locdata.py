@@ -1164,7 +1164,7 @@ class LocData:
 
         Parameters
         ----------
-        properties : dict[str, Iterable] | pd.Series | pandas.dataFrame | Callable | None
+        properties : dict[str, Iterable] | pd.Series[Any] | pandas.DataFrame[Any] | Callable[..., [Any]] | None
             new property values for each reference or
             function to compute property for LocData object.
 

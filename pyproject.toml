@@ -257,7 +257,6 @@ files = ["locan"]
 exclude = ['_pb2\.py$']
 # Aiming at
 strict = true
-#ignore_missing_imports = true
 warn_unused_ignores = false
 
 # todo: should all be true
@@ -297,22 +296,22 @@ check_untyped_defs = false
 
 [[tool.mypy.overrides]]
 module = [
+    'asdf',
+    'colorcet',
+    'fast_histogram',
+    'h5py',
+    'hdbscan',
+    'lmfit.*',
     'matplotlib.*',
-    'skimage',
+    'mpl_scatter_density',
+    'napari',
+    'networkx',
+    'open3d',
     'scipy.*',
     'shapely.*',
-    'networkx',
-    'colorcet',
-    'lmfit.*',
-    'open3d',
-    'fast_histogram',
-    'trackpy',
-    'asdf',
+    'skimage',
     'sklearn.*',
-    'napari',
-    'h5py',
+    'trackpy',
     'tqdm',
-    'mpl_scatter_density',
-    'hdbscan',
 ]
 ignore_missing_imports = true

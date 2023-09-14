@@ -18,27 +18,25 @@ __all__: list[str] = ["file_dialog"]
 
 @needs_package("qt")
 def file_dialog(
-    directory=None,
-    message="Select a file...",
-    filter="Text files (*.txt);; All files (*)",
-):
+    directory: str | None = None,
+    message: str = "Select a file...",
+    filter: str = "Text files (*.txt);; All files (*)",
+) -> str | list[str]:
     """
     Select file names in a ui dialog.
 
     Parameters
     ----------
-    directory : str | None
+    directory
         directory path to start dialog in. If None the current directory is used.
-
-    message : str
+    message
         Hint what to do
-
-    filter : str
+    filter
         filter for file type
 
     Returns
     -------
-    list[str]
+    str | list[str]
         list with file names or empty list
     """
     if directory is None:

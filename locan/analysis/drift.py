@@ -65,6 +65,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import Self
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt  # noqa: F401
@@ -100,12 +101,12 @@ class DriftModel(Protocol):
 
 @needs_package("open3d")
 def _estimate_drift_icp(
-    locdata,
-    chunks=None,
-    chunk_size=None,
+    locdata: LocData,
+    chunks: Sequence[tuple[int, ...]] | None = None,
+    chunk_size: int | None = None,
     target: Literal["first", "previous"] = "first",
-    kwargs_chunk=None,
-    kwargs_register=None,
+    kwargs_chunk: dict[str, Any] | None = None,
+    kwargs_register: dict[str, Any] | None = None,
 ) -> tuple[LocData, list[Transformation]]:
     """
     Estimate drift from localization coordinates by registering points in
@@ -114,17 +115,17 @@ def _estimate_drift_icp(
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
        Localization data with properties for coordinates and frame.
-    chunks : list[tuples]
+    chunks
         Localization chunks as defined by a list of index-tuples
-    chunk_size : int
+    chunk_size
        Number of consecutive localizations to form a single chunk of data.
-    target : Literal["first", "previous"]
+    target
        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
-    kwargs_chunk : dict
+    kwargs_chunk
         Other parameter passed to :meth:`LocData.from_chunks`.
-    kwargs_register : dict
+    kwargs_register
         Other parameter passed to :func:`_register_icp_open3d`.
 
     Returns
@@ -190,39 +191,39 @@ def _estimate_drift_icp(
 
 
 def _estimate_drift_cc(
-    locdata,
-    chunks=None,
-    chunk_size=None,
-    target="first",
-    bin_size=10,
-    kwargs_chunk=None,
-    kwargs_register=None,
-):
+    locdata: LocData,
+    chunks: Sequence[tuple[int, ...]] | None = None,
+    chunk_size: int | None = None,
+    target: Literal["first", "previous"] = "first",
+    bin_size: int | float | tuple[int | float] = 10,
+    kwargs_chunk: dict[str, Any] | None = None,
+    kwargs_register: dict[str, Any] | None = None,
+) -> tuple[LocData, list[Transformation]]:
     """
     Estimate drift from localization coordinates by registering points in successive time-chunks of localization
     data using a cross-correlation algorithm.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
        Localization data with properties for coordinates and frame.
-    chunks : Sequence[tuples]
+    chunks
         Localization chunks as defined by a list of index-tuples
-    chunk_size : int
+    chunk_size
        Number of consecutive localizations to form a single chunk of data.
-    target : str
+    target
        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
-    bin_size : tuple of int, float
+    bin_size
         Size per image pixel
-    kwargs_chunk : dict
+    kwargs_chunk
         Other parameter passed to :meth:`LocData.from_chunks`.
-    kwargs_register : dict
+    kwargs_register
         Other parameter passed to :func:`register_cc`.
 
     Returns
     -------
-    Locdata and list of namedtuple
-        collection and corresponding transformations.
+    tuple[LocData, list[Transformation]]
+        Collection and corresponding transformations.
     """
     if kwargs_chunk is None:
         kwargs_chunk = {}
@@ -422,19 +423,25 @@ class DriftComponent:
         else:
             raise TypeError(f"DriftComponent cannot handle type={type}.")
 
-    def fit(self, x, y, verbose=False, **kwargs) -> Self:
+    def fit(
+        self,
+        x: npt.ArrayLike,
+        y: npt.ArrayLike,
+        verbose: bool = False,
+        **kwargs: dict[str, Any],
+    ) -> Self:
         """
         Fit model to the given data and create `self.model_results`.
 
         Parameters
         ----------
-        x : npt.ArrayLike
+        x
             x data
-        y : npt.ArrayLike
+        y
             y values
-        verbose : bool
+        verbose
             show plot
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`lmfit.model.fit` or to
             :func:`scipy.interpolate.splrep`
             Use the parameter `s` to set the amount of smoothing.
@@ -449,13 +456,13 @@ class DriftComponent:
         self.model_result = self.model.fit(x, y, verbose=verbose, **kwargs)
         return self
 
-    def eval(self, x) -> npt.NDArray[np.float_]:
+    def eval(self, x: npt.ArrayLike) -> npt.NDArray[np.float_]:
         """
         Compute a transformation for time `x` from the drift model.
 
         Parameters
         ----------
-        x : npt.ArrayLike
+        x
             frame values
 
         Returns
@@ -621,31 +628,31 @@ class Drift(_Analysis):
 
     def fit_transformation(
         self,
-        slice_data=None,
-        transformation_component="matrix",
-        element=0,
-        drift_model="linear",
-        verbose=False,
+        slice_data: slice | None = None,
+        transformation_component: Literal["matrix", "offset"] = "matrix",
+        element: int = 0,
+        drift_model: DriftComponent | str | None = "linear",
+        verbose: bool = False,
     ) -> Self:
         """
         Fit drift model to selected component of the estimated transformations.
 
         Parameters
         ----------
-        slice_data : Slice | None
+        slice_data
             Reduce data to a selection on the localization chunks.
-        transformation_component : Literal["matrix", "offset"]
+        transformation_component
             One of 'matrix' or 'offset'
-        element : int | None
+        element
             The element of flattened transformation matrix or offset
-        drift_model : DriftComponent | str | None
+        drift_model
             A drift model as defined by a :class:`DriftComponent` instance
             or the parameter `type` as defined in :class:`DriftComponent`.
             For None no change will occur. To reset transformation_models set
             the transformation_component to None:
             e.g. self.transformation_components = None or
             self.transformation_components['matrix'] = None.
-        verbose : bool
+        verbose
             Print the fitted model curves using lmfit.
 
         Returns
@@ -705,7 +712,7 @@ class Drift(_Analysis):
             )
 
             if verbose:
-                self.transformation_models[transformation_component][  # type: ignore[index]
+                self.transformation_models[transformation_component][  # type: ignore[index,union-attr]
                     element
                 ].model.plot()
 
@@ -716,31 +723,31 @@ class Drift(_Analysis):
 
     def fit_transformations(
         self,
-        slice_data=None,
-        matrix_models=None,
-        offset_models=None,
-        verbose=False,
+        slice_data: slice | None = None,
+        matrix_models: list[DriftComponent] | None = None,
+        offset_models: list[DriftComponent] | None = None,
+        verbose: bool = False,
     ) -> Self:
         """
         Fit model parameter to all estimated transformation components.
 
         Parameters
         ----------
-        slice_data : Slice | None
+        slice_data
             Reduce data to a selection on the localization chunks.
-        matrix_models : list[DriftComponent] | None
+        matrix_models
             Models to use for fitting each matrix component.
             Length of list must be equal to the square of the transformations
             dimension (4 or 9).
             If None, no matrix transformation will be carried out when calling
             :func:`apply_correction`.
-        offset_models : list[DriftComponent] | None
+        offset_models
             Models to use for fitting each offset component.
             Length of list must be equal to the transformations dimension
             (2 or 3).
             If None, no offset transformation will be carried out when calling
             :func:`apply_correction`.
-        verbose : bool
+        verbose
             Print the fitted model curves.
 
         Returns
@@ -837,7 +844,7 @@ class Drift(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData | None
+        locdata
             Localization data to apply correction on. If None correction is
             applied to self.locdata.
         """
@@ -874,16 +881,18 @@ class Drift(_Analysis):
 
         return transformed_points
 
-    def apply_correction(self, locdata=None, from_model=True) -> Self:
+    def apply_correction(
+        self, locdata: LocData | None = None, from_model: bool = True
+    ) -> Self:
         """
         Correct drift by applying the estimated transformations to locdata.
 
         Parameters
         ----------
-        locdata : LocData | None
+        locdata
             Localization data to apply correction on. If None correction is
             applied to self.locdata.
-        from_model : bool
+        from_model
             If `True` compute transformation matrix from fitted transformation
             models and apply interpolated
             transformations. If False use the estimated transformation matrix
@@ -944,29 +953,29 @@ class Drift(_Analysis):
 
     def plot(
         self,
-        ax=None,
-        transformation_component="matrix",
-        element=None,
-        window=1,
-        **kwargs,
-    ) -> plt.axes.Axes:
+        ax: mpl.axes.Axes = None,
+        transformation_component: Literal["matrix", "offset"] = "matrix",
+        element: int | None = None,
+        window: int = 1,
+        **kwargs: dict[str, Any],
+    ) -> mpl.axes.Axes:
         """
         Plot the transformation components as function of average frame for
         each locdata chunk.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        transformation_component : Literal["matrix", "offset"]
+        transformation_component
             One of 'matrix' or 'offset'
-        element : int | None
+        element
             The element of flattened transformation matrix or offset to be
             plotted; if None all plots are shown.
-        window: int
+        window
             Window for running average that is applied before plotting.
             Not implemented yet.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns

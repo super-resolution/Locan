@@ -1,6 +1,8 @@
 """
 command-line interface
 """
+from __future__ import annotations
+
 import argparse
 import sys
 
@@ -16,7 +18,7 @@ from locan.scripts.script_test import _add_arguments as _add_arguments_test
 from locan.utils.system_information import show_versions
 
 
-def main(args=None):
+def main(args: list[str] | None = None) -> None:
     if args is None:
         args = sys.argv[1:]
 
@@ -140,6 +142,8 @@ def main(args=None):
             "This is the command line entry point for locan. Get more information with 'locan -h'."
         )
 
+    return None
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main())  # type: ignore[func-returns-value]

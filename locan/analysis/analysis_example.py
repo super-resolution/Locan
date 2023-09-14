@@ -166,7 +166,7 @@ class AnalysisExampleAlgorithm_2(_Analysis):
     def __init__(self, meta=None, n_sample=100, seed=None):
         super().__init__(meta=meta, n_sample=n_sample, seed=seed)
 
-    def compute(self, locdata: LocData):
+    def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.
 
@@ -177,7 +177,7 @@ class AnalysisExampleAlgorithm_2(_Analysis):
 
         Returns
         -------
-        Analysis class
+        Self
           Returns the Analysis class object (self).
         """
         data = locdata  # take certain elements from locdata

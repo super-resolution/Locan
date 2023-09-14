@@ -259,20 +259,20 @@ exclude = ['_pb2\.py$']
 strict = true
 warn_unused_ignores = false
 
-# todo: should all be true
+# the following are all included in strict
 # Strongly recommend enabling this one as soon as you can
 check_untyped_defs = true
 
 # These shouldn't be too much additional work, but may be tricky to
 # get passing if you use a lot of untyped libraries
-disallow_subclassing_any = false
+disallow_subclassing_any = true
 disallow_untyped_decorators = true
 disallow_any_generics = true
 
 # These next few are various gradations of forcing use of type annotations
-disallow_untyped_calls = false
-disallow_incomplete_defs = false
-disallow_untyped_defs = false
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
 
 # This one can be tricky to get passing if you use a lot of untyped libraries
 warn_return_any = false
@@ -291,8 +291,10 @@ ignore_errors = true
 module = [
     'locan.tests.*',
 ]
-disable_error_code = ["attr-defined"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
 check_untyped_defs = false
+disable_error_code = ["attr-defined"]
 
 [[tool.mypy.overrides]]
 module = [
@@ -315,3 +317,25 @@ module = [
     'tqdm',
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    'locan\visualize\transform',
+    'locan\analysis\nearest_neighbor',
+    'locan\analysis\localization_precision',
+]
+disallow_subclassing_any = false
+
+# todo: should all be true
+[[tool.mypy.overrides]]
+module = [
+    'locan.analysis.*',
+    'locan.data.*',
+    'locan.locan_io.*',
+    'locan.simulation.*',
+    'locan.visualize.*',
+    'locan.scripts.*',
+]
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+disallow_untyped_defs = false

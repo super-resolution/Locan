@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Iterable
 from typing import Any
 
 if sys.version_info >= (3, 9):
@@ -21,12 +22,14 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import Self
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt  # noqa: F401
 import pandas as pd
 from scipy import stats
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 from locan.data.locdata import LocData
 
@@ -39,7 +42,9 @@ logger = logging.getLogger(__name__)
 
 
 def _blink_statistics(
-    locdata, memory=0, remove_heading_off_periods=True
+    locdata: LocData | npt.ArrayLike,
+    memory: int = 0,
+    remove_heading_off_periods: bool = True,
 ) -> dict[str, npt.NDArray[np.int_ | np.float_] | list[int | float]]:
     """
     Estimate on and off times from the frame values provided.
@@ -53,11 +58,14 @@ def _blink_statistics(
 
     Parameters
     ----------
-    locdata : LocData | npt.ArrayLike
+    locdata
         Localization data or just the frame values of given localizations.
-    memory : int
+    memory
         The maximum number of intermittent frames without any localization
         that are still considered to belong to the same on-period.
+    remove_heading_off_periods
+        Flag to indicate if off-periods at the beginning of the series are
+        excluded.
 
     Returns
     -------
@@ -185,7 +193,7 @@ class BlinkStatistics(_Analysis):
     remove_heading_off_periods : bool
         Flag to indicate if off-periods at the beginning of the series are
         excluded.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
 
     Attributes
@@ -194,7 +202,7 @@ class BlinkStatistics(_Analysis):
         A counter for counting instantiations.
     parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     results : dict[str, npt.NDArray[np.int_ | np.float_] | list[int | float]] | None
         'on_periods' and 'off_periods' in units of frame numbers.
@@ -208,7 +216,12 @@ class BlinkStatistics(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, memory=0, remove_heading_off_periods=True) -> None:
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        memory: int = 0,
+        remove_heading_off_periods: bool = True,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
 
@@ -223,7 +236,7 @@ class BlinkStatistics(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData | npt.ArrayLike
+        locdata
             Localization data or just the frame values of given localizations.
 
         Returns
@@ -239,10 +252,10 @@ class BlinkStatistics(_Analysis):
 
     def fit_distributions(
         self,
-        distribution=stats.expon,
-        data_identifier=("on_periods", "off_periods"),
-        with_constraints=True,
-        **kwargs,
+        distribution: str | stats.rv_continuous = stats.expon,
+        data_identifier: str | Iterable[str] = ("on_periods", "off_periods"),
+        with_constraints: bool = True,
+        **kwargs: dict[str, Any],
     ) -> None:
         """
         Fit probability density functions to the distributions of on- and
@@ -255,15 +268,15 @@ class BlinkStatistics(_Analysis):
 
         Parameters
         ----------
-        distribution : str | scipy.stats.rv_continuous
+        distribution
             Distribution model to fit.
-        data_identifier : str
+        data_identifier
             String to identify the data in `results` for which to fit an
             appropriate distribution, here
             'on_periods' or 'off_periods'. For True all are fitted.
-        with_constraints : bool
+        with_constraints
             Flag to use predefined constraints on fit parameters.
-        kwargs : dict
+        kwargs
             Other parameters are passed to the `scipy.stat.distribution.fit()`
             function.
 
@@ -289,31 +302,31 @@ class BlinkStatistics(_Analysis):
 
     def hist(
         self,
-        data_identifier="on_periods",
-        ax=None,
-        bins="auto",
-        log=True,
-        fit=True,
-        **kwargs,
-    ) -> plt.axes.Axes:
+        data_identifier: str = "on_periods",
+        ax: mpl.axes.Axes = None,
+        bins: int | Sequence[Any] | str = "auto",
+        log: bool = True,
+        fit: bool | None = True,
+        **kwargs: dict[str, Any],
+    ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing
         hist(results).
 
         Parameters
         ----------
-        data_identifier : str
+        data_identifier
             'on_periods' or 'off_periods'.
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        bins : int | Sequence | str
+        bins
             Bin specifications (passed to :func:`matplotlib.hist`).
-        log : Bool
+        log
             Flag for plotting on a log scale.
-        fit: bool, None
+        fit
             Flag indicating if distribution fit is shown.
             The fit will only be computed if `distribution_statistics` is None.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.hist`.
 
         Returns
@@ -363,11 +376,11 @@ class _DistributionFits:
 
     Parameters
     ----------
-    analysis_class : _Analysis
+    analysis_class
         The analysis class with result data to fit.
-    distribution : str, scipy.stats.rv_continuous
+    distribution
         Distribution model to fit.
-    data_identifier : str
+    data_identifier
         String to identify the data in `results` for which to fit an
         appropriate distribution
 
@@ -375,7 +388,7 @@ class _DistributionFits:
     ----------
     analysis_class : _Analysis
         The analysis class with result data to fit.
-    distribution : str, scipy.stats.rv_continuous
+    distribution : scipy.stats.rv_continuous
         Distribution model to fit.
     data_identifier : str
         String to identify the data in `results` for which to fit an
@@ -384,11 +397,16 @@ class _DistributionFits:
         Distribution parameters.
     """
 
-    def __init__(self, analysis_class, distribution, data_identifier):
-        self.analysis_class = analysis_class
-        self.distribution = distribution
-        self.data_identifier = data_identifier
-        self.parameters = []
+    def __init__(
+        self,
+        analysis_class: _Analysis,
+        distribution: str | stats.rv_continuous,
+        data_identifier: str,
+    ):
+        self.analysis_class: _Analysis = analysis_class
+        self.distribution: stats.rv_continuous = distribution
+        self.data_identifier: str = data_identifier
+        self.parameters: list[str] = []
 
     def __repr__(self):
         """Return representation of the _DistributionFits class."""
@@ -400,7 +418,7 @@ class _DistributionFits:
         param_string = ", ".join((f"{key}={val}" for key, val in param_dict.items()))
         return f"{self.__class__.__name__}({param_string})"
 
-    def fit(self, with_constraints=True, **kwargs):
+    def fit(self, with_constraints: bool = True, **kwargs: Any) -> None:
         """
         Fit scipy.stats.rv_continuous to analysis_class.results[data_identifier].
 
@@ -411,9 +429,9 @@ class _DistributionFits:
 
         Parameters
         ----------
-        with_constraints : bool
+        with_constraints
             Flag to use predefined constraints on fit parameters.
-        kwargs : dict
+        kwargs
             Other parameters are passed to the `scipy.stat.distribution.fit()`
             function.
         """
@@ -421,6 +439,9 @@ class _DistributionFits:
         if isinstance(self.analysis_class.results, pd.DataFrame):
             data = self.analysis_class.results[self.data_identifier].values
         else:
+            assert (  # type narrowing # noqa: S101
+                self.analysis_class.results is not None
+            )
             data = self.analysis_class.results[self.data_identifier]
 
         # define parameter names
@@ -431,7 +452,7 @@ class _DistributionFits:
         if with_constraints and self.distribution == stats.expon:
             # MLE fit of exponential distribution with constraints
             fit_results = stats.expon.fit(
-                data, **dict(dict(floc=np.min(data)), **kwargs)
+                data, **dict(dict(floc=np.min(data)), **kwargs)  # type: ignore[arg-type]
             )
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
@@ -440,21 +461,21 @@ class _DistributionFits:
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
 
-    def plot(self, ax=None, **kwargs):
+    def plot(self, ax: mpl.axes.Axes = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         probability distribution functions of fitted results.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        mpl.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

@@ -25,16 +25,18 @@ class WeightedMeanVariance(NamedTuple):
     weighted_mean_variance: float | npt.NDArray[np.float_]
 
 
-def weighted_mean_variance(values, weights) -> WeightedMeanVariance:
+def weighted_mean_variance(
+    values: npt.ArrayLike, weights: npt.ArrayLike | None
+) -> WeightedMeanVariance:
     """
     Compute weighted mean (average)
     and the corresponding weighted mean variance [1]_.
 
     Parameters
     ----------
-    values : npt.ArrayLike
+    values
         Values from which to compute the weighted average.
-    weights : npt.ArrayLike | None
+    weights
         Weights to use for weighted average.
 
     Returns
@@ -116,7 +118,9 @@ def ratio_fwhm_to_sigma() -> float:
     return 2 * np.sqrt(2 * np.log(2))
 
 
-def biased_variance(variance, n_samples) -> npt.NDArray[np.float_]:
+def biased_variance(
+    variance: npt.ArrayLike, n_samples: npt.ArrayLike
+) -> npt.NDArray[np.float_]:
     """
     The sample variance is biased if not corrected by Bessel's correction.
     This function yields the biased variance by applying the inverse
@@ -128,9 +132,9 @@ def biased_variance(variance, n_samples) -> npt.NDArray[np.float_]:
 
     Parameters
     ----------
-    variance : npt.ArrayLike
+    variance
         An unbiased variance.
-    n_samples : npt.ArrayLike
+    n_samples
         Number of samples from which the biased sample variance would be
         computed.
 
@@ -138,5 +142,6 @@ def biased_variance(variance, n_samples) -> npt.NDArray[np.float_]:
     -------
     npt.NDArray[np.float_]
     """
+    variance = np.asarray(variance)
     n_samples = np.asarray(n_samples)
     return variance * (1 - 1 / n_samples)

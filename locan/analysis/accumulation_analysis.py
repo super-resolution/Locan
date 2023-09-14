@@ -36,10 +36,12 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import Self
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.data.cluster.clustering import cluster_hdbscan
 from locan.data.filter import random_subset
@@ -209,7 +211,7 @@ class AccumulationClusterCheck(_Analysis):
 
     Parameters
     ----------
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
     region_measure : float | Literal["bb", "ch"]
         Region measure (area or volume) for the support of locdata. String can
@@ -240,7 +242,7 @@ class AccumulationClusterCheck(_Analysis):
     ----------
     count : int
         A counter for counting instantiations.
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
@@ -256,14 +258,14 @@ class AccumulationClusterCheck(_Analysis):
 
     def __init__(
         self,
-        meta=None,
-        region_measure="bb",
-        algorithm=cluster_hdbscan,
-        algo_parameter=None,
-        hull="bb",
-        n_loc=10,
-        divide="random",
-        n_extrapolate=5,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        region_measure: float | Literal["bb", "ch"] = "bb",
+        algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,
+        algo_parameter: dict[str, Any] | None = None,
+        hull: Literal["bb", "ch"] = "bb",
+        n_loc: int | Sequence[int] = 10,
+        divide: Literal["random", "sequential"] = "random",
+        n_extrapolate: int = 5,
     ):
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
@@ -274,7 +276,7 @@ class AccumulationClusterCheck(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
           Localization data that might be clustered.
 
         Returns
@@ -288,13 +290,13 @@ class AccumulationClusterCheck(_Analysis):
         self.results = _accumulation_cluster_check(locdata, **self.parameter)
         return self
 
-    def plot(self, ax=None, **kwargs):
+    def plot(self, ax: mpl.axes.Axes = None, **kwargs) -> mpl.axes.Axes:
         """
         Provide plot of results as :class:`matplotlib.axes.Axes` object.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
         kwargs : dict
             Other parameters passed to :func:`matplotlib.pyplot.plot`.

@@ -69,21 +69,21 @@ class Transform(ABC):
     """
 
     @abstractmethod
-    def __call__(self, values, clip=True):
+    def __call__(self, values: npt.ArrayLike, clip: bool = True) -> npt.NDArray[Any]:
         """
         Transform values.
 
         Parameters
         ----------
-        values : npt.ArrayLike
+        values
             The input values
-        clip : bool
+        clip
             If `True` values outside the [0:1] range are
             clipped to the [0:1] range.
 
         Returns
         -------
-        npt.NDArray
+        npt.NDArray[Any]
             The transformed values.
         """
         raise NotImplementedError
@@ -141,14 +141,18 @@ class HistogramEqualization(mcolors.Normalize, Transform):
 
     Parameters
     ----------
-    reference : npt.ArrayLike
+    vmin
+        min intensity
+    vmax
+        max intensity
+    reference
         The data values to define the transformation function. If None then
         the values in `__call__` are used.
-    power : float
+    power
         The `power` intensification parameter.
-    n_bins : int
+    n_bins
         Number of bins used to compute the intensity histogram.
-    mask : npt.ArrayLike
+    mask
         A bool mask with shape equal to that of values. If reference is None,
         reference is set to values[mask].
         The transformation determined from reference is then applied to all
@@ -156,21 +160,27 @@ class HistogramEqualization(mcolors.Normalize, Transform):
     """
 
     def __init__(
-        self, vmin=None, vmax=None, reference=None, power=1, n_bins=65536, mask=None
-    ):
+        self,
+        vmin: int | float | None = None,
+        vmax: int | float | None = None,
+        reference: npt.ArrayLike | None = None,
+        power: float = 1,
+        n_bins: int = 65536,
+        mask: npt.ArrayLike | None = None,
+    ) -> None:
         super().__init__(vmin=vmin, vmax=vmax)
         self.reference = reference
         self.power = power
         self.n_bins = n_bins
         self.mask = mask
 
-    def __call__(self, values) -> npt.NDArray:  # type: ignore
+    def __call__(self, values: npt.ArrayLike) -> npt.NDArray:  # type: ignore
         """
         Histogram equalization with power intensification.
 
         Parameters
         ----------
-        values : npt.ArrayLike
+        values
             The input values.
 
         Returns
@@ -202,20 +212,24 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         new_values = np.interp(_values, bin_centers, cdf)
         return new_values
 
-    def inverse(self, values):
+    def inverse(self, values: npt.ArrayLike) -> npt.NDArray[Any]:
         """A Transformation object that performs the inverse operation."""
         raise NotImplementedError
 
 
-def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray[np.float_]:
+def adjust_contrast(
+    image: npt.ArrayLike,
+    rescale: int | str | Trafo | Callable[..., Any] | bool | None = True,
+    **kwargs: dict[str, Any],
+) -> npt.NDArray[np.float_]:
     """
     Adjust contrast of image by a predefined transformation:
 
     Parameters
     ----------
-    image : npt.ArrayLike
+    image
         Values to be adjusted
-    rescale : int | str | Trafo | Callable | bool | None
+    rescale
         Transformation as defined in :class:`locan.constants.Trafo` or by
         transformation function.
         For None or False no rescaling occurs.
@@ -224,13 +238,14 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray[np.float_]:
         rescale intensity values to be within percentile of max and min
         intensities.
         For 'equal' intensity values are rescaled by histogram equalization.
-    kwargs : dict
+    kwargs
         Other parameters that are passed to the specific Transformation class.
 
     Returns
     -------
     npt.NDArray[np.float_]
     """
+    image = np.asarray(image)
     if (
         rescale is None
         or rescale is False
@@ -291,7 +306,7 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray[np.float_]:
         or rescale is Trafo.EQUALIZE
         or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE.name)
     ):
-        norm = HistogramEqualization(**dict(dict(power=1, mask=image > 0), **kwargs))
+        norm = HistogramEqualization(**dict(dict(power=1, mask=image > 0), **kwargs))  # type: ignore[arg-type]
         new_image = norm(image)
 
     elif (
@@ -299,7 +314,7 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray[np.float_]:
         or rescale is Trafo.EQUALIZE_UINT8
         or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_UINT8.name)
     ):
-        norm = HistogramEqualization(**dict(dict(power=1, mask=image > 0), **kwargs))
+        norm = HistogramEqualization(**dict(dict(power=1, mask=image > 0), **kwargs))  # type: ignore[arg-type]
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
     elif (
@@ -307,7 +322,7 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray[np.float_]:
         or rescale is Trafo.EQUALIZE_ALL
         or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_ALL.name)
     ):
-        norm = HistogramEqualization(**dict(dict(power=1, mask=None), **kwargs))
+        norm = HistogramEqualization(**dict(dict(power=1, mask=None), **kwargs))  # type: ignore[arg-type]
         new_image = norm(image)
 
     elif (
@@ -318,7 +333,7 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray[np.float_]:
             and rescale.upper() == Trafo.EQUALIZE_ALL_UINT8.name
         )
     ):
-        norm = HistogramEqualization(**dict(dict(power=1, mask=None), **kwargs))
+        norm = HistogramEqualization(**dict(dict(power=1, mask=None), **kwargs))  # type: ignore[arg-type]
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
     elif (
@@ -326,7 +341,7 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray[np.float_]:
         or rescale is Trafo.EQUALIZE_0P3
         or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_0P3.name)
     ):
-        norm = HistogramEqualization(**dict(dict(power=0.3, mask=image > 0), **kwargs))
+        norm = HistogramEqualization(**dict(dict(power=0.3, mask=image > 0), **kwargs))  # type: ignore[arg-type]
         new_image = norm(image)
 
     elif (
@@ -337,7 +352,7 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray[np.float_]:
             and rescale.upper() == Trafo.EQUALIZE_0P3_UINT8.name
         )
     ):
-        norm = HistogramEqualization(**dict(dict(power=0.3, mask=image > 0), **kwargs))
+        norm = HistogramEqualization(**dict(dict(power=0.3, mask=image > 0), **kwargs))  # type: ignore[arg-type]
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
     elif (
@@ -345,7 +360,7 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray[np.float_]:
         or rescale is Trafo.EQUALIZE_0P3_ALL
         or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_0P3_ALL.name)
     ):
-        norm = HistogramEqualization(**dict(dict(power=0.3, mask=None), **kwargs))
+        norm = HistogramEqualization(**dict(dict(power=0.3, mask=None), **kwargs))  # type: ignore[arg-type]
         new_image = norm(image)
 
     elif (
@@ -356,7 +371,7 @@ def adjust_contrast(image, rescale=True, **kwargs) -> npt.NDArray[np.float_]:
             and rescale.upper() == Trafo.EQUALIZE_0P3_ALL_UINT8.name
         )
     ):
-        norm = HistogramEqualization(**dict(dict(power=0.3, mask=None), **kwargs))
+        norm = HistogramEqualization(**dict(dict(power=0.3, mask=None), **kwargs))  # type: ignore[arg-type]
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
     # to be deprecated eventually

@@ -9,15 +9,15 @@ from typing import Any
 __all__: list[str] = ["iterate_2d_array"]
 
 
-def iterate_2d_array(n_elements=5, n_cols=2) -> Iterator[tuple[int, int]]:
+def iterate_2d_array(n_elements: int = 5, n_cols: int = 2) -> Iterator[tuple[int, int]]:
     """
     Iterator for 2-dimensional array iterating first over columns then over rows.
 
     Parameters
     ----------
-    n_elements : int
+    n_elements
         Number of elements
-    n_cols : int
+    n_cols
         Number of columns
 
     Returns

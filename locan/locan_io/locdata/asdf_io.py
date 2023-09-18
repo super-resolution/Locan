@@ -25,7 +25,9 @@ __all__: list[str] = ["save_asdf", "load_asdf_file"]
 logger = logging.getLogger(__name__)
 
 
-def save_asdf(locdata: LocData, path: str | os.PathLike[Any] | SupportsWrite[Any]):
+def save_asdf(
+    locdata: LocData, path: str | os.PathLike[Any] | SupportsWrite[Any]
+) -> None:
     """
     Save LocData attributes in an asdf file.
 

@@ -19,7 +19,7 @@ import os
 from typing import Any
 
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 import tifffile as tif
 
 from locan import locdata_id

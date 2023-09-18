@@ -246,7 +246,7 @@ def _estimate_drift_cc(
             transformation = register_cc(
                 reference,
                 collection.references[0],
-                **dict(dict(range=ranges, bin_size=bin_size), **kwargs_register),
+                **dict(dict(bin_range=ranges, bin_size=bin_size), **kwargs_register),
             )
             transformations.append(transformation)
 
@@ -255,7 +255,7 @@ def _estimate_drift_cc(
             transformation = register_cc(
                 collection.references[n + 1],
                 collection.references[n],
-                **dict(dict(range=ranges, bin_size=bin_size), **kwargs_register),
+                **dict(dict(bin_range=ranges, bin_size=bin_size), **kwargs_register),
             )
             transformations.append(transformation)
 
@@ -428,7 +428,7 @@ class DriftComponent:
         x: npt.ArrayLike,
         y: npt.ArrayLike,
         verbose: bool = False,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> Self:
         """
         Fit model to the given data and create `self.model_results`.
@@ -957,7 +957,7 @@ class Drift(_Analysis):
         transformation_component: Literal["matrix", "offset"] = "matrix",
         element: int | None = None,
         window: int = 1,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> mpl.axes.Axes:
         """
         Plot the transformation components as function of average frame for

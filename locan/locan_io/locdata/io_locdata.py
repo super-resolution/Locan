@@ -47,7 +47,7 @@ def load_txt_file(
     nrows: int | None = None,
     property_mapping: dict[str, str] | list[dict[str, str]] | None = None,
     convert: bool = True,
-    **kwargs,
+    **kwargs: Any,
 ) -> LocData:
     """
     Load localization data from a txt file.
@@ -71,7 +71,7 @@ def load_txt_file(
     convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
-    kwargs : dict
+    kwargs
         Other parameters passed to `pandas.read_csv()`.
 
     Returns
@@ -91,7 +91,7 @@ def load_txt_file(
         column_keys = convert_property_names(
             dataframe.columns, property_mapping=property_mapping
         )
-        dataframe.columns = column_keys
+        dataframe.columns = column_keys  # type: ignore[assignment]
     else:
         column_keys = convert_property_names(columns, property_mapping=property_mapping)
         dataframe = pd.read_csv(  # type:ignore[assignment]
@@ -189,7 +189,7 @@ def load_locdata(
     | locan.constants.FileType
     | locan.data.metadata_pb2.Metadata = 1,
     nrows: int | None = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> LocData:
     """
     Load data from localization file as specified by type.
@@ -206,7 +206,7 @@ def load_locdata(
     nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.
-    kwargs : dict
+    kwargs
         kwargs passed to the specific load function.
 
     Returns

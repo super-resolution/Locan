@@ -4,7 +4,7 @@ Functions to compute locdata properties.
 from __future__ import annotations
 
 import logging
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 import numpy as np
 import numpy.typing as npt  # noqa: F401
@@ -12,6 +12,10 @@ from scipy.spatial.distance import pdist
 from shapely.geometry import Point
 
 from locan.data.region import Region2D, RoiRegion
+
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
+    from locan.data.region import Region
 
 __all__: list[str] = [
     "distance_to_region",
@@ -31,7 +35,7 @@ class InertiaMoments(NamedTuple):
     eccentricity: float
 
 
-def distance_to_region(locdata, region):
+def distance_to_region(locdata: LocData, region: Region) -> npt.NDArray[np.float_]:
     """
     Determine the distance to the nearest point within `region` for all
     localizations.
@@ -39,10 +43,10 @@ def distance_to_region(locdata, region):
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localizations for which distances are determined.
 
-    region : Region
+    region
         Region from which the closest point is selected.
 
     Returns
@@ -60,7 +64,9 @@ def distance_to_region(locdata, region):
     return distances
 
 
-def distance_to_region_boundary(locdata, region):
+def distance_to_region_boundary(
+    locdata: LocData, region: Region
+) -> npt.NDArray[np.float_]:
     """
     Determine the distance to the nearest region boundary for all
     localizations.
@@ -69,10 +75,10 @@ def distance_to_region_boundary(locdata, region):
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localizations for which distances are determined.
 
-    region : Region
+    region
         Region from which the closest point is selected.
 
     Returns
@@ -90,13 +96,13 @@ def distance_to_region_boundary(locdata, region):
     return distances
 
 
-def max_distance(locdata):
+def max_distance(locdata: LocData) -> dict[str, float]:
     """
     Return maximum of all distances between any two localizations in locdata.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data
 
     Returns
@@ -105,13 +111,21 @@ def max_distance(locdata):
         A dict with key `max_distance` and the corresponding value being the
         maximum distance.
     """
-    points = locdata.convex_hull.vertices
-    distances = pdist(points)
-    distance = np.nanmax(distances)
+    if not locdata or len(locdata) == 1:
+        points = None
+    elif len(locdata) == 2:
+        points = locdata.coordinates
+    elif locdata.convex_hull is None:
+        points = None
+    else:
+        points = locdata.convex_hull.vertices
+
+    distances = np.nan if points is None else pdist(points)
+    distance = float(np.nanmax(distances))
     return {"max_distance": distance}
 
 
-def inertia_moments(points):
+def inertia_moments(points: npt.ArrayLike) -> InertiaMoments:
     """
     Return inertia moments (or principal components) and related properties
     for the given points.
@@ -126,7 +140,7 @@ def inertia_moments(points):
 
     Parameters
     ----------
-    points : npt.ArrayLike
+    points
         Coordinates of input points with shape (npoints, ndim).
 
     Returns

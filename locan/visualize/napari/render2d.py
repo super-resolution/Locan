@@ -7,8 +7,8 @@ for rendering locdata objects in 2D.
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable  # noqa: F401
-from typing import Callable  # noqa: F401
+from collections.abc import Callable, Iterable, Sequence
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from matplotlib import colors as mcolors
@@ -18,10 +18,13 @@ from locan.data import LocData
 from locan.data.aggregate import Bins, histogram
 from locan.data.locdata_utils import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY, needs_package
-from locan.visualize.transform import adjust_contrast
+from locan.visualize.transform import Trafo, adjust_contrast
 
 if HAS_DEPENDENCY["napari"]:
     import napari
+
+if TYPE_CHECKING:
+    import boost_histogram as bh
 
 __all__: list[str] = [
     "render_2d_napari",
@@ -34,17 +37,21 @@ logger = logging.getLogger(__name__)
 
 @needs_package("napari")
 def render_2d_napari_image(
-    locdata,
-    loc_properties=None,
-    other_property=None,
-    bins=None,
-    n_bins=None,
-    bin_size=None,
-    bin_edges=None,
-    bin_range=None,
-    rescale=None,
-    cmap="viridis",
-    **kwargs,
+    locdata: LocData,
+    loc_properties: list[str] | None = None,
+    other_property: str | None = None,
+    bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+    n_bins: int | Sequence[int] | None = None,
+    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_range: tuple[float, float]
+    | Sequence[float]
+    | Sequence[Sequence[float]]
+    | str
+    | None = None,
+    rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
+    cmap: str | mcolors.Colormap = "viridis",
+    **kwargs: Any,
 ) -> napari.types.LayerData:
     """
     Render localization data into a 2D image by binning x,y-coordinates into
@@ -52,32 +59,32 @@ def render_2d_napari_image(
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data.
-    loc_properties : list[str] | None
+    loc_properties
         Localization properties to be grouped into bins.
         If None The coordinate_values of `locdata` are used.
-    other_property : str | None
+    other_property
         Localization property (columns in `locdata.data`) that is averaged
         in each pixel.
         If None, localization counts are shown.
-    bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
+    bins
         The bin specification as defined in :class:`Bins`
-    bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+    bin_edges
         Bin edges for all or each dimension
         with shape (dimension, n_bin_edges).
-    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+    bin_range
         Minimum and maximum edge for all or each dimensions
         with shape (2,) or (dimension, 2).
         If None (min, max) ranges are determined from data and returned;
         if 'zero' (0, max) ranges with max determined from data are returned.
         if 'link' (min_all, max_all) ranges with min and max determined from
         all combined data are returned.
-    n_bins : int | Sequence[int] | None
+    n_bins
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+    bin_size
         The size of bins for all or each bin and for all or each dimension
         with shape (dimension,) or (dimension, n_bins).
         5 would describe bin_size of 5 for all bins in all dimensions.
@@ -87,7 +94,7 @@ def render_2d_napari_image(
         ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
         (1, 3) for the other dimension.
         To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
-    rescale : int | str | locan.Trafo | Callable | bool | None
+    rescale
         Transformation as defined in :class:`locan.Trafo` or by
         transformation function.
         For None or False no rescaling occurs.
@@ -96,9 +103,9 @@ def render_2d_napari_image(
         rescale intensity values to be within percentile of max and min
         intensities.
         For 'equal' intensity values are rescaled by histogram equalization.
-    cmap : str | Colormap
+    cmap
         The Colormap object used to map normalized data values to RGBA colors.
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`napari.Viewer.add_image`.
 
     Returns
@@ -142,18 +149,22 @@ def render_2d_napari_image(
 
 @needs_package("napari")
 def render_2d_napari(
-    locdata,
-    loc_properties=None,
-    other_property=None,
-    bins=None,
-    n_bins=None,
-    bin_size=None,
-    bin_edges=None,
-    bin_range=None,
-    rescale=None,
-    viewer=None,
-    cmap="viridis",
-    **kwargs,
+    locdata: LocData,
+    loc_properties: list[str] | None = None,
+    other_property: str | None = None,
+    bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+    n_bins: int | Sequence[int] | None = None,
+    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_range: tuple[float, float]
+    | Sequence[float]
+    | Sequence[Sequence[float]]
+    | str
+    | None = None,
+    rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
+    viewer: napari.Viewer = None,
+    cmap: str | mcolors.Colormap = "viridis",
+    **kwargs: Any,
 ) -> napari.Viewer:
     """
     Render localization data into a 2D image by binning x,y-coordinates into
@@ -161,32 +172,32 @@ def render_2d_napari(
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data.
-    loc_properties : list[str] | None
+    loc_properties
         Localization properties to be grouped into bins.
         If None The coordinate_values of `locdata` are used.
-    other_property : str | None
+    other_property
         Localization property (columns in `locdata.data`) that is averaged
         in each pixel.
         If None, localization counts are shown.
-    bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
+    bins
         The bin specification as defined in :class:`Bins`
-    bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+    bin_edges
         Bin edges for all or each dimension
         with shape (dimension, n_bin_edges).
-    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+    bin_range
         Minimum and maximum edge for all or each dimensions
         with shape (2,) or (dimension, 2).
         If None (min, max) ranges are determined from data and returned;
         if 'zero' (0, max) ranges with max determined from data are returned.
         if 'link' (min_all, max_all) ranges with min and max determined from
         all combined data are returned.
-    n_bins : int | Sequence[int] | None
+    n_bins
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+    bin_size
         The size of bins for all or each bin and for all or each dimension
         with shape (dimension,) or (dimension, n_bins).
         5 would describe bin_size of 5 for all bins in all dimensions.
@@ -196,7 +207,7 @@ def render_2d_napari(
         ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
         (1, 3) for the other dimension.
         To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
-    rescale : int | str | locan.Trafo | Callable | bool | None
+    rescale
         Transformation as defined in :class:`locan.Trafo` or by
         transformation function.
         For None or False no rescaling occurs.
@@ -205,11 +216,11 @@ def render_2d_napari(
         rescale intensity values to be within percentile of max and min
         intensities.
         For 'equal' intensity values are rescaled by histogram equalization.
-    viewer : napari.Viewer
+    viewer
         The viewer object on which to add the image
     cmap : str | Colormap
         The Colormap object used to map normalized data values to RGBA colors.
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`napari.Viewer.add_image`.
 
     Returns
@@ -262,17 +273,21 @@ def render_2d_napari(
 
 @needs_package("napari")
 def render_2d_rgb_napari(
-    locdatas,
-    loc_properties=None,
-    other_property=None,
-    bins=None,
-    n_bins=None,
-    bin_size=10,
-    bin_edges=None,
-    bin_range=None,
-    rescale=None,
-    viewer=None,
-    **kwargs,
+    locdatas: Iterable[LocData],
+    loc_properties: list[str] | None = None,
+    other_property: str | None = None,
+    bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+    n_bins: int | Sequence[int] | None = None,
+    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = 10,
+    bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_range: tuple[float, float]
+    | Sequence[float]
+    | Sequence[Sequence[float]]
+    | str
+    | None = None,
+    rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
+    viewer: napari.Viewer = None,
+    **kwargs: Any,
 ) -> tuple[napari.Viewer, Bins]:
     """
     Render localization data into a 2D RGB image by binning x,y-coordinates
@@ -290,32 +305,32 @@ def render_2d_rgb_napari(
 
     Parameters
     ----------
-    locdatas : Iterable[LocData]
+    locdatas
         Localization data.
-    loc_properties : list | None
+    loc_properties
         Localization properties to be grouped into bins. If None
         The coordinate_values of `locdata` are used.
-    other_property : str  | None
+    other_property
         Localization property (columns in `locdata.data`) that is averaged in
         each pixel.
         If None, localization counts are shown.
-    bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
+    bins
         The bin specification as defined in :class:`Bins`
-    bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+    bin_edges
         Bin edges for all or each dimension
         with shape (dimension, n_bin_edges).
-    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+    bin_range
         Minimum and maximum edge for all or each dimensions
         with shape (2,) or (dimension, 2).
         If None (min, max) ranges are determined from data and returned;
         if 'zero' (0, max) ranges with max determined from data are returned.
         if 'link' (min_all, max_all) ranges with min and max determined from
         all combined data are returned.
-    n_bins : int | Sequence[int] | None
+    n_bins
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+    bin_size
         The size of bins for all or each bin and for all or each dimension
         with shape (dimension,) or (dimension, n_bins).
         5 would describe bin_size of 5 for all bins in all dimensions.
@@ -325,7 +340,7 @@ def render_2d_rgb_napari(
         ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
         (1, 3) for the other dimension.
         To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
-    rescale : int | str | locan.Trafo | Callable | bool | None
+    rescale
         Transformation as defined in :class:`locan.Trafo` or by
         transformation function.
         For None or False no rescaling occurs.
@@ -334,11 +349,9 @@ def render_2d_rgb_napari(
         rescale intensity values to be within percentile of max and min
         intensities.
         For 'equal' intensity values are rescaled by histogram equalization.
-    viewer : napari.Viewer
+    viewer
         The viewer object on which to add the image
-    cmap : str | Colormap
-        The Colormap object used to map normalized data values to RGBA colors.
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`napari.Viewer.add_image`.
 
     Returns

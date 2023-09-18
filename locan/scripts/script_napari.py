@@ -40,7 +40,7 @@ if HAS_DEPENDENCY["napari"]:
 def sc_napari(
     file_path: str | os.PathLike[Any] | None = None,
     file_type: int | str | FileType | metadata_pb2.Metadata = FileType.CUSTOM,
-    **kwargs: dict[str, Any],
+    **kwargs: Any,
 ) -> None:
     """
     Render localization data in napari.

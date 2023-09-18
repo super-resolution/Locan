@@ -255,7 +255,7 @@ class BlinkStatistics(_Analysis):
         distribution: str | stats.rv_continuous = stats.expon,
         data_identifier: str | Iterable[str] = ("on_periods", "off_periods"),
         with_constraints: bool = True,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> None:
         """
         Fit probability density functions to the distributions of on- and
@@ -307,7 +307,7 @@ class BlinkStatistics(_Analysis):
         bins: int | Sequence[Any] | str = "auto",
         log: bool = True,
         fit: bool | None = True,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing

@@ -10,7 +10,7 @@ from __future__ import annotations
 import importlib
 import logging
 import os
-from typing import Any, BinaryIO  # noqa: F401
+from typing import TYPE_CHECKING, Any, BinaryIO  # noqa: F401
 
 try:
     import tomllib  # type: ignore[import]
@@ -21,6 +21,9 @@ from google.protobuf import json_format, text_format
 from google.protobuf.message import Message
 
 from locan.data import metadata_pb2
+
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
 
 __all__: list[str] = [
     "metadata_to_formatted_string",
@@ -34,22 +37,26 @@ logger = logging.getLogger(__name__)
 
 
 def _modify_meta(
-    locdata, new_locdata, function_name=None, parameter=None, meta=None
+    locdata: LocData,
+    new_locdata: LocData,
+    function_name: str | None = None,
+    parameter: dict[str, Any] | None = None,
+    meta: metadata_pb2.Metadata | None = None,
 ) -> metadata_pb2.Metadata:
     """
     Update metadata in Locdata after modification of locdata.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         original locdata before modification
-    new_locdata : LocData
+    new_locdata
         new locdata after modification
-    function_name : str | None
+    function_name
         Name of function that was applied for modification.
-    parameter : dict | None
+    parameter
         Parameter for function that was applied for modification.
-    meta : locan.data.metadata_pb2.Metadata | None
+    meta
         Metadata about the current dataset and its history.
 
     Returns
@@ -138,16 +145,15 @@ def _dict_to_protobuf(
         return message
 
 
-def metadata_to_formatted_string(message, **kwargs) -> str:
+def metadata_to_formatted_string(message: Message, **kwargs: Any) -> str:
     """
     Get formatted string from Locdata.metadata.
 
     Parameters
     ----------
-    message : google.protobuf.message.Message
+    message
         Protobuf message like locan.data.metadata_pb2.Metadata
-
-    kwargs : dict
+    kwargs
         Other kwargs that are passed to
         :func:`google.protobuf.text_format.MessageToString`.
 
@@ -157,24 +163,26 @@ def metadata_to_formatted_string(message, **kwargs) -> str:
         Formatted metadata string.
     """
 
-    def message_formatter(message, indent: int, as_one_line: bool) -> str | None:
+    def message_formatter(
+        message: Message, indent: int, as_one_line: bool
+    ) -> str | None:
         if message.DESCRIPTOR.name in ["Timestamp", "Duration"]:
-            return message.ToJsonString()
+            return message.ToJsonString()  # type: ignore[attr-defined]
         else:
             return None
 
     return text_format.MessageToString(
-        message, message_formatter=message_formatter, **kwargs
+        message, message_formatter=message_formatter, **kwargs  # type: ignore[arg-type]
     )
 
 
-def _toml_dict_to_protobuf(toml_dict) -> dict[str, Message]:
+def _toml_dict_to_protobuf(toml_dict: dict[str, Any]) -> dict[str, Message]:
     """
     Turn toml dict into protobuf messages.
 
     Parameters
     ----------
-    toml_dict : dict
+    toml_dict
         Dict from TOML string with metadata.
 
     Returns
@@ -183,7 +191,7 @@ def _toml_dict_to_protobuf(toml_dict) -> dict[str, Message]:
         Message instances with name as declared in toml file.
     """
     # instantiate messages
-    instances = {}
+    instances: dict[str, Message] = {}
     for message in toml_dict.pop("messages"):
         module = importlib.import_module(message["module"])
         class_ = getattr(module, message["class_name"])
@@ -198,7 +206,7 @@ def _toml_dict_to_protobuf(toml_dict) -> dict[str, Message]:
     return instances
 
 
-def metadata_from_toml_string(toml_string):
+def metadata_from_toml_string(toml_string: str | None) -> dict[str, Message] | None:
     """
     Turn toml string into protobuf message instances.
 
@@ -209,7 +217,7 @@ def metadata_from_toml_string(toml_string):
 
     Parameters
     ----------
-    toml_string : str | None
+    toml_string
         TOML string with metadata.
 
     Returns
@@ -224,7 +232,9 @@ def metadata_from_toml_string(toml_string):
     return _toml_dict_to_protobuf(toml_dict)
 
 
-def load_metadata_from_toml(path_or_file_like):
+def load_metadata_from_toml(
+    path_or_file_like: str | bytes | os.PathLike[Any] | BinaryIO | None,
+) -> dict[str, Message] | None:
     """
     Turn toml file into protobuf message instances.
 
@@ -235,7 +245,7 @@ def load_metadata_from_toml(path_or_file_like):
 
     Parameters
     ----------
-    path_or_file_like : str | bytes | os.PathLike | BinaryIO | None
+    path_or_file_like
         File path or file-like for a TOML file.
 
     Returns
@@ -249,19 +259,19 @@ def load_metadata_from_toml(path_or_file_like):
     try:
         toml_dict = tomllib.load(path_or_file_like)
     except AttributeError:
-        with open(path_or_file_like, "rb") as file:
+        with open(path_or_file_like, "rb") as file:  # type: ignore[arg-type]
             toml_dict = tomllib.load(file)
 
     return _toml_dict_to_protobuf(toml_dict)
 
 
-def message_scheme(message) -> dict[str, Any]:
+def message_scheme(message: Message) -> dict[str, Any]:
     """
     Provide message scheme with defaults including nested messages.
 
     Parameters
     ----------
-    message : google.protobuf.message.Message
+    message
         Protobuf message
 
     Returns
@@ -292,15 +302,24 @@ def message_scheme(message) -> dict[str, Any]:
     return message_dict
 
 
-def merge_metadata(metadata=None, other_metadata=None) -> metadata_pb2.Metadata:
+def merge_metadata(
+    metadata: metadata_pb2.Metadata | None = None,
+    other_metadata: metadata_pb2.Metadata
+    | None
+    | dict[str, Any]
+    | str
+    | bytes
+    | os.PathLike[Any]
+    | BinaryIO = None,
+) -> metadata_pb2.Metadata:
     """
     Merge `other_metadata` into Locdata.meta.
 
     Parameters
     ----------
-    metadata : locan.data.metadata_pb2.Metadata | None
+    metadata
         Original LocData metadata before modification
-    other_metadata : locan.data.metadata_pb2.Metadata | dict | str | bytes | os.PathLike | BinaryIO | None
+    other_metadata
         Metadata to be merged.
 
     Returns
@@ -315,9 +334,10 @@ def merge_metadata(metadata=None, other_metadata=None) -> metadata_pb2.Metadata:
 
     if other_metadata is None:
         pass
-    elif isinstance(other_metadata, (str, bytes, os.PathLike)):
-        meta_ = load_metadata_from_toml(other_metadata)["metadata"]
-        new_metadata.MergeFrom(meta_)
+    elif isinstance(other_metadata, (str, bytes, os.PathLike, BinaryIO)):
+        meta_ = load_metadata_from_toml(other_metadata)
+        if meta_ is not None:
+            new_metadata.MergeFrom(meta_["metadata"])  # type: ignore[arg-type]
     elif isinstance(other_metadata, dict):
         for key, value in other_metadata.items():
             setattr(new_metadata, key, value)

@@ -7,28 +7,34 @@ from __future__ import annotations
 
 import itertools
 import sys
-from collections.abc import Callable  # noqa: F401
+from collections.abc import Callable
+from typing import Any
 
 from locan.data.locdata import LocData
 
 __all__: list[str] = ["serial_clustering"]
 
 
-def serial_clustering(locdata, algorithm, parameter_lists, **kwargs):
+def serial_clustering(
+    locdata: LocData,
+    algorithm: Callable[..., Any],
+    parameter_lists: dict[str, Any],
+    **kwargs: Any,
+) -> tuple[LocData, ...]:
     """
     Run and analyse a series of clustering processes to identify optimal
     parameters.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data.
-    algorithm : Callable
+    algorithm
         The locan clustering algorithm to use on locdata.
-    parameter_lists : dict
+    parameter_lists
         A dictionary with all parameter lists that are to be iterated.
         The keys should be identical to parameter names of the used algorithm.
-    kwargs : dict
+    kwargs
         Optional keyword arguments that are passed to the algorithm.
 
     Returns

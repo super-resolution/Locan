@@ -280,7 +280,7 @@ class PositionVarianceExpectation(_Analysis):
         bin_range=None,
         log=True,
         fit=False,
-        **kwargs,
+        **kwargs: Any,
     ) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the

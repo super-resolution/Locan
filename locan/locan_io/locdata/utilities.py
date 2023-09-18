@@ -10,7 +10,7 @@ import logging
 import os
 import sys
 from contextlib import closing
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import TYPE_CHECKING, Any, Iterable, Union, cast
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -24,7 +24,11 @@ __all__: list[str] = ["convert_property_types", "convert_property_names"]
 logger = logging.getLogger(__name__)
 
 
-def convert_property_types(dataframe, types, loc_properties=None) -> pd.DataFrame:
+def convert_property_types(
+    dataframe: pd.DataFrame,
+    types: dict[str, str],
+    loc_properties: Iterable[str] | None = None,
+) -> pd.DataFrame:
     """
     Convert data types according to the column-type mapping in types.
     If the target type is one of 'integer', 'signed', 'unsigned', 'float'
@@ -34,11 +38,11 @@ def convert_property_types(dataframe, types, loc_properties=None) -> pd.DataFram
 
     Parameters
     ----------
-    dataframe : pandas.DataFrame
+    dataframe
         Data to be converted
-    types : dict[str, str]
+    types
         Mapping of loc_properties to types
-    loc_properties : list[str] | None
+    loc_properties
         The columns in dataframe to be converted.
         If None, all columns will be converted according to types.
 
@@ -67,13 +71,13 @@ def open_path_or_file_like(
     path_or_file_like: str | bytes | os.PathLike[Any] | int | SupportsRead[Any],
     mode: str = "r",
     encoding: str | None = None,
-):
+) -> Any:
     """
     Provide open-file context from `path_or_file_like` input.
 
     Parameters
     ----------
-    path_or_file_like :
+    path_or_file_like
         Identifier for file
     mode
         same as in `open()`
@@ -113,7 +117,10 @@ def open_path_or_file_like(
     return closing(file)
 
 
-def convert_property_names(properties, property_mapping=None):
+def convert_property_names(
+    properties: Iterable[str],
+    property_mapping: dict[str, str] | Iterable[dict[str, str]] | None = None,
+) -> list[str]:
     """
     Convert property names to standard locan property names if a mapping is
     provided.
@@ -121,9 +128,9 @@ def convert_property_names(properties, property_mapping=None):
 
     Parameters
     ----------
-    properties : list[str] | tuple[str, ...]
+    properties
         Properties to be converted
-    property_mapping : dict[str, str] | list[dict] | None
+    property_mapping
         Mappings between other property names and locan property names
 
     Returns
@@ -131,14 +138,16 @@ def convert_property_names(properties, property_mapping=None):
     list[str]
         Converted property names
     """
+    property_mapping_: dict[str, str] = {}
     if property_mapping is None:
-        property_mapping_: dict[str, str] = {}
-    elif isinstance(property_mapping, (list, tuple)):
-        property_mapping_ = {}
-        for mapping in property_mapping:
-            property_mapping_.update(mapping)
-    else:
+        pass
+    elif isinstance(property_mapping, dict):
         property_mapping_ = property_mapping
+    elif isinstance(property_mapping, Iterable):
+        for mapping in property_mapping:
+            property_mapping_.update(mapping)  # type: ignore[arg-type]
+    else:
+        raise TypeError(f"property_mapping has wrong type {type(property_mapping)}")
 
     column_keys = []
     for i in properties:

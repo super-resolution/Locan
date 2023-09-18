@@ -84,7 +84,7 @@ def load_Elyra_file(
     path: str | os.PathLike[Any] | SupportsRead[Any],
     nrows: int | None = None,
     convert: bool = True,
-    **kwargs,
+    **kwargs: Any,
 ) -> LocData:
     """
     Load data from a rapidSTORM single-molecule localization file.
@@ -99,7 +99,7 @@ def load_Elyra_file(
     convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
-    kwargs : dict[str, Any]
+    kwargs
         Other parameters passed to `pandas.read_csv()`.
 
     Returns

@@ -226,7 +226,7 @@ class GroupedPropertyExpectation(_Analysis):
         | None = None,
         log: bool = True,
         fit: bool = False,
-        **kwargs: dict[str, Any],
+        **kwargs: Any,
     ) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the

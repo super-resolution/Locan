@@ -30,8 +30,9 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections.abc import Callable  # noqa: F401
+from collections.abc import Callable, Sequence
 from itertools import chain
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt
@@ -78,7 +79,11 @@ __all__: list[str] = [
 logger = logging.getLogger(__name__)
 
 
-def make_uniform(n_samples, region=(0, 1), seed=None) -> npt.NDArray[np.float_]:
+def make_uniform(
+    n_samples: int,
+    region: Region | npt.ArrayLike = (0, 1),
+    seed: RandomGeneratorSeed = None,
+) -> npt.NDArray[np.float_]:
     """
     Provide points that are distributed by a uniform
     (complete spatial randomness) point process
@@ -86,12 +91,12 @@ def make_uniform(n_samples, region=(0, 1), seed=None) -> npt.NDArray[np.float_]:
 
     Parameters
     ----------
-    n_samples : int
+    n_samples
         The total number of localizations of the point process
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for all features.
         If array-like it must provide upper and lower bounds for each feature.
-    seed : RandomGeneratorSeed
+    seed
         Random number generation seed
 
     Returns
@@ -130,8 +135,8 @@ def make_uniform(n_samples, region=(0, 1), seed=None) -> npt.NDArray[np.float_]:
         samples_ = []
         n_remaining = n_samples
         while n_remaining > 0:
-            new_samples = rng.random(size=(n_samples_updated, region.dimension))
-            new_samples = region.extent * new_samples + region.bounding_box.corner
+            new_samples = rng.random(size=(n_samples_updated, region.dimension))  # type: ignore
+            new_samples = region.extent * new_samples + region.bounding_box.corner  # type: ignore
             new_samples = new_samples[region.contains(new_samples)]
             samples_.append(new_samples)
             n_remaining = n_remaining - len(new_samples)
@@ -142,19 +147,23 @@ def make_uniform(n_samples, region=(0, 1), seed=None) -> npt.NDArray[np.float_]:
     return samples
 
 
-def simulate_uniform(n_samples, region=(0, 1), seed=None) -> LocData:
+def simulate_uniform(
+    n_samples: int,
+    region: Region | npt.ArrayLike = (0, 1),
+    seed: RandomGeneratorSeed = None,
+) -> LocData:
     """
     Provide points that are distributed by a uniform Poisson point process
     within the boundaries given by `region`.
 
     Parameters
     ----------
-    n_samples : int
+    n_samples
         The total number of localizations of the point process
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for each feature.
         If array-like it must provide upper and lower bounds for each feature.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -177,19 +186,23 @@ def simulate_uniform(n_samples, region=(0, 1), seed=None) -> LocData:
     return locdata
 
 
-def make_Poisson(intensity, region=(0, 1), seed=None) -> npt.NDArray[np.float_]:
+def make_Poisson(
+    intensity: int | float,
+    region: Region | npt.ArrayLike = (0, 1),
+    seed: RandomGeneratorSeed = None,
+) -> npt.NDArray[np.float_]:
     """
     Provide points that are distributed by a uniform Poisson point process
     within the boundaries given by `region`.
 
     Parameters
     ----------
-    intensity : int | float
+    intensity
         The intensity (points per unit region measure) of the point process
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for all features.
         If array-like it must provide upper and lower bounds for each feature.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -246,19 +259,23 @@ def make_Poisson(intensity, region=(0, 1), seed=None) -> npt.NDArray[np.float_]:
     return samples
 
 
-def simulate_Poisson(intensity, region=(0, 1), seed=None) -> LocData:
+def simulate_Poisson(
+    intensity: int | float,
+    region: Region | npt.ArrayLike = (0, 1),
+    seed: RandomGeneratorSeed = None,
+) -> LocData:
     """
     Provide points that are distributed by a uniform Poisson point process
     within the boundaries given by `region`.
 
     Parameters
     ----------
-    intensity : int | float
+    intensity
         The intensity (points per unit region measure) of the point process
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for each feature.
         If array-like it must provide upper and lower bounds for each feature.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -282,13 +299,13 @@ def simulate_Poisson(intensity, region=(0, 1), seed=None) -> LocData:
 
 
 def make_cluster(
-    centers=3,
-    region=(0, 1.0),
-    expansion_distance=0,
-    offspring=None,
-    clip=True,
-    shuffle=True,
-    seed=None,
+    centers: int | npt.ArrayLike = 3,
+    region: Region | npt.ArrayLike = (0, 1.0),
+    expansion_distance: float = 0,
+    offspring: npt.ArrayLike | Callable[..., Any] | None = None,
+    clip: bool = True,
+    shuffle: bool = True,
+    seed: RandomGeneratorSeed = None,
 ) -> tuple[
     npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region
 ]:
@@ -304,24 +321,24 @@ def make_cluster(
 
     Parameters
     ----------
-    centers : int | npt.ArrayLike
+    centers
         The number of parents or coordinates for parent events,
         where each parent represents a cluster center.
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for all features.
         If array-like it must provide upper and lower bounds for each feature.
-    expansion_distance : float
+    expansion_distance
         The distance by which region is expanded on all boundaries.
-    offspring : npt.ArrayLike | Callable | None
+    offspring
         Points or function for point process to provide cluster.
         Callable must take single parent point as parameter and return an iterable.
         If array-like it must have the same length as parent events.
-    clip : bool
+    clip
         If True the result will be clipped to 'region'.
         If False the extended region will be kept.
-    shuffle : bool
+    shuffle
         If True shuffle the samples.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -426,13 +443,13 @@ def make_cluster(
 
 
 def simulate_cluster(
-    centers=3,
-    region=(0, 1.0),
-    expansion_distance=0,
-    offspring=None,
-    clip=True,
-    shuffle=True,
-    seed=None,
+    centers: int | npt.ArrayLike = 3,
+    region: Region | npt.ArrayLike = (0, 1.0),
+    expansion_distance: float = 0,
+    offspring: npt.ArrayLike | Callable[..., Any] | None = None,
+    clip: bool = True,
+    shuffle: bool = True,
+    seed: RandomGeneratorSeed = None,
 ) -> LocData:
     """
     Generate clustered point data.
@@ -444,24 +461,24 @@ def simulate_cluster(
 
     Parameters
     ----------
-    centers : int | npt.ArrayLike
+    centers
         The number of parents or coordinates for parent events,
         where each parent represents a cluster center.
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for each feature.
         If array-like it must provide upper and lower bounds for each feature.
-    expansion_distance : float
+    expansion_distance
         The distance by which region is expanded on all boundaries.
-    offspring : npt.ArrayLike | Callable | None
+    offspring
         Points or function for point process to provide cluster.
         Callable must take single parent point as parameter and return an iterable.
         If array-like it must have the same length as parent events.
-    clip : bool
+    clip
         If True the result will be clipped to 'region'.
         If False the extended region will be kept.
-    shuffle : bool
+    shuffle
         If True shuffle the samples.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -488,13 +505,13 @@ def simulate_cluster(
 
 
 def make_NeymanScott(
-    parent_intensity=100,
-    region=(0, 1.0),
-    expansion_distance=0,
-    offspring=None,
-    clip=True,
-    shuffle=True,
-    seed=None,
+    parent_intensity: int | float = 100,
+    region: Region | npt.ArrayLike = (0, 1.0),
+    expansion_distance: float = 0,
+    offspring: npt.ArrayLike | Callable[..., Any] | None = None,
+    clip: bool = True,
+    shuffle: bool = True,
+    seed: RandomGeneratorSeed = None,
 ) -> tuple[
     npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region
 ]:
@@ -511,25 +528,25 @@ def make_NeymanScott(
 
     Parameters
     ----------
-    parent_intensity : int | float
+    parent_intensity
         The intensity (points per unit region measure) of the Poisson point
         process for parent events.
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for all features.
         If array-like it must provide upper and lower bounds for each feature.
-    expansion_distance : float
+    expansion_distance
         The distance by which region is expanded on all boundaries.
-    offspring : npt.ArrayLike | Callable | None
+    offspring
         Points or function for point process to provide offspring points.
         Callable must take single parent point as parameter.
         If array-like it must have enough elements to fit the randomly
         generated number of parent events.
-    clip : bool
+    clip
         If True the result will be clipped to 'region'.
         If False the extended region will be kept.
-    shuffle : bool
+    shuffle
         If True shuffle the samples.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -630,13 +647,13 @@ def make_NeymanScott(
 
 
 def simulate_NeymanScott(
-    parent_intensity=100,
-    region=(0, 1.0),
-    expansion_distance=0,
-    offspring=None,
-    clip=True,
-    shuffle=True,
-    seed=None,
+    parent_intensity: int | float = 100,
+    region: Region | npt.ArrayLike = (0, 1.0),
+    expansion_distance: float = 0,
+    offspring: npt.ArrayLike | Callable[..., Any] | None = None,
+    clip: bool = True,
+    shuffle: bool = True,
+    seed: RandomGeneratorSeed = None,
 ) -> LocData:
     """
     Generate clustered point data following a Neyman-Scott random point
@@ -651,25 +668,25 @@ def simulate_NeymanScott(
 
     Parameters
     ----------
-    parent_intensity : int | float
+    parent_intensity
         The intensity (points per unit region measure) of the Poisson point
         process for parent events.
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for each feature.
         If array-like it must provide upper and lower bounds for each feature.
-    expansion_distance : float
+    expansion_distance
         The distance by which region is expanded on all boundaries.
-    offspring : npt.ArrayLike | Callable | None
+    offspring
         Points or function for point process to provide offspring points.
         Callable must take single parent point as parameter.
         If array-like it must have enough elements to fit the randomly
         generated number of parent events.
-    clip : bool
+    clip
         If True the result will be clipped to 'region'.
         If False the extended region will be kept.
-    shuffle : bool
+    shuffle
         If True shuffle the samples.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -696,13 +713,13 @@ def simulate_NeymanScott(
 
 
 def make_Matern(
-    parent_intensity=1,
-    region=(0, 1.0),
-    cluster_mu=1,
-    radius=1.0,
-    clip=True,
-    shuffle=True,
-    seed=None,
+    parent_intensity: int | float = 1,
+    region: Region | npt.ArrayLike = (0, 1.0),
+    cluster_mu: int | float = 1,
+    radius: float | Sequence[float] = 1.0,
+    clip: bool = True,
+    shuffle: bool = True,
+    seed: RandomGeneratorSeed = None,
 ) -> tuple[
     npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region
 ]:
@@ -719,24 +736,24 @@ def make_Matern(
 
     Parameters
     ----------
-    parent_intensity : int | float
+    parent_intensity
         The intensity (points per unit region measure) of the Poisson point
         process for parent events.
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for all features.
         If array-like it must provide upper and lower bounds for each feature.
-    cluster_mu : int | float
+    cluster_mu
         The mean number of points of the Poisson point process for
         cluster(cluster_mu) events.
-    radius : float | Sequence[float]
+    radius
         The radius for the spots. If tuple, the number of elements must be
         larger than the expected number of parents.
-    clip : bool
+    clip
         If True the result will be clipped to 'region'. If False the extended
         region will be kept.
-    shuffle : bool
+    shuffle
         If True shuffle the samples.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -829,13 +846,13 @@ def make_Matern(
 
 
 def simulate_Matern(
-    parent_intensity=1,
-    region=(0, 1.0),
-    cluster_mu=1,
-    radius=1.0,
-    clip=True,
-    shuffle=True,
-    seed=None,
+    parent_intensity: int | float = 1,
+    region: Region | npt.ArrayLike = (0, 1.0),
+    cluster_mu: int | float = 1,
+    radius: float | Sequence[float] = 1.0,
+    clip: bool = True,
+    shuffle: bool = True,
+    seed: RandomGeneratorSeed = None,
 ):
     """
     Generate clustered point data following a Matern cluster random point
@@ -850,24 +867,24 @@ def simulate_Matern(
 
     Parameters
     ----------
-    parent_intensity : int | float
+    parent_intensity
         The intensity (points per unit region measure) of the Poisson point
         process for parent events.
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for each feature.
         If array-like it must provide upper and lower bounds for each feature.
-    cluster_mu : int | float
+    cluster_mu
         The mean number of points of the Poisson point process for
         cluster(cluster_mu) events.
-    radius : float | Sequence[float]
+    radius
         The radius for the spots. If tuple, the number of elements must be
         larger than the expected number of parents.
-    clip : bool
+    clip
         If True the result will be clipped to 'region'.
         If False the extended region will be kept.
-    shuffle : bool
+    shuffle
         If True shuffle the samples.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -894,14 +911,14 @@ def simulate_Matern(
 
 
 def make_Thomas(
-    parent_intensity=1,
-    region=(0, 1.0),
-    expansion_factor=6,
-    cluster_mu=1,
-    cluster_std=1.0,
-    clip=True,
-    shuffle=True,
-    seed=None,
+    parent_intensity: int | float = 1,
+    region: Region | npt.ArrayLike = (0, 1.0),
+    expansion_factor: int | float = 6,
+    cluster_mu: int | float | Sequence[float] = 1,
+    cluster_std: float | Sequence[float] | Sequence[Sequence[float]] = 1.0,
+    clip: bool = True,
+    shuffle: bool = True,
+    seed: RandomGeneratorSeed = None,
 ) -> tuple[
     npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region
 ]:
@@ -921,25 +938,25 @@ def make_Thomas(
 
     Parameters
     ----------
-    parent_intensity : int | float
+    parent_intensity
         The intensity (points per unit region measure) of the Poisson point
         process for parent events.
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for all features.
         If array-like it must provide upper and lower bounds for each feature.
-    expansion_factor : int | float
+    expansion_factor
         Factor by which the cluster_std is multiplied to set the region
         expansion distance.
-    cluster_mu : int | float | Sequence[float]
+    cluster_mu
         The mean number of points for normal-distributed offspring points.
-    cluster_std : float | Sequence[float] | Sequence[Sequence[float]]
+    cluster_std
         The standard deviation for normal-distributed offspring points.
-    clip : bool
+    clip
         If True the result will be clipped to 'region'.
         If False the extended region will be kept.
-    shuffle : bool
+    shuffle
         If True shuffle the samples.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -1051,14 +1068,14 @@ def make_Thomas(
 
 
 def simulate_Thomas(
-    parent_intensity=1,
-    region=(0, 1.0),
-    expansion_factor=6,
-    cluster_mu=1,
-    cluster_std=1.0,
-    clip=True,
-    shuffle=True,
-    seed=None,
+    parent_intensity: int | float = 1,
+    region: Region | npt.ArrayLike = (0, 1.0),
+    expansion_factor: int | float = 6,
+    cluster_mu: int | float | Sequence[float] = 1,
+    cluster_std: float | Sequence[float] | Sequence[Sequence[float]] = 1.0,
+    clip: bool = True,
+    shuffle: bool = True,
+    seed: RandomGeneratorSeed = None,
 ) -> LocData:
     """
     Generate clustered point data following a Thomas random point process.
@@ -1076,25 +1093,25 @@ def simulate_Thomas(
 
     Parameters
     ----------
-    parent_intensity : int | float
+    parent_intensity
         The intensity (points per unit region measure) of the Poisson point
         process for parent events.
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for each feature.
         If array-like it must provide upper and lower bounds for each feature.
-    expansion_factor : int | float
+    expansion_factor
         Factor by which the cluster_std is multiplied to set the region
         expansion distance.
-    cluster_mu : int | float | Sequence[float]
+    cluster_mu
         The mean number of points for normal-distributed offspring points.
-    cluster_std : float | Sequence[float] | Sequence[Sequence[float]]
+    cluster_std
         The standard deviation for normal-distributed offspring points.
-    clip : bool
+    clip
         If True the result will be clipped to 'region'.
         If False the extended region will be kept.
-    shuffle : bool
+    shuffle
         If True shuffle the samples.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -1128,15 +1145,15 @@ def simulate_Thomas(
 
 
 def make_dstorm(
-    parent_intensity=1,
-    region=(0, 1.0),
-    expansion_factor=6,
-    cluster_mu=1,
-    min_points=0,
-    cluster_std=1.0,
-    clip=True,
-    shuffle=True,
-    seed=None,
+    parent_intensity: int | float = 1,
+    region: Region | npt.ArrayLike = (0, 1.0),
+    expansion_factor: int | float = 6,
+    cluster_mu: int | float | Sequence[float] = 1,
+    min_points: int = 0,
+    cluster_std: float | Sequence[float] | Sequence[Sequence[float]] = 1.0,
+    clip: bool = True,
+    shuffle: bool = True,
+    seed: RandomGeneratorSeed = None,
 ) -> tuple[
     npt.NDArray[np.float_], npt.NDArray[np.int_], npt.NDArray[np.float_], Region
 ]:
@@ -1156,27 +1173,27 @@ def make_dstorm(
 
     Parameters
     ----------
-    parent_intensity : int | float
+    parent_intensity
         The intensity (points per unit region measure) of the Poisson point
         process for parent events.
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for all features.
         If array-like it must provide upper and lower bounds for each feature.
-    expansion_factor : int | float
+    expansion_factor
         Factor by which the cluster_std is multiplied to set the region
         expansion distance.
-    cluster_mu : int | float | Sequence[float]
+    cluster_mu
         The mean number of points for normal-distributed offspring points.
-    min_points : int
+    min_points
         The minimum number of points per cluster.
-    cluster_std : float | Sequence[float] | Sequence[Sequence[float]]
+    cluster_std
         The standard deviation for normal-distributed offspring points.
-    clip : bool
+    clip
         If True the result will be clipped to 'region'. If False the extended
         region will be kept.
-    shuffle : bool
+    shuffle
         If True shuffle the samples.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -1296,15 +1313,15 @@ def make_dstorm(
 
 
 def simulate_dstorm(
-    parent_intensity=1,
-    region=(0, 1.0),
-    expansion_factor=6,
-    cluster_mu=1,
-    min_points=0,
-    cluster_std=1.0,
-    clip=True,
-    shuffle=True,
-    seed=None,
+    parent_intensity: int | float = 1,
+    region: Region | npt.ArrayLike = (0, 1.0),
+    expansion_factor: int | float = 6,
+    cluster_mu: int | float | Sequence[float] = 1,
+    min_points: int = 0,
+    cluster_std: float | Sequence[float] | Sequence[Sequence[float]] = 1.0,
+    clip: bool = True,
+    shuffle: bool = True,
+    seed: RandomGeneratorSeed = None,
 ) -> LocData:
     """
     Generate clustered point data following a Thomas-like random point process.
@@ -1322,27 +1339,27 @@ def simulate_dstorm(
 
     Parameters
     ----------
-    parent_intensity : int | float
+    parent_intensity
         The intensity (points per unit region measure) of the Poisson point
         process for parent events.
-    region : Region | npt.ArrayLike
+    region
         The region (or support) for each feature.
         If array-like it must provide upper and lower bounds for each feature.
-    expansion_factor : int | float
+    expansion_factor
         Factor by which the cluster_std is multiplied to set the region
         expansion distance.
-    cluster_mu : int | float | Sequence[float]
+    cluster_mu
         The mean number of points for normal-distributed offspring points.
-    min_points : int
+    min_points
         The minimum number of points per cluster.
-    cluster_std : float | Sequence[float] | Sequence[Sequence[float]]
+    cluster_std
         The standard deviation for normal-distributed offspring points.
-    clip : bool
+    clip
         If True the result will be clipped to 'region'.
         If False the extended region will be kept.
-    shuffle : bool
+    shuffle
         If True shuffle the samples.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -1377,24 +1394,29 @@ def simulate_dstorm(
 
 
 def _random_walk(
-    n_walks=1, n_steps=10, dimensions=2, diffusion_constant=1, time_step=10, seed=None
+    n_walks: int = 1,
+    n_steps: int = 10,
+    dimensions: int = 2,
+    diffusion_constant: int | float = 1,
+    time_step: float = 10,
+    seed: RandomGeneratorSeed = None,
 ) -> tuple[npt.NDArray[np.float_], npt.NDArray[np.float_]]:
     """
     Random walk simulation
 
     Parameters
     ----------
-    n_walks: int
+    n_walks
         Number of walks
-    n_steps : int
+    n_steps
         Number of time steps (i.e. frames)
-    dimensions : int
+    dimensions
         spatial dimensions to simulate
-    diffusion_constant : int | float
+    diffusion_constant
         Diffusion constant in units length per seconds^2
-    time_step : float
+    time_step
         Time per frame (or simulation step) in seconds.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -1421,12 +1443,12 @@ def _random_walk(
 
 
 def simulate_tracks(
-    n_walks=1,
-    n_steps=10,
-    ranges=((0, 10000), (0, 10000)),
-    diffusion_constant=1,
-    time_step=10,
-    seed=None,
+    n_walks: int = 1,
+    n_steps: int = 10,
+    ranges: tuple[tuple[int, int], tuple[int, int]] = ((0, 10000), (0, 10000)),
+    diffusion_constant: int | float = 1,
+    time_step: float = 10,
+    seed: RandomGeneratorSeed = None,
 ) -> LocData:
     """
     Provide a dataset of localizations representing random walks with
@@ -1435,17 +1457,17 @@ def simulate_tracks(
 
     Parameters
     ----------
-    n_walks: int
+    n_walks
         Number of walks
-    n_steps : int
+    n_steps
         Number of time steps (i.e. frames)
-    ranges : tuple[tuple[int, int], tuple[int, int]]
+    ranges
         the range for valid x[, y, z]-coordinates
-    diffusion_constant : int | float
+    diffusion_constant
         Diffusion constant with unit length per seconds^2
-    time_step : float
+    time_step
         Time per frame (or simulation step) in seconds.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -1496,7 +1518,9 @@ def simulate_tracks(
     return locdata
 
 
-def resample(locdata, n_samples=10, seed=None) -> LocData:
+def resample(
+    locdata: LocData, n_samples: int = 10, seed: RandomGeneratorSeed = None
+) -> LocData:
     """
     Resample locdata according to localization uncertainty.
     Per localization `n_samples` new localizations
@@ -1508,11 +1532,11 @@ def resample(locdata, n_samples=10, seed=None) -> LocData:
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data to be resampled
-    n_samples : int
+    n_samples
         The number of localizations generated for each original localization.
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
@@ -1574,7 +1598,9 @@ def resample(locdata, n_samples=10, seed=None) -> LocData:
     return new_locdata
 
 
-def _random_poisson_repetitions(n_samples, lam, seed=None):
+def _random_poisson_repetitions(
+    n_samples: int, lam: float, seed: RandomGeneratorSeed = None
+) -> npt.NDArray[np.int_]:
     """
     Return numpy.ndarray of sorted integers with each integer i being
     repeated n(i) times
@@ -1582,16 +1608,16 @@ def _random_poisson_repetitions(n_samples, lam, seed=None):
 
     Parameters
     ----------
-    n_samples : int
+    n_samples
         number of elements to be returned
-    lam : float
+    lam
         mean of the Poisson distribution (lambda)
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.int_]
         The generated sequence of integers with shape (n_samples,)
     """
     rng = np.random.default_rng(seed)
@@ -1613,7 +1639,9 @@ def _random_poisson_repetitions(n_samples, lam, seed=None):
     return frames
 
 
-def simulate_frame_numbers(n_samples, lam, seed=None):
+def simulate_frame_numbers(
+    n_samples: int, lam: float, seed: RandomGeneratorSeed = None
+) -> npt.NDArray[np.int_]:
     """
     Simulate Poisson-distributed frame numbers for a list of localizations.
 
@@ -1628,16 +1656,16 @@ def simulate_frame_numbers(n_samples, lam, seed=None):
 
     Parameters
     ----------
-    n_samples : int
+    n_samples
         number of elements to be returned
-    lam : float
+    lam
         mean of the Poisson distribution (lambda)
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.int_]
         The generated sequence of integers with shape (n_samples,)
     """
     return _random_poisson_repetitions(n_samples, lam, seed=seed)

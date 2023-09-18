@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if sys.version_info >= (3, 9):
     from collections.abc import Sequence  # noqa: F401
@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 def _localization_property(
     locdata: LocData, loc_property: str = "intensity", index=None
-) -> pd.Series[Any]:
+) -> pd.DataFrame:
     if index is None:
         results = locdata.data[[loc_property]]
     else:
@@ -82,7 +82,7 @@ class LocalizationProperty(_Analysis):
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas.Series[Any]
+    results : pandas.DataFrame
         Computed results.
     distribution_statistics : Distribution_stats | None
         Distribution parameters derived from MLE fitting of results.
@@ -92,7 +92,7 @@ class LocalizationProperty(_Analysis):
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
 
-        self.results = None
+        self.results: pd.DataFrame | None = None
         self.distribution_statistics = None
 
     def compute(self, locdata: LocData) -> Self:

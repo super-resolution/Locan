@@ -83,7 +83,7 @@ def load_Nanoimager_file(
     path: str | os.PathLike[Any] | SupportsRead[Any],
     nrows: int | None = None,
     convert: bool = True,
-    **kwargs,
+    **kwargs: Any,
 ) -> LocData:
     """
     Load data from a Nanoimager single-molecule localization file.
@@ -98,7 +98,7 @@ def load_Nanoimager_file(
     convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
-    kwargs : dict
+    kwargs
         Other parameters passed to `pandas.read_csv()`.
 
     Returns

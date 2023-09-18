@@ -34,15 +34,16 @@ References
 from __future__ import annotations
 
 import warnings
-from typing import Any, Generator
+from collections.abc import Sequence
+from typing import Any, Generator, Literal
 
 import networkx as nx
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 from scipy.spatial import Delaunay
 
 from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance
-from locan.data.region import Polygon
+from locan.data.region import Polygon, Region
 from locan.data.region_utils import regions_union
 
 __all__: list[str] = ["AlphaComplex", "AlphaShape"]
@@ -89,7 +90,9 @@ def _k_simplex_neighbor_index_list(d: int, k: int) -> tuple[int, ...]:
         raise ValueError
 
 
-def _get_k_simplices(simplex, k: int = 1) -> Generator[list[Any], Any, None]:
+def _get_k_simplices(
+    simplex: Sequence[int], k: int = 1
+) -> Generator[list[Any], Any, None]:
     """
     Function to extract k-simplices (e.g. edges) from a d-simplex
     (e.g. triangle; d>k).
@@ -145,7 +148,7 @@ class AlphaComplex:
         neighboring simplices.
     """
 
-    def __init__(self, points, delaunay=None):
+    def __init__(self, points: npt.ArrayLike, delaunay: Delaunay | None = None) -> None:
         self.lines: list[tuple[Any, ...]]
         self.triangles: list[tuple[Any, ...]]
         self.dimension: int | None
@@ -187,7 +190,12 @@ class AlphaComplex:
                     f"{self.dimension}."
                 )
 
-    def _compute_2d(self):
+    def _compute_2d(
+        self,
+    ) -> tuple[
+        list[tuple[tuple[Any, ...], float, Any, Any]],
+        list[tuple[tuple[Any, ...], float, Any, Any]],
+    ]:
         """Compute the alpha complex for 2d data."""
         assert self.delaunay_triangulation is not None  # type narrowing # noqa: S101
         n_simplices = len(self.delaunay_triangulation.simplices)
@@ -242,16 +250,20 @@ class AlphaComplex:
         alpha_complex_lines = list(alpha_complex_lines)
         return alpha_complex_lines, alpha_complex_triangles
 
-    def get_alpha_complex_lines(self, alpha, type="all") -> list[list[int]]:
+    def get_alpha_complex_lines(
+        self,
+        alpha: float,
+        type: Literal["all", "regular", "singular", "interior", "exterior"] = "all",
+    ) -> list[list[int]]:
         """
         Simplicial subcomplex (lines) of the Delaunay triangulation for the
         specific alpha complex for the given `alpha`.
 
         Parameters
         ----------
-        alpha : float
+        alpha
             Alpha parameter specifying a unique alpha complex.
-        type : Literal['all', 'regular', 'singular', 'interior', 'exterior']
+        type
             Type of alpha complex edges to be included in the graph.
             One of 'all', 'regular', 'singular', 'interior', 'exterior'.
 
@@ -278,16 +290,20 @@ class AlphaComplex:
         # a list of lists and not of tuples should be returned since the return value
         # will be used for indexing arrays.
 
-    def get_alpha_complex_triangles(self, alpha, type="all") -> list[list[int]]:
+    def get_alpha_complex_triangles(
+        self,
+        alpha: float,
+        type: Literal["all", "regular", "singular", "interior", "exterior"] = "all",
+    ) -> list[list[int]]:
         """
         Simplicial subcomplex (triangles) of the Delaunay triangulation for
         the specific alpha complex for the given `alpha`.
 
         Parameters
         ----------
-        alpha : float
+        alpha
             Alpha parameter specifying a unique alpha complex.
-        type : Literal['all', 'regular', 'singular', 'interior', 'exterior']
+        type
             Type of alpha complex edges to be included in the graph.
             One of 'all', 'regular', 'singular', 'interior', 'exterior'.
 
@@ -315,15 +331,19 @@ class AlphaComplex:
         # a list of lists and not of tuples should be returned since the return value
         # will be used for indexing arrays.
 
-    def graph_from_lines(self, alpha, type="all") -> nx.Graph:
+    def graph_from_lines(
+        self,
+        alpha: float,
+        type: Literal["all", "regular", "singular", "interior", "exterior"] = "all",
+    ) -> nx.Graph:
         """
         Return networkx Graph object with nodes and edges from selected lines.
 
         Parameters
         ----------
-        alpha : float
+        alpha
             Alpha parameter specifying a unique alpha complex.
-        type : Literal['all', 'regular', 'singular', 'interior', 'exterior']
+        type
             Type of alpha complex edges to be included in the graph.
             One of 'all', 'regular', 'singular', 'interior', 'exterior'.
 
@@ -343,15 +363,19 @@ class AlphaComplex:
         G.add_edges_from(ac_simplices, type=type)
         return G
 
-    def graph_from_triangles(self, alpha, type="all") -> nx.Graph:
+    def graph_from_triangles(
+        self,
+        alpha: float,
+        type: Literal["all", "regular", "singular", "interior", "exterior"] = "all",
+    ) -> nx.Graph:
         """
         Return networkx Graph object with nodes and edges from selected triangles.
 
         Parameters
         ----------
-        alpha : float
+        alpha
             Alpha parameter specifying a unique alpha complex.
-        type : Literal['all', 'regular', 'singular', 'interior', 'exterior']
+        type
             Type of alpha complex edges to be included in the graph.
             One of 'all', 'regular', 'singular', 'interior', 'exterior'.
 
@@ -376,13 +400,13 @@ class AlphaComplex:
             G.add_edges_from(edges, triangle=triangle)
         return G
 
-    def alpha_shape(self, alpha) -> AlphaShape:
+    def alpha_shape(self, alpha: float) -> AlphaShape:
         """
         Return the unique alpha shape for `alpha`.
 
         Parameters
         ----------
-        alpha : float
+        alpha
             Alpha parameter specifying a unique alpha complex.
 
         Returns
@@ -403,7 +427,7 @@ class AlphaComplex:
 
         Returns
         -------
-        float
+        float | None
         """
         if len(self.lines) == 0:
             return None
@@ -505,7 +529,13 @@ class AlphaShape:
         Measure of the sub-dimensional region, i.e. circumference or surface.
     """
 
-    def __init__(self, alpha, points=None, alpha_complex=None, delaunay=None):
+    def __init__(
+        self,
+        alpha: float,
+        points: npt.ArrayLike | None = None,
+        alpha_complex: AlphaComplex | None = None,
+        delaunay: Delaunay | None = None,
+    ) -> None:
         if alpha_complex is None:
             self.alpha_complex = AlphaComplex(points, delaunay)
         else:
@@ -521,11 +551,11 @@ class AlphaShape:
         self.alpha = alpha
 
     @property
-    def alpha(self):
+    def alpha(self) -> float | None:
         return self._alpha
 
     @alpha.setter
-    def alpha(self, alpha):
+    def alpha(self, alpha: float | None) -> None:
         self._alpha = alpha
         self._region = None
         self._connected_components = None
@@ -553,7 +583,7 @@ class AlphaShape:
         self.subregion_measure = self.region.subregion_measure
 
     @property
-    def region(self):
+    def region(self) -> Region:
         if self.dimension == 3:
             raise NotImplementedError(
                 "Region for 3D data has not yet been implemented."
@@ -576,7 +606,7 @@ class AlphaShape:
         return self._region
 
     @property
-    def connected_components(self):
+    def connected_components(self) -> list[Region]:
         if self._connected_components is None:
             self._vertices_connected_components_indices = []
             self._connected_components = []
@@ -600,24 +630,24 @@ class AlphaShape:
         return self._vertices_connected_components_indices
 
     @property
-    def alpha_shape(self):
+    def alpha_shape(self) -> list[list[int]]:
         return self.alpha_complex.get_alpha_complex_lines(self.alpha, type="all")
 
     @property
-    def vertices(self):
+    def vertices(self) -> npt.NDArray[np.float_]:
         return self.points[self.vertex_indices]
 
     @property
-    def vertex_indices(self):
+    def vertex_indices(self) -> list[int]:
         array = self.alpha_complex.get_alpha_complex_lines(self.alpha, type="regular")
         return np.unique(array).tolist()
 
     @property
-    def vertices_alpha_shape(self):
+    def vertices_alpha_shape(self) -> npt.NDArray[np.float_]:
         return self.points[self.vertex_alpha_shape_indices]
 
     @property
-    def vertex_alpha_shape_indices(self):
+    def vertex_alpha_shape_indices(self) -> list[int]:
         array_r = self.alpha_complex.get_alpha_complex_lines(self.alpha, type="regular")
         array_s = self.alpha_complex.get_alpha_complex_lines(
             self.alpha, type="singular"

@@ -17,8 +17,9 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable  # noqa: F401
+from typing import Any
 
 import matplotlib.colors as mcolors
 import numpy as np
@@ -220,7 +221,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
 def adjust_contrast(
     image: npt.ArrayLike,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = True,
-    **kwargs: dict[str, Any],
+    **kwargs: Any,
 ) -> npt.NDArray[np.float_]:
     """
     Adjust contrast of image by a predefined transformation:

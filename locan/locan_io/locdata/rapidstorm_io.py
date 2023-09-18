@@ -100,7 +100,7 @@ def load_rapidSTORM_file(
     path: str | os.PathLike[Any] | SupportsRead[Any],
     nrows: int | None = None,
     convert: bool = True,
-    **kwargs,
+    **kwargs: Any,
 ) -> LocData:
     """
     Load data from a rapidSTORM single-molecule localization file.
@@ -115,7 +115,7 @@ def load_rapidSTORM_file(
     convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
-    kwargs : dict
+    kwargs
         Other parameters passed to `pandas.read_csv()`.
 
     Returns
@@ -179,9 +179,11 @@ def _read_rapidSTORM_track_header(
     parsed = etree.XML(header)
 
     # list identifiers
-    identifiers = []
+    identifiers: list[str] = []
     for field in parsed.findall("field"):
-        identifiers.append(field.get("identifier"))
+        next_identifier = field.get("identifier")
+        if next_identifier is not None:
+            identifiers.append(next_identifier)
 
     # turn identifiers into valuable LocData keys
     column_keys = convert_property_names(
@@ -189,10 +191,12 @@ def _read_rapidSTORM_track_header(
     )
 
     # list child identifiers
-    child_identifiers = []
+    child_identifiers: list[str] = []
     for field in parsed.findall("localizations"):
         for field_ in field.findall("field"):
-            child_identifiers.append(field_.get("identifier"))
+            next_child_identifiers = field_.get("identifier")
+            if next_child_identifiers is not None:
+                child_identifiers.append(next_child_identifiers)
 
     # turn child identifiers into valuable LocData keys
     column_keys_tracks = convert_property_names(
@@ -232,7 +236,7 @@ def load_rapidSTORM_track_file(
     convert: bool = True,
     collection: bool = True,
     min_localization_count: int = 1,
-    **kwargs,
+    **kwargs: Any,
 ) -> LocData:
     """
     Load data from a rapidSTORM single-molecule localization file with
@@ -254,7 +258,7 @@ def load_rapidSTORM_track_file(
     min_localization_count
         If collection is True, only clusters with at least
         `min_localization_count` localizations are loaded.
-    kwargs : dict
+    kwargs
         Other parameters passed to `pandas.read_csv()`.
 
     Returns

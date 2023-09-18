@@ -4,20 +4,20 @@ Alpha shape utility functions for 2d.
 from __future__ import annotations
 
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 
 __all__: list[str] = []
 
 
-def _circumcircle(points, simplex):
+def _circumcircle(points: npt.ArrayLike, simplex: list[int]) -> tuple[float, float]:
     """
     Center and radius of circumcircle for one triangle.
 
     Parameters
     -----------
-    points : npt.ArrayLike
+    points
         Point coordinates with shape (n_points, 2)
-    simplex : list
+    simplex
         List with three indices representing a triangle from three points.
 
     Returns
@@ -37,13 +37,13 @@ def _circumcircle(points, simplex):
     return S / a, np.sqrt(b / a + np.linalg.norm(S) ** 2 / a**2)  # center, radius
 
 
-def _half_distance(points):
+def _half_distance(points: npt.ArrayLike) -> float:
     """
     Half the distance between two points.
 
     Parameters
     -----------
-    points : npt.ArrayLike
+    points
         point coordinates with shape (2, 2) representing a line
 
     Returns

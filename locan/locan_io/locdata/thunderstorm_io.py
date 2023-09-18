@@ -87,7 +87,7 @@ def load_thunderstorm_file(
     path: str | os.PathLike[Any] | SupportsRead[Any],
     nrows: int | None = None,
     convert: bool = True,
-    **kwargs,
+    **kwargs: Any,
 ) -> LocData:
     """
     Load data from a Thunderstorm single-molecule localization file.
@@ -102,7 +102,7 @@ def load_thunderstorm_file(
     convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
-    kwargs : dict
+    kwargs
         Other parameters passed to `pandas.read_csv()`.
 
     Returns
@@ -168,4 +168,4 @@ def save_thunderstorm_csv(
     dataframe = dataframe.rename(index=str, columns=inv_map, inplace=False)
 
     # write to csv
-    dataframe.to_csv(path, float_format="%.10g", index=False)
+    dataframe.to_csv(path, float_format="%.10g", index=False)  # type: ignore[arg-type]

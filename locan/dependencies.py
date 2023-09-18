@@ -29,10 +29,10 @@ import logging
 import os
 import re
 import sys
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 if sys.version_info >= (3, 10):
     from typing import ParamSpec

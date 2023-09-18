@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Iterable
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -15,14 +15,16 @@ from locan.utils.statistics import weighted_mean_variance
 
 if TYPE_CHECKING:
     import pandas as pd  # noqa F401
-    from locan.data import LocData  # noqa F401
+    from locan.data.locdata import LocData  # noqa F401
 
 __all__: list[str] = []
 
 logger = logging.getLogger(__name__)
 
 
-def _get_loc_property_key_per_dimension(locdata, property_key) -> list[str | None]:
+def _get_loc_property_key_per_dimension(
+    locdata: pd.DataFrame | pd.Series[Any], property_key: str
+) -> list[str | None]:
     """
     Get tuple with property_key as available in each dimension.
     For the x-coordinates precedence is given as:
@@ -31,9 +33,9 @@ def _get_loc_property_key_per_dimension(locdata, property_key) -> list[str | Non
 
     Parameters
     ----------
-    locdata : pd.DataFrame | pd.Series[Any]
+    locdata
         Localization data
-    property_key : str
+    property_key
         Property key to look for in locdata.
 
     Returns
@@ -41,7 +43,7 @@ def _get_loc_property_key_per_dimension(locdata, property_key) -> list[str | Non
     list[str | None]
         The available property keys in each dimension
     """
-    available_keys = []
+    available_keys: list[str | None] = []
     for extension_ in ["_x", "_y", "_z"]:
         prop_key = property_key + extension_
         if prop_key in locdata.columns:
@@ -53,7 +55,9 @@ def _get_loc_property_key_per_dimension(locdata, property_key) -> list[str | Non
     return available_keys
 
 
-def _get_linked_coordinates(locdata, coordinate_keys=None) -> dict[str, int | float]:
+def _get_linked_coordinates(
+    locdata: pd.DataFrame | pd.Series[Any], coordinate_keys: Iterable[str] | None = None
+) -> dict[str, int | float]:
     """
     Combine localization properties from locdata:
     (i) apply weighted averages for spatial coordinates if corresponding
@@ -74,9 +78,9 @@ def _get_linked_coordinates(locdata, coordinate_keys=None) -> dict[str, int | fl
 
     Parameters
     ----------
-    locdata : pd.DataFrame | pd.Series[Any]
+    locdata
         dataframe with locdata
-    coordinate_keys : Iterable[str] | None
+    coordinate_keys
         A selection of coordinate keys on which to compute
 
     Returns
@@ -125,7 +129,7 @@ def _get_linked_coordinates(locdata, coordinate_keys=None) -> dict[str, int | fl
                             values=locdata[coordinate_key_],
                             weights=np.power(
                                 1 / locdata[uncertainty_key_], 2
-                            ).to_numpy(),
+                            ).to_numpy(),  # type: ignore[attr-defined]
                         )
                         weighted_uncertainty = np.sqrt(weighted_variance)  # type: ignore
 
@@ -153,15 +157,17 @@ def _bump_property_key(
     return new_property_label
 
 
-def _check_loc_properties(locdata, loc_properties) -> list[str]:
+def _check_loc_properties(
+    locdata: LocData, loc_properties: str | Iterable[str] | None
+) -> list[str]:
     """
     Check that loc_properties are valid property keys in locdata.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data
-    loc_properties : str | Iterable[str] | None
+    loc_properties
         LocData property keys.
         If None the coordinate_keys of locdata are used.
 

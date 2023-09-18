@@ -326,16 +326,39 @@ module = [
 ]
 disallow_subclassing_any = false
 
-# todo: should all be true
 [[tool.mypy.overrides]]
 module = [
-    'locan.analysis.*',
-    'locan.data.*',
-    'locan.locan_io.*',
-    'locan.simulation.*',
-    'locan.visualize.*',
-    'locan.scripts.*',
+    'locan.data.rois.RoiLegacy_0',
 ]
 disallow_untyped_calls = false
 disallow_incomplete_defs = false
 disallow_untyped_defs = false
+check_untyped_defs = false
+
+# todo: should all be true
+[[tool.mypy.overrides]]
+module = [
+    'locan.analysis.*',
+]
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = [
+    'locan.analysis.*',
+    'locan.data.locdata.*',
+    'locan.data.cluster.*',
+    'locan.data.transform.*',
+    'locan.data.aggregate.*',
+    'locan.data.filter.*',
+    'locan.data.register.*',
+    'locan.data.rois.*',
+    'locan.data.validation.*',
+    'locan.data.tracking.*',
+    'locan.data.hulls.*',
+    'locan.simulation.*',
+    'locan.visualize.*',
+    'locan.scripts.*',
+]
+ignore_errors = true

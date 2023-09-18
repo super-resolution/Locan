@@ -16,6 +16,7 @@ localizations selected to be within the roi region.
 from __future__ import annotations
 
 import logging
+import os
 import re
 import sys
 import warnings
@@ -24,7 +25,9 @@ from collections.abc import Iterable, Sequence  # noqa: F401
 from inspect import isabstract
 from itertools import product
 from pathlib import Path
+from typing import Any, Type, TypeVar
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from google.protobuf import json_format
@@ -69,7 +72,7 @@ class _MplSelector:  # pragma: no cover
         ellipse, or polygon.
     """
 
-    def __init__(self, ax, type="rectangle"):
+    def __init__(self, ax: mpl.axes.Axes, type: str = "rectangle") -> None:
         self.rois = []
         self.ax = ax
 
@@ -96,33 +99,33 @@ class _MplSelector:  # pragma: no cover
 
         plt.connect("key_press_event", self.key_pressed_callback)
 
-    def selector_callback(self, eclick, erelease):
+    def selector_callback(self, eclick: Any, erelease: Any):
         """eclick and erelease are matplotlib events at press and release."""
         print("startposition: {}".format((eclick.xdata, eclick.ydata)))  # noqa: UP032
         print(
             "endposition  : {}".format((erelease.xdata, erelease.ydata))  # noqa: UP032
         )  # noqa: UP032
 
-    def p_selector_callback(self, vertices):
+    def p_selector_callback(self, vertices: Any):
         print(f"Vertices: {vertices}")
 
-    def key_pressed_callback(self, event):
+    def key_pressed_callback(self, event: Any):
         print("Key pressed.")
-        if event.key in ["R", "r"]:
+        if event.key in ["R", "r"]:  # type: ignore
             print("RectangleSelector activated.")
             self.selector = RectangleSelector(
                 self.ax, self.selector_callback, drawtype="box", interactive=True
             )
             self.type = "rectangle"
 
-        elif event.key in ["E", "e"]:
+        elif event.key in ["E", "e"]:  # type: ignore
             print("EllipseSelector activated.")
             self.selector = EllipseSelector(
                 self.ax, self.selector_callback, drawtype="box", interactive=True
             )
             self.type = "ellipse"
 
-        elif event.key in ["T", "t"]:
+        elif event.key in ["T", "t"]:  # type: ignore
             print("PolygonSelector activated.")
             self.selector = PolygonSelector(self.ax, self.p_selector_callback)
             self.type = "polygon"
@@ -130,7 +133,7 @@ class _MplSelector:  # pragma: no cover
         else:
             pass
 
-        if event.key in ["+"] and self.selector.active and self.type == "rectangle":
+        if event.key in ["+"] and self.selector.active and self.type == "rectangle":  # type: ignore
             print("Roi was added.")
             region_specs = (
                 np.flip(self.selector.geometry[:, 0]),
@@ -141,7 +144,7 @@ class _MplSelector:  # pragma: no cover
             self.rois.append({"region_specs": region_specs, "region": self.type})
             print(f"rois: {self.rois}")
 
-        elif event.key in ["+"] and self.selector.active and self.type == "ellipse":
+        elif event.key in ["+"] and self.selector.active and self.type == "ellipse":  # type: ignore
             print("Roi was added.")
             region_specs = (
                 self.selector.center,
@@ -153,7 +156,7 @@ class _MplSelector:  # pragma: no cover
             self.rois.append({"region_specs": region_specs, "region": self.type})
             print(f"rois: {self.rois}")
 
-        elif event.key in ["+"] and self.selector.active and self.type == "polygon":
+        elif event.key in ["+"] and self.selector.active and self.type == "polygon":  # type: ignore
             print("Roi was added.")
             vertices_ = self.selector.verts.append(self.selector.verts[0])
             self.rois.append({"region_specs": vertices_, "region": self.type})
@@ -161,6 +164,9 @@ class _MplSelector:  # pragma: no cover
 
         else:
             pass
+
+
+T_Roi = TypeVar("T_Roi", bound="Roi")
 
 
 class Roi:
@@ -182,7 +188,7 @@ class Roi:
         integer or string indicating the file type.
         Integer or string should be according to
         locan.constants.FileType.
-    loc_properties : Sequence[str]
+    loc_properties : Sequence[str] | None
         Localization properties in LocData object on which the region
         selection will be applied (for instance the coordinate_keys).
 
@@ -203,7 +209,16 @@ class Roi:
         selection will be applied (for instance the coordinate_keys).
     """
 
-    def __init__(self, region, reference=None, loc_properties=None):
+    def __init__(
+        self,
+        region: Region,
+        reference: LocData
+        | dict[str, Any]
+        | metadata_pb2.Metadata
+        | metadata_pb2.File
+        | None = None,
+        loc_properties: Sequence[str] | None = None,
+    ):
         if isinstance(reference, dict):
             self.reference = metadata_pb2.Metadata()
             self.reference.file.path = str(reference["file_path"])
@@ -242,22 +257,22 @@ class Roi:
         )
 
     @property
-    def region(self):
+    def region(self) -> Region:
         return self._region
 
     @region.setter
-    def region(self, region_):
+    def region(self, region_: Region) -> None:
         if not isinstance(region_, Region):
             raise TypeError("An instance of locan.Region must be provided.")
         self._region = region_
 
-    def to_yaml(self, path=None):
+    def to_yaml(self, path: str | os.PathLike[Any] | None = None) -> None:
         """
         Save Roi object in yaml format.
 
         Parameters
         ----------
-        path : str | os.PathLike | None
+        path
             Path for yaml file. If None a roi file path is generated from the metadata.
         """
 
@@ -310,13 +325,15 @@ class Roi:
         yaml.dump(output, _path)
 
     @classmethod
-    def from_yaml(cls, path):
+    def from_yaml(
+        cls: Type[T_Roi], path: str | os.PathLike[Any]  # noqa: UP006
+    ) -> T_Roi:  # noqa: UP006
         """
         Read Roi object from yaml format.
 
         Parameters
         ----------
-        path : str | os.PathLike
+        path
             Path for yaml file.
         """
         yaml = YAML(typ="safe")
@@ -349,7 +366,7 @@ class Roi:
 
         return cls(reference=reference_, region=region_, loc_properties=loc_properties_)
 
-    def locdata(self, reduce=True):
+    def locdata(self, reduce: bool = True) -> LocData:
         """
         Localization data according to roi specifications.
 
@@ -359,7 +376,7 @@ class Roi:
 
         Parameters
         ----------
-        reduce : bool
+        reduce
             Return the reduced LocData object or keep references alive.
 
         Returns
@@ -708,7 +725,10 @@ class RoiLegacy_0:
 
 # todo generalize to take all loc_properties
 def rasterize(
-    locdata, support=None, n_regions=(2, 2, 2), loc_properties=()
+    locdata: LocData,
+    support: tuple[tuple, ...] | None = None,
+    n_regions: tuple[int, ...] = (2, 2, 2),
+    loc_properties: Iterable[str] = (),
 ) -> tuple[Roi, ...]:
     """
     Provide regions of interest by dividing the locdata support in equally
@@ -716,15 +736,15 @@ def rasterize(
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         The localization data from which to select localization data.
-    support : tuple[tuple, ...] | None
+    support
         Coordinate intervals that are divided in `n_regions` subintervals.
         For None intervals are taken from the bounding box.
-    n_regions : tuple[int, ...]
+    n_regions
         Number of regions in each dimension.
         E.g. `n_regions` = (2, 2) returns 4 rectangular Roi objects.
-    loc_properties : tuple[str, ...]
+    loc_properties
         Localization properties in LocData object on which the region
         selection will be applied.
         (Only implemented for coordinates labels)

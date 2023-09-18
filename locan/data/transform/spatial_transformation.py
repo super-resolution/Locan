@@ -10,7 +10,8 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import Literal  # noqa: F401
+from collections.abc import Iterable
+from typing import Any, Literal
 
 import numpy as np
 import numpy.typing as npt
@@ -21,6 +22,7 @@ from locan.data.metadata_utils import _modify_meta
 from locan.data.region import Region
 from locan.data.validation import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY
+from locan.locan_types import RandomGeneratorSeed
 from locan.simulation import simulate_uniform
 
 if HAS_DEPENDENCY["open3d"]:
@@ -33,7 +35,10 @@ logger = logging.getLogger(__name__)
 
 
 def _transform_affine_numpy(
-    points, matrix=None, offset=None, pre_translation=None
+    points: npt.ArrayLike,
+    matrix: npt.ArrayLike | None = None,
+    offset: npt.ArrayLike | None = None,
+    pre_translation: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float_]:
     """
     Transform `points` by an affine transformation using standard numpy
@@ -41,17 +46,17 @@ def _transform_affine_numpy(
 
     Parameters
     ----------
-    points : npt.ArrayLike
+    points
         Points on which to perform the manipulation.
-    matrix : npt.ArrayLike | None
+    matrix
         Transformation matrix. If None the unit matrix is used.
         Array with shape (ndim, ndim).
         If None the unit matrix is used.
-    offset : npt.ArrayLike | None
+    offset
         Translation vector.
         Array with shape (ndim,).
         If None a vector of zeros is used.
-    pre_translation : npt.ArrayLike | None
+    pre_translation
         Translation vector for coordinates applied before affine
         transformation. Array with shape (ndim,).
         The reverse translation is applied after the affine transformation.
@@ -64,7 +69,7 @@ def _transform_affine_numpy(
     points_ = np.asarray(points)
     dimension = np.shape(points_)[1]
 
-    matrix_ = np.identity(dimension) if matrix is None else matrix
+    matrix_ = np.identity(dimension) if matrix is None else np.asarray(matrix)
     offset_ = np.zeros(dimension) if offset is None else offset
 
     if pre_translation is None:
@@ -86,7 +91,9 @@ def _transform_affine_numpy(
     return transformed_points
 
 
-def _homogeneous_matrix(matrix=None, offset=None) -> npt.NDArray[np.float_]:
+def _homogeneous_matrix(
+    matrix: npt.ArrayLike | None = None, offset: npt.ArrayLike | None = None
+) -> npt.NDArray[np.float_]:
     """
     Combine transformation matrix and translation vector for dimension d into
     homogeneous (d+1, d+1) transformation
@@ -94,10 +101,10 @@ def _homogeneous_matrix(matrix=None, offset=None) -> npt.NDArray[np.float_]:
 
     Parameters
     ----------
-    matrix : npt.ArrayLike | None
+    matrix
         Transformation matrix. If None the unit matrix is used.
         Array with shape (ndim, ndim).
-    offset : npt.ArrayLike | None
+    offset
         Translation vector.
         Array with shape (ndim,).
 
@@ -107,8 +114,8 @@ def _homogeneous_matrix(matrix=None, offset=None) -> npt.NDArray[np.float_]:
         Homogeneous transformation matrix to be used with homogeneous
         coordinate vector. Array with shape (ndim+1, ndim+1).
     """
-    matrix = np.identity(3) if matrix is None else matrix
-    offset = np.zeros(3) if offset is None else offset
+    matrix = np.identity(3) if matrix is None else np.asarray(matrix)
+    offset = np.zeros(3) if offset is None else np.asarray(offset)
     dimension = np.shape(matrix)[0]
 
     if dimension != np.shape(matrix)[1]:
@@ -125,7 +132,10 @@ def _homogeneous_matrix(matrix=None, offset=None) -> npt.NDArray[np.float_]:
 
 
 def _transform_affine_open3d(
-    points, matrix=None, offset=None, pre_translation=None
+    points: npt.ArrayLike,
+    matrix: npt.ArrayLike | None = None,
+    offset: npt.ArrayLike | None = None,
+    pre_translation: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float_]:
     """
     Transform `points` or coordinates in `locdata` by an affine
@@ -133,17 +143,17 @@ def _transform_affine_open3d(
 
     Parameters
     ----------
-    points : npt.ArrayLike
+    points
         Points on which to perform the manipulation.
-    matrix : npt.ArrayLike | None
+    matrix
         Transformation matrix. If None the unit matrix is used.
         Array with shape (ndim, ndim).
         If None the unit matrix is used.
-    offset : npt.ArrayLike | None
+    offset
         Translation vector.
         Array with shape (ndim,).
         If None a vector of zeros is used.
-    pre_translation : npt.ArrayLike | None
+    pre_translation
         Translation vector for coordinates applied before affine
         transformation. Array with shape (ndim,).
         The reverse translation is applied after the affine transformation.
@@ -159,8 +169,8 @@ def _transform_affine_open3d(
     points_ = np.asarray(points)
     dimension = np.shape(points_)[1]
 
-    matrix_ = np.identity(dimension) if matrix is None else matrix
-    offset_ = np.zeros(dimension) if offset is None else offset
+    matrix_ = np.identity(dimension) if matrix is None else np.asarray(matrix)
+    offset_ = np.zeros(dimension) if offset is None else np.asarray(offset)
 
     # prepare 3d
     if dimension == 2:
@@ -200,28 +210,32 @@ def _transform_affine_open3d(
 
 
 def transform_affine(
-    locdata, matrix=None, offset=None, pre_translation=None, method="numpy"
+    locdata: npt.ArrayLike | LocData,
+    matrix: npt.ArrayLike | None = None,
+    offset: npt.ArrayLike | None = None,
+    pre_translation: npt.ArrayLike | None = None,
+    method: Literal["numpy", "open3d"] = "numpy",
 ) -> npt.NDArray[np.float_] | LocData:
     """
     Transform `points` or coordinates in `locdata` by an affine transformation.
 
     Parameters
     ----------
-    locdata : npt.ArrayLike | LocData
+    locdata
         Localization data on which to perform the manipulation.
-    matrix : npt.ArrayLike | None
+    matrix
         Transformation matrix. If None the unit matrix is used.
         Array with shape (ndim, ndim).
         If None the unit matrix is used.
-    offset : npt.ArrayLike | None
+    offset
         Translation vector.
         Array with shape (ndim,).
         If None a vector of zeros is used.
-    pre_translation : npt.ArrayLike | None
+    pre_translation
         Translation vector for coordinates applied before affine
         transformation. Array with shape (ndim,).
         The reverse translation is applied after the affine transformation.
-    method : Literal["numpy", "open3d"]
+    method
         The method (i.e. library or algorithm) used for computation.
         One of 'numpy', 'open3d'.
 
@@ -239,7 +253,7 @@ def transform_affine(
     if isinstance(locdata, LocData):
         points = locdata.coordinates
     else:
-        points = locdata
+        points = np.asarray(locdata)
 
     if method == "numpy":
         transformed_points = _transform_affine_numpy(
@@ -281,19 +295,22 @@ def transform_affine(
         return transformed_points
 
 
-def randomize(locdata, hull_region="bb", seed=None):
+def randomize(
+    locdata: LocData,
+    hull_region: Region | Literal["bb", "ch", "as", "obb"] = "bb",
+    seed: RandomGeneratorSeed = None,
+) -> LocData:
     """
     Transform locdata coordinates into randomized coordinates that follow
     complete spatial randomness on the same region as the input locdata.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data to be randomized
-    hull_region : Region | str
-        Region of interest. String identifier can be one of 'bb', 'ch', 'as',
-        'obb' referring to the corresponding hull.
-    seed : RandomGeneratorSeed
+    hull_region
+        Region of interest. String identifier can be one of c referring to the corresponding hull.
+    seed
         random number generation seed
 
     Returns
@@ -333,7 +350,12 @@ def randomize(locdata, hull_region="bb", seed=None):
     return new_locdata
 
 
-def standardize(locdata, loc_properties=None, with_mean=True, with_std=True):
+def standardize(
+    locdata: LocData,
+    loc_properties: list[str] | None = None,
+    with_mean: bool = True,
+    with_std: bool = True,
+) -> LocData:
     """
     Transform locdata properties by centering to the mean
     and property-wise scaling to unit standard deviation (variance).
@@ -345,14 +367,14 @@ def standardize(locdata, loc_properties=None, with_mean=True, with_std=True):
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data to be standardized.
-    loc_properties : list[str] | None
+    loc_properties
         Localization properties to be standardized.
         If None The coordinate_values of locdata are used.
-    with_mean : bool
+    with_mean
         If True center to the mean.
-    with_std: bool
+    with_std
         If True scale to unit standard deviation (variance).
 
     Returns
@@ -395,21 +417,25 @@ def standardize(locdata, loc_properties=None, with_mean=True, with_std=True):
     return new_locdata
 
 
-def overlay(locdatas, centers="centroid", orientations=None):
+def overlay(
+    locdatas: Iterable[LocData],
+    centers: Iterable[Any] | str | None = "centroid",
+    orientations: Iterable | str | None = None,
+) -> LocData:
     """
     Translate locdatas to their common center and rotate according to their
     orientation.
 
     Parameters
     ----------
-    locdatas : Iterable[LocData]
+    locdatas
         Localization data to overlay.
-    centers : Iterable | str | None
+    centers
         centers to which locdatas are translated.
         Must have the same length as locdatas.
         One of `centroid`, `ch`, 'bb', 'obb', or 'region'.
         If None, no translation is applied.
-    orientations : Iterable | str | None
+    orientations
         Orientation value to use in degree.
         Must have the same length as locdatas.
         If str, it must be one of `orientation_im`, `orientation_obb`.

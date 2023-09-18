@@ -6,10 +6,12 @@ Methods for clustering localization data in LocData objects.
 from __future__ import annotations
 
 import sys
+from collections.abc import Sequence
 from copy import copy
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 from sklearn.cluster import DBSCAN
 
 from locan.configuration import N_JOBS
@@ -22,32 +24,35 @@ from locan.dependencies import HAS_DEPENDENCY, needs_package
 if HAS_DEPENDENCY["hdbscan"]:
     from hdbscan import HDBSCAN
 
+if TYPE_CHECKING:
+    import boost_histogram as bh
+
 __all__: list[str] = ["cluster_hdbscan", "cluster_dbscan", "cluster_by_bin"]
 
 
 @needs_package("hdbscan")
 def cluster_hdbscan(
-    locdata,
-    min_cluster_size=5,
-    loc_properties=None,
-    allow_single_cluster=False,
-    **kwargs,
+    locdata: LocData,
+    min_cluster_size: int = 5,
+    loc_properties: list[str] | None = None,
+    allow_single_cluster: bool = False,
+    **kwargs: Any,
 ) -> tuple[LocData, LocData]:
     """
     Cluster localizations in locdata using the hdbscan clustering algorithm.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data on which to perform the manipulation.
-    loc_properties : list[str] | None
+    loc_properties
         The LocData properties to be used for clustering.
         If None, `locdata.coordinates` will be used.
-    min_cluster_size : int
+    min_cluster_size
         Minimumm cluster size in HDBSCAN algorithm (default: 5)
-    allow_single_cluster : bool
+    allow_single_cluster
         If True, return single cluster (default: False)
-    kwargs : dict
+    kwargs
         Other parameters passed to `hdbscan.HDBSCAN`.
 
     Returns
@@ -121,7 +126,11 @@ def cluster_hdbscan(
 
 
 def cluster_dbscan(
-    locdata, eps=20, min_samples=5, loc_properties=None, **kwargs
+    locdata: LocData,
+    eps: float = 20,
+    min_samples: int = 5,
+    loc_properties: list[str] | None = None,
+    **kwargs: Any,
 ) -> tuple[LocData, LocData]:
     """
     Cluster localizations in locdata using the dbscan clustering algorithm as
@@ -129,19 +138,19 @@ def cluster_dbscan(
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         specifying the localization data on which to perform the manipulation.
-    eps : float
+    eps
         The maximum distance between two samples for them to be considered as
         in the same neighborhood.
-    min_samples : int
+    min_samples
         The number of samples in a neighborhood for a point to be considered
         as a core point.
         This includes the point itself.
-    loc_properties : list[str] | None
+    loc_properties
         The LocData properties to be used for clustering. If None,
         `locdata.coordinates` will be used.
-    kwargs : dict
+    kwargs
         Other parameters passed to `sklearn.cluster.DBSCAN`.
 
     Returns
@@ -208,15 +217,19 @@ def cluster_dbscan(
 
 
 def cluster_by_bin(
-    locdata,
-    loc_properties=None,
-    min_samples=1,
-    bins=None,
-    n_bins=None,
-    bin_size=None,
-    bin_edges=None,
-    bin_range=None,
-    return_counts=False,
+    locdata: LocData,
+    loc_properties: list[str] | None = None,
+    min_samples: int = 1,
+    bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+    n_bins: int | Sequence[int] | None = None,
+    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_range: tuple[float, float]
+    | Sequence[float]
+    | Sequence[Sequence[float]]
+    | str
+    | None = None,
+    return_counts: bool = False,
 ) -> tuple[Bins | None, npt.NDArray[np.int_], LocData, npt.NDArray[np.int_] | None]:
     """
     Cluster localizations in locdata by binning all localizations with regard
@@ -224,36 +237,36 @@ def cluster_by_bin(
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data.
-    loc_properties : list[str] | None
+    loc_properties
         Localization properties to be grouped into bins.
         If None The coordinate_values of locdata are used.
-    min_samples : int
+    min_samples
         The minimum number of samples per bin to be considered as cluster.
-    bins : int | sequence | Bins | boost_histogram.axis.Axis | None
+    bins
         The bin specification as defined in :class:`Bins`
-    bin_edges : tuple[float, ...] | list | npt.ArrayLike | None
+    bin_edges
         Array of bin edges with shape (n_bin_edges,)
         or (dimension, n_bin_edges) for all or each dimension.
-    n_bins : int | list[int] | tuple[int, ...] | npt.ArrayLike | None
+    n_bins
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float | list[float] | tuple[float, ...] | npt.ArrayLike | None
+    bin_size
         The size of bins in units of locdata coordinate units for all or each
         dimension.
         5 would describe bin_size of 5 for all bins in all dimensions.
         (2, 5) yields bins of size 2 for one dimension and 5 for the other
         dimension.
         To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple[float, ...] | tuple[tuple[float, float], ...] | str | None
+    bin_range : tuple[float, ...] | tuple[tuple[float, float], ...] | Literal['zero'] | None
         The data bin_range to be taken into consideration for all or each
         dimension.
         ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
         for None (min, max) bin_range are determined from data;
         for 'zero' (0, max) bin_range with max determined from data.
-    return_counts : bool
+    return_counts
         If true, n_elements per bin are returned.
 
     Returns
@@ -275,7 +288,7 @@ def cluster_by_bin(
     loc_properties = _check_loc_properties(locdata, loc_properties)
     data = locdata.data[loc_properties].values
     if (bin_range is None or isinstance(bin_range, str)) and bin_edges is None:
-        bin_range_ = ranges(locdata, loc_properties=loc_properties, special=bin_range)
+        bin_range_ = ranges(locdata, loc_properties=loc_properties, special=bin_range)  # type: ignore
     else:
         bin_range_ = bin_range
 

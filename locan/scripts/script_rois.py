@@ -43,7 +43,7 @@ def sc_draw_roi_napari(
     file_path: str | os.PathLike[Any] | None = None,
     file_type: int | str | FileType | metadata_pb2.Metadata = FileType.CUSTOM,
     roi_file_indicator: str = "_roi",
-    **kwargs: dict[str, Any],
+    **kwargs: Any,
 ) -> list[Path]:
     """
     Define regions of interest by drawing a boundary.

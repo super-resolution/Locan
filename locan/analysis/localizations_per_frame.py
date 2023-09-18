@@ -187,7 +187,7 @@ class LocalizationsPerFrame(_Analysis):
         norm=None,
         time_delta="integration_time",
         resample=None,
-        **kwargs,
+        **kwargs: Any,
     ):
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)

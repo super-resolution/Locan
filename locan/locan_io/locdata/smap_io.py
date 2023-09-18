@@ -178,4 +178,4 @@ def save_SMAP_csv(
     ]
 
     # write to csv
-    dataframe[valid_smap_columns].to_csv(path, float_format="%.10g", index=False)
+    dataframe[valid_smap_columns].to_csv(path, float_format="%.10g", index=False)  # type: ignore[arg-type]

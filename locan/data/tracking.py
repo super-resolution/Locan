@@ -26,7 +26,9 @@ __all__: list[str] = ["link_locdata", "track"]
 
 
 @needs_package("trackpy")
-def link_locdata(locdata, search_range=40, memory=0, **kwargs) -> pd.Series[Any]:
+def link_locdata(
+    locdata: LocData, search_range: float | tuple = 40, memory: int = 0, **kwargs: Any
+) -> pd.Series[Any]:
     """
     Track localizations, i.e. cluster localizations in time when nearby in
     successive frames.
@@ -34,15 +36,15 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs) -> pd.Series[Any]
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data on which to perform the manipulation.
-    search_range : float | tuple
+    search_range
         The maximum distance features can move between frames,
         optionally per dimension
-    memory : int
+    memory
         The maximum number of frames during which a feature can vanish,
         then reappear nearby, and be considered the same particle.
-    kwargs :
+    kwargs
         Other parameters passed to trackpy.link_df().
 
     Returns
@@ -69,7 +71,10 @@ def link_locdata(locdata, search_range=40, memory=0, **kwargs) -> pd.Series[Any]
 
 
 def track(
-    locdata, search_range=40, memory=0, **kwargs
+    locdata: LocData,
+    search_range: float | tuple[float, ...] = 40,
+    memory: int = 0,
+    **kwargs: Any,
 ) -> tuple[LocData, pd.Series[Any]]:
     """
     Cluster (in time) localizations in LocData that are nearby in successive
@@ -83,15 +88,15 @@ def track(
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data on which to perform the manipulation.
-    search_range : float | tuple[float, ...]
+    search_range
         The maximum distance features can move between frames, optionally per
         dimension
-    memory : int
+    memory
         The maximum number of frames during which a feature can vanish, then
         reappear nearby, and be considered the same particle.
-    kwargs : dict
+    kwargs
         Other parameters passed to trackpy.link_df.
 
     Returns

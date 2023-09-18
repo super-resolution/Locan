@@ -8,14 +8,17 @@ oriented bounding box and related properties for LocData objects.
 """
 from __future__ import annotations
 
-from typing import Literal  # noqa: F401
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 import scipy.spatial as spat
 from shapely.geometry import MultiPoint as shMultiPoint
 
 from locan.data.region import Polygon, Rectangle
+
+if TYPE_CHECKING:
+    from locan.data.region import Region
 
 __all__: list[str] = ["BoundingBox", "ConvexHull", "OrientedBoundingBox"]
 
@@ -49,7 +52,7 @@ class BoundingBox:
         Convert the hull to a RoiRegion object.
     """
 
-    def __init__(self, points):
+    def __init__(self, points: npt.ArrayLike) -> None:
         if np.size(points) == 0:
             self.dimension = 0
             self.hull = np.array([])
@@ -70,11 +73,11 @@ class BoundingBox:
             self.subregion_measure = np.sum(self.width) * 2
 
     @property
-    def vertices(self):
+    def vertices(self) -> npt.NDArray[np.float_]:
         return self.hull.T
 
     @property
-    def region(self):
+    def region(self) -> Region:
         if self.dimension == 2:
             region_ = Rectangle(self.hull[0], self.width[0], self.width[1], 0)
             # region_ = RoiRegion(region_type='rectangle', region_specs=(self.hull[0], self.width[0], self.width[1], 0))
@@ -89,7 +92,7 @@ class _ConvexHullScipy:
 
     Parameters
     ----------
-    points : numpy.ndarray
+    points : npt.ArrayLike
         Coordinates of input points. Array with shape (npoints, ndim).
 
     Attributes
@@ -115,7 +118,7 @@ class _ConvexHullScipy:
         Convert the hull to a Region object.
     """
 
-    def __init__(self, points):
+    def __init__(self, points: npt.ArrayLike) -> None:
         if len(points) < 6:
             unique_points = np.array(list(set(tuple(point) for point in points)))
             if len(unique_points) < 3:
@@ -132,11 +135,11 @@ class _ConvexHullScipy:
         self.subregion_measure = self.hull.area
 
     @property
-    def vertices(self):
+    def vertices(self) -> npt.NDArray[np.float_]:
         return self.hull.points[self.hull.vertices]
 
     @property
-    def region(self):
+    def region(self) -> Polygon:
         if self.dimension > 2:
             raise NotImplementedError(
                 "Region for 3D data has not yet been implemented."
@@ -175,11 +178,11 @@ class _ConvexHullShapely:
         hull measure, i.e. area or volume
     subregion_measure : float
         measure of the sub-dimensional region, i.e. circumference or surface
-    region : RoiRegion
+    region : Region
         Convert the hull to a RoiRegion object.
     """
 
-    def __init__(self, points):
+    def __init__(self, points: npt.ArrayLike) -> None:
         if len(points) < 6:
             unique_points = np.array(list(set(tuple(point) for point in points)))
             if len(unique_points) < 3:
@@ -204,11 +207,11 @@ class _ConvexHullShapely:
         self.subregion_measure = self.hull.length
 
     @property
-    def vertices(self):
+    def vertices(self) -> npt.NDArray[np.float_]:
         return np.array(self.hull.exterior.coords)[:-1]
 
     @property
-    def region(self):
+    def region(self) -> Polygon:
         if self.dimension > 2:
             raise NotImplementedError(
                 "Region for 3D data has not yet been implemented."
@@ -257,7 +260,9 @@ class ConvexHull:
         Convert the hull to a Region object.
     """
 
-    def __init__(self, points, method="scipy"):
+    def __init__(
+        self, points: npt.ArrayLike, method: Literal["scipy", "shapely"] = "scipy"
+    ) -> None:
         self.method = method
         self._special_class: _ConvexHullScipy | _ConvexHullShapely
         if method == "scipy":
@@ -267,7 +272,7 @@ class ConvexHull:
         else:
             raise ValueError(f"The provided method {method} is not available.")
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         if attr.startswith("__") and attr.endswith(
             "__"
         ):  # this is needed to enable pickling
@@ -294,10 +299,10 @@ class OrientedBoundingBox:
         Polygon object from the minimum_rotated_rectangle method
     dimension : int
         Spatial dimension of hull
-    vertices : numpy.ndarray
+    vertices : npt.NDArray[np.float_]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
-    width : numpy.ndarray[float]
+    width : npt.NDArray[np.float_]
         Array with lengths of box edges.
     region_measure : float
         hull measure, i.e. area or volume
@@ -311,7 +316,7 @@ class OrientedBoundingBox:
 
     """
 
-    def __init__(self, points):
+    def __init__(self, points: npt.ArrayLike) -> None:
         self.dimension = np.shape(points)[1]
 
         if self.dimension >= 3:
@@ -341,11 +346,11 @@ class OrientedBoundingBox:
             self.elongation = 1 - np.divide(*sorted(self.width))
 
     @property
-    def vertices(self):
+    def vertices(self) -> npt.NDArray[np.float_]:
         return np.array(self.hull.exterior.coords)  # type: ignore[attr-defined]
 
     @property
-    def region(self):
+    def region(self) -> Rectangle:
         if self.dimension == 2:
             # region_ = RoiRegion(
             # region_type='rectangle',

@@ -70,9 +70,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt  # noqa: F401
 import pandas as pd
+from lmfit.model import ModelResult as ModelResultLmf
 from lmfit.models import ConstantModel, LinearModel, PolynomialModel
+from lmfit.models import Model as ModelLmf
 from scipy.interpolate import splev, splrep
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
@@ -86,13 +89,13 @@ logger = logging.getLogger(__name__)
 
 
 class DriftModel(Protocol):
-    def fit(self, *args, **kwargs):
+    def fit(self, *args: Any, **kwargs: Any) -> Any:
         ...
 
-    def eval(self, *args, **kwargs):
+    def eval(self, *args: Any, **kwargs: Any) -> Any:
         ...
 
-    def plot(self, *args, **kwargs):
+    def plot(self, *args: Any, **kwargs: Any) -> Any:
         ...
 
 
@@ -104,6 +107,7 @@ def _estimate_drift_icp(
     locdata: LocData,
     chunks: Sequence[tuple[int, ...]] | None = None,
     chunk_size: int | None = None,
+    n_chunks: int | None = None,
     target: Literal["first", "previous"] = "first",
     kwargs_chunk: dict[str, Any] | None = None,
     kwargs_register: dict[str, Any] | None = None,
@@ -118,9 +122,17 @@ def _estimate_drift_icp(
     locdata
        Localization data with properties for coordinates and frame.
     chunks
-        Localization chunks as defined by a list of index-tuples
+        Localization chunks as defined by a list of index-tuples.
+        One of `chunks`, `chunk_size` or `n_chunks` must be different
+        from None.
     chunk_size
-       Number of consecutive localizations to form a single chunk of data.
+        Number of consecutive localizations to form a single chunk of data.
+        One of `chunks`, `chunk_size` or `n_chunks` must be different
+        from None.
+    n_chunks
+        Number of chunks.
+        One of `chunks`, `chunk_size` or `n_chunks` must be different
+        from None.
     target
        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
     kwargs_chunk
@@ -140,8 +152,9 @@ def _estimate_drift_icp(
 
     # split in chunks
     collection = LocData.from_chunks(
-        locdata, chunks=chunks, chunk_size=chunk_size, **kwargs_chunk
+        locdata, chunks=chunks, chunk_size=chunk_size, n_chunks=n_chunks, **kwargs_chunk
     )
+    assert isinstance(collection.references, Sequence)  # type narrowing # noqa: S101
 
     # register locdatas
     # initialize with identity transformation for chunk zero.
@@ -149,7 +162,7 @@ def _estimate_drift_icp(
         Transformation(np.identity(locdata.dimension), np.zeros(locdata.dimension))
     ]
     if target == "first":
-        for locdata in collection.references[1:]:
+        for locdata in collection.references[1:]:  # type: ignore
             transformation = _register_icp_open3d(
                 locdata.coordinates,
                 collection.references[0].coordinates,
@@ -194,13 +207,15 @@ def _estimate_drift_cc(
     locdata: LocData,
     chunks: Sequence[tuple[int, ...]] | None = None,
     chunk_size: int | None = None,
+    n_chunks: int | None = None,
     target: Literal["first", "previous"] = "first",
     bin_size: int | float | tuple[int | float] = 10,
     kwargs_chunk: dict[str, Any] | None = None,
     kwargs_register: dict[str, Any] | None = None,
 ) -> tuple[LocData, list[Transformation]]:
     """
-    Estimate drift from localization coordinates by registering points in successive time-chunks of localization
+    Estimate drift from localization coordinates by registering points in
+    successive time-chunks of localization
     data using a cross-correlation algorithm.
 
     Parameters
@@ -208,9 +223,17 @@ def _estimate_drift_cc(
     locdata
        Localization data with properties for coordinates and frame.
     chunks
-        Localization chunks as defined by a list of index-tuples
+        Localization chunks as defined by a list of index-tuples.
+        One of `chunks`, `chunk_size` or `n_chunks` must be different
+        from None.
     chunk_size
-       Number of consecutive localizations to form a single chunk of data.
+        Number of consecutive localizations to form a single chunk of data.
+        One of `chunks`, `chunk_size` or `n_chunks` must be different
+        from None.
+    n_chunks
+        Number of chunks.
+        One of `chunks`, `chunk_size` or `n_chunks` must be different
+        from None.
     target
        The chunk on which all other chunks are aligned. One of 'first', 'previous'.
     bin_size
@@ -232,8 +255,10 @@ def _estimate_drift_cc(
 
     # split in chunks
     collection = LocData.from_chunks(
-        locdata, chunks=chunks, chunk_size=chunk_size, **kwargs_chunk
+        locdata, chunks=chunks, chunk_size=chunk_size, n_chunks=n_chunks, **kwargs_chunk
     )
+    assert isinstance(collection.references, Sequence)  # type narrowing # noqa: S101
+    assert locdata.bounding_box is not None  # type narrowing # noqa: S101
     ranges = locdata.bounding_box.hull.T
 
     # register images
@@ -266,43 +291,47 @@ def _estimate_drift_cc(
 
 
 class _LmfitModelFacade:
-    def __init__(self, model):
-        self.model = model
-        self.model_result = None
+    def __init__(self, model: ModelLmf) -> None:
+        self.model: ModelLmf = model
+        self.model_result: ModelResultLmf | None = None
 
-    def fit(self, x, y, verbose=False, **kwargs):
+    def fit(
+        self, x: npt.ArrayLike, y: npt.ArrayLike, verbose: bool = False, **kwargs: Any
+    ) -> ModelResultLmf:
         params = self.model.guess(data=y, x=x)
         self.model_result = self.model.fit(x=x, data=y, params=params, **kwargs)
         if verbose:
             self.plot()
         return self.model_result
 
-    def eval(self, x):
+    def eval(self, x: npt.ArrayLike) -> npt.NDArray[Any]:
         x = np.asarray(x)
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
         return self.model_result.eval(x=x)
 
-    def plot(self, **kwargs):
+    def plot(self, **kwargs: Any) -> mpl.axes.Axes:
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
         return self.model_result.plot(**kwargs)
 
 
 class _ConstantModelFacade:
-    def __init__(self, **kwargs):
-        self.model = ConstantModel(**kwargs)
-        self.model_result = None
-        self.independent_variable = None
+    def __init__(self, **kwargs: Any) -> None:
+        self.model: ModelLmf = ConstantModel(**kwargs)
+        self.model_result: ModelResultLmf | None = None
+        self.independent_variable: npt.NDArray[Any] | None = None
 
-    def fit(self, x, y, verbose=False, **kwargs):
-        self.independent_variable = x
+    def fit(
+        self, x: npt.ArrayLike, y: npt.ArrayLike, verbose: bool = False, **kwargs: Any
+    ) -> ModelResultLmf:
+        self.independent_variable = np.asarray(x)
         self.model_result = self.model.fit(x=x, data=y, **kwargs)
         if verbose:
             self.plot()
         return self.model_result
 
-    def eval(self, x):
+    def eval(self, x: npt.ArrayLike) -> npt.NDArray[Any]:
         x = np.asarray(x)
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
@@ -311,39 +340,43 @@ class _ConstantModelFacade:
             result = np.full(shape=np.shape(x), fill_value=result)
         return result
 
-    def plot(self, **kwargs):
+    def plot(self, **kwargs: Any) -> mpl.axes.Axes:
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
+        assert self.independent_variable is not None  # type narrowing # noqa: S101
+        assert self.model_result.data is not None  # type narrowing # noqa: S101
         x = self.independent_variable
         y = self.model_result.data
         return plt.plot(x, y, "o", x, self.eval(x=x), **kwargs)
 
 
 class _ConstantZeroModelFacade(_ConstantModelFacade):
-    def __init__(self):
-        self.model = ConstantModel()
+    def __init__(self) -> None:
+        self.model: ModelLmf = ConstantModel()
         self.model.set_param_hint(name="c", value=0, vary=False)
-        self.model_result = None
+        self.model_result: ModelResultLmf | None = None
 
 
 class _ConstantOneModelFacade(_ConstantModelFacade):
-    def __init__(self):
-        self.model = ConstantModel()
+    def __init__(self) -> None:
+        self.model: ModelLmf = ConstantModel()
         self.model.set_param_hint(name="c", value=1, vary=False)
-        self.model_result = None
+        self.model_result: ModelResultLmf | None = None
 
 
 class _SplineModelFacade:
-    def __init__(self, **kwargs):
-        self.model = "spline"
-        self.model_result = None
+    def __init__(self, **kwargs: Any) -> None:
+        self.model: str = "spline"
+        self.model_result: Any | None = None
         self.parameter = kwargs
-        self.independent_variable = None
-        self.data = None
+        self.independent_variable: npt.NDArray[Any] | None = None
+        self.data: npt.NDArray[Any] | None = None
 
-    def fit(self, x, y, verbose=False, **kwargs):
-        self.independent_variable = x
-        self.data = y
+    def fit(
+        self, x: npt.ArrayLike, y: npt.ArrayLike, verbose: bool = False, **kwargs: Any
+    ) -> tuple[Any, Any, Any]:
+        self.independent_variable = np.asarray(x)
+        self.data = np.asarray(y)
         self.model_result = splrep(
             x, y, **dict(dict(k=3, s=100), **dict(**self.parameter, **kwargs))
         )
@@ -351,7 +384,7 @@ class _SplineModelFacade:
             self.plot()
         return self.model_result
 
-    def eval(self, x):
+    def eval(self, x: npt.ArrayLike) -> float | npt.NDArray[np.float_] | list[Any]:
         np.asarray(x)
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
@@ -361,7 +394,7 @@ class _SplineModelFacade:
         else:
             return float(results)
 
-    def plot(self, **kwargs):
+    def plot(self, **kwargs: Any) -> mpl.axes.Axes:
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
         x = self.independent_variable
@@ -395,8 +428,16 @@ class DriftComponent:
         The results collected from fitting the model to specified data.
     """
 
-    def __init__(self, type=None, **kwargs):
-        self.type: str = type
+    def __init__(
+        self,
+        type: Literal[
+            "none", "zero", "one", "constant", "linear", "polynomial", "spline"
+        ]
+        | ModelLmf
+        | None = None,
+        **kwargs: Any,
+    ) -> None:
+        self.type = type
         self.model: DriftModel | None
         self.model_result = None
 
@@ -456,7 +497,7 @@ class DriftComponent:
         self.model_result = self.model.fit(x, y, verbose=verbose, **kwargs)
         return self
 
-    def eval(self, x: npt.ArrayLike) -> npt.NDArray[np.float_]:
+    def eval(self, x: npt.ArrayLike) -> float | npt.NDArray[np.float_] | list[Any]:
         """
         Compute a transformation for time `x` from the drift model.
 
@@ -485,10 +526,18 @@ class Drift(_Analysis):
     ----------
     locdata : LocData
         Localization data representing the source on which to perform the manipulation.
-    chunks : list[tuples]
-        Localization chunks as defined by a list of index-tuples
-    chunk_size : int
+    chunks : Sequence[tuple[int, ...]] | None
+        Localization chunks as defined by a list of index-tuples.
+        One of `chunks`, `chunk_size` or `n_chunks` must be different
+        from None.
+    chunk_size : int | None
         Number of consecutive localizations to form a single chunk of data.
+        One of `chunks`, `chunk_size` or `n_chunks` must be different
+        from None.
+    n_chunks : int | None
+        Number of chunks.
+        One of `chunks`, `chunk_size` or `n_chunks` must be different
+        from None.
     target : Literal["first", "previous"]
         The chunk on which all other chunks are aligned.
         One of 'first', 'previous'.
@@ -500,11 +549,11 @@ class Drift(_Analysis):
         cross-correlation algorithm 'cc'.
     bin_size : tuple
         Only for method='cc': Size per image pixel
-    kwargs_chunk : dict
+    kwargs_chunk : dict[str, Any] | None
         Other parameter passed to :meth:`LocData.from_chunks`.
-    kwargs_icp : dict
+    kwargs_icp : dict[str, Any] | None
         Other parameter passed to :func:`_register_icp_open3d`.
-    kwargs_cc : dict
+    kwargs_cc : dict[str, Any] | None
         Other parameter passed to :func:`register_cc`.
 
     Attributes
@@ -531,25 +580,26 @@ class Drift(_Analysis):
 
     def __init__(
         self,
-        meta=None,
-        chunks=None,
-        chunk_size=None,
-        target="first",
-        method="icp",
-        kwargs_chunk=None,
-        kwargs_register=None,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        chunks: list[tuple[int, ...]] | None = None,
+        chunk_size: int | None = None,
+        n_chunks: int | None = None,
+        target: Literal["first", "previous"] = "first",
+        method: Literal["cc", "icp"] = "icp",
+        kwargs_chunk: dict[str, Any] | None = None,
+        kwargs_register: dict[str, Any] | None = None,
     ):
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
-        self.locdata = None
-        self.collection = None
+        self.locdata: LocData | None = None
+        self.collection: LocData | None = None
         self.transformations: list[Transformation] | None = None
         self.transformation_models: dict[
             str, list[DriftModel | DriftComponent] | None
         ] = dict(matrix=None, offset=None)
-        self.locdata_corrected = None
+        self.locdata_corrected: LocData | None = None
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         if self.transformations is not None:
             return True
         else:
@@ -578,6 +628,7 @@ class Drift(_Analysis):
                 locdata,
                 chunks=self.parameter["chunks"],
                 chunk_size=self.parameter["chunk_size"],
+                n_chunks=self.parameter["n_chunks"],
                 kwargs_chunk=self.parameter["kwargs_chunk"],
                 kwargs_register=self.parameter["kwargs_register"],
             )
@@ -586,6 +637,7 @@ class Drift(_Analysis):
                 locdata,
                 chunks=self.parameter["chunks"],
                 chunk_size=self.parameter["chunk_size"],
+                n_chunks=self.parameter["n_chunks"],
                 kwargs_chunk=self.parameter["kwargs_chunk"],
                 kwargs_register=self.parameter["kwargs_register"],
             )
@@ -810,20 +862,26 @@ class Drift(_Analysis):
         """
         Correct drift by applying the estimated transformations to locdata chunks.
         """
-        transformed_locdatas = []
+        transformed_locdatas: list[LocData] = []
+        assert self.transformations is not None  # type narrowing # noqa: S101
+        assert (  # type narrowing # noqa: S101
+            self.collection is not None
+            and isinstance(self.collection.references, Sequence)
+        )
+
         if self.parameter["target"] == "first":
             transformed_locdatas = [
-                transform_affine(locdata, transformation.matrix, transformation.offset)
+                transform_affine(locdata, transformation.matrix, transformation.offset)  # type: ignore
                 for locdata, transformation in zip(
-                    self.collection.references[1:], self.transformations  # type: ignore[union-attr,arg-type]
+                    self.collection.references[1:], self.transformations  # type: ignore
                 )
             ]
 
         elif self.parameter["target"] == "previous":
-            for n, locdata in enumerate(self.collection.references[1:]):  # type: ignore[union-attr]
+            for n, locdata in enumerate(self.collection.references[1:]):
                 transformed_locdata = locdata
-                for transformation in reversed(self.transformations[:n]):  # type: ignore[index]
-                    transformed_locdata = transform_affine(
+                for transformation in reversed(self.transformations[:n]):
+                    transformed_locdata = transform_affine(  # type: ignore
                         transformed_locdata,
                         transformation.matrix,
                         transformation.offset,
@@ -867,17 +925,17 @@ class Drift(_Analysis):
             transformed_points = locdata.coordinates
         else:
             for n, drift_model in enumerate(self.transformation_models["matrix"]):
-                matrix[:, n // dimension, n % dimension] = drift_model.eval(frames)
+                matrix[:, n // dimension, n % dimension] = drift_model.eval(frames)  # type: ignore
             transformed_points = np.einsum(
-                "...ij, ...j -> ...i", matrix, locdata.coordinates
+                "...ij, ...j -> ...i", matrix, locdata.coordinates  # type: ignore
             )
 
         if self.transformation_models["offset"] is None:
             pass
         else:
             for n, drift_model in enumerate(self.transformation_models["offset"]):
-                offset[:, n] = drift_model.eval(frames)
-            transformed_points += offset
+                offset[:, n] = drift_model.eval(frames)  # type: ignore
+            transformed_points += offset  # type: ignore
 
         return transformed_points
 
@@ -913,7 +971,12 @@ class Drift(_Analysis):
         else:
             locdata_orig = locdata
 
-        if not len(locdata_orig):
+        if locdata_orig is None:
+            logger.warning("Locdata is None.")
+            self.locdata_corrected = locdata_orig
+            return self
+
+        elif not len(locdata_orig):
             logger.warning("Locdata is empty.")
             self.locdata_corrected = locdata_orig
             return self
@@ -940,7 +1003,7 @@ class Drift(_Analysis):
 
         # update metadata
         meta_ = _modify_meta(
-            self.locdata,
+            locdata_orig,
             new_locdata,
             function_name=sys._getframe().f_code.co_name,
             parameter=local_parameter,
@@ -953,7 +1016,7 @@ class Drift(_Analysis):
 
     def plot(
         self,
-        ax: mpl.axes.Axes = None,
+        ax: mpl.axes.Axes | None = None,
         transformation_component: Literal["matrix", "offset"] = "matrix",
         element: int | None = None,
         window: int = 1,

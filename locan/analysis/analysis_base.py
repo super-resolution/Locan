@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import sys
 from copy import copy
-from typing import Any  # noqa: F401
+from typing import Any
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -28,7 +28,7 @@ class _Analysis:
     ----------
     meta : metadata_analysis_pb2.AMetadata | dict[str, Any] | None
         Metadata about the current analysis routine.
-    kwargs : dict
+    kwargs
         Parameter that are passed to the algorithm.
 
     Attributes
@@ -47,7 +47,9 @@ class _Analysis:
     """A counter for counting Analysis class instantiations (class attribute)."""
 
     def __init__(
-        self, meta: metadata_analysis_pb2.AMetadata | dict[str, Any] | None, **kwargs
+        self,
+        meta: metadata_analysis_pb2.AMetadata | dict[str, Any] | None,
+        **kwargs: Any,
     ) -> None:
         self.__class__.count += 1
 
@@ -57,7 +59,7 @@ class _Analysis:
         self.results: Any | None = None
 
     @staticmethod
-    def _get_parameters(locals) -> dict[str, Any]:
+    def _get_parameters(locals: dict[str, Any]) -> dict[str, Any]:
         """Get parameters from curated locals."""
         parameters = copy(locals)
         for key in ["self", "__class__"]:
@@ -103,14 +105,14 @@ class _Analysis:
         else:
             return False
 
-    def compute(self, *args, **kwargs) -> Self:
+    def compute(self, *args: Any, **kwargs: Any) -> Self:
         """
         Apply analysis routine with the specified parameters on locdata and
         return results.
         """
         raise NotImplementedError
 
-    def report(self):
+    def report(self) -> None:
         """Show a report about analysis results."""
         raise NotImplementedError
 
@@ -141,13 +143,13 @@ class _Analysis:
 # Dealing with scipy.stats
 
 
-def _list_parameters(distribution) -> list[str]:
+def _list_parameters(distribution: str | stats.rv_continuous) -> list[str]:
     """
     List parameters for scipy.stats.rv_continuous.
 
     Parameters
     ----------
-    distribution : str | scipy.stats.rv_continuous
+    distribution
         Distribution of choice.
 
     Returns

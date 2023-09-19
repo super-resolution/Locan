@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if sys.version_info >= (3, 9):
     from collections.abc import Sequence  # noqa: F401
@@ -43,15 +43,19 @@ else:
     from typing_extensions import Self
 
 if TYPE_CHECKING:
+    import matplotlib as mpl
+
     from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from scipy import stats
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.configuration import N_JOBS, TQDM_DISABLE, TQDM_LEAVE
 
@@ -63,7 +67,7 @@ logger = logging.getLogger(__name__)
 # The algorithms
 
 
-def _localization_precision(locdata: LocData, radius=50) -> pd.DataFrame:
+def _localization_precision(locdata: LocData, radius: int | float = 50) -> pd.DataFrame:
     # group localizations
     grouped = locdata.data.groupby("frame")
 
@@ -123,7 +127,7 @@ class LocalizationPrecision(_Analysis):
 
     Parameters
     ----------
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
     radius : int | float
         Search radius for nearest-neighbor searches.
@@ -142,11 +146,15 @@ class LocalizationPrecision(_Analysis):
         Distribution parameters derived from MLE fitting of results.
     """
 
-    def __init__(self, meta=None, radius=50):
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        radius: int | float = 50,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
-        self.distribution_statistics = None
+        self.distribution_statistics: _DistributionFits | None = None
 
     def compute(self, locdata: LocData) -> Self:
         """
@@ -154,7 +162,7 @@ class LocalizationPrecision(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data.
 
         Returns
@@ -171,7 +179,7 @@ class LocalizationPrecision(_Analysis):
 
         return self
 
-    def fit_distributions(self, loc_property=None, **kwargs) -> None:
+    def fit_distributions(self, loc_property: str | None = None, **kwargs: Any) -> None:
         """
         Fit probability density functions to the distributions of
         `loc_property` values in the results using MLE (scipy.stats).
@@ -181,7 +189,7 @@ class LocalizationPrecision(_Analysis):
         loc_property : str
             The LocData property for which to fit an appropriate distribution;
             if None all plots are shown.
-        kwargs : dict
+        kwargs
             Other parameters passed to the `distribution.fit()` method.
         """
         if self.results is None:
@@ -202,21 +210,27 @@ class LocalizationPrecision(_Analysis):
         else:
             self.distribution_statistics.fit(loc_property=loc_property, **kwargs)
 
-    def plot(self, ax=None, loc_property=None, window=1, **kwargs) -> plt.axes.Axes:
+    def plot(
+        self,
+        ax: mpl.axes.Axes | None = None,
+        loc_property: str | list[str] | None = None,
+        window: int = 1,
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         running average of results over window size.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        loc_property : str | list[str]
+        loc_property
             The property for which to plot localization precision;
             if None all plots are shown.
-        window: int
+        window
             Window for running average that is applied before plotting.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
@@ -243,23 +257,28 @@ class LocalizationPrecision(_Analysis):
         return ax
 
     def hist(
-        self, ax=None, loc_property="position_distance", bins="auto", fit=True, **kwargs
-    ) -> plt.axes.Axes:
+        self,
+        ax: mpl.axes.Axes | None = None,
+        loc_property: str = "position_distance",
+        bins: int | Sequence[int | float] | str = "auto",
+        fit: bool = True,
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing the
         distributions of results.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        loc_property : str
+        loc_property
             The property for which to plot localization precision.
-        bins : int | Sequence | str
+        bins
             Bin specifications (passed to :func:`matplotlib.hist`).
-        fit: Bool
+        fit
             Flag indicating if distributions fit are shown.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.his`.
 
         Returns
@@ -308,13 +327,13 @@ class PairwiseDistance1d(stats.rv_continuous):
 
     Parameters
     ----------
-    x : float
+    x : npt.ArrayLike
         distance
-    mu : float
+    mu : npt.ArrayLike
         Distance between the point cloud center positions.
-    sigma_1 : float
+    sigma_1 : npt.ArrayLike
         Standard deviation for one point cloud.
-    sigma_2 : float
+    sigma_2 : npt.ArrayLike
         Standard deviation for the other point cloud.
 
     References
@@ -326,7 +345,18 @@ class PairwiseDistance1d(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(self, x, mu, sigma_1, sigma_2):
+    def _pdf(
+        self,
+        x: npt.ArrayLike,
+        mu: npt.ArrayLike,
+        sigma_1: npt.ArrayLike,
+        sigma_2: npt.ArrayLike,
+    ) -> float | npt.NDArray[np.float_]:
+        x = np.asarray(x)
+        mu = np.asarray(mu)
+        sigma_1 = np.asarray(sigma_1)
+        sigma_2 = np.asarray(sigma_2)
+
         sigma = np.sqrt(sigma_1**2 + sigma_2**2)
         return (
             np.sqrt(2 / np.pi)
@@ -348,13 +378,13 @@ class PairwiseDistance2d(stats.rv_continuous):
 
     Parameters
     ----------
-    x : float
+    x : npt.ArrayLike
         distance
-    mu : float
+    mu : npt.ArrayLike
         Distance between the point cloud center positions.
-    sigma_1 : float
+    sigma_1 : npt.ArrayLike
         Standard deviation for one point cloud.
-    sigma_2 : float
+    sigma_2 : npt.ArrayLike
         Standard deviation for the other point cloud.
 
     References
@@ -366,7 +396,18 @@ class PairwiseDistance2d(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(self, x, mu, sigma_1, sigma_2):
+    def _pdf(
+        self,
+        x: npt.ArrayLike,
+        mu: npt.ArrayLike,
+        sigma_1: npt.ArrayLike,
+        sigma_2: npt.ArrayLike,
+    ) -> float | npt.NDArray[Any]:
+        x = np.asarray(x)
+        mu = np.asarray(mu)
+        sigma_1 = np.asarray(sigma_1)
+        sigma_2 = np.asarray(sigma_2)
+
         sigma = np.sqrt(sigma_1**2 + sigma_2**2)
         return (
             x
@@ -388,11 +429,11 @@ class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
 
     Parameters
     ----------
-    x : float
+    x : npt.ArrayLike
         distance
-    mu : float
+    mu : npt.ArrayLike
         Distance between the point cloud center positions.
-    sigma : float
+    sigma : npt.ArrayLike
         Standard deviation for both point clouds.
 
     References
@@ -404,7 +445,13 @@ class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(self, x, mu, sigma):
+    def _pdf(
+        self, x: npt.ArrayLike, mu: npt.ArrayLike, sigma: npt.ArrayLike
+    ) -> float | npt.NDArray[Any]:
+        x = np.asarray(x)
+        mu = np.asarray(mu)
+        sigma = np.asarray(sigma)
+
         return (
             x
             / (sigma**2)
@@ -425,13 +472,13 @@ class PairwiseDistance3d(stats.rv_continuous):
 
     Parameters
     ----------
-    x : float
+    x : npt.ArrayLike
         distance
-    mu : float
+    mu : npt.ArrayLike
         Distance between the point cloud center positions.
-    sigma_1 : float
+    sigma_1 : npt.ArrayLike
         Standard deviation for one point cloud.
-    sigma_2 : float
+    sigma_2 : npt.ArrayLike
         Standard deviation for the other point cloud.
 
     References
@@ -443,7 +490,18 @@ class PairwiseDistance3d(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(self, x, mu, sigma_1, sigma_2):
+    def _pdf(
+        self,
+        x: npt.ArrayLike,
+        mu: npt.ArrayLike,
+        sigma_1: npt.ArrayLike,
+        sigma_2: npt.ArrayLike,
+    ) -> float | npt.NDArray[Any]:
+        x = np.asarray(x)
+        mu = np.asarray(mu)
+        sigma_1 = np.asarray(sigma_1)
+        sigma_2 = np.asarray(sigma_2)
+
         sigma = np.sqrt(sigma_1**2 + sigma_2**2)
         if all(mu == 0):
             return (
@@ -477,9 +535,9 @@ class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
 
     Parameters
     ----------
-    x : float
+    x : npt.ArrayLike
         distance
-    sigma : float
+    sigma : npt.ArrayLike
         Standard deviation for point clouds
 
     References
@@ -491,7 +549,12 @@ class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(self, x, sigma):
+    def _pdf(
+        self, x: npt.ArrayLike, sigma: npt.ArrayLike
+    ) -> float | npt.NDArray[np.float_]:
+        x = np.asarray(x)
+        sigma = np.asarray(sigma)
+
         return np.sqrt(2 / np.pi) / sigma * np.exp(-(x**2) / (2 * sigma**2))
 
 
@@ -507,9 +570,9 @@ class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
 
     Parameters
     ----------
-    x : float
+    x : npt.ArrayLike
         distance
-    sigma : float
+    sigma : npt.ArrayLike
         Standard deviation for point clouds
 
     References
@@ -521,7 +584,12 @@ class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(self, x, sigma):
+    def _pdf(
+        self, x: npt.ArrayLike, sigma: npt.ArrayLike
+    ) -> float | npt.NDArray[np.float_]:
+        x = np.asarray(x)
+        sigma = np.asarray(sigma)
+
         return x / (sigma**2) * np.exp(-(x**2) / (2 * sigma**2))
 
 
@@ -537,9 +605,9 @@ class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
 
     Parameters
     ----------
-    x : float
+    x : npt.ArrayLike
         distance
-    sigma : float
+    sigma : npt.ArrayLike
         Standard deviation for point clouds
 
     References
@@ -551,7 +619,12 @@ class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(self, x, sigma):
+    def _pdf(
+        self, x: npt.ArrayLike, sigma: npt.ArrayLike
+    ) -> float | npt.NDArray[np.float_]:
+        x = np.asarray(x)
+        sigma = np.asarray(sigma)
+
         return (
             np.sqrt(2 / np.pi)
             * x
@@ -590,7 +663,7 @@ class _DistributionFits:
     loc_property + distribution parameters and listed in parameters.
     """
 
-    def __init__(self, analysis_class) -> None:
+    def __init__(self, analysis_class: LocalizationPrecision) -> None:
         self.analysis_class: LocalizationPrecision = analysis_class
         self.distribution: stats.rv_continuous | None = None
         self._dist_parameters: list[str] | None = None
@@ -618,16 +691,16 @@ class _DistributionFits:
             # a is the lower bound of the support of the distribution
             # self.pairwise_distribution = PairwiseDistance2dIdenticalSigma(name='pairwise') also works but is very slow.
 
-    def fit(self, loc_property="position_distance", **kwargs) -> None:
+    def fit(self, loc_property: str = "position_distance", **kwargs: Any) -> None:
         """
         Fit distributions of results using a MLE fit (scipy.stats) and provide
         fit results.
 
         Parameters
         ----------
-        loc_property : str
+        loc_property
             The property for which to fit an appropriate distribution
-        kwargs : dict
+        kwargs
             Other parameters passed to the `distribution.fit()` method.
         """
         if self.analysis_class.results is None:
@@ -668,7 +741,10 @@ class _DistributionFits:
             setattr(self, parameter, result)
 
     def plot(
-        self, ax=None, loc_property="position_distance", **kwargs
+        self,
+        ax: mpl.axes.Axes = None,
+        loc_property: str = "position_distance",
+        **kwargs: Any,
     ) -> plt.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
@@ -676,16 +752,16 @@ class _DistributionFits:
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image.
-        loc_property : str
+        loc_property
             The property for which to plot the distribution fit.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        :class:`matplotlib.axes.Axes`
+        matplotlib.axes.Axes
             Axes object with the plot.
         """
         if ax is None:

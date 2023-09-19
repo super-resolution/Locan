@@ -59,7 +59,7 @@ def render_2d_mpl(
     | str
     | None = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
-    ax: mpl.axes.Axes = None,
+    ax: mpl.axes.Axes | None = None,
     cmap: mcolors.Colormap | str = COLORMAP_CONTINUOUS,
     cbar: bool = True,
     colorbar_kws: dict[str, Any] | None = None,
@@ -190,7 +190,7 @@ def render_2d_scatter_density(
     | Sequence[Sequence[float]]
     | Literal["zero", "link"]
     | None = None,
-    ax: mpl.axes.Axes = None,
+    ax: mpl.axes.Axes | None = None,
     cmap: str | mcolors.Colormap = COLORMAP_CONTINUOUS,
     cbar: bool = True,
     colorbar_kws: dict[str, Any] = None,
@@ -322,7 +322,7 @@ def render_2d_scatter_density(
 
 def scatter_2d_mpl(
     locdata: LocData,
-    ax: mpl.axes.Axes = None,
+    ax: mpl.axes.Axes | None = None,
     index: bool = True,
     text_kwargs: dict[str, Any] | None = None,
     **kwargs: Any,
@@ -448,7 +448,7 @@ def render_2d_rgb_mpl(
     | str
     | None = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
-    ax: mpl.axes.Axes = None,
+    ax: mpl.axes.Axes | None = None,
     interpolation: str = "nearest",
     **kwargs: Any,
 ) -> mpl.axes.Axes:

@@ -16,7 +16,8 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -24,6 +25,8 @@ else:
     from typing_extensions import Self
 
 if TYPE_CHECKING:
+    import matplotlib as mpl
+
     from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
@@ -33,6 +36,7 @@ import pandas as pd
 from scipy.stats import spearmanr
 from sklearn.neighbors import NearestNeighbors
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 
 __all__: list[str] = ["CoordinateBasedColocalization"]
@@ -44,7 +48,10 @@ logger = logging.getLogger(__name__)
 
 
 def _coordinate_based_colocalization(
-    points, other_points=None, radius=100, n_steps=10
+    points: npt.ArrayLike,
+    other_points: npt.ArrayLike | None = None,
+    radius: int | float = 100,
+    n_steps: int = 10,
 ) -> npt.NDArray[np.float_]:
     """
     Compute a colocalization index for each localization by coordinate-based
@@ -52,18 +59,18 @@ def _coordinate_based_colocalization(
 
     Parameters
     ----------
-    points : npt.ArrayLike
+    points
         Array of points with shape (n_points, dimensions)
         for which CBC values are computed.
 
-    other_points : npt.ArrayLike | None
+    other_points
         Array of points with shape (n_points, dimensions) to be
         compared with points. If None other_points are set to points.
 
-    radius : int | float
+    radius
         The maximum radius up to which nearest neighbors are determined
 
-    n_steps : int
+    n_steps
         The number of bins from which Spearman correlation is computed.
 
     Returns
@@ -72,6 +79,7 @@ def _coordinate_based_colocalization(
         An array with coordinate-based colocalization coefficients for each
         input point.
     """
+    points = np.asarray(points)
     # sampled radii
     radii = np.linspace(0, radius, n_steps + 1)
 
@@ -152,20 +160,25 @@ class CoordinateBasedColocalization(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, radius=100, n_steps=10) -> None:
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        radius: int | float = 100,
+        n_steps: int = 10,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
 
-    def compute(self, locdata: LocData, other_locdata=None) -> Self:
+    def compute(self, locdata: LocData, other_locdata: LocData | None = None) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data for which CBC values are computed.
-        other_locdata : LocData | None
+        other_locdata
             Localization data to be colocalized.
             If None other_locdata is set to locdata.
 
@@ -195,23 +208,27 @@ class CoordinateBasedColocalization(_Analysis):
         return self
 
     def hist(
-        self, ax=None, bins=(-1, -0.3333, 0.3333, 1), density=True, **kwargs
-    ) -> plt.axes.Axes:
+        self,
+        ax: mpl.axes.Axes | None = None,
+        bins: int | Sequence[int | float] | Literal["auto"] = (-1, -0.3333, 0.3333, 1),
+        density: bool = True,
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing
         hist(results).
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        bins : int, list, 'auto'
+        bins
             Bin specification as used in :func:`matplotlib.hist`.
-        density : bool
+        density
             Flag for normalization as used in :func:`matplotlib.hist`.
             True returns probability density function;
             None returns counts.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.hist`.
 
         Returns

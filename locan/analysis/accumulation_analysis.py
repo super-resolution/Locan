@@ -95,8 +95,8 @@ def _accumulation_cluster_check_for_single_dataset(
 
     elif hull == "ch":
         # compute hulls
-        Hs = [ConvexHull(ref.coordinates) for ref in clust.references]
-        clust.dataframe = clust.dataframe.assign(
+        Hs = [ConvexHull(ref.coordinates) for ref in clust.references]  # type: ignore[union-attr]
+        clust.dataframe = clust.dataframe.assign(  # type: ignore[union-attr]
             region_measure_ch=[H.region_measure for H in Hs]
         )
 
@@ -160,7 +160,7 @@ def _accumulation_cluster_check(
             locdata.data.index[range(n_pts)].values for n_pts in numbers_loc
         ]
         locdatas = [
-            LocData.from_selection(locdata, indices=idx) for idx in selected_indices
+            LocData.from_selection(locdata, indices=idx) for idx in selected_indices  # type: ignore[arg-type]
         ]
     else:
         raise TypeError(f"String input {divide} for divide is not valid.")
@@ -266,7 +266,7 @@ class AccumulationClusterCheck(_Analysis):
         n_loc: int | Sequence[int] = 10,
         divide: Literal["random", "sequential"] = "random",
         n_extrapolate: int = 5,
-    ):
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
 
@@ -290,7 +290,7 @@ class AccumulationClusterCheck(_Analysis):
         self.results = _accumulation_cluster_check(locdata, **self.parameter)
         return self
 
-    def plot(self, ax: mpl.axes.Axes = None, **kwargs) -> mpl.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot of results as :class:`matplotlib.axes.Axes` object.
 
@@ -298,7 +298,7 @@ class AccumulationClusterCheck(_Analysis):
         ----------
         ax
             The axes on which to show the image
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns

@@ -335,18 +335,8 @@ disallow_incomplete_defs = false
 disallow_untyped_defs = false
 check_untyped_defs = false
 
-# todo: should all be true
 [[tool.mypy.overrides]]
 module = [
-    'locan.analysis.*',
-]
-disallow_untyped_calls = false
-disallow_incomplete_defs = false
-disallow_untyped_defs = false
-
-[[tool.mypy.overrides]]
-module = [
-    'locan.analysis.*',
     'locan.data.locdata.*',
     'locan.data.cluster.*',
     'locan.data.transform.*',

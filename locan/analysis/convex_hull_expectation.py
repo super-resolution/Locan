@@ -155,10 +155,10 @@ def compute_convex_hull_region_measure_2d(n_points: int, sigma: float = 1) -> fl
         Expectation value for convex hull area
     """
 
-    def pdf(x):
+    def pdf(x: float) -> float:
         return 1 / (np.sqrt(2 * np.pi)) * np.exp((-1 / 2) * (x**2))
 
-    def cdf(x):
+    def cdf(x: float) -> float:
         return 1 / 2 * (1 + special.erf(x / np.sqrt(2)))
 
     area = (
@@ -373,7 +373,7 @@ class ConvexHullExpectation(_Analysis):
 
         return self
 
-    def plot(self, ax: mpl.axes.Axes = None, **kwargs: Any) -> mpl.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         convex_hull_property as function of localization counts.
@@ -458,7 +458,7 @@ class ConvexHullExpectation(_Analysis):
 
     def hist(
         self,
-        ax: mpl.axes.Axes = None,
+        ax: mpl.axes.Axes | None = None,
         bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
         n_bins: int | Sequence[int] | None = None,
         bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
@@ -564,7 +564,7 @@ class ConvexHullExpectation(_Analysis):
                     n_bins,
                     bin_size,
                     bin_edges,
-                    bin_range,
+                    bin_range,  # type: ignore[arg-type]
                     labels=[loc_property, other_loc_property],
                 )
             except ValueError as exc:
@@ -791,12 +791,12 @@ class ConvexHullExpectationBatch(_Analysis):
         self._class.results = self.results
         return self
 
-    def plot(self, ax: mpl.axes.Axes = None, **kwargs: Any) -> mpl.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         self._class.plot(ax=ax, **kwargs)
 
     def hist(
         self,
-        ax: mpl.axes.Axes = None,
+        ax: mpl.axes.Axes | None = None,
         bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
         n_bins: int | Sequence[int] | None = None,
         bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,

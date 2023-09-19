@@ -7,7 +7,9 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
+import pandas as pd
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -15,11 +17,14 @@ else:
     from typing_extensions import Self
 
 if TYPE_CHECKING:
+    import matplotlib as mpl
+
     from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.configuration import COLORMAP_DIVERGING
 
@@ -31,7 +36,9 @@ logger = logging.getLogger(__name__)
 # The algorithms
 
 
-def _localization_property_correlations(locdata, loc_properties=None):
+def _localization_property_correlations(
+    locdata: LocData, loc_properties: list[str] | None = None
+) -> pd.DataFrame:
     if loc_properties is None:
         results = locdata.data.corr()
     else:
@@ -51,25 +58,29 @@ class LocalizationPropertyCorrelations(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    loc_properties : list | None
+    loc_properties : list[str] | None
         Localization properties to be analyzed. If None all are used.
 
     Attributes
     ----------
     count : int
         A counter for counting instantiations (class attribute).
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
-    results : pandas.DataFrame
+    results : pandas.DataFrame | None
         The correlation coefficients..
     """
 
-    def __init__(self, meta=None, loc_properties=None):
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        loc_properties: list[str] | None = None,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
-        self.results = None
+        self.results: pd.DataFrame | None = None
 
     def compute(self, locdata: LocData) -> Self:
         """
@@ -77,7 +88,7 @@ class LocalizationPropertyCorrelations(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data.
 
         Returns
@@ -102,20 +113,26 @@ class LocalizationPropertyCorrelations(_Analysis):
         print(self.results.model_result.fit_report(min_correl=0.25))
         # print(self.results.fit_results.best_values)
 
-    def plot(self, ax=None, cbar=True, colorbar_kws=None, **kwargs) -> plt.axes.Axes:
+    def plot(
+        self,
+        ax: mpl.axes.Axes | None = None,
+        cbar: bool = True,
+        colorbar_kws: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
         """
         Provide heatmap of all correlation values as
         :class:`matplotlib.axes.Axes` object.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        cbar : bool
+        cbar
             If true draw a colorbar.
-        colorbar_kws : dict
+        colorbar_kws
             Keyword arguments for :func:`matplotlib.pyplot.colorbar`.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.imshow`.
 
         Returns

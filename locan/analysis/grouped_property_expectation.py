@@ -154,7 +154,7 @@ class GroupedPropertyExpectation(_Analysis):
 
         return self
 
-    def plot(self, ax: mpl.axes.Axes = None, **kwargs: Any) -> mpl.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         variances as function of localization counts.
@@ -318,7 +318,7 @@ class GroupedPropertyExpectation(_Analysis):
                     n_bins,
                     bin_size,
                     bin_edges,
-                    bin_range,
+                    bin_range,  # type: ignore[arg-type]
                     labels=[loc_property, other_loc_property],
                 )
             except ValueError as exc:

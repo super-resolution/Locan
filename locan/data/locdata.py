@@ -887,7 +887,7 @@ class LocData:
     def from_chunks(
         cls: Type[T_LocData],  # noqa: UP006
         locdata: LocData,
-        chunks: Sequence[tuple[int, ...]] = None,
+        chunks: Sequence[tuple[int, ...]] | None = None,
         chunk_size: int | None = None,
         n_chunks: int | None = None,
         order: Literal["successive", "alternating"] = "successive",
@@ -908,13 +908,17 @@ class LocData:
         locdata
             Locdata to divide.
         chunks
-            Localization chunks as defined by a list of index-tuples
+            Localization chunks as defined by a list of index-tuples.
+            One of `chunks`, `chunk_size` or `n_chunks` must be different
+            from None.
         chunk_size
-            Number of localizations per chunk. One of `chunk_size` or
-            `n_chunks` must be different from None.
+            Number of consecutive localizations to form a single chunk of data.
+            One of `chunks`, `chunk_size` or `n_chunks` must be different
+            from None.
         n_chunks
-            Number of chunks. One of `chunk_size` or `n_chunks` must be
-            different from None.
+            Number of chunks.
+            One of `chunks`, `chunk_size` or `n_chunks` must be different
+            from None.
         order
             The order in which to select localizations.
             One of 'successive' or 'alternating'.

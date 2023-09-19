@@ -25,7 +25,7 @@ else:
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 import pandas as pd
 from scipy import stats
 
@@ -79,9 +79,9 @@ def _blink_statistics(
     if isinstance(locdata, LocData):
         frames = locdata.data.frame.values
     else:
-        frames = locdata
+        frames = locdata  # type: ignore[assignment]
 
-    frames, counts = np.unique(frames, return_counts=True)
+    frames, counts = np.unique(frames, return_counts=True)  # type: ignore[call-overload]
 
     # provide warning if duplicate frames are found. This should not be the case for appropriate localization clusters.
     if np.any(counts > 1):
@@ -93,7 +93,7 @@ def _blink_statistics(
 
     # shift frames and add first frame if no zero frame present to account for initial off_period
     first_frame = frames[0]
-    frames_ = np.insert(frames + 1, 0, 0)
+    frames_ = np.insert(frames + 1, 0, 0)  # type: ignore[operator]
 
     differences = np.insert(
         np.diff(frames_), 0, 1
@@ -303,8 +303,8 @@ class BlinkStatistics(_Analysis):
     def hist(
         self,
         data_identifier: str = "on_periods",
-        ax: mpl.axes.Axes = None,
-        bins: int | Sequence[Any] | str = "auto",
+        ax: mpl.axes.Axes | None = None,
+        bins: int | Sequence[int | float] | str = "auto",
         log: bool = True,
         fit: bool | None = True,
         **kwargs: Any,
@@ -402,13 +402,13 @@ class _DistributionFits:
         analysis_class: _Analysis,
         distribution: str | stats.rv_continuous,
         data_identifier: str,
-    ):
+    ) -> None:
         self.analysis_class: _Analysis = analysis_class
         self.distribution: stats.rv_continuous = distribution
         self.data_identifier: str = data_identifier
         self.parameters: list[str] = []
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation of the _DistributionFits class."""
         param_dict = dict(
             analysis_class=self.analysis_class.__class__.__name__,
@@ -435,13 +435,13 @@ class _DistributionFits:
             Other parameters are passed to the `scipy.stat.distribution.fit()`
             function.
         """
+        if self.analysis_class.results is None:
+            raise ValueError("Compute results before fitting.")
+
         # set data
         if isinstance(self.analysis_class.results, pd.DataFrame):
             data = self.analysis_class.results[self.data_identifier].values
         else:
-            assert (  # type narrowing # noqa: S101
-                self.analysis_class.results is not None
-            )
             data = self.analysis_class.results[self.data_identifier]
 
         # define parameter names
@@ -461,7 +461,7 @@ class _DistributionFits:
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
 
-    def plot(self, ax: mpl.axes.Axes = None, **kwargs: Any) -> mpl.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         probability distribution functions of fitted results.

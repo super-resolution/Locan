@@ -204,14 +204,14 @@ class RoiRegion:
         """
         return self._region.contains(points)  # type: ignore
 
-    def as_artist(self, **kwargs) -> mpl_patches:  # type: ignore
+    def as_artist(self, **kwargs: Any) -> mpl_patches:  # type: ignore
         """
         Matplotlib patch object for this region
         (e.g. `matplotlib.patches.Ellipse`).
 
         Parameters
         ----------
-        kwargs : dict
+        kwargs
             Other parameters passed to the `matplotlib.patches` object.
 
         Returns
@@ -616,7 +616,7 @@ class Region2D(Region):
         """
         pass
 
-    def plot(self, ax: mpl.axes.Axes = None, **kwargs: Any) -> mpl.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot of region as :class:`matplotlib.axes.Axes` object.
 
@@ -715,7 +715,7 @@ class Region3D(Region):
         """
         pass
 
-    def plot(self, ax: mpl.axes.Axes = None, **kwargs: Any) -> mpl.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot of region as :class:`matplotlib.axes.Axes` object.
 

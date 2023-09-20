@@ -21,7 +21,7 @@ import re
 import sys
 import warnings
 from ast import literal_eval
-from collections.abc import Iterable, Sequence  # noqa: F401
+from collections.abc import Iterable, Sequence
 from inspect import isabstract
 from itertools import product
 from pathlib import Path
@@ -30,6 +30,7 @@ from typing import Any, Type, TypeVar
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 from google.protobuf import json_format
 from matplotlib.widgets import EllipseSelector, PolygonSelector, RectangleSelector
 from ruamel.yaml import YAML
@@ -73,8 +74,8 @@ class _MplSelector:  # pragma: no cover
     """
 
     def __init__(self, ax: mpl.axes.Axes, type: str = "rectangle") -> None:
-        self.rois = []
-        self.ax = ax
+        self.rois: list[dict[str, Any]] = []
+        self.ax: mpl.axes.Axes = ax
 
         if type == "rectangle":
             self.selector = RectangleSelector(
@@ -99,17 +100,17 @@ class _MplSelector:  # pragma: no cover
 
         plt.connect("key_press_event", self.key_pressed_callback)
 
-    def selector_callback(self, eclick: Any, erelease: Any):
+    def selector_callback(self, eclick: Any, erelease: Any) -> None:
         """eclick and erelease are matplotlib events at press and release."""
         print("startposition: {}".format((eclick.xdata, eclick.ydata)))  # noqa: UP032
         print(
             "endposition  : {}".format((erelease.xdata, erelease.ydata))  # noqa: UP032
         )  # noqa: UP032
 
-    def p_selector_callback(self, vertices: Any):
+    def p_selector_callback(self, vertices: Any) -> None:
         print(f"Vertices: {vertices}")
 
-    def key_pressed_callback(self, event: Any):
+    def key_pressed_callback(self, event: Any) -> None:
         print("Key pressed.")
         if event.key in ["R", "r"]:  # type: ignore
             print("RectangleSelector activated.")
@@ -217,8 +218,9 @@ class Roi:
         | metadata_pb2.Metadata
         | metadata_pb2.File
         | None = None,
-        loc_properties: Sequence[str] | None = None,
+        loc_properties: Iterable[str] | None = None,
     ):
+        self.reference: LocData | metadata_pb2.Metadata | metadata_pb2.File | None
         if isinstance(reference, dict):
             self.reference = metadata_pb2.Metadata()
             self.reference.file.path = str(reference["file_path"])
@@ -245,11 +247,11 @@ class Roi:
 
         self.region = region
         if loc_properties is None:
-            self.loc_properties = ()
+            self.loc_properties: Sequence[str] = ()
         else:
-            self.loc_properties = loc_properties
+            self.loc_properties = loc_properties  # type: ignore
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"Roi(reference={self.reference}, "
             f"region={repr(self.region)}, "
@@ -266,7 +268,7 @@ class Roi:
             raise TypeError("An instance of locan.Region must be provided.")
         self._region = region_
 
-    def to_yaml(self, path: str | os.PathLike[Any] | None = None) -> None:
+    def to_yaml(self, path: str | os.PathLike[str] | None = None) -> None:
         """
         Save Roi object in yaml format.
 
@@ -286,6 +288,7 @@ class Roi:
             _roi_file = _file_path.stem + "_roi.yaml"
             _path = _file_path.with_name(_roi_file)
         else:
+            assert path is not None  # type narrowing # noqa: S101
             _path = Path(path)
 
         # prepare reference for yaml representation,
@@ -506,9 +509,9 @@ class RoiLegacy_0:
     files. Use :class:`locan.Roi` instead.
     """
 
-    def __init__(
+    def __init__(  # type: ignore
         self, region_type, region_specs, reference=None, properties_for_roi=()
-    ):
+    ) -> None:
         if isinstance(reference, dict):
             self.reference = metadata_pb2.Metadata()
             self.reference.file.path = str(reference["file_path"])
@@ -517,7 +520,7 @@ class RoiLegacy_0:
             if isinstance(reference["file_type"], int):
                 self.reference.file.type = ft_
             elif isinstance(reference["file_type"], str):
-                self.reference.file.type = locan.constants.FileType[ft_.upper()].value  # type: ignore[assignment]
+                self.reference.file.type = locan.constants.FileType[ft_.upper()].value  # type: ignore
             elif isinstance(reference["file_type"], locan.constants.FileType):
                 self.reference.file.type = ft_
             elif isinstance(reference["file_type"], metadata_pb2):  # type: ignore
@@ -534,7 +537,7 @@ class RoiLegacy_0:
         self._region = RoiRegion(region_type=region_type, region_specs=region_specs)
         self.properties_for_roi = properties_for_roi
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"Roi(reference={self.reference}, "
             f"region={self._region.region_type}, "
@@ -543,15 +546,15 @@ class RoiLegacy_0:
         )
 
     @property
-    def region(self):
+    def region(self):  # type: ignore
         return self._region
 
     @region.setter
-    def region(self, region_):
+    def region(self, region_):  # type: ignore
         if isinstance(region_, RoiRegion):
             self._region = region_
 
-    def to_yaml(self, path=None):
+    def to_yaml(self, path=None):  # type: ignore
         """
         Save Roi object in yaml format.
 
@@ -604,12 +607,12 @@ class RoiLegacy_0:
             )
 
         # prepare points for yaml representation - numpy.float has to be converted to float
-        def nested_change(iterable, func):
+        def nested_change(iterable, func):  # type: ignore
             if isinstance(iterable, (list, tuple, np.ndarray)):
-                return [nested_change(x, func) for x in iterable]
+                return [nested_change(x, func) for x in iterable]  # type: ignore
             return func(iterable)
 
-        region_specs_for_yaml = nested_change(self._region.region_specs, float)
+        region_specs_for_yaml = nested_change(self._region.region_specs, float)  # type: ignore
 
         region_type_for_yaml = self._region.region_type
         properties_for_roi_for_yaml = self.properties_for_roi
@@ -624,7 +627,7 @@ class RoiLegacy_0:
         yaml.dump(output, _path)
 
     @classmethod
-    def from_yaml(cls, path):
+    def from_yaml(cls, path):  # type: ignore
         """
         Read Roi object from yaml format.
 
@@ -654,7 +657,7 @@ class RoiLegacy_0:
             properties_for_roi=properties_for_roi_,
         )
 
-    def locdata(self, reduce=True):
+    def locdata(self, reduce=True):  # type: ignore
         """
         Localization data according to roi specifications.
 
@@ -702,7 +705,7 @@ class RoiLegacy_0:
                 locdata=locdata, indices=locdata_indices_to_keep
             )
             if pfr == new_locdata.coordinate_keys:
-                new_locdata.region = self._region
+                new_locdata.region = self._region  # type: ignore
             else:
                 new_locdata.region = None
 
@@ -726,7 +729,7 @@ class RoiLegacy_0:
 # todo generalize to take all loc_properties
 def rasterize(
     locdata: LocData,
-    support: tuple[tuple, ...] | None = None,
+    support: tuple[tuple[int], ...] | None = None,
     n_regions: tuple[int, ...] = (2, 2, 2),
     loc_properties: Iterable[str] = (),
 ) -> tuple[Roi, ...]:
@@ -761,15 +764,18 @@ def rasterize(
         raise ValueError("loc_properties must be tuple with coordinate labels.")
 
     if loc_properties:
-        coordinate_labels_indices: Iterable[int] = [
+        coordinate_labels_indices: list[int] = [
             locdata.coordinate_keys.index(pfr) for pfr in loc_properties
         ]
     else:
-        coordinate_labels_indices = range(len(n_regions))
+        coordinate_labels_indices = list(range(len(n_regions)))
 
     # specify support
     if support is None:
-        support_ = locdata.bounding_box.vertices[coordinate_labels_indices]
+        assert locdata.bounding_box is not None  # type narrowing # noqa: S101
+        support_: tuple[tuple[int], ...] | npt.NDArray[
+            Any
+        ] = locdata.bounding_box.vertices[coordinate_labels_indices]
         if len(locdata.bounding_box.width) == 0:
             widths = np.zeros(len(n_regions))
         else:

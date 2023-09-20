@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 import sys
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 if sys.version_info >= (3, 9):
     from collections.abc import Sequence  # noqa: F401
@@ -170,7 +170,7 @@ def _localization_property2d(
     bin_range: tuple[float, float]
     | Sequence[float]
     | Sequence[Sequence[float]]
-    | str
+    | Literal["zero", "link"]
     | None = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
 ) -> FitImageResults:

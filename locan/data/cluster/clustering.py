@@ -79,7 +79,7 @@ def cluster_hdbscan(
         if loc_properties is None:
             fit_data = locdata.coordinates
         else:
-            fit_data = locdata.data[loc_properties]
+            fit_data = locdata.data[loc_properties].to_numpy()
 
         labels = HDBSCAN(
             min_cluster_size=min_cluster_size,
@@ -173,7 +173,7 @@ def cluster_dbscan(
         if loc_properties is None:
             fit_data = locdata.coordinates
         else:
-            fit_data = locdata.data[loc_properties]
+            fit_data = locdata.data[loc_properties].to_numpy()
 
         labels = DBSCAN(
             eps=eps, min_samples=min_samples, n_jobs=N_JOBS, **kwargs
@@ -290,11 +290,16 @@ def cluster_by_bin(
     if (bin_range is None or isinstance(bin_range, str)) and bin_edges is None:
         bin_range_ = ranges(locdata, loc_properties=loc_properties, special=bin_range)  # type: ignore
     else:
-        bin_range_ = bin_range
+        bin_range_ = bin_range  # type: ignore
 
     try:
         bins = Bins(
-            bins, n_bins, bin_size, bin_edges, bin_range_, labels=loc_properties
+            bins=bins,
+            n_bins=n_bins,
+            bin_size=bin_size,
+            bin_edges=bin_edges,
+            bin_range=bin_range_,  # type: ignore
+            labels=loc_properties,
         )
     except ValueError as exc:
         raise ValueError(
@@ -304,6 +309,7 @@ def cluster_by_bin(
     bin_indices, data_indices, _, counts = _accumulate_2d(
         data, bin_edges=bins.bin_edges, return_counts=True
     )
+    assert counts is not None  # type narrowing # noqa: S101
 
     if min_samples > 1:
         mask = counts >= min_samples

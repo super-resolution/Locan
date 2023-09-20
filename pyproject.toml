@@ -255,25 +255,11 @@ convention = "numpy"
 plugins = ['numpy.typing.mypy_plugin']
 files = ["locan"]
 exclude = ['_pb2\.py$']
-# Aiming at
+
 strict = true
 warn_unused_ignores = false
 
 # the following are all included in strict
-# Strongly recommend enabling this one as soon as you can
-check_untyped_defs = true
-
-# These shouldn't be too much additional work, but may be tricky to
-# get passing if you use a lot of untyped libraries
-disallow_subclassing_any = true
-disallow_untyped_decorators = true
-disallow_any_generics = true
-
-# These next few are various gradations of forcing use of type annotations
-disallow_untyped_calls = true
-disallow_incomplete_defs = true
-disallow_untyped_defs = true
-
 # This one can be tricky to get passing if you use a lot of untyped libraries
 warn_return_any = false
 
@@ -325,30 +311,3 @@ module = [
     'locan\analysis\localization_precision',
 ]
 disallow_subclassing_any = false
-
-[[tool.mypy.overrides]]
-module = [
-    'locan.data.rois.RoiLegacy_0',
-]
-disallow_untyped_calls = false
-disallow_incomplete_defs = false
-disallow_untyped_defs = false
-check_untyped_defs = false
-
-[[tool.mypy.overrides]]
-module = [
-    'locan.data.locdata.*',
-    'locan.data.cluster.*',
-    'locan.data.transform.*',
-    'locan.data.aggregate.*',
-    'locan.data.filter.*',
-    'locan.data.register.*',
-    'locan.data.rois.*',
-    'locan.data.validation.*',
-    'locan.data.tracking.*',
-    'locan.data.hulls.*',
-    'locan.simulation.*',
-    'locan.visualize.*',
-    'locan.scripts.*',
-]
-ignore_errors = true

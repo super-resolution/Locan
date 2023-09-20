@@ -27,7 +27,10 @@ __all__: list[str] = ["link_locdata", "track"]
 
 @needs_package("trackpy")
 def link_locdata(
-    locdata: LocData, search_range: float | tuple = 40, memory: int = 0, **kwargs: Any
+    locdata: LocData,
+    search_range: float | tuple[float, ...] = 40,
+    memory: int = 0,
+    **kwargs: Any,
 ) -> pd.Series[Any]:
     """
     Track localizations, i.e. cluster localizations in time when nearby in

@@ -22,9 +22,9 @@ logger = logging.getLogger(__name__)
 
 def scatter_3d_mpl(
     locdata: LocData,
-    ax: mpl.axes.Axes3D = None,
+    ax: mpl.axes.Axes3D | None = None,
     index: bool = True,
-    text_kwargs: dict[str, Any] = None,
+    text_kwargs: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> mpl.axes.Axes3D:
     """

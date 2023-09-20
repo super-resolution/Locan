@@ -109,7 +109,7 @@ class AlphaComplex:
     Class for an alpha-independent representation of the alpha complex of the
     given points.
 
-    Here the alpha complex is the simplicial subcomplex of the Denlaunay
+    Here the alpha complex is the simplicial subcomplex of the Delaunay
     triangulation together with the intervals defining simplex membership for
     an alpha complex for a specific `alpha`.
 
@@ -127,10 +127,10 @@ class AlphaComplex:
 
     Attributes
     ----------
-    lines : list[tuple[int, int, int]]
+    lines : list[tuple[tuple[int, ...], float, float, float]]
         1-simplices (lines) that represent a simplicial subcomplex of the
         Delaunay triangulation with intervals. Array with shape (n_lines, 2).
-    triangles : list[tuple]
+    triangles : list[tuple[int, float, float, float]]
         2-simplices (triangles) that represent a simplicial subcomplex of the
         Delaunay triangulation with intervals.
         Array with shape (n_triangles, 3).
@@ -149,8 +149,8 @@ class AlphaComplex:
     """
 
     def __init__(self, points: npt.ArrayLike, delaunay: Delaunay | None = None) -> None:
-        self.lines: list[tuple[Any, ...]]
-        self.triangles: list[tuple[Any, ...]]
+        self.lines: list[tuple[tuple[int, ...], float, float, float]]
+        self.triangles: list[tuple[int, float, float, float]]
         self.dimension: int | None
         self.delaunay_triangulation: Delaunay | None
         # self.tetrahedrons: list[tuple[int, int, int, int]]  # todo: implement 3d computation
@@ -193,8 +193,8 @@ class AlphaComplex:
     def _compute_2d(
         self,
     ) -> tuple[
-        list[tuple[tuple[Any, ...], float, Any, Any]],
-        list[tuple[tuple[Any, ...], float, Any, Any]],
+        list[tuple[tuple[int, ...], float, float, float]],
+        list[tuple[int, float, float, float]],
     ]:
         """Compute the alpha complex for 2d data."""
         assert self.delaunay_triangulation is not None  # type narrowing # noqa: S101
@@ -205,8 +205,8 @@ class AlphaComplex:
         for n, simplex in enumerate(self.delaunay_triangulation.simplices):
             _, circumcircle_radii[n] = _circumcircle(self.points, simplex)
 
-        alpha_complex_lines = []
-        alpha_complex_triangles = []
+        alpha_complex_lines: list[tuple[tuple[int, ...], float, float, float]] = []
+        alpha_complex_triangles: list[tuple[int, float, float, float]] = []
         for n, (simplex, neighbors, circumcircle_radius) in enumerate(
             zip(
                 self.delaunay_triangulation.simplices,
@@ -294,7 +294,7 @@ class AlphaComplex:
         self,
         alpha: float,
         type: Literal["all", "regular", "singular", "interior", "exterior"] = "all",
-    ) -> list[list[int]]:
+    ) -> list[int]:
         """
         Simplicial subcomplex (triangles) of the Delaunay triangulation for
         the specific alpha complex for the given `alpha`.
@@ -309,7 +309,7 @@ class AlphaComplex:
 
         Returns
         -------
-        list[list[int]]
+        list[int]
             The indices to specific d-simplices in
             `self.delaunay_triangulation.simplices`.
         """
@@ -328,7 +328,7 @@ class AlphaComplex:
             return [ac[0] for ac in self.triangles if ac[3] <= alpha]
         else:
             raise AttributeError(f"Parameter type: {type} is not valid.")
-        # a list of lists and not of tuples should be returned since the return value
+        # a list should be returned since the return value
         # will be used for indexing arrays.
 
     def graph_from_lines(
@@ -537,25 +537,25 @@ class AlphaShape:
         delaunay: Delaunay | None = None,
     ) -> None:
         if alpha_complex is None:
-            self.alpha_complex = AlphaComplex(points, delaunay)
+            self.alpha_complex: AlphaComplex = AlphaComplex(points, delaunay)  # type: ignore
         else:
             self.alpha_complex = alpha_complex
 
         self.points = self.alpha_complex.points
         self.dimension = self.alpha_complex.dimension
-        self._alpha = None
+        self._alpha: float = np.nan
         self._region = None
         self._connected_components = None
-        self._vertices_connected_components_indices = None
+        self._vertices_connected_components_indices: list[list[int]] | None = None
 
         self.alpha = alpha
 
     @property
-    def alpha(self) -> float | None:
+    def alpha(self) -> float:
         return self._alpha
 
     @alpha.setter
-    def alpha(self, alpha: float | None) -> None:
+    def alpha(self, alpha: float) -> None:
         self._alpha = alpha
         self._region = None
         self._connected_components = None
@@ -623,11 +623,11 @@ class AlphaShape:
         return self._connected_components
 
     @property
-    def vertices_connected_components_indices(self):
+    def vertices_connected_components_indices(self) -> list[list[int]]:
         _ = (
             self.connected_components
         )  # trigger computation of _vertices_connected_components_indices
-        return self._vertices_connected_components_indices
+        return self._vertices_connected_components_indices  # type: ignore
 
     @property
     def alpha_shape(self) -> list[list[int]]:

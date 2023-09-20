@@ -124,13 +124,13 @@ class RoiRegion:
         Measure of the sub-dimensional region, i.e. circumference or surface.
     """
 
-    def __init__(self, region_type, region_specs):  # type: ignore
+    def __init__(self, region_type: str, region_specs: tuple[Any, ...]) -> None:
         self.region_specs = region_specs
         self.region_type = region_type
         self._region: Region
 
         if region_type == "interval":
-            self._region = Interval(*region_specs)  # type: ignore
+            self._region = Interval(*region_specs)
 
         elif region_type == "rectangle":
             self._region = Rectangle(*region_specs)  # type: ignore

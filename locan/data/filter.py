@@ -223,7 +223,7 @@ def select_by_region(
         indices_inside = region.contains(points)
         locdata_indices_to_keep = locdata.data.index[indices_inside]
         new_locdata = LocData.from_selection(
-            locdata=locdata, indices=locdata_indices_to_keep
+            locdata=locdata, indices=locdata_indices_to_keep  # type: ignore
         )
         new_locdata.region = region
     else:
@@ -412,10 +412,8 @@ def localizations_in_cluster_regions(
     ----------
     locdata
         Localization data that is tested for being inside the region
-
     collection
         A set of Locdata objects collected in a collection or list.
-
     hull_type
         The hull type for each LocData object that is used to define the
         region.
@@ -439,9 +437,9 @@ def localizations_in_cluster_regions(
                 locdata_selection = select_by_region(locdata=locdata, region=cregion)
                 locdatas.append(locdata_selection)
         else:  # this case covers selections of collections
-            for index in collection.indices:
+            for index in collection.indices:  # type: ignore
                 cregion = getattr(
-                    collection.references.references[index], hull_type
+                    collection.references.references[index], hull_type  # type: ignore
                 ).region
                 locdata_selection = select_by_region(locdata=locdata, region=cregion)
                 locdatas.append(locdata_selection)

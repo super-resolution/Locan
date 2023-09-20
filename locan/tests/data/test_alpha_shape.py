@@ -441,9 +441,6 @@ def test_AlphaComplex_1():
     ]
     assert lengths == [6, 5, 1, 4, 1]
 
-    print(alpha_complex.lines)
-    print(alpha_complex.triangles)
-
     H = alpha_complex.graph_from_lines(alpha, type="regular")
     assert isinstance(H, nx.Graph)
     H = alpha_complex.graph_from_triangles(alpha, type="regular")

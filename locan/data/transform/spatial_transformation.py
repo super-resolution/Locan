@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import Any, Literal
 
 import numpy as np
@@ -77,7 +77,7 @@ def _transform_affine_numpy(
         # [np.dot(matrix_, point) + offset_ for point in points_]
         # )
         # same function but better performance:
-        transformed_points = np.einsum("ij, nj -> ni", matrix_, points) + offset_
+        transformed_points = np.einsum("ij, nj -> ni", matrix_, points_) + offset_
     else:
         transformed_points = points_ + pre_translation
         # transformed_points = np.array(
@@ -246,8 +246,8 @@ def transform_affine(
     """
     local_parameter = locals()
 
-    if len(locdata) == 0:
-        return locdata
+    if len(locdata) == 0:  # type: ignore
+        return locdata  # type: ignore
 
     # adjust input
     if isinstance(locdata, LocData):
@@ -309,7 +309,8 @@ def randomize(
     locdata
         Localization data to be randomized
     hull_region
-        Region of interest. String identifier can be one of c referring to the corresponding hull.
+        Region of interest.
+        String identifier can refer to the corresponding hull.
     seed
         random number generation seed
 
@@ -318,24 +319,29 @@ def randomize(
     LocData
         New localization data with randomized coordinates.
     """
+    # todo: fix treatment of empty locdata
     local_parameter = locals()
 
     rng = np.random.default_rng(seed)
 
-    if hull_region == "bb":
-        region_ = locdata.bounding_box.hull.T
-    elif hull_region == "ch":
-        region_ = locdata.convex_hull.region
-    elif hull_region == "as":
-        region_ = locdata.alpha_shape.region
-    elif hull_region == "obb":
-        region_ = locdata.oriented_bounding_box.region
-    elif isinstance(hull_region, Region):
-        region_ = hull_region
-    else:
-        raise NotImplementedError
+    try:
+        if hull_region == "bb":
+            region_ = locdata.bounding_box.hull.T  # type: ignore[union-attr]
+        elif hull_region == "ch":
+            region_ = locdata.convex_hull.region  # type: ignore[union-attr]
+        elif hull_region == "as":
+            region_ = locdata.alpha_shape.region  # type: ignore[union-attr]
+        elif hull_region == "obb":
+            region_ = locdata.oriented_bounding_box.region  # type: ignore[union-attr]
+        elif isinstance(hull_region, Region):
+            region_ = hull_region
+        else:
+            raise ValueError
 
-    new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
+        new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
+
+    except (AttributeError, ValueError, TypeError) as exception:
+        raise AttributeError(f"Region {hull_region} is not available.") from exception
 
     # update metadata
     meta_ = _modify_meta(
@@ -420,7 +426,7 @@ def standardize(
 def overlay(
     locdatas: Iterable[LocData],
     centers: Iterable[Any] | str | None = "centroid",
-    orientations: Iterable | str | None = None,
+    orientations: Sequence[int | float | str | None] | str | None = None,
 ) -> LocData:
     """
     Translate locdatas to their common center and rotate according to their
@@ -463,7 +469,7 @@ def overlay(
     if centers is None or isinstance(centers, str):
         centers = [centers] * len(locdatas)
     else:
-        if len(centers) != len(locdatas):
+        if len(centers) != len(locdatas):  # type: ignore
             raise ValueError("Centers must have the same length as locdatas.")
 
     if orientations is None or isinstance(orientations, str):

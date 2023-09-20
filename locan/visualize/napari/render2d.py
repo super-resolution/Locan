@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable, Iterable, Sequence
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from matplotlib import colors as mcolors
@@ -47,7 +47,7 @@ def render_2d_napari_image(
     bin_range: tuple[float, float]
     | Sequence[float]
     | Sequence[Sequence[float]]
-    | str
+    | Literal["zero", "link"]
     | None = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     cmap: str | mcolors.Colormap = "viridis",
@@ -159,7 +159,7 @@ def render_2d_napari(
     bin_range: tuple[float, float]
     | Sequence[float]
     | Sequence[Sequence[float]]
-    | str
+    | Literal["zero", "link"]
     | None = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     viewer: napari.Viewer = None,
@@ -283,7 +283,7 @@ def render_2d_rgb_napari(
     bin_range: tuple[float, float]
     | Sequence[float]
     | Sequence[Sequence[float]]
-    | str
+    | Literal["zero", "link"]
     | None = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     viewer: napari.Viewer = None,
@@ -391,8 +391,8 @@ def render_2d_rgb_napari(
             locdata=locdata,
             loc_properties=loc_properties,
             other_property=other_property,
-            bin_edges=bins.bin_edges,
-        ).data
+            bin_edges=bins.bin_edges,  # type: ignore
+        ).data  # type: ignore
         for locdata in locdatas
     ]
 

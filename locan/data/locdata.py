@@ -77,7 +77,7 @@ class LocData:
     references : LocData | list[LocData] | None
         A LocData reference or an array with references to LocData objects
         referring to the selected localizations in dataframe.
-    dataframe : pandas.DataFrame | None
+    dataframe : pandas.DataFrame
         Dataframe with localization data.
     indices : slice | list[int] | None
         Indices for dataframe in references that makes up the data.
@@ -101,7 +101,12 @@ class LocData:
         self,
         references: LocData | Iterable[LocData] | None = None,
         dataframe: pd.DataFrame | None = None,
-        indices: slice | Iterable[int] | None = None,
+        indices: int
+        | list[int | bool]
+        | npt.NDArray[np.int_ | np.bool_]
+        | slice
+        | pd.Index[int]
+        | None = None,
         meta: metadata_pb2.Metadata
         | dict[str, Any]
         | str
@@ -112,11 +117,13 @@ class LocData:
     ):
         self.__class__.count += 1
 
-        self.references: LocData | list[LocData] | None = references
-        self.dataframe: pd.DataFrame | None = (
+        self.references: LocData | Iterable[LocData] | None = references
+        self.dataframe: pd.DataFrame = (
             pd.DataFrame() if dataframe is None else dataframe
         )
-        self.indices: slice | list[int] | None = indices
+        self.indices: int | list[int | bool] | npt.NDArray[
+            np.int_ | np.bool_
+        ] | slice | pd.Index[int] | None = indices
         self.meta: metadata_pb2.Metadata = metadata_pb2.Metadata()
         self.properties: dict[str, Any] = {}
 
@@ -276,7 +283,7 @@ class LocData:
         new_locdata.meta = meta_
         return new_locdata
 
-    def __deepcopy__(self, memodict=None) -> LocData:
+    def __deepcopy__(self, memodict: dict[Any, Any] | None = None) -> LocData:
         """
         Create a deep copy of locdata (including all references) with the
         following exceptions:
@@ -472,7 +479,10 @@ class LocData:
                 [reference.properties for reference in self.references]
             )
             new_df.index = self.data.index
-            self.dataframe.update(new_df)
+            if self.dataframe is None:
+                self.dataframe = new_df
+            else:
+                self.dataframe.update(new_df)
             new_columns = [
                 column for column in new_df.columns if column in self.dataframe.columns
             ]
@@ -522,7 +532,10 @@ class LocData:
                 [reference.properties for reference in self.references]
             )
             new_df.index = self.data.index
-            self.dataframe.update(new_df)
+            if self.dataframe is None:
+                self.dataframe = new_df
+            else:
+                self.dataframe.update(new_df)
             new_columns = [
                 column for column in new_df.columns if column in self.dataframe.columns
             ]
@@ -587,27 +600,27 @@ class LocData:
             # also see:
             # https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#deprecate-loc-reindex-listlike
             try:
-                df = self.references.data.loc[self.indices]
+                df = self.references.data.loc[self.indices]  # type: ignore
             except KeyError:
                 df = self.references.data.loc[
-                    self.references.data.index.intersection(self.indices)
+                    self.references.data.index.intersection(self.indices)  # type: ignore
                 ]
             df = pd.merge(
-                df, self.dataframe, left_index=True, right_index=True, how="outer"
+                df, self.dataframe, left_index=True, right_index=True, how="outer"  # type: ignore
             )
             return df
         else:
-            return self.dataframe
+            return self.dataframe  # type: ignore
 
     @property
-    def coordinates(self) -> npt.NDArray[float]:
+    def coordinates(self) -> npt.NDArray[np.float_]:
         """npt.NDArray[float]: Return all coordinate values."""
         return self.data[self.coordinate_keys].values
 
     @property
-    def centroid(self) -> npt.NDArray[float]:
+    def centroid(self) -> npt.NDArray[np.float_]:
         """
-        npt.NDArray[float]: Return coordinate values of the centroid
+        npt.NDArray[np.float_]: Return coordinate values of the centroid
         (being the property values for all coordinate labels).
         """
         return np.array(
@@ -659,7 +672,7 @@ class LocData:
     @classmethod
     def from_coordinates(
         cls: Type[T_LocData],  # noqa: UP006
-        coordinates: npt.ArrayLike = (),
+        coordinates: npt.ArrayLike | None = None,
         coordinate_labels: Sequence[str] | None = None,
         meta: metadata_pb2.Metadata
         | dict[str, Any]
@@ -688,6 +701,11 @@ class LocData:
             A new LocData instance with dataframe representing the
             oncatenated data.
         """
+        if coordinates is None:
+            coordinates = np.array([])
+        else:
+            coordinates = np.asarray(coordinates)
+
         if np.size(coordinates):
             dimension = len(coordinates[0])
 
@@ -723,7 +741,12 @@ class LocData:
     def from_selection(
         cls: Type[T_LocData],  # noqa: UP006
         locdata: LocData,
-        indices: slice | Sequence[int] | None = None,
+        indices: int
+        | list[int | bool]
+        | npt.NDArray[np.int_ | np.bool_]
+        | slice
+        | pd.Index[int]
+        | None = None,
         meta: metadata_pb2.Metadata
         | dict[str, Any]
         | str
@@ -864,9 +887,9 @@ class LocData:
         references: list[LocData] = []
         for locdata in locdatas:
             try:
-                references.extend(locdata.references)
+                references.extend(locdata.references)  # type: ignore
             except TypeError:
-                references.append(locdata.references)
+                references.append(locdata.references)  # type: ignore
 
         # check if all elements are None
         new_references = None if not any(references) else references
@@ -950,6 +973,7 @@ class LocData:
                 else:
                     n_chunks = len(locdata) // chunk_size + 1
             else:  # if n_chunks is not None
+                assert n_chunks is not None  # type narrowing # noqa: S101
                 if (len(locdata) % n_chunks) == 0:
                     chunk_size = len(locdata) // n_chunks
                 else:
@@ -965,13 +989,13 @@ class LocData:
                 cum_chunk_sizes = list(accumulate(chunk_sizes))
                 cum_chunk_sizes.insert(0, 0)
                 index_lists = [
-                    locdata.data.index[slice(lower, upper)]
+                    locdata.data.index[slice(lower, upper)]  # type: ignore
                     for lower, upper in zip(cum_chunk_sizes[:-1], cum_chunk_sizes[1:])
                 ]
 
             elif order == "alternating":
                 index_lists = [
-                    locdata.data.index[slice(i_chunk, None, n_chunks)]
+                    locdata.data.index[slice(i_chunk, None, n_chunks)]  # type: ignore
                     for i_chunk in range(n_chunks)
                 ]
 
@@ -982,7 +1006,7 @@ class LocData:
             index_lists = index_lists[:-1]
 
         references = [
-            LocData.from_selection(locdata=locdata, indices=index_list)
+            LocData.from_selection(locdata=locdata, indices=list(index_list))
             for index_list in index_lists
         ]
         dataframe = pd.DataFrame([ref.properties for ref in references])
@@ -1070,6 +1094,9 @@ class LocData:
         Self
             The modified object
         """
+        if dataframe is None:
+            return self
+
         local_parameter = locals()
         del local_parameter[
             "dataframe"
@@ -1217,7 +1244,7 @@ class LocData:
         _meta.history.add(name="LocData.projection", parameter=str(local_parameter))
         # other updates are done in the coming update call.
 
-        new_locdata: LocData = new_locdata.update(dataframe=dataframe, meta=_meta)
+        new_locdata = new_locdata.update(dataframe=dataframe, meta=_meta)
 
         return new_locdata
 
@@ -1252,7 +1279,7 @@ class LocData:
 
     def update_properties_in_references(
         self,
-        properties: dict[str, Iterable]
+        properties: dict[str, Iterable[Any]]
         | pd.Series[Any]
         | pd.DataFrame
         | Callable[..., Any]

@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 def _transform_counts_to_photons(
-    intensities: list | tuple | npt.ArrayLike,
+    intensities: npt.ArrayLike,
     offset: int | float = 0,
     gain: int | float = 1,
     electrons_per_count: int | float = 1,
@@ -149,6 +149,7 @@ def transform_counts_to_photons(
             new_locdata.meta.localization_properties[index].unit = "photons"
             new_locdata.meta.localization_properties[index].type = "float"
 
+        assert new_locdata.dataframe is not None  # type narrowing # noqa: S101
         dataframe = new_locdata.dataframe.assign(**{loc_property: new_intensities})
         new_locdata = new_locdata.update(dataframe=dataframe)
         loc_properties_converted.append(loc_property)

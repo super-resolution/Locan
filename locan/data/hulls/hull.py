@@ -53,6 +53,7 @@ class BoundingBox:
     """
 
     def __init__(self, points: npt.ArrayLike) -> None:
+        points = np.asarray(points)
         if np.size(points) == 0:
             self.dimension = 0
             self.hull = np.array([])
@@ -119,6 +120,7 @@ class _ConvexHullScipy:
     """
 
     def __init__(self, points: npt.ArrayLike) -> None:
+        points = np.asarray(points)
         if len(points) < 6:
             unique_points = np.array(list(set(tuple(point) for point in points)))
             if len(unique_points) < 3:
@@ -183,6 +185,7 @@ class _ConvexHullShapely:
     """
 
     def __init__(self, points: npt.ArrayLike) -> None:
+        points = np.asarray(points)
         if len(points) < 6:
             unique_points = np.array(list(set(tuple(point) for point in points)))
             if len(unique_points) < 3:
@@ -317,6 +320,7 @@ class OrientedBoundingBox:
     """
 
     def __init__(self, points: npt.ArrayLike) -> None:
+        points = np.asarray(points)
         self.dimension = np.shape(points)[1]
 
         if self.dimension >= 3:

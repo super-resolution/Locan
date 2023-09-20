@@ -22,7 +22,7 @@ class Collection(Protocol):
     references: Iterable[LocData]
     coordinate_keys: list[str]
 
-    def __len__(self):
+    def __len__(self) -> int:
         ...
 
 

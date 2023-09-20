@@ -11,7 +11,7 @@ Parts of this code is adapted from https://github.com/jungmannlab/picasso.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -200,12 +200,12 @@ def register_icp(
     if isinstance(locdata, LocData):
         points = locdata.coordinates
     else:
-        points = locdata
+        points = np.asarray(locdata)
 
     if isinstance(other_locdata, LocData):
         other_points = other_locdata.coordinates
     else:
-        other_points = other_locdata
+        other_points = np.asarray(other_locdata)
 
     transformation = _register_icp_open3d(
         points,
@@ -220,7 +220,7 @@ def register_icp(
     return transformation
 
 
-def _xcorr(imageA: npt.ArrayLike, imageB: npt.ArrayLike):
+def _xcorr(imageA: npt.ArrayLike, imageB: npt.ArrayLike) -> npt.NDArray[np.float_]:
     """
     This function is adapted from picasso/imageprocess
     by Joerg Schnitzbauer, MPI of Biochemistry
@@ -289,7 +289,7 @@ def _get_image_shift(
         xc, yc = 0, 0
     else:
         # The fit model based on lmfit
-        def flat_2d_gaussian(a, xc, yc, s, b):
+        def flat_2d_gaussian(a, xc, yc, s, b):  # type: ignore
             A = a * np.exp(-0.5 * ((x - xc) ** 2 + (y - yc) ** 2) / s**2) + b
             return A.flatten()
 
@@ -307,8 +307,8 @@ def _get_image_shift(
         # Get maximum coordinates and add offsets
         xc = results.best_values["xc"]
         yc = results.best_values["yc"]
-        xc += X_ + x_max_
-        yc += Y_ + y_max_
+        xc += X_ + x_max_  # type: ignore
+        yc += Y_ + y_max_  # type: ignore
 
         if display:
             plt.figure(figsize=(17, 10))
@@ -338,7 +338,7 @@ def register_cc(
     bin_range: tuple[float, float]
     | Sequence[float]
     | Sequence[Sequence[float]]
-    | str
+    | Literal["zero", "link"]
     | None = None,
     verbose: bool = False,
 ) -> Transformation:
@@ -394,6 +394,9 @@ def register_cc(
         Matrix and offset representing the optimized transformation.
     """
     if isinstance(locdata, LocData) and isinstance(other_locdata, LocData):
+        bin_range_: tuple[float, float] | Sequence[float] | Sequence[
+            Sequence[float]
+        ] | Literal["zero", "link"] | None
         if bin_range is None:
             bin_range_ = range_from_collection([locdata, other_locdata])
         else:
@@ -426,6 +429,6 @@ def register_cc(
     offset = _get_image_shift(
         image, other_image, box=5, roi=max_offset, display=verbose
     )
-    offset = np.asarray(offset) * bin_size
+    offset_ = np.asarray(offset) * bin_size
 
-    return Transformation(matrix, offset)
+    return Transformation(matrix, offset_)

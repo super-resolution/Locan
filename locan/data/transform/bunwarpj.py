@@ -160,7 +160,7 @@ def bunwarp(
 
     if flip:
         image_size = np.multiply(matrix_x.shape, pixel_size)
-        locdata = transform_affine(
+        locdata = transform_affine(  # type: ignore[assignment]
             locdata, matrix=[[-1, 0], [0, 1]], offset=[image_size[0], 0]
         )
 

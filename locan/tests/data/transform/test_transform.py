@@ -6,6 +6,7 @@ import pytest
 
 import locan.constants
 from locan import (
+    LocData,
     bunwarp,
     overlay,
     randomize,
@@ -23,6 +24,16 @@ from locan.locan_io.locdata.io_locdata import load_asdf_file
 
 
 def test_randomize_2d(locdata_2d):
+    locdata = LocData()
+    with pytest.raises(AttributeError):
+        randomize(locdata, hull_region="bb")
+    with pytest.raises(AttributeError):
+        randomize(locdata, hull_region="ch")
+    with pytest.raises(AttributeError):
+        randomize(locdata, hull_region="as")
+    with pytest.raises(AttributeError):
+        randomize(locdata, hull_region="something")
+
     locdata_2d = deepcopy(locdata_2d)
 
     locdata_randomized = randomize(locdata_2d, hull_region="bb")

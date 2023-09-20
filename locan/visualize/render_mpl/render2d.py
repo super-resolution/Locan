@@ -56,7 +56,7 @@ def render_2d_mpl(
     bin_range: tuple[float, float]
     | Sequence[float]
     | Sequence[Sequence[float]]
-    | str
+    | Literal["zero", "link"]
     | None = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     ax: mpl.axes.Axes | None = None,
@@ -193,7 +193,7 @@ def render_2d_scatter_density(
     ax: mpl.axes.Axes | None = None,
     cmap: str | mcolors.Colormap = COLORMAP_CONTINUOUS,
     cbar: bool = True,
-    colorbar_kws: dict[str, Any] = None,
+    colorbar_kws: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> mpl.axes.Axes:
     """
@@ -274,9 +274,9 @@ def render_2d_scatter_density(
         raise ValueError(f"{loc_properties} is not a valid property in locdata.")
 
     if bin_range is None or isinstance(bin_range, str):
-        bin_range_: npt.NDArray[np.float_] | None = ranges(locdata, loc_properties=labels, special=bin_range)  # type: ignore
+        bin_range_: npt.NDArray[np.float_] = ranges(locdata, loc_properties=labels, special=bin_range)  # type: ignore
     else:
-        bin_range_ = bin_range
+        bin_range_ = bin_range  # type: ignore[assignment]
 
     if other_property is None:
         # histogram data by counting points
@@ -289,7 +289,7 @@ def render_2d_scatter_density(
         # histogram data by averaging values
         if data.shape[0] == 2:
             # here color serves as weight since it is averaged over all points before binning.
-            values = locdata.data[other_property].values.T
+            values = locdata.data[other_property].values.T  # type: ignore
         else:
             raise TypeError("Only 2D data is supported.")
         labels.append(other_property)
@@ -391,6 +391,7 @@ def apply_window(
     kwargs
         Other parameters passed to the `scipy.signal.windows` window function.
     """
+    image = np.asarray(image)
     window_func = getattr(scipy.signal.windows, window_function)
     windows = [window_func(M, **kwargs) for M in image.shape]
 
@@ -445,7 +446,7 @@ def render_2d_rgb_mpl(
     bin_range: tuple[float, float]
     | Sequence[float]
     | Sequence[Sequence[float]]
-    | str
+    | Literal["zero", "link"]
     | None = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     ax: mpl.axes.Axes | None = None,
@@ -547,8 +548,8 @@ def render_2d_rgb_mpl(
 
     imgs = [
         histogram(
-            locdata, loc_properties, other_property, bin_edges=bins.bin_edges
-        ).data
+            locdata=locdata, loc_properties=loc_properties, other_property=other_property, bin_edges=bins.bin_edges  # type: ignore
+        ).data  # type: ignore[attr-defined]
         for locdata in locdatas
     ]
 

@@ -28,6 +28,7 @@ dependencies:
 - numpy
 - types-requests
 - types-protobuf
+- pandas-stubs
 
 # Documentation
 - sphinx

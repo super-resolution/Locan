@@ -61,7 +61,7 @@ dependencies = [
     "networkx",
     "scikit-learn",
     "scikit-image",
-    "matplotlib",
+    "matplotlib!=3.8.0",
     "scipy",
     "pandas",
     "numpy>1.20.0",
@@ -120,6 +120,7 @@ docs = [
     "ray",
 ]
 dev = [
+    "locan[test]",
     "coverage[toml]",
     "build",
     "twine",

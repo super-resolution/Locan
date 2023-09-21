@@ -10,7 +10,7 @@ from __future__ import annotations
 import importlib
 import logging
 import os
-from typing import TYPE_CHECKING, Any, BinaryIO  # noqa: F401
+from typing import TYPE_CHECKING, Any, BinaryIO
 
 try:
     import tomllib  # type: ignore[import]

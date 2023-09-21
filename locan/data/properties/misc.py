@@ -7,7 +7,7 @@ import logging
 from typing import TYPE_CHECKING, Any, NamedTuple
 
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 from scipy.spatial.distance import pdist
 from shapely.geometry import Point
 

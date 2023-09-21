@@ -54,7 +54,7 @@ logger = logging.getLogger(__name__)
 def _accumulation_cluster_check_for_single_dataset(
     locdata: LocData,
     region_measure: float,
-    algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,
+    algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,  # type: ignore
     algo_parameter: dict[str, Any] | None = None,
     hull: Literal["bb", "ch"] = "bb",
 ) -> tuple[float, float, float]:
@@ -118,7 +118,7 @@ def _accumulation_cluster_check_for_single_dataset(
 def _accumulation_cluster_check(
     locdata: LocData,
     region_measure: Literal["bb", "ch"] = "bb",
-    algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,
+    algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,  # type: ignore
     algo_parameter: dict[str, Any] | None = None,
     hull: Literal["bb", "ch"] = "bb",
     n_loc: int = 10,
@@ -256,7 +256,7 @@ class AccumulationClusterCheck(_Analysis):
         self,
         meta: metadata_analysis_pb2.AMetadata | None = None,
         region_measure: float | Literal["bb", "ch"] = "bb",
-        algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,
+        algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,  # type: ignore
         algo_parameter: dict[str, Any] | None = None,
         hull: Literal["bb", "ch"] = "bb",
         n_loc: int | Sequence[int] = 10,

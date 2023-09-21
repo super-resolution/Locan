@@ -54,7 +54,7 @@ from locan.data.region import (
     Region,
 )
 from locan.data.region_utils import expand_region
-from locan.locan_types import RandomGeneratorSeed  # noqa: F401
+from locan.locan_types import RandomGeneratorSeed
 
 __all__: list[str] = [
     "make_uniform",

@@ -8,7 +8,7 @@ These values can represent new properties of locdata.
 from __future__ import annotations
 
 from collections import namedtuple
-from collections.abc import Iterable  # noqa: F401
+from collections.abc import Iterable
 from typing import Any, Literal
 
 import numpy as np

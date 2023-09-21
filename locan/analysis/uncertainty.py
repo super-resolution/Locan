@@ -47,13 +47,10 @@ __all__: list[str] = ["LocalizationUncertainty", "LocalizationUncertaintyFromInt
 
 logger = logging.getLogger(__name__)
 
+LocalizationPrecisionModel = Callable[..., npt.NDArray[np.float_]]
+
 
 # The algorithms
-
-if sys.version_info < (3, 9):
-    LocalizationPrecisionModel = Callable
-else:
-    LocalizationPrecisionModel = Callable[..., npt.NDArray[np.float_]]
 
 
 def localization_precision_model_1(intensity: npt.ArrayLike) -> npt.NDArray[np.float_]:
@@ -161,7 +158,7 @@ def localization_precision_model_3(
 def _localization_uncertainty(
     locdata: LocData, model: int | LocalizationPrecisionModel, **kwargs: Any
 ) -> pd.DataFrame:
-    if isinstance(model, Callable):  # type: ignore
+    if callable(model):
         model = cast(Callable, model)  # type: ignore[type-arg]
     elif model == 1:
         model = cast(Callable, model)  # type: ignore[type-arg]

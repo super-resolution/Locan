@@ -147,7 +147,7 @@ T_Pipeline = TypeVar("T_Pipeline", bound="Pipeline")
 
 
 def computation_test(
-    self: T_Pipeline,  # noqa: UP006
+    self: T_Pipeline,
     locdata: LocData | None = None,
     parameter: str = "test",
 ) -> T_Pipeline:

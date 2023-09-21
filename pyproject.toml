@@ -17,7 +17,7 @@ fallback_version = "0.15-fallback"
 name = "locan"
 description = "Analysis software for single-molecule localization microscopy"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {file = "LICENSE.md"}
 authors = [
   {name = "Locan Developers"},
@@ -38,7 +38,6 @@ classifiers = [
     "Programming Language :: C",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",

@@ -12,7 +12,7 @@ import sys
 import warnings
 from collections.abc import Callable, Iterable, Sequence
 from itertools import accumulate
-from typing import Any, BinaryIO, Literal, Type, TypeVar
+from typing import Any, BinaryIO, Literal, TypeVar
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -633,7 +633,7 @@ class LocData:
 
     @classmethod
     def from_dataframe(
-        cls: Type[T_LocData],  # noqa: UP006
+        cls: type[T_LocData],  # noqa: UP006
         dataframe: pd.DataFrame | None = None,
         meta: metadata_pb2.Metadata
         | dict[str, Any]
@@ -672,7 +672,7 @@ class LocData:
 
     @classmethod
     def from_coordinates(
-        cls: Type[T_LocData],  # noqa: UP006
+        cls: type[T_LocData],  # noqa: UP006
         coordinates: npt.ArrayLike | None = None,
         coordinate_labels: Sequence[str] | None = None,
         meta: metadata_pb2.Metadata
@@ -740,7 +740,7 @@ class LocData:
 
     @classmethod
     def from_selection(
-        cls: Type[T_LocData],  # noqa: UP006
+        cls: type[T_LocData],  # noqa: UP006
         locdata: LocData,
         indices: int
         | list[int | bool]
@@ -815,7 +815,7 @@ class LocData:
 
     @classmethod
     def from_collection(
-        cls: Type[T_LocData],  # noqa: UP006v
+        cls: type[T_LocData],  # noqa: UP006v
         locdatas: Iterable[LocData],
         meta: metadata_pb2.Metadata
         | dict[str, Any]
@@ -856,7 +856,7 @@ class LocData:
 
     @classmethod
     def concat(
-        cls: Type[T_LocData],  # noqa: UP006
+        cls: type[T_LocData],  # noqa: UP006
         locdatas: Iterable[LocData],
         meta: metadata_pb2.Metadata
         | dict[str, Any]
@@ -909,7 +909,7 @@ class LocData:
 
     @classmethod
     def from_chunks(
-        cls: Type[T_LocData],  # noqa: UP006
+        cls: type[T_LocData],  # noqa: UP006
         locdata: LocData,
         chunks: Sequence[tuple[int, ...]] | None = None,
         chunk_size: int | None = None,

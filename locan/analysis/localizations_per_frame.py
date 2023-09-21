@@ -7,13 +7,9 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Sequence  # noqa: F401
-else:
-    from typing import Sequence  # noqa: F401
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -27,7 +23,7 @@ if TYPE_CHECKING:
 
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 import pandas as pd
 from scipy import stats
 

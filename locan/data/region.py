@@ -12,7 +12,7 @@ from __future__ import annotations
 import itertools as it
 import sys
 from abc import ABC, abstractmethod
-from typing import Any, Type, TypeVar
+from typing import Any, TypeVar
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -24,7 +24,7 @@ import matplotlib.patches as mpl_patches
 import matplotlib.path as mpl_path
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 from scipy.spatial.distance import pdist
 from shapely.affinity import rotate, scale, translate
 from shapely.geometry import MultiPoint as shMultiPoint
@@ -868,9 +868,7 @@ class Interval(Region1D):
         return f"{self.__class__.__name__}({self.lower_bound}, {self.upper_bound})"
 
     @classmethod
-    def from_intervals(
-        cls: Type[T_Interval], intervals: npt.ArrayLike  # noqa: UP006
-    ) -> T_Interval:
+    def from_intervals(cls: type[T_Interval], intervals: npt.ArrayLike) -> T_Interval:
         """
         Constructor for instantiating Region from list of (min, max) bounds.
         Takes array-like intervals instead of interval to be consistent with
@@ -1036,7 +1034,7 @@ class Rectangle(Region2D):
 
     @classmethod
     def from_intervals(
-        cls: Type[T_Rectangle], intervals: npt.ArrayLike  # noqa: UP006
+        cls: type[T_Rectangle], intervals: npt.ArrayLike  # noqa: UP006
     ) -> T_Rectangle:
         """
         Constructor for instantiating Region from list of (min, max) bounds.
@@ -1688,7 +1686,7 @@ class AxisOrientedCuboid(Region3D):
 
     @classmethod
     def from_intervals(
-        cls: Type[T_AxisOrientedCuboid], intervals: npt.ArrayLike  # noqa: UP006
+        cls: type[T_AxisOrientedCuboid], intervals: npt.ArrayLike  # noqa: UP006
     ) -> T_AxisOrientedCuboid:
         """
         Constructor for instantiating Region from list of (min, max) bounds.
@@ -2072,7 +2070,7 @@ class AxisOrientedHypercuboid(RegionND):
 
     @classmethod
     def from_intervals(
-        cls: Type[T_AxisOrientedHypercuboid], intervals: npt.ArrayLike  # noqa: UP006
+        cls: type[T_AxisOrientedHypercuboid], intervals: npt.ArrayLike  # noqa: UP006
     ) -> T_AxisOrientedHypercuboid:
         """
         Constructor for instantiating Region from list of (min, max) bounds.

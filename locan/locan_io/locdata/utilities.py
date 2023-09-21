@@ -8,9 +8,9 @@ from __future__ import annotations
 import io
 import logging
 import os
-import sys
+from collections.abc import Iterable
 from contextlib import closing
-from typing import TYPE_CHECKING, Any, Iterable, Union, cast
+from typing import TYPE_CHECKING, Any, Union, cast
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -95,16 +95,11 @@ def open_path_or_file_like(
         try:
             # if hasattr(path_or_file_like, "__fspath__")
             # or isinstance(path_or_file_like, (str, bytes)):
-            if sys.version_info >= (3, 9):
-                path_or_file_like = cast(
-                    Union[str, bytes, os.PathLike[str], os.PathLike[bytes], int],
-                    path_or_file_like,
-                )  # noqa: F401
-            else:
-                path_or_file_like = cast(
-                    Union[str, bytes, os.PathLike, int],
-                    path_or_file_like,
-                )
+            path_or_file_like = cast(
+                Union[str, bytes, os.PathLike[str], os.PathLike[bytes], int],
+                path_or_file_like,
+            )
+
             file = open(
                 path_or_file_like,
                 mode=mode,

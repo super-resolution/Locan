@@ -12,8 +12,9 @@ import logging
 import os
 import re
 import sys
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 from pandas import DataFrame, Series
 

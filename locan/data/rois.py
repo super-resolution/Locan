@@ -25,7 +25,7 @@ from collections.abc import Iterable, Sequence
 from inspect import isabstract
 from itertools import product
 from pathlib import Path
-from typing import Any, Type, TypeVar
+from typing import Any, TypeVar
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -329,7 +329,7 @@ class Roi:
 
     @classmethod
     def from_yaml(
-        cls: Type[T_Roi], path: str | os.PathLike[Any]  # noqa: UP006
+        cls: type[T_Roi], path: str | os.PathLike[Any]  # noqa: UP006
     ) -> T_Roi:  # noqa: UP006
         """
         Read Roi object from yaml format.

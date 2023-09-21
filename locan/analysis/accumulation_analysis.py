@@ -24,12 +24,8 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Callable, Sequence
 from typing import Any, Literal
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Callable, Sequence  # noqa: F401
-else:
-    from typing import Callable, Sequence  # noqa: F401
 
 if sys.version_info >= (3, 11):
     from typing import Self

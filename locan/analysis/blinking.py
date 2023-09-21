@@ -9,13 +9,8 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import Any
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Sequence  # noqa: F401
-else:
-    from typing import Sequence  # noqa: F401
 
 if sys.version_info >= (3, 11):
     from typing import Self

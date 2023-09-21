@@ -5,13 +5,8 @@ Type definitions
 """
 from __future__ import annotations
 
-import sys
+from collections.abc import Sequence
 from typing import Any, Protocol, Union
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Sequence  # noqa: F401
-else:
-    from typing import Sequence  # noqa: F401
 
 import numpy as np
 

@@ -9,11 +9,7 @@ The functions take LocData as input and compute new LocData objects.
 from __future__ import annotations
 
 import sys
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Iterable
-else:
-    from typing import Iterable
+from collections.abc import Iterable
 
 import numpy as np
 import numpy.typing as npt

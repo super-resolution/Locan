@@ -34,8 +34,8 @@ References
 from __future__ import annotations
 
 import warnings
-from collections.abc import Sequence
-from typing import Any, Generator, Literal
+from collections.abc import Generator, Sequence
+from typing import Any, Literal
 
 import networkx as nx
 import numpy as np

@@ -302,8 +302,8 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = [
-    'locan\visualize\transform',
-    'locan\analysis\nearest_neighbor',
-    'locan\analysis\localization_precision',
+    'locan.visualize.transform',
+    'locan.analysis.nearest_neighbor',
+    'locan.analysis.localization_precision',
 ]
 disallow_subclassing_any = false

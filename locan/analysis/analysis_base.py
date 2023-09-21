@@ -112,7 +112,7 @@ class _Analysis:
         """
         raise NotImplementedError
 
-    def report(self) -> None:
+    def report(self, *args: Any, **kwargs: Any) -> Any:
         """Show a report about analysis results."""
         raise NotImplementedError
 

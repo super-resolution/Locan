@@ -22,11 +22,11 @@ logger = logging.getLogger(__name__)
 
 def scatter_3d_mpl(
     locdata: LocData,
-    ax: mpl.axes.Axes3D | None = None,
+    ax: mpl.axes.Axes | None = None,
     index: bool = True,
     text_kwargs: dict[str, Any] | None = None,
     **kwargs: Any,
-) -> mpl.axes.Axes3D:
+) -> mpl.axes.Axes:
     """
     Scatter plot of locdata elements with text marker for each element.
 
@@ -67,7 +67,7 @@ def scatter_3d_mpl(
     # plot element number
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
-            ax.text(
+            ax.text(  # type:ignore[call-arg]
                 *centroid, marker, **dict({"color": "grey", "size": 20}, **text_kwargs)
             )
 

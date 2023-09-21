@@ -376,7 +376,7 @@ class PositionVarianceExpectation(_Analysis):
             self.results.values[other_loc_property], self.results.values[loc_property]
         )
         mesh = ax.pcolormesh(*histogram.axes.edges.T, histogram.view().T, **kwargs)
-        fig.colorbar(mesh)
+        fig.colorbar(mesh)  # type:ignore[union-attr]
 
         self.results.grouped.plot(
             kind="line",

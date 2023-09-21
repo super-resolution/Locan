@@ -134,23 +134,23 @@ class AnalysisExampleAlgorithm_1(_Analysis):
         return self
 
     def plot(self, ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
-        plot(self, ax)
+        return plot(self=self, ax=ax)
 
     def plot_2(
         self,
         ax: mpl.axes.Axes | None = None,
         bins: str = "auto",
-        normed: bool = True,
+        density: bool = True,
         log: bool = False,
         fit: bool = True,
     ) -> mpl.axes.Axes:
-        plot_2(self, ax, bins, normed, log, fit)
+        return plot_2(self=self, ax=ax, bins=bins, density=density, log=log, fit=fit)
 
     def plot_histogram_fit(self, ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
-        plot_histogram_fit(self, ax)
+        return plot_histogram_fit(self=self, ax=ax)
 
     def report(self, path: str | os.PathLike[Any] | None = None) -> mpl.axes.Axes:
-        report(self, path)
+        return report(self=self, path=path)
 
 
 class AnalysisExampleAlgorithm_2(_Analysis):
@@ -212,7 +212,7 @@ class AnalysisExampleAlgorithm_2(_Analysis):
         return self
 
     def plot(self, ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
-        plot(self, ax)
+        return plot(self, ax)
 
     def plot_2(
         self,
@@ -222,13 +222,13 @@ class AnalysisExampleAlgorithm_2(_Analysis):
         log: bool = False,
         fit: bool = True,
     ) -> mpl.axes.Axes:
-        plot_2(self, ax, bins, density, log, fit)
+        return plot_2(self=self, ax=ax, bins=bins, density=density, log=log, fit=fit)
 
     def plot_histogram_fit(self, ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
-        plot_histogram_fit(self, ax)
+        return plot_histogram_fit(self, ax)
 
     def report(self, path: str | os.PathLike[Any] | None = None) -> mpl.axes.Axes:
-        report(self, path)
+        return report(self, path)
 
 
 #
@@ -269,18 +269,18 @@ def plot_2(
         plt.subplots_adjust(wspace=0)
 
     # create histogram on first axes
-    hist, bins, _ = ax[0].hist(
+    hist, bins, _ = ax[0].hist(  # type: ignore[index]
         self.results.values,
         bins=bins,
         density=density,
         log=log,
         label=list(self.results),
     )
-    ax[0].set(title="Normal Data", xlabel="property", ylabel="PDF")
+    ax[0].set(title="Normal Data", xlabel="property", ylabel="PDF")  # type: ignore[index]
 
     # create legend and results text on second axes
-    h_, l_ = ax[0].get_legend_handles_labels()
-    ax[1].legend(
+    h_, l_ = ax[0].get_legend_handles_labels()  # type: ignore[index]
+    ax[1].legend(  # type: ignore[index]
         h_,
         l_,
         loc="upper left",
@@ -290,7 +290,7 @@ def plot_2(
         borderaxespad=0,
     )
 
-    ax[1].set_axis_off()
+    ax[1].set_axis_off()  # type: ignore[index]
 
     # fit distributions
     if fit:
@@ -318,7 +318,7 @@ def plot_histogram_fit(self: Any, ax: mpl.axes.Axes | None = None) -> mpl.axes.A
         stats.norm.ppf(0.99, loc=loc, scale=scale),
         100,
     )
-    ax[0].plot(
+    ax[0].plot(  # type: ignore[index]
         x_values,
         stats.norm.pdf(x_values, loc=loc, scale=scale),
         "r-",
@@ -328,18 +328,18 @@ def plot_histogram_fit(self: Any, ax: mpl.axes.Axes | None = None) -> mpl.axes.A
     )
 
     # present fit results
-    ax[1].text(0, 0.5, "Fit Results:")
-    ax[1].text(
+    ax[1].text(0, 0.5, "Fit Results:")  # type: ignore[index]
+    ax[1].text(  # type: ignore[index]
         0,
         0.5,
         "center: " + str(loc) + "\n" + "sigma: " + str(scale),
         horizontalalignment="left",
         verticalalignment="top",
-        transform=ax[1].transAxes,
+        transform=ax[1].transAxes,  # type: ignore[index]
         clip_on=False,
     )
 
-    ax[1].set_axis_off()
+    ax[1].set_axis_off()  # type: ignore[index]
 
     return ax
 
@@ -367,11 +367,11 @@ def report(self: Any, path: str | os.PathLike[Any] | None = None) -> mpl.axes.Ax
     analysis routine.
     """
     fig = plt.figure(figsize=(8.3, 11.7))
-    ax = fig.subplots(nrows=3, ncols=2)
+    ax: mpl.axes.Axes = fig.subplots(nrows=3, ncols=2)
 
     # provide the axes elements (i.e. the plots)
-    self.plot(ax=ax[0][0])
-    self.plot_2(ax=ax[1][0:2])
+    self.plot(ax=ax[0][0])  # type: ignore[index]
+    self.plot_2(ax=ax[1][0:2])  # type: ignore[index]
 
     # adjust figure layout
     plt.tight_layout()

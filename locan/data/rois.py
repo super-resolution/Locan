@@ -79,7 +79,7 @@ class _MplSelector:  # pragma: no cover
 
         if type == "rectangle":
             self.selector = RectangleSelector(
-                self.ax, self.selector_callback, drawtype="box", interactive=True
+                self.ax, self.selector_callback, drawtype="box", interactive=True  # type: ignore[call-arg]
             )
             self.type = type
 
@@ -115,20 +115,20 @@ class _MplSelector:  # pragma: no cover
         if event.key in ["R", "r"]:
             print("RectangleSelector activated.")
             self.selector = RectangleSelector(
-                self.ax, self.selector_callback, drawtype="box", interactive=True
+                self.ax, self.selector_callback, drawtype="box", interactive=True  # type: ignore[call-arg]
             )
             self.type = "rectangle"
 
         elif event.key in ["E", "e"]:
             print("EllipseSelector activated.")
             self.selector = EllipseSelector(
-                self.ax, self.selector_callback, drawtype="box", interactive=True
+                self.ax, self.selector_callback, drawtype="box", interactive=True  # type: ignore[call-arg]
             )
             self.type = "ellipse"
 
         elif event.key in ["T", "t"]:
             print("PolygonSelector activated.")
-            self.selector = PolygonSelector(self.ax, self.p_selector_callback)
+            self.selector = PolygonSelector(self.ax, self.p_selector_callback)  # type: ignore
             self.type = "polygon"
 
         else:
@@ -147,7 +147,7 @@ class _MplSelector:  # pragma: no cover
 
         elif event.key in ["+"] and self.selector.active and self.type == "ellipse":
             print("Roi was added.")
-            region_specs = (
+            region_specs = (  # type: ignore[assignment]
                 self.selector.center,
                 self.selector.extents[1] - self.selector.extents[0],
                 self.selector.extents[3] - self.selector.extents[2],
@@ -159,7 +159,7 @@ class _MplSelector:  # pragma: no cover
 
         elif event.key in ["+"] and self.selector.active and self.type == "polygon":
             print("Roi was added.")
-            vertices_ = self.selector.verts.append(self.selector.verts[0])
+            vertices_ = self.selector.verts.append(self.selector.verts[0])  # type: ignore
             self.rois.append({"region_specs": vertices_, "region": self.type})
             print(f"rois: {self.rois}")
 

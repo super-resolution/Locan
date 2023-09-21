@@ -582,7 +582,7 @@ class ConvexHullExpectation(_Analysis):
             self.results.values[other_loc_property], self.results.values[loc_property]
         )
         mesh = ax.pcolormesh(*histogram.axes.edges.T, histogram.view().T, **kwargs)
-        fig.colorbar(mesh)
+        fig.colorbar(mesh)  # type:ignore[union-attr]
 
         self.results.grouped.plot(
             kind="line",
@@ -794,7 +794,7 @@ class ConvexHullExpectationBatch(_Analysis):
         return self
 
     def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
-        self._class.plot(ax=ax, **kwargs)
+        return self._class.plot(ax=ax, **kwargs)
 
     def hist(
         self,
@@ -811,7 +811,7 @@ class ConvexHullExpectationBatch(_Analysis):
         fit: bool = False,
         **kwargs: Any,
     ) -> mpl.axes.Axes:
-        self._class.hist(
+        return self._class.hist(
             ax=ax,
             bins=bins,
             n_bins=n_bins,

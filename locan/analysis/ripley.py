@@ -258,7 +258,7 @@ class RipleysKFunction(_Analysis):
         return self
 
     def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
-        plot(self=self, ax=ax, **kwargs)
+        return plot(self=self, ax=ax, **kwargs)
 
 
 class RipleysLFunction(_Analysis):
@@ -349,7 +349,7 @@ class RipleysLFunction(_Analysis):
         return self
 
     def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
-        plot(self, ax, **kwargs)
+        return plot(self, ax, **kwargs)
 
 
 class RipleysHFunction(_Analysis):
@@ -461,7 +461,7 @@ class RipleysHFunction(_Analysis):
         self._Ripley_h_maximum = None
 
     def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
-        plot(self, ax, **kwargs)
+        return plot(self, ax, **kwargs)
 
 
 # Interface functions

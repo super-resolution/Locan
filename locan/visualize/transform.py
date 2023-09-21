@@ -193,6 +193,8 @@ class HistogramEqualization(mcolors.Normalize, Transform):
 
         _values, is_scalar = self.process_value(values)
         self.autoscale_None(_values)  # sets self.vmin, self.vmax if None
+        assert self.vmin is not None  # type narrowing # noqa: S101
+        assert self.vmax is not None  # type narrowing # noqa: S101
 
         # Normalize based on vmin and vmax
         np.subtract(_values, self.vmin, out=_values)
@@ -213,7 +215,9 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         new_values = np.interp(_values, bin_centers, cdf)
         return new_values
 
-    def inverse(self, values: npt.ArrayLike) -> npt.NDArray[Any]:
+    def inverse(
+        self, values: npt.ArrayLike
+    ) -> npt.NDArray[Any]:  # type:ignore[override]
         """A Transformation object that performs the inverse operation."""
         raise NotImplementedError
 

@@ -254,7 +254,7 @@ def render_2d_scatter_density(
         return ax
     else:
         fig = ax.get_figure()
-        ax = fig.add_subplot(
+        ax = fig.add_subplot(  # type: ignore[union-attr]
             1, 1, 1, projection="scatter_density", label="scatter_density"
         )
 
@@ -367,7 +367,7 @@ def scatter_2d_mpl(
     # plot element number
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
-            ax.text(
+            ax.text(  # type: ignore[call-arg]
                 *centroid, marker, **dict({"color": "grey", "size": 20}, **text_kwargs)
             )
 
@@ -427,10 +427,10 @@ def select_by_drawing_mpl(
     matplotlib.widgets : selector functions
     """
 
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    fig, ax = plt.subplots(nrows=1, ncols=1)  # type: ignore
     render_2d_mpl(locdata, ax=ax, **kwargs)
     selector = _MplSelector(ax, type=region_type)
-    plt.show()
+    plt.show()  # type: ignore
     roi_list = [Roi(reference=locdata, region=roi["region"]) for roi in selector.rois]
     return roi_list
 
@@ -554,7 +554,9 @@ def render_2d_rgb_mpl(
     ]
 
     if rescale is None:
-        norm = mcolors.Normalize(vmin=np.min(imgs), vmax=np.max(imgs))
+        norm: int | str | Trafo | Callable[..., Any] = mcolors.Normalize(
+            vmin=np.min(imgs), vmax=np.max(imgs)
+        )
     else:
         norm = rescale
     imgs = [adjust_contrast(img, rescale=norm) for img in imgs]

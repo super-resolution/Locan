@@ -204,7 +204,7 @@ class RoiRegion:
         """
         return self._region.contains(points)  # type: ignore
 
-    def as_artist(self, **kwargs: Any) -> mpl_patches:
+    def as_artist(self, **kwargs: Any) -> mpl_patches.Patch:
         """
         Matplotlib patch object for this region
         (e.g. `matplotlib.patches.Ellipse`).
@@ -216,7 +216,7 @@ class RoiRegion:
 
         Returns
         -------
-        matplotlib.patches
+        matplotlib.patches.Patch
             Matplotlib patch for the specified region.
         """
         return self._region.as_artist(**kwargs)  # type: ignore
@@ -495,7 +495,9 @@ class Region1D(Region):
         return 1
 
     @abstractmethod
-    def as_artist(self, origin: npt.ArrayLike = (0, 0), **kwargs: Any) -> mpl_patches:
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
         """
         Matplotlib 2D patch object for this region
         (e.g. `matplotlib.patches.Ellipse`).
@@ -510,7 +512,7 @@ class Region1D(Region):
 
         Returns
         -------
-        matplotlib.patches
+        matplotlib.patches.Patch
             Matplotlib patch for the specified region.
         """
         pass
@@ -596,7 +598,9 @@ class Region2D(Region):
             raise TypeError(f"shapely_object cannot be of type {ptype}")
 
     @abstractmethod
-    def as_artist(self, origin: npt.ArrayLike = (0, 0), **kwargs: Any) -> mpl_patches:
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
         """
         Matplotlib 2D patch object for this region
         (e.g. `matplotlib.patches.Ellipse`).
@@ -611,7 +615,7 @@ class Region2D(Region):
 
         Returns
         -------
-        matplotlib.patches
+        matplotlib.patches.Patch
             Matplotlib patch for the specified region.
         """
         pass
@@ -696,7 +700,7 @@ class Region3D(Region):
     @abstractmethod
     def as_artist(
         self, origin: npt.ArrayLike = (0, 0, 0), **kwargs: Any
-    ) -> mpl_patches:
+    ) -> mpl_patches.Patch:
         """
         Matplotlib patch object for this region (e.g. `matplotlib.patches.Ellipse`).
 
@@ -710,7 +714,7 @@ class Region3D(Region):
 
         Returns
         -------
-        matplotlib.patches
+        matplotlib.patches.Patch
             Matplotlib patch for the specified region.
         """
         pass
@@ -978,7 +982,9 @@ class Interval(Region1D):
         inside_indices = condition.nonzero()[0]  # points are 1-dimensional
         return inside_indices
 
-    def as_artist(self, origin: npt.ArrayLike = (0, 0), **kwargs: Any) -> mpl_patches:
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
         raise NotImplementedError
 
     def buffer(self, distance: float, **kwargs: Any) -> Interval:
@@ -1126,7 +1132,7 @@ class Rectangle(Region2D):
     @property
     def points(self) -> npt.NDArray[np.float_]:
         rectangle = mpl_patches.Rectangle(
-            self.corner,
+            self.corner,  # type: ignore[arg-type]
             self.width,
             self.height,
             angle=self.angle,
@@ -1134,7 +1140,7 @@ class Rectangle(Region2D):
             edgecolor="b",
             linewidth=1,
         )
-        points = rectangle.get_verts()
+        points: npt.NDArray[np.float_] = rectangle.get_verts()  # type: ignore
         return np.array(points[::-1])
 
     @property
@@ -1184,7 +1190,9 @@ class Rectangle(Region2D):
         inside_indices = np.nonzero(mask)[0]
         return inside_indices
 
-    def as_artist(self, origin: npt.ArrayLike = (0, 0), **kwargs: Any) -> mpl_patches:
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
         origin = np.asarray(origin)
         xy = self.corner[0] - origin[0], self.corner[1] - origin[1]
         return mpl_patches.Rectangle(
@@ -1354,7 +1362,9 @@ class Ellipse(Region2D):
         inside_indices = np.nonzero(rad_cc < 1.0)[0]
         return inside_indices
 
-    def as_artist(self, origin: npt.ArrayLike = (0, 0), **kwargs: Any) -> mpl_patches:
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
         origin = np.asarray(origin)
         xy = self.center[0] - origin[0], self.center[1] - origin[1]
         return mpl_patches.Ellipse(
@@ -1509,7 +1519,9 @@ class Polygon(Region2D):
         else:
             return preselected_points_indices[inside_indices]
 
-    def as_artist(self, origin: npt.ArrayLike = (0, 0), **kwargs: Any) -> mpl_patches:
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
         # todo implement origin
         return mpl_patches.PathPatch(_polygon_path(self.shapely_object), **kwargs)
 
@@ -1631,7 +1643,9 @@ class MultiPolygon(Region2D):
         inside_indices = np.nonzero(mask)[0]
         return inside_indices
 
-    def as_artist(self, origin: npt.ArrayLike = (0, 0), **kwargs: Any) -> mpl_patches:
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
         # todo fix origin
         polygon = shMultiPolygon([pol.shapely_object for pol in self.polygons])
         return mpl_patches.PathPatch(_polygon_path(polygon), **kwargs)
@@ -1840,7 +1854,9 @@ class AxisOrientedCuboid(Region3D):
         inside_indices = np.nonzero(condition)[0]
         return inside_indices
 
-    def as_artist(self, origin: npt.ArrayLike = (0, 0), **kwargs: Any) -> mpl_patches:
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
         raise NotImplementedError
 
     def buffer(self, distance: float, **kwargs: Any) -> AxisOrientedCuboid:
@@ -2022,7 +2038,9 @@ class Cuboid(Region3D):
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         raise NotImplementedError
 
-    def as_artist(self, origin: npt.ArrayLike = (0, 0), **kwargs: Any) -> mpl_patches:
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
         raise NotImplementedError
 
     def buffer(self, distance: float, **kwargs: Any) -> Region:

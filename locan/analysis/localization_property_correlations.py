@@ -185,10 +185,12 @@ class LocalizationPropertyCorrelations(_Analysis):
         # Create colorbar
         if cbar:
             if colorbar_kws is None:
-                cbar = ax.figure.colorbar(im)
+                cbar_ = ax.figure.colorbar(im)  # type:ignore[union-attr]
             else:
-                cbar = ax.figure.colorbar(im, **colorbar_kws)
-            # cbar.ax.set_ylabel('correlation', rotation=-90, va="bottom")
+                cbar_ = ax.figure.colorbar(  # noqa: F841
+                    im, **colorbar_kws
+                )  # type:ignore[union-attr]
+            # cbar_.ax.set_ylabel('correlation', rotation=-90, va="bottom")
 
-        ax.figure.tight_layout()
+        ax.figure.tight_layout()  # type:ignore[union-attr]
         return ax

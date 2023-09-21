@@ -350,7 +350,7 @@ class LocalizationProperty2d(_Analysis):
             self.results.image.T,
             cmap="viridis",
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),
+            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
         )
 
         x, y = self.results.bins.bin_centers
@@ -409,7 +409,7 @@ class LocalizationProperty2d(_Analysis):
             residuals.T,
             cmap=COLORMAP_DIVERGING,
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),
+            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
             vmin=(-max_absolute_value),
             vmax=max_absolute_value,
         )
@@ -462,7 +462,7 @@ class LocalizationProperty2d(_Analysis):
             deviations.T,
             cmap=COLORMAP_DIVERGING,
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),
+            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
             vmin=(-max_absolute_value),
             vmax=max_absolute_value,
         )
@@ -510,7 +510,7 @@ class LocalizationProperty2d(_Analysis):
             deviations.T,
             cmap=COLORMAP_DIVERGING,
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),
+            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
             vmin=(-max_absolute_value),
             vmax=max_absolute_value,
         )

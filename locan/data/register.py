@@ -313,14 +313,14 @@ def _get_image_shift(
 
         if display:
             plt.figure(figsize=(17, 10))
-            plt.subplot(1, 3, 1)
+            plt.subplot(1, 3, 1)  # type: ignore
             plt.imshow(imageA, interpolation="none")
-            plt.subplot(1, 3, 2)
+            plt.subplot(1, 3, 2)  # type: ignore
             plt.imshow(imageB, interpolation="none")
-            plt.subplot(1, 3, 3)
+            plt.subplot(1, 3, 3)  # type: ignore
             plt.imshow(XCorr, interpolation="none")
             plt.plot(xc, yc, "x")
-            plt.show()
+            plt.show()  # type: ignore
 
         xc -= np.floor(X / 2)
         yc -= np.floor(Y / 2)

@@ -310,7 +310,8 @@ class _LmfitModelFacade:
     def plot(self, **kwargs: Any) -> mpl.axes.Axes:
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
-        return self.model_result.plot(**kwargs)
+        return_value: mpl.axes.Axes = self.model_result.plot(**kwargs)
+        return return_value
 
 
 class _ConstantModelFacade:
@@ -344,7 +345,8 @@ class _ConstantModelFacade:
         assert self.model_result.data is not None  # type narrowing # noqa: S101
         x = self.independent_variable
         y = self.model_result.data
-        return plt.plot(x, y, "o", x, self.eval(x=x), **kwargs)
+        return_value: mpl.axes.Axes = plt.plot(x, y, "o", x, self.eval(x=x), **kwargs)
+        return return_value
 
 
 class _ConstantZeroModelFacade(_ConstantModelFacade):
@@ -398,7 +400,9 @@ class _SplineModelFacade:
         x = self.independent_variable
         y = self.data
         x_ = np.linspace(np.min(x), np.max(x), 100)  # type: ignore[arg-type]
-        return plt.plot(x, y, "o", x_, self.eval(x=x_), **kwargs)
+
+        return_value: mpl.axes.Axes = plt.plot(x, y, "o", x_, self.eval(x=x_), **kwargs)
+        return return_value
 
 
 class DriftComponent:

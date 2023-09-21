@@ -743,10 +743,10 @@ class _DistributionFits:
 
     def plot(
         self,
-        ax: mpl.axes.Axes = None,
+        ax: mpl.axes.Axes | None = None,
         loc_property: str = "position_distance",
         **kwargs: Any,
-    ) -> plt.axes.Axes:
+    ) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         probability distribution functions of fitted results.

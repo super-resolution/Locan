@@ -115,7 +115,8 @@ def ratio_fwhm_to_sigma() -> float:
     -------
     float
     """
-    return 2 * np.sqrt(2 * np.log(2))
+    return_value = 2 * np.sqrt(2 * np.log(2))
+    return float(return_value)
 
 
 def biased_variance(
@@ -144,4 +145,5 @@ def biased_variance(
     """
     variance = np.asarray(variance)
     n_samples = np.asarray(n_samples)
-    return variance * (1 - 1 / n_samples)
+    return_value: npt.NDArray[np.float_] = variance * (1 - 1 / n_samples)
+    return return_value

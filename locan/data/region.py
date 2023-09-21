@@ -133,16 +133,16 @@ class RoiRegion:
             self._region = Interval(*region_specs)
 
         elif region_type == "rectangle":
-            self._region = Rectangle(*region_specs)  # type: ignore
+            self._region = Rectangle(*region_specs)
 
         elif region_type == "ellipse":
-            self._region = Ellipse(*region_specs)  # type: ignore
+            self._region = Ellipse(*region_specs)
 
         elif region_type == "polygon":
-            self._region = Polygon(region_specs)  # type: ignore
+            self._region = Polygon(region_specs)
 
         elif region_type == "shapelyPolygon":
-            self._region = Polygon(region_specs)  # type: ignore
+            self._region = Polygon(region_specs)
 
         elif region_type == "shapelyMultiPolygon":
             self._region = MultiPolygon(region_specs)  # type: ignore
@@ -176,7 +176,7 @@ class RoiRegion:
             region_specs = Polygon.from_shapely(shapely_obj).region_specs  # type: ignore
 
         elif region_type == "shapelyMultiPolygon":
-            region_specs = MultiPolygon.from_shapely(shapely_obj).region_specs  # type: ignore
+            region_specs = MultiPolygon.from_shapely(shapely_obj).region_specs
 
         else:
             raise NotImplementedError(
@@ -204,7 +204,7 @@ class RoiRegion:
         """
         return self._region.contains(points)  # type: ignore
 
-    def as_artist(self, **kwargs: Any) -> mpl_patches:  # type: ignore
+    def as_artist(self, **kwargs: Any) -> mpl_patches:
         """
         Matplotlib patch object for this region
         (e.g. `matplotlib.patches.Ellipse`).
@@ -1166,7 +1166,8 @@ class Rectangle(Region2D):
 
     @property
     def max_distance(self) -> float:
-        return np.sqrt(self.width**2 + self.height**2)
+        return_value: float = np.sqrt(self.width**2 + self.height**2)
+        return return_value
 
     @property
     def region_measure(self) -> float:
@@ -1302,7 +1303,7 @@ class Ellipse(Region2D):
         -------
         dict
         """
-        return self._region_specs  # type: ignore
+        return self._region_specs
 
     @property
     def shapely_object(self) -> shPolygon:
@@ -1319,7 +1320,8 @@ class Ellipse(Region2D):
 
     @property
     def max_distance(self) -> float:
-        return np.max([self.width, self.height])
+        return_value: float = np.max([self.width, self.height])
+        return return_value
 
     @property
     def region_measure(self) -> float:
@@ -1330,7 +1332,7 @@ class Ellipse(Region2D):
         # using Ramanujan approximation
         a, b = self.width / 2, self.height / 2
         t = ((a - b) / (a + b)) ** 2
-        circumference = np.pi * (a + b) * (1 + 3 * t / (10 + np.sqrt(4 - 3 * t)))
+        circumference: float = np.pi * (a + b) * (1 + 3 * t / (10 + np.sqrt(4 - 3 * t)))
         return circumference
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
@@ -1477,15 +1479,18 @@ class Polygon(Region2D):
     @property
     def max_distance(self) -> float:
         distances = pdist(self.points[:-1])
-        return np.nanmax(distances)
+        return_value: float = np.nanmax(distances)
+        return return_value
 
     @property
     def region_measure(self) -> float:
-        return self.shapely_object.area
+        return_value: float = self.shapely_object.area
+        return return_value
 
     @property
     def subregion_measure(self) -> float:
-        return self.shapely_object.length
+        return_value: float = self.shapely_object.length
+        return return_value
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         _points = np.asarray(points)
@@ -1606,15 +1611,18 @@ class MultiPolygon(Region2D):
     @property
     def max_distance(self) -> float:
         distances = pdist(np.array([point for pts in self.points for point in pts]))
-        return np.nanmax(distances)
+        return_value: float = np.nanmax(distances)
+        return return_value
 
     @property
     def region_measure(self) -> float:
-        return self.shapely_object.area
+        return_value: float = self.shapely_object.area
+        return return_value
 
     @property
     def subregion_measure(self) -> float:
-        return self.shapely_object.length
+        return_value: float = self.shapely_object.length
+        return return_value
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         if np.asarray(points).size == 0:
@@ -1801,19 +1809,24 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def max_distance(self) -> float:
-        return np.sqrt(self.length**2 + self.width**2 + self.height**2)
+        return_value: float = np.sqrt(
+            self.length**2 + self.width**2 + self.height**2
+        )
+        return return_value
 
     @property
     def region_measure(self) -> float:
-        return self.length * self.width * self.height
+        return_value: float = self.length * self.width * self.height
+        return return_value
 
     @property
     def subregion_measure(self) -> float:
-        return 2 * (
+        return_value: float = 2 * (
             self.length * self.width
             + self.height * self.width
             + self.height * self.length
         )
+        return return_value
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         points = np.asarray(points)
@@ -1989,19 +2002,24 @@ class Cuboid(Region3D):
 
     @property
     def max_distance(self) -> float:
-        return np.sqrt(self.length**2 + self.width**2 + self.height**2)
+        return_value: float = np.sqrt(
+            self.length**2 + self.width**2 + self.height**2
+        )
+        return return_value
 
     @property
     def region_measure(self) -> float:
-        return self.length * self.width * self.height
+        return_value: float = self.length * self.width * self.height
+        return return_value
 
     @property
     def subregion_measure(self) -> float:
-        return 2 * (
+        return_value: float = 2 * (
             self.length * self.width
             + self.height * self.width
             + self.height * self.length
         )
+        return return_value
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         raise NotImplementedError
@@ -2142,11 +2160,13 @@ class AxisOrientedHypercuboid(RegionND):
 
     @property
     def max_distance(self) -> float:
-        return np.sqrt(np.sum(self.lengths**2))
+        return_value: float = np.sqrt(np.sum(self.lengths**2))
+        return return_value
 
     @property
     def region_measure(self) -> float:
-        return float(np.prod(self.lengths, dtype=float))
+        return_value: float = float(np.prod(self.lengths, dtype=float))
+        return return_value
 
     @property
     def subregion_measure(self) -> float:
@@ -2193,7 +2213,7 @@ def _polygon_path(polygon: Polygon | MultiPolygon) -> mpl_path.Path:
         n = len(getattr(ob, "coords", None) or ob)
         vals = np.ones(n, dtype=mpl_path.Path.code_type) * mpl_path.Path.LINETO
         vals[0] = mpl_path.Path.MOVETO
-        return vals
+        return vals  # type: ignore
 
     ptype = polygon.geom_type
     if ptype == "Polygon":
@@ -2219,4 +2239,4 @@ def _polygon_path(polygon: Polygon | MultiPolygon) -> mpl_path.Path:
         ]
     )
 
-    return mpl_path.Path(vertices, codes)  # type: ignore
+    return mpl_path.Path(vertices, codes)

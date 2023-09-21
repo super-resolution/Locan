@@ -1489,7 +1489,7 @@ def simulate_tracks(
     rng = np.random.default_rng(seed)
 
     start_positions = np.array(
-        [rng.uniform(*_range, size=n_walks) for _range in ranges]  # type: ignore
+        [rng.uniform(*_range, size=n_walks) for _range in ranges]
     ).T
 
     times, positions = _random_walk(

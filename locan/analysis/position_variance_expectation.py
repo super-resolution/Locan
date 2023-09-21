@@ -365,7 +365,7 @@ class PositionVarianceExpectation(_Analysis):
                     n_bins,
                     bin_size,
                     bin_edges,
-                    bin_range,  # type: ignore
+                    bin_range,
                     labels=[loc_property, other_loc_property],
                 )
             except ValueError as exc:

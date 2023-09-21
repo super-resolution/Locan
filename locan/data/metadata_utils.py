@@ -167,12 +167,13 @@ def metadata_to_formatted_string(message: Message, **kwargs: Any) -> str:
         message: Message, indent: int, as_one_line: bool
     ) -> str | None:
         if message.DESCRIPTOR.name in ["Timestamp", "Duration"]:
-            return message.ToJsonString()  # type: ignore[attr-defined]
+            return_value: str | None = message.ToJsonString()  # type: ignore[attr-defined]
         else:
-            return None
+            return_value = None
+        return return_value
 
     return text_format.MessageToString(
-        message, message_formatter=message_formatter, **kwargs  # type: ignore[arg-type]
+        message, message_formatter=message_formatter, **kwargs
     )
 
 

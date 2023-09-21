@@ -295,7 +295,7 @@ def _bin_edges_to_bin_size_one_dimension(
     """
     differences = np.diff(bin_edges)
     if np.all(differences == differences[0]):
-        bin_size = differences[0]
+        bin_size: float | npt.NDArray[np.float_] = differences[0]
     elif np.all(np.isclose(differences, differences[0], atol=0)):
         bin_size = differences[0]
         logger.debug(
@@ -903,7 +903,7 @@ class Bins:
                 )
             self._bins = _BinsFromEdges(bin_edges)
 
-        self._bin_centers = None
+        self._bin_centers: tuple[npt.NDArray[np.float_], ...] | None = None
         self.labels = labels
         self._boost_histogram_axes: bh.axis.AxesTuple | None = None
 
@@ -913,7 +913,8 @@ class Bins:
 
     @property
     def bin_edges(self) -> tuple[npt.NDArray[np.float_], ...]:
-        return self._bins.bin_edges
+        return_value: tuple[npt.NDArray[np.float_], ...] = self._bins.bin_edges
+        return return_value
 
     @property
     def n_bins(self) -> tuple[int, ...]:
@@ -933,7 +934,8 @@ class Bins:
             self._bin_centers = getattr(self._bins, "bin_centers", None)
             if self._bin_centers is None:
                 self._bin_centers = _bin_edges_to_bin_centers(self.bin_edges)  # type: ignore
-        return self._bin_centers
+        return_value: tuple[npt.NDArray[np.float_], ...] = self._bin_centers
+        return return_value
 
     @property
     def labels(self) -> list[str] | None:
@@ -1028,7 +1030,7 @@ def _histogram_fast_histogram(data: npt.ArrayLike, bins: Bins) -> npt.NDArray[np
     """
     data = np.asarray(data)
     if data.shape[0] == 1:
-        img = fast_histogram.histogram1d(
+        img: npt.NDArray[np.int_] = fast_histogram.histogram1d(
             data, range=bins.bin_range[0], bins=bins.n_bins[0]
         )
     elif data.shape[0] == 2:
@@ -1054,7 +1056,7 @@ def _histogram_boost_histogram(data: npt.ArrayLike, bins: Bins) -> npt.NDArray[n
     npt.NDArray[np.int_]
     """
     hist = bh.Histogram(*bins.boost_histogram_axes).fill(*data)  # type: ignore
-    img = hist.view()
+    img: npt.NDArray[np.int_] = hist.view()
     return img
 
 
@@ -1079,7 +1081,7 @@ def _histogram_mean_fast_histogram(
     """
     data = np.asarray(data)
     if data.shape[0] == 1:
-        hist = fast_histogram.histogram1d(
+        hist: npt.NDArray[np.float_] = fast_histogram.histogram1d(
             data, range=bins.bin_range[0], bins=bins.n_bins[0]
         )
         hist_w = fast_histogram.histogram1d(
@@ -1123,7 +1125,7 @@ def _histogram_mean_boost_histogram(
         *data, sample=values
     )
     # bh.Histogram yields zero for mean values in bins with zero counts
-    mean_values = hist.values()
+    mean_values: npt.NDArray[np.float_] = hist.values()
     mask = hist.counts() == 0
     mean_values[mask] = np.nan
     return mean_values
@@ -1366,7 +1368,7 @@ def _accumulate_2d(
     ):
         grouped_data_ = data_[:, 1][data_indices_first_dim_]
         bin_indices_group, data_indices_group, _, counts_group = _accumulate_1d(
-            data=grouped_data_, bin_edges=bin_edges[1], return_counts=return_counts  # type: ignore
+            data=grouped_data_, bin_edges=bin_edges[1], return_counts=return_counts
         )
 
         # form multi-dimensional bin_indices

@@ -214,4 +214,7 @@ def load_locdata(
     LocData
         A new instance of LocData with all localizations.
     """
-    return _map_file_type_to_load_function(file_type)(path=path, nrows=nrows, **kwargs)
+    return_value: LocData = _map_file_type_to_load_function(file_type)(
+        path=path, nrows=nrows, **kwargs
+    )
+    return return_value

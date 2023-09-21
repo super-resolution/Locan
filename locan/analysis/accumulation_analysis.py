@@ -58,7 +58,7 @@ logger = logging.getLogger(__name__)
 def _accumulation_cluster_check_for_single_dataset(
     locdata: LocData,
     region_measure: float,
-    algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,  # type: ignore
+    algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,
     algo_parameter: dict[str, Any] | None = None,
     hull: Literal["bb", "ch"] = "bb",
 ) -> tuple[float, float, float]:
@@ -96,7 +96,7 @@ def _accumulation_cluster_check_for_single_dataset(
     elif hull == "ch":
         # compute hulls
         Hs = [ConvexHull(ref.coordinates) for ref in clust.references]  # type: ignore[union-attr]
-        clust.dataframe = clust.dataframe.assign(  # type: ignore[union-attr]
+        clust.dataframe = clust.dataframe.assign(
             region_measure_ch=[H.region_measure for H in Hs]
         )
 
@@ -122,7 +122,7 @@ def _accumulation_cluster_check_for_single_dataset(
 def _accumulation_cluster_check(
     locdata: LocData,
     region_measure: Literal["bb", "ch"] = "bb",
-    algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,  # type: ignore
+    algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,
     algo_parameter: dict[str, Any] | None = None,
     hull: Literal["bb", "ch"] = "bb",
     n_loc: int = 10,
@@ -160,7 +160,7 @@ def _accumulation_cluster_check(
             locdata.data.index[range(n_pts)].values for n_pts in numbers_loc
         ]
         locdatas = [
-            LocData.from_selection(locdata, indices=idx) for idx in selected_indices  # type: ignore[arg-type]
+            LocData.from_selection(locdata, indices=idx) for idx in selected_indices
         ]
     else:
         raise TypeError(f"String input {divide} for divide is not valid.")
@@ -260,7 +260,7 @@ class AccumulationClusterCheck(_Analysis):
         self,
         meta: metadata_analysis_pb2.AMetadata | None = None,
         region_measure: float | Literal["bb", "ch"] = "bb",
-        algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,  # type: ignore
+        algorithm: Callable[..., tuple[LocData, LocData]] = cluster_hdbscan,
         algo_parameter: dict[str, Any] | None = None,
         hull: Literal["bb", "ch"] = "bb",
         n_loc: int | Sequence[int] = 10,

@@ -606,16 +606,17 @@ class LocData:
                     self.references.data.index.intersection(self.indices)  # type: ignore
                 ]
             df = pd.merge(
-                df, self.dataframe, left_index=True, right_index=True, how="outer"  # type: ignore
+                df, self.dataframe, left_index=True, right_index=True, how="outer"
             )
             return df
         else:
-            return self.dataframe  # type: ignore
+            return self.dataframe
 
     @property
     def coordinates(self) -> npt.NDArray[np.float_]:
         """npt.NDArray[float]: Return all coordinate values."""
-        return self.data[self.coordinate_keys].values
+        return_value: npt.NDArray[np.float_] = self.data[self.coordinate_keys].values
+        return return_value
 
     @property
     def centroid(self) -> npt.NDArray[np.float_]:

@@ -156,20 +156,27 @@ def compute_convex_hull_region_measure_2d(n_points: int, sigma: float = 1) -> fl
     """
 
     def pdf(x: float) -> float:
-        return 1 / (np.sqrt(2 * np.pi)) * np.exp((-1 / 2) * (x**2))
+        return_value = 1 / (np.sqrt(2 * np.pi)) * np.exp((-1 / 2) * (x**2))
+        return float(return_value)
 
     def cdf(x: float) -> float:
-        return 1 / 2 * (1 + special.erf(x / np.sqrt(2)))
+        return_value = 1 / 2 * (1 + special.erf(x / np.sqrt(2)))
+        return float(return_value)
 
-    area = (
-        3
-        * np.pi
-        * special.binom(n_points, 3)
-        * integrate.quad(
-            lambda x: cdf(x) ** (n_points - 3) * pdf(x) ** 3, -np.inf, np.inf
-        )[0]
-    )
-    return sigma**2 * area
+    try:
+        area = (
+            3
+            * np.pi
+            * special.binom(n_points, 3)
+            * integrate.quad(
+                lambda x: cdf(x) ** (n_points - 3) * pdf(x) ** 3, -np.inf, np.inf
+            )[0]
+        )
+        return_value = sigma**2 * area
+    except ZeroDivisionError:
+        return_value = np.nan
+
+    return float(return_value)
 
 
 def _get_convex_hull_property_expectation(
@@ -396,7 +403,7 @@ class ConvexHullExpectation(_Analysis):
         if self.results is None:
             return ax
 
-        self.results.values.plot(  # type: ignore
+        self.results.values.plot(
             kind="scatter",
             alpha=0.2,
             x="localization_count",
@@ -564,7 +571,7 @@ class ConvexHullExpectation(_Analysis):
                     n_bins,
                     bin_size,
                     bin_edges,
-                    bin_range,  # type: ignore[arg-type]
+                    bin_range,
                     labels=[loc_property, other_loc_property],
                 )
             except ValueError as exc:

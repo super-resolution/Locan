@@ -151,7 +151,7 @@ class _Results:
         normalized_cumulative_time_trace = (
             self.time_series.cumsum() / self.time_series.sum()
         )
-        accumulation_time = normalized_cumulative_time_trace.gt(fraction).idxmax()
+        accumulation_time: int = normalized_cumulative_time_trace.gt(fraction).idxmax()
         return accumulation_time
 
 

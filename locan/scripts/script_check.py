@@ -88,9 +88,7 @@ def render_locs_per_frame_napari(
 
     points = locdata.data[
         locdata.data["frame"] < len(images)  # type:  ignore[arg-type]
-    ][  # type:  ignore[arg-type]
-        ["frame", "position_x", "position_y"]
-    ].values
+    ][["frame", "position_x", "position_y"]].values
 
     # Provide napari viewer if not provided
     if viewer is None:

@@ -259,7 +259,7 @@ def save_SMLM(
 
 
 def load_SMLM_manifest(
-    path: str | os.PathLike[Any] | IO[Any],
+    path: str | os.PathLike[str] | IO[Any],
 ) -> dict[str, Any]:
     """
     Read manifest.json (version 0.2) from a SMLM single-molecule localization
@@ -279,14 +279,14 @@ def load_SMLM_manifest(
     file_names = zf.namelist()
     if "manifest.json" not in file_names:
         raise Exception("invalid file: no manifest.json found in the smlm file.")
-    manifest = json.loads(zf.read("manifest.json"))
+    manifest: dict[str, Any] = json.loads(zf.read("manifest.json"))
     if manifest["format_version"] != "0.2":
         raise NotImplementedError("Not implemented for manifest version unlike 0.2.")
     return manifest
 
 
 def load_SMLM_header(
-    path: str | os.PathLike[Any] | IO[Any],
+    path: str | os.PathLike[str] | IO[Any],
 ) -> list[str]:
     """
     Read header (manifest) from a SMLM single-molecule localization file and

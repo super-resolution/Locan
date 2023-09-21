@@ -379,7 +379,7 @@ def render_3d_rgb_napari(
             loc_properties=loc_properties,
             other_property=other_property,
             bin_edges=bins.bin_edges,  # type: ignore
-        ).data  # type: ignore
+        ).data
         for locdata in locdatas
     ]
 

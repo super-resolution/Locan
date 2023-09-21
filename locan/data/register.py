@@ -231,9 +231,10 @@ def _xcorr(imageA: npt.ArrayLike, imageB: npt.ArrayLike) -> npt.NDArray[np.float
     imageB = np.asarray(imageB)
     FimageA = np.fft.fft2(imageA)
     CFimageB = np.conj(np.fft.fft2(imageB))
-    return np.fft.fftshift(np.real(np.fft.ifft2(FimageA * CFimageB))) / np.sqrt(
-        imageA.size
-    )
+    return_value: npt.NDArray[np.float_] = np.fft.fftshift(
+        np.real(np.fft.ifft2(FimageA * CFimageB))
+    ) / np.sqrt(imageA.size)
+    return return_value
 
 
 def _get_image_shift(

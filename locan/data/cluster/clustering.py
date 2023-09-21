@@ -313,7 +313,7 @@ def cluster_by_bin(
 
     if min_samples > 1:
         mask = counts >= min_samples
-        counts = counts[mask]  # type: ignore
+        counts = counts[mask]
         bin_indices = bin_indices[mask]
         data_indices = [
             data_indices_e

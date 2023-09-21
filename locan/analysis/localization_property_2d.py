@@ -97,12 +97,13 @@ def _gauss_2d(
         np.float64(number)
         for number in (amplitude, center_x, center_y, sigma_x, sigma_y)
     )
-    return amplitude * np.exp(
+    return_value: float | npt.NDArray[np.float_] = amplitude * np.exp(
         -(
             (x_ - center_x) ** 2 / (2.0 * sigma_x**2)
             + (y_ - center_y) ** 2 / (2.0 * sigma_y**2)
         )
     )
+    return return_value
 
 
 def _fit_image(data: npt.ArrayLike, bin_range: npt.ArrayLike) -> ModelResult:

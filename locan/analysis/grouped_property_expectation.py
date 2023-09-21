@@ -318,7 +318,7 @@ class GroupedPropertyExpectation(_Analysis):
                     n_bins,
                     bin_size,
                     bin_edges,
-                    bin_range,  # type: ignore[arg-type]
+                    bin_range,
                     labels=[loc_property, other_loc_property],
                 )
             except ValueError as exc:

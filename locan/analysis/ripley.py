@@ -126,7 +126,7 @@ def _ripleys_k_function(
     return ripley
 
 
-def _ripleys_l_function(  # type: ignore
+def _ripleys_l_function(
     points: npt.ArrayLike,
     radii: Iterable[float],
     region_measure: float = 1,
@@ -137,16 +137,17 @@ def _ripleys_l_function(  # type: ignore
     For parameter description see _ripleys_k_function.
     """
     if np.shape(points)[1] == 2:
-        return np.sqrt(
+        return_value: npt.NDArray[np.float_] = np.sqrt(
             _ripleys_k_function(points, radii, region_measure, other_points) / np.pi
         )
     elif np.shape(points)[1] == 3:
-        return np.cbrt(
+        return_value = np.cbrt(
             _ripleys_k_function(points, radii, region_measure, other_points)
             * 3
             / 4
             / np.pi
         )
+    return return_value
 
 
 def _ripleys_h_function(
@@ -160,9 +161,10 @@ def _ripleys_h_function(
     see _ripleys_k_function.
     """
 
-    return _ripleys_l_function(
+    return_value: npt.NDArray[np.float_] = _ripleys_l_function(
         points, radii, region_measure, other_points
     ) - np.asarray(radii)
+    return return_value
 
 
 # The specific analysis classes

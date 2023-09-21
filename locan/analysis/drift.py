@@ -162,7 +162,7 @@ def _estimate_drift_icp(
         Transformation(np.identity(locdata.dimension), np.zeros(locdata.dimension))
     ]
     if target == "first":
-        for locdata in collection.references[1:]:  # type: ignore
+        for locdata in collection.references[1:]:
             transformation = _register_icp_open3d(
                 locdata.coordinates,
                 collection.references[0].coordinates,
@@ -304,11 +304,12 @@ class _LmfitModelFacade:
             self.plot()
         return self.model_result
 
-    def eval(self, x: npt.ArrayLike) -> npt.NDArray[Any]:
+    def eval(self, x: npt.ArrayLike) -> npt.NDArray[np.float_]:
         x = np.asarray(x)
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
-        return self.model_result.eval(x=x)
+        return_value: npt.NDArray[np.float_] = self.model_result.eval(x=x)
+        return return_value
 
     def plot(self, **kwargs: Any) -> mpl.axes.Axes:
         if self.model_result is None:
@@ -331,11 +332,11 @@ class _ConstantModelFacade:
             self.plot()
         return self.model_result
 
-    def eval(self, x: npt.ArrayLike) -> npt.NDArray[Any]:
+    def eval(self, x: npt.ArrayLike) -> npt.NDArray[np.float_]:
         x = np.asarray(x)
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
-        result = self.model_result.eval(x=x)
+        result: npt.NDArray[np.float_] = self.model_result.eval(x=x)
         if np.shape(result) != np.shape(x):  # needed to work with lmfit<1.2.0
             result = np.full(shape=np.shape(x), fill_value=result)
         return result
@@ -367,10 +368,10 @@ class _ConstantOneModelFacade(_ConstantModelFacade):
 class _SplineModelFacade:
     def __init__(self, **kwargs: Any) -> None:
         self.model: str = "spline"
-        self.model_result: Any | None = None
+        self.model_result: tuple[Any, Any, Any] | None = None
         self.parameter = kwargs
         self.independent_variable: npt.NDArray[Any] | None = None
-        self.data: npt.NDArray[Any] | None = None
+        self.data: npt.NDArray[np.float_] | None = None
 
     def fit(
         self, x: npt.ArrayLike, y: npt.ArrayLike, verbose: bool = False, **kwargs: Any
@@ -382,13 +383,14 @@ class _SplineModelFacade:
         )
         if verbose:
             self.plot()
+        assert self.model_result is not None  # type narrowing # noqa: S101
         return self.model_result
 
     def eval(self, x: npt.ArrayLike) -> float | npt.NDArray[np.float_] | list[Any]:
-        np.asarray(x)
+        x = np.asarray(x)
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
-        results = splev(x, self.model_result)
+        results: npt.NDArray[np.float_] | list[Any] = splev(x, self.model_result)
         if isinstance(x, (tuple, list, np.ndarray)):
             return results
         else:
@@ -512,7 +514,8 @@ class DriftComponent:
         """
         if self.model is None:
             raise ValueError("No model available.")
-        return self.model.eval(x)
+        return_value: float | npt.NDArray[np.float_] | list[Any] = self.model.eval(x)
+        return return_value
 
 
 class Drift(_Analysis):
@@ -826,7 +829,7 @@ class Drift(_Analysis):
             )
             for n, matrix_model in enumerate(matrix_models):
                 if matrix_model is None:
-                    matrix_model = self.transformation_models["matrix"][n]  # type: ignore[index]
+                    matrix_model = self.transformation_models["matrix"][n]
                 self.fit_transformation(
                     slice_data=slice_data,
                     transformation_component="matrix",
@@ -847,7 +850,7 @@ class Drift(_Analysis):
             )
             for n, offset_model in enumerate(offset_models):
                 if offset_model is None:
-                    offset_model = self.transformation_models["offset"][n]  # type: ignore[index]
+                    offset_model = self.transformation_models["offset"][n]
                 self.fit_transformation(
                     slice_data=slice_data,
                     transformation_component="offset",
@@ -873,7 +876,7 @@ class Drift(_Analysis):
             transformed_locdatas = [
                 transform_affine(locdata, transformation.matrix, transformation.offset)  # type: ignore
                 for locdata, transformation in zip(
-                    self.collection.references[1:], self.transformations  # type: ignore
+                    self.collection.references[1:], self.transformations
                 )
             ]
 
@@ -881,7 +884,7 @@ class Drift(_Analysis):
             for n, locdata in enumerate(self.collection.references[1:]):
                 transformed_locdata = locdata
                 for transformation in reversed(self.transformations[:n]):
-                    transformed_locdata = transform_affine(  # type: ignore
+                    transformed_locdata = transform_affine(
                         transformed_locdata,
                         transformation.matrix,
                         transformation.offset,
@@ -889,7 +892,7 @@ class Drift(_Analysis):
                 transformed_locdatas.append(transformed_locdata)
 
         new_locdata = LocData.concat(
-            [self.collection.references[0]] + transformed_locdatas  # type: ignore[union-attr]
+            [self.collection.references[0]] + transformed_locdatas
         )
         return new_locdata
 
@@ -927,7 +930,7 @@ class Drift(_Analysis):
             for n, drift_model in enumerate(self.transformation_models["matrix"]):
                 matrix[:, n // dimension, n % dimension] = drift_model.eval(frames)  # type: ignore
             transformed_points = np.einsum(
-                "...ij, ...j -> ...i", matrix, locdata.coordinates  # type: ignore
+                "...ij, ...j -> ...i", matrix, locdata.coordinates
             )
 
         if self.transformation_models["offset"] is None:
@@ -935,7 +938,7 @@ class Drift(_Analysis):
         else:
             for n, drift_model in enumerate(self.transformation_models["offset"]):
                 offset[:, n] = drift_model.eval(frames)  # type: ignore
-            transformed_points += offset  # type: ignore
+            transformed_points += offset
 
         return transformed_points
 

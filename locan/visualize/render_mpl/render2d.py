@@ -549,7 +549,7 @@ def render_2d_rgb_mpl(
     imgs = [
         histogram(
             locdata=locdata, loc_properties=loc_properties, other_property=other_property, bin_edges=bins.bin_edges  # type: ignore
-        ).data  # type: ignore[attr-defined]
+        ).data
         for locdata in locdatas
     ]
 

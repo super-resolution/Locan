@@ -125,7 +125,7 @@ def ranges(
     if len(locdata) == 1:
         if ranges_.size == 0:
             ranges_ = np.concatenate(
-                [locdata.coordinates, locdata.coordinates + epsilon], axis=0  # type: ignore
+                [locdata.coordinates, locdata.coordinates + epsilon], axis=0
             ).T
         else:
             ranges_ = ranges_ + [0, epsilon]

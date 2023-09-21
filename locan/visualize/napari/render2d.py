@@ -288,7 +288,7 @@ def render_2d_rgb_napari(
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     viewer: napari.Viewer = None,
     **kwargs: Any,
-) -> tuple[napari.Viewer, Bins]:
+) -> napari.Viewer:
     """
     Render localization data into a 2D RGB image by binning x,y-coordinates
     into regular bins.
@@ -356,7 +356,7 @@ def render_2d_rgb_napari(
 
     Returns
     -------
-    tuple[napari.Viewer, Bins]
+    napari.Viewer
     """
     # Provide napari viewer if not provided
     if viewer is None:
@@ -392,7 +392,7 @@ def render_2d_rgb_napari(
             loc_properties=loc_properties,
             other_property=other_property,
             bin_edges=bins.bin_edges,  # type: ignore
-        ).data  # type: ignore
+        ).data
         for locdata in locdatas
     ]
 

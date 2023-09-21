@@ -233,7 +233,7 @@ class AlphaComplex:
 
                 # named tuple Simplices(vertices, interval_a, interval_b, interval_c)
                 alpha_complex_lines.append(
-                    (tuple(sorted(k_simplex)), interval_a, interval_b, interval_c)
+                    (tuple(sorted(k_simplex)), interval_a, interval_b, interval_c)  # type: ignore
                 )
                 # use tuple(sorted()) together with set to get rid of duplicate simplices
 
@@ -244,7 +244,7 @@ class AlphaComplex:
             # if alpha is large enough such that ALL k-simplices are singular, regular, or interior,
             # the d-simplex is a singular, regular or interior part of the alpha shape
             alpha_complex_triangles.append(
-                (n, max(interval_a_list), max(interval_b_list), max(interval_c_list))
+                (n, max(interval_a_list), max(interval_b_list), max(interval_c_list))  # type: ignore
             )
         alpha_complex_lines = set(alpha_complex_lines)  # type: ignore[assignment]
         alpha_complex_lines = list(alpha_complex_lines)
@@ -430,9 +430,10 @@ class AlphaComplex:
         float | None
         """
         if len(self.lines) == 0:
-            return None
+            return_value: float | None = None
         else:
-            return np.max([ac[1] for ac in self.lines])
+            return_value = np.max([ac[1] for ac in self.lines])
+        return return_value
 
     def alphas(self) -> npt.NDArray[np.float_]:
         """
@@ -443,7 +444,7 @@ class AlphaComplex:
         npt.NDArray[np.float_]
         """
         if len(self.lines) == 0:
-            return np.array([])
+            return np.array([], dtype=np.float_)
         else:
             return np.unique([ac[1:] for ac in self.lines])
 
@@ -545,7 +546,7 @@ class AlphaShape:
         self.dimension = self.alpha_complex.dimension
         self._alpha: float = np.nan
         self._region = None
-        self._connected_components = None
+        self._connected_components: list[Region] | None = None
         self._vertices_connected_components_indices: list[list[int]] | None = None
 
         self.alpha = alpha
@@ -640,7 +641,8 @@ class AlphaShape:
     @property
     def vertex_indices(self) -> list[int]:
         array = self.alpha_complex.get_alpha_complex_lines(self.alpha, type="regular")
-        return np.unique(array).tolist()
+        return_value: list[int] = np.unique(array).tolist()
+        return return_value
 
     @property
     def vertices_alpha_shape(self) -> npt.NDArray[np.float_]:
@@ -655,4 +657,5 @@ class AlphaShape:
         array_i = self.alpha_complex.get_alpha_complex_lines(
             self.alpha, type="interior"
         )
-        return np.unique(array_r + array_s + array_i).tolist()
+        return_value: list[int] = np.unique(array_r + array_s + array_i).tolist()
+        return return_value

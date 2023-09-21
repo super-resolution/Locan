@@ -82,7 +82,7 @@ class Files:
             self.df = pd.DataFrame(columns=[column])
         elif isinstance(df, (pd.DataFrame, pd.Series)):
             if hasattr(df, column):
-                self.df = df  # type: ignore[assignment]
+                self.df = df
             else:
                 raise AttributeError(f"Dataframe must have column {column}.")
         else:
@@ -106,7 +106,8 @@ class Files:
                 )
 
     def __iter__(self) -> Iterable[tuple[Any, ...]]:
-        return self.df.itertuples(name="Files")
+        return_value: Iterable[tuple[Any, ...]] = self.df.itertuples(name="Files")
+        return return_value
 
     def __getitem__(self, index: Any) -> Series[Any] | DataFrame | Files:
         if isinstance(index, int):
@@ -302,7 +303,7 @@ class Files:
             if len(stoplist) != 0:  # type: ignore[arg-type]
                 conditions = [
                     self.df[column].astype("string").str.contains(item_, regex=False)  # type: ignore[arg-type]
-                    for item_ in stoplist  # type: ignore[union-attr]
+                    for item_ in stoplist  # type: ignore
                 ]
                 mask = functools.reduce(lambda x, y: x | y, conditions)
                 self.df = self.df[~mask]

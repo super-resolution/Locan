@@ -351,19 +351,20 @@ class PairwiseDistance1d(stats.rv_continuous):
         mu: npt.ArrayLike,
         sigma_1: npt.ArrayLike,
         sigma_2: npt.ArrayLike,
-    ) -> float | npt.NDArray[np.float_]:
+    ) -> npt.NDArray[np.float_]:
         x = np.asarray(x)
         mu = np.asarray(mu)
         sigma_1 = np.asarray(sigma_1)
         sigma_2 = np.asarray(sigma_2)
 
         sigma = np.sqrt(sigma_1**2 + sigma_2**2)
-        return (
+        return_value: npt.NDArray[np.float_] = (
             np.sqrt(2 / np.pi)
             / sigma
             * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
             * np.cosh(x * mu / (sigma**2))
         )
+        return return_value
 
 
 class PairwiseDistance2d(stats.rv_continuous):
@@ -402,19 +403,20 @@ class PairwiseDistance2d(stats.rv_continuous):
         mu: npt.ArrayLike,
         sigma_1: npt.ArrayLike,
         sigma_2: npt.ArrayLike,
-    ) -> float | npt.NDArray[Any]:
+    ) -> npt.NDArray[np.float_]:
         x = np.asarray(x)
         mu = np.asarray(mu)
         sigma_1 = np.asarray(sigma_1)
         sigma_2 = np.asarray(sigma_2)
 
         sigma = np.sqrt(sigma_1**2 + sigma_2**2)
-        return (
+        return_value: npt.NDArray[np.float_] = (
             x
             / (sigma**2)
             * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
             * np.i0(x * mu / (sigma**2))
         )
+        return return_value
 
 
 class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
@@ -447,17 +449,18 @@ class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
 
     def _pdf(
         self, x: npt.ArrayLike, mu: npt.ArrayLike, sigma: npt.ArrayLike
-    ) -> float | npt.NDArray[Any]:
+    ) -> npt.NDArray[np.float_]:
         x = np.asarray(x)
         mu = np.asarray(mu)
         sigma = np.asarray(sigma)
 
-        return (
+        return_value: npt.NDArray[np.float_] = (
             x
             / (sigma**2)
             * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
             * np.i0(x * mu / (sigma**2))
         )
+        return return_value
 
 
 class PairwiseDistance3d(stats.rv_continuous):
@@ -496,7 +499,7 @@ class PairwiseDistance3d(stats.rv_continuous):
         mu: npt.ArrayLike,
         sigma_1: npt.ArrayLike,
         sigma_2: npt.ArrayLike,
-    ) -> float | npt.NDArray[Any]:
+    ) -> npt.NDArray[np.float_]:
         x = np.asarray(x)
         mu = np.asarray(mu)
         sigma_1 = np.asarray(sigma_1)
@@ -504,7 +507,7 @@ class PairwiseDistance3d(stats.rv_continuous):
 
         sigma = np.sqrt(sigma_1**2 + sigma_2**2)
         if all(mu == 0):
-            return (
+            return_value: npt.NDArray[np.float_] = (
                 np.sqrt(2 / np.pi)
                 * x
                 / sigma
@@ -513,7 +516,7 @@ class PairwiseDistance3d(stats.rv_continuous):
                 / (sigma**2)
             )
         else:
-            return (
+            return_value = (
                 np.sqrt(2 / np.pi)
                 * x
                 / sigma
@@ -521,6 +524,7 @@ class PairwiseDistance3d(stats.rv_continuous):
                 * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
                 * np.sinh(x * mu / (sigma**2))
             )
+        return return_value
 
 
 class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
@@ -549,13 +553,14 @@ class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(
-        self, x: npt.ArrayLike, sigma: npt.ArrayLike
-    ) -> float | npt.NDArray[np.float_]:
+    def _pdf(self, x: npt.ArrayLike, sigma: npt.ArrayLike) -> npt.NDArray[np.float_]:
         x = np.asarray(x)
         sigma = np.asarray(sigma)
 
-        return np.sqrt(2 / np.pi) / sigma * np.exp(-(x**2) / (2 * sigma**2))
+        return_value: npt.NDArray[np.float_] = (
+            np.sqrt(2 / np.pi) / sigma * np.exp(-(x**2) / (2 * sigma**2))
+        )
+        return return_value
 
 
 class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
@@ -584,13 +589,14 @@ class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(
-        self, x: npt.ArrayLike, sigma: npt.ArrayLike
-    ) -> float | npt.NDArray[np.float_]:
+    def _pdf(self, x: npt.ArrayLike, sigma: npt.ArrayLike) -> npt.NDArray[np.float_]:
         x = np.asarray(x)
         sigma = np.asarray(sigma)
 
-        return x / (sigma**2) * np.exp(-(x**2) / (2 * sigma**2))
+        return_value: npt.NDArray[np.float_] = (
+            x / (sigma**2) * np.exp(-(x**2) / (2 * sigma**2))
+        )
+        return return_value
 
 
 class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
@@ -619,13 +625,11 @@ class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(
-        self, x: npt.ArrayLike, sigma: npt.ArrayLike
-    ) -> float | npt.NDArray[np.float_]:
+    def _pdf(self, x: npt.ArrayLike, sigma: npt.ArrayLike) -> npt.NDArray[np.float_]:
         x = np.asarray(x)
         sigma = np.asarray(sigma)
 
-        return (
+        return_value: npt.NDArray[np.float_] = (
             np.sqrt(2 / np.pi)
             * x
             / sigma
@@ -633,6 +637,7 @@ class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
             * x
             / (sigma**2)
         )
+        return return_value
 
 
 class _DistributionFits:

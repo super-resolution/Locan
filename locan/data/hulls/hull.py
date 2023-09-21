@@ -138,7 +138,8 @@ class _ConvexHullScipy:
 
     @property
     def vertices(self) -> npt.NDArray[np.float_]:
-        return self.hull.points[self.hull.vertices]
+        return_value: npt.NDArray[np.float_] = self.hull.points[self.hull.vertices]
+        return return_value
 
     @property
     def region(self) -> Polygon:

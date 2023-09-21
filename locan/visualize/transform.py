@@ -307,7 +307,7 @@ def adjust_contrast(
         or rescale is Trafo.EQUALIZE
         or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE.name)
     ):
-        norm = HistogramEqualization(**dict(dict(power=1, mask=image > 0), **kwargs))  # type: ignore[arg-type]
+        norm = HistogramEqualization(**dict(dict(power=1, mask=image > 0), **kwargs))
         new_image = norm(image)
 
     elif (
@@ -315,7 +315,7 @@ def adjust_contrast(
         or rescale is Trafo.EQUALIZE_UINT8
         or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_UINT8.name)
     ):
-        norm = HistogramEqualization(**dict(dict(power=1, mask=image > 0), **kwargs))  # type: ignore[arg-type]
+        norm = HistogramEqualization(**dict(dict(power=1, mask=image > 0), **kwargs))
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
     elif (
@@ -323,7 +323,7 @@ def adjust_contrast(
         or rescale is Trafo.EQUALIZE_ALL
         or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_ALL.name)
     ):
-        norm = HistogramEqualization(**dict(dict(power=1, mask=None), **kwargs))  # type: ignore[arg-type]
+        norm = HistogramEqualization(**dict(dict(power=1, mask=None), **kwargs))
         new_image = norm(image)
 
     elif (
@@ -334,7 +334,7 @@ def adjust_contrast(
             and rescale.upper() == Trafo.EQUALIZE_ALL_UINT8.name
         )
     ):
-        norm = HistogramEqualization(**dict(dict(power=1, mask=None), **kwargs))  # type: ignore[arg-type]
+        norm = HistogramEqualization(**dict(dict(power=1, mask=None), **kwargs))
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
     elif (
@@ -342,7 +342,7 @@ def adjust_contrast(
         or rescale is Trafo.EQUALIZE_0P3
         or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_0P3.name)
     ):
-        norm = HistogramEqualization(**dict(dict(power=0.3, mask=image > 0), **kwargs))  # type: ignore[arg-type]
+        norm = HistogramEqualization(**dict(dict(power=0.3, mask=image > 0), **kwargs))
         new_image = norm(image)
 
     elif (
@@ -353,7 +353,7 @@ def adjust_contrast(
             and rescale.upper() == Trafo.EQUALIZE_0P3_UINT8.name
         )
     ):
-        norm = HistogramEqualization(**dict(dict(power=0.3, mask=image > 0), **kwargs))  # type: ignore[arg-type]
+        norm = HistogramEqualization(**dict(dict(power=0.3, mask=image > 0), **kwargs))
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
     elif (
@@ -361,7 +361,7 @@ def adjust_contrast(
         or rescale is Trafo.EQUALIZE_0P3_ALL
         or (isinstance(rescale, str) and rescale.upper() == Trafo.EQUALIZE_0P3_ALL.name)
     ):
-        norm = HistogramEqualization(**dict(dict(power=0.3, mask=None), **kwargs))  # type: ignore[arg-type]
+        norm = HistogramEqualization(**dict(dict(power=0.3, mask=None), **kwargs))
         new_image = norm(image)
 
     elif (
@@ -372,7 +372,7 @@ def adjust_contrast(
             and rescale.upper() == Trafo.EQUALIZE_0P3_ALL_UINT8.name
         )
     ):
-        norm = HistogramEqualization(**dict(dict(power=0.3, mask=None), **kwargs))  # type: ignore[arg-type]
+        norm = HistogramEqualization(**dict(dict(power=0.3, mask=None), **kwargs))
         new_image = np.multiply(norm(image), 255).astype(np.uint8)
 
     # to be deprecated eventually

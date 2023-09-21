@@ -70,15 +70,18 @@ def _transform_affine_numpy(
     dimension = np.shape(points_)[1]
 
     matrix_ = np.identity(dimension) if matrix is None else np.asarray(matrix)
-    offset_ = np.zeros(dimension) if offset is None else offset
+    offset_ = np.zeros(dimension) if offset is None else np.asarray(offset)
 
     if pre_translation is None:
         # transformed_points = np.array(
         # [np.dot(matrix_, point) + offset_ for point in points_]
         # )
         # same function but better performance:
-        transformed_points = np.einsum("ij, nj -> ni", matrix_, points_) + offset_
+        transformed_points: npt.NDArray[np.float_] = (
+            np.einsum("ij, nj -> ni", matrix_, points_) + offset_
+        )
     else:
+        pre_translation = np.asarray(pre_translation)
         transformed_points = points_ + pre_translation
         # transformed_points = np.array(
         # [np.dot(matrix_, point) + offset_ for point in transformed_points]

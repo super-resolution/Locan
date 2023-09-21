@@ -68,7 +68,7 @@ def link_locdata(
         t_column="frame",
         **kwargs,
     )
-    return_series = df["particle"]
+    return_series: pd.Series[Any] = df["particle"]
     return_series.name = "track"
     return return_series
 

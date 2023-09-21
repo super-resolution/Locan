@@ -70,9 +70,7 @@ logger = logging.getLogger(__name__)
 # The algorithms
 
 
-def pdf_nnDistances_csr_2D(
-    x: npt.ArrayLike, density: float
-) -> float | npt.NDArray[np.float_]:
+def pdf_nnDistances_csr_2D(x: npt.ArrayLike, density: float) -> npt.NDArray[np.float_]:
     """
     Probability density function for nearest-neighbor distances of points
     distributed in 2D with complete spatial randomness.
@@ -90,12 +88,13 @@ def pdf_nnDistances_csr_2D(
         Probability density function pdf(x).
     """
     x = np.asarray(x)
-    return 2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
+    return_value: npt.NDArray[np.float_] = (
+        2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
+    )
+    return return_value
 
 
-def pdf_nnDistances_csr_3D(
-    x: npt.ArrayLike, density: float
-) -> float | npt.NDArray[np.float_]:
+def pdf_nnDistances_csr_3D(x: npt.ArrayLike, density: float) -> npt.NDArray[np.float_]:
     """
     Probability density function for nearest-neighbor distances of points
     distributed in 3D with complete spatial
@@ -110,12 +109,15 @@ def pdf_nnDistances_csr_3D(
 
     Returns
     -------
-    float
+    npt.NDArray[np.float_]
         Probability density function pdf(x).
     """
     x = np.asarray(x)
     a = (3 / 4 / np.pi / density) ** (1 / 3)
-    return 3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
+    return_value: npt.NDArray[np.float_] = (
+        3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
+    )
+    return return_value
 
 
 def _nearest_neighbor_distances(
@@ -350,7 +352,10 @@ class NNDistances_csr_2d(stats.rv_continuous):
     """
 
     def _pdf(self, x: float, density: float) -> float:
-        return 2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
+        return_value: float = (
+            2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
+        )
+        return return_value
 
 
 class NNDistances_csr_3d(stats.rv_continuous):
@@ -368,7 +373,8 @@ class NNDistances_csr_3d(stats.rv_continuous):
 
     def _pdf(self, x: float, density: float) -> float:
         a = (3 / 4 / np.pi / density) ** (1 / 3)
-        return 3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
+        return_value: float = 3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
+        return return_value
 
 
 class _DistributionFits:

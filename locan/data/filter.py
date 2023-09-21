@@ -223,7 +223,7 @@ def select_by_region(
         indices_inside = region.contains(points)
         locdata_indices_to_keep = locdata.data.index[indices_inside]
         new_locdata = LocData.from_selection(
-            locdata=locdata, indices=locdata_indices_to_keep  # type: ignore
+            locdata=locdata, indices=locdata_indices_to_keep
         )
         new_locdata.region = region
     else:

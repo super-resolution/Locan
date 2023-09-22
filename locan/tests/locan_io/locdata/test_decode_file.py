@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 import locan as lc
-from locan import load_decode_file, load_decode_header
+from locan import FileType, load_decode_file, load_decode_header
 from locan.dependencies import HAS_DEPENDENCY
 
 pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["h5py"], reason="requires h5py.")
@@ -45,9 +45,8 @@ def test_loading_DECODE_file_empty_file():
 
 
 def test_loading_DECODE_file():
-    locdata = load_decode_file(
-        path=lc.ROOT_DIR / "tests/test_data/decode_dstorm_data.h5", nrows=10
-    )
+    file_path = lc.ROOT_DIR / "tests/test_data/decode_dstorm_data.h5"
+    locdata = load_decode_file(path=file_path, nrows=10)
     # print(locdata.data)
     assert len(locdata) == 10
     assert np.array_equal(
@@ -67,3 +66,5 @@ def test_loading_DECODE_file():
             "z_sig",
         ],
     )
+    assert locdata.meta.file.type == FileType.DECODE.value
+    assert locdata.meta.file.path == str(file_path)

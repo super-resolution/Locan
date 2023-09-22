@@ -39,12 +39,13 @@ def test_get_correct_column_names_from_rapidSTORM_header():
 
 
 def test_loading_rapidSTORM_file():
-    dat = load_rapidSTORM_file(
-        path=locan.ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_data.txt", nrows=10
-    )
+    path = locan.ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_data.txt"
+    dat = load_rapidSTORM_file(path=path, nrows=10)
     # print(dat.data.head())
     # dat.print_meta()
     assert len(dat) == 10
+    assert dat.meta.file.type == locan.FileType.RAPIDSTORM.value
+    assert dat.meta.file.path == str(path)
 
     file_like = StringIO(
         '# <localizations insequence="true" repetitions="variable"><field identifier="Position-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="position in sample space in X" unit="nanometer" min="0 m" max="3.27165e-005 m" /><field identifier="Position-1-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="position in sample space in Y" unit="nanometer" min="0 m" max="3.27165e-005 m" /><field identifier="ImageNumber-0-0" syntax="integer" semantic="frame number" unit="frame" min="0 fr" /><field identifier="Amplitude-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="emission strength" unit="A/D count" /><field identifier="FitResidues-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="fit residue chi square value" unit="dimensionless" /><field identifier="LocalBackground-0-0" syntax="floating point with . for decimals and optional scientific e-notation" semantic="local background" unit="A/D count" /></localizations>\n'

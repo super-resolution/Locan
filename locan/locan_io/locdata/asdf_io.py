@@ -17,8 +17,13 @@ from asdf import AsdfFile
 from asdf import open as asdf_open
 from google.protobuf import json_format
 
+from locan.constants import PROPERTY_KEYS
+from locan.data import metadata_pb2
 from locan.data.locdata import LocData
-from locan.locan_io.locdata.utilities import convert_property_names
+from locan.locan_io.locdata.utilities import (
+    convert_property_names,
+    convert_property_types,
+)
 
 __all__: list[str] = ["save_asdf", "load_asdf_file"]
 
@@ -66,7 +71,9 @@ def save_asdf(
 
 
 def load_asdf_file(
-    path: str | os.PathLike[Any] | SupportsRead[Any], nrows: int | None = None
+    path: str | os.PathLike[Any] | SupportsRead[Any],
+    nrows: int | None = None,
+    convert: bool = True,
 ) -> LocData:
     """
     Load data from ASDF localization file.
@@ -78,6 +85,9 @@ def load_asdf_file(
     nrows
         The number of localizations to load from file.
         None means that all available rows are loaded.
+    convert
+        If True convert types by applying type specifications in
+        locan.constants.PROPERTY_KEYS.
 
     Returns
     -------
@@ -98,8 +108,13 @@ def load_asdf_file(
         mapper = {key: value for key, value in zip(new_df.columns, column_keys)}
         new_df = new_df.rename(columns=mapper)
 
+        if convert:
+            new_df = convert_property_types(new_df, types=PROPERTY_KEYS)
+
         locdata = LocData(dataframe=new_df)
         locdata.meta = json_format.Parse(
             af.tree["meta"], locdata.meta, ignore_unknown_fields=True
         )
+        locdata.meta.file.type = metadata_pb2.ASDF
+        locdata.meta.file.path = str(path)
     return locdata

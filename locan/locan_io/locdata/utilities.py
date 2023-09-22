@@ -8,7 +8,7 @@ from __future__ import annotations
 import io
 import logging
 import os
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from contextlib import closing
 from typing import TYPE_CHECKING, Any, Union, cast
 
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 def convert_property_types(
     dataframe: pd.DataFrame,
-    types: dict[str, str],
+    types: Mapping[str, str | type],
     loc_properties: Iterable[str] | None = None,
 ) -> pd.DataFrame:
     """
@@ -59,10 +59,15 @@ def convert_property_types(
     selected_property_keys = {key: types[key] for key in loc_properties if key in types}
 
     for key, value in selected_property_keys.items():
-        if isinstance(value, str):
+        if isinstance(value, str) and value in [
+            "integer",
+            "signed",
+            "unsigned",
+            "float",
+        ]:
             new_df[key] = pd.to_numeric(dataframe[key], downcast=value, errors="coerce")  # type: ignore
         else:
-            new_df[key] = dataframe[key].astype(value)
+            new_df[key] = dataframe[key].astype(value)  # type: ignore
 
     return new_df
 

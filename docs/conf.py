@@ -7,6 +7,7 @@ import asyncio
 import os
 import sys
 from importlib.metadata import version
+from typing import Any
 
 # change event loop in windows for python 3.8
 if (
@@ -122,7 +123,7 @@ html_theme = "furo"
 
 # Theme options
 # for furo
-html_theme_options: dict = {
+html_theme_options: dict[str, Any] = {
     # 'sidebar_hide_name': True,
 }
 

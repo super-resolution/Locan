@@ -10,20 +10,22 @@ See Also
 """
 from __future__ import annotations
 
+from typing import Any
+
 from shapely.ops import unary_union
 
-from locan.data.region import EmptyRegion, Region2D, RoiRegion
+from locan.data.region import EmptyRegion, Region, Region2D, RoiRegion
 
 __all__: list[str] = ["regions_union", "expand_region", "surrounding_region"]
 
 
-def regions_union(regions):
+def regions_union(regions: list[Region]) -> EmptyRegion | Region2D:
     """
     Return the union of `regions`.
 
     Parameters
     ----------
-    regions : list[Region]
+    regions
         Original region(s)
 
     Returns
@@ -31,7 +33,7 @@ def regions_union(regions):
     Region
     """
     if all([isinstance(region, (Region2D, RoiRegion)) for region in regions]):
-        shapely_objects = [reg.shapely_object for reg in regions]
+        shapely_objects = [reg.shapely_object for reg in regions]  # type: ignore[attr-defined]
         unified_regions = unary_union(shapely_objects)
         if unified_regions.is_empty:
             return EmptyRegion()
@@ -41,7 +43,12 @@ def regions_union(regions):
         raise NotImplementedError("regions must all be Region2D")
 
 
-def expand_region(region, distance=100, support=None, **kwargs):
+def expand_region(
+    region: Region,
+    distance: int | float = 100,
+    support: Region | None = None,
+    **kwargs: Any,
+) -> Region:
     """
     Expand a region by `distance`.
     If region contains a list of regions, the unification of all expanded regions is
@@ -49,13 +56,13 @@ def expand_region(region, distance=100, support=None, **kwargs):
 
     Parameters
     ----------
-    region : Region | shapely.Polygon
+    region
         Original region(s)
-    distance : int | float
+    distance
         Distance by which the region is expanded orthogonal to its boundary.
-    support : Region | None
+    support
         A region defining the maximum outer boundary.
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`shapely.geometry.buffer`
         for :class:`Region2D` objects.
 
@@ -74,7 +81,12 @@ def expand_region(region, distance=100, support=None, **kwargs):
         return expanded_region
 
 
-def surrounding_region(region, distance=100, support=None, **kwargs):
+def surrounding_region(
+    region: Region,
+    distance: int | float = 100,
+    support: Region | None = None,
+    **kwargs: Any,
+) -> Region:
     """
     Define surrounding region by extending a region and returning the extended
     region excluding the input region.
@@ -83,13 +95,13 @@ def surrounding_region(region, distance=100, support=None, **kwargs):
 
     Parameters
     ----------
-    region : Region
+    region
         Original region(s)
-    distance : int | float
+    distance
         Distance by which the region is extended orthogonal to its boundary.
-    support : Region | None
+    support
         A region defining the maximum outer boundary.
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`shapely.geometry.buffer` for
         :class:`Region2D` objects.
 
@@ -100,7 +112,7 @@ def surrounding_region(region, distance=100, support=None, **kwargs):
     extended_region = expand_region(
         region, distance=distance, support=support, **kwargs
     )
-    if isinstance(extended_region, Region2D):
+    if isinstance(extended_region, (Region2D, RoiRegion)):
         surrounding_region_ = extended_region.symmetric_difference(region)
         return Region2D.from_shapely(surrounding_region_)
     else:

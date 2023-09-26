@@ -15,6 +15,7 @@ import os
 import platform
 import struct
 import sys
+from typing import Any
 
 from locan import __version__ as locan_version
 from locan.dependencies import EXTRAS_REQUIRE, INSTALL_REQUIRES
@@ -22,13 +23,13 @@ from locan.dependencies import EXTRAS_REQUIRE, INSTALL_REQUIRES
 __all__: list[str] = ["system_info", "dependency_info", "show_versions"]
 
 
-def system_info(verbose=True):
+def system_info(verbose: bool = True) -> dict[str, Any]:
     """
     Return system information.
 
     Parameters
     ----------
-    verbose : bool
+    verbose
         If True information on node and executable path are added.
 
     Return
@@ -58,16 +59,18 @@ def system_info(verbose=True):
     return sys_info
 
 
-def dependency_info(extra_dependencies=True, other_dependencies=None):
+def dependency_info(
+    extra_dependencies: bool = True, other_dependencies: list[str] | None = None
+) -> dict[str, Any]:
     """
     Overview of the installed version of main dependencies.
 
     Parameters
     ----------
-    extra_dependencies : bool
+    extra_dependencies
         Include extra dependencies as specified in setup.py
 
-    other_dependencies : list | None
+    other_dependencies
         Include other module names.
 
     Returns
@@ -83,7 +86,7 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
     if other_dependencies:
         deps = deps.union(other_dependencies)
 
-    deps_info = {}
+    deps_info: dict[str, str | None] = {}
     for modname in deps:
         try:
             deps_info[modname] = importlib.metadata.version(modname)
@@ -93,37 +96,33 @@ def dependency_info(extra_dependencies=True, other_dependencies=None):
 
 
 def show_versions(
-    locan=True,
-    python=True,
-    system=True,
-    dependencies=True,
-    verbose=True,
-    extra_dependencies=True,
-    other_dependencies=None,
-):
+    locan: bool = True,
+    python: bool = True,
+    system: bool = True,
+    dependencies: bool = True,
+    verbose: bool = True,
+    extra_dependencies: bool = True,
+    other_dependencies: list[str] | None = None,
+) -> None:
     """
     Print useful debugging information on system and dependency versions.
 
     Parameters
     ----------
-    locan : bool
+    locan
         Show locan version
-    python : bool
+    python
         Show python version
-    system : bool
+    system
         Show system information
-    verbose : bool
+    verbose
         If True information on node and executable path are added.
-    dependencies : bool
+    dependencies
         Show main dependencies
-    extra_dependencies : bool
+    extra_dependencies
         Include extra dependencies as specified in setup.py if True.
-    other_dependencies : list | None
+    other_dependencies
         Include other module names.
-
-    Returns
-    -------
-    None
     """
 
     locan_info = {"version": locan_version}

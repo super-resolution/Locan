@@ -7,7 +7,8 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING, Mapping
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead, SupportsWrite
@@ -33,13 +34,13 @@ logger = logging.getLogger(__name__)
 
 
 @needs_package("h5py")
-def _read_SMAP_header(file: Mapping) -> list[str]:
+def _read_SMAP_header(file: Mapping[str, Any]) -> list[str]:
     """
     Identify column names from a SMAP single-molecule localization file.
 
     Parameters
     ----------
-    file : Mapping
+    file
         HDF5 file object.
 
     Returns
@@ -57,13 +58,15 @@ def _read_SMAP_header(file: Mapping) -> list[str]:
 
 
 @needs_package("h5py")
-def load_SMAP_header(path: str | os.PathLike | SupportsRead) -> list[str]:
+def load_SMAP_header(
+    path: str | os.PathLike[Any] | SupportsRead[Any],
+) -> list[str]:
     """
     Identify column names from a SMAP single-molecule localization file.
 
     Parameters
     ----------
-    path : str | os.PathLike | SupportsRead
+    path
         File path for a file to load.
 
     Returns
@@ -78,7 +81,7 @@ def load_SMAP_header(path: str | os.PathLike | SupportsRead) -> list[str]:
 
 @needs_package("h5py")
 def load_SMAP_file(
-    path: str | os.PathLike | SupportsRead,
+    path: str | os.PathLike[Any] | SupportsRead[Any],
     nrows: int | None = None,
     convert: bool = True,
 ) -> LocData:
@@ -87,12 +90,12 @@ def load_SMAP_file(
 
     Parameters
     ----------
-    path : str | os.PathLike | SupportsRead
+    path
         File path for a Thunderstorm file to load.
-    nrows : int | None
+    nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.
-    convert : bool
+    convert
         If True convert types by applying type specifications in
         locan.constants.PROPERTY_KEYS.
 
@@ -146,7 +149,10 @@ def load_SMAP_file(
     return locdata
 
 
-def save_SMAP_csv(locdata: LocData, path: str | os.PathLike | SupportsWrite) -> None:
+def save_SMAP_csv(
+    locdata: LocData,
+    path: str | os.PathLike[Any] | SupportsWrite[Any],
+) -> None:
     """
     Save LocData to SMAP-readable csv-file.
 
@@ -155,9 +161,9 @@ def save_SMAP_csv(locdata: LocData, path: str | os.PathLike | SupportsWrite) -> 
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         The LocData object to be saved.
-    path : str | os.PathLike | SupportsWrite
+    path
         File path including file name to save to.
     """
     # get data from locdata object
@@ -173,4 +179,4 @@ def save_SMAP_csv(locdata: LocData, path: str | os.PathLike | SupportsWrite) -> 
     ]
 
     # write to csv
-    dataframe[valid_smap_columns].to_csv(path, float_format="%.10g", index=False)
+    dataframe[valid_smap_columns].to_csv(path, float_format="%.10g", index=False)  # type: ignore[arg-type]

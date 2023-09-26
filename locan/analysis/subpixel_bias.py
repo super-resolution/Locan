@@ -14,12 +14,8 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING, cast
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Sequence  # noqa: F401
-else:
-    from typing import Sequence  # noqa: F401
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, cast
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -27,12 +23,15 @@ else:
     from typing_extensions import Self
 
 if TYPE_CHECKING:
+    import matplotlib as mpl
+
     from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 
 __all__: list[str] = ["SubpixelBias"]
@@ -44,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 def _subpixel_bias(
-    locdata, pixel_size: int | float | Sequence[int | float]
+    locdata: LocData, pixel_size: int | float | Sequence[int | float]
 ) -> pd.DataFrame:
     coordinate_labels = locdata.coordinate_keys
     coordinates = locdata.coordinates.T
@@ -82,10 +81,10 @@ class SubpixelBias(_Analysis):
 
     Parameters
     ----------
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
+        Metadata about the current analysis routine.
     pixel_size : int | float | Sequence[int | float]
         Camera pixel size in coordinate units.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
-        Metadata about the current analysis routine.
 
     Attributes
     ----------
@@ -102,7 +101,11 @@ class SubpixelBias(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, pixel_size=None) -> None:
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        pixel_size: int | float | Sequence[int | float] | None = None,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
@@ -113,7 +116,7 @@ class SubpixelBias(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data.
 
         Returns
@@ -127,20 +130,26 @@ class SubpixelBias(_Analysis):
         self.results = _subpixel_bias(locdata=locdata, **self.parameter)
         return self
 
-    def hist(self, ax=None, bins="auto", log=True, **kwargs) -> plt.axes.Axes:
+    def hist(
+        self,
+        ax: mpl.axes.Axes | None = None,
+        bins: int | Sequence[int | float] | str = "auto",
+        log: bool = True,
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing
         hist(results). Nan entries are ignored.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes`
+        ax
             The axes on which to show the image
-        bins : int | Sequence | str
+        bins
             Bin specifications (passed to :func:`matplotlib.hist`).
-        log : Bool
+        log
             Flag for plotting on a log scale.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.hist`.
 
         Returns
@@ -151,7 +160,7 @@ class SubpixelBias(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         ax.hist(

@@ -25,7 +25,7 @@ import sys
 import warnings
 from collections.abc import Callable
 from inspect import signature
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -36,9 +36,10 @@ if TYPE_CHECKING:
     from locan.data.locdata import LocData
 
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 import pandas as pd
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.data.locdata_utils import _get_loc_property_key_per_dimension
 
@@ -46,16 +47,13 @@ __all__: list[str] = ["LocalizationUncertainty", "LocalizationUncertaintyFromInt
 
 logger = logging.getLogger(__name__)
 
+LocalizationPrecisionModel = Callable[..., npt.NDArray[np.float_]]
+
 
 # The algorithms
 
-if sys.version_info < (3, 9):
-    LocalizationPrecisionModel = Callable
-else:
-    LocalizationPrecisionModel = Callable[..., npt.NDArray]
 
-
-def localization_precision_model_1(intensity) -> npt.NDArray:
+def localization_precision_model_1(intensity: npt.ArrayLike) -> npt.NDArray[np.float_]:
     """
     Localization precision as function of
     intensity (I) according to:
@@ -67,19 +65,21 @@ def localization_precision_model_1(intensity) -> npt.NDArray:
 
     Parameters
     ----------
-    intensity : npt.ArrayLike
+    intensity
         Intensity values
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
     """
     intensity = np.asarray(intensity)
-    sigma = np.sqrt(intensity)
+    sigma: npt.NDArray[np.float_] = np.sqrt(intensity)
     return sigma
 
 
-def localization_precision_model_2(intensity, psf_sigma) -> npt.NDArray:
+def localization_precision_model_2(
+    intensity: npt.ArrayLike, psf_sigma: npt.ArrayLike
+) -> npt.NDArray[np.float_]:
     """
     Localization precision as function of
     intensity (I), PSF width (sigma_PSF) according to:
@@ -90,24 +90,27 @@ def localization_precision_model_2(intensity, psf_sigma) -> npt.NDArray:
 
     Parameters
     ----------
-    intensity : npt.ArrayLike
+    intensity
         Intensity values
-    psf_sigma : npt.ArrayLike
+    psf_sigma
         The PSF size
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
     """
     intensity = np.asarray(intensity)
     psf_sigma = np.asarray(psf_sigma)
-    sigma = psf_sigma / np.sqrt(intensity)
+    sigma: npt.NDArray[np.float_] = psf_sigma / np.sqrt(intensity)
     return sigma
 
 
 def localization_precision_model_3(
-    intensity, psf_sigma, pixel_size, local_background
-) -> npt.NDArray:
+    intensity: npt.ArrayLike,
+    psf_sigma: npt.ArrayLike,
+    pixel_size: npt.ArrayLike,
+    local_background: npt.ArrayLike,
+) -> npt.NDArray[np.float_]:
     """
     Localization precision as function of
     intensity (I), PSF size (\\sigma_{PSF}), pixel size (a), background (b)
@@ -124,18 +127,18 @@ def localization_precision_model_3(
 
     Parameters
     ----------
-    intensity : npt.ArrayLike
+    intensity
         Intensity values
-    psf_sigma : npt.ArrayLike
+    psf_sigma
         The PSF size
-    pixel_size : npt.ArrayLike
+    pixel_size
         Size of camera pixel
-    local_background : npt.ArrayLike
+    local_background
         The local background
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
     """
     intensity = np.asarray(intensity)
     psf_sigma = np.asarray(psf_sigma)
@@ -148,23 +151,23 @@ def localization_precision_model_3(
     sigma_squared = (
         sigma_a_squared / intensity * (1 + 4 * tau + np.sqrt(2 * tau / (1 + 4 * tau)))
     )
-    sigma = np.sqrt(sigma_squared)
+    sigma: npt.NDArray[np.float_] = np.sqrt(sigma_squared)
     return sigma
 
 
 def _localization_uncertainty(
-    locdata: LocData, model: int | LocalizationPrecisionModel, **kwargs
+    locdata: LocData, model: int | LocalizationPrecisionModel, **kwargs: Any
 ) -> pd.DataFrame:
-    if isinstance(model, Callable):  # type: ignore
-        model = cast(Callable, model)
+    if callable(model):
+        model = cast(Callable, model)  # type: ignore[type-arg]
     elif model == 1:
-        model = cast(Callable, model)
+        model = cast(Callable, model)  # type: ignore[type-arg]
         model = localization_precision_model_1
     elif model == 2:
-        model = cast(Callable, model)
+        model = cast(Callable, model)  # type: ignore[type-arg]
         model = localization_precision_model_2
     elif model == 3:
-        model = cast(Callable, model)
+        model = cast(Callable, model)  # type: ignore[type-arg]
         model = localization_precision_model_3
     else:
         raise TypeError("model must be 1, 2, 3 or callable.")
@@ -272,7 +275,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
 
     Parameters
     ----------
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
 
     Attributes
@@ -290,7 +293,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None) -> None:
+    def __init__(self, meta: metadata_analysis_pb2.AMetadata | None = None) -> None:
         super().__init__(meta=meta)
         self.results = None
         warnings.warn(
@@ -306,7 +309,7 @@ class LocalizationUncertaintyFromIntensity(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data.
 
         Returns
@@ -343,7 +346,7 @@ class LocalizationUncertainty(_Analysis):
         Metadata about the current analysis routine.
     model : int
         Model function for theoretical localization uncertainty.
-    kwargs : dict
+    kwargs
         kwargs for the chosen model.
         If none are given the localization properties are taken from locdata.
 
@@ -362,7 +365,12 @@ class LocalizationUncertainty(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, model=1, **kwargs) -> None:
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        model: int = 1,
+        **kwargs: Any,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
@@ -373,7 +381,7 @@ class LocalizationUncertainty(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data.
 
         Returns

@@ -8,7 +8,13 @@ from pandas.testing import assert_frame_equal
 
 import locan as lc
 import locan.constants
-from locan import load_SMAP_file, load_SMAP_header, load_txt_file, save_SMAP_csv
+from locan import (
+    FileType,
+    load_SMAP_file,
+    load_SMAP_header,
+    load_txt_file,
+    save_SMAP_csv,
+)
 from locan.dependencies import HAS_DEPENDENCY
 
 pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["h5py"], reason="requires h5py.")
@@ -64,9 +70,8 @@ def test_load_SMAP_header(caplog):
 
 
 def test_loading_SMAP_file(caplog):
-    locdata = load_SMAP_file(
-        path=lc.ROOT_DIR / "tests/test_data/smap_dstorm_data.mat", nrows=10
-    )
+    file_path = lc.ROOT_DIR / "tests/test_data/smap_dstorm_data.mat"
+    locdata = load_SMAP_file(path=file_path, nrows=10)
     assert len(locdata) == 10
     assert np.array_equal(
         locdata.data.columns,
@@ -103,6 +108,8 @@ def test_loading_SMAP_file(caplog):
         30,
         "Column LLrel is not a Locan property standard.",
     )
+    assert locdata.meta.file.type == FileType.SMAP.value
+    assert locdata.meta.file.path == str(file_path)
 
 
 def test_save_and_load_smap_csv(locdata_2d):

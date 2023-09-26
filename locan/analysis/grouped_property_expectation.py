@@ -19,14 +19,9 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Sequence  # noqa: F401
-else:
-    from typing import Sequence  # noqa: F401
+from typing import TYPE_CHECKING, Any
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -37,6 +32,7 @@ import boost_histogram as bh
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.data.aggregate import Bins
 
@@ -69,18 +65,18 @@ class GroupedPropertyExpectation(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    loc_property: str
+    loc_property: str | None
         The localization property to analyze.
-    other_loc_property: str
+    other_loc_property: str | None
         The localization property to group on.
-    expectation : int | float | Mapping | pd.Series | None
+    expectation : int | float | Mapping | pd.Series[Any] | None
         The expected value for all or each other localization property.
 
     Attributes
     ----------
     count : int
         A counter for counting instantiations (class attribute).
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
@@ -91,8 +87,12 @@ class GroupedPropertyExpectation(_Analysis):
     """
 
     def __init__(
-        self, meta=None, loc_property=None, other_loc_property=None, expectation=None
-    ):
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        loc_property: str | None = None,
+        other_loc_property: str | None = None,
+        expectation: int | float | Mapping[str, Any] | pd.Series[Any] | None = None,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.expectation = expectation
@@ -105,7 +105,7 @@ class GroupedPropertyExpectation(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data.
 
         Returns
@@ -149,16 +149,16 @@ class GroupedPropertyExpectation(_Analysis):
 
         return self
 
-    def plot(self, ax=None, **kwargs) -> mpl.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         variances as function of localization counts.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax
             The axes on which to show the image
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
@@ -169,7 +169,7 @@ class GroupedPropertyExpectation(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         self.results.values.plot(
@@ -210,15 +210,18 @@ class GroupedPropertyExpectation(_Analysis):
 
     def hist(
         self,
-        ax=None,
-        bins=None,
-        n_bins=None,
-        bin_size=None,
-        bin_edges=None,
-        bin_range=None,
-        log=True,
-        fit=False,
-        **kwargs,
+        ax: mpl.axes.Axes | None = None,
+        bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+        n_bins: int | Sequence[int] | None = None,
+        bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
+        bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+        bin_range: tuple[float, float]
+        | Sequence[float]
+        | Sequence[Sequence[float]]
+        | None = None,
+        log: bool = True,
+        fit: bool = False,
+        **kwargs: Any,
     ) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
@@ -226,21 +229,21 @@ class GroupedPropertyExpectation(_Analysis):
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
+        bins
             The bin specification as defined in :class:`Bins`
-        bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+        bin_edges
             Bin edges for all or each dimension
             with shape (dimension, n_bin_edges).
-        bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]]
+        bin_range
             Minimum and maximum edge for all or each dimensions
             with shape (2,) or (dimension, 2).
-        n_bins : int | Sequence[int] | None
+        n_bins
             The number of bins for all or each dimension.
             5 yields 5 bins in all dimensions.
             (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-        bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+        bin_size
             The size of bins for all or each bin and for all or each dimension
             with shape (dimension,) or (dimension, n_bins).
             5 would describe bin_size of 5 for all bins in all dimensions.
@@ -250,9 +253,11 @@ class GroupedPropertyExpectation(_Analysis):
             ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
             (1, 3) for the other dimension.
             To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
-        log : bool
+        log
             Flag for plotting on a log scale.
-        kwargs : dict
+        fit
+            Flag indicating if distribution fit is shown.
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.pcolormesh`.
 
         Returns
@@ -263,7 +268,7 @@ class GroupedPropertyExpectation(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         fig = ax.get_figure()
@@ -324,7 +329,7 @@ class GroupedPropertyExpectation(_Analysis):
             self.results.values[other_loc_property], self.results.values[loc_property]
         )
         mesh = ax.pcolormesh(*histogram.axes.edges.T, histogram.view().T, **kwargs)
-        fig.colorbar(mesh)
+        fig.colorbar(mesh)  # type:ignore[union-attr]
 
         self.results.grouped.plot(
             kind="line",

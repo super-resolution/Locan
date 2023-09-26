@@ -13,7 +13,9 @@ import logging
 import sys
 
 import numpy as np
+import numpy.typing as npt
 
+from locan.data import metadata_pb2
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 
@@ -23,8 +25,11 @@ logger = logging.getLogger(__name__)
 
 
 def _transform_counts_to_photons(
-    intensities, offset=0, gain=1, electrons_per_count=1
-) -> np.ndarray:
+    intensities: npt.ArrayLike,
+    offset: int | float = 0,
+    gain: int | float = 1,
+    electrons_per_count: int | float = 1,
+) -> npt.NDArray[np.float_]:
     """
     Convert camera analog-to-digital converter (ADC) counts into photo
     electrons.
@@ -33,25 +38,29 @@ def _transform_counts_to_photons(
 
     Parameters
     ----------
-    intensities : list | tuple | numpy.ndarray
+    intensities
         Intensity values in ADC counts.
-    offset : int | float
+    offset
         Camera offset
-    gain : int | float
+    gain
         Camera gain
-    electrons_per_count : int | float
+    electrons_per_count
         Conversion factor for photo electrons per ADC count.
 
     Returns
     -------
-    numpy.ndarray
+    npt.NDArray[np.float_]
         Photo electrons
     """
     intensities = np.asarray(intensities)
     return (intensities - offset) * electrons_per_count / gain
 
 
-def transform_counts_to_photons(locdata, loc_properties=None, metadata=None) -> LocData:
+def transform_counts_to_photons(
+    locdata: LocData,
+    loc_properties: str | list[str] | None = None,
+    metadata: metadata_pb2.Camera | None = None,
+) -> LocData:
     """
     Convert camera analog-to-digital converter (ADC) counts into photo
     electrons.
@@ -60,12 +69,12 @@ def transform_counts_to_photons(locdata, loc_properties=None, metadata=None) -> 
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data on which to perform the manipulation.
-    loc_properties : str | list[str] | None
+    loc_properties
         Localization properties to be converted.
         If None the `intensity` values of locdata are used.
-    metadata : locan.data.metadata_pb2.Camera | None
+    metadata
         Camera metadata with attribute offset, gain, electrons_per_count
         If None, locdata.meta.experiment.setups[0].optical_units[0].detection.camera
         is used.
@@ -140,6 +149,7 @@ def transform_counts_to_photons(locdata, loc_properties=None, metadata=None) -> 
             new_locdata.meta.localization_properties[index].unit = "photons"
             new_locdata.meta.localization_properties[index].type = "float"
 
+        assert new_locdata.dataframe is not None  # type narrowing # noqa: S101
         dataframe = new_locdata.dataframe.assign(**{loc_property: new_intensities})
         new_locdata = new_locdata.update(dataframe=dataframe)
         loc_properties_converted.append(loc_property)

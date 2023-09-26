@@ -10,6 +10,7 @@ If the directory does not exist the exemplary files are downloaded from GitHub.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from locan.configuration import DATASETS_DIR
 from locan.dependencies import HAS_DEPENDENCY, needs_package
@@ -18,12 +19,15 @@ from locan.locan_io.locdata.asdf_io import load_asdf_file
 if HAS_DEPENDENCY["requests"]:
     import requests
 
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
+
 
 __all__: list[str] = ["load_npc", "load_tubulin"]
 
 
 @needs_package("requests")
-def load_npc(**kwargs):
+def load_npc(**kwargs: Any) -> LocData:
     """
     Locdata representing nuclear pore complexes.
 
@@ -42,7 +46,7 @@ def load_npc(**kwargs):
 
     Parameters
     ----------
-    kwargs : dict
+    kwargs
         Parameters passed to `locan.load_asdf_file()`.
 
     Returns
@@ -64,7 +68,7 @@ def load_npc(**kwargs):
 
 
 @needs_package("requests")
-def load_tubulin(**kwargs):
+def load_tubulin(**kwargs: Any) -> LocData:
     """
     Locdata representing microtubules.
 
@@ -83,7 +87,7 @@ def load_tubulin(**kwargs):
 
     Parameters
     ----------
-    kwargs : dict
+    kwargs
         Parameters passed to `locan.load_rapidSTORM_file()`.
 
     Returns

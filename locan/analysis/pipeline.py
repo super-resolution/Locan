@@ -19,10 +19,14 @@ from __future__ import annotations
 import inspect
 import logging
 import os
-from collections.abc import Callable  # noqa: F401
-from typing import Any
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, TypeVar
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
+
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
 
 __all__: list[str] = ["Pipeline"]
 
@@ -51,12 +55,12 @@ class Pipeline(_Analysis):
 
     Parameters
     ----------
-    computation : callable
+    computation : Callable[..., Any]
         A function `computation(self, **kwargs)` specifying the analysis
         procedure.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    kwargs : dict
+    kwargs
         Locdata reference and optional parameters passed to
         `computation(self, **kwargs)`.
 
@@ -66,12 +70,12 @@ class Pipeline(_Analysis):
         A counter for counting instantiations (class attribute).
     parameter : dict
         A dictionary with all settings for the current computation.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
-    computation : Callable
+    computation : Callable[..., Any]
         A function `computation(self, **kwargs)` specifying the analysis
         procedure.
-    kwargs : dict
+    kwargs
         All parameters including the locdata reference that are passed to
         `computation(self, **kwargs)`.
 
@@ -91,7 +95,12 @@ class Pipeline(_Analysis):
     after computation and before pickling.
     """
 
-    def __init__(self, computation, meta=None, **kwargs) -> None:
+    def __init__(
+        self,
+        computation: Callable[..., Any],
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        **kwargs: Any,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
 
@@ -103,7 +112,7 @@ class Pipeline(_Analysis):
         self.computation = computation
         self.kwargs = kwargs
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return True
 
     def compute(self) -> Any:
@@ -113,33 +122,40 @@ class Pipeline(_Analysis):
         """
         return self.computation(self, **self.kwargs)
 
-    def save_computation(self, path: str | os.PathLike):
+    def save_computation(self, path: str | os.PathLike[Any]) -> None:
         """
         Save the analysis procedure (i.e. the computation() method) as human
         readable text.
 
         Parameters
         ----------
-        path : str | os.PathLike
+        path : str | os.PathLike[Any]
             Path and file name for saving the text file.
         """
         with open(path, "w") as handle:
             handle.write(f"Analysis Pipeline: {self.__class__.__name__}\n\n")
             handle.write(inspect.getsource(self.computation))
 
-    def computation_as_string(self):
+    def computation_as_string(self) -> str:
         """
         Return the analysis procedure (i.e. the computation() method) as string.
         """
         return inspect.getsource(self.computation)
 
 
-def computation_test(self, locdata=None, parameter="test"):
+T_Pipeline = TypeVar("T_Pipeline", bound="Pipeline")
+
+
+def computation_test(
+    self: T_Pipeline,
+    locdata: LocData | None = None,
+    parameter: str = "test",
+) -> T_Pipeline:
     """A pipeline definition for testing."""
-    self.locdata = locdata
+    self.locdata = locdata  # type: ignore
     something = "changed_value"
     logger.debug(f"something has a : {something}")
-    self.test = parameter
+    self.test = parameter  # type: ignore
     logger.info(f"computation finished for locdata: {locdata}")
 
     try:

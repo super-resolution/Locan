@@ -56,7 +56,7 @@ def test_extend_Interval():
     region = Interval(0, 1)
     expanded_region = expand_region(region, distance=1)
     assert expanded_region.region_measure == pytest.approx(3)
-    assert expanded_region.bounds == (-1, 2)
+    assert np.array_equal(expanded_region.bounds, (-1, 2))
 
     with pytest.raises(NotImplementedError):
         support = Interval(-1, 2)
@@ -67,7 +67,7 @@ def test_extend_Interval():
         # They should pass when intersection has been implemented.
         assert isinstance(expanded_region_with_support, Region)
         assert expanded_region_with_support.region_measure == 3
-        assert expanded_region_with_support.bounds == (-1, 2)
+        assert np.array_equal(expanded_region_with_support.bounds, (-1, 2))
 
 
 def test_extend_Rectangle():

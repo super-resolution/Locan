@@ -350,6 +350,7 @@ def test_AlphaComplex_0():
     assert lengths == [0, 0, 0, 0, 0]
 
     triangles_all = alpha_complex.get_alpha_complex_triangles(alpha, type="all")
+
     assert len(triangles_all) == 0
 
     H = alpha_complex.graph_from_lines(alpha, type="regular")

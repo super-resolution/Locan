@@ -51,7 +51,8 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Literal
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -59,14 +60,17 @@ else:
     from typing_extensions import Self
 
 if TYPE_CHECKING:
+    import matplotlib as mpl
+
     from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 
 __all__: list[str] = ["RipleysKFunction", "RipleysLFunction", "RipleysHFunction"]
@@ -77,20 +81,23 @@ logger = logging.getLogger(__name__)
 
 
 def _ripleys_k_function(
-    points, radii, region_measure=1, other_points=None
+    points: npt.ArrayLike,
+    radii: Iterable[float],
+    region_measure: float = 1,
+    other_points: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float_]:
     """
     Compute Ripley's K function for two- or three-dimensional data at the given radii.
 
     Parameters
     ----------
-    points : npt.ArrayLike
+    points
         2D or 3D points on which to estimate Ripley's K function.
-    radii: npt.ArrayLike
+    radii
         Radii at which to compute Ripley's k function.
-    region_measure : float
+    region_measure
         region measure (area or volume) for points.
-    other_points : npt.ArrayLike | None
+    other_points
         2D or 3D points from which to estimate Ripley's K function (e.g. subset of points). For None other_points
         is set to points (default).
 
@@ -99,8 +106,11 @@ def _ripleys_k_function(
     npt.NDArray[np.float_]
         Ripley's K function evaluated at input radii with shape (n_radii,).
     """
+    points = np.asarray(points)
     if other_points is None:
         other_points = points
+    else:
+        other_points = np.asarray(other_points)
 
     nn = NearestNeighbors(metric="euclidean").fit(points)
 
@@ -116,35 +126,45 @@ def _ripleys_k_function(
     return ripley
 
 
-def _ripleys_l_function(  # type: ignore
-    points, radii, region_measure=1, other_points=None
+def _ripleys_l_function(
+    points: npt.ArrayLike,
+    radii: Iterable[float],
+    region_measure: float = 1,
+    other_points: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float_]:
     """
     Evaluates Ripley's L function which is different for 2D and 3D data points.
     For parameter description see _ripleys_k_function.
     """
     if np.shape(points)[1] == 2:
-        return np.sqrt(
+        return_value: npt.NDArray[np.float_] = np.sqrt(
             _ripleys_k_function(points, radii, region_measure, other_points) / np.pi
         )
     elif np.shape(points)[1] == 3:
-        return np.cbrt(
+        return_value = np.cbrt(
             _ripleys_k_function(points, radii, region_measure, other_points)
             * 3
             / 4
             / np.pi
         )
+    return return_value
 
 
 def _ripleys_h_function(
-    points, radii, region_measure=1, other_points=None
+    points: npt.ArrayLike,
+    radii: Iterable[float],
+    region_measure: float = 1,
+    other_points: npt.ArrayLike | None = None,
 ) -> npt.NDArray[np.float_]:
     """
     Evaluates Ripley's H function. For parameter description
     see _ripleys_k_function.
     """
 
-    return _ripleys_l_function(points, radii, region_measure, other_points) - radii
+    return_value: npt.NDArray[np.float_] = _ripleys_l_function(
+        points, radii, region_measure, other_points
+    ) - np.asarray(radii)
+    return return_value
 
 
 # The specific analysis classes
@@ -156,9 +176,9 @@ class RipleysKFunction(_Analysis):
 
     Parameters
     ----------
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
-    radii: npt.ArrayLike
+    radii: Iterable[float] | None
         Radii at which to compute Ripley's k function.
     region_measure : float | Literal['bb']
         Region measure (area or volume) for point region. For 'bb' the region
@@ -179,22 +199,27 @@ class RipleysKFunction(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, radii=None, region_measure="bb") -> None:
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        radii: Iterable[float] | None = None,
+        region_measure: float | Literal["bb"] = "bb",
+    ) -> None:
         radii = np.linspace(0, 100, 10) if radii is None else radii
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
 
-    def compute(self, locdata: LocData, other_locdata=None) -> Self:
+    def compute(self, locdata: LocData, other_locdata: LocData | None = None) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data with 2D or 3D coordinates on which to estimate
             Ripley's K function.
-        other_locdata : LocData | None
+        other_locdata
             Other localization data from which to estimate Ripley's K function
             (e.g. subset of points).
             For None other_points is set to points (default).
@@ -232,8 +257,8 @@ class RipleysKFunction(_Analysis):
         self.results = self.results.set_index("radius")
         return self
 
-    def plot(self, ax=None, **kwargs):
-        plot(self, ax, **kwargs)
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
+        return plot(self=self, ax=ax, **kwargs)
 
 
 class RipleysLFunction(_Analysis):
@@ -243,9 +268,9 @@ class RipleysLFunction(_Analysis):
 
     Parameters
     ----------
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
-    radii: npt.ArrayLike
+    radii: npt.ArrayLike | None
         Radii at which to compute Ripley's k function.
     region_measure : float |  Literal["bb"]
         Region measure (area or volume) for point region. For 'bb' the region
@@ -265,22 +290,27 @@ class RipleysLFunction(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, radii=None, region_measure="bb") -> None:
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        radii: npt.ArrayLike | None = None,
+        region_measure: float | Literal["bb"] = "bb",
+    ) -> None:
         radii = np.linspace(0, 100, 10) if radii is None else radii
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
 
-    def compute(self, locdata: LocData, other_locdata=None) -> Self:
+    def compute(self, locdata: LocData, other_locdata: LocData | None = None) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data with 2D or 3D coordinates on which to estimate
             Ripley's L function.
-        other_locdata : LocData | None
+        other_locdata
             Other localization data from which to estimate Ripley's L function
             (e.g. subset of points).
             For None other_points is set to points (default).
@@ -318,8 +348,8 @@ class RipleysLFunction(_Analysis):
         self.results = self.results.set_index("radius")
         return self
 
-    def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
-        plot(self, ax, **kwargs)
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
+        return plot(self, ax, **kwargs)
 
 
 class RipleysHFunction(_Analysis):
@@ -328,9 +358,9 @@ class RipleysHFunction(_Analysis):
 
     Parameters
     ----------
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
-    radii: npt.ArrayLike
+    radii: npt.ArrayLike | None
         Radii at which to compute Ripley's k function.
     region_measure : float | Literal['bb']
         Region measure (area or volume) for point region. For 'bb' the region
@@ -340,36 +370,41 @@ class RipleysHFunction(_Analysis):
     ----------
     count : int
         A counter for counting instantiations.
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas.DataFrame
+    results : pd.DataFrame | None
         Data frame with radii as provided and Ripley's H function.
-    Ripley_h_maximum : pandas.DataFrame
+    Ripley_h_maximum : pd.DataFrame | None
         Data frame with radius and Ripley's H value for the radius at which
         the H function has its maximum.
     """
 
     count = 0
 
-    def __init__(self, meta=None, radii=None, region_measure="bb") -> None:
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        radii: npt.ArrayLike | None = None,
+        region_measure: float | Literal["bb"] = "bb",
+    ) -> None:
         radii = np.linspace(0, 100, 10) if radii is None else radii
-        parameters = self._get_parameters(locals())
+        parameters: dict[str, Any] = self._get_parameters(locals())
         super().__init__(**parameters)
-        self.results = None
-        self._Ripley_h_maximum = None
+        self.results: pd.DataFrame | None = None
+        self._Ripley_h_maximum: pd.DataFrame | None = None
 
-    def compute(self, locdata: LocData, other_locdata=None) -> Self:
+    def compute(self, locdata: LocData, other_locdata: LocData | None = None) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data with 2D or 3D coordinates on which to estimate
             Ripley's H function.
-        other_locdata : LocData | None
+        other_locdata
             Other localization data from which to estimate Ripley's H function
             (e.g. subset of points).
             For None other_points is set to points (default).
@@ -411,36 +446,38 @@ class RipleysHFunction(_Analysis):
         return self
 
     @property
-    def Ripley_h_maximum(self):
-        if self._Ripley_h_maximum is None:
+    def Ripley_h_maximum(self) -> pd.DataFrame | None:
+        if self.results is None:
+            self._Ripley_h_maximum = None
+        elif self._Ripley_h_maximum is None:
             index = self.results["Ripley_h_data"].idxmax()
             self._Ripley_h_maximum = pd.DataFrame(
                 {"radius": index, "Ripley_h_maximum": self.results.loc[index]}
             )
-            return self._Ripley_h_maximum
-        else:
-            return self._Ripley_h_maximum
+        return self._Ripley_h_maximum
 
     @Ripley_h_maximum.deleter
-    def Ripley_h_maximum(self):
+    def Ripley_h_maximum(self) -> None:
         self._Ripley_h_maximum = None
 
-    def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
-        plot(self, ax, **kwargs)
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
+        return plot(self, ax, **kwargs)
 
 
 # Interface functions
 
 
-def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
+def plot(
+    self: _Analysis, ax: mpl.axes.Axes | None = None, **kwargs: Any
+) -> mpl.axes.Axes:
     """
     Provide plot of results as :class:`matplotlib.axes.Axes` object.
 
     Parameters
     ----------
-    ax : matplotlib.axes.Axes
+    ax
         The axes on which to show the image
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
     Returns
@@ -451,7 +488,7 @@ def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
     if ax is None:
         ax = plt.gca()
 
-    if not self:
+    if self.results is None:
         return ax
 
     self.results.plot(ax=ax, **kwargs)

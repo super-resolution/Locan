@@ -28,6 +28,7 @@ dependencies:
 - numpy
 - types-requests
 - types-protobuf
+- pandas-stubs
 
 # Documentation
 - sphinx
@@ -35,4 +36,5 @@ dependencies:
 - myst-nb
 - sphinx-copybutton
 - sphinx_rtd_theme
+- sphinx-autodoc-typehints
 - furo

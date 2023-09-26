@@ -16,12 +16,14 @@ See Also
 --------
 locan.utils.system_information.show_versions
 """
+from __future__ import annotations
+
 import argparse
 
 from locan.utils.system_information import show_versions as sc_show_versions
 
 
-def _add_arguments(parser):
+def _add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-v",
         "--verbose",
@@ -46,7 +48,7 @@ def _add_arguments(parser):
     )
 
 
-def main(args=None):
+def main(args: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         description="Show system information and dependency versions."
     )

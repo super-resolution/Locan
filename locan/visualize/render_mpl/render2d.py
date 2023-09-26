@@ -6,11 +6,12 @@ This module provides functions for rendering locdata objects in 2D.
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable  # noqa: F401
-from typing import Callable  # noqa: F401
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, Any, Literal
 
 import matplotlib.colors as mcolors
 import numpy as np
+import numpy.typing as npt
 import scipy.signal.windows
 from matplotlib import pyplot as plt
 
@@ -26,6 +27,12 @@ from locan.visualize.transform import adjust_contrast
 if HAS_DEPENDENCY["mpl_scatter_density"]:
     import mpl_scatter_density
 
+if TYPE_CHECKING:
+    import boost_histogram as bh
+    import matplotlib as mpl
+
+    from locan.visualize.transform import Trafo
+
 
 __all__: list[str] = [
     "render_2d_mpl",
@@ -39,54 +46,58 @@ logger = logging.getLogger(__name__)
 
 
 def render_2d_mpl(
-    locdata,
-    loc_properties=None,
-    other_property=None,
-    bins=None,
-    n_bins=None,
-    bin_size=10,
-    bin_edges=None,
-    bin_range=None,
-    rescale=None,
-    ax=None,
-    cmap=COLORMAP_CONTINUOUS,
-    cbar=True,
-    colorbar_kws=None,
-    interpolation="nearest",
-    **kwargs,
-):
+    locdata: LocData,
+    loc_properties: list[str] | None = None,
+    other_property: str | None = None,
+    bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+    n_bins: int | Sequence[int] | None = None,
+    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = 10,
+    bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_range: tuple[float, float]
+    | Sequence[float]
+    | Sequence[Sequence[float]]
+    | Literal["zero", "link"]
+    | None = None,
+    rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
+    ax: mpl.axes.Axes | None = None,
+    cmap: mcolors.Colormap | str = COLORMAP_CONTINUOUS,
+    cbar: bool = True,
+    colorbar_kws: dict[str, Any] | None = None,
+    interpolation: str = "nearest",
+    **kwargs: Any,
+) -> mpl.axes.Axes:
     """
     Render localization data into a 2D image by binning x,y-coordinates into
     regular bins.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data.
-    loc_properties : list[str] | None
+    loc_properties
         Localization properties to be grouped into bins.
         If None The coordinate_values of `locdata` are used.
-    other_property : str | None
+    other_property
         Localization property (columns in `locdata.data`) that is averaged
         in each pixel.
         If None, localization counts are shown.
-    bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
+    bins
         The bin specification as defined in :class:`Bins`
-    bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+    bin_edges
         Bin edges for all or each dimension
         with shape (dimension, n_bin_edges).
-    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+    bin_range
         Minimum and maximum edge for all or each dimensions
         with shape (2,) or (dimension, 2).
         If None (min, max) ranges are determined from data and returned;
         if 'zero' (0, max) ranges with max determined from data are returned.
         if 'link' (min_all, max_all) ranges with min and max determined from
         all combined data are returned.
-    n_bins : int | Sequence[int] | None
+    n_bins
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+    bin_size
         The size of bins for all or each bin and for all or each dimension
         with shape (dimension,) or (dimension, n_bins).
         5 would describe bin_size of 5 for all bins in all dimensions.
@@ -96,7 +107,7 @@ def render_2d_mpl(
         ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
         (1, 3) for the other dimension.
         To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
-    rescale : int | str | locan.Trafo | Callable | bool | None
+    rescale
         Transformation as defined in :class:`locan.Trafo` or by
         transformation function.
         For None or False no rescaling occurs.
@@ -105,18 +116,18 @@ def render_2d_mpl(
         rescale intensity values to be within percentile of max and min
         intensities.
         For 'equal' intensity values are rescaled by histogram equalization.
-    ax : matplotlib.axes.Axes
+    ax
         The axes on which to show the image
-    cmap : str | Colormap
+    cmap
         The Colormap object used to map normalized data values to RGBA colors.
-    cbar : bool
+    cbar
         If true draw a colorbar.
         The colobar axes is accessible using the cax property.
-    colorbar_kws : dict
+    colorbar_kws
         Keyword arguments for :func:`matplotlib.pyplot.colorbar`.
-    interpolation : str
+    interpolation
         Keyword argument for :func:`matplotlib.axes.Axes.imshow`.
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`matplotlib.axes.Axes.imshow`.
 
     Returns
@@ -171,16 +182,20 @@ def render_2d_mpl(
 
 
 def render_2d_scatter_density(
-    locdata,
-    loc_properties=None,
-    other_property=None,
-    bin_range=None,
-    ax=None,
-    cmap=COLORMAP_CONTINUOUS,
-    cbar=True,
-    colorbar_kws=None,
-    **kwargs,
-):
+    locdata: LocData,
+    loc_properties: list[str] | None = None,
+    other_property: str | None = None,
+    bin_range: tuple[float, float]
+    | Sequence[float]
+    | Sequence[Sequence[float]]
+    | Literal["zero", "link"]
+    | None = None,
+    ax: mpl.axes.Axes | None = None,
+    cmap: str | mcolors.Colormap = COLORMAP_CONTINUOUS,
+    cbar: bool = True,
+    colorbar_kws: dict[str, Any] | None = None,
+    **kwargs: Any,
+) -> mpl.axes.Axes:
     """
     Render localization data into a 2D image by binning x,y-coordinates into regular bins.
 
@@ -192,32 +207,32 @@ def render_2d_scatter_density(
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Localization data.
-    loc_properties : list[str] | None
+    loc_properties
         Localization properties to be grouped into bins.
         If None The coordinate_values of `locdata` are used.
-    other_property : str | None
+    other_property
         Localization property (columns in `locdata.data`) that is averaged
         in each pixel.
         If None, localization counts are shown.
-    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+    bin_range
         Minimum and maximum edge for all or each dimensions
         with shape (2,) or (dimension, 2).
         If None (min, max) ranges are determined from data and returned;
         if 'zero' (0, max) ranges with max determined from data are returned.
         if 'link' (min_all, max_all) ranges with min and max determined from
         all combined data are returned.
-    ax : matplotlib.axes.Axes
+    ax
         The axes on which to show the image
-    cmap : str | Colormap
+    cmap
         The Colormap object used to map normalized data values to RGBA colors.
-    cbar : bool
+    cbar
         If true draw a colorbar.
         The colobar axes is accessible using the cax property.
-    colorbar_kws : dict
+    colorbar_kws
         Keyword arguments for :func:`matplotlib.pyplot.colorbar`.
-    kwargs : dict
+    kwargs
         Other parameters passed to :class:`mpl_scatter_density.ScatterDensityArtist`.
 
     Returns
@@ -239,7 +254,7 @@ def render_2d_scatter_density(
         return ax
     else:
         fig = ax.get_figure()
-        ax = fig.add_subplot(
+        ax = fig.add_subplot(  # type: ignore[union-attr]
             1, 1, 1, projection="scatter_density", label="scatter_density"
         )
 
@@ -259,9 +274,9 @@ def render_2d_scatter_density(
         raise ValueError(f"{loc_properties} is not a valid property in locdata.")
 
     if bin_range is None or isinstance(bin_range, str):
-        bin_range_ = ranges(locdata, loc_properties=labels, special=bin_range)
+        bin_range_: npt.NDArray[np.float_] = ranges(locdata, loc_properties=labels, special=bin_range)  # type: ignore
     else:
-        bin_range_ = bin_range
+        bin_range_ = bin_range  # type: ignore[assignment]
 
     if other_property is None:
         # histogram data by counting points
@@ -274,7 +289,7 @@ def render_2d_scatter_density(
         # histogram data by averaging values
         if data.shape[0] == 2:
             # here color serves as weight since it is averaged over all points before binning.
-            values = locdata.data[other_property].values.T
+            values = locdata.data[other_property].values.T  # type: ignore
         else:
             raise TypeError("Only 2D data is supported.")
         labels.append(other_property)
@@ -305,21 +320,27 @@ def render_2d_scatter_density(
     return ax
 
 
-def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
+def scatter_2d_mpl(
+    locdata: LocData,
+    ax: mpl.axes.Axes | None = None,
+    index: bool = True,
+    text_kwargs: dict[str, Any] | None = None,
+    **kwargs: Any,
+) -> mpl.axes.Axes:
     """
     Scatter plot of locdata elements with text marker for each element.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
        Localization data.
-    ax : matplotlib.axes.Axes
+    ax
        The axes on which to show the plot
-    index : bool
+    index
        Flag indicating if element indices are shown.
-    text_kwargs : dict
+    text_kwargs
        Keyword arguments for :func:`matplotlib.axes.Axes.text`.
-    kwargs : dict
+    kwargs
        Other parameters passed to :func:`matplotlib.axes.Axes.scatter`.
 
     Returns
@@ -346,7 +367,7 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
     # plot element number
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
-            ax.text(
+            ax.text(  # type: ignore[call-arg]
                 *centroid, marker, **dict({"color": "grey", "size": 20}, **text_kwargs)
             )
 
@@ -355,19 +376,22 @@ def scatter_2d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
     return ax
 
 
-def apply_window(image, window_function="tukey", **kwargs):
+def apply_window(
+    image: npt.ArrayLike, window_function: str = "tukey", **kwargs: Any
+) -> npt.NDArray[np.float_]:
     """
     Apply window function to image.
 
     Parameters
     ----------
-    image : numpy.ndarray
+    image
         Image
-    window_function : str
+    window_function
         Window function to apply. One of 'tukey', 'hann' or any other in `scipy.signal.windows`.
-    kwargs : dict
+    kwargs
         Other parameters passed to the `scipy.signal.windows` window function.
     """
+    image = np.asarray(image)
     window_func = getattr(scipy.signal.windows, window_function)
     windows = [window_func(M, **kwargs) for M in image.shape]
 
@@ -378,17 +402,19 @@ def apply_window(image, window_function="tukey", **kwargs):
     return result
 
 
-def select_by_drawing_mpl(locdata, region_type="rectangle", **kwargs):
+def select_by_drawing_mpl(
+    locdata: LocData, region_type: str = "rectangle", **kwargs: Any
+) -> list[Roi]:
     """
     Select region of interest from rendered image by drawing rois.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         The localization data from which to select localization data.
-    region_type : str
+    region_type
         rectangle, or ellipse specifying the selection widget to use.
-    kwargs :
+    kwargs
         Other parameters as specified for :func:`render_2d`.
 
     Returns
@@ -401,31 +427,32 @@ def select_by_drawing_mpl(locdata, region_type="rectangle", **kwargs):
     matplotlib.widgets : selector functions
     """
 
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    fig, ax = plt.subplots(nrows=1, ncols=1)  # type: ignore
     render_2d_mpl(locdata, ax=ax, **kwargs)
     selector = _MplSelector(ax, type=region_type)
-    plt.show()
-    roi_list = [
-        Roi(reference=locdata, region_specs=roi["region_specs"], region=roi["region"])
-        for roi in selector.rois
-    ]
+    plt.show()  # type: ignore
+    roi_list = [Roi(reference=locdata, region=roi["region"]) for roi in selector.rois]
     return roi_list
 
 
 def render_2d_rgb_mpl(
-    locdatas,
-    loc_properties=None,
-    other_property=None,
-    bins=None,
-    n_bins=None,
-    bin_size=10,
-    bin_edges=None,
-    bin_range=None,
-    rescale=None,
-    ax=None,
-    interpolation="nearest",
-    **kwargs,
-):
+    locdatas: list[LocData],
+    loc_properties: list[str] | None = None,
+    other_property: str | None = None,
+    bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+    n_bins: int | Sequence[int] | None = None,
+    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = 10,
+    bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_range: tuple[float, float]
+    | Sequence[float]
+    | Sequence[Sequence[float]]
+    | Literal["zero", "link"]
+    | None = None,
+    rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
+    ax: mpl.axes.Axes | None = None,
+    interpolation: str = "nearest",
+    **kwargs: Any,
+) -> mpl.axes.Axes:
     """
     Render localization data into a 2D RGB image by binning x,y-coordinates into regular bins.
 
@@ -438,49 +465,53 @@ def render_2d_rgb_mpl(
 
     Parameters
     ----------
-    locdatas : list[LocData]
+    locdatas
         Localization data.
-    loc_properties : list, None
+    loc_properties
         Localization properties to be grouped into bins. If None The coordinate_values of `locdata` are used.
-    other_property : str, None
+    other_property
         Localization property (columns in `locdata.data`) that is averaged in each pixel.
         If None, localization counts are shown.
-    bins : int, sequence, Bins, boost_histogram.axis.Axis, None
+    bins
         The bin specification as defined in :class:`Bins`
-    bin_edges : tuple, list, numpy.ndarray[float] with shape (dimension, n_bin_edges), None
-        Array of bin edges for all or each dimension.
-    n_bins : int, list, tuple, numpy.ndarray, None
+    bin_edges
+        Bin edges for all or each dimension
+        with shape (dimension, n_bin_edges).
+    bin_range
+        Minimum and maximum edge for all or each dimensions
+        with shape (2,) or (dimension, 2).
+        If None (min, max) ranges are determined from data and returned;
+        if 'zero' (0, max) ranges with max determined from data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from
+        all combined data are returned.
+    n_bins
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float, list, tuple, numpy.ndarray, None
-        The size of bins in units of `locdata` coordinate units for all or each dimension.
+    bin_size
+        The size of bins for all or each bin and for all or each dimension
+        with shape (dimension,) or (dimension, n_bins).
         5 would describe bin_size of 5 for all bins in all dimensions.
-        (2, 5) yields bins of size 2 for one dimension and 5 for the other dimension.
-        To specify arbitrary sequence of `bin_sizes` use `bin_edges` instead.
-    bin_range : tuple, tuple[tuple[float, float], ...] with shape (dimension, 2), str, None
-        The data bin_range to be taken into consideration for all or each dimension.
-        ((min_x, max_x), (min_y, max_y), ...) bin_range for each coordinate;
-        for None (min, max) bin_range are determined from data;
-        for 'zero' (0, max) bin_range with max determined from data.
-    rescale : int, str, locan.Trafo, callable, bool, None
-        Transformation as defined in :class:`locan.Trafo` or by transformation function.
-        For False no rescaling occurs.
+        ((2, 5),) yield bins of size (2, 5) for one dimension.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other
+        dimension.
+        ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
+        (1, 3) for the other dimension.
+        To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
+    rescale
+        Transformation as defined in :class:`locan.Trafo` or by
+        transformation function.
+        For None or False no rescaling occurs.
         Legacy behavior:
         For tuple with upper and lower bounds provided in percent,
-        rescale intensity values to be within percentile of max and min intensities
+        rescale intensity values to be within percentile of max and min
+        intensities.
         For 'equal' intensity values are rescaled by histogram equalization.
-    ax : matplotlib.axes.Axes
+    ax
         The axes on which to show the image
-    cmap : str or Colormap instance
-        The colormap used to map normalized data values to RGBA colors.
-    cbar : bool
-        If true draw a colorbar. The colobar axes is accessible using the cax property.
-    colorbar_kws : dict
-        Keyword arguments for :func:`matplotlib.pyplot.colorbar`.
-    interpolation : str
+    interpolation
         Keyword argument for :func:`matplotlib.axes.Axes.imshow`.
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`matplotlib.axes.Axes.imshow`.
 
     Returns
@@ -517,13 +548,15 @@ def render_2d_rgb_mpl(
 
     imgs = [
         histogram(
-            locdata, loc_properties, other_property, bin_edges=bins.bin_edges
+            locdata=locdata, loc_properties=loc_properties, other_property=other_property, bin_edges=bins.bin_edges  # type: ignore
         ).data
         for locdata in locdatas
     ]
 
     if rescale is None:
-        norm = mcolors.Normalize(vmin=np.min(imgs), vmax=np.max(imgs))
+        norm: int | str | Trafo | Callable[..., Any] = mcolors.Normalize(
+            vmin=np.min(imgs), vmax=np.max(imgs)
+        )
     else:
         norm = rescale
     imgs = [adjust_contrast(img, rescale=norm) for img in imgs]

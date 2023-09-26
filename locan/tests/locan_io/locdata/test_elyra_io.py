@@ -1,6 +1,7 @@
 from io import StringIO
 
 import locan.constants
+from locan import FileType
 from locan.locan_io import load_Elyra_file
 from locan.locan_io.locdata.elyra_io import load_Elyra_header
 
@@ -41,9 +42,12 @@ def test_get_correct_column_names_from_Elyra_header():
 
 
 def test_loading_Elyra_file():
-    dat = load_Elyra_file(path=locan.ROOT_DIR / "tests/test_data/Elyra_dstorm_data.txt")
+    file_path = locan.ROOT_DIR / "tests/test_data/Elyra_dstorm_data.txt"
+    dat = load_Elyra_file(path=file_path)
     # loading is not limited by nrows=10 to ensure correct treatment of file appendix and NUL character.
     assert len(dat) == 999
+    assert dat.meta.file.type == FileType.ELYRA.value
+    assert dat.meta.file.path == str(file_path)
 
     file_like = StringIO(
         "Index\tFirst Frame\tNumber Frames\tFrames Missing\tPosition X [nm]\tPosition Y [nm]\n"

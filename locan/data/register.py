@@ -10,14 +10,15 @@ Parts of this code is adapted from https://github.com/jungmannlab/picasso.
 """
 from __future__ import annotations
 
-from typing import NamedTuple
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 from lmfit import Model, Parameters
 
-from locan.data.aggregate import histogram
+from locan.data.aggregate import Bins, histogram
 from locan.data.locdata import LocData
 from locan.data.properties.locdata_statistics import range_from_collection
 from locan.data.transform.spatial_transformation import _homogeneous_matrix
@@ -26,52 +27,55 @@ from locan.dependencies import HAS_DEPENDENCY, needs_package
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
 
+if TYPE_CHECKING:
+    import boost_histogram as bh
+
 
 __all__: list[str] = ["register_icp", "register_cc"]
 
 
 class Transformation(NamedTuple):
-    matrix: npt.NDArray
-    offset: npt.NDArray
+    matrix: npt.NDArray[np.float_]
+    offset: npt.NDArray[np.float_]
 
 
 @needs_package("open3d")
 def _register_icp_open3d(
-    points,
-    other_points,
-    matrix=None,
-    offset=None,
-    pre_translation=None,
-    max_correspondence_distance=1_000,
-    max_iteration=10_000,
-    with_scaling=True,
-    verbose=True,
+    points: npt.ArrayLike,
+    other_points: npt.ArrayLike,
+    matrix: npt.ArrayLike | None = None,
+    offset: npt.ArrayLike | None = None,
+    pre_translation: npt.ArrayLike | None = None,
+    max_correspondence_distance: float = 1_000,
+    max_iteration: int = 10_000,
+    with_scaling: bool = True,
+    verbose: bool = True,
 ) -> Transformation:
     """
     Register `points` by an "Iterative Closest Point" algorithm using open3d.
 
     Parameters
     ----------
-    points : npt.ArrayLike
+    points
         Points representing the source on which to perform the manipulation.
-    other_points : npt.ArrayLike
+    other_points
         Points representing the target.
-    matrix : tuple
+    matrix
         Transformation matrix with shape (d, d)used as initial value.
         If None the unit matrix is used.
-    offset : tuple[int | float]
+    offset
         Translation vector with shape (d,) used as initial value.
         If None a vector of zeros is used.
-    pre_translation : tuple[int | float]
+    pre_translation
         Values for translation of coordinates before registration.
-    max_correspondence_distance : float
+    max_correspondence_distance
         Threshold distance for the icp algorithm. Parameter is passed to
         open3d algorithm.
-    max_iteration : int
+    max_iteration
         Maximum number of iterations. Parameter is passed to open3d algorithm.
-    with_scaling : bool
+    with_scaling
         Allow scaling transformation. Parameter is passed to open3d algorithm.
-    verbose : bool
+    verbose
         Flag indicating if transformation results are printed out.
 
     Returns
@@ -107,8 +111,8 @@ def _register_icp_open3d(
     other_point_cloud.points = o3d.utility.Vector3dVector(other_points_3d)
 
     # initial matrix
-    matrix_ = np.identity(dimension) if matrix is None else matrix
-    offset_ = np.zeros(dimension) if offset is None else offset
+    matrix_ = np.identity(dimension) if matrix is None else np.asarray(matrix)
+    offset_ = np.zeros(dimension) if offset is None else np.asarray(offset)
 
     matrix_3d = np.identity(3)
     matrix_3d[:dimension, :dimension] = matrix_
@@ -149,14 +153,14 @@ def _register_icp_open3d(
 
 
 def register_icp(
-    locdata,
-    other_locdata,
-    matrix=None,
-    offset=None,
-    pre_translation=None,
-    max_correspondence_distance=1_000,
-    max_iteration=10_000,
-    verbose=True,
+    locdata: npt.ArrayLike | LocData,
+    other_locdata: npt.ArrayLike | LocData,
+    matrix: npt.ArrayLike | None = None,
+    offset: npt.ArrayLike | None = None,
+    pre_translation: npt.ArrayLike | None = None,
+    max_correspondence_distance: float = 1_000,
+    max_iteration: int = 10_000,
+    verbose: bool = True,
 ) -> Transformation:
     """
     Register `points` or coordinates in `locdata` by an
@@ -164,25 +168,25 @@ def register_icp(
 
     Parameters
     ----------
-    locdata : npt.ArrayLike | LocData
+    locdata
         Localization data representing the source on which to perform the
         manipulation.
-    other_locdata : npt.ArrayLike | LocData
+    other_locdata
         Localization data representing the target.
-    matrix : tuple
+    matrix
         Transformation matrix with shape (d, d) used as initial value.
         If None the unit matrix is used.
-    offset : tuple[int | float]
+    offset
         Translation vector with shape (d,) used as initial value.
         If None a vector of zeros is used.
-    pre_translation : tuple[int | float]
+    pre_translation
         Values for translation of coordinates before registration.
-    max_correspondence_distance : float
+    max_correspondence_distance
         Threshold distance for the icp algorithm. Parameter is passed to
         open3d algorithm.
-    max_iteration : int
+    max_iteration
         Maximum number of iterations. Parameter is passed to open3d algorithm.
-    verbose : bool
+    verbose
         Flag indicating if transformation results are printed out.
 
     Returns
@@ -196,12 +200,12 @@ def register_icp(
     if isinstance(locdata, LocData):
         points = locdata.coordinates
     else:
-        points = locdata
+        points = np.asarray(locdata)
 
     if isinstance(other_locdata, LocData):
         other_points = other_locdata.coordinates
     else:
-        other_points = other_locdata
+        other_points = np.asarray(other_locdata)
 
     transformation = _register_icp_open3d(
         points,
@@ -216,21 +220,30 @@ def register_icp(
     return transformation
 
 
-def _xcorr(imageA, imageB):
+def _xcorr(imageA: npt.ArrayLike, imageB: npt.ArrayLike) -> npt.NDArray[np.float_]:
     """
     This function is adapted from picasso/imageprocess
     by Joerg Schnitzbauer, MPI of Biochemistry
     https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
     (MIT license, Copyright (c) 2016 Jungmann Lab, MPI of Biochemistry)
     """
+    imageA = np.asarray(imageA)
+    imageB = np.asarray(imageB)
     FimageA = np.fft.fft2(imageA)
     CFimageB = np.conj(np.fft.fft2(imageB))
-    return np.fft.fftshift(np.real(np.fft.ifft2(FimageA * CFimageB))) / np.sqrt(
-        imageA.size
-    )
+    return_value: npt.NDArray[np.float_] = np.fft.fftshift(
+        np.real(np.fft.ifft2(FimageA * CFimageB))
+    ) / np.sqrt(imageA.size)
+    return return_value
 
 
-def _get_image_shift(imageA, imageB, box, roi=None, display=False):
+def _get_image_shift(
+    imageA: npt.ArrayLike,
+    imageB: npt.ArrayLike,
+    box: Any,
+    roi: Any | None = None,
+    display: bool = False,
+) -> tuple[int | float, int | float]:
     """
     Computes the shift from imageA to imageB.
 
@@ -239,6 +252,8 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
     https://github.com/jungmannlab/picasso/blob/master/picasso/imageprocess.py
     (MIT license, Copyright (c) 2016 Jungmann Lab, MPI of Biochemistry)
     """
+    imageA = np.asarray(imageA)
+    imageB = np.asarray(imageB)
     if (np.sum(imageA) == 0) or (np.sum(imageB) == 0):
         return 0, 0
     # Compute image correlation
@@ -275,7 +290,7 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
         xc, yc = 0, 0
     else:
         # The fit model based on lmfit
-        def flat_2d_gaussian(a, xc, yc, s, b):
+        def flat_2d_gaussian(a, xc, yc, s, b):  # type: ignore
             A = a * np.exp(-0.5 * ((x - xc) ** 2 + (y - yc) ** 2) / s**2) + b
             return A.flatten()
 
@@ -293,19 +308,19 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
         # Get maximum coordinates and add offsets
         xc = results.best_values["xc"]
         yc = results.best_values["yc"]
-        xc += X_ + x_max_
-        yc += Y_ + y_max_
+        xc += X_ + x_max_  # type: ignore
+        yc += Y_ + y_max_  # type: ignore
 
         if display:
             plt.figure(figsize=(17, 10))
-            plt.subplot(1, 3, 1)
+            plt.subplot(1, 3, 1)  # type: ignore
             plt.imshow(imageA, interpolation="none")
-            plt.subplot(1, 3, 2)
+            plt.subplot(1, 3, 2)  # type: ignore
             plt.imshow(imageB, interpolation="none")
-            plt.subplot(1, 3, 3)
+            plt.subplot(1, 3, 3)  # type: ignore
             plt.imshow(XCorr, interpolation="none")
             plt.plot(xc, yc, "x")
-            plt.show()
+            plt.show()  # type: ignore
 
         xc -= np.floor(X / 2)
         yc -= np.floor(Y / 2)
@@ -314,16 +329,19 @@ def _get_image_shift(imageA, imageB, box, roi=None, display=False):
 
 
 def register_cc(
-    locdata,
-    other_locdata,
-    max_offset=None,
-    bins=None,
-    n_bins=None,
-    bin_size=None,
-    bin_edges=None,
-    bin_range=None,
-    verbose=False,
-    **kwargs,
+    locdata: npt.ArrayLike | LocData,
+    other_locdata: npt.ArrayLike | LocData,
+    max_offset: int | float | None = None,
+    bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+    n_bins: int | Sequence[int] | None = None,
+    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_range: tuple[float, float]
+    | Sequence[float]
+    | Sequence[Sequence[float]]
+    | Literal["zero", "link"]
+    | None = None,
+    verbose: bool = False,
 ) -> Transformation:
     """
     Register `points` or coordinates in `locdata` by a
@@ -335,30 +353,30 @@ def register_cc(
 
     Parameters
     ----------
-    locdata : npt.ArrayLike | LocData
+    locdata
         Localization data representing the source on which to perform the
         manipulation.
-    other_locdata : npt.ArrayLike | LocData
+    other_locdata
         Localization data representing the target.
-    max_offset : int | float | None
+    max_offset
         Maximum possible offset.
-    bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
+    bins
         Specific class specifying the bins.
-    bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+    bin_edges
         Bin edges for all or each dimension
         with shape (dimension, n_bin_edges).
-    bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+    bin_range
         Minimum and maximum edge for all or each dimensions
         with shape (2,) or (dimension, 2).
         If None (min, max) ranges are determined from data and returned;
         if 'zero' (0, max) ranges with max determined from data are returned.
         if 'link' (min_all, max_all) ranges with min and max determined from
         all combined data are returned.
-    n_bins : int | Sequence[int] | None
+    n_bins
         The number of bins for all or each dimension.
         5 yields 5 bins in all dimensions.
         (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-    bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+    bin_size
         The size of bins for all or each bin and for all or each dimension
         with shape (dimension,) or (dimension, n_bins).
         5 would describe bin_size of 5 for all bins in all dimensions.
@@ -368,7 +386,7 @@ def register_cc(
         ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
         (1, 3) for the other dimension.
         To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
-    verbose : bool
+    verbose
         Flag indicating if transformation results are printed out.
 
     Returns
@@ -377,6 +395,9 @@ def register_cc(
         Matrix and offset representing the optimized transformation.
     """
     if isinstance(locdata, LocData) and isinstance(other_locdata, LocData):
+        bin_range_: tuple[float, float] | Sequence[float] | Sequence[
+            Sequence[float]
+        ] | Literal["zero", "link"] | None
         if bin_range is None:
             bin_range_ = range_from_collection([locdata, other_locdata])
         else:
@@ -409,6 +430,6 @@ def register_cc(
     offset = _get_image_shift(
         image, other_image, box=5, roi=max_offset, display=verbose
     )
-    offset = tuple(np.asarray(offset) * bin_size)
+    offset_ = np.asarray(offset) * bin_size
 
-    return Transformation(matrix, offset)
+    return Transformation(matrix, offset_)

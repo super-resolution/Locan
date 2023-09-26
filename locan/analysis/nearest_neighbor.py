@@ -39,7 +39,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING, Literal  # noqa: F401
+from typing import TYPE_CHECKING, Any, Literal
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -47,14 +47,18 @@ else:
     from typing_extensions import Self
 
 if TYPE_CHECKING:
+    import matplotlib as mpl
+
     from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from scipy import stats
 from sklearn.neighbors import NearestNeighbors
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.configuration import N_JOBS
 
@@ -66,16 +70,16 @@ logger = logging.getLogger(__name__)
 # The algorithms
 
 
-def pdf_nnDistances_csr_2D(x, density) -> float:
+def pdf_nnDistances_csr_2D(x: npt.ArrayLike, density: float) -> npt.NDArray[np.float_]:
     """
     Probability density function for nearest-neighbor distances of points
     distributed in 2D with complete spatial randomness.
 
     Parameters
     ----------
-    x : float
+    x
         distance
-    density : float
+    density
         density of points
 
     Returns
@@ -83,10 +87,14 @@ def pdf_nnDistances_csr_2D(x, density) -> float:
     float
         Probability density function pdf(x).
     """
-    return 2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
+    x = np.asarray(x)
+    return_value: npt.NDArray[np.float_] = (
+        2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
+    )
+    return return_value
 
 
-def pdf_nnDistances_csr_3D(x, density) -> float:
+def pdf_nnDistances_csr_3D(x: npt.ArrayLike, density: float) -> npt.NDArray[np.float_]:
     """
     Probability density function for nearest-neighbor distances of points
     distributed in 3D with complete spatial
@@ -94,21 +102,27 @@ def pdf_nnDistances_csr_3D(x, density) -> float:
 
     Parameters
     ----------
-    x : float
+    x
         distance
-    density : float
+    density
         density of points
 
     Returns
     -------
-    float
+    npt.NDArray[np.float_]
         Probability density function pdf(x).
     """
+    x = np.asarray(x)
     a = (3 / 4 / np.pi / density) ** (1 / 3)
-    return 3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
+    return_value: npt.NDArray[np.float_] = (
+        3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
+    )
+    return return_value
 
 
-def _nearest_neighbor_distances(points, k=1, other_points=None) -> pd.DataFrame:
+def _nearest_neighbor_distances(
+    points: npt.ArrayLike, k: int = 1, other_points: npt.ArrayLike | None = None
+) -> pd.DataFrame:
     if other_points is None:
         nn = NearestNeighbors(n_neighbors=k, metric="euclidean", n_jobs=N_JOBS).fit(
             points
@@ -159,23 +173,25 @@ class NearestNeighborDistances(_Analysis):
 
     count = 0
 
-    def __init__(self, meta=None, k=1):
+    def __init__(
+        self, meta: metadata_analysis_pb2.AMetadata | None = None, k: int = 1
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
-        self.dimension = None
-        self.localization_density = None
-        self.results = None
-        self.distribution_statistics = None
+        self.dimension: int | None = None
+        self.localization_density: float | None = None
+        self.results: pd.DataFrame | None = None
+        self.distribution_statistics: _DistributionFits | None = None
 
-    def compute(self, locdata: LocData, other_locdata=None) -> Self:
+    def compute(self, locdata: LocData, other_locdata: LocData | None = None) -> Self:
         """
         Run the computation.
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
            Localization data.
-        other_locdata : LocData | None
+        other_locdata
             Other localization data from which nearest neighbors are taken.
 
         Returns
@@ -210,7 +226,7 @@ class NearestNeighborDistances(_Analysis):
         )
         return self
 
-    def fit_distributions(self, with_constraints=True) -> None:
+    def fit_distributions(self, with_constraints: bool = True) -> None:
         """
         Fit probability density functions to the distributions of
         `loc_property` values in the results
@@ -223,9 +239,7 @@ class NearestNeighborDistances(_Analysis):
 
         Parameters
         ----------
-        distribution : str | scipy.stats.rv_continuous
-            Distribution model to fit.
-        with_constraints : bool
+        with_constraints
             Flag to use predefined constraints on fit parameters.
         """
         if self:
@@ -235,25 +249,30 @@ class NearestNeighborDistances(_Analysis):
             logger.warning("No results available to fit.")
 
     def hist(
-        self, ax=None, bins="auto", density=True, fit=False, **kwargs
-    ) -> plt.axes.Axes:
+        self,
+        ax: mpl.axes.Axes | None = None,
+        bins: int | list[int | float] | Literal["auto"] = "auto",
+        density: bool = True,
+        fit: bool = False,
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing hist(results).
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image.
-        bins : int | list | Literal['auto']
+        bins
             Bin specification as used in :func:`matplotlib.hist`
-        density : bool
+        density
             Flag for normalization as used in matplotlib.hist.
             True returns probability density function; None returns
             counts.
-        fit : bool
+        fit
             Flag indicating to fit pdf of nearest-neighbor distances under
             complete spatial randomness.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.plot`.
 
         Returns
@@ -264,8 +283,9 @@ class NearestNeighborDistances(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
+        assert self.localization_density is not None  # type narrowing # noqa: S101
 
         values, bin_values, patches = ax.hist(
             self.results["nn_distance"], bins=bins, density=density, label="data"
@@ -295,11 +315,13 @@ class NearestNeighborDistances(_Analysis):
 
         # fit distributions:
         if fit:
-            if isinstance(self.distribution_statistics, _DistributionFits):
-                self.distribution_statistics.plot(ax=ax)
-            else:
+            if self.distribution_statistics is None:
                 self.fit_distributions()
-                self.distribution_statistics.plot(ax=ax)
+
+            assert (  # type narrowing # noqa: S101
+                self.distribution_statistics is not None
+            )
+            self.distribution_statistics.plot(ax=ax)
 
         ax.set(
             title="k-Nearest Neighbor Distances\n"  # noqa: ISC003
@@ -329,8 +351,11 @@ class NNDistances_csr_2d(stats.rv_continuous):
         Shape parameter `density`, being the density of points.
     """
 
-    def _pdf(self, x, density) -> float:
-        return 2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
+    def _pdf(self, x: float, density: float) -> float:
+        return_value: float = (
+            2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
+        )
+        return return_value
 
 
 class NNDistances_csr_3d(stats.rv_continuous):
@@ -340,13 +365,16 @@ class NNDistances_csr_3d(stats.rv_continuous):
 
     Parameters
     ----------
+    x : float
+        distance
     density : float
         Shape parameter `density`, being the density of points.
     """
 
-    def _pdf(self, x, density) -> float:
+    def _pdf(self, x: float, density: float) -> float:
         a = (3 / 4 / np.pi / density) ** (1 / 3)
-        return 3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
+        return_value: float = 3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
+        return return_value
 
 
 class _DistributionFits:
@@ -376,13 +404,13 @@ class _DistributionFits:
         Free parameters in `distribution`.
     """
 
-    def __init__(self, analysis_class):
+    def __init__(self, analysis_class: NearestNeighborDistances) -> None:
         self.analysis_class = analysis_class
         self.loc_property = "nn_distance"
-        self.distribution = None
-        self.parameters = []
+        self.distribution: stats.rv_continuous | None = None
+        self.parameters: list[str] = []
 
-    def fit(self, with_constraints=True, **kwargs):
+    def fit(self, with_constraints: bool = True, **kwargs: Any) -> None:
         """
         Fit model function to analysis_class.results.
 
@@ -392,13 +420,14 @@ class _DistributionFits:
 
         Parameters
         ----------
-        distribution : str | scipy.stats.rv_continuous
-            Distribution model to fit.
-        with_constraints : bool
+        with_constraints
             Flag to use predefined constraints on fit parameters.
-        kwargs : dict
+        kwargs
             Other parameters passed to the `distribution.fit()` method.
         """
+        if self.analysis_class.results is None:
+            raise ValueError("Compute results before fitting.")
+
         if self.analysis_class.dimension == 2:
             self.distribution = NNDistances_csr_2d(name="NNDistances_csr_2d", a=0.0)
         elif self.analysis_class.dimension == 3:
@@ -409,7 +438,7 @@ class _DistributionFits:
             )
             return
 
-        self.parameters = [name.strip() for name in self.distribution.shapes.split(",")]
+        self.parameters = [name.strip() for name in self.distribution.shapes.split(",")]  # type: ignore[attr-defined]
         self.parameters += ["loc", "scale"]
 
         if with_constraints:
@@ -417,13 +446,13 @@ class _DistributionFits:
         else:
             kwargs_ = kwargs
 
-        fit_results = self.distribution.fit(
+        fit_results = self.distribution.fit(  # type: ignore[attr-defined]
             data=self.analysis_class.results[self.loc_property].values, **kwargs_
         )
         for parameter, result in zip(self.parameters, fit_results):
             setattr(self, parameter, result)
 
-    def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         probability distribution functions of fitted
@@ -431,9 +460,9 @@ class _DistributionFits:
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
@@ -464,6 +493,6 @@ class _DistributionFits:
         )
         return ax
 
-    def parameter_dict(self) -> dict:
+    def parameter_dict(self) -> dict[str, float]:
         """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

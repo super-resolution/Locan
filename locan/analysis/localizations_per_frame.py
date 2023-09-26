@@ -7,13 +7,9 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Sequence  # noqa: F401
-else:
-    from typing import Sequence  # noqa: F401
+from typing import TYPE_CHECKING, Any
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -21,14 +17,17 @@ else:
     from typing_extensions import Self
 
 if TYPE_CHECKING:
+    import matplotlib as mpl
+
     from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 import pandas as pd
 from scipy import stats
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 
 __all__: list[str] = ["LocalizationsPerFrame"]
@@ -40,28 +39,32 @@ logger = logging.getLogger(__name__)
 
 
 def _localizations_per_frame(
-    locdata, norm=None, time_delta="integration_time", resample=None, **kwargs
-) -> pd.Series:
+    locdata: LocData | npt.ArrayLike,
+    norm: int | float | str | None = None,
+    time_delta: int | float | str | pd.Timedelta | None = "integration_time",
+    resample: pd.DateOffset | pd.Timedelta | str | None = None,
+    **kwargs: Any,
+) -> pd.Series[Any]:
     """
     Compute localizations per frame.
 
     Parameters
     ----------
-    locdata : LocData | npt.ArrayLike
+    locdata
        Points in time: either localization data that contains a column `frame`
        or an array with time points.
-    norm : int | float | str | None
+    norm
         Normalization factor that can be None, a number, or another property in
          `locdata`.
-    time_delta : int | float | str | pd.Timedelta | None
+    time_delta
         Time per frame in milliseconds. String must specify the unit like
         "10ms".
          For "integration_time" the time is taken from
         locdata.meta.experiment.setups[0].optical_units[0].detection.camera.integration_time
-    resample : DateOffset | Timedelta | str
+    resample
         Parameter for :func:`pandas.Series.resample`: The offset string or
         object representing target conversion.
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`pandas.Series.resample`.
 
 
@@ -74,8 +77,13 @@ def _localizations_per_frame(
         normalization_factor: int | float = 1
         series_name = "n_localizations"
     elif isinstance(norm, str):
-        normalization_factor = locdata.properties[norm]
-        series_name = "n_localizations / " + norm
+        try:
+            normalization_factor = locdata.properties[norm]  # type: ignore
+            series_name = "n_localizations / " + norm
+        except (AttributeError, KeyError) as exception:
+            raise KeyError(
+                "normalization must be a valid property name in locdata.properties."
+            ) from exception
     elif isinstance(norm, (int, float)):
         normalization_factor = norm
         series_name = f"n_localizations / {norm}"
@@ -85,7 +93,7 @@ def _localizations_per_frame(
         )
 
     try:
-        frames_ = locdata.data.frame.astype(int)
+        frames_ = locdata.data.frame.astype(int)  # type: ignore
     except AttributeError:
         frames_ = np.asarray(locdata)
 
@@ -105,7 +113,7 @@ def _localizations_per_frame(
     elif time_delta == "integration_time":
         try:
             time_delta = (
-                locdata.meta.experiment.setups[0]
+                locdata.meta.experiment.setups[0]  # type: ignore
                 .optical_units[0]
                 .detection.camera.integration_time.ToTimedelta()
             )
@@ -133,13 +141,13 @@ def _localizations_per_frame(
 
 @dataclass(repr=False)
 class _Results:
-    time_series: pd.Series
+    time_series: pd.Series[Any]
 
-    def accumulation_time(self, fraction=0.5) -> int:
+    def accumulation_time(self, fraction: float = 0.5) -> int:
         normalized_cumulative_time_trace = (
             self.time_series.cumsum() / self.time_series.sum()
         )
-        accumulation_time = normalized_cumulative_time_trace.gt(fraction).idxmax()
+        accumulation_time: int = normalized_cumulative_time_trace.gt(fraction).idxmax()
         return accumulation_time
 
 
@@ -162,7 +170,7 @@ class LocalizationsPerFrame(_Analysis):
     resample : DateOffset | Timedelta | str
         Parameter for :func:`pandas.Series.resample`: The offset string or
         object representing target conversion.
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`pandas.Series.resample`.
 
     Attributes
@@ -183,16 +191,16 @@ class LocalizationsPerFrame(_Analysis):
 
     def __init__(
         self,
-        meta=None,
-        norm=None,
-        time_delta="integration_time",
-        resample=None,
-        **kwargs,
-    ):
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        norm: int | float | str | None = None,
+        time_delta: int | float | str | pd.Timedelta | None = "integration_time",
+        resample: pd.DateOffset | pd.Timedelta | str | None = None,
+        **kwargs: Any,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
-        self.distribution_statistics = None
+        self.distribution_statistics: _DistributionFits | None = None
 
     def compute(self, locdata: LocData | npt.ArrayLike) -> Self:
         """
@@ -200,7 +208,7 @@ class LocalizationsPerFrame(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData | npt.ArrayLike
+        locdata
            Points in time: either localization data that contains a column
            `frame` or an array with time points.
 
@@ -220,7 +228,8 @@ class LocalizationsPerFrame(_Analysis):
         )
         return self
 
-    def fit_distributions(self, **kwargs):
+    def fit_distributions(self, **kwargs: Any) -> None:
+        # todo: fix kwarg
         """
         Fit probability density functions to the distributions of `
         loc_property` values in the results using MLE (scipy.stats).
@@ -238,23 +247,28 @@ class LocalizationsPerFrame(_Analysis):
             logger.warning("No results available to fit.")
 
     def plot(
-        self, ax=None, window=1, cumulative=False, normalize=False, **kwargs
-    ) -> plt.axes.Axes:
+        self,
+        ax: mpl.axes.Axes | None = None,
+        window: int = 1,
+        cumulative: bool = False,
+        normalize: bool = False,
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         running average of results over window size.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        window: int
+        window
             Window for running average that is applied before plotting.
-        cumulative : bool
+        cumulative
             Plot the cumulated results if true.
-        normalize : bool
+        normalize
             Normalize cumulative plot to the last value
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
@@ -265,7 +279,7 @@ class LocalizationsPerFrame(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         series = self.results.time_series
@@ -290,20 +304,26 @@ class LocalizationsPerFrame(_Analysis):
 
         return ax
 
-    def hist(self, ax=None, fit=True, bins="auto", **kwargs) -> plt.axes.Axes:
+    def hist(
+        self,
+        ax: mpl.axes.Axes | None = None,
+        fit: bool = True,
+        bins: int | Sequence[int | float] | str = "auto",
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing
         hist(results).
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        bins : int | Sequence | str
+        bins
             Bin specifications (passed to matplotlib.hist).
-        fit: Bool
+        fit
             Flag indicating if distributions fit are shown.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.hist`.
 
         Returns
@@ -314,7 +334,7 @@ class LocalizationsPerFrame(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         series = self.results.time_series
@@ -325,11 +345,13 @@ class LocalizationsPerFrame(_Analysis):
         ax.set(title="Localizations per Frame", xlabel=series.name, ylabel="PDF")
 
         if fit:
-            if isinstance(self.distribution_statistics, _DistributionFits):
-                self.distribution_statistics.plot(ax=ax)
-            else:
+            if self.distribution_statistics is None:
                 self.fit_distributions()
-                self.distribution_statistics.plot(ax=ax)
+
+            assert (  # type narrowing # noqa: S101
+                self.distribution_statistics is not None
+            )
+            self.distribution_statistics.plot(ax=ax)
 
         return ax
 
@@ -355,20 +377,25 @@ class _DistributionFits:
     ----------
     analyis_class : LocalizationsPerFrame
         The analysis class with result data to fit.
-    loc_property : str
+    loc_property : str | None
         The LocData property for which to fit an appropriate distribution
-    distribution : str | scipy.stats.rv_continuous
+    distribution : scipy.stats.rv_continuous | None
         Distribution model to fit.
-    parameters : list
+    parameters : list[str]
     """
 
-    def __init__(self, analysis_class):
+    def __init__(self, analysis_class: LocalizationsPerFrame) -> None:
         self.analysis_class = analysis_class
-        self.loc_property = self.analysis_class.results.time_series.name
-        self.distribution = None
-        self.parameters = []
+        if self.analysis_class.results is None:
+            self.loc_property: str | None = None
+        else:
+            self.loc_property = self.analysis_class.results.time_series.name
+        self.distribution: stats.rv_continuous | None = None
+        self.parameters: list[str] = []
 
-    def fit(self, distribution=stats.norm, **kwargs):
+    def fit(
+        self, distribution: stats.rv_continuous = stats.norm, **kwargs: Any
+    ) -> None:
         """
         Fit scipy.stats.rv_continuous to analysis_class.results[loc_property].
 
@@ -379,14 +406,15 @@ class _DistributionFits:
 
         Parameters
         ----------
-        distribution : str | scipy.stats.rv_continuous
+        distribution
             Distribution model to fit.
-        kwargs : dict
+        kwargs
             Other parameters are passed to
             :func:`scipy.stat.distribution.fit()`.
         """
         if self.analysis_class.results is None:
             return
+        assert self.loc_property is not None  # type narrowing # noqa: S101
 
         self.distribution = distribution
 
@@ -399,16 +427,16 @@ class _DistributionFits:
         setattr(self, self.loc_property + "_center", loc)
         setattr(self, self.loc_property + "_sigma", scale)
 
-    def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         probability distribution functions of fitted results.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
@@ -441,7 +469,7 @@ class _DistributionFits:
         )
         return ax
 
-    def parameter_dict(self) -> dict:
+    def parameter_dict(self) -> dict[str, float]:
         """Dictionary of fitted parameters."""
         if self.parameters is None:
             return dict()

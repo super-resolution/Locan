@@ -22,35 +22,42 @@ See Also
 locan.data.rois.select_by_drawing_mpl
 
 """
+from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
+from typing import Any, Literal
 
 import locan.locan_io.locdata.io_locdata as io
+from locan.constants import FileType
+from locan.data import metadata_pb2
 from locan.gui.io import file_dialog
 from locan.visualize.render_mpl.render2d import select_by_drawing_mpl
 
 
 def sc_draw_roi_mpl(
-    file_path=None, file_type=1, roi_file_indicator="_roi", region_type="rectangle"
-):
+    file_path: str | os.PathLike[Any] | None = None,
+    file_type: int | str | FileType | metadata_pb2.Metadata = 1,
+    roi_file_indicator: str = "_roi",
+    region_type: Literal["rectangle", "ellipse", "polygon"] = "rectangle",
+) -> None:
     """
     Define regions of interest by drawing a boundary.
 
     Parameters
     ----------
-    file_path : str, os.PathLike
+    file_path
         File path to localization data.
-    file_type : int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata
+    file_type
         Indicator for the file type.
         Integer or string should be according to locan.constants.FileType.
-    roi_file_indicator : str
+    roi_file_indicator
         Indicator to add to the localization file name and use as roi file
         name (with further extension .yaml).
-    region_type : Literal["rectangle", "ellipse", "polygon"]
+    region_type
         rectangle, ellipse, or polygon specifying the selection widget to use.
     """
-
     # choose file interactively
     if file_path is None:
         file_path = Path(file_dialog(message="choose file", filter="*.txt; *.csv")[0])
@@ -75,7 +82,7 @@ def sc_draw_roi_mpl(
         roi.to_yaml(path=roi_path)
 
 
-def _add_arguments(parser):
+def _add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-f",
         "--file",
@@ -111,7 +118,7 @@ def _add_arguments(parser):
     )
 
 
-def main(args=None):
+def main(args: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Set roi by drawing a boundary.")
     _add_arguments(parser)
     returned_args = parser.parse_args(args)

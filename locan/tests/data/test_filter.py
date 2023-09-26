@@ -59,13 +59,13 @@ class TestSelector:
             repr(selector) == "Selector(loc_property='position_x', activate=False, "
             "lower_bound=1, upper_bound=10)"
         )
-        assert selector.interval.bounds == (1, 10)
+        assert np.array_equal(selector.interval.bounds, (1, 10))
         assert selector.activate is False
         assert selector.condition == ""
 
         selector.lower_bound = 2
         selector.activate = True
-        assert selector.interval.bounds == (2, 10)
+        assert np.array_equal(selector.interval.bounds, (2, 10))
         assert selector.activate is True
         assert selector.condition == "2 < position_x < 10"
 

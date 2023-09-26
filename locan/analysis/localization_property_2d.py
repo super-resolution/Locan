@@ -11,12 +11,8 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING, Any, NamedTuple  # noqa: F401
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Sequence  # noqa: F401
-else:
-    from typing import Sequence  # noqa: F401
+from collections.abc import Callable, Sequence
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -24,6 +20,9 @@ else:
     from typing_extensions import Self
 
 if TYPE_CHECKING:
+    import boost_histogram as bh
+    import matplotlib as mpl
+
     from locan.data.locdata import LocData
 
 import matplotlib.pyplot as plt
@@ -32,10 +31,11 @@ import numpy.typing as npt
 from lmfit import Model, Parameters
 from lmfit.model import ModelResult
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.configuration import COLORMAP_DIVERGING
-from locan.data.aggregate import histogram
-from locan.visualize.transform import adjust_contrast
+from locan.data.aggregate import Bins, histogram
+from locan.visualize.transform import Trafo, adjust_contrast
 
 __all__: list[str] = ["LocalizationProperty2d"]
 
@@ -46,32 +46,40 @@ logger = logging.getLogger(__name__)
 
 
 class FitImageResults(NamedTuple):
-    image: npt.NDArray
-    bins: npt.NDArray
-    label: list
+    image: npt.NDArray[Any]
+    bins: Bins
+    label: list[str]
     model_result: ModelResult
 
 
 # model fit function in 2d
-def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
+def _gauss_2d(
+    x: npt.ArrayLike,
+    y: npt.ArrayLike,
+    amplitude: float,
+    center_x: float,
+    center_y: float,
+    sigma_x: float,
+    sigma_y: float,
+) -> float | npt.NDArray[np.float_]:
     """
     2D Gauss function of variables (x, y).
 
     Parameters
     ----------
-    x : float, npt.ArrayLike
+    x
         all x values
-    y : float, npt.ArrayLike
+    y
         all y values
-    amplitude : float
+    amplitude
         amplitude
-    center_x : float
+    center_x
         x-shift
-    center_y : float
+    center_y
         y-shift
-    sigma_x : float
+    sigma_x
         standard deviation x
-    sigma_y : float
+    sigma_y
         standard deviation y
 
     Returns
@@ -80,28 +88,29 @@ def _gauss_2d(x, y, amplitude, center_x, center_y, sigma_x, sigma_y):
     """
     x_ = np.asarray(x)
     y_ = np.asarray(y)
-    amplitude, center_x, center_y, sigma_x, sigma_y = (
+    amplitude, center_x, center_y, sigma_x, sigma_y = (  # type: ignore[assignment]
         np.float64(number)
         for number in (amplitude, center_x, center_y, sigma_x, sigma_y)
     )
-    return amplitude * np.exp(
+    return_value: float | npt.NDArray[np.float_] = amplitude * np.exp(
         -(
             (x_ - center_x) ** 2 / (2.0 * sigma_x**2)
             + (y_ - center_y) ** 2 / (2.0 * sigma_y**2)
         )
     )
+    return return_value
 
 
-def _fit_image(data, bin_range):
+def _fit_image(data: npt.ArrayLike, bin_range: npt.ArrayLike) -> ModelResult:
     """
     Fit 2D Gauss function to image data.
 
     Parameters
     ----------
-    data : npt.ArrayLike
+    data
         arrays with corresponding values for x, y, z
         of shape (3, n_image_values)
-    bin_range : npt.ArrayLike
+    bin_range
         range as returned from histogram().
 
     Returns
@@ -112,14 +121,23 @@ def _fit_image(data, bin_range):
 
     # prepare 1D lmfit model from 2D model function
     def model_function(
-        points, amplitude=1, center_x=0, center_y=0, sigma_x=1, sigma_y=1
-    ):
+        points: npt.ArrayLike,
+        amplitude: float = 1,
+        center_x: float = 0,
+        center_y: float = 0,
+        sigma_x: float = 1,
+        sigma_y: float = 1,
+    ) -> npt.NDArray[Any]:
+        points = np.asarray(points)
         return np.ravel(
-            _gauss_2d(*points.T, amplitude, center_x, center_y, sigma_x, sigma_y)
+            _gauss_2d(*points.T, amplitude, center_x, center_y, sigma_x, sigma_y)  # type: ignore[call-arg]
         )
 
     model = Model(model_function, nan_policy="omit")
     # print(model.param_names, model.independent_vars)
+
+    data = np.asarray(data)
+    bin_range = np.asarray(bin_range)
 
     # instantiate lmfit Parameters
     params = Parameters()
@@ -138,16 +156,20 @@ def _fit_image(data, bin_range):
 
 
 def _localization_property2d(
-    locdata,
-    loc_properties=None,
-    other_property=None,
-    bins=None,
-    n_bins=None,
-    bin_size=10,
-    bin_edges=None,
-    bin_range=None,
-    rescale=None,
-):
+    locdata: LocData,
+    loc_properties: str | Sequence[str] | None = None,
+    other_property: str | None = None,
+    bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+    n_bins: int | Sequence[int] | None = None,
+    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = 10,
+    bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_range: tuple[float, float]
+    | Sequence[float]
+    | Sequence[Sequence[float]]
+    | Literal["zero", "link"]
+    | None = None,
+    rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
+) -> FitImageResults:
     # bin localization data
     img, bins, label = histogram(
         locdata=locdata,
@@ -191,10 +213,10 @@ class LocalizationProperty2d(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    loc_properties : list, None
+    loc_properties : Sequence[str] | None
         Localization properties to be grouped into bins.
         If None, the coordinate_values of locdata are used.
-    other_property : str, None
+    other_property : str | None
         Localization property (columns in locdata.data) that is averaged in each pixel.
         If None, the localization counts are shown.
     bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
@@ -223,7 +245,7 @@ class LocalizationProperty2d(_Analysis):
         ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
         (1, 3) for the other dimension.
         To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
-    rescale : int | str | locan.Trafo | Callable | bool | None
+    rescale : int | str | locan.Trafo | Callable[..., Any] | bool | None
         Transformation as defined in :class:`locan.Trafo` or by
         transformation function.
         For None or False no rescaling occurs.
@@ -247,16 +269,20 @@ class LocalizationProperty2d(_Analysis):
 
     def __init__(
         self,
-        meta=None,
-        loc_properties=None,
-        other_property="local_background",
-        bins=None,
-        n_bins=None,
-        bin_size=100,
-        bin_edges=None,
-        bin_range=None,
-        rescale=None,
-    ):
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        loc_properties: Sequence[str] | None = None,
+        other_property: str | None = "local_background",
+        bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+        n_bins: int | Sequence[int] | None = None,
+        bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = 100,
+        bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+        bin_range: tuple[float, float]
+        | Sequence[float]
+        | Sequence[Sequence[float]]
+        | str
+        | None = None,
+        rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.results = None
@@ -267,7 +293,7 @@ class LocalizationProperty2d(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data.
 
         Returns
@@ -282,7 +308,7 @@ class LocalizationProperty2d(_Analysis):
         return self
 
     def report(self) -> None:
-        if not self:
+        if self.results is None:
             logger.warning("No results available")
             return
 
@@ -298,15 +324,15 @@ class LocalizationProperty2d(_Analysis):
         print(f"Minimum fit value in image: {min_fit_value:.3f}")
         print(f"Fit value variation over image range: {ratio:.2f}")
 
-    def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.contour`.
 
         Returns
@@ -317,14 +343,14 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         ax.imshow(
             self.results.image.T,
             cmap="viridis",
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),
+            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
         )
 
         x, y = self.results.bins.bin_centers
@@ -344,15 +370,17 @@ class LocalizationProperty2d(_Analysis):
 
         return ax
 
-    def plot_residuals(self, ax=None, **kwargs) -> plt.axes.Axes:
+    def plot_residuals(
+        self, ax: mpl.axes.Axes | None = None, **kwargs: Any
+    ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing plot(results).
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.contour`.
 
         Returns
@@ -363,7 +391,7 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         x, y = self.results.bins.bin_centers
@@ -381,7 +409,7 @@ class LocalizationProperty2d(_Analysis):
             residuals.T,
             cmap=COLORMAP_DIVERGING,
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),
+            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
             vmin=(-max_absolute_value),
             vmax=max_absolute_value,
         )
@@ -399,14 +427,16 @@ class LocalizationProperty2d(_Analysis):
 
         return ax
 
-    def plot_deviation_from_mean(self, ax=None) -> plt.axes.Axes:
+    def plot_deviation_from_mean(
+        self, ax: mpl.axes.Axes | None = None
+    ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing
         plot(results).
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
 
         Returns
@@ -417,7 +447,7 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         positions = np.nonzero(self.results.image)
@@ -432,7 +462,7 @@ class LocalizationProperty2d(_Analysis):
             deviations.T,
             cmap=COLORMAP_DIVERGING,
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),
+            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
             vmin=(-max_absolute_value),
             vmax=max_absolute_value,
         )
@@ -445,14 +475,16 @@ class LocalizationProperty2d(_Analysis):
 
         return ax
 
-    def plot_deviation_from_median(self, ax=None) -> plt.axes.Axes:
+    def plot_deviation_from_median(
+        self, ax: mpl.axes.Axes | None = None
+    ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing
         plot(results).
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
 
         Returns
@@ -463,7 +495,7 @@ class LocalizationProperty2d(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         positions = np.nonzero(self.results.image)
@@ -478,7 +510,7 @@ class LocalizationProperty2d(_Analysis):
             deviations.T,
             cmap=COLORMAP_DIVERGING,
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),
+            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
             vmin=(-max_absolute_value),
             vmax=max_absolute_value,
         )

@@ -13,11 +13,17 @@ import pandas as pd
 
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
+from locan.locan_types import RandomGeneratorSeed
 
 __all__: list[str] = ["add_drift"]
 
 
-def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None) -> npt.NDArray:
+def _random_walk_drift(
+    n_steps: int,
+    diffusion_constant: npt.ArrayLike,
+    velocity: npt.ArrayLike,
+    seed: RandomGeneratorSeed = None,
+) -> npt.NDArray[np.float_]:
     """
     Transform locdata coordinates according to a simulated drift.
 
@@ -30,28 +36,30 @@ def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None) -> npt.
 
     Parameters
     ----------
-    n_steps : int
+    n_steps
         The number of time steps for the random walk.
-    diffusion_constant : tuple[float, ...]
+    diffusion_constant
         Diffusion constant for each dimension specifying the drift velocity
         with shape (point_dimension,).
         The diffusion constant has the unit of square of localization
         coordinate unit per frame unit.
-    velocity : tuple[float, ...]
+    velocity
         Drift velocity in units of localization coordinate unit per frame unit
         with shape (point_dimension,)
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         Position deltas with shape (n_points, diffusion_constant.shape)
         that have to be added to the original localizations.
     """
     rng = np.random.default_rng(seed)
+    diffusion_constant = np.asarray(diffusion_constant)
+    velocity = np.asarray(velocity)
 
-    sigmas = np.sqrt(2 * np.asarray(diffusion_constant))  # * delta_t which is 1 frame
+    sigmas = np.sqrt(2 * diffusion_constant)  # * delta_t which is 1 frame
     steps = np.array(
         [
             rng.normal(loc=-vel, scale=sigma, size=n_steps)
@@ -61,29 +69,34 @@ def _random_walk_drift(n_steps, diffusion_constant, velocity, seed=None) -> npt.
     return np.cumsum(steps, axis=1)
 
 
-def _drift(frames, diffusion_constant=None, velocity=None, seed=None) -> npt.NDArray:
+def _drift(
+    frames: npt.ArrayLike,
+    diffusion_constant: tuple[float, ...] | None = None,
+    velocity: tuple[float, ...] | None = None,
+    seed: RandomGeneratorSeed = None,
+) -> npt.NDArray[np.float_]:
     """
     Compute position deltas as function of frame number.
 
      Parameters
     ----------
-    frames : npt.ArrayLike
+    frames
         array with frame numbers
-    diffusion_constant : tuple[float, ...] | None
+    diffusion_constant
         Diffusion constant for each dimension specifying the drift velocity
         with shape (point_dimension,).
         The diffusion constant has the unit of square of localization
         coordinate unit per frame unit.
         If None only linear drift is computed.
-    velocity : tuple[float, ...]
+    velocity
         Drift velocity in units of localization coordinate unit per frame
         unit with shape (point_dimension,)
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         Position deltas with shape (n_points, diffusion_constant.shape)
         that have to be added to the original localizations.
     """
@@ -96,7 +109,7 @@ def _drift(frames, diffusion_constant=None, velocity=None, seed=None) -> npt.NDA
     elif diffusion_constant is not None:  # random walk plus linear drift
         velocity_ = np.zeros(len(diffusion_constant)) if velocity is None else velocity
         cumsteps = _random_walk_drift(
-            frames_.max() + 1, diffusion_constant, velocity_, seed
+            frames_.max() + 1, diffusion_constant, velocity_, seed  # type: ignore
         )
         position_deltas = cumsteps[:, frames_]
 
@@ -106,23 +119,28 @@ def _drift(frames, diffusion_constant=None, velocity=None, seed=None) -> npt.NDA
     return position_deltas
 
 
-def add_drift(locdata, diffusion_constant=None, velocity=None, seed=None) -> LocData:
+def add_drift(
+    locdata: LocData,
+    diffusion_constant: tuple[float, ...] | None = None,
+    velocity: tuple[float, ...] | None = None,
+    seed: RandomGeneratorSeed = None,
+) -> LocData:
     """
     Compute position deltas as function of frame number.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         Original localization data
-    diffusion_constant : tuple[float, ...] | None
+    diffusion_constant
         Diffusion constant for each dimension specifying the drift velocity
         with shape (point_dimension,).
         The diffusion constant has the unit of square of
         localization coordinate unit per frame unit.
-    velocity : tuple[float, ...]
+    velocity
         Drift velocity in units of localization coordinate unit per frame
         unit with shape (point_dimension,)
-    seed : RandomGeneratorSeed
+    seed
         random number generation seed
 
     Returns

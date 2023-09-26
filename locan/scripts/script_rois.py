@@ -20,14 +20,19 @@ See Also
 --------
 locan.data.rois.select_by_drawing_napari
 """
+from __future__ import annotations
+
 import argparse
-import re
+import os
 from pathlib import Path
+from typing import Any
 
 import locan.locan_io.locdata.io_locdata as io
 from locan.constants import FileType
+from locan.data import metadata_pb2
 from locan.dependencies import HAS_DEPENDENCY
 from locan.gui.io import file_dialog
+from locan.scripts.utilities import _type_converter_rescale
 from locan.visualize.napari.utilities import select_by_drawing_napari
 
 if HAS_DEPENDENCY["napari"]:
@@ -35,23 +40,31 @@ if HAS_DEPENDENCY["napari"]:
 
 
 def sc_draw_roi_napari(
-    file_path=None, file_type=FileType.CUSTOM, roi_file_indicator="_roi", **kwargs
-):
+    file_path: str | os.PathLike[Any] | None = None,
+    file_type: int | str | FileType | metadata_pb2.Metadata = FileType.CUSTOM,
+    roi_file_indicator: str = "_roi",
+    **kwargs: Any,
+) -> list[Path]:
     """
     Define regions of interest by drawing a boundary.
 
     Parameters
     ----------
-    file_path : str, os.PathLike
+    file_path
         File path to localization data.
-    file_type : int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata
+    file_type
         Indicator for the file type.
         Integer or string should be according to locan.constants.FileType.
-    roi_file_indicator : str
+    roi_file_indicator
         Indicator to add to the localization file name and use as roi file
         name (with further extension .yaml).
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`render_2d_napari`.
+
+    Returns
+    -------
+    list[Path]
+        File paths for all roi files
     """
     # choose file interactively
     if file_path is None:
@@ -80,24 +93,7 @@ def sc_draw_roi_napari(
     return roi_path_list
 
 
-def type_converter_rescale(input_string):
-    if input_string == "None":
-        return None
-    elif input_string == "True":
-        return True
-    elif input_string == "False":
-        return False
-    else:
-        pattern = re.match(
-            r"\(?([0-9]*[.]?[0-9]+),?\s?([0-9]*[.]?[0-9]+)\)?", input_string
-        )
-        if pattern:
-            return tuple(float(element) for element in pattern.groups())
-        else:
-            return input_string
-
-
-def _add_arguments(parser):
+def _add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-f",
         "--file",
@@ -133,13 +129,13 @@ def _add_arguments(parser):
     parser.add_argument(
         "--rescale",
         dest="rescale",
-        type=type_converter_rescale,
+        type=_type_converter_rescale,
         default="EQUALIZE",
         help="Rescale intensity values. Keyword passed to render_2d_napari function.",
     )
 
 
-def main(args=None):
+def main(args: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Set roi by drawing a boundary.")
     _add_arguments(parser)
     returned_args = parser.parse_args(args)

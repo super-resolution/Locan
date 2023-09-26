@@ -1,8 +1,41 @@
 import matplotlib.pyplot as plt  # needed for visualization  # noqa: F401
 import numpy as np
+import pytest
 
 from locan import LocData
 from locan.analysis import RipleysHFunction, RipleysKFunction, RipleysLFunction
+
+
+class TestRipleysKFunction:
+    def test_init(self, locdata_2d):
+        rkf = RipleysKFunction(meta={"comment": "this is an example"})
+        assert str(rkf).startswith("RipleysKFunction(radii=[")
+        assert rkf.results is None
+        assert rkf.meta.comment == "this is an example"
+        with pytest.raises(AttributeError):
+            assert rkf.Ripley_h_maximum is None
+        rkf.plot()
+
+
+class TestRipleysLFunction:
+    def test_init(self, locdata_2d):
+        rlf = RipleysLFunction(meta={"comment": "this is an example"})
+        assert str(rlf).startswith("RipleysLFunction(radii=[")
+        assert rlf.results is None
+        assert rlf.meta.comment == "this is an example"
+        with pytest.raises(AttributeError):
+            assert rlf.Ripley_h_maximum is None
+        rlf.plot()
+
+
+class TestRipleysHFunction:
+    def test_init(self, locdata_2d):
+        rhf = RipleysHFunction(meta={"comment": "this is an example"})
+        assert str(rhf).startswith("RipleysHFunction(radii=[")
+        assert rhf.results is None
+        assert rhf.meta.comment == "this is an example"
+        assert rhf.Ripley_h_maximum is None
+        rhf.plot()
 
 
 def test_Ripleys_k_function_empty(caplog):

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import sys
 from copy import copy
-from typing import Any  # noqa: F401
+from typing import Any
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -26,20 +26,18 @@ class _Analysis:
 
     Parameters
     ----------
-    locdata : LocData
-        Localization data.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : metadata_analysis_pb2.AMetadata | dict[str, Any] | None
         Metadata about the current analysis routine.
-    kwargs : dict
+    kwargs
         Parameter that are passed to the algorithm.
 
     Attributes
     ----------
     locdata : LocData
         Localization data.
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings (i.e. the kwargs) for the current computation.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
     results : Any | None
         Computed results.
@@ -48,16 +46,20 @@ class _Analysis:
     count: int = 0
     """A counter for counting Analysis class instantiations (class attribute)."""
 
-    def __init__(self, meta, **kwargs):
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | dict[str, Any] | None,
+        **kwargs: Any,
+    ) -> None:
         self.__class__.count += 1
 
-        self.parameter = kwargs
-        self.meta = self._init_meta()
+        self.parameter: dict[str, Any] = kwargs
+        self.meta: metadata_analysis_pb2.AMetadata = self._init_meta()
         self.meta = self._update_meta(meta)
-        self.results = None
+        self.results: Any | None = None
 
     @staticmethod
-    def _get_parameters(locals):
+    def _get_parameters(locals: dict[str, Any]) -> dict[str, Any]:
         """Get parameters from curated locals."""
         parameters = copy(locals)
         for key in ["self", "__class__"]:
@@ -67,18 +69,18 @@ class _Analysis:
             parameters.pop("kwargs")
         return parameters
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Update the counter upon deletion of class instance."""
         self.__class__.count -= 1
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation of the Analysis class."""
         parameter_string = ", ".join(
             (f"{key}={value}" for key, value in self.parameter.items())
         )
         return f"{self.__class__.__name__}({parameter_string})"
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict[str, Any]:
         """Modify pickling behavior."""
         # Copy the object's state from self.__dict__ to avoid modifying the original state.
         state = self.__dict__.copy()
@@ -89,7 +91,7 @@ class _Analysis:
         state["meta"] = json_string
         return state
 
-    def __setstate__(self, state):
+    def __setstate__(self, state: dict[str, Any]) -> None:
         """Modify pickling behavior."""
         # Restore instance attributes.
         self.__dict__.update(state)
@@ -97,20 +99,20 @@ class _Analysis:
         self.meta = metadata_analysis_pb2.AMetadata()
         self.meta = json_format.Parse(state["meta"], self.meta)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         if self.results is not None:
             return True
         else:
             return False
 
-    def compute(self, *args, **kwargs) -> Self:
+    def compute(self, *args: Any, **kwargs: Any) -> Self:
         """
         Apply analysis routine with the specified parameters on locdata and
         return results.
         """
         raise NotImplementedError
 
-    def report(self):
+    def report(self, *args: Any, **kwargs: Any) -> Any:
         """Show a report about analysis results."""
         raise NotImplementedError
 
@@ -123,14 +125,14 @@ class _Analysis:
         return meta_
 
     def _update_meta(
-        self, meta: metadata_analysis_pb2.AMetadata | dict | None = None
+        self, meta: metadata_analysis_pb2.AMetadata | dict[str, Any] | None = None
     ) -> metadata_analysis_pb2.AMetadata:
         meta_ = self.meta
         if meta is None:
             pass
         else:
             try:
-                meta_.MergeFrom(meta)
+                meta_.MergeFrom(meta)  # type: ignore[arg-type]
             except TypeError:
                 for key, value in meta.items():  # type: ignore
                     setattr(meta_, key, value)
@@ -141,13 +143,13 @@ class _Analysis:
 # Dealing with scipy.stats
 
 
-def _list_parameters(distribution) -> list[str]:
+def _list_parameters(distribution: str | stats.rv_continuous) -> list[str]:
     """
     List parameters for scipy.stats.rv_continuous.
 
     Parameters
     ----------
-    distribution : str | scipy.stats.rv_continuous
+    distribution
         Distribution of choice.
 
     Returns

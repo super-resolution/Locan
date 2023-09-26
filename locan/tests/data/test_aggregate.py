@@ -345,7 +345,7 @@ def test__BinsFromBoostHistogramAxis():
     assert bins.dimension == 1
     assert bins.bin_range == ((0.0, 10.0),)
     assert bins.n_bins == (5,)
-    assert bins.bin_size == ((2, 2, 2, 2, 2),)
+    assert np.array_equal(bins.bin_size[0], (2, 2, 2, 2, 2))
     assert np.array_equal(bins.bin_edges[0], np.array([0, 2, 4, 6, 8, 10]))
     assert np.array_equal(bins.bin_centers[0], np.array([1, 3, 5, 7, 9]))
 
@@ -354,7 +354,8 @@ def test__BinsFromBoostHistogramAxis():
     assert bins.dimension == 2
     assert bins.bin_range == ((0.0, 10.0), (0.0, 10.0))
     assert bins.n_bins == (5, 2)
-    assert bins.bin_size == ((2.0, 2.0, 2.0, 2.0, 2.0), (5.0, 5.0))
+    assert np.array_equal(bins.bin_size[0], (2.0, 2.0, 2.0, 2.0, 2.0))
+    assert np.array_equal(bins.bin_size[1], (5.0, 5.0))
     expected_edges = [np.array([0, 2, 4, 6, 8, 10]), np.array([0, 5, 10])]
     for bin_edges, edges in zip(bins.bin_edges, expected_edges):
         assert np.array_equal(bin_edges, edges)
@@ -652,7 +653,7 @@ def test_Bins_with_boost_histogram():
     assert bins.dimension == 1
     assert bins.bin_range == ((0.0, 10.0),)
     assert bins.n_bins == (5,)
-    assert bins.bin_size == ((2, 2, 2, 2, 2),)
+    assert np.array_equal(bins.bin_size[0], (2, 2, 2, 2, 2))
     assert np.array_equal(bins.bin_edges[0], np.array([0, 2, 4, 6, 8, 10]))
     assert np.array_equal(bins.bin_centers[0], np.array([1, 3, 5, 7, 9]))
     assert bins.is_equally_sized == (True,)

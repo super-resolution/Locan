@@ -12,8 +12,11 @@ import logging
 import os
 import re
 import sys
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
+
+from pandas import DataFrame, Series
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -45,7 +48,7 @@ class Files:
     ----------
     df : pd.DataFrame | dict[str, str] | None
         file names
-    directory: str | os.PathLike | None
+    directory : str | os.PathLike[Any] | None
         base directory
     exists : bool
         raise `FileExistsError` if file in `df` does not exist
@@ -62,10 +65,10 @@ class Files:
 
     def __init__(
         self,
-        df=None,
-        directory=None,
-        exists=True,
-        column="file_path",
+        df: pd.DataFrame | dict[str, str] | None = None,
+        directory: str | os.PathLike[Any] | None = None,
+        exists: bool = True,
+        column: str = "file_path",
     ) -> None:
         if directory is None:
             self.directory = None
@@ -104,27 +107,33 @@ class Files:
                 )
 
     def __iter__(self) -> Iterable[tuple[Any, ...]]:
-        return self.df.itertuples(name="Files")
+        return_value: Iterable[tuple[Any, ...]] = self.df.itertuples(name="Files")
+        return return_value
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: Any) -> Series[Any] | DataFrame | Files:
         if isinstance(index, int):
             return self.df.iloc[index]
         else:
             return Files(directory=self.directory, df=self.df.iloc[index])
 
     @classmethod
-    def concatenate(cls, files=None, directory=None, exists=True) -> Files:
+    def concatenate(
+        cls,
+        files: Iterable[Files] | None = None,
+        directory: str | os.PathLike[Any] | None = None,
+        exists: bool = True,
+    ) -> Files:
         """
         Concatenate the file lists from multiple File instances
         and set the base directory without further action.
 
         Parameters
         ----------
-        files : Iterable[Files] | None
+        files
             sequence with File instances
-        directory: str | os.PathLike | None
+        directory
             new base directory
-        exists : bool
+        exists
             raise `FileExistsError` if file in files does not exist
 
         Returns
@@ -142,26 +151,27 @@ class Files:
     @classmethod
     def from_path(
         cls,
-        files=None,
-        directory=None,
-        column="file_path",
+        files: Sequence[str | os.PathLike[Any]] | str | os.PathLike[Any] | None = None,
+        directory: str | os.PathLike[Any] | None = None,
+        column: str = "file_path",
     ) -> Files:
         """
         Instantiate `Files` from a collection of file paths.
 
         Parameters
         ----------
-        files : Iterable[str | os.PathLike] | str | os.PathLike | None
+        files
             sequence with File instances
-        directory : str | os.PathLike
+        directory
             new base directory
-        column : str
+        column
             Name of column in `Files.df` carrying these files
 
         Returns
         -------
         Files
         """
+        df: pd.DataFrame | dict[str, str] | None
         if isinstance(files, (str, os.PathLike)):
             df = pd.DataFrame(data=[files], columns=[column])
         elif isinstance(files, Iterable):
@@ -173,24 +183,24 @@ class Files:
     @classmethod
     def from_glob(
         cls,
-        directory=None,
-        pattern="*.txt",
-        regex=None,
-        column="file_path",
+        directory: str | os.PathLike[Any] | None = None,
+        pattern: str = "*.txt",
+        regex: str | None = None,
+        column: str = "file_path",
     ) -> Files:
         """
         Instantiate `Files` from a search with glob and/or regex patterns.
 
         Parameters
         ----------
-        pattern : str | None
+        pattern
             glob pattern passed to :func:`Path.glob`
-        regex : str | None
+        regex
             regex pattern passed to :func:`re.search` and applied in addition
             to glob pattern
-        directory : str | os.PathLike
+        directory
             new base directory in which to search
-        column : str
+        column
             Name of column in `Files.df` carrying these files
 
         Returns
@@ -199,22 +209,24 @@ class Files:
         """
         if directory is None:
             directory = Path().cwd()
+        else:
+            directory = Path(directory)
 
         files = directory.glob(pattern)
 
         if regex is None:
-            files = list(files)
+            files = list(files)  # type: ignore[assignment]
         else:
             regex_ = re.compile(regex)
-            files = [file_ for file_ in files if regex_.search(str(file_)) is not None]
+            files = [file_ for file_ in files if regex_.search(str(file_)) is not None]  # type: ignore[assignment]
 
-        df = pd.DataFrame(data=files, columns=[column])
+        df = pd.DataFrame(data=files, columns=[column])  # type: ignore[arg-type]
         return cls(directory=directory, df=df, column=column)
 
     def add_glob(
         self,
-        pattern: str = "*.txt",
-        regex=None,
+        pattern: str | None = "*.txt",
+        regex: str | None = None,
         column: str = "other_file_path",
     ) -> Self:
         """
@@ -226,9 +238,9 @@ class Files:
 
         Parameters
         ----------
-        pattern : str | None
+        pattern
             glob pattern passed to :func:`Path.glob`
-        regex : str | None
+        regex
             regex pattern passed to :func:`re.search` and applied in addition
             to glob pattern
         column : str
@@ -253,20 +265,20 @@ class Files:
 
     def exclude(
         self,
-        stoplist=None,
-        column="file_path",
-        column_stoplist="file_path",
+        stoplist: Files | Iterable[bool | str | os.PathLike[Any]] | None = None,
+        column: str = "file_path",
+        column_stoplist: str = "file_path",
     ) -> Self:
         """
         Exclude files in `self.df.column` according to stoplist.
 
         Parameters
         ----------
-        stoplist : Files | Iterable[bool | str | os.PathLike] | None
+        stoplist
             Files to be excluded
-        column : str
+        column
             key/column in `df` from which to exclude files
-        column_stoplist : str
+        column_stoplist
             key/column in `stoplist` from which to take files
 
         Returns
@@ -285,14 +297,14 @@ class Files:
                 stoplist = stoplist.df[column_stoplist].astype("string")
             else:
                 try:
-                    stoplist = [str(item_[column_stoplist]) for item_ in stoplist]
+                    stoplist = [str(item_[column_stoplist]) for item_ in stoplist]  # type: ignore[index]
                 except TypeError:
                     stoplist = [str(item_) for item_ in stoplist]
 
-            if len(stoplist) != 0:
+            if len(stoplist) != 0:  # type: ignore[arg-type]
                 conditions = [
-                    self.df[column].astype("string").str.contains(item_, regex=False)
-                    for item_ in stoplist
+                    self.df[column].astype("string").str.contains(item_, regex=False)  # type: ignore[arg-type]
+                    for item_ in stoplist  # type: ignore
                 ]
                 mask = functools.reduce(lambda x, y: x | y, conditions)
                 self.df = self.df[~mask]
@@ -300,9 +312,9 @@ class Files:
 
     def match_files(
         self,
-        files,
-        column="file_path",
-        other_column="other_file_path",
+        files: pd.Series[Any],
+        column: str = "file_path",
+        other_column: str = "other_file_path",
     ) -> Self:
         """
         Add files in new column.
@@ -312,11 +324,11 @@ class Files:
 
         Parameters
         ----------
-        files : pd.Series
+        files
             New file list
-        column : str
+        column
             Name of column in `Files.df` carrying files to match
-        other_column : str
+        other_column
             Name of new column carrying files
 
         Returns
@@ -331,10 +343,10 @@ class Files:
     def match_file_upstream(
         self,
         column: str = "file_path",
-        pattern: str = "*.toml",
-        regex=None,
-        directory: str | os.PathLike | None = None,
-        other_column="metadata",
+        pattern: str | None = "*.toml",
+        regex: str | None = None,
+        directory: str | os.PathLike[Any] | None = None,
+        other_column: str = "metadata",
     ) -> Self:
         """
         Find a matching file by applying :func:`locan.find_file_upstream` on
@@ -342,16 +354,16 @@ class Files:
 
         Parameters
         ----------
-        column : str
+        column
             Name of column in `Files.df` carrying files to match
-        pattern : str | None
+        pattern
             glob pattern passed to :func:`Path.glob`
-        regex : str | None
+        regex
             regex pattern passed to :func:`re.search` and applied in addition
             to glob pattern
-        directory :
+        directory
             top directory in which to search
-        other_column : str
+        other_column
             Name of new column carrying files
 
         Returns
@@ -383,17 +395,17 @@ class Files:
         print(f"Columns: {self.df.columns}")
         print(self.df.describe().loc[["count", "unique"]])
 
-    def group_identifiers(self):
+    def group_identifiers(self) -> Any:  # todo: fix type
         """
         Get categories defined in self.df.group.
 
         Returns
         -------
-        pd.
+        categories
         """
         return self.df.group.cat.categories
 
-    def grouped(self) -> pd.core.groupby.DataFrameGroupBy:
+    def grouped(self) -> pd.core.groupby.DataFrameGroupBy:  # type: ignore[name-defined]
         """
         Get groupby instance based on group_identifiers.
 
@@ -404,7 +416,12 @@ class Files:
         return self.df.groupby(by="group")
 
     def set_group_identifier(
-        self, name=None, pattern=None, glob=None, regex=None, column="file_path"
+        self,
+        name: str | None = None,
+        pattern: str | None = None,
+        glob: str | None = None,
+        regex: str | None = None,
+        column: str = "file_path",
     ) -> Self:
         """
         Set group_identifier `name` for files in `column` as identified by
@@ -413,15 +430,15 @@ class Files:
 
         Parameters
         ----------
-        name : str
+        name
             new group_identifier
-        pattern : str | None
+        pattern
             string pattern
-        glob : str | None
+        glob
             glob pattern passed to :func:`Path.match`
-        regex : str | None
+        regex
             regex pattern
-        column : str
+        column
             Name of column in `Files.df` carrying files to match
 
         Returns

@@ -13,4 +13,5 @@ mypy
 numpy>1.20.0  # required by mypy
 types-requests  # required by mypy
 types-protobuf  # required by mypy
+pandas-stubs  # required by mypy
 -r docs/requirements

@@ -6,36 +6,46 @@ This module provides functions for rendering `LocData` objects in 3D.
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING, Any
 
 from matplotlib import pyplot as plt
 
-from locan.data import LocData  # noqa: F401 # for typing
+if TYPE_CHECKING:
+    import matplotlib as mpl
+
+    from locan.data import LocData
 
 __all__: list[str] = ["scatter_3d_mpl"]
 
 logger = logging.getLogger(__name__)
 
 
-def scatter_3d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
+def scatter_3d_mpl(
+    locdata: LocData,
+    ax: mpl.axes.Axes | None = None,
+    index: bool = True,
+    text_kwargs: dict[str, Any] | None = None,
+    **kwargs: Any,
+) -> mpl.axes.Axes:
     """
     Scatter plot of locdata elements with text marker for each element.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
        Localization data.
-    ax : matplotlib.axes.Axes3D
+    ax
        The axes on which to show the plot
-    index : bool
+    index
        Flag indicating if element indices are shown.
-    text_kwargs : dict
+    text_kwargs
        Keyword arguments for :func:`matplotlib.axes.Axes.text`.
-    kwargs : dict
+    kwargs
        Other parameters passed to :func:`matplotlib.axes.Axes.scatter`.
 
     Returns
     -------
-    matplotlib.axes.Axes
+    matplotlib.axes.Axes3D
        Axes object with the image.
     """
     if text_kwargs is None:
@@ -57,7 +67,7 @@ def scatter_3d_mpl(locdata, ax=None, index=True, text_kwargs=None, **kwargs):
     # plot element number
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
-            ax.text(
+            ax.text(  # type:ignore[call-arg]
                 *centroid, marker, **dict({"color": "grey", "size": 20}, **text_kwargs)
             )
 

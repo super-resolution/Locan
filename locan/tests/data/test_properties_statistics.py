@@ -103,6 +103,19 @@ def test_range_from_collection(locdata_3d):
     assert result.position_z.min == 1
     assert result.position_z.max == 5
 
+    result = range_from_collection(collection.references, loc_properties=["position_x"])
+    assert result.position_x.min == 1
+    assert result.position_x.max == 5
+
+    result = range_from_collection(collection.references, loc_properties="position_x")
+    assert result.position_x.min == 1
+    assert result.position_x.max == 5
+
+    result = range_from_collection(collection.references, loc_properties=True)
+    assert result.position_x.min == 1
+    assert result.position_x.max == 5
+    assert result.frame.min == 1
+
 
 def test__ranges(locdata_2d):
     ranges_ = ranges(locdata_2d)

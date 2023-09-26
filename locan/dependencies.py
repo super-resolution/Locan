@@ -29,10 +29,10 @@ import logging
 import os
 import re
 import sys
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 if sys.version_info >= (3, 10):
     from typing import ParamSpec
@@ -71,18 +71,18 @@ def _has_dependency_factory(
 def needs_package(
     package: str,
     import_names: dict[str, str] | None = None,
-    has_dependency: dict | None = None,
+    has_dependency: dict[str, bool] | None = None,
 ) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """
     Function that returns a decorator to check for optional dependency.
 
     Parameters
     ----------
-    package : str
+    package
         Package or dependency name that needs to be imported.
-    import_names : dict[str, str] | None
+    import_names
         Mapping of package names onto import names.
-    has_dependency : dict | None
+    has_dependency
         Dictionary with bool indicator if package (import name) is available.
 
     Returns
@@ -121,8 +121,8 @@ def _get_dependencies(package: str) -> tuple[set[str], set[str]]:
     """
     requires = importlib.metadata.requires(package)
     if requires is None:
-        required_dependencies: set = set()
-        extra_dependencies: set = set()
+        required_dependencies: set[str] = set()
+        extra_dependencies: set[str] = set()
     else:
         pattern = r"[\w-]+"
         required_dependencies = set()
@@ -140,10 +140,10 @@ def _get_dependencies(package: str) -> tuple[set[str], set[str]]:
 
 
 #: List of required dependencies (PyPi package names)
-INSTALL_REQUIRES: set = set()
+INSTALL_REQUIRES: set[str] = set()
 
 #: List of optional dependencies (PyPi package names)
-EXTRAS_REQUIRE: set = set()
+EXTRAS_REQUIRE: set[str] = set()
 INSTALL_REQUIRES, EXTRAS_REQUIRE = _get_dependencies(package="locan")
 
 #: A dictionary mapping PyPi package names to import names if they are different

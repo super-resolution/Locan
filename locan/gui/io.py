@@ -8,7 +8,7 @@ from __future__ import annotations
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["qt"]:
-    from qtpy.QtWidgets import QApplication, QFileDialog  # type: ignore
+    from qtpy.QtWidgets import QApplication, QFileDialog
 
 from locan.configuration import QT_BINDING
 from locan.dependencies import QtBindings
@@ -18,27 +18,25 @@ __all__: list[str] = ["file_dialog"]
 
 @needs_package("qt")
 def file_dialog(
-    directory=None,
-    message="Select a file...",
-    filter="Text files (*.txt);; All files (*)",
-):
+    directory: str | None = None,
+    message: str = "Select a file...",
+    filter: str = "Text files (*.txt);; All files (*)",
+) -> str | list[str]:
     """
     Select file names in a ui dialog.
 
     Parameters
     ----------
-    directory : str | None
+    directory
         directory path to start dialog in. If None the current directory is used.
-
-    message : str
+    message
         Hint what to do
-
-    filter : str
+    filter
         filter for file type
 
     Returns
     -------
-    list[str]
+    str | list[str]
         list with file names or empty list
     """
     if directory is None:
@@ -65,6 +63,7 @@ def file_dialog(
     )
 
     if isinstance(fname, tuple):
-        return fname[0]
+        return_value: str | list[str] = fname[0]
     else:
-        return str(fname)
+        return_value = str(fname)
+    return return_value

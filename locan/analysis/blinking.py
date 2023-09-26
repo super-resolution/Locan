@@ -9,23 +9,22 @@ from __future__ import annotations
 
 import logging
 import sys
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Sequence  # noqa: F401
-else:
-    from typing import Sequence  # noqa: F401
+from collections.abc import Iterable, Sequence
+from typing import Any
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 import pandas as pd
 from scipy import stats
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 from locan.data.locdata import LocData
 
@@ -38,8 +37,10 @@ logger = logging.getLogger(__name__)
 
 
 def _blink_statistics(
-    locdata, memory=0, remove_heading_off_periods=True
-) -> dict[str, npt.NDArray | list]:
+    locdata: LocData | npt.ArrayLike,
+    memory: int = 0,
+    remove_heading_off_periods: bool = True,
+) -> dict[str, npt.NDArray[np.int_ | np.float_] | list[int | float]]:
     """
     Estimate on and off times from the frame values provided.
 
@@ -52,15 +53,18 @@ def _blink_statistics(
 
     Parameters
     ----------
-    locdata : LocData | npt.ArrayLike
+    locdata
         Localization data or just the frame values of given localizations.
-    memory : int
+    memory
         The maximum number of intermittent frames without any localization
         that are still considered to belong to the same on-period.
+    remove_heading_off_periods
+        Flag to indicate if off-periods at the beginning of the series are
+        excluded.
 
     Returns
     -------
-    dict[str, npt.NDArray | list]
+    dict[str, npt.NDArray[int | float] | list[int | float]]
         'on_periods' and 'off_periods' in units of frame numbers.
         'on_periods_frame' and 'off_periods_frame' with the first frame in
         each on/off-period.
@@ -70,9 +74,9 @@ def _blink_statistics(
     if isinstance(locdata, LocData):
         frames = locdata.data.frame.values
     else:
-        frames = locdata
+        frames = locdata  # type: ignore[assignment]
 
-    frames, counts = np.unique(frames, return_counts=True)
+    frames, counts = np.unique(frames, return_counts=True)  # type: ignore[call-overload]
 
     # provide warning if duplicate frames are found. This should not be the case for appropriate localization clusters.
     if np.any(counts > 1):
@@ -84,7 +88,7 @@ def _blink_statistics(
 
     # shift frames and add first frame if no zero frame present to account for initial off_period
     first_frame = frames[0]
-    frames_ = np.insert(frames + 1, 0, 0)
+    frames_ = np.insert(frames + 1, 0, 0)  # type: ignore[operator]
 
     differences = np.insert(
         np.diff(frames_), 0, 1
@@ -184,35 +188,42 @@ class BlinkStatistics(_Analysis):
     remove_heading_off_periods : bool
         Flag to indicate if off-periods at the beginning of the series are
         excluded.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
 
     Attributes
     ----------
     count : int
         A counter for counting instantiations.
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : dict[str, npt.NDArray | list]
+    results : dict[str, npt.NDArray[np.int_ | np.float_] | list[int | float]] | None
         'on_periods' and 'off_periods' in units of frame numbers.
         'on_periods_frame' and 'off_periods_frame' with the first frame in
         each on/off-period.
         'on_periods_indices' are groups of indices to the input frames or more
          precise np.unique(frames)
-    distribution_statistics : dict
+    distribution_statistics : dict[str, Any]
         Distribution parameters derived from MLE fitting of results.
     """
 
     count = 0
 
-    def __init__(self, meta=None, memory=0, remove_heading_off_periods=True) -> None:
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        memory: int = 0,
+        remove_heading_off_periods: bool = True,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
 
-        self.results = None
-        self.distribution_statistics: dict = {}
+        self.results: dict[
+            str, npt.NDArray[np.int_ | np.float_] | list[int | float]
+        ] | None = None
+        self.distribution_statistics: dict[str, Any] = {}
 
     def compute(self, locdata: LocData | npt.ArrayLike) -> Self:
         """
@@ -220,7 +231,7 @@ class BlinkStatistics(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData | npt.ArrayLike
+        locdata
             Localization data or just the frame values of given localizations.
 
         Returns
@@ -236,10 +247,10 @@ class BlinkStatistics(_Analysis):
 
     def fit_distributions(
         self,
-        distribution=stats.expon,
-        data_identifier=("on_periods", "off_periods"),
-        with_constraints=True,
-        **kwargs,
+        distribution: str | stats.rv_continuous = stats.expon,
+        data_identifier: str | Iterable[str] = ("on_periods", "off_periods"),
+        with_constraints: bool = True,
+        **kwargs: Any,
     ) -> None:
         """
         Fit probability density functions to the distributions of on- and
@@ -252,15 +263,15 @@ class BlinkStatistics(_Analysis):
 
         Parameters
         ----------
-        distribution : str | scipy.stats.rv_continuous
+        distribution
             Distribution model to fit.
-        data_identifier : str
+        data_identifier
             String to identify the data in `results` for which to fit an
             appropriate distribution, here
             'on_periods' or 'off_periods'. For True all are fitted.
-        with_constraints : bool
+        with_constraints
             Flag to use predefined constraints on fit parameters.
-        kwargs : dict
+        kwargs
             Other parameters are passed to the `scipy.stat.distribution.fit()`
             function.
 
@@ -268,7 +279,7 @@ class BlinkStatistics(_Analysis):
         -------
         None
         """
-        if not self:
+        if self.results is None:
             logger.warning("No results available to fit.")
         else:
             if isinstance(data_identifier, (tuple, list)):
@@ -286,31 +297,31 @@ class BlinkStatistics(_Analysis):
 
     def hist(
         self,
-        data_identifier="on_periods",
-        ax=None,
-        bins="auto",
-        log=True,
-        fit=True,
-        **kwargs,
-    ) -> plt.axes.Axes:
+        data_identifier: str = "on_periods",
+        ax: mpl.axes.Axes | None = None,
+        bins: int | Sequence[int | float] | str = "auto",
+        log: bool = True,
+        fit: bool | None = True,
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing
         hist(results).
 
         Parameters
         ----------
-        data_identifier : str
+        data_identifier
             'on_periods' or 'off_periods'.
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        bins : int | Sequence | str
+        bins
             Bin specifications (passed to :func:`matplotlib.hist`).
-        log : Bool
+        log
             Flag for plotting on a log scale.
-        fit: bool, None
+        fit
             Flag indicating if distribution fit is shown.
             The fit will only be computed if `distribution_statistics` is None.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.hist`.
 
         Returns
@@ -321,7 +332,7 @@ class BlinkStatistics(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         ax.hist(
@@ -360,19 +371,19 @@ class _DistributionFits:
 
     Parameters
     ----------
-    analyis_class : Analysis object
+    analysis_class
         The analysis class with result data to fit.
-    distribution : str, scipy.stats.rv_continuous
+    distribution
         Distribution model to fit.
-    data_identifier : str
+    data_identifier
         String to identify the data in `results` for which to fit an
         appropriate distribution
 
     Attributes
     ----------
-    analyis_class : Analysis object
+    analysis_class : _Analysis
         The analysis class with result data to fit.
-    distribution : str, scipy.stats.rv_continuous
+    distribution : scipy.stats.rv_continuous
         Distribution model to fit.
     data_identifier : str
         String to identify the data in `results` for which to fit an
@@ -381,13 +392,18 @@ class _DistributionFits:
         Distribution parameters.
     """
 
-    def __init__(self, analysis_class, distribution, data_identifier):
-        self.analysis_class = analysis_class
-        self.distribution = distribution
-        self.data_identifier = data_identifier
-        self.parameters = []
+    def __init__(
+        self,
+        analysis_class: _Analysis,
+        distribution: str | stats.rv_continuous,
+        data_identifier: str,
+    ) -> None:
+        self.analysis_class: _Analysis = analysis_class
+        self.distribution: stats.rv_continuous = distribution
+        self.data_identifier: str = data_identifier
+        self.parameters: list[str] = []
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return representation of the _DistributionFits class."""
         param_dict = dict(
             analysis_class=self.analysis_class.__class__.__name__,
@@ -397,7 +413,7 @@ class _DistributionFits:
         param_string = ", ".join((f"{key}={val}" for key, val in param_dict.items()))
         return f"{self.__class__.__name__}({param_string})"
 
-    def fit(self, with_constraints=True, **kwargs):
+    def fit(self, with_constraints: bool = True, **kwargs: Any) -> None:
         """
         Fit scipy.stats.rv_continuous to analysis_class.results[data_identifier].
 
@@ -408,12 +424,15 @@ class _DistributionFits:
 
         Parameters
         ----------
-        with_constraints : bool
+        with_constraints
             Flag to use predefined constraints on fit parameters.
-        kwargs : dict
+        kwargs
             Other parameters are passed to the `scipy.stat.distribution.fit()`
             function.
         """
+        if self.analysis_class.results is None:
+            raise ValueError("Compute results before fitting.")
+
         # set data
         if isinstance(self.analysis_class.results, pd.DataFrame):
             data = self.analysis_class.results[self.data_identifier].values
@@ -428,7 +447,7 @@ class _DistributionFits:
         if with_constraints and self.distribution == stats.expon:
             # MLE fit of exponential distribution with constraints
             fit_results = stats.expon.fit(
-                data, **dict(dict(floc=np.min(data)), **kwargs)
+                data, **dict(dict(floc=np.min(data)), **kwargs)  # type: ignore[arg-type]
             )
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
@@ -437,21 +456,21 @@ class _DistributionFits:
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
 
-    def plot(self, ax=None, **kwargs):
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         probability distribution functions of fitted results.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
         -------
-        matplotlib.axes.Axes
+        mpl.axes.Axes
             Axes object with the plot.
         """
         if ax is None:
@@ -479,6 +498,6 @@ class _DistributionFits:
 
         return ax
 
-    def parameter_dict(self) -> dict:
+    def parameter_dict(self) -> dict[str, int | float]:
         """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

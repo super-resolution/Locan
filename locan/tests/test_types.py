@@ -1,4 +1,4 @@
-import numpy as np  # noqa: F401
+import numpy as np
 
 from locan import LocData
 from locan.locan_types import LocData as LocDataProtocol

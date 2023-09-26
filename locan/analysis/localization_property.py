@@ -14,12 +14,8 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import TYPE_CHECKING
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Sequence  # noqa: F401
-else:
-    from typing import Sequence  # noqa: F401
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -31,10 +27,12 @@ import numpy as np
 from scipy import stats
 
 if TYPE_CHECKING:
+    import matplotlib as mpl
     import pandas as pd
 
     from locan.data.locdata import LocData
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis, _list_parameters
 
 __all__: list[str] = ["LocalizationProperty"]
@@ -46,8 +44,8 @@ logger = logging.getLogger(__name__)
 
 
 def _localization_property(
-    locdata: LocData, loc_property: str = "intensity", index=None
-) -> pd.Series:
+    locdata: LocData, loc_property: str = "intensity", index: str | None = None
+) -> pd.DataFrame:
     if index is None:
         results = locdata.data[[loc_property]]
     else:
@@ -78,22 +76,27 @@ class LocalizationProperty(_Analysis):
     ----------
     count : int
         A counter for counting instantiations (class attribute).
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : pandas.Series
+    results : pandas.DataFrame
         Computed results.
     distribution_statistics : Distribution_stats | None
         Distribution parameters derived from MLE fitting of results.
     """
 
-    def __init__(self, meta=None, loc_property="intensity", index=None):
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        loc_property: str = "intensity",
+        index: str | None = None,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
 
-        self.results = None
-        self.distribution_statistics = None
+        self.results: pd.DataFrame | None = None
+        self.distribution_statistics: _DistributionFits | None = None
 
     def compute(self, locdata: LocData) -> Self:
         """
@@ -101,7 +104,7 @@ class LocalizationProperty(_Analysis):
 
         Parameters
         ----------
-        locdata : LocData
+        locdata
             Localization data.
 
         Returns
@@ -116,8 +119,11 @@ class LocalizationProperty(_Analysis):
         return self
 
     def fit_distributions(
-        self, distribution=stats.expon, with_constraints=True, **kwargs
-    ):
+        self,
+        distribution: str | stats.rv_continuous = stats.expon,
+        with_constraints: bool = True,
+        **kwargs: Any,
+    ) -> None:
         """
         Fit probability density functions to the distributions of
         `loc_property` values in the results
@@ -130,11 +136,11 @@ class LocalizationProperty(_Analysis):
 
         Parameters
         ----------
-        distribution : str | scipy.stats.rv_continuous
+        distribution
             Distribution model to fit.
-        with_constraints : bool
+        with_constraints
             Flag to use predefined constraints on fit parameters.
-        kwargs : dict
+        kwargs
             Other parameters are passed to `scipy.stat.distribution.fit()`.
         """
         if self:
@@ -145,7 +151,9 @@ class LocalizationProperty(_Analysis):
         else:
             logger.warning("No results available to fit.")
 
-    def plot(self, ax=None, window=1, **kwargs) -> plt.axes.Axes:
+    def plot(
+        self, ax: mpl.axes.Axes | None = None, window: int = 1, **kwargs: Any
+    ) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         running average of results over window size.
@@ -154,9 +162,9 @@ class LocalizationProperty(_Analysis):
         ----------
         ax : matplotlib.axes.Axes
             The axes on which to show the image
-        window: int
+        window
             Window for running average that is applied before plotting.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
@@ -167,7 +175,7 @@ class LocalizationProperty(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         self.results.rolling(window=window, center=True).mean().plot(
@@ -181,23 +189,30 @@ class LocalizationProperty(_Analysis):
 
         return ax
 
-    def hist(self, ax=None, bins="auto", log=True, fit=True, **kwargs) -> plt.axes.Axes:
+    def hist(
+        self,
+        ax: mpl.axes.Axes | None = None,
+        bins: int | Sequence[int | float] | str = "auto",
+        log: bool = True,
+        fit: bool | None = True,
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
         """
         Provide histogram as :class:`matplotlib.axes.Axes` object showing
         hist(results). Nan entries are ignored.
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        bins : int | Sequence | str
+        bins
             Bin specifications (passed to :func:`matplotlib.hist`).
-        log : Bool
+        log
             Flag for plotting on a log scale.
-        fit: bool, None
+        fit
             Flag indicating if distribution fit is shown.
             The fit will only be computed if `distribution_statistics` is None.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.hist`.
 
         Returns
@@ -208,7 +223,7 @@ class LocalizationProperty(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         ax.hist(
@@ -224,11 +239,13 @@ class LocalizationProperty(_Analysis):
 
         # fit distributions:
         if fit:
-            if isinstance(self.distribution_statistics, _DistributionFits):
-                self.distribution_statistics.plot(ax=ax)
-            else:
+            if self.distribution_statistics is None:
                 self.fit_distributions()
-                self.distribution_statistics.plot(ax=ax)
+
+            assert (  # type narrowing # noqa: S101
+                self.distribution_statistics is not None
+            )
+            self.distribution_statistics.plot(ax=ax)
 
         return ax
 
@@ -253,23 +270,28 @@ class _DistributionFits:
 
     Attributes
     ----------
-    analyis_class : LocalizationPrecision
+    analyis_class : LocalizationProperty
         The analysis class with result data to fit.
     loc_property : str
         The LocData property for which to fit an appropriate distribution.
-    distribution : str | scipy.stats.rv_continuous
+    distribution : scipy.stats.rv_continuous | None
         Distribution model to fit.
     parameters : list[str]
         Distribution parameters.
     """
 
-    def __init__(self, analysis_class):
+    def __init__(self, analysis_class: LocalizationProperty) -> None:
         self.analysis_class = analysis_class
         self.loc_property = self.analysis_class.parameter["loc_property"]
-        self.distribution = None
-        self.parameters = []
+        self.distribution: stats.rv_continuous | None = None
+        self.parameters: list[str] = []
 
-    def fit(self, distribution, with_constraints=True, **kwargs):
+    def fit(
+        self,
+        distribution: stats.rv_continuous,
+        with_constraints: bool = True,
+        **kwargs: Any,
+    ) -> None:
         """
         Fit scipy.stats.rv_continuous to analysis_class.results[loc_property].
 
@@ -280,13 +302,16 @@ class _DistributionFits:
 
         Parameters
         ----------
-        distribution : str | scipy.stats.rv_continuous
+        distribution
             Distribution model to fit.
-        with_constraints : bool
+        with_constraints
             Flag to use predefined constraints on fit parameters.
-        kwargs : dict
+        kwargs
             Other parameters are passed to `scipy.stats.rv_continuous.fit()`.
         """
+        if self.analysis_class.results is None:
+            logger.warning("No results available to fit.")
+            return None
         self.distribution = distribution
         for param in _list_parameters(distribution):
             self.parameters.append(self.loc_property + "_" + param)
@@ -313,7 +338,7 @@ class _DistributionFits:
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
 
-    def plot(self, ax=None, **kwargs) -> plt.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         probability distribution functions of fitted results.
@@ -322,7 +347,7 @@ class _DistributionFits:
         ----------
         ax : matplotlib.axes.Axes
             The axes on which to show the image.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
@@ -355,6 +380,6 @@ class _DistributionFits:
 
         return ax
 
-    def parameter_dict(self) -> dict:
+    def parameter_dict(self) -> dict[str, float]:
         """Dictionary of fitted parameters."""
         return {k: self.__dict__[k] for k in self.parameters}

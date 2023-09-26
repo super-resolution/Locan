@@ -12,14 +12,20 @@ Try for instance::
 
     locan check 133 -f "locan/tests/test_data/images.tif" -l "locan/tests/test_data/rapidStorm_from_images.txt" -t 2
 """
+from __future__ import annotations
+
 import argparse
+import os
+from typing import Any
 
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 import tifffile as tif
 
 from locan import locdata_id
 from locan.constants import FileType
+from locan.data import metadata_pb2
+from locan.data.locdata import LocData
 from locan.dependencies import HAS_DEPENDENCY
 from locan.gui import file_dialog
 from locan.locan_io.locdata.io_locdata import load_locdata
@@ -29,30 +35,30 @@ if HAS_DEPENDENCY["napari"]:
 
 
 def render_locs_per_frame_napari(
-    images,
-    pixel_size,
-    locdata,
-    viewer=None,
-    transpose=True,
-    kwargs_image=None,
-    kwargs_points=None,
-):
+    images: npt.ArrayLike,
+    pixel_size: float | tuple[float],
+    locdata: LocData,
+    viewer: napari.Viewer = None,
+    transpose: bool = True,
+    kwargs_image: dict[str, Any] | None = None,
+    kwargs_points: dict[str, Any] | None = None,
+) -> napari.Viewer:
     """
     Display original recording and overlay localization spots in napari.
 
     Parameters
     ---------
-    images : npt.ArrayLike
+    images
         Stack of raw data as recorded by camera.
-    pixel_size : float | tuple[float]
+    pixel_size
         Pixel size for images (in locdata units) with shape (2,).
-    transpose : bool
+    transpose
         If True transpose x and y axis of `images`.
-    locdata : LocData
+    locdata
         Localization data that corresponds to `images` raw data.
-    viewer : napari.Viewer
+    viewer
         The viewer object on which to add the image
-    kwargs_image : dict
+    kwargs_image
         Other parameters passed to napari.Viewer().add_image().
     kwargs_points : dict
         Other parameters passed to napari.Viewer().add_points().
@@ -69,8 +75,8 @@ def render_locs_per_frame_napari(
 
     if np.ndim(pixel_size) == 0:
         pixel_size_ = (pixel_size, pixel_size)
-    elif np.ndim(pixel_size) == 1 and len(pixel_size) == 2:
-        pixel_size_ = pixel_size
+    elif np.ndim(pixel_size) == 1 and len(pixel_size) == 2:  # type:  ignore[arg-type]
+        pixel_size_ = pixel_size  # type: ignore[assignment]
     else:
         raise TypeError("Dimension of `pixel_size` is incompatible with 2d image.")
 
@@ -78,11 +84,11 @@ def render_locs_per_frame_napari(
     if transpose:
         images_ = np.transpose(images, (0, 2, 1))
     else:
-        images_ = images
+        images_ = images  # type: ignore[assignment]
 
-    points = locdata.data[locdata.data["frame"] < len(images)][
-        ["frame", "position_x", "position_y"]
-    ].values
+    points = locdata.data[
+        locdata.data["frame"] < len(images)  # type:  ignore[arg-type]
+    ][["frame", "position_x", "position_y"]].values
 
     # Provide napari viewer if not provided
     if viewer is None:
@@ -104,44 +110,37 @@ def render_locs_per_frame_napari(
 
 
 def sc_check(
-    pixel_size,
-    file_images=None,
-    file_locdata=None,
-    file_type=FileType.RAPIDSTORM,
-    viewer=None,
-    transpose=True,
-    kwargs_image=None,
-    kwargs_points=None,
-):
+    pixel_size: float | tuple[float],
+    file_images: str | os.PathLike[Any] | None = None,
+    file_locdata: str | os.PathLike[Any] | None = None,
+    file_type: int | str | FileType | metadata_pb2.Metadata = FileType.RAPIDSTORM,
+    viewer: napari.Viewer = None,
+    transpose: bool = True,
+    kwargs_image: dict[str, Any] | None = None,
+    kwargs_points: dict[str, Any] | None = None,
+) -> None:
     """
     Load and display original recording and load and overlay localization spots in napari.
 
     Parameters
     ---------
-    pixel_size : float | tuple[float]
+    pixel_size
         Pixel size for images (in locdata units) with shape (2,).
-    file_images : str, os.PathLike
+    file_images
         File path for stack of raw data as recorded by camera.
-    file_locdata : str, os.PathLike
+    file_locdata
         File path for localization data that corresponds to `images` raw data.
-    file_type : int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata
+    file_type
         Indicator for the file type.
         Integer or string should be according to locan.constants.FileType.
-    transpose : bool
+    transpose
         If True transpose x and y axis of `images`.
-    locdata : LocData
-        Localization data that corresponds to `images` raw data.
     viewer : napari.Viewer
         The viewer object on which to add the image
     kwargs_image : dict
         Other parameters passed to :meth:`napari.Viewer.add_image`.
     kwargs_points : dict
         Other parameters passed to :meth:`napari.Viewer.add_points`.
-
-    Returns
-    -------
-    napar.Viewer
-        Viewer with the image.
     """
     if kwargs_image is None:
         kwargs_image = {}
@@ -173,7 +172,7 @@ def sc_check(
         # due to changed napari behavior from v3.0 on the context manager is moved up.
         # with napari.gui_qt():
         render_locs_per_frame_napari(
-            image_stack,
+            image_stack,  # type:  ignore[arg-type]
             pixel_size,
             locdata,
             viewer,
@@ -183,7 +182,7 @@ def sc_check(
         )
 
 
-def _add_arguments(parser):
+def _add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         dest="pixel_size", type=float, help="Pixel size for images (in locdata units)."
     )
@@ -213,7 +212,7 @@ def _add_arguments(parser):
     )
 
 
-def main(args=None):
+def main(args: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         description="Show localizations in original recording."
     )

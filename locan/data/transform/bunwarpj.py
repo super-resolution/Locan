@@ -29,8 +29,10 @@ References
 """
 from __future__ import annotations
 
+import os
 import sys
 from itertools import islice
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt
@@ -44,30 +46,37 @@ from locan.data.transform.spatial_transformation import transform_affine
 __all__: list[str] = ["bunwarp"]
 
 
-def _unwarp(points, matrix_x, matrix_y, pixel_size) -> npt.NDArray:
+def _unwarp(
+    points: npt.ArrayLike,
+    matrix_x: npt.ArrayLike,
+    matrix_y: npt.ArrayLike,
+    pixel_size: tuple[float, float],
+) -> npt.NDArray[np.float_]:
     """
     Transform points with raw matrix from BunwarpJ.
 
     Parameters
     ----------
-    points : npt.ArrayLike
+    points
         Point coordinates to be transformed.
         Array with shape (n_points, 2).
-    matrix_x : npt.NDArray
+    matrix_x
         Transformation matrix for x coordinates
-    matrix_y : npt.NDArray
+    matrix_y
         Transformation matrix for y coordinates
-    pixel_size : tuple[float, float]
+    pixel_size
         Pixel size for x and y component as used in ImageJ for registration
 
     Returns
     -------
-    npt.NDArray
+    npt.NDArray[np.float_]
         Transformed point coordinates with shape (n_points, 2).
     """
     points_ = np.asarray(points)
     point_indices = np.divide(points_, pixel_size)
 
+    matrix_x = np.asarray(matrix_x)
+    matrix_y = np.asarray(matrix_y)
     if matrix_x.shape == matrix_y.shape:
         matrix_size = matrix_x.shape
     else:
@@ -85,18 +94,20 @@ def _unwarp(points, matrix_x, matrix_y, pixel_size) -> npt.NDArray:
     return new_points
 
 
-def _read_matrix(path) -> tuple[npt.NDArray, npt.NDArray]:
+def _read_matrix(
+    path: str | os.PathLike[Any],
+) -> tuple[npt.NDArray[np.float_], npt.NDArray[np.float_]]:
     """
     Read file with raw matrix from BunwarpJ.
 
     Parameters
     ----------
-    path : str | os.PathLike
+    path
         Path to file with a raw matrix from BunwarpJ.
 
     Returns
     -------
-    tuple[npt.NDArray, npt.NDArray]
+    tuple[npt.NDArray[np.float_], npt.NDArray[np.float_]]
         x transformation array, y transformation array
     """
     with open(path) as file:
@@ -117,20 +128,25 @@ def _read_matrix(path) -> tuple[npt.NDArray, npt.NDArray]:
     return matrix_x, matrix_y
 
 
-def bunwarp(locdata, matrix_path, pixel_size, flip=False) -> LocData:
+def bunwarp(
+    locdata: LocData,
+    matrix_path: str | os.PathLike[Any],
+    pixel_size: tuple[float, float],
+    flip: bool = False,
+) -> LocData:
     """
     Transform coordinates by applying a B-spline transformation
     as represented by a raw transformation matrix from BunwarpJ.
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         specifying the localization data on which to perform the manipulation.
-    matrix_path : str | os.PathLike
+    matrix_path
         Path to file with a raw matrix from BunwarpJ.
-    pixel_size : tuple[float, float]
+    pixel_size
         Pixel sizes used to determine transition matrix in ImageJ
-    flip : bool
+    flip
         Flip locdata along x-axis before transformation
 
     Returns
@@ -144,7 +160,7 @@ def bunwarp(locdata, matrix_path, pixel_size, flip=False) -> LocData:
 
     if flip:
         image_size = np.multiply(matrix_x.shape, pixel_size)
-        locdata = transform_affine(
+        locdata = transform_affine(  # type: ignore[assignment]
             locdata, matrix=[[-1, 0], [0, 1]], offset=[image_size[0], 0]
         )
 

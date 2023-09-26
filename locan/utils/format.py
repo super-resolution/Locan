@@ -10,7 +10,7 @@ import time
 __all__: list[str] = []
 
 
-def _time_string(time_value) -> str:
+def _time_string(time_value: float) -> str:
     """
     Convert 'time_value' (typically timestamp from Unix epoch) to the local time
     and return as "%Y-%m-%d %H:%M:%S %z" formatted string.
@@ -19,7 +19,7 @@ def _time_string(time_value) -> str:
 
     Parameters
     ----------
-    time_value : float
+    time_value
         Return value from :func:`time.time`
 
     Returns

@@ -1,6 +1,7 @@
 from io import StringIO
 
 import locan.constants
+from locan import FileType
 from locan.locan_io import load_Nanoimager_file
 from locan.locan_io.locdata.nanoimager_io import load_Nanoimager_header
 
@@ -36,9 +37,8 @@ def test_get_correct_column_names_from_Nanoimager_header():
 
 
 def test_loading_Nanoimager_file():
-    dat = load_Nanoimager_file(
-        path=locan.ROOT_DIR / "tests/test_data/Nanoimager_dstorm_data.csv", nrows=10
-    )
+    file_path = locan.ROOT_DIR / "tests/test_data/Nanoimager_dstorm_data.csv"
+    dat = load_Nanoimager_file(path=file_path, nrows=10)
     # print(dat.data.columns)
     assert len(dat) == 10
     assert all(
@@ -53,6 +53,8 @@ def test_loading_Nanoimager_file():
             "local_background",
         ]
     )
+    assert dat.meta.file.type == FileType.NANOIMAGER.value
+    assert dat.meta.file.path == str(file_path)
 
     file_like = StringIO(
         "Channel,Frame,X (nm),Y (nm),Z (nm),Photons,Background\n"

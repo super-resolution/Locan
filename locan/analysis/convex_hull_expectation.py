@@ -21,15 +21,10 @@ from __future__ import annotations
 import importlib.resources as importlib_resources
 import logging
 import sys
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING, NamedTuple
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Sequence  # noqa: F401
-else:
-    from typing import Sequence  # noqa: F401
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -42,11 +37,12 @@ if TYPE_CHECKING:
 import boost_histogram as bh
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 import pandas as pd
 import scipy.integrate as integrate
 import scipy.special as special
 
+from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.data.aggregate import Bins
 
@@ -76,10 +72,10 @@ ConvexHullExpectationResource = dict(
 
 
 class ConvexHullExpectationValues(NamedTuple):
-    n_points: list | npt.NDArray
-    expectation: npt.NDArray
-    std_pos: npt.NDArray
-    std_neg: npt.NDArray
+    n_points: list[int] | npt.NDArray[np.int_]
+    expectation: npt.NDArray[np.int_ | np.float_]
+    std_pos: npt.NDArray[np.float_]
+    std_neg: npt.NDArray[np.float_]
 
 
 def _get_resource(
@@ -135,7 +131,7 @@ def _get_resource(
 # The algorithms
 
 
-def compute_convex_hull_region_measure_2d(n_points, sigma=1) -> float:
+def compute_convex_hull_region_measure_2d(n_points: int, sigma: float = 1) -> float:
     """
     Compute the expected convex hull area for `n_points` data points
     that are normal distributed in 2-dimensional space
@@ -143,9 +139,9 @@ def compute_convex_hull_region_measure_2d(n_points, sigma=1) -> float:
 
     Parameters
     ----------
-    n_points : int
+    n_points
         Number of points of convex hull
-    sigma : float
+    sigma
         Standard deviation of normal-distributed point coordinates
 
     Returns
@@ -154,25 +150,34 @@ def compute_convex_hull_region_measure_2d(n_points, sigma=1) -> float:
         Expectation value for convex hull area
     """
 
-    def pdf(x):
-        return 1 / (np.sqrt(2 * np.pi)) * np.exp((-1 / 2) * (x**2))
+    def pdf(x: float) -> float:
+        return_value = 1 / (np.sqrt(2 * np.pi)) * np.exp((-1 / 2) * (x**2))
+        return float(return_value)
 
-    def cdf(x):
-        return 1 / 2 * (1 + special.erf(x / np.sqrt(2)))
+    def cdf(x: float) -> float:
+        return_value = 1 / 2 * (1 + special.erf(x / np.sqrt(2)))
+        return float(return_value)
 
-    area = (
-        3
-        * np.pi
-        * special.binom(n_points, 3)
-        * integrate.quad(
-            lambda x: cdf(x) ** (n_points - 3) * pdf(x) ** 3, -np.inf, np.inf
-        )[0]
-    )
-    return sigma**2 * area
+    try:
+        area = (
+            3
+            * np.pi
+            * special.binom(n_points, 3)
+            * integrate.quad(
+                lambda x: cdf(x) ** (n_points - 3) * pdf(x) ** 3, -np.inf, np.inf
+            )[0]
+        )
+        return_value = sigma**2 * area
+    except ZeroDivisionError:
+        return_value = np.nan
+
+    return float(return_value)
 
 
 def _get_convex_hull_property_expectation(
-    convex_hull_property, n_points, sigma=1
+    convex_hull_property: str | ConvexHullProperty,
+    n_points: npt.ArrayLike,
+    sigma: float = 1,
 ) -> ConvexHullExpectationValues:
     """
     Get the expected convex hull property for `n_points` data points
@@ -181,11 +186,11 @@ def _get_convex_hull_property_expectation(
 
     Parameters
     ----------
-    convex_hull_property : str | ConvexHullProperty
+    convex_hull_property
         Choose property and dimension of convex hull
-    n_points : npt.ArrayLike
+    n_points
         Number of points of convex hull
-    sigma : float
+    sigma
         Standard deviation of normal-distributed point coordinates
 
     Returns
@@ -194,9 +199,9 @@ def _get_convex_hull_property_expectation(
         Expectation values for convex hull property
     """
     try:
-        convex_hull_property = convex_hull_property.name.upper()
+        convex_hull_property = convex_hull_property.name.upper()  # type: ignore
     except AttributeError:
-        convex_hull_property = convex_hull_property.upper()
+        convex_hull_property = convex_hull_property.upper()  # type: ignore
     convex_hull_expectation_values = _get_resource(
         resource_directory="locan.analysis.resources.convex_hull_expectation",
         resource=ConvexHullExpectationResource[convex_hull_property],
@@ -247,7 +252,7 @@ class ConvexHullExpectation(_Analysis):
 
     Parameters
     ----------
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
+    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
         Metadata about the current analysis routine.
     convex_hull_property : Literal["region_measure_ch", "subregion_measure_ch"]
         One of 'region_measure_ch' (i.e. area or volume)
@@ -261,21 +266,23 @@ class ConvexHullExpectation(_Analysis):
     ----------
     count : int
         A counter for counting instantiations (class attribute).
-    parameter : dict
+    parameter : dict[str, Any]
         A dictionary with all settings for the current computation.
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : ConvexHullExpectationResults
+    results : ConvexHullExpectationResults | None
         Computed results.
-    distribution_statistics : Distribution_stats, None
+    distribution_statistics : dict[str, Any] | None
         Distribution parameters derived from MLE fitting of results.
     """
 
     def __init__(
         self,
-        meta=None,
-        convex_hull_property="region_measure_ch",
-        expected_variance=None,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        convex_hull_property: Literal[
+            "region_measure_ch", "subregion_measure_ch"
+        ] = "region_measure_ch",
+        expected_variance: float | Iterable[float] | None = None,
     ) -> None:
         if convex_hull_property not in ["region_measure_ch", "subregion_measure_ch"]:
             raise TypeError(
@@ -285,8 +292,8 @@ class ConvexHullExpectation(_Analysis):
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.expected_variance = expected_variance
-        self.results = None
-        self.distribution_statistics = None
+        self.results: ConvexHullExpectationResults | None = None
+        self.distribution_statistics: dict[str, Any] | None = None
         self._dimension: int | None = None
 
     def compute(self, locdata: LocData) -> Self:
@@ -307,6 +314,7 @@ class ConvexHullExpectation(_Analysis):
             return self
 
         self.results = ConvexHullExpectationResults()
+        assert self.results is not None  # type narrowing # noqa: S101
         loc_property = self.parameter["convex_hull_property"]
         self._dimension = locdata.dimension
 
@@ -336,7 +344,7 @@ class ConvexHullExpectation(_Analysis):
             convex_hull_expectation_values = _get_convex_hull_property_expectation(
                 n_points=self.results.grouped.index,
                 convex_hull_property=convex_hull_property_,
-                sigma=np.sqrt(self.expected_variance),
+                sigma=np.sqrt(self.expected_variance),  # type: ignore[arg-type]
             )
             new_dict = dict(
                 expectation=convex_hull_expectation_values.expectation,
@@ -367,16 +375,16 @@ class ConvexHullExpectation(_Analysis):
 
         return self
 
-    def plot(self, ax=None, **kwargs) -> mpl.axes.Axes:
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         convex_hull_property as function of localization counts.
 
         Parameters
         ----------
-        ax : :class:`matplotlib.axes.Axes`
+        ax
             The axes on which to show the image
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.plot`.
 
         Returns
@@ -387,7 +395,7 @@ class ConvexHullExpectation(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         self.results.values.plot(
@@ -452,16 +460,19 @@ class ConvexHullExpectation(_Analysis):
 
     def hist(
         self,
-        ax=None,
-        bins=None,
-        n_bins=None,
-        bin_size=None,
-        bin_edges=None,
-        bin_range=None,
-        log=True,
-        fit=False,
-        **kwargs,
-    ) -> plt.axes.Axes:
+        ax: mpl.axes.Axes | None = None,
+        bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+        n_bins: int | Sequence[int] | None = None,
+        bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
+        bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+        bin_range: tuple[float, float]
+        | Sequence[float]
+        | Sequence[Sequence[float]]
+        | None = None,
+        log: bool = True,
+        fit: bool = False,
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
         """
         Provide plot as :class:`matplotlib.axes.Axes` object showing the
         2-dimensional histogram of convex_hull_property
@@ -469,21 +480,21 @@ class ConvexHullExpectation(_Analysis):
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes
+        ax
             The axes on which to show the image
-        bins : Bins | boost_histogram.axis.Axis | boost_histogram.axis.AxesTuple | None
+        bins
             The bin specification as defined in :class:`Bins`
-        bin_edges : Sequence[float] | Sequence[Sequence[float]] | None
+        bin_edges
             Bin edges for all or each dimension
             with shape (dimension, n_bin_edges).
-        bin_range : tuple[float, float] | Sequence[float] | Sequence[Sequence[float]]
+        bin_range
             Minimum and maximum edge for all or each dimensions
             with shape (2,) or (dimension, 2).
-        n_bins : int | Sequence[int] | None
+        n_bins
             The number of bins for all or each dimension.
             5 yields 5 bins in all dimensions.
             (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
-        bin_size : float | Sequence[float] | Sequence[Sequence[float]] | None
+        bin_size
             The size of bins for all or each bin and for all or each dimension
             with shape (dimension,) or (dimension, n_bins).
             5 would describe bin_size of 5 for all bins in all dimensions.
@@ -493,13 +504,13 @@ class ConvexHullExpectation(_Analysis):
             ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
             (1, 3) for the other dimension.
             To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
-        log : bool
+        log
             Flag for plotting on a log scale.
-        fit: bool
+        fit
             Flag indicating if distribution fit is shown.
             The fit will only be computed if `distribution_statistics`
              is None.
-        kwargs : dict
+        kwargs
             Other parameters passed to :func:`matplotlib.pyplot.pcolormesh`.
 
         Returns
@@ -510,7 +521,7 @@ class ConvexHullExpectation(_Analysis):
         if ax is None:
             ax = plt.gca()
 
-        if not self:
+        if self.results is None:
             return ax
 
         fig = ax.get_figure()
@@ -571,7 +582,7 @@ class ConvexHullExpectation(_Analysis):
             self.results.values[other_loc_property], self.results.values[loc_property]
         )
         mesh = ax.pcolormesh(*histogram.axes.edges.T, histogram.view().T, **kwargs)
-        fig.colorbar(mesh)
+        fig.colorbar(mesh)  # type:ignore[union-attr]
 
         self.results.grouped.plot(
             kind="line",
@@ -642,7 +653,7 @@ class ConvexHullExpectationBatch(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    convex_hull_property : str
+    convex_hull_property : Literal['region_measure_ch', 'subregion_measure_ch']
         One of 'region_measure_ch' (i.e. area or volume)
         or 'subregion_measure_ch' (i.e. circumference or surface.)
     expected_variance : float | Iterable[float] | None
@@ -666,9 +677,11 @@ class ConvexHullExpectationBatch(_Analysis):
 
     def __init__(
         self,
-        meta=None,
-        convex_hull_property="region_measure_ch",
-        expected_variance=None,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        convex_hull_property: Literal[
+            "region_measure_ch", "subregion_measure_ch"
+        ] = "region_measure_ch",
+        expected_variance: float | Iterable[float] | None = None,
     ) -> None:
         if convex_hull_property not in ["region_measure_ch", "subregion_measure_ch"]:
             raise TypeError(
@@ -700,7 +713,7 @@ class ConvexHullExpectationBatch(_Analysis):
         -------
         Self
         """
-        convex_hull_expectation_batch: list = []
+        convex_hull_expectation_batch: list[ConvexHullExpectation] = []
         dimensions: list[int | None] = []
         for locdata_ in locdatas:
             che = ConvexHullExpectation(
@@ -738,7 +751,7 @@ class ConvexHullExpectationBatch(_Analysis):
 
         self.results = ConvexHullExpectationResults()
         self.results.values = pd.concat(
-            [item_.results.values for item_ in batch if item_ is not None],
+            [item_.results.values for item_ in batch if item_.results is not None],
             ignore_index=True,
         )
 
@@ -753,14 +766,14 @@ class ConvexHullExpectationBatch(_Analysis):
         convex_hull_property_ = ConvexHullProperty[convex_hull_property_.upper()]
 
         if self.expected_variance is None:
-            self.results.grouped.loc[:, "expectation"] = pd.NA
-            self.results.grouped.loc[:, "expectation_std_pos"] = pd.NA
-            self.results.grouped.loc[:, "expectation_std_neg"] = pd.NA
+            self.results.grouped.loc[:, "expectation"] = pd.NA  # type: ignore
+            self.results.grouped.loc[:, "expectation_std_pos"] = pd.NA  # type: ignore
+            self.results.grouped.loc[:, "expectation_std_neg"] = pd.NA  # type: ignore
         else:
             convex_hull_expectation_values = _get_convex_hull_property_expectation(
                 n_points=self.results.grouped.index,
                 convex_hull_property=convex_hull_property_,
-                sigma=np.sqrt(self.expected_variance),
+                sigma=np.sqrt(self.expected_variance),  # type: ignore
             )
             new_dict = dict(
                 expectation=convex_hull_expectation_values.expectation,
@@ -780,22 +793,25 @@ class ConvexHullExpectationBatch(_Analysis):
         self._class.results = self.results
         return self
 
-    def plot(self, ax=None, **kwargs) -> mpl.axes.Axes:
-        self._class.plot(ax=ax, **kwargs)
+    def plot(self, ax: mpl.axes.Axes | None = None, **kwargs: Any) -> mpl.axes.Axes:
+        return self._class.plot(ax=ax, **kwargs)
 
     def hist(
         self,
-        ax=None,
-        bins=None,
-        n_bins=None,
-        bin_size=None,
-        bin_edges=None,
-        bin_range=None,
-        log=True,
-        fit=False,
-        **kwargs,
-    ) -> plt.axes.Axes:
-        self._class.hist(
+        ax: mpl.axes.Axes | None = None,
+        bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+        n_bins: int | Sequence[int] | None = None,
+        bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
+        bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+        bin_range: tuple[float, float]
+        | Sequence[float]
+        | Sequence[Sequence[float]]
+        | None = None,
+        log: bool = True,
+        fit: bool = False,
+        **kwargs: Any,
+    ) -> mpl.axes.Axes:
+        return self._class.hist(
             ax=ax,
             bins=bins,
             n_bins=n_bins,

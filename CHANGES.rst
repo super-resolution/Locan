@@ -7,11 +7,11 @@ Changelog
 
 New Features
 ------------
--
+- feat: Selector class to specify loc_property selections
 
 API Changes
 -----------
--
+- refactor: change return type of clustering algorithms for noise from None to LocData()
 
 Bug Fixes
 ---------
@@ -22,6 +22,8 @@ Other Changes and Additions
 - Add type hints
 - Add type checking with mypy in pre-commit and GitHub actions CI workflow
 - Extend ruff linting
+- refactor(test): include pytest-qt in standard tests.
+- drop support for python 3.8
 
 
 0.14 - 2023-06-30

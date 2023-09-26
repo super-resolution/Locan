@@ -18,32 +18,41 @@ See Also
 --------
 locan.render.render2d.render_2d_napari
 """
+from __future__ import annotations
+
 import argparse
-import re
+import os
 from pathlib import Path
+from typing import Any
 
 import locan.locan_io.locdata.io_locdata as io
 from locan.constants import FileType
+from locan.data import metadata_pb2
 from locan.dependencies import HAS_DEPENDENCY
 from locan.gui.io import file_dialog
+from locan.scripts.utilities import _type_converter_rescale
 from locan.visualize.napari.render2d import render_2d_napari
 
 if HAS_DEPENDENCY["napari"]:
     import napari
 
 
-def sc_napari(file_path=None, file_type=FileType.CUSTOM, **kwargs):
+def sc_napari(
+    file_path: str | os.PathLike[Any] | None = None,
+    file_type: int | str | FileType | metadata_pb2.Metadata = FileType.CUSTOM,
+    **kwargs: Any,
+) -> None:
     """
     Render localization data in napari.
 
     Parameters
     ----------
-    file_path : str, os.PathLike
+    file_path
         File path to localization data.
-    file_type : int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata
+    file_type
         Indicator for the file type.
         Integer or string should be according to locan.constants.FileType.
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`render_2d_napari`.
     """
     # choose file interactively
@@ -67,24 +76,7 @@ def sc_napari(file_path=None, file_type=FileType.CUSTOM, **kwargs):
     napari.run()
 
 
-def type_converter_rescale(input_string):
-    if input_string == "None":
-        return None
-    elif input_string == "True":
-        return True
-    elif input_string == "False":
-        return False
-    else:
-        pattern = re.match(
-            r"\(?([0-9]*[.]?[0-9]+),?\s?([0-9]*[.]?[0-9]+)\)?", input_string
-        )
-        if pattern:
-            return tuple(float(element) for element in pattern.groups())
-        else:
-            return input_string
-
-
-def _add_arguments(parser):
+def _add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "-f",
         "--file",
@@ -112,13 +104,13 @@ def _add_arguments(parser):
     parser.add_argument(
         "--rescale",
         dest="rescale",
-        type=type_converter_rescale,
+        type=_type_converter_rescale,
         default="EQUALIZE",
         help="Rescale intensity values. Keyword passed to render_2d_napari function.",
     )
 
 
-def main(args=None):
+def main(args: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Render localization data in napari.")
     _add_arguments(parser)
     returned_args = parser.parse_args(args)

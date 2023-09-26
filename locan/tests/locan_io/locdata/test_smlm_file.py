@@ -6,6 +6,7 @@ from google.protobuf import json_format
 from pandas.testing import assert_frame_equal
 
 import locan.constants
+from locan import FileType
 from locan.locan_io.locdata import manifest_pb2
 from locan.locan_io.locdata.smlm_io import (
     _change_upper_to_lower_keys,
@@ -82,9 +83,8 @@ def test_load_SMLM_manifest():
 
 
 def test_loading_SMLM_file():
-    locdata = load_SMLM_file(
-        path=locan.ROOT_DIR / "tests/test_data/SMLM_dstorm_data.smlm", nrows=10
-    )
+    file_path = locan.ROOT_DIR / "tests/test_data/SMLM_dstorm_data.smlm"
+    locdata = load_SMLM_file(path=file_path, nrows=10)
     assert np.array_equal(
         locdata.data.columns,
         [
@@ -99,6 +99,8 @@ def test_loading_SMLM_file():
     )
     assert len(locdata) == 10
     # print(locdata.data)
+    assert locdata.meta.file.type == FileType.SMLM.value
+    assert locdata.meta.file.path == str(file_path)
 
 
 def test_save_and_load_smlm(locdata_2d):

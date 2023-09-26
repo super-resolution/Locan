@@ -40,6 +40,7 @@ def test_Localization_property(locdata_rapidSTORM_2d):
     assert lprop
     # print(lprop)
     assert repr(lprop) == "LocalizationProperty(loc_property=intensity, index=None)"
+    assert isinstance(lprop.results, pd.DataFrame)
     assert lprop.results.columns == pd.Index(["intensity"], dtype="object")
     assert lprop.distribution_statistics is None
     lprop.plot()

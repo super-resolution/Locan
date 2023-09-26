@@ -6,13 +6,15 @@ Utility functions for interacting with napari.
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable, Sequence  # noqa: F401
+import os
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Literal  # noqa: F401
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
-import numpy.typing as npt  # noqa: F401
+import numpy.typing as npt
 
+from locan.data import metadata_pb2
 from locan.data.region import Ellipse, Polygon, Rectangle, Region
 from locan.data.rois import Roi
 from locan.dependencies import HAS_DEPENDENCY
@@ -21,6 +23,9 @@ from locan.visualize.napari.render2d import render_2d_napari
 
 if HAS_DEPENDENCY["napari"]:
     import napari
+
+if TYPE_CHECKING:
+    from locan.data.locdata import LocData
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +36,9 @@ __all__: list[str] = [
 ]
 
 
-def select_by_drawing_napari(locdata, napari_run=True, **kwargs) -> list[Roi]:
+def select_by_drawing_napari(
+    locdata: LocData, napari_run: bool = True, **kwargs: Any
+) -> list[Roi]:
     """
     Select region of interest from rendered image by drawing rois in napari.
 
@@ -39,11 +46,11 @@ def select_by_drawing_napari(locdata, napari_run=True, **kwargs) -> list[Roi]:
 
     Parameters
     ----------
-    locdata : LocData
+    locdata
         The localization data from which to select localization data.
-    napari_run : bool
+    napari_run
         If `True` napari.run is called (set to `False` for testing).
-    kwargs : dict
+    kwargs
         Other parameters passed to :func:`render_2d_napari`.
 
     Returns
@@ -66,21 +73,22 @@ def select_by_drawing_napari(locdata, napari_run=True, **kwargs) -> list[Roi]:
     return roi_list
 
 
-def _shape_to_region(vertices, shape_type) -> Region:
+def _shape_to_region(vertices: npt.ArrayLike, shape_type: str) -> Region:
     """
     Convert napari shape to `locan.Region`.
 
     Parameters
     ----------
-    vertices : npt.ArrayLike
+    vertices
         Sequence of point coordinates as returned by napari.
-    shape_type : str
+    shape_type
         One of rectangle, ellipse, or polygon.
 
     Returns
     -------
     Region
     """
+    vertices = np.asarray(vertices)
     if shape_type == "rectangle":
         if len(set(vertices[:, 0].astype(int))) != 2:
             raise NotImplementedError("Rotated rectangles are not implemented.")
@@ -110,13 +118,13 @@ def _shape_to_region(vertices, shape_type) -> Region:
     return region
 
 
-def _shapes_to_regions(shapes_data) -> list[Region]:
+def _shapes_to_regions(shapes_data: napari.types.ShapesData) -> list[Region]:
     """
     Convert napari shapes to `locan.Region`.
 
     Parameters
     ----------
-    shapes_data : napari.types.ShapesData
+    shapes_data
         Shapes data with list of shapes
 
     Returns
@@ -134,15 +142,23 @@ def _shapes_to_regions(shapes_data) -> list[Region]:
     return regions
 
 
-def get_rois(shapes_layer, reference=None, loc_properties=None) -> list[Roi]:
+def get_rois(
+    shapes_layer: napari.layers.Shapes,
+    reference: LocData
+    | dict[str, str]
+    | metadata_pb2.Metadata
+    | metadata_pb2.File
+    | None = None,
+    loc_properties: Sequence[str] | None = None,
+) -> list[Roi]:
     """
     Create rois from shapes in napari.viewer.Shapes.
 
     Parameters
     ----------
-    shapes_layer: napari.layers.Shapes
+    shapes_layer
         Napari shapes layer like `viewer.layers["Shapes"]`
-    reference : LocData | dict | locan.data.metadata_pb2.Metadata | locan.data.metadata_pb2.File | None
+    reference
         Reference to localization data for which the region of interest
         is defined. It can be a LocData object, a reference to a saved
         SMLM file, or None for indicating no specific reference.
@@ -152,7 +168,7 @@ def get_rois(shapes_layer, reference=None, loc_properties=None) -> list[Roi]:
         integer or string indicating the file type.
         Integer or string should be according to
         locan.constants.FileType.
-    loc_properties : Sequence[str]
+    loc_properties
         Localization properties in LocData object on which the region
         selection will be applied (for instance the coordinate_keys).
 
@@ -173,19 +189,23 @@ def get_rois(shapes_layer, reference=None, loc_properties=None) -> list[Roi]:
     return rois
 
 
-def save_rois(rois, file_path=None, roi_file_indicator="_roi") -> list[Path]:
+def save_rois(
+    rois: Iterable[Roi],
+    file_path: str | os.PathLike[Any] | Literal["roi_reference"] | None = None,
+    roi_file_indicator: str = "_roi",
+) -> list[Path]:
     """
     Save list of Roi objects.
 
     Parameters
     ----------
-    rois : Iterable[Rois]
+    rois
         The rois to be saved.
-    file_path : str | os.PathLike | Literal["roi_reference"] | None
+    file_path
         Base name for roi files or existing directory to save rois in.
         If "roi_reference", roi.reference.file.path is used.
         If None, a file dialog is opened.
-    roi_file_indicator : str
+    roi_file_indicator
         Indicator to add to the localization file name and use as roi
         file name (with further extension .yaml).
 
@@ -211,7 +231,7 @@ def save_rois(rois, file_path=None, roi_file_indicator="_roi") -> list[Path]:
     for i, roi in enumerate(rois):
         if file_path is None:
             try:
-                file_path = Path(roi.reference.file.path)
+                file_path = Path(roi.reference.file.path)  # type: ignore[union-attr]
             except AttributeError:
                 raise
         roi_file = file_path.stem + roi_file_indicator + f"_{i}.yaml"

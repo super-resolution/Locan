@@ -15,7 +15,7 @@ API Changes
 
 Bug Fixes
 ---------
--
+- fix: convert_property_types and add documentation.
 
 Other Changes and Additions
 ---------------------------

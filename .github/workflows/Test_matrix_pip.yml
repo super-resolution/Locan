@@ -1,4 +1,4 @@
-name: Tests with matrix, pip
+name: Tests with python matrix, pip
 # skips qt-related tests
 
 on:
@@ -10,15 +10,14 @@ on:
 
 jobs:
   test-on-python:
-    name: "Tests with ${{ matrix.os }}, py${{ matrix.python-version }}, pip"
-    runs-on: ${{ matrix.os }}-latest
+    name: "Tests with linux, py${{ matrix.python-version }}, pip"
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu", "macos", "windows"]
         python-version: ["3.9", "3.10", "3.11"]
     env:
-      REQUIREMENTS_FILE: "requirements-${{ matrix.os }}-py${{ matrix.python-version }}.yml"
+      REQUIREMENTS_FILE: "requirements-linux-py${{ matrix.python-version }}.yml"
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4

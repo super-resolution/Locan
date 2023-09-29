@@ -1,26 +1,26 @@
-name: Tests with python matrix, Mambaforge
+name: Tests with OS matrix, Mambaforge
 # skips qt-related tests
 
 on:
   schedule:
-    - cron: "47 4 * * 4"
+    - cron: "37 4 8 * *"
   workflow_dispatch:
 
 defaults:
   run:
     shell: bash -l {0}
 
-
 jobs:
   matrix-test-on-mambaforge:
-    name: "Tests with linux,, py${{ matrix.python-version }}, Mambaforge"
-    runs-on: ubuntu-latest
+    name: "Tests with ${{ matrix.os }}, py${{ matrix.python-version }}, Mambaforge"
+    runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
+        os: ["macos", "windows"]
         python-version: ["3.9", "3.10"]
     env:
-      REQUIREMENTS_FILE: "environment-linux-py${{ matrix.python-version }}.yml"
+      REQUIREMENTS_FILE: "environment-${{ matrix.os }}-py${{ matrix.python-version }}.yml"
     steps:
       - uses: actions/checkout@v3
       - uses: conda-incubator/setup-miniconda@v2

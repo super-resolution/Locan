@@ -11,7 +11,7 @@ packages = ["locan"]
 
 [tool.setuptools_scm]
 write_to = "locan/_version.py"
-fallback_version = "0.15-fallback"
+fallback_version = "0.16-fallback"
 
 [project]
 name = "locan"

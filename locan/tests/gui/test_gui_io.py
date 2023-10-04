@@ -9,8 +9,6 @@ from locan import ROOT_DIR
 from locan.dependencies import HAS_DEPENDENCY
 from locan.gui.io import file_dialog
 
-pytestmark = pytest.mark.qt
-
 
 def test_file_dialog_no_qt():
     if not HAS_DEPENDENCY["qt"]:

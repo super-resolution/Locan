@@ -29,7 +29,7 @@ def test(args: str | list[str] | None = None) -> int | ExitCode:
     except ImportError as exc:
         raise ImportError("Need pytest to run tests.") from exc
 
-    extra_args = ["-m not gui and not visual and not requires_datasets"]
+    extra_args = ["-m not gui and not visual"]
 
     if args is None:
         pass  # extra_args = []

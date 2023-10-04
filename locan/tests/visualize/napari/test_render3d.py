@@ -9,10 +9,7 @@ from locan import (
 )
 from locan.dependencies import HAS_DEPENDENCY
 
-if HAS_DEPENDENCY["napari"]:
-    import napari
-
-pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="requires napari")
+napari = pytest.importorskip("napari")
 
 HAS_NAPARI_AND_PYTESTQT = HAS_DEPENDENCY["napari"] and HAS_DEPENDENCY["pytestqt"]
 # pytestqt is not a requested or extra dependency.

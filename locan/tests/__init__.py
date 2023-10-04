@@ -8,9 +8,12 @@ The tests are organized following the subpackage structure of locan.
 """
 from __future__ import annotations
 
-from pytest import ExitCode
+from typing import TYPE_CHECKING
 
 from locan import ROOT_DIR
+
+if TYPE_CHECKING:
+    from pytest import ExitCode
 
 __all__: list[str] = ["test"]
 

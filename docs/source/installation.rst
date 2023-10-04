@@ -23,6 +23,13 @@ Extra dependencies can be included::
 
     pip install locan[all]
 
+Install from conda-forge
+------------------------------
+
+Install locan with the conda package manager::
+
+    conda install -c conda-forge locan
+
 Install from distribution or sources
 -------------------------------------
 
@@ -51,7 +58,7 @@ Or run a locan script from any directory::
     locan test
 
 
-Using Conda to set up a dedicated environment:
+Using conda to set up a dedicated environment:
 ------------------------------------------------------------------------------------------
 
 1) Install miniconda or anaconda (platform-independent)
@@ -61,12 +68,20 @@ Using Conda to set up a dedicated environment:
 
    or with specific python version::
 
-	conda create --name locan python==3.9
+	conda create --name locan python=3.10
 	conda env update --name locan --file "./environment.yml"
 
-3) Activate the environment and install locan using pip
+3) Activate the environment and install locan.
 
-We recommend using mamba to speed up dependency resolution.
+We recommend using `mamba`_ to speed up dependency resolution::
+
+	mamba create --name locan python=3.10
+	mamba env update --name locan --file "./environment.yml"
+	mamba install --name locan -c conda-forge locan
+	conda activate locan
+
+.. _mamba: https://mamba.readthedocs.io
+
 
 Jupyter
 -----------------------

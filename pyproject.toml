@@ -290,7 +290,7 @@ module = [
     'open3d',
     'scipy.*',
     'shapely.*',
-    'skimage',
+    'skimage.*',
     'sklearn.*',
     'trackpy',
     'tqdm',

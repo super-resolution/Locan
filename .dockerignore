@@ -18,6 +18,7 @@ pip-delete-this-directory.txt
 .ruff_cache
 .mypy_cache
 .dmypy.json
+.pre-commit-config.yaml
 
 # docker
 .docker
@@ -73,6 +74,5 @@ venv
 
 # project
 .github
-.pre-commit-config.yaml
 docker
 singularity

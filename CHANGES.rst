@@ -2,7 +2,7 @@
 Changelog
 =======================
 
-0.16 - dev
+0.17 - dev
 =================
 
 New Features
@@ -11,11 +11,26 @@ New Features
 
 API Changes
 -----------
+- ...
+
+Bug Fixes
+---------
+- ...
+
+Other Changes and Additions
+---------------------------
+- ...
+
+0.16 - 2023-10-05
+=================
+
+API Changes
+-----------
 - refactor: delete qt and needs_datasets marker for pytest
 
 Bug Fixes
 ---------
-fix: import of pytest for type checking
+- fix: import of pytest for type checking
 
 Other Changes and Additions
 ---------------------------

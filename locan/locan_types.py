@@ -21,9 +21,12 @@ RandomGeneratorSeed = Union[
 
 
 class LocData(Protocol):
-    data: Any
     meta: Any
     references: Any
+
+    @property
+    def data(self) -> Any:
+        ...
 
     def __len__(self) -> int:
         ...

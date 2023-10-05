@@ -1,12 +1,8 @@
 import pytest
 
 from locan.datasets import load_npc, load_tubulin
-from locan.dependencies import HAS_DEPENDENCY
 
-# pytestmark = pytest.mark.requires_datasets
-pytestmark = pytest.mark.skipif(
-    not HAS_DEPENDENCY["requests"], reason="requires requests for html download"
-)
+requests = pytest.importorskip("requests", reason="requires requests for html download")
 
 
 def test_load_npc():

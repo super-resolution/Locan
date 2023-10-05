@@ -1,5 +1,3 @@
-import pytest
-
 from locan import (
     EXTRAS_REQUIRE,
     HAS_DEPENDENCY,
@@ -45,7 +43,6 @@ def test_needs_package():
     assert callable(needs_package("numpy"))
 
 
-@pytest.mark.skipif(not HAS_DEPENDENCY["pytest"])
 @needs_package("pytest")
 def function_to_be_decorated():
     """This is documentation for function_to_be_decorated."""

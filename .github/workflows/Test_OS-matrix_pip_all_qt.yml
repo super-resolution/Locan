@@ -1,21 +1,22 @@
-name: Tests with python matrix, pip, extra dependencies, qt
+name: Tests with OS matrix, pip, extra dependencies, qt
 # includes qt-related tests
 
 on:
   schedule:
-    - cron: "47 4 * * 4"
+    - cron: "37 4 8 * *"
   workflow_dispatch:
 
 jobs:
   test-on-python:
-    name: "Tests with linux, py${{ matrix.python-version }}, pip"
-    runs-on: ubuntu-latest
+    name: "Tests with ${{ matrix.os }}, py${{ matrix.python-version }}, pip"
+    runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
+        os: ["macos", "windows"]
         python-version: ["3.9", "3.10", "3.11"]
     env:
-      REQUIREMENTS_FILE: "requirements-all-linux-py${{ matrix.python-version }}.yml"
+      REQUIREMENTS_FILE: "requirements-all-${{ matrix.os }}-py${{ matrix.python-version }}.yml"
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4

@@ -67,6 +67,8 @@ Submodules:
 """
 from __future__ import annotations
 
+from importlib import import_module
+
 from .asdf_io import *
 from .decode_io import *
 from .elyra_io import *
@@ -78,14 +80,21 @@ from .smlm_io import *
 from .thunderstorm_io import *
 from .utilities import *
 
+submodules: list[str] = [
+    "asdf_io",
+    "decode_io",
+    "elyra_io",
+    "io_locdata",
+    "nanoimager_io",
+    "rapidstorm_io",
+    "smap_io",
+    "smlm_io",
+    "thunderstorm_io",
+    "utilities",
+]
+
 __all__: list[str] = []
-__all__.extend(io_locdata.__all__)  # type: ignore
-__all__.extend(utilities.__all__)  # type: ignore
-__all__.extend(rapidstorm_io.__all__)  # type: ignore
-__all__.extend(elyra_io.__all__)  # type: ignore
-__all__.extend(thunderstorm_io.__all__)  # type: ignore
-__all__.extend(nanoimager_io.__all__)  # type: ignore
-__all__.extend(asdf_io.__all__)  # type: ignore
-__all__.extend(smlm_io.__all__)  # type: ignore
-__all__.extend(decode_io.__all__)  # type: ignore
-__all__.extend(smap_io.__all__)  # type: ignore
+
+for submodule in submodules:
+    module_ = import_module(name=f".{submodule}", package="locan.locan_io.locdata")
+    __all__.extend(module_.__all__)

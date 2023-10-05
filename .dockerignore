@@ -1,26 +1,78 @@
-# JetBrains
-.idea
-
-# cache
-.cache
-.pytest_cache
-**/__pycache__
-
 # build
+**/__pycache__
+**/*.py[cod]
+.Python
 dist
 build
 .eggs
 *.egg-info
+pip-log.txt
+pip-delete-this-directory.txt
+*.manifest
+*.spec
+
+# C extensions
+*.so
+
+# ci
+.ruff_cache
+.mypy_cache
+.dmypy.json
+.pre-commit-config.yaml
+
+# docker
+.docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# documentation
+docs/_build
+README.md
+.readthedocs.yaml
+
+# test
+.pytest_cache
+htmlcov
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.hypothesis
+**/.ssh
+.asv
 
 # git
-#.git
+# .git  # needed for setuptools_scm
 .gitattributes
 .gitignore
 
 # jupyter
 .ipynb_checkpoints
 
-# docker
-.dockerignore
-Dockerfile
-docker-compose.yml
+# PyBuilder
+target
+
+# virtual environment
+.env
+env
+.venv
+venv
+
+# OS
+.DS_Store
+
+# JetBrains
+.idea
+
+# VS Code
+.vscode/
+
+# project
+.github
+docker
+singularity

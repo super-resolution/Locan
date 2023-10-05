@@ -2,7 +2,27 @@
 Changelog
 =======================
 
-0.15 - dev
+0.16 - dev
+=================
+
+New Features
+------------
+- ...
+
+API Changes
+-----------
+- refactor: delete qt and needs_datasets marker for pytest
+
+Bug Fixes
+---------
+fix: import of pytest for type checking
+
+Other Changes and Additions
+---------------------------
+- refactor: reduce load in GitHub actions
+- add locan to conda-forge
+
+0.15 - 2023-09-28
 =================
 
 New Features

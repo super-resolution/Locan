@@ -215,9 +215,9 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         new_values = np.interp(_values, bin_centers, cdf)
         return new_values
 
-    def inverse(
+    def inverse(  # type:ignore[override]
         self, values: npt.ArrayLike
-    ) -> npt.NDArray[Any]:  # type:ignore[override]
+    ) -> npt.NDArray[Any]:
         """A Transformation object that performs the inverse operation."""
         raise NotImplementedError
 
@@ -266,7 +266,7 @@ def adjust_contrast(
         or rescale is Trafo.STANDARDIZE
         or (isinstance(rescale, str) and rescale.upper() == Trafo.STANDARDIZE.name)
     ):
-        new_image = exposure.rescale_intensity(
+        new_image = exposure.rescale_intensity(  # type: ignore[no-untyped-call]
             image * 1.0,
             **dict(dict(in_range=(np.nanmin(image), np.nanmax(image))), **kwargs),
         )
@@ -278,7 +278,7 @@ def adjust_contrast(
             isinstance(rescale, str) and rescale.upper() == Trafo.STANDARDIZE_UINT8.name
         )
     ):
-        new_image = exposure.rescale_intensity(
+        new_image = exposure.rescale_intensity(  # type: ignore[no-untyped-call]
             image,
             **dict(
                 dict(in_range=(np.nanmin(image), np.nanmax(image)), out_range=(0, 255)),
@@ -291,7 +291,7 @@ def adjust_contrast(
         or rescale is Trafo.ZERO
         or (isinstance(rescale, str) and rescale.upper() == Trafo.ZERO.name)
     ):
-        new_image = exposure.rescale_intensity(
+        new_image = exposure.rescale_intensity(  # type: ignore[no-untyped-call]
             image * 1.0,
             **dict(dict(in_range=(0, np.nanmax(image)), out_range=(0, 1)), **kwargs),
         )
@@ -301,7 +301,7 @@ def adjust_contrast(
         or rescale is Trafo.ZERO_UINT8
         or (isinstance(rescale, str) and rescale.upper() == Trafo.ZERO_UINT8.name)
     ):
-        new_image = exposure.rescale_intensity(
+        new_image = exposure.rescale_intensity(  # type: ignore[no-untyped-call]
             image,
             **dict(dict(in_range=(0, np.nanmax(image)), out_range=(0, 255)), **kwargs),
         ).astype(np.uint8)
@@ -381,9 +381,9 @@ def adjust_contrast(
 
     # to be deprecated eventually
     elif rescale == "equal":
-        new_image = exposure.equalize_hist(image, **kwargs)
+        new_image = exposure.equalize_hist(image, **kwargs)  # type: ignore[no-untyped-call]
     elif rescale == "unity":
-        new_image = exposure.rescale_intensity(image * 1.0, **kwargs)
+        new_image = exposure.rescale_intensity(image * 1.0, **kwargs)  # type: ignore[no-untyped-call]
     elif isinstance(rescale, tuple):
         p_low, p_high = np.ptp(image) * np.asarray(rescale) / 100 + image.min()
         new_image = exposure.rescale_intensity(image, in_range=(p_low, p_high))

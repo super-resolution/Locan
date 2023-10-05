@@ -11,7 +11,7 @@ packages = ["locan"]
 
 [tool.setuptools_scm]
 write_to = "locan/_version.py"
-fallback_version = "0.15-fallback"
+fallback_version = "0.16-fallback"
 
 [project]
 name = "locan"
@@ -154,12 +154,10 @@ filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
     "ignore::DeprecationWarning:hdbscan",
 ]
-addopts = "-m 'not gui and not visual and not requires_datasets'"
+addopts = "-m 'not gui and not visual'"
 markers = [
     "gui: marks tests that require user interaction (skipped by default)",
     "visual: marks tests that require visual inspection (skipped by default)",
-    "requires_datasets: marks tests that require data in locan_datasets directory (skipped by default)",
-    "qt: marks tests that require QT",
 ]
 
 [tool.coverage.run]
@@ -229,7 +227,7 @@ exclude = [
 ]
 
 [tool.ruff.per-file-ignores]
-"__init__.py" = ["E402", "F403", "F405"]
+"__init__.py" = ["E402", "F403", "F405", "I001"]
 "_version.py" = ["Q000"]
 "test_*.py" = ["S101", "S307", "S605", "S607"]
 
@@ -292,7 +290,7 @@ module = [
     'open3d',
     'scipy.*',
     'shapely.*',
-    'skimage',
+    'skimage.*',
     'sklearn.*',
     'trackpy',
     'tqdm',

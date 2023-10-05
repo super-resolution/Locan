@@ -3,6 +3,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5722472.svg)](https://doi.org/10.5281/zenodo.5722472)
 [![PyPI](https://img.shields.io/pypi/v/locan)](https://pypi.org/project/locan/)
+[![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/locan)](https://anaconda.org/conda-forge/locan)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/locan)](https://www.python.org/)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/super-resolution/locan)](https://github.com/super-resolution/Locan)
 [![GitHub last commit](https://img.shields.io/github/last-commit/super-resolution/locan)](https://github.com/super-resolution/Locan/commits/main)
@@ -21,6 +22,10 @@ Getting Started
 To install the package please read the [instructions](https://locan.readthedocs.io/en/latest/source/installation.html) or:
 
     pip install locan
+
+or:
+
+    conda install -c conda-forge locan
 
 For details on usage and development please read the [documentation](https://locan.readthedocs.io).
 

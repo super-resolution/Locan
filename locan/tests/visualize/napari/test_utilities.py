@@ -5,13 +5,7 @@ from locan import Roi, get_rois, save_rois, select_by_drawing_napari
 from locan.dependencies import HAS_DEPENDENCY
 from locan.visualize.napari.utilities import _shape_to_region, _shapes_to_regions
 
-if HAS_DEPENDENCY["napari"]:
-    import napari
-
-pytestmark = [
-    pytest.mark.qt,
-    pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="requires napari"),
-]
+napari = pytest.importorskip("napari")
 
 HAS_NAPARI_AND_PYTESTQT = HAS_DEPENDENCY["napari"] and HAS_DEPENDENCY["pytestqt"]
 # pytestqt is not a requested or extra dependency.

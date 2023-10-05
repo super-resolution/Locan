@@ -2,12 +2,8 @@
 Changelog
 =======================
 
-0.16 - dev
+0.16 - 2023-10-05
 =================
-
-New Features
-------------
-- ...
 
 API Changes
 -----------
@@ -15,7 +11,7 @@ API Changes
 
 Bug Fixes
 ---------
-fix: import of pytest for type checking
+- fix: import of pytest for type checking
 
 Other Changes and Additions
 ---------------------------

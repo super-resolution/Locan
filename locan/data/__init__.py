@@ -28,6 +28,8 @@ Submodules:
 """
 from __future__ import annotations
 
+from importlib import import_module
+
 from locan.data.aggregate import *
 from locan.data.cluster import *
 from locan.data.filter import *
@@ -43,18 +45,25 @@ from locan.data.tracking import *
 from locan.data.transform import *
 from locan.data.validation import *
 
+submodules: list[str] = [
+    "aggregate",
+    "cluster",
+    "filter",
+    "hulls",
+    "locdata",
+    "metadata_utils",
+    "properties",
+    "region",
+    "region_utils",
+    "register",
+    "rois",
+    "tracking",
+    "transform",
+    "validation",
+]
+
 __all__: list[str] = []
-__all__.extend(aggregate.__all__)  # type: ignore
-__all__.extend(cluster.__all__)  # type: ignore
-__all__.extend(filter.__all__)  # type: ignore
-__all__.extend(hulls.__all__)  # type: ignore
-__all__.extend(locdata.__all__)  # type: ignore
-__all__.extend(metadata_utils.__all__)  # type: ignore
-__all__.extend(properties.__all__)  # type: ignore
-__all__.extend(region.__all__)  # type: ignore
-__all__.extend(region_utils.__all__)  # type: ignore
-__all__.extend(register.__all__)  # type: ignore
-__all__.extend(rois.__all__)  # type: ignore
-__all__.extend(tracking.__all__)  # type: ignore
-__all__.extend(transform.__all__)  # type: ignore
-__all__.extend(validation.__all__)  # type: ignore
+
+for submodule in submodules:
+    module_ = import_module(name=f".{submodule}", package="locan.data")
+    __all__.extend(module_.__all__)

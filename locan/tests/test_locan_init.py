@@ -11,10 +11,25 @@ def test_version():
     except AttributeError:
         pass
     assert locan.__version__
-    assert locan.__all__
-    # print(dir(locan))
     # print(locan.__version__)
+    # print(len(dir(locan)))
+    # print(dir(locan))
+    # print(len(locan.__all__))
     # print(locan.__all__)
+
+    assert all(item in locan.__dict__ for item in locan.__all__)
+    assert all(item in locan.__dict__ for item in locan.submodules)
+    # to double check:
+    # stoplist = ['annotations', 'logging', 'import_module', 'Path', '_version',
+    # 'locdata_id', 'submodules', 'submodule', 'locan_types', 'module_', 'scripts']
+    # all([
+    #     item in stoplist
+    #     for item in locan.__dict__
+    #     if (item not in locan.__all__
+    #         and item not in locan.submodules
+    #         and not item.startswith("__")
+    #         )
+    # ])
 
 
 def test_entrypoint(capfd):

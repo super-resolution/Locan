@@ -215,9 +215,9 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         new_values = np.interp(_values, bin_centers, cdf)
         return new_values
 
-    def inverse(
+    def inverse(  # type:ignore[override]
         self, values: npt.ArrayLike
-    ) -> npt.NDArray[Any]:  # type:ignore[override]
+    ) -> npt.NDArray[Any]:
         """A Transformation object that performs the inverse operation."""
         raise NotImplementedError
 

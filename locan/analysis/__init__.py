@@ -33,6 +33,8 @@ Submodules:
 """
 from __future__ import annotations
 
+from importlib import import_module
+
 from locan.analysis.accumulation_analysis import *
 from locan.analysis.blinking import *
 from locan.analysis.cbc import *
@@ -51,21 +53,28 @@ from locan.analysis.ripley import *
 from locan.analysis.subpixel_bias import *
 from locan.analysis.uncertainty import *
 
+submodules: list[str] = [
+    "accumulation_analysis",
+    "blinking",
+    "cbc",
+    "convex_hull_expectation",
+    "drift",
+    "grouped_property_expectation",
+    "localization_precision",
+    "localization_property",
+    "localization_property_2d",
+    "localization_property_correlations",
+    "localizations_per_frame",
+    "nearest_neighbor",
+    "pipeline",
+    "position_variance_expectation",
+    "ripley",
+    "subpixel_bias",
+    "uncertainty",
+]
+
 __all__: list[str] = []
-__all__.extend(accumulation_analysis.__all__)  # type: ignore
-__all__.extend(blinking.__all__)  # type: ignore
-__all__.extend(cbc.__all__)  # type: ignore
-__all__.extend(convex_hull_expectation.__all__)  # type: ignore
-__all__.extend(drift.__all__)  # type: ignore
-__all__.extend(grouped_property_expectation.__all__)  # type: ignore
-__all__.extend(localization_precision.__all__)  # type: ignore
-__all__.extend(localization_property.__all__)  # type: ignore
-__all__.extend(localization_property_2d.__all__)  # type: ignore
-__all__.extend(localization_property_correlations.__all__)  # type: ignore
-__all__.extend(localizations_per_frame.__all__)  # type: ignore
-__all__.extend(nearest_neighbor.__all__)  # type: ignore
-__all__.extend(pipeline.__all__)  # type: ignore
-__all__.extend(position_variance_expectation.__all__)  # type: ignore
-__all__.extend(ripley.__all__)  # type: ignore
-__all__.extend(subpixel_bias.__all__)  # type: ignore
-__all__.extend(uncertainty.__all__)  # type: ignore
+
+for submodule in submodules:
+    module_ = import_module(name=f".{submodule}", package="locan.analysis")
+    __all__.extend(module_.__all__)

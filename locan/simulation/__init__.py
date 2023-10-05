@@ -16,9 +16,11 @@ Submodules:
 """
 from __future__ import annotations
 
+from locan.simulation import simulate_drift, simulate_locdata
+
 from .simulate_drift import *
 from .simulate_locdata import *
 
 __all__: list[str] = []
-__all__.extend(simulate_locdata.__all__)  # type: ignore
-__all__.extend(simulate_drift.__all__)  # type: ignore
+__all__.extend(simulate_locdata.__all__)
+__all__.extend(simulate_drift.__all__)

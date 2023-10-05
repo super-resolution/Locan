@@ -25,7 +25,9 @@ Submodules:
 """
 from __future__ import annotations
 
+from locan.gui import io
+
 from .io import *
 
 __all__: list[str] = []
-__all__.extend(io.__all__)  # type: ignore
+__all__.extend(io.__all__)

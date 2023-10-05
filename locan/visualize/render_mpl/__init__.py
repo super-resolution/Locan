@@ -17,6 +17,8 @@ Submodules:
 """
 from __future__ import annotations
 
+from locan.visualize.render_mpl import render2d, render3d
+
 from .render2d import *
 from .render3d import *
 

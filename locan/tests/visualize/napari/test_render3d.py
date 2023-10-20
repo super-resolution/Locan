@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from locan import (
@@ -21,12 +20,8 @@ HAS_NAPARI_AND_PYTESTQT = HAS_DEPENDENCY["napari"] and HAS_DEPENDENCY["pytestqt"
 @pytest.mark.visual
 # this is to check overlay of rendered image and single localization points
 def test_render_3d_napari_coordinates(locdata_blobs_3d):
-    viewer, histogram = render_3d_napari(
-        locdata_blobs_3d, bin_size=10, cmap="viridis", gamma=0.1
-    )
-    viewer.add_points(
-        (locdata_blobs_3d.coordinates - np.array(histogram.bins.bin_range)[:, 0]) / 10
-    )
+    viewer = render_3d_napari(locdata_blobs_3d, bin_size=10, cmap="viridis", gamma=0.1)
+    viewer.add_points(locdata_blobs_3d.coordinates)
     napari.run()
 
 
@@ -82,8 +77,12 @@ def test_render_3d_napari_single_gui(locdata_single_localization_3d, caplog):
     render_3d_napari(
         locdata_single_localization_3d, bin_size=100, cmap="viridis", gamma=0.1
     )
-    assert caplog.record_tuples[1] == (
-        "locan.render.render3d",
+    try:
+        record_tuples_ = caplog.record_tuples[1]
+    except IndexError:
+        record_tuples_ = caplog.record_tuples[0]
+    assert record_tuples_ == (
+        "locan.visualize.napari.render3d",
         30,
         "Locdata carries a single localization.",
     )

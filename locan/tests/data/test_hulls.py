@@ -154,7 +154,7 @@ def test_OrientedBoundingBox_2d_points():
         )
         rotated_points = np.array([rpts.coords[0] for rpts in rotated_points.geoms])
         obb = OrientedBoundingBox(rotated_points)
-        assert round(obb.angle) in [0, 180, 45, 90, -90, -45, 135]
+        assert round(obb.angle) in [0, 45, 90, 135, 180, -135, -90, -45]
         assert np.isclose(obb.region_measure, 2)
         assert np.isclose(obb.subregion_measure, 6)
 

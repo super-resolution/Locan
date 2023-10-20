@@ -23,6 +23,6 @@ jobs:
       - name: "Format with black"
         run: black --check --diff "."
       - name: "Lint with ruff"
-        run: ruff --format=github "."
+        run: ruff --output-format=github "."
       - name: "Type check with mypy"
         run: mypy

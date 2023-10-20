@@ -7,12 +7,12 @@ on:
 
 env:
   OS: "linux"
-  PYTHON_VERSION: "3.10"
-  REQUIREMENTS_FILE: "requirements-all-linux-py3.10.txt"
+  PYTHON_VERSION: "3.11"
+  REQUIREMENTS_FILE: "requirements-all-linux-py3.11.txt"
 
 jobs:
   check:
-    name: "CI with ubuntu, py3.10, pip"
+    name: "CI with ubuntu, py3.11, pip"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

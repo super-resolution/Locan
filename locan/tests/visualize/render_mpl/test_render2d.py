@@ -82,7 +82,8 @@ def test_render_2d_mpl_show(locdata_blobs_2d):
     not HAS_DEPENDENCY["mpl_scatter_density"], reason="requires mpl_scatter_density"
 )
 def test_render_2d_scatter_density(locdata_blobs_2d):
-    render_2d_scatter_density(locdata_blobs_2d)
+    with pytest.warns(RuntimeWarning):
+        render_2d_scatter_density(locdata_blobs_2d)
     # render_2d_scatter_density(locdata_blobs_2d, bin_range=[[500, 1000], [500, 1000]],
     # cbar=False)
 

@@ -85,21 +85,27 @@ def test__localization_uncertainty(locdata_simple, caplog):
     ]
     assert all(key_ in results.columns for key_ in ["uncertainty_x", "uncertainty_y"])
 
-    results = _localization_uncertainty(locdata=locdata_simple, model=2)
+    with pytest.warns(RuntimeWarning):
+        results = _localization_uncertainty(locdata=locdata_simple, model=2)
     assert all(key_ in results.columns for key_ in ["uncertainty_x"])
     assert results.iloc[-1, 0] == pytest.approx(100, rel=0.01)
 
-    results = _localization_uncertainty(
-        locdata=locdata_simple, model=2, psf_sigma_x=150
-    )
+    with pytest.warns(RuntimeWarning):
+        results = _localization_uncertainty(
+            locdata=locdata_simple, model=2, psf_sigma_x=150
+        )
     assert all(key_ in results.columns for key_ in ["uncertainty_x"])
     assert results.iloc[-1, 0] == pytest.approx(150, rel=0.01)
 
-    results = _localization_uncertainty(locdata=locdata_simple, model=3)
+    with pytest.warns(RuntimeWarning):
+        results = _localization_uncertainty(locdata=locdata_simple, model=3)
     assert all(key_ in results.columns for key_ in ["uncertainty_x"])
     assert results.iloc[-1, 0] == pytest.approx(1592.0, rel=0.01)
 
-    results = _localization_uncertainty(locdata=locdata_simple, model=3, pixel_size=130)
+    with pytest.warns(RuntimeWarning):
+        results = _localization_uncertainty(
+            locdata=locdata_simple, model=3, pixel_size=130
+        )
     assert all(key_ in results.columns for key_ in ["uncertainty_x"])
     assert results.iloc[-1, 0] == pytest.approx(192.8, rel=0.01)
 
@@ -130,18 +136,23 @@ class TestLocalizationUncertainty:
         ]
 
     def test_init(self, locdata_simple):
-        unc = LocalizationUncertainty(model=2).compute(locdata_simple)
+        with pytest.warns(RuntimeWarning):
+            unc = LocalizationUncertainty(model=2).compute(locdata_simple)
         assert all(key_ in unc.results.columns for key_ in ["uncertainty_x"])
         assert unc.results.iloc[-1, 0] == pytest.approx(100, rel=0.01)
 
     def test_kwargs(self, locdata_simple):
-        unc = LocalizationUncertainty(model=2, psf_sigma_x=130).compute(locdata_simple)
+        with pytest.warns(RuntimeWarning):
+            unc = LocalizationUncertainty(model=2, psf_sigma_x=130).compute(
+                locdata_simple
+            )
         assert all(key_ in unc.results.columns for key_ in ["uncertainty_x"])
         assert unc.results.iloc[-1, 0] == pytest.approx(130, rel=0.01)
 
-        unc = LocalizationUncertainty(
-            model=localization_precision_model_3, pixel_size=130
-        ).compute(locdata_simple)
+        with pytest.warns(RuntimeWarning):
+            unc = LocalizationUncertainty(
+                model=localization_precision_model_3, pixel_size=130
+            ).compute(locdata_simple)
         assert all(key_ in unc.results.columns for key_ in ["uncertainty_x"])
         assert unc.results.iloc[-1, 0] == pytest.approx(192.8, rel=0.01)
 

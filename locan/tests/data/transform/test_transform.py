@@ -1,3 +1,4 @@
+import warnings
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
@@ -28,7 +29,9 @@ def test_randomize_2d(locdata_2d):
     with pytest.raises(AttributeError):
         randomize(locdata, hull_region="bb")
     with pytest.raises(AttributeError):
-        randomize(locdata, hull_region="ch")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            randomize(locdata, hull_region="ch")
     with pytest.raises(AttributeError):
         randomize(locdata, hull_region="as")
     with pytest.raises(AttributeError):

@@ -188,7 +188,8 @@ def test_transform_with_nan():
     assert (np.nanmin(new_img), np.nanmax(new_img)) == (0, 1)
 
     # 2) standardize_uint8: rescale (min, max) to (0, 255)
-    new_img = adjust_contrast(img, rescale=Trafo.STANDARDIZE_UINT8)
+    with pytest.warns(RuntimeWarning):
+        new_img = adjust_contrast(img, rescale=Trafo.STANDARDIZE_UINT8)
     assert new_img.dtype == np.uint8
     assert (np.nanmin(new_img), np.nanmax(new_img)) == (0, 255)
 
@@ -200,7 +201,8 @@ def test_transform_with_nan():
     )
 
     # 4) zero_uint8: (0, max) to (0, 255)
-    new_img = adjust_contrast(img, rescale=Trafo.ZERO_UINT8)
+    with pytest.warns(RuntimeWarning):
+        new_img = adjust_contrast(img, rescale=Trafo.ZERO_UINT8)
     assert new_img.dtype == np.uint8
     assert (np.nanmin(new_img), np.nanmax(new_img)) == (0, 255)
     # note: nan is converted to 0

@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 from locan import LocData
-from locan.analysis import LocalizationUncertainty, LocalizationUncertaintyFromIntensity
+from locan.analysis import LocalizationUncertainty
 from locan.analysis.uncertainty import (
     _localization_uncertainty,
     localization_precision_model_1,
@@ -155,20 +155,3 @@ class TestLocalizationUncertainty:
             ).compute(locdata_simple)
         assert all(key_ in unc.results.columns for key_ in ["uncertainty_x"])
         assert unc.results.iloc[-1, 0] == pytest.approx(192.8, rel=0.01)
-
-
-# todo: deprecate in v0.15
-def test_uncertainty_empty_to_be_deprecated(caplog):
-    LocalizationUncertaintyFromIntensity().compute(LocData())
-    assert caplog.record_tuples == [
-        ("locan.analysis.uncertainty", 30, "Locdata is empty.")
-    ]
-
-
-# todo: deprecate in v0.15
-def test_uncertainty_to_be_deprecated(locdata_simple):
-    unc = LocalizationUncertaintyFromIntensity().compute(locdata_simple)
-    # print(unc.results)
-    # print(unc.results['Uncertainty_x'][0])
-    assert unc.results["uncertainty_x"][0] == np.inf
-    assert unc.results["uncertainty_x"][1] == 100

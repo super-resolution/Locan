@@ -84,7 +84,6 @@ from locan.analysis import (  # type:ignore[attr-defined]
     LocalizationProperty2d as LocalizationProperty2d,
     LocalizationPropertyCorrelations as LocalizationPropertyCorrelations,
     LocalizationUncertainty as LocalizationUncertainty,
-    LocalizationUncertaintyFromIntensity as LocalizationUncertaintyFromIntensity,
     LocalizationsPerFrame as LocalizationsPerFrame,
     NearestNeighborDistances as NearestNeighborDistances,
     Pipeline as Pipeline,

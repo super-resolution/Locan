@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import logging
 import sys
-import warnings
 from collections.abc import Callable
 from inspect import signature
 from typing import TYPE_CHECKING, Any, cast
@@ -43,7 +42,7 @@ from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.data.locdata_utils import _get_loc_property_key_per_dimension
 
-__all__: list[str] = ["LocalizationUncertainty", "LocalizationUncertaintyFromIntensity"]
+__all__: list[str] = ["LocalizationUncertainty"]
 
 logger = logging.getLogger(__name__)
 
@@ -233,95 +232,7 @@ def _localization_uncertainty(
     return pd.DataFrame(results_dict)
 
 
-def _localization_uncertainty_from_intensity(locdata: LocData) -> pd.DataFrame:
-    results = {}
-    for v in ["x", "y", "z"]:
-        if (
-            "position_" + v in locdata.data.keys()
-            and "intensity" in locdata.data.keys()
-        ):
-            if "psf_sigma_" + v in locdata.data.keys():
-                results.update(
-                    {
-                        "uncertainty_"
-                        + v: locdata.data["psf_sigma_" + v]
-                        / np.sqrt(locdata.data["intensity"])
-                    }
-                )
-            else:
-                results.update(
-                    {"uncertainty_" + v: 1 / np.sqrt(locdata.data["intensity"])}
-                )
-        else:
-            pass
-
-    return pd.DataFrame(results)
-
-
 # The specific analysis classes
-
-
-class LocalizationUncertaintyFromIntensity(_Analysis):
-    """
-    Compute the localization uncertainty for each localization's spatial
-    coordinate in locdata.
-
-    Uncertainty is computed as Psf_sigma / Sqrt(Intensity) for each spatial dimension.
-    If Psf_sigma is not available Uncertainty is 1 / Sqrt(Intensity).
-
-    .. deprecated:: 0.14
-    LocalizationUncertaintyFromIntensity is deprecated.
-    Use `LocalizationUncertainty` instead.
-
-    Parameters
-    ----------
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata | None
-        Metadata about the current analysis routine.
-
-    Attributes
-    ----------
-    count : int
-        A counter for counting instantiations.
-    parameter : dict
-        A dictionary with all settings for the current computation.
-    meta : locan.analysis.metadata_analysis_pb2.AMetadata
-        Metadata about the current analysis routine.
-    results : pandas.DataFrame
-        The number of localizations per frame or
-        the number of localizations per frame normalized to region_measure(hull).
-    """
-
-    count = 0
-
-    def __init__(self, meta: metadata_analysis_pb2.AMetadata | None = None) -> None:
-        super().__init__(meta=meta)
-        self.results = None
-        warnings.warn(
-            f"{self.__class__.__name__} will be deprecated. "
-            f"Use `LocalizationUncertainty` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-    def compute(self, locdata: LocData) -> Self:
-        """
-        Run the computation.
-
-        Parameters
-        ----------
-        locdata
-            Localization data.
-
-        Returns
-        -------
-        Self
-        """
-        if not len(locdata):
-            logger.warning("Locdata is empty.")
-            return self
-
-        self.results = _localization_uncertainty_from_intensity(locdata=locdata)
-        return self
 
 
 class LocalizationUncertainty(_Analysis):

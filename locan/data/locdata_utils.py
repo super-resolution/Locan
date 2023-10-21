@@ -10,12 +10,13 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+import pandas as pd
 
 from locan.utils.statistics import weighted_mean_variance
 
 if TYPE_CHECKING:
-    import pandas as pd  # noqa F401
     from locan.data.locdata import LocData  # noqa F401
+    from locan.locan_types import DataFrame  # noqa F401
 
 __all__: list[str] = []
 
@@ -193,3 +194,25 @@ def _check_loc_properties(
                 )
             labels.append(loc_property)
     return labels
+
+
+def _dataframe_to_pandas(
+    dataframe: DataFrame | None, allow_copy: bool = True
+) -> pd.DataFrame | None:
+    """
+    Convert dataframe that supports the dataframe interchange protocol to
+    pandas dataframe.
+    """
+    if isinstance(dataframe, pd.DataFrame) or dataframe is None:
+        return_value = dataframe
+    elif not hasattr(pd.api, "interchange"):
+        msg = (
+            "Use pandas version that implements the DataFrame interchange protocol"
+            "or provide pandas.DataFrame object."
+        )
+        raise TypeError(msg)
+    else:
+        return_value = pd.api.interchange.from_dataframe(
+            dataframe, allow_copy=allow_copy
+        )
+    return return_value

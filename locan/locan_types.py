@@ -20,6 +20,15 @@ RandomGeneratorSeed = Union[
 ]
 
 
+class DataFrame(Protocol):
+    """Dataframe that supports the dataframe interchange protocol."""
+
+    def __dataframe__(
+        self, nan_as_null: bool = False, allow_copy: bool = True
+    ) -> DataFrame:
+        ...
+
+
 class LocData(Protocol):
     meta: Any
     references: Any

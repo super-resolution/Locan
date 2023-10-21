@@ -12,7 +12,7 @@ import sys
 import warnings
 from collections.abc import Callable, Iterable, Sequence
 from itertools import accumulate
-from typing import Any, BinaryIO, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, BinaryIO, Literal, TypeVar
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -35,13 +35,16 @@ from locan import (  # is required to use locdata_id as global variable  # noqa:
 )
 from locan.constants import PROPERTY_KEYS, PropertyKey
 from locan.data import metadata_pb2
-from locan.data.locdata_utils import _get_linked_coordinates
+from locan.data.locdata_utils import _dataframe_to_pandas, _get_linked_coordinates
 from locan.data.metadata_utils import (
     _modify_meta,
     merge_metadata,
     metadata_to_formatted_string,
 )
 from locan.data.region import Region, RoiRegion
+
+if TYPE_CHECKING:
+    from locan.locan_types import DataFrame  # noqa F401
 
 __all__: list[str] = ["LocData"]
 
@@ -634,7 +637,7 @@ class LocData:
     @classmethod
     def from_dataframe(
         cls: type[T_LocData],  # noqa: UP006
-        dataframe: pd.DataFrame | None = None,
+        dataframe: DataFrame | None = None,
         meta: metadata_pb2.Metadata
         | dict[str, Any]
         | str
@@ -644,7 +647,7 @@ class LocData:
         | None = None,
     ) -> T_LocData:
         """
-        Create new LocData object from pandas.DataFrame with localization data.
+        Create new LocData object from DataFrame with localization data.
 
         Parameters
         ----------
@@ -659,6 +662,7 @@ class LocData:
             A new LocData instance with dataframe representing the
             concatenated data.
         """
+        dataframe = _dataframe_to_pandas(dataframe=dataframe, allow_copy=True)
         dataframe = pd.DataFrame() if dataframe is None else dataframe
         meta_ = metadata_pb2.Metadata()
 

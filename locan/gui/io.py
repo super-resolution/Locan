@@ -2,6 +2,10 @@
 
 Functions for user interaction with paths and file names.
 
+Note
+-----
+These functions start a QT app and might interfere with previously started apps.
+
 """
 from __future__ import annotations
 

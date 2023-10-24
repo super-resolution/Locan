@@ -129,7 +129,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
     and :math:`h(a)` the histogram of
     intensities.
 
-    Notes
+    Note
     -----
     The default for n_bins is 65536 (16 bit).
     For most SMLM datasets this should be sufficient to resolve individual

@@ -85,7 +85,7 @@ def _get_resource(
     Get convex hull property values from resource files produced by
     numerical simulations.
 
-    Notes
+    Note
     -----
     Original data can be found at
     https://github.com/super-resolution/Ebert-et-al-2022-supplement

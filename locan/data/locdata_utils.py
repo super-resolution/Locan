@@ -72,7 +72,7 @@ def _get_linked_coordinates(
     If `uncertainty_x` is not available `uncertainty` is taken.
     If no uncertainty is available, unweighted coordinate means are taken.
 
-    Notes
+    Note
     -----
     Uncertainties should have the same unit as coordinates;
     the weights will be 1 / uncertainties^2.

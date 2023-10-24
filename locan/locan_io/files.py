@@ -37,7 +37,7 @@ class Files:
     Wrapper for a pandas.DataFrame with selected methods to
     identify, match, and group file paths.
 
-    Notes:
+    Note
     ------
     Iteration and indexing is implemented in a way that integer indexing
     or iterating over the Files instance returns

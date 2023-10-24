@@ -159,8 +159,32 @@ def test_save_rois(make_napari_viewer, locdata_blobs_2d, tmp_path):
         assert saved_path.stem[:-2] == "reference_roi"
     clean_directory(tmp_path)
 
-    # todo: add test for file_path=None which seems to crash the file dialog
-    #  when napari is running.
+
+@pytest.mark.gui
+@pytest.mark.skipif(
+    not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
+)
+def test_save_rois_with_dialog(make_napari_viewer, locdata_blobs_2d):
+    # todo: find bug: the file dialog crashes when napari is running.
+    viewer = make_napari_viewer()
+    shape_data = (np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]]), "rectangle")
+    layer_shapes = viewer.add_shapes(shape_data)
+
+    shape_data = (np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]]), "ellipse")
+    layer_shapes.add(shape_data)
+
+    shape_data = (np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]]), "polygon")
+    layer_shapes.add(shape_data)
+
+    rois = get_rois(
+        shapes_layer=layer_shapes,
+        reference=locdata_blobs_2d,
+        loc_properties=locdata_blobs_2d.coordinate_keys,
+    )
+
+    # files_path is None
+    roi_path_list = save_rois(rois=rois, file_path=None)
+    print(roi_path_list)
 
 
 @pytest.mark.gui

@@ -7,19 +7,21 @@ Changelog
 
 New Features
 ------------
-- ...
+- feat: adapt LocData.from_dataframe to take any dataframe that supports the dataframe interchange protocol.
+- feat: add gui dialog to set file path
 
 API Changes
 -----------
-- ...
+- remove deprecated LocalizationUncertaintyFromIntensity
 
 Bug Fixes
 ---------
-- ...
+- fix: tests for shapely 2.0.2 with geos 3.12.0 in conda environment
+- fix: bin-to-pixel relation in render in napari
 
 Other Changes and Additions
 ---------------------------
-- ...
+- refactor: update to python 3.12
 
 0.16 - 2023-10-05
 =================

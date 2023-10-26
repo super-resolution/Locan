@@ -165,7 +165,6 @@ def test_save_rois(make_napari_viewer, locdata_blobs_2d, tmp_path):
     not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
 )
 def test_save_rois_with_dialog(make_napari_viewer, locdata_blobs_2d):
-    # todo: find bug: the file dialog crashes when napari is running.
     viewer = make_napari_viewer()
     shape_data = (np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]]), "rectangle")
     layer_shapes = viewer.add_shapes(shape_data)

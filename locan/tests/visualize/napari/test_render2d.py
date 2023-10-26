@@ -22,10 +22,47 @@ HAS_NAPARI_AND_PYTESTQT = HAS_DEPENDENCY["napari"] and HAS_DEPENDENCY["pytestqt"
 # for tests with pytest-qt to run.
 
 
+@pytest.fixture()
+def locdata_2d_negative_():
+    """
+    Fixture for returning `LocData` carrying 2D localizations including
+    negative coordinates.
+    """
+    import pandas as pd
+
+    locdata_dict = {
+        "position_x": np.array([1, -1, 2, 3, 4, 5]) * 10,
+        "position_y": np.array([1, 5, 3, 6, -2, 5]) * 10,
+    }
+    df = pd.DataFrame(locdata_dict)
+    return locan.LocData.from_dataframe(dataframe=df)
+
+
+@pytest.mark.visual
+# this is to check overlay of rendered image and single localization points
+def test_render_2d_napari_accurate_visual(locdata_2d_negative_):
+    print(locdata_2d_negative_.data[locdata_2d_negative_.coordinate_keys].describe())
+
+    render_2d_mpl(locdata_2d_negative_, bin_size=1, cmap="viridis")
+    # plt.show()
+
+    viewer = napari.Viewer()
+
+    render_2d_napari(locdata_2d_negative_, bin_size=0.5, cmap="viridis", viewer=viewer)
+
+    viewer.add_points(locdata_2d_negative_.coordinates, size=1, opacity=0.2)
+
+    print(viewer.layers[0].corner_pixels)
+    print(viewer.layers[0].data_to_world(viewer.layers[0].corner_pixels))
+
+    napari.run()
+    plt.close("all")
+
+
 @pytest.mark.visual
 # this is to check overlay of rendered image and single localization points
 def test_render_2d_napari_new_visual(locdata_blobs_2d):
-    print(locdata_blobs_2d.data[locdata_blobs_2d.coordinate_properties].describe())
+    print(locdata_blobs_2d.data[locdata_blobs_2d.coordinate_keys].describe())
 
     render_2d_mpl(locdata_blobs_2d, bin_size=10, cmap="viridis")
     plt.show()
@@ -89,9 +126,10 @@ def test_render_2d_napari(make_napari_viewer, locdata_blobs_2d):
     assert len(viewer.layers) == 1
     assert viewer.layers[0].name == "LocData 0"
     assert np.array_equal(viewer.layers[0].corner_pixels, [[0, 0], [8, 5]])
+    print(viewer.layers[0].data_to_world(viewer.layers[0].corner_pixels))
     assert np.array_equal(
         viewer.layers[0].data_to_world(viewer.layers[0].corner_pixels),
-        [[112.0, 465.0], [912.0, 965.0]],
+        [[162.0, 515.0], [962.0, 1015.0]],
     )
     assert viewer.scale_bar.unit is None or len(viewer.scale_bar.unit) != 0
     assert viewer.layers[0].metadata["message"]

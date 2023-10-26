@@ -408,6 +408,8 @@ def test_make_cluster():
     def offspring(parent):
         from math import sin
 
+        if np.ndim(parent) > 0:
+            parent = parent[0]
         return [sin(parent)]
 
     samples, labels, parent_samples, region = make_cluster(
@@ -725,7 +727,9 @@ def test_make_NeymanScott():
     def offspring(parent):
         from math import sin
 
-        return [sin(parent[0])]
+        if np.ndim(parent) > 0:
+            parent = parent[0]
+        return [sin(parent)]
 
     samples, labels, parent_samples, region = make_NeymanScott(
         parent_intensity=10,

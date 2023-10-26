@@ -1,4 +1,4 @@
-name: Tests with matrix, pip, py3.12
+name: Tests with matrix, pip, py3.13
 # skips qt-related tests
 
 on:
@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu", "macos", "windows"]
-        python-version: ["3.12-dev"]
+        python-version: ["3.13-dev"]
         exclude:
           - os: ["macos", "windows"]
     steps:

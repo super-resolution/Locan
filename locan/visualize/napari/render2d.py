@@ -139,7 +139,7 @@ def render_2d_napari_image(
         name=f"LocData {locdata_id}",
         colormap=cmap,
         scale=bins.bin_size,
-        translate=np.asarray(bins.bin_range)[:, 0],
+        translate=np.asarray(bins.bin_range)[:, 0] + np.asarray(bins.bin_size) / 2,
         metadata=dict(message=locdata.meta.SerializeToString()),
     )
 

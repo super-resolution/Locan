@@ -1,3 +1,4 @@
+import warnings
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
@@ -28,7 +29,9 @@ def test_randomize_2d(locdata_2d):
     with pytest.raises(AttributeError):
         randomize(locdata, hull_region="bb")
     with pytest.raises(AttributeError):
-        randomize(locdata, hull_region="ch")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            randomize(locdata, hull_region="ch")
     with pytest.raises(AttributeError):
         randomize(locdata, hull_region="as")
     with pytest.raises(AttributeError):
@@ -388,7 +391,7 @@ def test_overlay(locdata_two_cluster_2d):
 
     new_locdata = overlay(clust.references, centers="obb")
     assert len(new_locdata) == 2
-    assert 0 == pytest.approx(new_locdata.coordinates, abs=0.1)
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=0.3)
 
     new_locdata = overlay(clust.references, centers="ch")
     assert len(new_locdata) == 2

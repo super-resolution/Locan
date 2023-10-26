@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, BinaryIO
 try:
     import tomllib  # type: ignore[import]
 except ModuleNotFoundError:
-    import tomli as tomllib  # for sys.version_info < (3, 11):
+    import tomli as tomllib  # type: ignore  # for sys.version_info < (3, 11):
 
 from google.protobuf import json_format, text_format
 from google.protobuf.message import Message
@@ -258,7 +258,7 @@ def load_metadata_from_toml(
         return None
 
     try:
-        toml_dict = tomllib.load(path_or_file_like)
+        toml_dict = tomllib.load(path_or_file_like)  # type: ignore[arg-type]
     except AttributeError:
         with open(path_or_file_like, "rb") as file:  # type: ignore[arg-type]
             toml_dict = tomllib.load(file)

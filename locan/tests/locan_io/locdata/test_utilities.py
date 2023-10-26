@@ -71,10 +71,10 @@ def test_convert_property_types(locdata_2d):
     converted_df = convert_property_types(
         dataframe=df, loc_properties=None, types=types_mapping
     )
-    assert converted_df.dtypes[0] == np.float32
-    assert converted_df.dtypes[1] == object
-    assert converted_df.dtypes[2] == np.int64
-    assert converted_df.dtypes[3] == np.int32
+    assert converted_df.dtypes.iloc[0] == np.float32
+    assert converted_df.dtypes.iloc[1] == object
+    assert converted_df.dtypes.iloc[2] == np.int64
+    assert converted_df.dtypes.iloc[3] == np.int32
     assert isinstance(converted_df["position_y"].iloc[0], str)
 
 

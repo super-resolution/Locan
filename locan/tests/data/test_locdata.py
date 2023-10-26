@@ -162,6 +162,12 @@ def test_LocData_from_dataframe(df_simple):
     assert len(dat) == 5
     assert dat.meta.comment == COMMENT_METADATA.comment
 
+    dat = LocData.from_dataframe(dataframe=df_simple.__dataframe__())
+    assert len(dat) == 5
+
+    dat = LocData.from_dataframe(dataframe=None)
+    assert len(dat) == 0
+
 
 def test_LocData_from_dataframe_empty(df_empty):
     dat = LocData.from_dataframe(dataframe=df_empty)

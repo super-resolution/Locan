@@ -369,7 +369,7 @@ def standardize(
     Transform locdata properties by centering to the mean
     and property-wise scaling to unit standard deviation (variance).
 
-    Notes
+    Note
     -----
     This function makes use of :func:sklearn.preprocessing.scale
     and thus works with a biased estimator for the standard deviation.

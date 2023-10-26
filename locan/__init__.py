@@ -84,7 +84,6 @@ from locan.analysis import (  # type:ignore[attr-defined]
     LocalizationProperty2d as LocalizationProperty2d,
     LocalizationPropertyCorrelations as LocalizationPropertyCorrelations,
     LocalizationUncertainty as LocalizationUncertainty,
-    LocalizationUncertaintyFromIntensity as LocalizationUncertaintyFromIntensity,
     LocalizationsPerFrame as LocalizationsPerFrame,
     NearestNeighborDistances as NearestNeighborDistances,
     Pipeline as Pipeline,
@@ -199,6 +198,7 @@ from locan.dependencies import (  # type:ignore[attr-defined]
 )
 from locan.gui import (  # type:ignore[attr-defined]
     file_dialog as file_dialog,
+    set_file_path_dialog as set_file_path_dialog,
 )
 from locan.locan_io import (  # type:ignore[attr-defined]
     Files as Files,

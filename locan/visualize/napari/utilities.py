@@ -18,11 +18,13 @@ from locan.data import metadata_pb2
 from locan.data.region import Ellipse, Polygon, Rectangle, Region
 from locan.data.rois import Roi
 from locan.dependencies import HAS_DEPENDENCY
-from locan.gui import file_dialog
 from locan.visualize.napari.render2d import render_2d_napari
 
 if HAS_DEPENDENCY["napari"]:
     import napari
+
+if HAS_DEPENDENCY["qt"]:
+    from qtpy.QtWidgets import QFileDialog
 
 if TYPE_CHECKING:
     from locan.data.locdata import LocData
@@ -216,26 +218,36 @@ def save_rois(
     """
     # choose file interactively
     if file_path is None:
-        file_path = Path(
-            file_dialog(message="choose localization file or base name")[0]
+        fname = QFileDialog.getSaveFileName(
+            None,
+            "Set file path and base name...",
+            "",
+            filter="",
+            # options=QFileDialog.DontConfirmOverwrite
+            # kwargs: parent, message, directory, filter
+            # but kw_names are different for different qt_bindings
         )
+        if isinstance(fname, tuple):
+            new_file_path = Path(fname[0])
+        else:
+            new_file_path = Path(fname)
     elif file_path == "roi_reference":
-        file_path = None
+        new_file_path = None
     elif Path(file_path).is_dir():
-        file_path = Path(file_path) / "my"
+        new_file_path = Path(file_path) / "my"  # just a simple name
     else:
-        file_path = Path(file_path)
+        new_file_path = Path(file_path)
 
     # create roi file names and save rois
     roi_path_list = []
     for i, roi in enumerate(rois):
-        if file_path is None:
+        if new_file_path is None:
             try:
-                file_path = Path(roi.reference.file.path)  # type: ignore[union-attr]
+                new_file_path = Path(roi.reference.file.path)  # type: ignore[union-attr]
             except AttributeError:
                 raise
-        roi_file = file_path.stem + roi_file_indicator + f"_{i}.yaml"
-        roi_path = file_path.with_name(roi_file)
+        roi_file = new_file_path.stem + roi_file_indicator + f"_{i}.yaml"
+        roi_path = new_file_path.with_name(roi_file)
         roi_path_list.append(roi_path)
         roi.to_yaml(path=roi_path)
 

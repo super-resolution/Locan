@@ -1,4 +1,5 @@
 import os
+import warnings
 
 import locan
 from locan.__main__ import main
@@ -9,27 +10,22 @@ def test_version():
         assert isinstance(locan._version.version, str)
         assert isinstance(locan._version.version_tuple, tuple)
     except AttributeError:
-        pass
+        warnings.warn(
+            "AttributeError was raised; "
+            "most likely because locan._version is not available.",
+            stacklevel=2,
+        )
     assert locan.__version__
+    intersection = set(dir(locan)).difference(set(locan.__all__))
+
     # print(locan.__version__)
     # print(len(dir(locan)))
     # print(dir(locan))
     # print(len(locan.__all__))
     # print(locan.__all__)
+    # print(intersection)
 
-    assert all(item in locan.__dict__ for item in locan.__all__)
-    assert all(item in locan.__dict__ for item in locan.submodules)
-    # to double check:
-    # stoplist = ['annotations', 'logging', 'import_module', 'Path', '_version',
-    # 'locdata_id', 'submodules', 'submodule', 'locan_types', 'module_', 'scripts']
-    # all([
-    #     item in stoplist
-    #     for item in locan.__dict__
-    #     if (item not in locan.__all__
-    #         and item not in locan.submodules
-    #         and not item.startswith("__")
-    #         )
-    # ])
+    assert not intersection
 
 
 def test_entrypoint(capfd):

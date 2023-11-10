@@ -8,6 +8,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 packages = ["locan"]
 
+[tool.setuptools.package-data]
+locan = ["py.typed", "*.pyi"]
+
 [tool.setuptools_scm]
 version_file = "locan/_version.py"
 version_scheme = "release-branch-semver"
@@ -71,6 +74,7 @@ dependencies = [
     "tomli>=1.1.0; python_version<'3.11'",
     "qtpy!=2.3.0",
     "typing_extensions",
+    "lazy_loader>=0.3",
 ]
 
 [project.optional-dependencies]
@@ -230,6 +234,7 @@ exclude = [
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["E402", "F403", "F405", "I001"]
+"__init__.pyi" = ["E401", "I001"]
 "_version.py" = ["Q000"]
 "test_*.py" = ["S101", "S307", "S605", "S607"]
 

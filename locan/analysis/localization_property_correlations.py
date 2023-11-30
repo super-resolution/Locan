@@ -26,7 +26,7 @@ import numpy as np
 
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
-from locan.configuration import COLORMAP_DIVERGING
+from locan.configuration import COLORMAP_DEFAULTS
 
 __all__: list[str] = ["LocalizationPropertyCorrelations"]
 
@@ -148,7 +148,9 @@ class LocalizationPropertyCorrelations(_Analysis):
 
         im = ax.imshow(
             self.results,
-            **dict(dict(vmin=-1, vmax=1, cmap=COLORMAP_DIVERGING), **kwargs),
+            **dict(
+                dict(vmin=-1, vmax=1, cmap=COLORMAP_DEFAULTS["DIVERGING"]), **kwargs
+            ),
         )
         columns = self.results.columns
 

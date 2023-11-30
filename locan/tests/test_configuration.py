@@ -1,11 +1,6 @@
 from pathlib import Path
 
-import matplotlib.colors as mcolors
-
 from locan.configuration import (
-    COLORMAP_CATEGORICAL,
-    COLORMAP_CONTINUOUS,
-    COLORMAP_DIVERGING,
     DATASETS_DIR,
     N_JOBS,
     QT_BINDING,
@@ -28,14 +23,6 @@ def test_n_jobs():
     assert isinstance(N_JOBS, int)
 
 
-def test_colormaps():
-    colormaps = [COLORMAP_CONTINUOUS, COLORMAP_DIVERGING, COLORMAP_CATEGORICAL]
-    for item in colormaps:
-        assert isinstance(item, mcolors.Colormap) or isinstance(
-            mcolors.Colormap(item), mcolors.Colormap
-        )
-
-
 def test_qt_bindings():
     assert "qt" in HAS_DEPENDENCY
     assert isinstance(QT_BINDING, str)
@@ -44,3 +31,6 @@ def test_qt_bindings():
         from qtpy import QT_VERSION
 
         assert QT_VERSION is not None
+
+
+# tests for COLORMAP_DEFAULTS see test_colormap.py

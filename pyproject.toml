@@ -62,7 +62,7 @@ dependencies = [
     "networkx",
     "scikit-learn",
     "scikit-image",
-    "matplotlib!=3.8.0",
+    "matplotlib",
     "scipy",
     "pandas",
     "numpy>1.20.0",
@@ -295,6 +295,7 @@ module = [
     'sklearn.*',
     'trackpy',
     'tqdm',
+    'vispy',
 ]
 ignore_missing_imports = true
 

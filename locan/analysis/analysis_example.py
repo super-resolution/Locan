@@ -17,6 +17,7 @@ else:
 
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from scipy import stats
 
@@ -211,7 +212,9 @@ class AnalysisExampleAlgorithm_2(_Analysis):
         )  # some complicated algorithm
         return self
 
-    def plot(self, ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
+    def plot(
+        self, ax: mpl.axes.Axes | npt.NDArray[mpl.axes.Axes] | None = None
+    ) -> mpl.axes.Axes | npt.NDArray[mpl.axes.Axes]:
         return plot(self, ax)
 
     def plot_2(
@@ -224,10 +227,14 @@ class AnalysisExampleAlgorithm_2(_Analysis):
     ) -> mpl.axes.Axes:
         return plot_2(self=self, ax=ax, bins=bins, density=density, log=log, fit=fit)
 
-    def plot_histogram_fit(self, ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
+    def plot_histogram_fit(
+        self, ax: mpl.axes.Axes | npt.NDArray[mpl.axes.Axes] | None = None
+    ) -> mpl.axes.Axes | npt.NDArray[mpl.axes.Axes]:
         return plot_histogram_fit(self, ax)
 
-    def report(self, path: str | os.PathLike[Any] | None = None) -> mpl.axes.Axes:
+    def report(
+        self, path: str | os.PathLike[Any] | None = None
+    ) -> mpl.axes.Axes | npt.NDArray[mpl.axes.Axes]:
         return report(self, path)
 
 
@@ -254,12 +261,12 @@ def plot(self: Any, ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
 
 def plot_2(
     self: Any,
-    ax: mpl.axes.Axes | None = None,
+    ax: mpl.axes.Axes | npt.NDArray[mpl.axes.Axes] | None = None,
     bins: str = "auto",
     density: bool = True,
     log: bool = False,
     fit: bool = True,
-) -> mpl.axes.Axes:
+) -> mpl.axes.Axes | npt.NDArray[mpl.axes.Axes]:
     """
     A specialized plot to give a standardized visualization of results - in this case a histogram of results.
     """
@@ -299,7 +306,9 @@ def plot_2(
     return ax
 
 
-def plot_histogram_fit(self: Any, ax: mpl.axes.Axes | None = None) -> mpl.axes.Axes:
+def plot_histogram_fit(
+    self: Any, ax: mpl.axes.Axes | npt.NDArray[mpl.axes.Axes] | None = None
+) -> mpl.axes.Axes | npt.NDArray[mpl.axes.Axes]:
     """
     A specialized plot to give a standardized visualization of results -
     in this case a histogram of results.
@@ -359,7 +368,9 @@ def fit_histogram(self: Any, data: Any, id_: str) -> tuple[float, float]:
 # there will be other specific visualization methods for other analysis routines.
 
 
-def report(self: Any, path: str | os.PathLike[Any] | None = None) -> mpl.axes.Axes:
+def report(
+    self: Any, path: str | os.PathLike[Any] | None = None
+) -> mpl.axes.Axes | npt.NDArray[mpl.axes.Axes]:
     """
     Provide a report that is either displayed or saved as pdf.
     The report is a figure summarizing all visual representations.

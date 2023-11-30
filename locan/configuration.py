@@ -8,26 +8,18 @@ Configuration variables used throughout the project.
    DATASETS_DIR
    RENDER_ENGINE
    N_JOBS
-   COLORMAP_CONTINUOUS
-   COLORMAP_DIVERGING
-   COLORMAP_CATEGORICAL
+   COLORMAP_DEFAULTS
    TQDM_LEAVE
    TQDM_DISABLE
 """
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from pathlib import Path
 
-import matplotlib.colors as mcolors
-
-from locan.dependencies import HAS_DEPENDENCY
-
-if HAS_DEPENDENCY["colorcet"]:
-    from colorcet import m_coolwarm, m_fire, m_glasbey_dark, m_gray  # noqa: F401
-
 from locan.constants import RenderEngine
-from locan.dependencies import QtBindings, _set_qt_binding
+from locan.dependencies import HAS_DEPENDENCY, QtBindings, _set_qt_binding
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +29,7 @@ __all__: list[str] = [
     "N_JOBS",
     "TQDM_LEAVE",
     "TQDM_DISABLE",
-    "COLORMAP_CONTINUOUS",
-    "COLORMAP_DIVERGING",
-    "COLORMAP_CATEGORICAL",
+    "COLORMAP_DEFAULTS",
     "QT_BINDING",
 ]
 
@@ -63,22 +53,31 @@ TQDM_LEAVE: bool = True
 #: Flag to disable all tqdm progress bars.
 TQDM_DISABLE: bool = False
 
-#: Default colormap for continuous scales. Default is `colorcet.m_fire`
-#: if installed or 'viridis'.
-COLORMAP_CONTINUOUS: mcolors.Colormap | str = "viridis"
 
-#: Default colormap for diverging scales. Default is
-#: `colorcet.m_coolwarm` if installed or 'coolwarm'.
-COLORMAP_DIVERGING: mcolors.Colormap | str = "coolwarm"
-
-#: Default colormap for categorical scales. Default is
-#: `colorcet.m_glasbey_dark` if installed or 'tab20'.
-COLORMAP_CATEGORICAL: mcolors.Colormap | str = "tab20"
+#: Mapping a type of colormap to its default colormap that is used throughout locan.
+#: See details in locan documentation on colormaps.
+COLORMAP_DEFAULTS: Mapping[str, str] = dict()
 
 if HAS_DEPENDENCY["colorcet"]:
-    COLORMAP_CONTINUOUS = m_fire
-    COLORMAP_DIVERGING = m_coolwarm
-    COLORMAP_CATEGORICAL = m_glasbey_dark
+    COLORMAP_DEFAULTS = dict(
+        CONTINUOUS="cet_fire",
+        CONTINUOUS_REVERSE="cet_fire_r",
+        CONTINUOUS_GRAY="cet_gray",
+        CONTINUOUS_GRAY_REVERSE="cet_gray_r",
+        DIVERGING="cet_coolwarm",
+        CATEGORICAL="cet_glasbey_dark",
+        TURBO="turbo",
+    )
+else:
+    COLORMAP_DEFAULTS = dict(
+        CONTINUOUS="viridis",
+        CONTINUOUS_REVERSE="viridis_r",
+        CONTINUOUS_GRAY="gray",
+        CONTINUOUS_GRAY_REVERSE="gray_r",
+        DIVERGING="coolwarm",
+        CATEGORICAL="tab20",
+        TURBO="turbo",
+    )
 
 # Preferred QT binding. At this point this variable cannot be set at
 # runtime.

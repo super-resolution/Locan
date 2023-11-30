@@ -15,13 +15,14 @@ import numpy.typing as npt
 import scipy.signal.windows
 from matplotlib import pyplot as plt
 
-from locan.configuration import COLORMAP_CONTINUOUS
+from locan.configuration import COLORMAP_DEFAULTS
 from locan.data import LocData
 from locan.data.aggregate import Bins, histogram
 from locan.data.locdata_utils import _check_loc_properties
 from locan.data.properties.locdata_statistics import ranges
 from locan.data.rois import Roi, _MplSelector
 from locan.dependencies import HAS_DEPENDENCY
+from locan.visualize.colormap import ColormapType, get_colormap
 from locan.visualize.transform import adjust_contrast
 
 if HAS_DEPENDENCY["mpl_scatter_density"]:
@@ -60,7 +61,7 @@ def render_2d_mpl(
     | None = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     ax: mpl.axes.Axes | None = None,
-    cmap: mcolors.Colormap | str = COLORMAP_CONTINUOUS,
+    cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
     cbar: bool = True,
     colorbar_kws: dict[str, Any] | None = None,
     interpolation: str = "nearest",
@@ -163,7 +164,7 @@ def render_2d_mpl(
             {
                 "origin": "lower",
                 "extent": [*bins.bin_range[0], *bins.bin_range[1]],
-                "cmap": cmap,
+                "cmap": get_colormap(colormap=cmap).matplotlib,
                 "interpolation": interpolation,
             },
             **kwargs,
@@ -191,7 +192,7 @@ def render_2d_scatter_density(
     | Literal["zero", "link"]
     | None = None,
     ax: mpl.axes.Axes | None = None,
-    cmap: str | mcolors.Colormap = COLORMAP_CONTINUOUS,
+    cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
     cbar: bool = True,
     colorbar_kws: dict[str, Any] | None = None,
     **kwargs: Any,
@@ -302,7 +303,7 @@ def render_2d_scatter_density(
         c=values,
         origin="lower",
         extent=[*bin_range_[0], *bin_range_[1]],
-        cmap=cmap,
+        cmap=get_colormap(colormap=cmap).matplotlib,
         **kwargs,
     )
     mappable = ax.add_artist(a)
@@ -313,9 +314,9 @@ def render_2d_scatter_density(
 
     if cbar:
         if colorbar_kws is None:
-            plt.colorbar(mappable, ax=ax, label=labels[-1])
+            plt.colorbar(mappable, ax=ax, label=labels[-1])  # type:ignore[arg-type]
         else:
-            plt.colorbar(mappable, **colorbar_kws)
+            plt.colorbar(mappable, **colorbar_kws)  # type:ignore[arg-type]
 
     return ax
 

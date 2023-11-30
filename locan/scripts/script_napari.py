@@ -31,7 +31,7 @@ from locan.data import metadata_pb2
 from locan.dependencies import HAS_DEPENDENCY
 from locan.gui.io import file_dialog
 from locan.scripts.utilities import _type_converter_rescale
-from locan.visualize.napari.render2d import render_2d_napari
+from locan.visualize.render_napari.render2d import render_2d_napari
 
 if HAS_DEPENDENCY["napari"]:
     import napari

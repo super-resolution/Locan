@@ -3,7 +3,7 @@ import pytest
 
 from locan import Roi, get_rois, save_rois, select_by_drawing_napari
 from locan.dependencies import HAS_DEPENDENCY
-from locan.visualize.napari.utilities import _shape_to_region, _shapes_to_regions
+from locan.visualize.render_napari.utilities import _shape_to_region, _shapes_to_regions
 
 napari = pytest.importorskip("napari")
 

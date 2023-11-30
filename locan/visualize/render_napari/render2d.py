@@ -1,7 +1,7 @@
 """
 
 This module provides functions to interact with napari
-for rendering `LocData` objects in 3D.
+for rendering locdata objects in 2D.
 
 """
 from __future__ import annotations
@@ -14,10 +14,12 @@ import numpy as np
 from matplotlib import colors as mcolors
 
 from locan import locdata_id
+from locan.configuration import COLORMAP_DEFAULTS
 from locan.data import LocData
 from locan.data.aggregate import Bins, histogram
 from locan.data.locdata_utils import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY, needs_package
+from locan.visualize.colormap import ColormapType, get_colormap
 from locan.visualize.transform import Trafo, adjust_contrast
 
 if HAS_DEPENDENCY["napari"]:
@@ -27,22 +29,22 @@ if TYPE_CHECKING:
     import boost_histogram as bh
 
 __all__: list[str] = [
-    "render_3d_napari",
-    "render_3d_napari_image",
-    "render_3d_rgb_napari",
+    "render_2d_napari",
+    "render_2d_napari_image",
+    "render_2d_rgb_napari",
 ]
 
 logger = logging.getLogger(__name__)
 
 
 @needs_package("napari")
-def render_3d_napari_image(
+def render_2d_napari_image(
     locdata: LocData,
     loc_properties: list[str] | None = None,
     other_property: str | None = None,
     bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
     n_bins: int | Sequence[int] | None = None,
-    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = 10,
+    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
     bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
     bin_range: tuple[float, float]
     | Sequence[float]
@@ -50,13 +52,12 @@ def render_3d_napari_image(
     | Literal["zero", "link"]
     | None = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
-    cmap: mcolors.Colormap | str = "viridis",
+    cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
     **kwargs: Any,
 ) -> napari.types.LayerData:
     """
-    Render localization data into a 3D image by binning x,y,z-coordinates into
-    regular bins.
-     Provide layer data for napari.
+    Render localization data into a 2D image by binning x,y-coordinates into
+    regular bins. Provide layer data for napari.
 
     Parameters
     ----------
@@ -112,7 +113,7 @@ def render_3d_napari_image(
     Returns
     -------
     napari.types.LayerData
-        Tuple with data, image_kwargs, "image"
+        Tuple with data, image_kwargs, layer_type="image"
     """
     # raise if no or single point in locdata
     if len(locdata) < 2:
@@ -138,7 +139,7 @@ def render_3d_napari_image(
 
     add_image_kwargs = dict(
         name=f"LocData {locdata_id}",
-        colormap=cmap,
+        colormap=get_colormap(colormap=cmap).napari,
         scale=bins.bin_size,
         translate=np.asarray(bins.bin_range)[:, 0] + np.asarray(bins.bin_size) / 2,
         metadata=dict(message=locdata.meta.SerializeToString()),
@@ -149,13 +150,13 @@ def render_3d_napari_image(
 
 
 @needs_package("napari")
-def render_3d_napari(
+def render_2d_napari(
     locdata: LocData,
     loc_properties: list[str] | None = None,
     other_property: str | None = None,
     bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
     n_bins: int | Sequence[int] | None = None,
-    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = 10,
+    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
     bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
     bin_range: tuple[float, float]
     | Sequence[float]
@@ -164,13 +165,12 @@ def render_3d_napari(
     | None = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     viewer: napari.Viewer = None,
-    cmap: str | mcolors.Colormap = "viridis",
+    cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
     **kwargs: Any,
 ) -> napari.Viewer:
     """
-    Render localization data into a 3D image by binning x,y,z-coordinates into
-    regular bins.
-    Render the data using napari.
+    Render localization data into a 2D image by binning x,y-coordinates into
+    regular bins. Render the data using napari.
 
     Parameters
     ----------
@@ -220,7 +220,7 @@ def render_3d_napari(
         For 'equal' intensity values are rescaled by histogram equalization.
     viewer
         The viewer object on which to add the image
-    cmap
+    cmap : str | Colormap
         The Colormap object used to map normalized data values to RGBA colors.
     kwargs
         Other parameters passed to :func:`napari.Viewer.add_image`.
@@ -234,7 +234,7 @@ def render_3d_napari(
         viewer = napari.Viewer()
 
     try:
-        data, image_kwargs, layer_type = render_3d_napari_image(
+        data, image_kwargs, layer_type = render_2d_napari_image(
             locdata=locdata,
             loc_properties=loc_properties,
             other_property=other_property,
@@ -244,10 +244,23 @@ def render_3d_napari(
             bin_edges=bin_edges,
             bin_range=bin_range,
             rescale=rescale,
-            cmap=cmap,
+            cmap=get_colormap(colormap=cmap).napari,
             **kwargs,
         )
         viewer.add_image(data=data, **dict(image_kwargs, **kwargs))
+
+        # set scale_bar unit
+        names = list(
+            set(
+                item.unit
+                for item in locdata.meta.localization_properties
+                if item.name in locdata.coordinate_keys
+            )
+        )
+        if len(names) == 1:
+            viewer.scale_bar.unit = f"1 {names[0]}"
+        else:
+            viewer.scale_bar.unit = None
     except ValueError as e:
         if (
             len(e.args) > 0
@@ -261,7 +274,7 @@ def render_3d_napari(
 
 
 @needs_package("napari")
-def render_3d_rgb_napari(
+def render_2d_rgb_napari(
     locdatas: Iterable[LocData],
     loc_properties: list[str] | None = None,
     other_property: str | None = None,
@@ -279,7 +292,7 @@ def render_3d_rgb_napari(
     **kwargs: Any,
 ) -> napari.Viewer:
     """
-    Render localization data into a 3D RGB image by binning x,y,z-coordinates
+    Render localization data into a 2D RGB image by binning x,y-coordinates
     into regular bins.
 
     Note
@@ -288,7 +301,8 @@ def render_3d_rgb_napari(
     clipped to (0, 1) for float value or (0, 255) for integer values according
     to the matplotlib.imshow behavior.
     For rescale=None we apply a normalization to (min, max) of all intensity
-    values. For all other rescale options the normalization is applied to each
+    values.
+    For all other rescale options the normalization is applied to each
     individual image.
 
     Parameters
@@ -369,6 +383,7 @@ def render_3d_rgb_napari(
             bin_edges=bin_edges,
             bin_range=bin_range,
         )
+
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
         bins = Bins(bin_edges=bin_edges, labels=labels)
@@ -384,16 +399,22 @@ def render_3d_rgb_napari(
     ]
 
     if rescale is None:
-        norm = mcolors.Normalize(vmin=np.min(imgs), vmax=np.max(imgs))
+        norm: int | str | Trafo | Callable[..., Any] = mcolors.Normalize(
+            vmin=np.min(imgs), vmax=np.max(imgs)
+        )
     else:
-        norm = rescale  # type: ignore[assignment]
+        norm = rescale
     imgs = [adjust_contrast(img, rescale=norm) for img in imgs]
 
     new = np.zeros_like(imgs[0])
-    rgb_stack = np.stack([new] * 3, axis=3)
-    for i, img in enumerate(imgs):
-        rgb_stack[:, :, :, i] = img
-    rgb_stack = np.transpose(rgb_stack, axes=(2, 1, 0, 3))
+    rgb_stack = np.stack([new] * 3, axis=2)
 
-    viewer.add_image(rgb_stack, name=f"LocData {locdata_id}", rgb=True, **kwargs)
+    for i, img in enumerate(imgs):
+        rgb_stack[:, :, i] = img
+
+    rgb_stack = np.transpose(rgb_stack, axes=(1, 0, 2))
+    viewer.add_image(
+        rgb_stack,
+        **dict({"name": f"LocData {locdata_id}", "rgb": True}, **kwargs),
+    )
     return viewer

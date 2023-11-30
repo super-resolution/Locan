@@ -20,12 +20,7 @@ from dataclasses import dataclass
 from enum import Enum, unique
 from typing import Final
 
-import matplotlib.colors as mcolors
-
 from locan.dependencies import HAS_DEPENDENCY
-
-if HAS_DEPENDENCY["colorcet"]:
-    from colorcet import m_coolwarm, m_fire, m_glasbey_dark, m_gray
 
 __all__: list[str] = [
     "PROPERTY_KEYS",
@@ -34,7 +29,6 @@ __all__: list[str] = [
     "HullType",
     "FileType",
     "RenderEngine",
-    "ColorMaps",
     "RAPIDSTORM_KEYS",
     "ELYRA_KEYS",
     "THUNDERSTORM_KEYS",
@@ -368,22 +362,6 @@ class RenderEngine(Enum):
     """mpl-scatter-density"""
     NAPARI = 2
     """napari"""
-
-
-class ColorMaps(Enum):
-    """
-    Preferred colormaps to be used for visualization.
-    """
-
-    if HAS_DEPENDENCY["colorcet"]:
-        COLORMAP_CONTINUOUS = m_fire
-        COLORMAP_CONTINUOUS_GRAY = m_gray
-        COLORMAP_DIVERGING = m_coolwarm
-        COLORMAP_CATEGORICAL = m_glasbey_dark
-    else:
-        COLORMAP_CONTINUOUS = mcolors.Colormap("viridis")  # type: ignore
-        COLORMAP_DIVERGING = mcolors.Colormap("coolwarm")  # type: ignore
-        COLORMAP_CATEGORICAL = mcolors.Colormap("tab20")  # type: ignore
 
 
 #: Mapping column names in RapidSTORM files to `LocData` property keys

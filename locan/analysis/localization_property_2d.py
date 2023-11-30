@@ -33,7 +33,7 @@ from lmfit.model import ModelResult
 
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
-from locan.configuration import COLORMAP_DIVERGING
+from locan.configuration import COLORMAP_DEFAULTS
 from locan.data.aggregate import Bins, histogram
 from locan.visualize.transform import Trafo, adjust_contrast
 
@@ -407,7 +407,7 @@ class LocalizationProperty2d(_Analysis):
         max_absolute_value = max([abs(np.nanmin(residuals)), abs(np.nanmax(residuals))])
         ax.imshow(
             residuals.T,
-            cmap=COLORMAP_DIVERGING,
+            cmap=COLORMAP_DEFAULTS["DIVERGING"],
             origin="lower",
             extent=np.ravel(self.results.bins.bin_range),  # type: ignore
             vmin=(-max_absolute_value),
@@ -460,7 +460,7 @@ class LocalizationProperty2d(_Analysis):
         )
         ax.imshow(
             deviations.T,
-            cmap=COLORMAP_DIVERGING,
+            cmap=COLORMAP_DEFAULTS["DIVERGING"],
             origin="lower",
             extent=np.ravel(self.results.bins.bin_range),  # type: ignore
             vmin=(-max_absolute_value),
@@ -508,7 +508,7 @@ class LocalizationProperty2d(_Analysis):
         )
         ax.imshow(
             deviations.T,
-            cmap=COLORMAP_DIVERGING,
+            cmap=COLORMAP_DEFAULTS["DIVERGING"],
             origin="lower",
             extent=np.ravel(self.results.bins.bin_range),  # type: ignore
             vmin=(-max_absolute_value),

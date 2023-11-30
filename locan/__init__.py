@@ -94,18 +94,15 @@ from locan.analysis import (  # type:ignore[attr-defined]
     SubpixelBias as SubpixelBias,
 )
 from locan.configuration import (  # type:ignore[attr-defined]
-    COLORMAP_CATEGORICAL as COLORMAP_CATEGORICAL,
-    COLORMAP_CONTINUOUS as COLORMAP_CONTINUOUS,
-    COLORMAP_DIVERGING as COLORMAP_DIVERGING,
     DATASETS_DIR as DATASETS_DIR,
     N_JOBS as N_JOBS,
     QT_BINDING as QT_BINDING,
     RENDER_ENGINE as RENDER_ENGINE,
     TQDM_DISABLE as TQDM_DISABLE,
     TQDM_LEAVE as TQDM_LEAVE,
+    COLORMAP_DEFAULTS as COLORMAP_DEFAULTS,
 )
 from locan.constants import (  # type:ignore[attr-defined]
-    ColorMaps as ColorMaps,
     DECODE_KEYS as DECODE_KEYS,
     ELYRA_KEYS as ELYRA_KEYS,
     FileType as FileType,
@@ -286,4 +283,8 @@ from locan.visualize import (  # type:ignore[attr-defined]
     scatter_2d_mpl as scatter_2d_mpl,
     scatter_3d_mpl as scatter_3d_mpl,
     select_by_drawing_napari as select_by_drawing_napari,
+    Colormaps as Colormaps,
+    Colormap as Colormap,
+    colormap_registry as colormap_registry,
+    get_colormap as get_colormap,
 )

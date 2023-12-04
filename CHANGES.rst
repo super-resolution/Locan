@@ -11,7 +11,8 @@ New Features
 
 API Changes
 -----------
-- ...
+- add colormaps module and change management of colormaps
+- remove outdated module with analysis example
 
 Bug Fixes
 ---------
@@ -19,7 +20,7 @@ Bug Fixes
 
 Other Changes and Additions
 ---------------------------
-- ...
+- add GitHub action for deploying to PyPI and TestPyPI
 
 0.17 - 2023-10-26
 =================

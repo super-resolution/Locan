@@ -1,5 +1,3 @@
-import matplotlib.colors as mcolors
-
 from locan import (
     DECODE_KEYS,
     ELYRA_KEYS,
@@ -9,7 +7,6 @@ from locan import (
     SMAP_KEYS,
     SMLM_KEYS,
     THUNDERSTORM_KEYS,
-    ColorMaps,
     FileType,
     HullType,
     PropertyDescription,
@@ -126,10 +123,6 @@ def test_RenderEngine():
         assert all(key in RenderEngine._member_names_ for key in ["MPL"])
     else:
         assert all(key in RenderEngine._member_names_ for key in ["MPL", "NAPARI"])
-
-
-def test_ColorMaps():
-    assert all([isinstance(item.value, mcolors.Colormap) for item in ColorMaps])
 
 
 def test_keys_are_mapped_on_valid_property_keys():

@@ -17,7 +17,7 @@ Submodules:
 """
 from __future__ import annotations
 
-from locan.visualize.napari import render2d, render3d, utilities
+from locan.visualize.render_napari import render2d, render3d, utilities
 
 from .render2d import *
 from .render3d import *

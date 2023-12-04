@@ -13,9 +13,9 @@ from typing import TYPE_CHECKING, Any
 from locan.configuration import RENDER_ENGINE
 from locan.constants import RenderEngine
 from locan.dependencies import HAS_DEPENDENCY
-from locan.visualize.napari.render2d import render_2d_napari
-from locan.visualize.napari.render3d import render_3d_napari
-from locan.visualize.render_mpl import render_2d_mpl, render_2d_scatter_density
+from locan.visualize.render_mpl.render2d import render_2d_mpl, render_2d_scatter_density
+from locan.visualize.render_napari.render2d import render_2d_napari
+from locan.visualize.render_napari.render3d import render_3d_napari
 
 if TYPE_CHECKING:
     from locan.data.locdata import LocData

@@ -413,7 +413,7 @@ class Files:
         -------
         pandas.core.groupby.DataFrameGroupBy
         """
-        return self.df.groupby(by="group")
+        return self.df.groupby(by="group", observed=True)
 
     def set_group_identifier(
         self,

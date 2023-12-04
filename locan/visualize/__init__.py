@@ -11,23 +11,26 @@ Submodules:
 .. autosummary::
    :toctree: ./
 
+   colormap
    render
    render_mpl
-   napari
+   render_napari
    transform
 
 """
 from __future__ import annotations
 
-from locan.visualize import napari, render, render_mpl, transform
+from locan.visualize import colormap, render, render_mpl, render_napari, transform
 
-from .napari import *
+from .colormap import *
 from .render import *
 from .render_mpl import *
+from .render_napari import *
 from .transform import *
 
 __all__: list[str] = []
-__all__.extend(napari.__all__)
+__all__.extend(colormap.__all__)
 __all__.extend(render.__all__)
 __all__.extend(render_mpl.__all__)
+__all__.extend(render_napari.__all__)
 __all__.extend(transform.__all__)

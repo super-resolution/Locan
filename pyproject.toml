@@ -62,7 +62,7 @@ dependencies = [
     "networkx",
     "scikit-learn",
     "scikit-image",
-    "matplotlib!=3.8.0",
+    "matplotlib",
     "scipy",
     "pandas",
     "numpy>1.20.0",
@@ -131,8 +131,9 @@ dev = [
     "ruff",
     "mypy",
     "numpy>1.20.0",  # required by mypy
-    "types-requests",  # required by mypy
     "types-protobuf",  # required by mypy
+    "types-requests",  # required by mypy
+    "types-tqdm",  # required by mypy
     "pandas-stubs",  # required by mypy
 ]
 
@@ -284,17 +285,15 @@ module = [
     'h5py',
     'hdbscan',
     'lmfit.*',
-    'matplotlib.*',
     'mpl_scatter_density',
     'napari',
     'networkx',
     'open3d',
     'scipy.*',
     'shapely.*',
-    'skimage.*',
     'sklearn.*',
     'trackpy',
-    'tqdm',
+    'vispy',
 ]
 ignore_missing_imports = true
 

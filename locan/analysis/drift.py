@@ -345,7 +345,7 @@ class _ConstantModelFacade:
         assert self.model_result.data is not None  # type narrowing # noqa: S101
         x = self.independent_variable
         y = self.model_result.data
-        return_value: mpl.axes.Axes = plt.plot(x, y, "o", x, self.eval(x=x), **kwargs)
+        return_value: mpl.axes.Axes = plt.plot(x, y, "o", x, self.eval(x=x), **kwargs)  # type: ignore[assignment]
         return return_value
 
 
@@ -401,7 +401,7 @@ class _SplineModelFacade:
         y = self.data
         x_ = np.linspace(np.min(x), np.max(x), 100)  # type: ignore[arg-type]
 
-        return_value: mpl.axes.Axes = plt.plot(x, y, "o", x_, self.eval(x=x_), **kwargs)
+        return_value: mpl.axes.Axes = plt.plot(x, y, "o", x_, self.eval(x=x_), **kwargs)  # type: ignore
         return return_value
 
 

@@ -28,6 +28,7 @@ dependencies:
 - numpy
 - types-requests
 - types-protobuf
+- types-tqdm
 - pandas-stubs
 
 # Documentation

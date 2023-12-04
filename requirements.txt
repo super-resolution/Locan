@@ -17,7 +17,7 @@ pandas
 scipy
 scikit-learn
 scikit-image
-matplotlib!=3.8.0
+matplotlib
 networkx
 shapely!=2.0.0,!=2.0.1
 lmfit

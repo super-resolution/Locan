@@ -21,6 +21,7 @@ Bug Fixes
 Other Changes and Additions
 ---------------------------
 - add GitHub action for deploying to PyPI and TestPyPI
+- configure setuptools_scm for branching model
 
 0.17 - 2023-10-26
 =================

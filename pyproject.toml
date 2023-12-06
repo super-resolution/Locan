@@ -1,8 +1,7 @@
 [build-system]
 requires = [
-    "setuptools>=45",
-    "wheel",
-    "setuptools_scm[toml]>=6.2"
+    "setuptools>=64",
+    "setuptools_scm[toml]>=8"
     ]
 build-backend = "setuptools.build_meta"
 
@@ -11,6 +10,7 @@ packages = ["locan"]
 
 [tool.setuptools_scm]
 write_to = "locan/_version.py"
+version_scheme = "release-branch-semver"
 fallback_version = "0.18-fallback"
 
 [project]

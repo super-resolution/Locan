@@ -16,7 +16,7 @@ API Changes
 
 Bug Fixes
 ---------
-- ...
+- fix version readout with readthedocs
 
 Other Changes and Additions
 ---------------------------

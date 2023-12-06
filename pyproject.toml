@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 packages = ["locan"]
 
 [tool.setuptools_scm]
-write_to = "locan/_version.py"
+version_file = "locan/_version.py"
 version_scheme = "release-branch-semver"
 fallback_version = "0.18-fallback"
 

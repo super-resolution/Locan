@@ -39,6 +39,7 @@ Bug Fixes
 ---------
 - fix: tests for shapely 2.0.2 with geos 3.12.0 in conda environment
 - fix: bin-to-pixel relation in render in napari
+- fix: readthedocs version readout
 
 Other Changes and Additions
 ---------------------------

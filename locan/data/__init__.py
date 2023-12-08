@@ -13,7 +13,6 @@ Submodules:
    locdata
    properties
    hulls
-   rois
    region
    region_utils
    register
@@ -29,6 +28,8 @@ Submodules:
 from __future__ import annotations
 
 from importlib import import_module
+
+import locan.data.metadata_pb2
 
 # explicit re-exports for nested submodules are required by myp
 from locan.data.aggregate import *
@@ -60,7 +61,6 @@ from locan.data.properties import (
 from locan.data.region import *
 from locan.data.region_utils import *
 from locan.data.register import *
-from locan.data.rois import *
 from locan.data.tracking import *
 from locan.data.transform import (
     bunwarp as bunwarp,
@@ -82,7 +82,6 @@ submodules: list[str] = [
     "region",
     "region_utils",
     "register",
-    "rois",
     "tracking",
     "transform",
     "validation",

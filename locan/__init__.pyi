@@ -1,3 +1,20 @@
+from . import (
+    analysis,
+    configuration,
+    constants,
+    data,
+    datasets,
+    dependencies,
+    gui,
+    locan_io,
+    rois,
+    scripts,
+    simulation,
+    tests,
+    utils,
+    visualize,
+)
+
 # the following explicit re-exports are required by mypy
 from .analysis import (
     AccumulationClusterCheck as AccumulationClusterCheck,
@@ -72,7 +89,6 @@ from .data import (
     Region2D as Region2D,
     Region3D as Region3D,
     RegionND as RegionND,
-    Roi as Roi,
     RoiRegion as RoiRegion,
     Selector as Selector,
     bunwarp as bunwarp,
@@ -98,7 +114,6 @@ from .data import (
     random_subset as random_subset,
     range_from_collection as range_from_collection,
     ranges as ranges,
-    rasterize as rasterize,
     regions_union as regions_union,
     register_cc as register_cc,
     register_icp as register_icp,
@@ -162,6 +177,11 @@ from .locan_io import (
     save_SMLM as save_SMLM,
     save_asdf as save_asdf,
     save_thunderstorm_csv as save_thunderstorm_csv,
+)
+
+from .rois import (
+    Roi as Roi,
+    rasterize as rasterize,
 )
 
 from .simulation import (

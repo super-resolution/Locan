@@ -14,6 +14,7 @@ Locan consists of the following modules:
    dependencies
    gui
    locan_io
+   rois
    scripts
    simulation
    tests

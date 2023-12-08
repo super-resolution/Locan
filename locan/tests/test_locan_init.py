@@ -19,7 +19,7 @@ def test_version():
     intersection = set(dir(locan)).difference(set(locan.__all__))
 
     # print(locan.__version__)
-    # print(len(dir(locan)))
+    # print(len(dir(locan)))  # currently: 211
     # print(dir(locan))
     # print(len(locan.__all__))
     # print(locan.__all__)

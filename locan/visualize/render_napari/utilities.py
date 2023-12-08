@@ -16,8 +16,8 @@ import numpy.typing as npt
 
 from locan.data import metadata_pb2
 from locan.data.region import Ellipse, Polygon, Rectangle, Region
-from locan.data.rois import Roi
 from locan.dependencies import HAS_DEPENDENCY
+from locan.rois import Roi
 from locan.visualize.render_napari.render2d import render_2d_napari
 
 if HAS_DEPENDENCY["napari"]:

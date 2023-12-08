@@ -233,8 +233,8 @@ exclude = [
 ]
 
 [tool.ruff.per-file-ignores]
-"__init__.py" = ["E402", "F403", "F405", "I001"]
-"__init__.pyi" = ["E401", "I001"]
+"__init__.py" = ["E402", "F401", "F403", "F405", "I001"]
+"__init__.pyi" = ["E401", "F401", "I001"]
 "_version.py" = ["Q000"]
 "test_*.py" = ["S101", "S307", "S605", "S607"]
 

@@ -18,7 +18,7 @@ Try for instance::
 
 See Also
 --------
-locan.data.rois.select_by_drawing_napari
+locan.visualize.render_napari.utilities.select_by_drawing_napari
 """
 from __future__ import annotations
 

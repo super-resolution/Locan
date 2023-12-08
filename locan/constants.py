@@ -5,38 +5,45 @@ Constants used throughout the project.
 .. autosummary::
    :toctree: ./
 
+   ROOT_DIR
    PROPERTY_KEYS
-   RAPIDSTORM_KEYS
-   ELYRA_KEYS
-   THUNDERSTORM_KEYS
-   NANOIMAGER_KEYS
-   SMLM_KEYS
    DECODE_KEYS
+   ELYRA_KEYS
+   NANOIMAGER_KEYS
+   RAPIDSTORM_KEYS
    SMAP_KEYS
+   SMLM_KEYS
+   THUNDERSTORM_KEYS
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum, unique
+from pathlib import Path
 from typing import Final
 
 from locan.dependencies import HAS_DEPENDENCY
 
 __all__: list[str] = [
-    "PROPERTY_KEYS",
-    "PropertyKey",
-    "PropertyDescription",
-    "HullType",
-    "FileType",
-    "RenderEngine",
-    "RAPIDSTORM_KEYS",
-    "ELYRA_KEYS",
-    "THUNDERSTORM_KEYS",
-    "NANOIMAGER_KEYS",
-    "SMLM_KEYS",
+    "ROOT_DIR",
     "DECODE_KEYS",
+    "ELYRA_KEYS",
+    "FileType",
+    "HullType",
+    "NANOIMAGER_KEYS",
+    "PROPERTY_KEYS",
+    "PropertyDescription",
+    "PropertyKey",
+    "RAPIDSTORM_KEYS",
+    "RenderEngine",
+    "THUNDERSTORM_KEYS",
     "SMAP_KEYS",
+    "SMLM_KEYS",
 ]
+
+
+# Root directory for path operations.
+ROOT_DIR: Path = Path(__file__).parent
 
 
 @dataclass

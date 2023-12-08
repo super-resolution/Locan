@@ -1,6 +1,3 @@
-# all imports must be relative in __init__.pyi
-from . import Path  # type: ignore[attr-defined]
-
 # the following explicit re-exports are required by mypy
 from .analysis import (
     AccumulationClusterCheck as AccumulationClusterCheck,
@@ -47,6 +44,7 @@ from .constants import (
     PropertyKey as PropertyKey,
     RAPIDSTORM_KEYS as RAPIDSTORM_KEYS,
     RenderEngine as RenderEngine,
+    ROOT_DIR as ROOT_DIR,
     SMAP_KEYS as SMAP_KEYS,
     SMLM_KEYS as SMLM_KEYS,
     THUNDERSTORM_KEYS as THUNDERSTORM_KEYS,
@@ -229,5 +227,4 @@ from .visualize import (
 
 __all__: list[str]
 __version__: str
-ROOT_DIR: Path
 locdata_id: int

@@ -1,102 +1,21 @@
-import warnings
-from copy import deepcopy
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
 import locan.constants
 from locan import (
-    LocData,
     bunwarp,
     overlay,
-    randomize,
     render_2d_mpl,
     render_2d_rgb_mpl,
     standardize,
     transform_affine,
 )
 from locan.data.cluster import cluster_dbscan
-from locan.data.region import Polygon
 from locan.data.transform.bunwarpj import _read_matrix, _unwarp
 from locan.data.transform.spatial_transformation import _homogeneous_matrix
 from locan.dependencies import HAS_DEPENDENCY
 from locan.locan_io.locdata.io_locdata import load_asdf_file
-
-
-def test_randomize_2d(locdata_2d):
-    locdata = LocData()
-    with pytest.raises(AttributeError):
-        randomize(locdata, hull_region="bb")
-    with pytest.raises(AttributeError):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            randomize(locdata, hull_region="ch")
-    with pytest.raises(AttributeError):
-        randomize(locdata, hull_region="as")
-    with pytest.raises(AttributeError):
-        randomize(locdata, hull_region="something")
-
-    locdata_2d = deepcopy(locdata_2d)
-
-    locdata_randomized = randomize(locdata_2d, hull_region="bb")
-    # locdata_randomized.print_meta()
-    assert len(locdata_randomized) == 6
-    # print(locdata_randomized.meta)
-    assert locdata_randomized.meta.history[-1].name == "randomize"
-
-    locdata_randomized = randomize(locdata_2d, hull_region="ch")
-    assert len(locdata_randomized) == 6
-
-    locdata_randomized = randomize(locdata_2d, hull_region="obb")
-    assert len(locdata_randomized) == 6
-
-    locdata_2d.update_alpha_shape(alpha=10)
-    locdata_randomized = randomize(locdata_2d, hull_region="as")
-    assert len(locdata_randomized) == 6
-
-    region = Polygon(((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
-    locdata_randomized = randomize(locdata_2d, hull_region=region)
-    assert len(locdata_randomized) == 6
-
-
-def test_randomize_3d(locdata_3d):
-    locdata_randomized = randomize(locdata_3d, hull_region="bb")
-    assert len(locdata_randomized) == 6
-    assert locdata_randomized.meta.history[-1].name == "randomize"
-
-    # todo: implement make_csr in 3d
-    with pytest.raises(NotImplementedError):
-        locdata_randomized = randomize(locdata_3d, hull_region="ch")
-        assert len(locdata_randomized) == 6
-
-    # region_dict = dict(region='polygon', region_specs=((0, 0, 0), (0, 5, 0), (4, 3, 2), (2, 0.5, 2), (0, 0, 0)))
-    # locdata_randomized = randomize(locdata_3d, hull_region=region_dict)
-    # assert len(locdata_randomized) == 6
-
-
-@pytest.mark.parametrize(
-    "fixture_name, expected",
-    [
-        # ('locdata_empty', 0),
-        # ('locdata_single_localization', 1),
-        ("locdata_2d", 6),
-        ("locdata_3d", 6),
-        ("locdata_non_standard_index", 6),
-    ],
-)
-def test_randomize_locdata_objects(
-    locdata_empty,
-    locdata_single_localization,
-    locdata_2d,
-    locdata_3d,
-    locdata_non_standard_index,
-    fixture_name,
-    expected,
-):
-    locdata = eval(fixture_name)
-    locdata_randomized = randomize(locdata, hull_region="bb")
-    assert len(locdata_randomized) == expected
 
 
 def test_bunwarp_raw_transformation():

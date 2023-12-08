@@ -32,7 +32,7 @@ import logging
 import sys
 from collections.abc import Callable, Sequence
 from itertools import chain
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 import numpy.typing as npt
@@ -44,6 +44,7 @@ from locan.data.locdata_utils import (
     _bump_property_key,
     _get_loc_property_key_per_dimension,
 )
+from locan.data.metadata_utils import _modify_meta
 from locan.data.region import (
     AxisOrientedCuboid,
     AxisOrientedHypercuboid,
@@ -74,6 +75,7 @@ __all__: list[str] = [
     "simulate_tracks",
     "resample",
     "simulate_frame_numbers",
+    "randomize",
 ]
 
 logger = logging.getLogger(__name__)
@@ -1678,3 +1680,64 @@ def simulate_frame_numbers(
         The generated sequence of integers with shape (n_samples,)
     """
     return _random_poisson_repetitions(n_samples, lam, seed=seed)
+
+
+def randomize(
+    locdata: LocData,
+    hull_region: Region | Literal["bb", "ch", "as", "obb"] = "bb",
+    seed: RandomGeneratorSeed = None,
+) -> LocData:
+    """
+    Transform locdata coordinates into randomized coordinates that follow
+    complete spatial randomness on the same region as the input locdata.
+
+    Parameters
+    ----------
+    locdata
+        Localization data to be randomized
+    hull_region
+        Region of interest.
+        String identifier can refer to the corresponding hull.
+    seed
+        random number generation seed
+
+    Returns
+    -------
+    LocData
+        New localization data with randomized coordinates.
+    """
+    # todo: fix treatment of empty locdata
+    local_parameter = locals()
+
+    rng = np.random.default_rng(seed)
+
+    try:
+        if hull_region == "bb":
+            region_ = locdata.bounding_box.hull.T  # type: ignore[union-attr]
+        elif hull_region == "ch":
+            region_ = locdata.convex_hull.region  # type: ignore[union-attr]
+        elif hull_region == "as":
+            region_ = locdata.alpha_shape.region  # type: ignore[union-attr]
+        elif hull_region == "obb":
+            region_ = locdata.oriented_bounding_box.region  # type: ignore[union-attr]
+        elif isinstance(hull_region, Region):
+            region_ = hull_region
+        else:
+            raise ValueError
+
+        new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
+
+    except (AttributeError, ValueError, TypeError) as exception:
+        raise AttributeError(f"Region {hull_region} is not available.") from exception
+
+    # update metadata
+    meta_ = _modify_meta(
+        locdata,
+        new_locdata,
+        function_name=sys._getframe().f_code.co_name,
+        parameter=local_parameter,
+        meta=None,
+    )
+    new_locdata.meta = meta_
+
+    return new_locdata

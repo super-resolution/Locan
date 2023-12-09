@@ -9,8 +9,8 @@ import pytest
 import locan
 from locan import ROOT_DIR, LocData
 from locan.data import metadata_pb2
-from locan.data.rois import RoiLegacy_0
 from locan.locan_io.locdata.io_locdata import load_txt_file
+from locan.rois.roi import RoiLegacy_0
 
 # fixtures
 

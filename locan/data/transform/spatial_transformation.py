@@ -19,17 +19,14 @@ import pandas as pd
 
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
-from locan.data.region import Region
 from locan.data.validation import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY
-from locan.locan_types import RandomGeneratorSeed
-from locan.simulation import simulate_uniform
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
 
 
-__all__: list[str] = ["transform_affine", "randomize", "standardize", "overlay"]
+__all__: list[str] = ["transform_affine", "standardize", "overlay"]
 
 logger = logging.getLogger(__name__)
 
@@ -296,67 +293,6 @@ def transform_affine(
 
     else:
         return transformed_points
-
-
-def randomize(
-    locdata: LocData,
-    hull_region: Region | Literal["bb", "ch", "as", "obb"] = "bb",
-    seed: RandomGeneratorSeed = None,
-) -> LocData:
-    """
-    Transform locdata coordinates into randomized coordinates that follow
-    complete spatial randomness on the same region as the input locdata.
-
-    Parameters
-    ----------
-    locdata
-        Localization data to be randomized
-    hull_region
-        Region of interest.
-        String identifier can refer to the corresponding hull.
-    seed
-        random number generation seed
-
-    Returns
-    -------
-    LocData
-        New localization data with randomized coordinates.
-    """
-    # todo: fix treatment of empty locdata
-    local_parameter = locals()
-
-    rng = np.random.default_rng(seed)
-
-    try:
-        if hull_region == "bb":
-            region_ = locdata.bounding_box.hull.T  # type: ignore[union-attr]
-        elif hull_region == "ch":
-            region_ = locdata.convex_hull.region  # type: ignore[union-attr]
-        elif hull_region == "as":
-            region_ = locdata.alpha_shape.region  # type: ignore[union-attr]
-        elif hull_region == "obb":
-            region_ = locdata.oriented_bounding_box.region  # type: ignore[union-attr]
-        elif isinstance(hull_region, Region):
-            region_ = hull_region
-        else:
-            raise ValueError
-
-        new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
-
-    except (AttributeError, ValueError, TypeError) as exception:
-        raise AttributeError(f"Region {hull_region} is not available.") from exception
-
-    # update metadata
-    meta_ = _modify_meta(
-        locdata,
-        new_locdata,
-        function_name=sys._getframe().f_code.co_name,
-        parameter=local_parameter,
-        meta=None,
-    )
-    new_locdata.meta = meta_
-
-    return new_locdata
 
 
 def standardize(

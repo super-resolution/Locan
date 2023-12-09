@@ -19,7 +19,7 @@ Bug Fixes
 
 Other Changes and Additions
 ---------------------------
-- ...
+- add lazy_imports of API
 
 0.18 - 2023-12-06
 =================

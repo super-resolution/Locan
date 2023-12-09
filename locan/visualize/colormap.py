@@ -71,7 +71,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 __all__: list[str] = [
-    "COLORMAP_DEFAULTS",
     "Colormaps",
     "Colormap",
     "colormap_registry",

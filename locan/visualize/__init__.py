@@ -24,8 +24,25 @@ from locan.visualize import colormap, render, render_mpl, render_napari, transfo
 
 from .colormap import *
 from .render import *
-from .render_mpl import *
-from .render_napari import *
+from .render_mpl import (
+    apply_window as apply_window,
+    render_2d_mpl as render_2d_mpl,
+    render_2d_rgb_mpl as render_2d_rgb_mpl,
+    render_2d_scatter_density as render_2d_scatter_density,
+    scatter_2d_mpl as scatter_2d_mpl,
+    scatter_3d_mpl as scatter_3d_mpl,
+)
+from .render_napari import (
+    get_rois as get_rois,
+    render_2d_napari as render_2d_napari,
+    render_2d_napari_image as render_2d_napari_image,
+    render_2d_rgb_napari as render_2d_rgb_napari,
+    render_3d_napari as render_3d_napari,
+    render_3d_napari_image as render_3d_napari_image,
+    render_3d_rgb_napari as render_3d_rgb_napari,
+    save_rois as save_rois,
+    select_by_drawing_napari as select_by_drawing_napari,
+)
 from .transform import *
 
 __all__: list[str] = []

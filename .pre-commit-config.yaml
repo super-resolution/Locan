@@ -21,3 +21,4 @@ repos:
         'types-tqdm',
         'pandas-stubs',
       ]
+      exclude: 'locan.__init__.py'

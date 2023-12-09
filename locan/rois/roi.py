@@ -1,10 +1,4 @@
 """
-
-Region of interest.
-
-This module provides functions for managing regions of interest in
-localization data.
-
 The Roi class is an object that defines a region of interest within a
 localization dataset. It is therefore related to region specifications
 and a unique LocData object.

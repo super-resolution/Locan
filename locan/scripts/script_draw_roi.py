@@ -19,7 +19,7 @@ Try for instance::
 
 See Also
 --------
-locan.data.rois.select_by_drawing_mpl
+locan.rois.select_by_drawing_mpl
 
 """
 from __future__ import annotations

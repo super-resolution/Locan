@@ -20,8 +20,8 @@ from locan.data import LocData
 from locan.data.aggregate import Bins, histogram
 from locan.data.locdata_utils import _check_loc_properties
 from locan.data.properties.locdata_statistics import ranges
-from locan.data.rois import Roi, _MplSelector
 from locan.dependencies import HAS_DEPENDENCY
+from locan.rois.roi import Roi, _MplSelector
 from locan.visualize.colormap import ColormapType, get_colormap
 from locan.visualize.transform import adjust_contrast
 

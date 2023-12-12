@@ -1,9 +1,8 @@
 """
 Benchmark functions to be used with Airspeed Velocity.
 """
-import numpy as np
-
 import locan as lc
+import numpy as np
 from locan.data.aggregate import (
     _histogram_boost_histogram,
     _histogram_fast_histogram,

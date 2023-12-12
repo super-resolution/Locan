@@ -1,9 +1,8 @@
 """
 Benchmark functions to be used with Airspeed Velocity.
 """
-import numpy as np
-
 import locan as lc
+import numpy as np
 
 rng = np.random.default_rng(seed=1)
 

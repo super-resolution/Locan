@@ -20,6 +20,7 @@ Bug Fixes
 Other Changes and Additions
 ---------------------------
 - add lazy_imports of API
+- introduce src-layout in code base
 
 0.18 - 2023-12-06
 =================

@@ -5,7 +5,7 @@ authors:
   given-names: "Sören"
   orcid: "https://orcid.org/0000-0002-6983-1182"
 title: "Locan"
-version: "0.x.x"
+version: "0.19.0"
 doi: "10.5281/zenodo.5722472"
 date-released: "6.12.2023"
 url: "https://github.com/super-resolution/Locan"

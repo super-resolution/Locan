@@ -4,21 +4,9 @@ repos:
   hooks:
     - id: black
 - repo: https://github.com/charliermarsh/ruff-pre-commit
-  rev: v0.1.1
+  rev: v0.1.7
   hooks:
     - id: ruff
       args: [
         --output-format, grouped,
       ]
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.5.1
-  hooks:
-   -  id: mypy
-      additional_dependencies: [
-        'numpy',
-        'types-protobuf',
-        'types-requests',
-        'types-tqdm',
-        'pandas-stubs',
-      ]
-      exclude: 'locan.__init__.py'

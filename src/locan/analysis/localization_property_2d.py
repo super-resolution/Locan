@@ -359,7 +359,11 @@ class LocalizationProperty2d(_Analysis):
         z = self.results.model_result.eval(points=zz)
 
         contourset = ax.contour(
-            x, y, z.reshape((len(x), len(y))).T, 8, **dict(dict(colors="w"), **kwargs)
+            x,
+            y,
+            z.reshape((len(x), len(y))).T,
+            8,
+            **dict(dict(colors="gray"), **kwargs),
         )
         plt.clabel(contourset, fontsize=9, inline=1)
         ax.set(
@@ -415,7 +419,11 @@ class LocalizationProperty2d(_Analysis):
         )
 
         contourset = ax.contour(
-            x, y, z.reshape((len(x), len(y))).T, 8, **dict(dict(colors="w"), **kwargs)
+            x,
+            y,
+            z.reshape((len(x), len(y))).T,
+            8,
+            **dict(dict(colors="gray"), **kwargs),
         )
         plt.clabel(contourset, fontsize=9, inline=1)
 

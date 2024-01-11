@@ -37,12 +37,12 @@ def _read_Elyra_header(file: SupportsReadline[Any]) -> list[str]:
     Parameters
     ----------
     file
-        A rapidSTORM file to load.
+        A file to load.
 
     Returns
     -------
     list[str]
-        A list of valid dataset property keys as derived from the rapidSTORM
+        A list of valid dataset property keys as derived from the
         identifiers.
     """
     header = file.readline().split("\n")[0]
@@ -67,12 +67,12 @@ def load_Elyra_header(
     Parameters
     ----------
     path
-        File path for a rapidSTORM file to load.
+        File path for a file to load.
 
     Returns
     -------
     list[str]
-        A list of valid dataset property keys as derived from the rapidSTORM
+        A list of valid dataset property keys as derived from the
         identifiers.
     """
 
@@ -92,7 +92,7 @@ def load_Elyra_file(
     Parameters
     ----------
     path
-        File path for a rapidSTORM file to load.
+        File path for a file to load.
     nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.

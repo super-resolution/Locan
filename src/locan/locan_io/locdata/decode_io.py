@@ -91,7 +91,7 @@ def load_decode_header(
     Parameters
     ----------
     path : str | os.PathLike | SupportsRead
-        File path or file-like object for a DECODE file to load.
+        File path or file-like object for a file to load.
 
     Returns
     -------
@@ -116,7 +116,7 @@ def load_decode_file(
     Parameters
     ----------
     path
-        File path or file-like object for a Thunderstorm file to load.
+        File path or file-like object for a file to load.
     nrows
         The number of localizations to load from file.
         None means that all available rows are loaded.

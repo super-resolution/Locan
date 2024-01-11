@@ -82,12 +82,12 @@ def load_rapidSTORM_header(
     Parameters
     ----------
     path
-        File path for a rapidSTORM file to load.
+        File path for a file to load.
 
     Returns
     -------
     list[str]
-        A list of valid dataset property keys as derived from the rapidSTORM
+        A list of valid dataset property keys as derived from the
         identifiers.
     """
 
@@ -108,7 +108,7 @@ def load_rapidSTORM_file(
     Parameters
     ----------
     path
-        File path for a rapidSTORM file to load.
+        File path for a file to load.
     nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.
@@ -164,12 +164,12 @@ def _read_rapidSTORM_track_header(
     Parameters
     ----------
     file
-        A rapidSTORM file to load.
+        A file to load.
 
     Returns
     -------
     tuple[list[str], list[str]]
-        A list of valid dataset property keys as derived from the rapidSTORM
+        A list of valid dataset property keys as derived from the
         identifiers.
     """
     # read xml part in header
@@ -216,12 +216,12 @@ def load_rapidSTORM_track_header(
     Parameters
     ----------
     path
-        File path for a rapidSTORM file to load.
+        File path for a file to load.
 
     Returns
     -------
     tuple[list[str], list[str]]
-        A list of valid dataset property keys as derived from the rapidSTORM
+        A list of valid dataset property keys as derived from the
         identifiers.
     """
 
@@ -245,7 +245,7 @@ def load_rapidSTORM_track_file(
     Parameters
     ----------
     path
-        File path for a rapidSTORM file to load.
+        File path for a file to load.
     nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.

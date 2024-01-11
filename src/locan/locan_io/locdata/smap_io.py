@@ -46,7 +46,7 @@ def _read_SMAP_header(file: Mapping[str, Any]) -> list[str]:
     Returns
     -------
     list[str]
-        A list of valid dataset property keys as derived from the rapidSTORM
+        A list of valid dataset property keys as derived from the
         identifiers.
     """
     # list identifiers
@@ -72,7 +72,7 @@ def load_SMAP_header(
     Returns
     -------
     list[str]
-        A list of valid dataset property keys as derived from the rapidSTORM
+        A list of valid dataset property keys as derived from the
         identifiers.
     """
     with h5py.File(path, "r") as file:
@@ -91,7 +91,7 @@ def load_SMAP_file(
     Parameters
     ----------
     path
-        File path for a Thunderstorm file to load.
+        File path for a file to load.
     nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.

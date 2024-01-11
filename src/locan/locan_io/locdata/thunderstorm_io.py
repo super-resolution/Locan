@@ -70,12 +70,12 @@ def load_thunderstorm_header(
     Parameters
     ----------
     path
-        File path for a Thunderstorm file to load.
+        File path for a file to load.
 
     Returns
     -------
     list[str]
-        A list of valid dataset property keys as derived from the Thunderstorm
+        A list of valid dataset property keys as derived from the
         identifiers.
     """
     # read csv header
@@ -95,7 +95,7 @@ def load_thunderstorm_file(
     Parameters
     ----------
     path
-        File path for a Thunderstorm file to load.
+        File path for a file to load.
     nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.

@@ -268,7 +268,7 @@ def load_SMLM_manifest(
     Parameters
     ----------
     path
-        File path for a SMLM file to load.
+        File path for a file to load.
 
     Returns
     -------
@@ -295,12 +295,12 @@ def load_SMLM_header(
     Parameters
     ----------
     path
-        File path for a SMLM file to load.
+        File path for a file to load.
 
     Returns
     -------
     list[str]
-        A list of dataset property keys as derived from the SMLM identifiers.
+        A list of dataset property keys as derived from the identifiers.
     """
     zf = zipfile.ZipFile(path, "r")
     file_names = zf.namelist()
@@ -346,7 +346,7 @@ def load_SMLM_file(
     Parameters
     ----------
     path
-        File path for a SMLM file to load.
+        File path for a file to load.
     nrows
         The number of localizations to load from file.
         None means that all available rows are loaded.

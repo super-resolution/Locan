@@ -70,7 +70,7 @@ logger = logging.getLogger(__name__)
 # The algorithms
 
 
-def pdf_nnDistances_csr_2D(x: npt.ArrayLike, density: float) -> npt.NDArray[np.float_]:
+def pdf_nnDistances_csr_2D(x: npt.ArrayLike, density: float) -> npt.NDArray[np.float64]:
     """
     Probability density function for nearest-neighbor distances of points
     distributed in 2D with complete spatial randomness.
@@ -88,13 +88,13 @@ def pdf_nnDistances_csr_2D(x: npt.ArrayLike, density: float) -> npt.NDArray[np.f
         Probability density function pdf(x).
     """
     x = np.asarray(x)
-    return_value: npt.NDArray[np.float_] = (
+    return_value: npt.NDArray[np.float64] = (
         2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
     )
     return return_value
 
 
-def pdf_nnDistances_csr_3D(x: npt.ArrayLike, density: float) -> npt.NDArray[np.float_]:
+def pdf_nnDistances_csr_3D(x: npt.ArrayLike, density: float) -> npt.NDArray[np.float64]:
     """
     Probability density function for nearest-neighbor distances of points
     distributed in 3D with complete spatial
@@ -109,12 +109,12 @@ def pdf_nnDistances_csr_3D(x: npt.ArrayLike, density: float) -> npt.NDArray[np.f
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         Probability density function pdf(x).
     """
     x = np.asarray(x)
     a = (3 / 4 / np.pi / density) ** (1 / 3)
-    return_value: npt.NDArray[np.float_] = (
+    return_value: npt.NDArray[np.float64] = (
         3 / a * (x / a) ** 2 * np.exp(-((x / a) ** 3))
     )
     return return_value
@@ -287,7 +287,7 @@ class NearestNeighborDistances(_Analysis):
             return ax
         assert self.localization_density is not None  # type narrowing # noqa: S101
 
-        values, bin_values, patches = ax.hist(
+        _values, bin_values, _patches = ax.hist(
             self.results["nn_distance"], bins=bins, density=density, label="data"
         )
         x_data = (bin_values[:-1] + bin_values[1:]) / 2

@@ -201,7 +201,7 @@ class Colormap:
 
     def __call__(
         self, *args: Any, **kwargs: Any
-    ) -> float | tuple[float, float, float, float] | npt.NDArray[np.float_]:
+    ) -> float | tuple[float, float, float, float] | npt.NDArray[np.float64]:
         if HAS_DEPENDENCY["matplotlib"] and self._matplotlib is not None:
             return_value = self._matplotlib(*args, **kwargs)
         elif HAS_DEPENDENCY["napari"] and self._napari is not None:

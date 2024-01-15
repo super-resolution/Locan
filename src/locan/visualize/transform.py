@@ -191,7 +191,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         if np.any(np.isnan(values)):
             raise ValueError("HistogramEqualization does not work with nan values.")
 
-        _values, is_scalar = self.process_value(values)
+        _values, _ = self.process_value(values)
         self.autoscale_None(_values)  # sets self.vmin, self.vmax if None
         assert self.vmin is not None  # type narrowing # noqa: S101
         assert self.vmax is not None  # type narrowing # noqa: S101
@@ -226,7 +226,7 @@ def adjust_contrast(
     image: npt.ArrayLike,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = True,
     **kwargs: Any,
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Adjust contrast of image by a predefined transformation:
 
@@ -248,7 +248,7 @@ def adjust_contrast(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
     """
     image = np.asarray(image)
     if (

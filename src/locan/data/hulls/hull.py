@@ -34,15 +34,15 @@ class BoundingBox:
 
     Attributes
     ----------
-    hull : npt.NDArray[np.float_]
+    hull : npt.NDArray[np.float64]
         Array of point coordinates of shape (2, ndim) that represent
         [[min_coordinates], [max_coordinates]].
     dimension : int
         Spatial dimension of hull
-    vertices : npt.NDArray[np.float_]
+    vertices : npt.NDArray[np.float64]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
-    width : npt.NDArray[np.float_]
+    width : npt.NDArray[np.float64]
         Array with differences between max and min for each coordinate.
     region_measure : float
         Hull measure, i.e. area or volume
@@ -74,7 +74,7 @@ class BoundingBox:
             self.subregion_measure = np.sum(self.width) * 2
 
     @property
-    def vertices(self) -> npt.NDArray[np.float_]:
+    def vertices(self) -> npt.NDArray[np.float64]:
         return self.hull.T
 
     @property
@@ -102,7 +102,7 @@ class _ConvexHullScipy:
         hull object from the corresponding algorithm
     dimension : int
         spatial dimension of hull
-    vertices : npt.NDArray[np.float_]
+    vertices : npt.NDArray[np.float64]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
     vertex_indices : npt.NDArray[np.int_]
@@ -137,8 +137,8 @@ class _ConvexHullScipy:
         self.subregion_measure = self.hull.area
 
     @property
-    def vertices(self) -> npt.NDArray[np.float_]:
-        return_value: npt.NDArray[np.float_] = self.hull.points[self.hull.vertices]
+    def vertices(self) -> npt.NDArray[np.float64]:
+        return_value: npt.NDArray[np.float64] = self.hull.points[self.hull.vertices]
         return return_value
 
     @property
@@ -168,7 +168,7 @@ class _ConvexHullShapely:
         Polygon object from the .convex_hull method
     dimension : int
         Spatial dimension of hull
-    vertices : npt.NDArray[np.float_]
+    vertices : npt.NDArray[np.float64]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
     vertex_indices : npt.NDArray[np.int_]
@@ -211,7 +211,7 @@ class _ConvexHullShapely:
         self.subregion_measure = self.hull.length
 
     @property
-    def vertices(self) -> npt.NDArray[np.float_]:
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array(self.hull.exterior.coords)[:-1]
 
     @property
@@ -247,7 +247,7 @@ class ConvexHull:
         Polygon object from the .convex_hull method
     dimension : int
         Spatial dimension of hull
-    vertices : npt.NDArray[np.float_]
+    vertices : npt.NDArray[np.float64]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
     vertex_indices : npt.NDArray[np.int_]
@@ -303,10 +303,10 @@ class OrientedBoundingBox:
         Polygon object from the minimum_rotated_rectangle method
     dimension : int
         Spatial dimension of hull
-    vertices : npt.NDArray[np.float_]
+    vertices : npt.NDArray[np.float64]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
-    width : npt.NDArray[np.float_]
+    width : npt.NDArray[np.float64]
         Array with lengths of box edges.
     region_measure : float
         hull measure, i.e. area or volume
@@ -351,7 +351,7 @@ class OrientedBoundingBox:
             self.elongation = 1 - np.divide(*sorted(self.width))
 
     @property
-    def vertices(self) -> npt.NDArray[np.float_]:
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array(self.hull.exterior.coords)  # type: ignore[attr-defined]
 
     @property

@@ -85,7 +85,7 @@ def _ripleys_k_function(
     radii: Iterable[float],
     region_measure: float = 1,
     other_points: npt.ArrayLike | None = None,
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Compute Ripley's K function for two- or three-dimensional data at the given radii.
 
@@ -103,7 +103,7 @@ def _ripleys_k_function(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         Ripley's K function evaluated at input radii with shape (n_radii,).
     """
     points = np.asarray(points)
@@ -131,13 +131,13 @@ def _ripleys_l_function(
     radii: Iterable[float],
     region_measure: float = 1,
     other_points: npt.ArrayLike | None = None,
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Evaluates Ripley's L function which is different for 2D and 3D data points.
     For parameter description see _ripleys_k_function.
     """
     if np.shape(points)[1] == 2:
-        return_value: npt.NDArray[np.float_] = np.sqrt(
+        return_value: npt.NDArray[np.float64] = np.sqrt(
             _ripleys_k_function(points, radii, region_measure, other_points) / np.pi
         )
     elif np.shape(points)[1] == 3:
@@ -155,13 +155,13 @@ def _ripleys_h_function(
     radii: Iterable[float],
     region_measure: float = 1,
     other_points: npt.ArrayLike | None = None,
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Evaluates Ripley's H function. For parameter description
     see _ripleys_k_function.
     """
 
-    return_value: npt.NDArray[np.float_] = _ripleys_l_function(
+    return_value: npt.NDArray[np.float64] = _ripleys_l_function(
         points, radii, region_measure, other_points
     ) - np.asarray(radii)
     return return_value

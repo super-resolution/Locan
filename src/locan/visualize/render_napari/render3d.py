@@ -124,7 +124,7 @@ def render_3d_napari_image(
             "Locdata has zero or one localizations - must have more than one."
         )
 
-    data, bins, labels = histogram(
+    data, bins, _labels = histogram(
         locdata=locdata,
         loc_properties=loc_properties,
         other_property=other_property,
@@ -236,7 +236,7 @@ def render_3d_napari(
         viewer = napari.Viewer()
 
     try:
-        data, image_kwargs, layer_type = render_3d_napari_image(
+        data, image_kwargs, _layer_type = render_3d_napari_image(
             locdata=locdata,
             loc_properties=loc_properties,
             other_property=other_property,

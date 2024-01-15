@@ -69,7 +69,7 @@ def _accumulation_cluster_check_for_single_dataset(
     # compute clusters
     if algo_parameter is None:
         algo_parameter = {}
-    noise, clust = algorithm(locdata, **algo_parameter)
+    _noise, clust = algorithm(locdata, **algo_parameter)
 
     if len(clust) == 0:
         # return localization_density, eta, rho

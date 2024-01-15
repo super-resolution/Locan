@@ -194,7 +194,7 @@ def test_as_artist():
         reference=None,
         region=Polygon(((0, 0.8), (0.1, 0.9), (0.6, 0.9), (0.7, 0.7), (0, 0.8))),
     )
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     ax.add_patch(roi_rectangle._region.as_artist())
     ax.add_patch(roi_ellipse._region.as_artist())
     ax.add_patch(roi_polygon._region.as_artist())

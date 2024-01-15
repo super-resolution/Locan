@@ -116,7 +116,7 @@ class RoiRegion:
         Spatial dimension of region
     centroid : tuple[float, ...]
         Centroid coordinates
-    max_distance : npt.NDArray[np.float_]
+    max_distance : npt.NDArray[np.float64]
         Maximum distance between any two points in the region
     region_measure : float
         Hull measure, i.e. area or volume
@@ -285,52 +285,52 @@ class Region(ABC):
 
     @property
     @abstractmethod
-    def bounds(self) -> npt.NDArray[np.float_] | None:
+    def bounds(self) -> npt.NDArray[np.float64] | None:
         """
         Region bounds min_x, min_y, ..., max_x, max_y, ... for each dimension.
 
         Returns
         -------
-        npt.NDArray[np.float_] | None
+        npt.NDArray[np.float64] | None
             of shape (2 * dimension,)
         """
         pass
 
     @property
     @abstractmethod
-    def extent(self) -> npt.NDArray[np.float_] | None:
+    def extent(self) -> npt.NDArray[np.float64] | None:
         """
         The extent (max_x - min_x), (max_y - min_y), ... for each dimension.
 
         Returns
         -------
-        npt.NDArray[np.float_] | None
+        npt.NDArray[np.float64] | None
             of shape (dimension,)
         """
         pass
 
     @property
     @abstractmethod
-    def points(self) -> npt.NDArray[np.float_] | list[npt.NDArray[np.float_]]:
+    def points(self) -> npt.NDArray[np.float64] | list[npt.NDArray[np.float64]]:
         """
         Point coordinates.
 
         Returns
         -------
-        npt.NDArray[np.float_] | list[npt.NDArray[np.float_]]
+        npt.NDArray[np.float64] | list[npt.NDArray[np.float64]]
             of shape (n_points, dimension)
         """
         pass
 
     @property
     @abstractmethod
-    def centroid(self) -> npt.NDArray[np.float_] | None:
+    def centroid(self) -> npt.NDArray[np.float64] | None:
         """
         Point coordinates for region centroid.
 
         Returns
         -------
-        npt.NDArray[np.float_] | None
+        npt.NDArray[np.float64] | None
             of shape (dimension,)
         """
         pass
@@ -547,12 +547,12 @@ class Region2D(Region):
         return 2
 
     @property
-    def bounds(self) -> npt.NDArray[np.float_]:
+    def bounds(self) -> npt.NDArray[np.float64]:
         min_x, min_y, max_x, max_y = self.shapely_object.bounds
         return np.array([min_x, min_y, max_x, max_y])
 
     @property
-    def extent(self) -> npt.NDArray[np.float_]:
+    def extent(self) -> npt.NDArray[np.float64]:
         min_x, min_y, max_x, max_y = self.bounds
         return np.array([abs(max_x - min_x), abs(max_y - min_y)])
 
@@ -791,8 +791,8 @@ class EmptyRegion(Region):
         return None
 
     @property
-    def points(self) -> npt.NDArray[np.float_]:
-        return np.array([], dtype=np.float_)
+    def points(self) -> npt.NDArray[np.float64]:
+        return np.array([], dtype=np.float64)
 
     @property
     def centroid(self) -> None:
@@ -918,15 +918,15 @@ class Interval(Region1D):
         return self._upper_bound
 
     @property
-    def bounds(self) -> npt.NDArray[np.float_]:
+    def bounds(self) -> npt.NDArray[np.float64]:
         return np.array([self.lower_bound, self.upper_bound])
 
     @property
-    def extent(self) -> npt.NDArray[np.float_]:
+    def extent(self) -> npt.NDArray[np.float64]:
         return np.array([abs(self.upper_bound - self.lower_bound)])
 
     @property
-    def intervals(self) -> npt.NDArray[np.float_]:
+    def intervals(self) -> npt.NDArray[np.float64]:
         """
         Provide bounds in a tuple (min, max) arrangement.
 
@@ -953,11 +953,11 @@ class Interval(Region1D):
         return self._region_specs
 
     @property
-    def points(self) -> npt.NDArray[np.float_]:
+    def points(self) -> npt.NDArray[np.float64]:
         return np.array([self.lower_bound, self.upper_bound])
 
     @property
-    def centroid(self) -> npt.NDArray[np.float_]:
+    def centroid(self) -> npt.NDArray[np.float64]:
         return np.array([self.lower_bound + (self.upper_bound - self.lower_bound) / 2])
 
     @property
@@ -1068,13 +1068,13 @@ class Rectangle(Region2D):
         return cls(corner, width, height, angle)
 
     @property
-    def corner(self) -> npt.NDArray[np.float_]:
+    def corner(self) -> npt.NDArray[np.float64]:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        npt.NDArray[np.float_]
+        npt.NDArray[np.float64]
             with shape (2,)
         """
         return self._corner
@@ -1114,13 +1114,13 @@ class Rectangle(Region2D):
         return self._angle
 
     @property
-    def intervals(self) -> npt.NDArray[np.float_]:
+    def intervals(self) -> npt.NDArray[np.float64]:
         """
         Provide bounds in a tuple (min, max) arrangement.
 
         Returns
         -------
-        npt.NDArray[np.float_]
+        npt.NDArray[np.float64]
             ((min_x, max_x), ...) of shape(dimension, 2)
         """
         lower_bounds = self.bounds[: self.dimension]
@@ -1130,7 +1130,7 @@ class Rectangle(Region2D):
         )
 
     @property
-    def points(self) -> npt.NDArray[np.float_]:
+    def points(self) -> npt.NDArray[np.float64]:
         rectangle = mpl_patches.Rectangle(
             self.corner,  # type: ignore[arg-type]
             self.width,
@@ -1140,7 +1140,7 @@ class Rectangle(Region2D):
             edgecolor="b",
             linewidth=1,
         )
-        points: npt.NDArray[np.float_] = rectangle.get_verts()  # type: ignore
+        points: npt.NDArray[np.float64] = rectangle.get_verts()  # type: ignore
         return np.array(points[::-1])
 
     @property
@@ -1165,7 +1165,7 @@ class Rectangle(Region2D):
         return self._shapely_object
 
     @property
-    def centroid(self) -> npt.NDArray[np.float_]:
+    def centroid(self) -> npt.NDArray[np.float64]:
         return np.array(list(self.shapely_object.centroid.coords)[0])
 
     @property
@@ -1245,13 +1245,13 @@ class Ellipse(Region2D):
         return getattr(self.shapely_object, attr)
 
     @property
-    def center(self) -> npt.NDArray[np.float_]:
+    def center(self) -> npt.NDArray[np.float64]:
         """
         A point that defines the center of the ellipse.
 
         Returns
         -------
-        npt.NDArray[np.float_]
+        npt.NDArray[np.float64]
             with shape (2,)
         """
         return self._center
@@ -1293,7 +1293,7 @@ class Ellipse(Region2D):
         return self._angle
 
     @property
-    def points(self) -> npt.NDArray[np.float_]:
+    def points(self) -> npt.NDArray[np.float64]:
         return np.array(self.shapely_object.exterior.coords)[::-1]
 
     @property
@@ -1321,7 +1321,7 @@ class Ellipse(Region2D):
         return self._shapely_object
 
     @property
-    def centroid(self) -> npt.NDArray[np.float_]:
+    def centroid(self) -> npt.NDArray[np.float64]:
         return self.center
 
     @property
@@ -1436,25 +1436,25 @@ class Polygon(Region2D):
             return cls(points, holes)
 
     @property
-    def points(self) -> npt.NDArray[np.float_]:
+    def points(self) -> npt.NDArray[np.float64]:
         """
         Exterior polygon points.
 
         Returns
         -------
-        npt.NDArray[np.float_]
+        npt.NDArray[np.float64]
             of shape(n_points, dimension)
         """
         return self._points
 
     @property
-    def holes(self) -> list[npt.NDArray[np.float_]] | None:
+    def holes(self) -> list[npt.NDArray[np.float64]] | None:
         """
         Holes where each hole is specified by polygon points.
 
         Returns
         -------
-        list[npt.NDArray[np.float_]] | None
+        list[npt.NDArray[np.float64]] | None
             n_holes of shape(n_points, dimension)
         """
         return self._holes
@@ -1481,7 +1481,7 @@ class Polygon(Region2D):
         return self._shapely_object
 
     @property
-    def centroid(self) -> npt.NDArray[np.float_]:
+    def centroid(self) -> npt.NDArray[np.float64]:
         return np.array(list(self.shapely_object.centroid.coords)[0])
 
     @property
@@ -1557,25 +1557,25 @@ class MultiPolygon(Region2D):
         return getattr(self.shapely_object, attr)
 
     @property
-    def points(self) -> list[npt.NDArray[np.float_]]:
+    def points(self) -> list[npt.NDArray[np.float64]]:
         """
         Exterior polygon points.
 
         Returns
         -------
-        list[npt.NDArray[np.float_]]
+        list[npt.NDArray[np.float64]]
             n_polygons of shape(n_points, dimension)
         """
         return [pol.points for pol in self.polygons]
 
     @property
-    def holes(self) -> list[list[npt.NDArray[np.float_]] | None]:
+    def holes(self) -> list[list[npt.NDArray[np.float64]] | None]:
         """
         Points defining holes.
 
         Returns
         -------
-        list[list[npt.NDArray[np.float_]] | None]
+        list[list[npt.NDArray[np.float64]] | None]
             list of polygon holes
         """
         return [pol.holes for pol in self.polygons]
@@ -1615,7 +1615,7 @@ class MultiPolygon(Region2D):
         return self._shapely_object
 
     @property
-    def centroid(self) -> npt.NDArray[np.float_]:
+    def centroid(self) -> npt.NDArray[np.float64]:
         return np.array(list(self.shapely_object.centroid.coords)[0])
 
     @property
@@ -1730,13 +1730,13 @@ class AxisOrientedCuboid(Region3D):
         return cls(corner, length, width, height)
 
     @property
-    def corner(self) -> npt.NDArray[np.float_]:
+    def corner(self) -> npt.NDArray[np.float64]:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        npt.NDArray[np.float_]
+        npt.NDArray[np.float64]
             with shape (2,)
         """
         return self._corner
@@ -1775,11 +1775,11 @@ class AxisOrientedCuboid(Region3D):
         return self._height
 
     @property
-    def points(self) -> npt.NDArray[np.float_]:
+    def points(self) -> npt.NDArray[np.float64]:
         return np.array(list(it.product(*self.intervals)))
 
     @property
-    def centroid(self) -> npt.NDArray[np.float_]:
+    def centroid(self) -> npt.NDArray[np.float64]:
         return np.array(
             [
                 cor + dist / 2
@@ -1790,7 +1790,7 @@ class AxisOrientedCuboid(Region3D):
         )
 
     @property
-    def bounds(self) -> npt.NDArray[np.float_]:
+    def bounds(self) -> npt.NDArray[np.float64]:
         min_x, min_y, min_z = self.corner
         max_x, max_y, max_z = [  # noqa: UP027
             cor + dist
@@ -1799,7 +1799,7 @@ class AxisOrientedCuboid(Region3D):
         return np.array([min_x, min_y, min_z, max_x, max_y, max_z])
 
     @property
-    def intervals(self) -> npt.NDArray[np.float_]:
+    def intervals(self) -> npt.NDArray[np.float64]:
         """
         Provide bounds in a tuple (min, max) arrangement.
 
@@ -1812,7 +1812,7 @@ class AxisOrientedCuboid(Region3D):
         return np.array([(min_x, max_x), (min_y, max_y), (min_z, max_z)])
 
     @property
-    def extent(self) -> npt.NDArray[np.float_]:
+    def extent(self) -> npt.NDArray[np.float64]:
         return np.array([abs(self.length), abs(self.width), abs(self.height)])
 
     @property
@@ -1921,13 +1921,13 @@ class Cuboid(Region3D):
         )
 
     @property
-    def corner(self) -> npt.NDArray[np.float_]:
+    def corner(self) -> npt.NDArray[np.float64]:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        npt.NDArray[np.float_]
+        npt.NDArray[np.float64]
             with shape (2,)
         """
         return self._corner
@@ -1999,19 +1999,19 @@ class Cuboid(Region3D):
         return self._gamma
 
     @property
-    def points(self) -> npt.NDArray[np.float_]:
+    def points(self) -> npt.NDArray[np.float64]:
         raise NotImplementedError
 
     @property
-    def bounds(self) -> npt.NDArray[np.float_]:
+    def bounds(self) -> npt.NDArray[np.float64]:
         raise NotImplementedError
 
     @property
-    def extent(self) -> npt.NDArray[np.float_]:
+    def extent(self) -> npt.NDArray[np.float64]:
         raise NotImplementedError
 
     @property
-    def centroid(self) -> npt.NDArray[np.float_]:
+    def centroid(self) -> npt.NDArray[np.float64]:
         raise NotImplementedError
 
     @property
@@ -2112,25 +2112,25 @@ class AxisOrientedHypercuboid(RegionND):
         return cls(corner, lengths)
 
     @property
-    def corner(self) -> npt.NDArray[np.float_]:
+    def corner(self) -> npt.NDArray[np.float64]:
         """
         A point that defines the lower left corner.
 
         Returns
         -------
-        npt.NDArray[np.float_]
+        npt.NDArray[np.float64]
             with shape (dimension,)
         """
         return self._corner
 
     @property
-    def lengths(self) -> npt.NDArray[np.float_]:
+    def lengths(self) -> npt.NDArray[np.float64]:
         """
         Array of length values for the 1-dimensional edge vectors.
 
         Returns
         -------
-        npt.NDArray[np.float_]
+        npt.NDArray[np.float64]
             of shape(dimension,)
         """
         return self._lengths
@@ -2140,7 +2140,7 @@ class AxisOrientedHypercuboid(RegionND):
         return len(self.lengths)
 
     @property
-    def intervals(self) -> npt.NDArray[np.float_]:
+    def intervals(self) -> npt.NDArray[np.float64]:
         """
         Provide bounds in a tuple (min, max) arrangement.
 
@@ -2159,19 +2159,19 @@ class AxisOrientedHypercuboid(RegionND):
         )
 
     @property
-    def points(self) -> npt.NDArray[np.float_]:
+    def points(self) -> npt.NDArray[np.float64]:
         return np.array(list(it.product(*self.intervals)))
 
     @property
-    def bounds(self) -> npt.NDArray[np.float_]:
+    def bounds(self) -> npt.NDArray[np.float64]:
         return np.concatenate([self.corner, self.corner + self.lengths], axis=0)
 
     @property
-    def extent(self) -> npt.NDArray[np.float_]:
+    def extent(self) -> npt.NDArray[np.float64]:
         return np.abs(self.lengths)
 
     @property
-    def centroid(self) -> npt.NDArray[np.float_]:
+    def centroid(self) -> npt.NDArray[np.float64]:
         return self.corner + self.lengths / 2
 
     @property

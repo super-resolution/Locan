@@ -130,7 +130,7 @@ def load_decode_file(
         A new instance of LocData with all localizations.
     """
     with h5py.File(path, "r") as file:
-        columns, meta, decode = _read_decode_header(file)
+        columns, meta, _ = _read_decode_header(file)
 
         if file["data"]["xyz"].shape == (0, 3):  # empty file
             logger.warning("File does not contain any data.")

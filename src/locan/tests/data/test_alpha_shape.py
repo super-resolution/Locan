@@ -84,7 +84,7 @@ def test_AlphaComplex_1_visual():
 
     H = alpha_complex.graph_from_lines(alpha, type="regular")
 
-    fig, ax = plt.subplots(1, 3)
+    _fig, ax = plt.subplots(1, 3)
     nx.draw_networkx(H, points, with_labels=True, ax=ax[0])
     # plt.show()
 
@@ -166,7 +166,7 @@ def test_AlphaComplex_2_visual():
 
     H = alpha_complex.graph_from_lines(alpha, type="regular")
 
-    fig, ax = plt.subplots(1, 3)
+    _fig, ax = plt.subplots(1, 3)
     nx.draw_networkx(H, points, with_labels=True, ax=ax[0])
     # plt.show()
 
@@ -265,7 +265,7 @@ def test_AlphaComplex_3_visual():
 
     H = alpha_complex.graph_from_lines(alpha, type="regular")
 
-    fig, ax = plt.subplots(1, 3)
+    _fig, ax = plt.subplots(1, 3)
     nx.draw_networkx(H, points, with_labels=True, ax=ax[0])
     # plt.show()
 

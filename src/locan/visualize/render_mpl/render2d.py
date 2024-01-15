@@ -275,7 +275,7 @@ def render_2d_scatter_density(
         raise ValueError(f"{loc_properties} is not a valid property in locdata.")
 
     if bin_range is None or isinstance(bin_range, str):
-        bin_range_: npt.NDArray[np.float_] = ranges(locdata, loc_properties=labels, special=bin_range)  # type: ignore
+        bin_range_: npt.NDArray[np.float64] = ranges(locdata, loc_properties=labels, special=bin_range)  # type: ignore
     else:
         bin_range_ = bin_range  # type: ignore[assignment]
 
@@ -379,7 +379,7 @@ def scatter_2d_mpl(
 
 def apply_window(
     image: npt.ArrayLike, window_function: str = "tukey", **kwargs: Any
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Apply window function to image.
 
@@ -428,7 +428,7 @@ def select_by_drawing_mpl(
     matplotlib.widgets : selector functions
     """
 
-    fig, ax = plt.subplots(nrows=1, ncols=1)  # type: ignore
+    _fig, ax = plt.subplots(nrows=1, ncols=1)  # type: ignore
     render_2d_mpl(locdata, ax=ax, **kwargs)
     selector = _MplSelector(ax, type=region_type)
     plt.show()  # type: ignore

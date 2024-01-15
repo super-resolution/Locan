@@ -126,7 +126,7 @@ def test_ConvexHull(locdata_empty, locdata_single_localization, fixture_name, ex
 def test_OrientedBoundingBox_2d_points_visual():
     points = np.array([[0, 0], [0, 2], [1, 2], [1, 0], [0, 0]])
 
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5, 5))
+    _fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5, 5))
     for angle in np.linspace(0, 180, 5):
         rotated_points = affinity.rotate(
             MultiPoint(points), angle, origin=[0, 0], use_radians=False

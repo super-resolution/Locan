@@ -51,7 +51,7 @@ def _unwarp(
     matrix_x: npt.ArrayLike,
     matrix_y: npt.ArrayLike,
     pixel_size: tuple[float, float],
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Transform points with raw matrix from BunwarpJ.
 
@@ -69,7 +69,7 @@ def _unwarp(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         Transformed point coordinates with shape (n_points, 2).
     """
     points_ = np.asarray(points)
@@ -96,7 +96,7 @@ def _unwarp(
 
 def _read_matrix(
     path: str | os.PathLike[Any],
-) -> tuple[npt.NDArray[np.float_], npt.NDArray[np.float_]]:
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """
     Read file with raw matrix from BunwarpJ.
 
@@ -107,7 +107,7 @@ def _read_matrix(
 
     Returns
     -------
-    tuple[npt.NDArray[np.float_], npt.NDArray[np.float_]]
+    tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]
         x transformation array, y transformation array
     """
     with open(path) as file:

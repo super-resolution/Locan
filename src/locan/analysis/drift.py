@@ -300,11 +300,11 @@ class _LmfitModelFacade:
             self.plot()
         return self.model_result
 
-    def eval(self, x: npt.ArrayLike) -> npt.NDArray[np.float_]:
+    def eval(self, x: npt.ArrayLike) -> npt.NDArray[np.float64]:
         x = np.asarray(x)
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
-        return_value: npt.NDArray[np.float_] = self.model_result.eval(x=x)
+        return_value: npt.NDArray[np.float64] = self.model_result.eval(x=x)
         return return_value
 
     def plot(self, **kwargs: Any) -> mpl.axes.Axes:
@@ -329,11 +329,11 @@ class _ConstantModelFacade:
             self.plot()
         return self.model_result
 
-    def eval(self, x: npt.ArrayLike) -> npt.NDArray[np.float_]:
+    def eval(self, x: npt.ArrayLike) -> npt.NDArray[np.float64]:
         x = np.asarray(x)
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
-        result: npt.NDArray[np.float_] = self.model_result.eval(x=x)
+        result: npt.NDArray[np.float64] = self.model_result.eval(x=x)
         if np.shape(result) != np.shape(x):  # needed to work with lmfit<1.2.0
             result = np.full(shape=np.shape(x), fill_value=result)
         return result
@@ -369,7 +369,7 @@ class _SplineModelFacade:
         self.model_result: tuple[Any, Any, Any] | None = None
         self.parameter = kwargs
         self.independent_variable: npt.NDArray[Any] | None = None
-        self.data: npt.NDArray[np.float_] | None = None
+        self.data: npt.NDArray[np.float64] | None = None
 
     def fit(
         self, x: npt.ArrayLike, y: npt.ArrayLike, verbose: bool = False, **kwargs: Any
@@ -384,11 +384,11 @@ class _SplineModelFacade:
         assert self.model_result is not None  # type narrowing # noqa: S101
         return self.model_result
 
-    def eval(self, x: npt.ArrayLike) -> float | npt.NDArray[np.float_] | list[Any]:
+    def eval(self, x: npt.ArrayLike) -> float | npt.NDArray[np.float64] | list[Any]:
         x = np.asarray(x)
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
-        results: npt.NDArray[np.float_] | list[Any] = splev(x, self.model_result)
+        results: npt.NDArray[np.float64] | list[Any] = splev(x, self.model_result)
         if isinstance(x, (tuple, list, np.ndarray)):
             return results
         else:
@@ -499,7 +499,7 @@ class DriftComponent:
         self.model_result = self.model.fit(x, y, verbose=verbose, **kwargs)
         return self
 
-    def eval(self, x: npt.ArrayLike) -> float | npt.NDArray[np.float_] | list[Any]:
+    def eval(self, x: npt.ArrayLike) -> float | npt.NDArray[np.float64] | list[Any]:
         """
         Compute a transformation for time `x` from the drift model.
 
@@ -510,11 +510,11 @@ class DriftComponent:
 
         Returns
         -------
-        npt.NDArray[np.float_].
+        npt.NDArray[np.float64].
         """
         if self.model is None:
             raise ValueError("No model available.")
-        return_value: float | npt.NDArray[np.float_] | list[Any] = self.model.eval(x)
+        return_value: float | npt.NDArray[np.float64] | list[Any] = self.model.eval(x)
         return return_value
 
 

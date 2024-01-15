@@ -61,7 +61,7 @@ def _gauss_2d(
     center_y: float,
     sigma_x: float,
     sigma_y: float,
-) -> float | npt.NDArray[np.float_]:
+) -> float | npt.NDArray[np.float64]:
     """
     2D Gauss function of variables (x, y).
 
@@ -84,7 +84,7 @@ def _gauss_2d(
 
     Returns
     -------
-    float | npt.NDArray[np.float_]
+    float | npt.NDArray[np.float64]
     """
     x_ = np.asarray(x)
     y_ = np.asarray(y)
@@ -92,7 +92,7 @@ def _gauss_2d(
         np.float64(number)
         for number in (amplitude, center_x, center_y, sigma_x, sigma_y)
     )
-    return_value: float | npt.NDArray[np.float_] = amplitude * np.exp(
+    return_value: float | npt.NDArray[np.float64] = amplitude * np.exp(
         -(
             (x_ - center_x) ** 2 / (2.0 * sigma_x**2)
             + (y_ - center_y) ** 2 / (2.0 * sigma_y**2)

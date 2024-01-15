@@ -41,7 +41,7 @@ def test_regions_union_Rectangles():
     assert union.region_measure == 1.75
 
     # visualize
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter(*region_0.points.T)
     ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color="Blue"))
     ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color="Blue"))
@@ -86,7 +86,7 @@ def test_extend_Rectangle():
     assert extended_region_with_support.region_measure == 6
 
     # visualize
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter(*region.points.T)
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
     ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color="Red"))
@@ -116,7 +116,7 @@ def test_extend_Rectangles():
     assert extended_region.region_measure == pytest.approx(29.766960686847877)
 
     # visualize
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter(*region_0.points.T)
     ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color="Blue"))
     ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color="Blue"))
@@ -146,7 +146,7 @@ def test_extend_Polygon():
     )
 
     # visualize
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter(*region.points.T)
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
     ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color="Red"))
@@ -178,7 +178,7 @@ def test_extend_MultiPolygon():
     )
 
     # visualize
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter(*region.points.T)
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
     ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color="Red"))
@@ -201,7 +201,7 @@ def test_surrounding_region_Rectangles():
     assert extended_region.region_measure == pytest.approx(27.266960686847888)
 
     # visualize
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter(*region_0.points.T)
     ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color="Blue"))
     ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color="Blue"))
@@ -233,7 +233,7 @@ def test_surrounding_region_Polygon():
     )
 
     # visualize
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter(*region.points.T)
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
     ax.add_patch(extended_region.as_artist(fill=True, alpha=0.2, color="Red"))
@@ -251,7 +251,7 @@ def test_extend_region_RoiRegion():
     assert rr.region_measure == pytest.approx(1)
 
     # visualize
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter(*rr.points.T)
     ax.add_patch(rr.as_artist(fill=True))
     ax.scatter(np.array(er.exterior.coords)[:, 0], np.array(er.exterior.coords)[:, 1])
@@ -288,7 +288,7 @@ def test_extend_region_RoiRegion():
     assert sr.area == pytest.approx(2 * 8.13654849054594)
 
     # visualize
-    fig, ax = plt.subplots()
+    _fig, ax = plt.subplots()
     ax.scatter((-1, 3), (-1, 3))
     ax.add_patch(rr.as_artist(fill=True))
     ax.add_patch(sr.as_artist(fill=True))

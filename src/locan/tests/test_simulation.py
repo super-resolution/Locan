@@ -208,7 +208,7 @@ def test_make_Poisson_visual():
         intensity=1000, region=Polygon(((0, 10), (1, 11), (1, 10))), seed=rng
     )
 
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _, ax = plt.subplots(nrows=1, ncols=1)
     plt.scatter(samples[:, 0], samples[:, 1])
     ax.axis("equal")
     plt.show()

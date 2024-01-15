@@ -73,9 +73,9 @@ ConvexHullExpectationResource = dict(
 
 class ConvexHullExpectationValues(NamedTuple):
     n_points: list[int] | npt.NDArray[np.int_]
-    expectation: npt.NDArray[np.int_ | np.float_]
-    std_pos: npt.NDArray[np.float_]
-    std_neg: npt.NDArray[np.float_]
+    expectation: npt.NDArray[np.int_ | np.float64]
+    std_pos: npt.NDArray[np.float64]
+    std_neg: npt.NDArray[np.float64]
 
 
 def _get_resource(

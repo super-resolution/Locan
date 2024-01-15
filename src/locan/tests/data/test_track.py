@@ -37,7 +37,7 @@ def test_link_locdata(locdata_simple):
 
 
 def test_track(locdata_simple):
-    locdata_new, track_series = track(locdata_simple, search_range=5)
+    locdata_new, _track_series = track(locdata_simple, search_range=5)
     expected = {
         "localization_count": 3,
         "position_x": 1.0,
@@ -79,5 +79,5 @@ def test_track(locdata_simple):
     assert "frame" in locdata_new.data.columns
     assert len(locdata_new) == 5
 
-    locdata_new, track_series = track(locdata_simple, search_range=5, memory=5)
+    locdata_new, _track_series = track(locdata_simple, search_range=5, memory=5)
     assert len(locdata_new) == 4

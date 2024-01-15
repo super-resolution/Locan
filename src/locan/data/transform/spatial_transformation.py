@@ -36,7 +36,7 @@ def _transform_affine_numpy(
     matrix: npt.ArrayLike | None = None,
     offset: npt.ArrayLike | None = None,
     pre_translation: npt.ArrayLike | None = None,
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Transform `points` by an affine transformation using standard numpy
     procedures.
@@ -60,7 +60,7 @@ def _transform_affine_numpy(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         Transformed coordinates.
     """
     points_ = np.asarray(points)
@@ -74,7 +74,7 @@ def _transform_affine_numpy(
         # [np.dot(matrix_, point) + offset_ for point in points_]
         # )
         # same function but better performance:
-        transformed_points: npt.NDArray[np.float_] = (
+        transformed_points: npt.NDArray[np.float64] = (
             np.einsum("ij, nj -> ni", matrix_, points_) + offset_
         )
     else:
@@ -93,7 +93,7 @@ def _transform_affine_numpy(
 
 def _homogeneous_matrix(
     matrix: npt.ArrayLike | None = None, offset: npt.ArrayLike | None = None
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Combine transformation matrix and translation vector for dimension d into
     homogeneous (d+1, d+1) transformation
@@ -110,7 +110,7 @@ def _homogeneous_matrix(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         Homogeneous transformation matrix to be used with homogeneous
         coordinate vector. Array with shape (ndim+1, ndim+1).
     """
@@ -136,7 +136,7 @@ def _transform_affine_open3d(
     matrix: npt.ArrayLike | None = None,
     offset: npt.ArrayLike | None = None,
     pre_translation: npt.ArrayLike | None = None,
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Transform `points` or coordinates in `locdata` by an affine
     transformation using open3d.
@@ -160,7 +160,7 @@ def _transform_affine_open3d(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         Transformed coordinates.
     """
     if not HAS_DEPENDENCY["open3d"]:
@@ -215,7 +215,7 @@ def transform_affine(
     offset: npt.ArrayLike | None = None,
     pre_translation: npt.ArrayLike | None = None,
     method: Literal["numpy", "open3d"] = "numpy",
-) -> npt.NDArray[np.float_] | LocData:
+) -> npt.NDArray[np.float64] | LocData:
     """
     Transform `points` or coordinates in `locdata` by an affine transformation.
 
@@ -241,7 +241,7 @@ def transform_affine(
 
     Returns
     -------
-    npt.NDArray[np.float_] | LocData
+    npt.NDArray[np.float64] | LocData
         New localization data with transformed coordinates.
     """
     local_parameter = locals()

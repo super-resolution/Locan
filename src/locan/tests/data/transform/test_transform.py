@@ -52,7 +52,7 @@ def test_bunwarp_raw_transformation():
         path=locan.ROOT_DIR / "tests/test_data/transform/rapidSTORM_beads_red.asdf"
     )
 
-    fig, ax = plt.subplots(1, 1, figsize=(16, 8))
+    _fig, ax = plt.subplots(1, 1, figsize=(16, 8))
     render_2d_mpl(
         dat_red,
         ax=ax,

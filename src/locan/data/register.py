@@ -35,8 +35,8 @@ __all__: list[str] = ["register_icp", "register_cc"]
 
 
 class Transformation(NamedTuple):
-    matrix: npt.NDArray[np.float_]
-    offset: npt.NDArray[np.float_]
+    matrix: npt.NDArray[np.float64]
+    offset: npt.NDArray[np.float64]
 
 
 @needs_package("open3d")
@@ -220,7 +220,7 @@ def register_icp(
     return transformation
 
 
-def _xcorr(imageA: npt.ArrayLike, imageB: npt.ArrayLike) -> npt.NDArray[np.float_]:
+def _xcorr(imageA: npt.ArrayLike, imageB: npt.ArrayLike) -> npt.NDArray[np.float64]:
     """
     This function is adapted from picasso/imageprocess
     by Joerg Schnitzbauer, MPI of Biochemistry
@@ -231,7 +231,7 @@ def _xcorr(imageA: npt.ArrayLike, imageB: npt.ArrayLike) -> npt.NDArray[np.float
     imageB = np.asarray(imageB)
     FimageA = np.fft.fft2(imageA)
     CFimageB = np.conj(np.fft.fft2(imageB))
-    return_value: npt.NDArray[np.float_] = np.fft.fftshift(
+    return_value: npt.NDArray[np.float64] = np.fft.fftshift(
         np.real(np.fft.ifft2(FimageA * CFimageB))
     ) / np.sqrt(imageA.size)
     return return_value
@@ -403,7 +403,7 @@ def register_cc(
         else:
             bin_range_ = bin_range
 
-        image, bins_, labels_ = histogram(
+        image, _, _ = histogram(
             locdata,
             bins=bins,
             n_bins=n_bins,

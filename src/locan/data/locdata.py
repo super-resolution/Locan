@@ -616,15 +616,15 @@ class LocData:
             return self.dataframe
 
     @property
-    def coordinates(self) -> npt.NDArray[np.float_]:
+    def coordinates(self) -> npt.NDArray[np.float64]:
         """npt.NDArray[float]: Return all coordinate values."""
-        return_value: npt.NDArray[np.float_] = self.data[self.coordinate_keys].values
+        return_value: npt.NDArray[np.float64] = self.data[self.coordinate_keys].values
         return return_value
 
     @property
-    def centroid(self) -> npt.NDArray[np.float_]:
+    def centroid(self) -> npt.NDArray[np.float64]:
         """
-        npt.NDArray[np.float_]: Return coordinate values of the centroid
+        npt.NDArray[np.float64]: Return coordinate values of the centroid
         (being the property values for all coordinate labels).
         """
         return np.array(

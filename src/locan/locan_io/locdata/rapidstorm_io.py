@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 import os
-import xml.etree.ElementTree as etree
+import xml.etree.ElementTree as etree  # noqa: S405
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:

@@ -1,9 +1,9 @@
 # Use an official image for a Python runtime that is based on debian
-ARG PYTHON_VERSION=3.10
+ARG PYTHON_VERSION=3.11
 FROM python:${PYTHON_VERSION}-slim-bullseye
 
 ARG PYTHON_VERSION
-ARG ENVIRONMENT_NAME="locan_python"
+ARG ENVIRONMENT_NAME="locan"
 
 ENV PYTHON_VERSION=${PYTHON_VERSION} \
     ENVIRONMENT_NAME=${ENVIRONMENT_NAME}
@@ -34,11 +34,11 @@ WORKDIR /locan
 
 # Set up and activate virtual environment
 ENV VIRTUAL_ENV "/opt/venv"
-RUN python -m venv $VIRTUAL_ENV
+RUN python -m venv $VIRTUAL_ENV --upgrade-deps
 ENV PATH "$VIRTUAL_ENV/bin:$PATH"
 	
 # Update and install any needed packages and the project
-RUN pip install pip setuptools --trusted-host pypi.org --upgrade --no-cache-dir && \
+RUN pip install setuptools pip-tools --trusted-host pypi.org --no-cache-dir && \
     pip install .[test]
 
 # Volume for data
@@ -46,10 +46,9 @@ VOLUME ["/shared"]
 
 # Run a command when the container launches
 CMD today=$(date +"%Y-%m-%d") && \
-    base=${ENVIRONMENT_NAME}_$today && \
-    echo $PATH > "/shared/path_$base.txt" && \
-    pip freeze --all > "/shared/requirements_$base.txt" && \
-    date > "/shared/versions_$base.txt" && \
-    locan show_versions -e -v >> "/shared/versions_$base.txt" && \
-    date > "/shared/test_results_$base.txt" && \
-    locan test >> "/shared/test_results_$base.txt"
+    base="-linux-py"${PYTHON_VERSION}_$today && \
+    pip-compile --extra test --output-file "/shared/requirements$base.txt" pyproject.toml && \
+    date > "/shared/versions$base.txt" && \
+    locan show_versions -e -v >> "/shared/versions$base.txt" && \
+    date > "/shared/test_results$base.txt" && \
+    locan test >> "/shared/test_results$base.txt"

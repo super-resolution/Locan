@@ -68,7 +68,7 @@ def dependency_info(
     Parameters
     ----------
     extra_dependencies
-        Include extra dependencies as specified in setup.py
+        Include extra dependencies
 
     other_dependencies
         Include other module names.
@@ -92,7 +92,7 @@ def dependency_info(
             deps_info[modname] = importlib.metadata.version(modname)
         except importlib.metadata.PackageNotFoundError:
             deps_info[modname] = None
-    return deps_info
+    return dict(sorted(deps_info.items()))
 
 
 def show_versions(

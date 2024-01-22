@@ -129,7 +129,6 @@ dev = [
     "black~=23.0",
     "build",
     "coverage[toml]",
-    "locan[test]",
     "mypy",
     "pandas-stubs",  # required by mypy
     "pre-commit",

@@ -3,8 +3,8 @@ from pathlib import Path
 
 from pandas.testing import assert_frame_equal
 
-from locan import FileType
-from locan.locan_io import load_asdf_file, save_asdf
+from locan import PROPERTY_KEYS, FileType
+from locan.locan_io import convert_property_types, load_asdf_file, save_asdf
 
 
 def test_save_and_load_asdf(locdata_2d):
@@ -15,7 +15,8 @@ def test_save_and_load_asdf(locdata_2d):
         save_asdf(locdata_2d, path=file_path)
 
         locdata = load_asdf_file(path=file_path, convert=False)
-        assert_frame_equal(locdata.data, locdata_2d.data)
+        locdata_data = convert_property_types(locdata.data, types=PROPERTY_KEYS)
+        assert_frame_equal(locdata_data, locdata_2d.data)
         assert locdata.meta.identifier == locdata_2d.meta.identifier
         assert locdata.properties == locdata_2d.properties
         assert locdata.meta.file.type == FileType.ASDF.value

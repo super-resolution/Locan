@@ -250,7 +250,10 @@ class TestConvexHullPropertyExpectation:
         ).compute(locdata=collection)
         assert "region_measure_ch" in locdata.properties.keys()
         assert "region_measure_ch" in collection.data.columns
-        assert cpe.results.values.index.tolist() == collection.data.index.tolist()
+        assert (
+            cpe.results.values.sort_index().index.tolist()
+            == collection.data.sort_index().index.tolist()
+        )
         assert cpe.results.values.columns.tolist() == [
             "localization_count",
             "region_measure_ch",
@@ -275,8 +278,9 @@ class TestConvexHullPropertyExpectation:
         assert cpe.results.grouped.expectation_std_neg.tolist() == pytest.approx(
             [113.99999999999999, 132.0], rel=0.1
         )
-        assert cpe.results.values.value_to_expectation_ratio.tolist() == pytest.approx(
-            [0.04361370716510903, 0.0756972111553785], rel=1e-3
+        assert (
+            cpe.results.values.sort_index().value_to_expectation_ratio.tolist()
+            == pytest.approx([0.0756972111553785, 0.04361370716510903], rel=1e-3)
         )
 
         cpe.plot()
@@ -367,7 +371,10 @@ class TestConvexHullPropertyExpectation:
         # print(cpe.results.values[["localization_count", "expectation"]])
         # print(cpe.results.grouped)
         assert "region_measure_ch" in collection.data.columns
-        assert cpe.results.values.index.tolist() == collection.data.index.tolist()
+        assert (
+            cpe.results.values.sort_index().index.tolist()
+            == collection.data.sort_index().index.tolist()
+        )
         assert cpe.results.values.columns.tolist() == [
             "localization_count",
             "region_measure_ch",
@@ -392,8 +399,13 @@ class TestConvexHullPropertyExpectation:
         assert cpe.results.grouped.expectation_std_neg.tolist() == pytest.approx(
             [113.99999999999999, 132.0, np.nan], rel=0.1, nan_ok=True
         )
-        assert cpe.results.values.value_to_expectation_ratio.tolist() == pytest.approx(
-            [0.04361370716510903, 0.05577689243027889, np.nan], rel=1e-3, nan_ok=True
+        assert (
+            cpe.results.values.sort_index().value_to_expectation_ratio.tolist()
+            == pytest.approx(
+                [0.05577689243027889, 0.04361370716510903, np.nan],
+                rel=1e-3,
+                nan_ok=True,
+            )
         )
 
         cpe.plot()

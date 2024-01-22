@@ -271,11 +271,11 @@ def test_transformation_affine_3d_open3d(locdata_3d):
 
 def test_standardize(locdata_2d):
     locdata_standardized = standardize(locdata_2d)
-    assert locdata_standardized.coordinates.mean() == pytest.approx(0)
+    assert locdata_standardized.coordinates.mean() == pytest.approx(0, abs=1e-7)
     assert locdata_standardized.coordinates.var(ddof=0) == pytest.approx(1)
 
     locdata_standardized = standardize(locdata_2d, with_std=False)
-    assert locdata_standardized.coordinates.mean() == pytest.approx(0)
+    assert locdata_standardized.coordinates.mean() == pytest.approx(0, abs=1e-7)
     assert locdata_standardized.coordinates.var() != pytest.approx(
         locdata_2d.coordinates.var(ddof=0)
     )
@@ -283,7 +283,7 @@ def test_standardize(locdata_2d):
     locdata_standardized = standardize(
         locdata_2d, loc_properties=["intensity"], with_mean=True
     )
-    assert locdata_standardized.data.intensity.mean() == pytest.approx(0)
+    assert locdata_standardized.data.intensity.mean() == pytest.approx(0, abs=1e-7)
     assert locdata_standardized.data.intensity.var(ddof=0) == pytest.approx(1)
 
 

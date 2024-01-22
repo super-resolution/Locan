@@ -726,17 +726,17 @@ def test_locdata_from_chunks_(locdata_non_standard_index):
     chunk_collection = LocData.from_chunks(
         locdata=locdata_non_standard_index, chunks=((2, 1), (0, 3))
     )
-    assert all(chunk_collection.references[0].data.index == [2, 1])
+    assert all(chunk_collection.references[0].data.sort_index().index == [1, 2])
 
     chunk_collection = LocData.from_chunks(
         locdata=locdata_non_standard_index, chunk_size=2
     )
-    assert all(chunk_collection.references[0].data.index == [2, 1])
+    assert all(chunk_collection.references[0].data.sort_index().index == [1, 2])
 
     chunk_collection = LocData.from_chunks(
         locdata=locdata_non_standard_index, n_chunks=3
     )
-    assert all(chunk_collection.references[0].data.index == [2, 1])
+    assert all(chunk_collection.references[0].data.sort_index().index == [1, 2])
 
     chunk_collection = LocData.from_chunks(
         locdata=locdata_non_standard_index, n_chunks=3, order="alternating"

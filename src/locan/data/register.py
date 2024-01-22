@@ -10,13 +10,16 @@ Parts of this code is adapted from https://github.com/jungmannlab/picasso.
 """
 from __future__ import annotations
 
+import warnings
 from collections.abc import Sequence
+from functools import wraps
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 from lmfit import Model, Parameters
+from skimage.registration import phase_cross_correlation
 
 from locan.data.aggregate import Bins, histogram
 from locan.data.locdata import LocData
@@ -328,7 +331,7 @@ def _get_image_shift(
     return -yc, -xc
 
 
-def register_cc(
+def _register_cc_picasso(
     locdata: npt.ArrayLike | LocData,
     other_locdata: npt.ArrayLike | LocData,
     max_offset: int | float | None = None,
@@ -394,6 +397,13 @@ def register_cc(
     Transformation
         Matrix and offset representing the optimized transformation.
     """
+    warnings.warn(
+        "The function _register_cc_picasso is deprecated."
+        "Use _register_cc_skimage instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     if isinstance(locdata, LocData) and isinstance(other_locdata, LocData):
         bin_range_: tuple[float, float] | Sequence[float] | Sequence[
             Sequence[float]
@@ -433,3 +443,125 @@ def register_cc(
     offset_ = np.asarray(offset) * bin_size
 
     return Transformation(matrix, offset_)
+
+
+def _register_cc_skimage(
+    locdata: npt.ArrayLike | LocData,
+    other_locdata: npt.ArrayLike | LocData,
+    bins: Bins | bh.axis.Axis | bh.axis.AxesTuple | None = None,
+    n_bins: int | Sequence[int] | None = None,
+    bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
+    bin_range: tuple[float, float]
+    | Sequence[float]
+    | Sequence[Sequence[float]]
+    | Literal["zero", "link"]
+    | None = None,
+    **kwargs: Any,
+) -> Transformation:
+    """
+    Register `points` or coordinates in `locdata` by a
+    cross-correlation algorithm.
+
+    Parameters
+    ----------
+    locdata
+        Localization data representing the source on which to perform the
+        manipulation.
+    other_locdata
+        Localization data representing the target.
+    bins
+        Specific class specifying the bins.
+    bin_edges
+        Bin edges for all or each dimension
+        with shape (dimension, n_bin_edges).
+    bin_range
+        Minimum and maximum edge for all or each dimensions
+        with shape (2,) or (dimension, 2).
+        If None (min, max) ranges are determined from data and returned;
+        if 'zero' (0, max) ranges with max determined from data are returned.
+        if 'link' (min_all, max_all) ranges with min and max determined from
+        all combined data are returned.
+    n_bins
+        The number of bins for all or each dimension.
+        5 yields 5 bins in all dimensions.
+        (2, 5) yields 2 bins for one dimension and 5 for the other dimension.
+    bin_size
+        The size of bins for all or each bin and for all or each dimension
+        with shape (dimension,) or (dimension, n_bins).
+        5 would describe bin_size of 5 for all bins in all dimensions.
+        ((2, 5),) yield bins of size (2, 5) for one dimension.
+        (2, 5) yields bins of size 2 for one dimension and 5 for the other
+        dimension.
+        ((2, 5), (1, 3)) yields bins of size (2, 5) for one dimension and
+        (1, 3) for the other dimension.
+        To specify arbitrary sequence of `bin_size` use `bin_edges` instead.
+    kwargs
+        Other parameters passed to :func:`skimage.phase_cross_correlation`.
+
+    Returns
+    -------
+    Transformation
+        Matrix and offset representing the optimized transformation.
+    """
+    if isinstance(locdata, LocData) and isinstance(other_locdata, LocData):
+        bin_range_: tuple[float, float] | Sequence[float] | Sequence[
+            Sequence[float]
+        ] | Literal["zero", "link"] | None
+        if bin_range is None:
+            bin_range_ = range_from_collection([locdata, other_locdata])
+        else:
+            bin_range_ = bin_range
+
+        image, _, _ = histogram(
+            locdata,
+            bins=bins,
+            n_bins=n_bins,
+            bin_size=bin_size,
+            bin_edges=bin_edges,
+            bin_range=bin_range_,
+        )
+        other_image, _, _ = histogram(
+            other_locdata,
+            bins=bins,
+            n_bins=n_bins,
+            bin_size=bin_size,
+            bin_edges=bin_edges,
+            bin_range=bin_range_,
+        )
+
+    else:
+        image = np.asarray(locdata)
+        other_image = np.asarray(other_locdata)
+
+    dimension = image.ndim
+    matrix = np.identity(dimension)
+
+    shift, _, _ = phase_cross_correlation(
+        reference_image=other_image,
+        moving_image=image,
+        **dict(
+            dict(
+                upsample_factor=1,
+                disambiguate=False,
+                normalization=None,  # or 'phase'
+            ),
+            **kwargs,
+        ),
+    )
+    offset_ = np.asarray(shift) * bin_size
+
+    return Transformation(matrix, offset_)
+
+
+@wraps(_register_cc_skimage)
+def register_cc(*args, **kwargs):
+    warnings.warn(
+        "The function register_cc has been refactored. "
+        "The kwargs max_offset and verbose are deprecated . "
+        "It now calls _register_cc_skimage. "
+        "Use _register_cc_picasso for legacy behavior.",
+        UserWarning,
+        stacklevel=2,
+    )
+    return _register_cc_skimage(*args, **kwargs)

@@ -332,8 +332,6 @@ def test_Drift(locdata_blobs_2d):
 
     drift.transformation_models["matrix"] = None
     drift.transformation_models["offset"] = None
-    with pytest.raises(AttributeError):
-        drift._apply_correction_from_model(drift.locdata_rapidSTORM_2d)
 
     drift.fit_transformation(
         slice_data=slice(None),

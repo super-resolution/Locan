@@ -135,6 +135,22 @@ def show_Nanoimager_dstorm_data() -> None:
     plt.show()
 
 
+def show_npc_gp210_data() -> None:
+    file = "npc_gp210.asdf"
+    file_path = PATH_TEST_DATA / file
+    locdata = lc.load_asdf_file(path=file_path)
+    print("\n" + file + "\n")
+    print(locdata.meta)
+    print(list(locdata.data.columns), "\n")
+    print(locdata.data.describe())
+    lc.render_2d_mpl(
+        locdata=locdata.projection(coordinate_labels=["position_x", "position_y"]),
+        bin_size=10,
+        rescale=lc.Trafo.EQUALIZE,
+    )
+    plt.show()
+
+
 def show_protobuf_message_metadata_pb2_Metadata_v0p11() -> None:
     file = "protobuf_message_metadata_pb2.Metadata_v0p11"
     file_path = PATH_TEST_DATA / file
@@ -314,6 +330,7 @@ if __name__ == "__main__":
     # show_five_blobs_3D()
     # show_images()
     # show_Nanoimager_dstorm_data()
+    # show_npc_gp210_data()
     # show_protobuf_message_metadata_pb2_Metadata_v0p11()
     # show_protobuf_message_metadata_pb2_Metadata_v0p12()
     # show_rapidSTORM_dstorm_data()

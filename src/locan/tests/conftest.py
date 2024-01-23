@@ -9,8 +9,8 @@ import locan.data.metadata_pb2
 from locan import ROOT_DIR, LocData
 from locan.constants import PROPERTY_KEYS
 from locan.dependencies import HAS_DEPENDENCY
+from locan.locan_io.locdata.asdf_io import load_asdf_file
 from locan.locan_io.locdata.io_locdata import load_txt_file
-from locan.locan_io.locdata.rapidstorm_io import load_rapidSTORM_file
 from locan.locan_io.locdata.utilities import convert_property_types
 
 logger = logging.getLogger(__name__)
@@ -201,13 +201,13 @@ def locdata_non_standard_index():
 
 
 @pytest.fixture(scope="session")
-def locdata_rapidSTORM_2d():
+def locdata_dSTORM_2d():
     """
     Fixture for returning `LocData` carrying 2D localizations from
-    rapidSTORM_dstorm_data.txt.
+    npc_gp210.asdf.
     """
-    path = Path(ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_data.txt")
-    dat = load_rapidSTORM_file(path)
+    path = Path(ROOT_DIR / "tests/test_data/npc_gp210.asdf")
+    dat = load_asdf_file(path)
     dat.meta.creation_time.FromSeconds(1)
     return dat
 

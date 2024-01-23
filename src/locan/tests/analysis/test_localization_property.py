@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt  # needed for visual inspection  # noqa: F401
 import pandas as pd
 from scipy import stats
 
@@ -17,8 +18,8 @@ def test_test_LocalizationProperty_empty(caplog):
     ]
 
 
-def test_DistributionFits(locdata_rapidSTORM_2d):
-    lprop = LocalizationProperty().compute(locdata=locdata_rapidSTORM_2d)
+def test_DistributionFits(locdata_dSTORM_2d):
+    lprop = LocalizationProperty().compute(locdata=locdata_dSTORM_2d)
     assert repr(lprop) == "LocalizationProperty(loc_property=intensity, index=None)"
     ds = _DistributionFits(lprop)
     ds.fit(distribution=stats.expon)
@@ -31,12 +32,13 @@ def test_DistributionFits(locdata_rapidSTORM_2d):
     assert ds.parameter_dict()["intensity_loc"] == 1000
 
 
-def test_Localization_property(locdata_rapidSTORM_2d):
+def test_Localization_property(locdata_dSTORM_2d):
     lprop = LocalizationProperty(loc_property="intensity")
     assert not lprop
     lprop.plot()
     lprop.hist()
-    lprop.compute(locdata=locdata_rapidSTORM_2d)
+
+    lprop.compute(locdata=locdata_dSTORM_2d)
     assert lprop
     # print(lprop)
     assert repr(lprop) == "LocalizationProperty(loc_property=intensity, index=None)"
@@ -44,7 +46,9 @@ def test_Localization_property(locdata_rapidSTORM_2d):
     assert lprop.results.columns == pd.Index(["intensity"], dtype="object")
     assert lprop.distribution_statistics is None
     lprop.plot()
+    # plt.show()
     lprop.hist()
+    # plt.show()
     lprop.fit_distributions()
     assert list(lprop.distribution_statistics.parameter_dict().keys()) == [
         "intensity_loc",
@@ -52,7 +56,7 @@ def test_Localization_property(locdata_rapidSTORM_2d):
     ]
 
     lprop = LocalizationProperty(loc_property="intensity", index="frame").compute(
-        locdata=locdata_rapidSTORM_2d
+        locdata=locdata_dSTORM_2d
     )
     # print(lprop.results)
     assert lprop.results.index.name == "frame"

@@ -43,8 +43,8 @@ def test_SubpixelBias(locdata_simple):
 
 
 @pytest.mark.visual
-def test_DistributionFits(locdata_rapidSTORM_2d):
-    sb = SubpixelBias(pixel_size=130).compute(locdata_rapidSTORM_2d)
+def test_DistributionFits(locdata_dSTORM_2d):
+    sb = SubpixelBias(pixel_size=130).compute(locdata_dSTORM_2d)
     sb.hist()
     plt.legend()
     plt.show()

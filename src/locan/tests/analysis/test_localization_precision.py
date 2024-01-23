@@ -124,8 +124,8 @@ def test_Localization_precision(locdata_simple_2d):
 
 
 @pytest.mark.visual
-def test_Localization_precision_plot(locdata_rapidSTORM_2d):
-    lp = LocalizationPrecision().compute(locdata=locdata_rapidSTORM_2d)
+def test_Localization_precision_plot(locdata_dSTORM_2d):
+    lp = LocalizationPrecision().compute(locdata=locdata_dSTORM_2d)
     lp.plot(window=10)
     plt.show()
     print(lp.results)

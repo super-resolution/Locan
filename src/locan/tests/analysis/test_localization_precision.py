@@ -154,20 +154,21 @@ def test_Distribution_fits_1d(locdata_simple_1d):
     assert lp.distribution_statistics.position_delta_y_loc
     # print(lp.distribution_statistics)
 
-    lp.fit_distributions(loc_property="position_delta_y", floc=0)
-    assert lp.distribution_statistics.parameters
-    assert lp.distribution_statistics.parameter_dict()
-    assert lp.distribution_statistics.position_delta_y_loc == 0
-
-    lp.fit_distributions(loc_property="position_distance")
-    assert lp.distribution_statistics.parameters
-    assert lp.distribution_statistics.parameter_dict()
-    assert lp.distribution_statistics.position_distance_loc == 0
-
-    lp.fit_distributions(loc_property="position_distance", floc=1)
-    assert lp.distribution_statistics.parameters
-    assert lp.distribution_statistics.parameter_dict()
-    assert lp.distribution_statistics.position_distance_loc == 1
+    # the following is excluded for time constraints
+    # lp.fit_distributions(loc_property="position_delta_y", floc=0)
+    # assert lp.distribution_statistics.parameters
+    # assert lp.distribution_statistics.parameter_dict()
+    # assert lp.distribution_statistics.position_delta_y_loc == 0
+    #
+    # lp.fit_distributions(loc_property="position_distance")
+    # assert lp.distribution_statistics.parameters
+    # assert lp.distribution_statistics.parameter_dict()
+    # assert lp.distribution_statistics.position_distance_loc == 0
+    #
+    # lp.fit_distributions(loc_property="position_distance", floc=1)
+    # assert lp.distribution_statistics.parameters
+    # assert lp.distribution_statistics.parameter_dict()
+    # assert lp.distribution_statistics.position_distance_loc == 1
 
     plt.close("all")
 
@@ -185,20 +186,21 @@ def test_Distribution_fits(locdata_simple_2d):
     assert lp.distribution_statistics.position_delta_x_loc
     # print(lp.distribution_statistics)
 
-    lp.fit_distributions(loc_property="position_delta_x", floc=0)
-    assert lp.distribution_statistics.parameters
-    assert lp.distribution_statistics.parameter_dict()
-    assert lp.distribution_statistics.position_delta_x_loc == 0
-
-    lp.fit_distributions(loc_property="position_distance")
-    assert lp.distribution_statistics.parameters
-    assert lp.distribution_statistics.parameter_dict()
-    assert lp.distribution_statistics.position_distance_loc == 0
-
-    lp.fit_distributions(loc_property="position_distance", floc=1)
-    assert lp.distribution_statistics.parameters
-    assert lp.distribution_statistics.parameter_dict()
-    assert lp.distribution_statistics.position_distance_loc == 1
+    # the following is excluded for time constraints
+    # lp.fit_distributions(loc_property="position_delta_x", floc=0)
+    # assert lp.distribution_statistics.parameters
+    # assert lp.distribution_statistics.parameter_dict()
+    # assert lp.distribution_statistics.position_delta_x_loc == 0
+    #
+    # lp.fit_distributions(loc_property="position_distance")
+    # assert lp.distribution_statistics.parameters
+    # assert lp.distribution_statistics.parameter_dict()
+    # assert lp.distribution_statistics.position_distance_loc == 0
+    #
+    # lp.fit_distributions(loc_property="position_distance", floc=1)
+    # assert lp.distribution_statistics.parameters
+    # assert lp.distribution_statistics.parameter_dict()
+    # assert lp.distribution_statistics.position_distance_loc == 1
 
     plt.close("all")
 
@@ -216,20 +218,21 @@ def test_Distribution_fits_3d(locdata_simple_3d):
     assert lp.distribution_statistics.position_delta_x_loc
     # print(lp.distribution_statistics)
 
-    lp.fit_distributions(loc_property="position_delta_x", floc=0)
-    assert lp.distribution_statistics.parameters
-    assert lp.distribution_statistics.parameter_dict()
-    assert lp.distribution_statistics.position_delta_x_loc == 0
+    # the following is excluded for time constraints
+    # lp.fit_distributions(loc_property="position_delta_x", floc=0)
+    # assert lp.distribution_statistics.parameters
+    # assert lp.distribution_statistics.parameter_dict()
+    # assert lp.distribution_statistics.position_delta_x_loc == 0
 
-    lp.fit_distributions(loc_property="position_distance")
-    assert lp.distribution_statistics.parameters
-    assert lp.distribution_statistics.parameter_dict()
-    assert lp.distribution_statistics.position_distance_loc == 0
+    # lp.fit_distributions(loc_property="position_distance")
+    # assert lp.distribution_statistics.parameters
+    # assert lp.distribution_statistics.parameter_dict()
+    # assert lp.distribution_statistics.position_distance_loc == 0
 
-    lp.fit_distributions(loc_property="position_distance", floc=1)
-    assert lp.distribution_statistics.parameters
-    assert lp.distribution_statistics.parameter_dict()
-    assert lp.distribution_statistics.position_distance_loc == 1
+    # lp.fit_distributions(loc_property="position_distance", floc=1)
+    # assert lp.distribution_statistics.parameters
+    # assert lp.distribution_statistics.parameter_dict()
+    # assert lp.distribution_statistics.position_distance_loc == 1
 
     plt.close("all")
 

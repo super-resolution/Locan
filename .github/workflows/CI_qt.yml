@@ -22,9 +22,9 @@ jobs:
       - name: "Install and upgrade"
         run: |
           python -m pip install --upgrade pip
-      - name: "Install locan[dev]"
+      - name: "Install locan[test,dev]"
         run: |
-          python -m pip install .[dev]
+          python -m pip install .[test,dev]
       - name: "Format with black"
         run: black --check --diff "."
       - name: "Lint with ruff"
@@ -74,7 +74,7 @@ jobs:
           verbose: true
 
       - name: "Freeze requirements"
-        run: pip-compile pyproject.toml --extra test --output-file ${{ env.REQUIREMENTS_FILE }}
+        run: pip-compile pyproject.toml --extra all --output-file ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"
         uses: actions/upload-artifact@v3
         with:

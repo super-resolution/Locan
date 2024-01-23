@@ -555,7 +555,7 @@ def _register_cc_skimage(
 
 
 @wraps(_register_cc_skimage)
-def register_cc(*args, **kwargs):
+def register_cc(*args: Any, **kwargs: Any) -> Transformation:
     warnings.warn(
         "The function register_cc has been refactored. "
         "The kwargs max_offset and verbose are deprecated . "

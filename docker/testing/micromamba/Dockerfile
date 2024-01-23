@@ -10,10 +10,11 @@ USER root
 RUN ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 
 # Install GL library and remove package manager cache
+# install git for setuptools_scm to deal with locan source distribution versioning
 RUN apt-get update && \
-    apt-get install libgl1-mesa-dev -y && \
-    # install git for setuptools_scm to deal with locan source distribution versioning
-    apt-get install -qqy git && \
+    apt-get install -yq \
+        libgl1-mesa-dev \
+        git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -25,10 +26,10 @@ FROM base AS build
 # Copy the current directory contents into the container
 COPY --chown=$MAMBA_USER:$MAMBA_USER . locan
 
-RUN micromamba install  \
-    --yes  \
-    --name base  \
-    --file ./locan/environment.yml  \
+RUN micromamba install \
+    --yes \
+    --name base \
+    --file ./locan/environment.yml \
     python=${PYTHON_VERSION} && \
     micromamba clean --yes --all
 

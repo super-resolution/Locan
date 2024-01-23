@@ -118,11 +118,11 @@ docs = [
     "furo",
     "ipython",
     "myst-nb",
-    "ray",
+    "pydantic<2",
+    "ray[default]",
     "sphinx",
     "sphinx_autodoc_typehints",
     "sphinx-copybutton",
-    "sphinx_rtd_theme",
 ]
 dev = [
     "asv",

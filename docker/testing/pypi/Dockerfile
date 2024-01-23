@@ -15,13 +15,14 @@ LABEL maintainer="LocanDevelopers" \
 RUN ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 
 # Install gcc compiler and remove package manager cache
+# install libgtk2.0-dev libgl1 for slim-bullseye when building wheels e.g. for scikit-image
+# install git for setuptools_scm to deal with locan source distribution versioning
 RUN apt-get update && \
-    apt-get install gcc -yq && \
-    # the following package is needed for slim-bullseye
-    # when building wheels e.g. for scikit-image
-    apt-get install -yq libgtk2.0-dev libgl1 && \
-    # install git for setuptools_scm to deal with locan source distribution versioning
-    apt-get install -yq git && \
+    apt-get install -yq \
+        gcc \
+        libgtk2.0-dev \
+        libgl1 \
+        git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -36,7 +37,9 @@ RUN python -m venv $VIRTUAL_ENV --upgrade-deps
 ENV PATH "$VIRTUAL_ENV/bin:$PATH"
 
 # Update and install any needed packages and the project
-RUN pip install setuptools pip-tools --trusted-host pypi.org --no-cache-dir && \
+RUN pip install --trusted-host pypi.org --no-cache-dir \
+        setuptools \
+        pip-tools && \
     pip install .[test]
 
 # Volume for data
@@ -45,7 +48,10 @@ VOLUME ["/shared"]
 # Run a command when the container launches
 CMD today=$(date +"%Y-%m-%d") && \
     base="-linux-py"${PYTHON_VERSION}_$today && \
-    pip-compile --extra test --output-file "/shared/requirements$base.txt" pyproject.toml && \
+    requirements_file="/shared/requirements_test$base.txt" && \
+    pip-compile --extra test --output-file $requirements_file pyproject.toml && \
+    lock_file="$requirements_file-frozen.txt" && \
+    pip freeze --requirement $requirements_file > $lock_file && \
     date > "/shared/versions$base.txt" && \
     locan show_versions -e -v >> "/shared/versions$base.txt" && \
     date > "/shared/test_results$base.txt" && \

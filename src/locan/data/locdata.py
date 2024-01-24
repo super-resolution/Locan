@@ -106,7 +106,7 @@ class LocData:
         dataframe: pd.DataFrame | None = None,
         indices: int
         | list[int | bool]
-        | npt.NDArray[np.int_ | np.bool_]
+        | npt.NDArray[np.int64 | np.bool_]
         | slice
         | pd.Index[int]
         | None = None,
@@ -125,7 +125,7 @@ class LocData:
             pd.DataFrame() if dataframe is None else dataframe
         )
         self.indices: int | list[int | bool] | npt.NDArray[
-            np.int_ | np.bool_
+            np.int64 | np.bool_
         ] | slice | pd.Index[int] | None = indices
         self.meta: metadata_pb2.Metadata = metadata_pb2.Metadata()
         self.properties: dict[str, Any] = {}
@@ -748,7 +748,7 @@ class LocData:
         locdata: LocData,
         indices: int
         | list[int | bool]
-        | npt.NDArray[np.int_ | np.bool_]
+        | npt.NDArray[np.int64 | np.bool_]
         | slice
         | pd.Index[int]
         | None = None,

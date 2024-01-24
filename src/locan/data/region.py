@@ -185,7 +185,7 @@ class RoiRegion:
 
         return cls(region_type=region_type, region_specs=region_specs)
 
-    def contains(self, points) -> npt.NDArray[np.int_]:  # type: ignore
+    def contains(self, points) -> npt.NDArray[np.int64]:  # type: ignore
         """
         Return list of indices for all points that are inside the region of
         interest.
@@ -198,7 +198,7 @@ class RoiRegion:
 
         Returns
         -------
-        npt.NDArray[np.int_]
+        npt.NDArray[np.int64]
             Array with indices for all points in original point array that are
             within the region.
         """
@@ -445,7 +445,7 @@ class Region(ABC):
         return self.symmetric_difference(other)
 
     @abstractmethod
-    def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int_ | np.int64]:
+    def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64 | np.int64]:
         """
         Return list of indices for all points that are inside the region
         of interest.
@@ -458,7 +458,7 @@ class Region(ABC):
 
         Returns
         -------
-        npt.NDArray[np.int_]
+        npt.NDArray[np.int64]
             Array with indices for all points in original point array that are
             within the region.
         """
@@ -831,8 +831,8 @@ class EmptyRegion(Region):
     def union(self, other: Region) -> Region:
         return other
 
-    def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int_]:
-        return np.array([], dtype=np.int_)
+    def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
+        return np.array([], dtype=np.int64)
 
     def as_artist(self, **kwargs: Any) -> None:
         raise NotImplementedError("EmptyRegion cannot return an artist.")
@@ -1184,7 +1184,7 @@ class Rectangle(Region2D):
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         points = np.asarray(points)
         if points.size == 0:
-            return np.array([], dtype=np.int_)
+            return np.array([], dtype=np.int64)
         polygon_path = mpl_path.Path(self.points, closed=True)
         mask = polygon_path.contains_points(points)
         inside_indices = np.nonzero(mask)[0]

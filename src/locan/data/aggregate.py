@@ -1013,7 +1013,7 @@ class Bins:
         return self._boost_histogram_axes
 
 
-def _histogram_fast_histogram(data: npt.ArrayLike, bins: Bins) -> npt.NDArray[np.int_]:
+def _histogram_fast_histogram(data: npt.ArrayLike, bins: Bins) -> npt.NDArray[np.int64]:
     """
     Provide histogram with counts in each bin.
 
@@ -1026,11 +1026,11 @@ def _histogram_fast_histogram(data: npt.ArrayLike, bins: Bins) -> npt.NDArray[np
 
     Returns
     -------
-    npt.NDArray[np.int_]
+    npt.NDArray[np.int64]
     """
     data = np.asarray(data)
     if data.shape[0] == 1:
-        img: npt.NDArray[np.int_] = fast_histogram.histogram1d(
+        img: npt.NDArray[np.int64] = fast_histogram.histogram1d(
             data, range=bins.bin_range[0], bins=bins.n_bins[0]
         )
     elif data.shape[0] == 2:
@@ -1040,7 +1040,9 @@ def _histogram_fast_histogram(data: npt.ArrayLike, bins: Bins) -> npt.NDArray[np
     return img
 
 
-def _histogram_boost_histogram(data: npt.ArrayLike, bins: Bins) -> npt.NDArray[np.int_]:
+def _histogram_boost_histogram(
+    data: npt.ArrayLike, bins: Bins
+) -> npt.NDArray[np.int64]:
     """
     Provide histogram with counts in each bin.
 
@@ -1053,10 +1055,10 @@ def _histogram_boost_histogram(data: npt.ArrayLike, bins: Bins) -> npt.NDArray[n
 
     Returns
     -------
-    npt.NDArray[np.int_]
+    npt.NDArray[np.int64]
     """
     hist = bh.Histogram(*bins.boost_histogram_axes).fill(*data)  # type: ignore
-    img: npt.NDArray[np.int_] = hist.view()
+    img: npt.NDArray[np.int64] = hist.view()
     return img
 
 
@@ -1144,7 +1146,7 @@ def histogram(
     | Sequence[Sequence[float]]
     | Literal["zero", "link"]
     | None = None,
-) -> tuple[npt.NDArray[np.int_ | np.float64], Bins, list[str]]:
+) -> tuple[npt.NDArray[np.int64 | np.float64], Bins, list[str]]:
     """
     Make histogram of loc_properties (columns in `locdata.data`)
     by binning all localizations
@@ -1189,11 +1191,11 @@ def histogram(
 
     Returns
     -------
-    namedtuple('Histogram', "data bins labels"): (npt.NDArray[np.int_ | np.float64], Bins, list[str])
+    namedtuple('Histogram', "data bins labels"): (npt.NDArray[np.int64 | np.float64], Bins, list[str])
     """
     labels_ = _check_loc_properties(locdata, loc_properties)
     data = locdata.data[labels_].values.T
-    img: npt.NDArray[np.int_ | np.float64]
+    img: npt.NDArray[np.int64 | np.float64]
 
     if (
         (bin_range is None or isinstance(bin_range, str))
@@ -1259,7 +1261,7 @@ def _accumulate_1d(
     return_data: bool = False,
     return_counts: bool = False,
 ) -> tuple[
-    npt.NDArray[np.int_], list[int], list[int] | None, npt.NDArray[np.int_] | None
+    npt.NDArray[np.int64], list[int], list[int] | None, npt.NDArray[np.int64] | None
 ]:
     """
     Bin data and collect data elements contained in each bin.
@@ -1285,7 +1287,7 @@ def _accumulate_1d(
 
     Returns
     -------
-    tuple[npt.NDArray[np.int_], list[int], list[int] | None, npt.NDArray[np.int_] | None]
+    tuple[npt.NDArray[np.int64], list[int], list[int] | None, npt.NDArray[np.int64] | None]
         bin_indices, data_indices, collection, counts.
     """
     data_ = np.array(data)
@@ -1321,7 +1323,7 @@ def _accumulate_2d(
     return_data: bool = False,
     return_counts: bool = False,
 ) -> tuple[
-    npt.NDArray[np.int_], list[int], list[int] | None, npt.NDArray[np.int_] | None
+    npt.NDArray[np.int64], list[int], list[int] | None, npt.NDArray[np.int64] | None
 ]:
     """
     Bin data and collect data elements contained in each bin.
@@ -1343,7 +1345,7 @@ def _accumulate_2d(
 
     Returns
     -------
-    tuple[npt.NDArray[np.int_], list[int], list[int] | None, npt.NDArray[np.int_] | None]
+    tuple[npt.NDArray[np.int64], list[int], list[int] | None, npt.NDArray[np.int64] | None]
         bin_indices, data_indices, collection, counts.
     """
     data_ = np.array(data)

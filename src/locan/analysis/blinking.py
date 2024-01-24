@@ -40,7 +40,7 @@ def _blink_statistics(
     locdata: LocData | npt.ArrayLike,
     memory: int = 0,
     remove_heading_off_periods: bool = True,
-) -> dict[str, npt.NDArray[np.int_ | np.float64] | list[int | float]]:
+) -> dict[str, npt.NDArray[np.int64 | np.float64] | list[int | float]]:
     """
     Estimate on and off times from the frame values provided.
 
@@ -199,12 +199,12 @@ class BlinkStatistics(_Analysis):
         A dictionary with all settings for the current computation.
     meta : metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
-    results : dict[str, npt.NDArray[np.int_ | np.float64] | list[int | float]] | None
+    results : dict[str, npt.NDArray[np.int64 | np.float64] | list[int | float]] | None
         'on_periods' and 'off_periods' in units of frame numbers.
         'on_periods_frame' and 'off_periods_frame' with the first frame in
         each on/off-period.
         'on_periods_indices' are groups of indices to the input frames or more
-         precise np.unique(frames)
+        precise np.unique(frames)
     distribution_statistics : dict[str, Any]
         Distribution parameters derived from MLE fitting of results.
     """
@@ -221,7 +221,7 @@ class BlinkStatistics(_Analysis):
         super().__init__(**parameters)
 
         self.results: dict[
-            str, npt.NDArray[np.int_ | np.float64] | list[int | float]
+            str, npt.NDArray[np.int64 | np.float64] | list[int | float]
         ] | None = None
         self.distribution_statistics: dict[str, Any] = {}
 

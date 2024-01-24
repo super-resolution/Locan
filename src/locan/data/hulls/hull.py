@@ -105,7 +105,7 @@ class _ConvexHullScipy:
     vertices : npt.NDArray[np.float64]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
-    vertex_indices : npt.NDArray[np.int_]
+    vertex_indices : npt.NDArray[np.int64]
         Indices identifying a polygon of all points that make up the hull.
     points_on_boundary : int
         absolute number of points that are part of the convex hull.
@@ -171,7 +171,7 @@ class _ConvexHullShapely:
     vertices : npt.NDArray[np.float64]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
-    vertex_indices : npt.NDArray[np.int_]
+    vertex_indices : npt.NDArray[np.int64]
         indices identifying a polygon of all points that make up the hull
     points_on_boundary : int
         The absolute number of points on the hull
@@ -250,7 +250,7 @@ class ConvexHull:
     vertices : npt.NDArray[np.float64]
         Coordinates of points that make up the hull.
         Array of shape (ndim, 2).
-    vertex_indices : npt.NDArray[np.int_]
+    vertex_indices : npt.NDArray[np.int64]
         indices identifying a polygon of all points that make up the hull
     points_on_boundary : int
         The absolute number of points on the hull

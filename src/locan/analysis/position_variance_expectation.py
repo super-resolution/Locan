@@ -303,7 +303,7 @@ class PositionVarianceExpectation(_Analysis):
         fit
             Flag indicating if distribution fit is shown.
             The fit will only be computed if `distribution_statistics`
-             is None.
+            is None.
         kwargs
             Other parameters passed to :func:`matplotlib.pyplot.pcolormesh`.
 

@@ -58,7 +58,7 @@ def render_3d_napari_image(
     """
     Render localization data into a 3D image by binning x,y,z-coordinates into
     regular bins.
-     Provide layer data for napari.
+    Provide layer data for napari.
 
     Parameters
     ----------

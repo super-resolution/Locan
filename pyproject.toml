@@ -121,7 +121,7 @@ docs = [
     "pydantic<2",
     "ray[default]",
     "sphinx",
-    "sphinx_autodoc_typehints",
+    "sphinx-autodoc-typehints",
     "sphinx-copybutton",
 ]
 dev = [

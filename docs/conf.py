@@ -49,7 +49,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
-    "sphinx_autodoc_typehints",
     "sphinx.ext.inheritance_diagram",
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
@@ -57,8 +56,9 @@ extensions = [
     "IPython.sphinxext.ipython_console_highlighting",
     "IPython.sphinxext.ipython_directive",
     "myst_nb",
-    # 'sphinx_rtd_theme',
+    "sphinx_autodoc_typehints",
     "sphinx_copybutton",
+    # 'sphinx_rtd_theme',
 ]
 
 # autosummary settings

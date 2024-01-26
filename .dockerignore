@@ -134,6 +134,6 @@ cython_debug
 **/.ssh
 
 # Project specific
-docker
+#docker
 singularity
 src/locan/_version.py

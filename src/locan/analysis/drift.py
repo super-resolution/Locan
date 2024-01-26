@@ -995,13 +995,14 @@ class Drift(_Analysis):
 
         # new LocData object
         new_dataframe = locdata_orig.data.copy()
-        new_dataframe.update(
-            pd.DataFrame(
-                transformed_points,
-                columns=locdata_orig.coordinate_keys,
-                index=locdata_orig.data.index,
-            )
+        df = pd.DataFrame(
+            transformed_points,
+            columns=locdata_orig.coordinate_keys,
+            index=locdata_orig.data.index,
         )
+        # cast dtypes
+        df = df.astype(new_dataframe[locdata_orig.coordinate_keys].dtypes)
+        new_dataframe.update(df)
         new_locdata = LocData.from_dataframe(new_dataframe)
 
         # update metadata

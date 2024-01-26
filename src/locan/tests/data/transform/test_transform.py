@@ -44,7 +44,9 @@ def test_bunwarp_raw_transformation():
         locdata=dat_green, matrix_path=matrix_path, pixel_size=(10, 10), flip=True
     )
     assert len(dat_green_transformed) == len(dat_green)
-    assert np.array_equal(dat_green_transformed.coordinates, new_points)
+    assert np.array_equal(
+        dat_green_transformed.coordinates, new_points.astype("float32")
+    )
     assert dat_green_transformed.meta.history[-1].name == "bunwarp"
 
     # for visual inspection
@@ -331,15 +333,15 @@ def test_overlay(locdata_two_cluster_2d):
     orientations = [ref.oriented_bounding_box.angle for ref in clust.references]
     new_locdata = overlay(clust.references, orientations=orientations)
     assert len(new_locdata) == 2
-    assert 0 == pytest.approx(new_locdata.coordinates)
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=1e-8)
 
     new_locdata = overlay(clust.references, orientations="orientation_obb")
     assert len(new_locdata) == 2
-    assert 0 == pytest.approx(new_locdata.coordinates)
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=1e-8)
 
     new_locdata = overlay(clust.references, orientations="orientation_im")
     assert len(new_locdata) == 2
-    assert 0 == pytest.approx(new_locdata.coordinates)
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=1e-8)
 
     with pytest.raises(ValueError):
         overlay(clust.references, orientations="undefined")

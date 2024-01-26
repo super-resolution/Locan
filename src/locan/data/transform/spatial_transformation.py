@@ -270,13 +270,16 @@ def transform_affine(
     if isinstance(locdata, LocData):
         # new LocData object
         new_dataframe = locdata.data.copy()
-        new_dataframe.update(
-            pd.DataFrame(
-                transformed_points,
-                columns=locdata.coordinate_keys,
-                index=locdata.data.index,
-            )
+        df = pd.DataFrame(
+            transformed_points,
+            columns=locdata.coordinate_keys,
+            index=locdata.data.index,
         )
+        # cast dtypes
+        columns_intersection = list(set(df.columns) & set(locdata.coordinate_keys))
+        df = df.astype(new_dataframe[columns_intersection].dtypes)
+
+        new_dataframe.update(df)
         new_locdata = LocData.from_dataframe(new_dataframe)
 
         # update metadata
@@ -340,13 +343,16 @@ def standardize(
     transformed_data = scale(data, with_mean=with_mean, with_std=with_std)
 
     new_dataframe = locdata.data.copy()
-    new_dataframe.update(
-        pd.DataFrame(
-            transformed_data,
-            columns=labels_,
-            index=locdata.data.index,
-        )
+    df = pd.DataFrame(
+        transformed_data,
+        columns=labels_,
+        index=locdata.data.index,
     )
+    # cast dtypes
+    columns_intersection = list(set(df.columns) & set(labels_))
+    df = df.astype(new_dataframe[columns_intersection].dtypes)
+    new_dataframe.update(df)
+
     new_locdata = LocData.from_dataframe(new_dataframe)
 
     # update metadata
@@ -391,6 +397,7 @@ def overlay(
     LocData
         Collection with transformed locdatas.
     """
+    logger.info("I as here")
     local_parameter = locals()
 
     if not locdatas or not isinstance(locdatas, (tuple, list)):

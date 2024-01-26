@@ -165,13 +165,16 @@ def add_drift(
 
     # new LocData object
     new_dataframe = locdata.data.copy()
-    new_dataframe.update(
-        pd.DataFrame(
-            transformed_points,
-            columns=locdata.coordinate_keys,
-            index=locdata.data.index,
-        )
+
+    df = pd.DataFrame(
+        transformed_points,
+        columns=locdata.coordinate_keys,
+        index=locdata.data.index,
     )
+    # cast dtypes
+    df = df.astype(new_dataframe[locdata.coordinate_keys].dtypes)
+
+    new_dataframe.update(df)
     new_locdata = LocData.from_dataframe(new_dataframe)
 
     # update metadata

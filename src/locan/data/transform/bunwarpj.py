@@ -119,10 +119,10 @@ def _read_matrix(
     matrix_size = np.array([width, height])
 
     matrix_x = pd.read_csv(
-        path, skiprows=4, header=None, nrows=matrix_size[1], delim_whitespace=True
+        path, skiprows=4, header=None, nrows=matrix_size[1], sep=r"\s+"
     ).values.T  # transform values to get array[x, y]
     matrix_y = pd.read_csv(
-        path, skiprows=(6 + matrix_size[1]), header=None, delim_whitespace=True
+        path, skiprows=(6 + matrix_size[1]), header=None, sep=r"\s+"
     ).values.T  # transform values to get array[x, y]
 
     return matrix_x, matrix_y
@@ -172,6 +172,10 @@ def bunwarp(
         {"position_x": new_points[:, 0], "position_y": new_points[:, 1]},
         index=locdata.data.index,
     )
+    # cast dtypes
+    columns_intersection = list(set(df.columns) & set(new_dataframe.columns))
+    df = df.astype(new_dataframe[columns_intersection].dtypes)
+
     new_dataframe.update(df)
     new_locdata = LocData.from_dataframe(new_dataframe)
 

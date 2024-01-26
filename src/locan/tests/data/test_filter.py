@@ -208,7 +208,7 @@ def test_exclude_sparse_points(locdata_simple):
     new_locdata = exclude_sparse_points(locdata=locdata_simple, radius=3, min_samples=2)
     assert len(new_locdata) == 4
     # todo: check if the correct points are taken
-    locdata_simple_trans = transform_affine(locdata_simple, offset=(0.5, 0, 0))
+    locdata_simple_trans = transform_affine(locdata_simple, offset=(1.5, 0, 0))
     new_locdata = exclude_sparse_points(
         locdata=locdata_simple,
         other_locdata=locdata_simple_trans,

@@ -72,10 +72,10 @@ ConvexHullExpectationResource = dict(
 
 
 class ConvexHullExpectationValues(NamedTuple):
-    n_points: list[int] | npt.NDArray[np.int_]
-    expectation: npt.NDArray[np.int_ | np.float_]
-    std_pos: npt.NDArray[np.float_]
-    std_neg: npt.NDArray[np.float_]
+    n_points: list[int] | npt.NDArray[np.int64]
+    expectation: npt.NDArray[np.int64 | np.float64]
+    std_pos: npt.NDArray[np.float64]
+    std_neg: npt.NDArray[np.float64]
 
 
 def _get_resource(
@@ -509,7 +509,7 @@ class ConvexHullExpectation(_Analysis):
         fit
             Flag indicating if distribution fit is shown.
             The fit will only be computed if `distribution_statistics`
-             is None.
+            is None.
         kwargs
             Other parameters passed to :func:`matplotlib.pyplot.pcolormesh`.
 

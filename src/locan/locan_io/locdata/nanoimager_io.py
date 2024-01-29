@@ -91,7 +91,7 @@ def load_Nanoimager_file(
     Parameters
     ----------
     path
-        File path for a Nanoimager file to load.
+        File path for a file to load.
     nrows
         The number of localizations to load from file. None means that all
         available rows are loaded.

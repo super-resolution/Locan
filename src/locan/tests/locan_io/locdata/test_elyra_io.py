@@ -45,7 +45,7 @@ def test_loading_Elyra_file():
     file_path = locan.ROOT_DIR / "tests/test_data/Elyra_dstorm_data.txt"
     dat = load_Elyra_file(path=file_path)
     # loading is not limited by nrows=10 to ensure correct treatment of file appendix and NUL character.
-    assert len(dat) == 999
+    assert len(dat) == 15
     assert dat.meta.file.type == FileType.ELYRA.value
     assert dat.meta.file.path == str(file_path)
 

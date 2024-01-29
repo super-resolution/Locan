@@ -35,7 +35,7 @@ class InertiaMoments(NamedTuple):
     eccentricity: float
 
 
-def distance_to_region(locdata: LocData, region: Region) -> npt.NDArray[np.float_]:
+def distance_to_region(locdata: LocData, region: Region) -> npt.NDArray[np.float64]:
     """
     Determine the distance to the nearest point within `region` for all
     localizations.
@@ -51,7 +51,7 @@ def distance_to_region(locdata: LocData, region: Region) -> npt.NDArray[np.float
 
     Returns
     --------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         Distance for each localization.
     """
     distances = np.full(len(locdata), 0.0)
@@ -66,7 +66,7 @@ def distance_to_region(locdata: LocData, region: Region) -> npt.NDArray[np.float
 
 def distance_to_region_boundary(
     locdata: LocData, region: Region
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Determine the distance to the nearest region boundary for all
     localizations.
@@ -83,7 +83,7 @@ def distance_to_region_boundary(
 
     Returns
     --------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         Distance for each localization.
     """
     distances = np.full(len(locdata), 0.0)

@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 
 class WeightedMeanVariance(NamedTuple):
-    weighted_mean: float | npt.NDArray[np.float_]
-    weighted_mean_variance: float | npt.NDArray[np.float_]
+    weighted_mean: float | npt.NDArray[np.float64]
+    weighted_mean_variance: float | npt.NDArray[np.float64]
 
 
 def weighted_mean_variance(
@@ -121,7 +121,7 @@ def ratio_fwhm_to_sigma() -> float:
 
 def biased_variance(
     variance: npt.ArrayLike, n_samples: npt.ArrayLike
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     The sample variance is biased if not corrected by Bessel's correction.
     This function yields the biased variance by applying the inverse
@@ -141,9 +141,9 @@ def biased_variance(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
     """
     variance = np.asarray(variance)
     n_samples = np.asarray(n_samples)
-    return_value: npt.NDArray[np.float_] = variance * (1 - 1 / n_samples)
+    return_value: npt.NDArray[np.float64] = variance * (1 - 1 / n_samples)
     return return_value

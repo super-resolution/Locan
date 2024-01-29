@@ -1,7 +1,12 @@
 import numpy as np
 import pytest
 
-from locan.data.register import register_cc, register_icp
+from locan.data.register import (
+    _register_cc_picasso,
+    _register_cc_skimage,
+    register_cc,
+    register_icp,
+)
 from locan.data.transform import transform_affine
 from locan.dependencies import HAS_DEPENDENCY
 
@@ -52,19 +57,56 @@ def test_register_icp_3d(locdata_blobs_3d):
     assert np.allclose(matrix, matrix_target)
 
 
-def test_register_cc(locdata_blobs_2d):
+def test__register_cc_picasso(locdata_blobs_2d):
     locdata_2d_transformed = transform_affine(locdata_blobs_2d, offset=(100, 50))
+
     offset_target = np.array([100.0, 50.0])
     matrix_target = np.array([[1, 0], [0, 1]])
 
-    matrix, offset = register_cc(
+    matrix, offset = _register_cc_picasso(
         locdata_blobs_2d, locdata_2d_transformed, bin_size=50, verbose=False
     )
     assert np.allclose(np.array(offset), offset_target, atol=5)
     assert np.allclose(matrix, matrix_target)
 
-    matrix, offset = register_cc(
+    matrix, offset = _register_cc_picasso(
         locdata_blobs_2d, locdata_2d_transformed, bin_size=(10, 50), verbose=False
+    )
+    assert np.allclose(np.array(offset), offset_target, atol=5)
+    assert np.allclose(matrix, matrix_target)
+
+
+def test__register_cc_skimage(locdata_blobs_2d):
+    locdata_2d_transformed = transform_affine(locdata_blobs_2d, offset=(100, 50))
+
+    offset_target = np.array([100.0, 50.0])
+    matrix_target = np.array([[1, 0], [0, 1]])
+
+    matrix, offset = _register_cc_skimage(
+        locdata_blobs_2d, locdata_2d_transformed, bin_size=50
+    )
+    assert np.allclose(np.array(offset), offset_target, atol=5)
+    assert np.allclose(matrix, matrix_target)
+
+    matrix, offset = _register_cc_skimage(
+        locdata_blobs_2d, locdata_2d_transformed, bin_size=(10, 50)
+    )
+    assert np.allclose(np.array(offset), offset_target, atol=5)
+    assert np.allclose(matrix, matrix_target)
+
+
+def test_register_cc(locdata_blobs_2d):
+    locdata_2d_transformed = transform_affine(locdata_blobs_2d, offset=(100, 50))
+
+    offset_target = np.array([100.0, 50.0])
+    matrix_target = np.array([[1, 0], [0, 1]])
+
+    matrix, offset = register_cc(locdata_blobs_2d, locdata_2d_transformed, bin_size=50)
+    assert np.allclose(np.array(offset), offset_target, atol=5)
+    assert np.allclose(matrix, matrix_target)
+
+    matrix, offset = register_cc(
+        locdata_blobs_2d, locdata_2d_transformed, bin_size=(10, 50)
     )
     assert np.allclose(np.array(offset), offset_target, atol=5)
     assert np.allclose(matrix, matrix_target)

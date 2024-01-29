@@ -37,7 +37,7 @@ def _circumcircle(points: npt.ArrayLike, simplex: list[int]) -> tuple[float, flo
     return S / a, np.sqrt(b / a + np.linalg.norm(S) ** 2 / a**2)  # center, radius
 
 
-def _half_distance(points: npt.ArrayLike) -> npt.NDArray[np.float_]:
+def _half_distance(points: npt.ArrayLike) -> npt.NDArray[np.float64]:
     """
     Half the distance between two points.
 
@@ -52,7 +52,7 @@ def _half_distance(points: npt.ArrayLike) -> npt.NDArray[np.float_]:
         Half the distance between the two points.
     """
     points = np.asarray(points)
-    return_value: npt.NDArray[np.float_] = (
+    return_value: npt.NDArray[np.float64] = (
         np.sqrt((points[1, 0] - points[0, 0]) ** 2 + (points[1, 1] - points[0, 1]) ** 2)
         / 2
     )  # radius = _half_distance

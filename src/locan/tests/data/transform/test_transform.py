@@ -44,7 +44,9 @@ def test_bunwarp_raw_transformation():
         locdata=dat_green, matrix_path=matrix_path, pixel_size=(10, 10), flip=True
     )
     assert len(dat_green_transformed) == len(dat_green)
-    assert np.array_equal(dat_green_transformed.coordinates, new_points)
+    assert np.array_equal(
+        dat_green_transformed.coordinates, new_points.astype("float32")
+    )
     assert dat_green_transformed.meta.history[-1].name == "bunwarp"
 
     # for visual inspection
@@ -52,7 +54,7 @@ def test_bunwarp_raw_transformation():
         path=locan.ROOT_DIR / "tests/test_data/transform/rapidSTORM_beads_red.asdf"
     )
 
-    fig, ax = plt.subplots(1, 1, figsize=(16, 8))
+    _fig, ax = plt.subplots(1, 1, figsize=(16, 8))
     render_2d_mpl(
         dat_red,
         ax=ax,
@@ -271,11 +273,11 @@ def test_transformation_affine_3d_open3d(locdata_3d):
 
 def test_standardize(locdata_2d):
     locdata_standardized = standardize(locdata_2d)
-    assert locdata_standardized.coordinates.mean() == pytest.approx(0)
+    assert locdata_standardized.coordinates.mean() == pytest.approx(0, abs=1e-7)
     assert locdata_standardized.coordinates.var(ddof=0) == pytest.approx(1)
 
     locdata_standardized = standardize(locdata_2d, with_std=False)
-    assert locdata_standardized.coordinates.mean() == pytest.approx(0)
+    assert locdata_standardized.coordinates.mean() == pytest.approx(0, abs=1e-7)
     assert locdata_standardized.coordinates.var() != pytest.approx(
         locdata_2d.coordinates.var(ddof=0)
     )
@@ -283,7 +285,7 @@ def test_standardize(locdata_2d):
     locdata_standardized = standardize(
         locdata_2d, loc_properties=["intensity"], with_mean=True
     )
-    assert locdata_standardized.data.intensity.mean() == pytest.approx(0)
+    assert locdata_standardized.data.intensity.mean() == pytest.approx(0, abs=1e-7)
     assert locdata_standardized.data.intensity.var(ddof=0) == pytest.approx(1)
 
 
@@ -331,15 +333,15 @@ def test_overlay(locdata_two_cluster_2d):
     orientations = [ref.oriented_bounding_box.angle for ref in clust.references]
     new_locdata = overlay(clust.references, orientations=orientations)
     assert len(new_locdata) == 2
-    assert 0 == pytest.approx(new_locdata.coordinates)
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=1e-8)
 
     new_locdata = overlay(clust.references, orientations="orientation_obb")
     assert len(new_locdata) == 2
-    assert 0 == pytest.approx(new_locdata.coordinates)
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=1e-8)
 
     new_locdata = overlay(clust.references, orientations="orientation_im")
     assert len(new_locdata) == 2
-    assert 0 == pytest.approx(new_locdata.coordinates)
+    assert 0 == pytest.approx(new_locdata.coordinates, abs=1e-8)
 
     with pytest.raises(ValueError):
         overlay(clust.references, orientations="undefined")

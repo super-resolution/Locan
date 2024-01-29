@@ -7,9 +7,11 @@ import pytest
 
 import locan.data.metadata_pb2
 from locan import ROOT_DIR, LocData
+from locan.constants import PROPERTY_KEYS
 from locan.dependencies import HAS_DEPENDENCY
+from locan.locan_io.locdata.asdf_io import load_asdf_file
 from locan.locan_io.locdata.io_locdata import load_txt_file
-from locan.locan_io.locdata.rapidstorm_io import load_rapidSTORM_file
+from locan.locan_io.locdata.utilities import convert_property_types
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +82,7 @@ def locdata_single_localization():
         "intensity": np.array([1]),
     }
     df = pd.DataFrame(locdata_dict)
+    df = convert_property_types(df, types=PROPERTY_KEYS)
     meta_ = locan.data.metadata_pb2.Metadata()
     meta_.creation_time.seconds = 1
     return LocData.from_dataframe(dataframe=df, meta=meta_)
@@ -98,6 +101,7 @@ def locdata_single_localization_3d():
         "intensity": np.array([1]),
     }
     df = pd.DataFrame(locdata_dict)
+    df = convert_property_types(df, types=PROPERTY_KEYS)
     meta_ = locan.data.metadata_pb2.Metadata()
     meta_.creation_time.seconds = 1
     return LocData.from_dataframe(dataframe=df, meta=meta_)
@@ -114,6 +118,7 @@ def locdata_1d():
         "intensity": np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(locdata_dict)
+    df = convert_property_types(df, types=PROPERTY_KEYS)
     meta_ = locan.data.metadata_pb2.Metadata()
     meta_.creation_time.seconds = 1
     return LocData.from_dataframe(dataframe=df, meta=meta_)
@@ -131,6 +136,7 @@ def locdata_2d():
         "intensity": np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(locdata_dict)
+    df = convert_property_types(df, types=PROPERTY_KEYS)
     meta_ = locan.data.metadata_pb2.Metadata()
     meta_.creation_time.seconds = 1
     return LocData.from_dataframe(dataframe=df, meta=meta_)
@@ -149,6 +155,7 @@ def locdata_2d_negative():
         "intensity": np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(locdata_dict)
+    df = convert_property_types(df, types=PROPERTY_KEYS)
     meta_ = locan.data.metadata_pb2.Metadata()
     meta_.creation_time.seconds = 1
     return LocData.from_dataframe(dataframe=df, meta=meta_)
@@ -167,6 +174,7 @@ def locdata_3d():
         "intensity": np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(locdata_dict)
+    df = convert_property_types(df, types=PROPERTY_KEYS)
     meta_ = locan.data.metadata_pb2.Metadata()
     meta_.creation_time.seconds = 1
     return LocData.from_dataframe(dataframe=df, meta=meta_)
@@ -185,6 +193,7 @@ def locdata_non_standard_index():
         "intensity": np.array([100, 150, 110, 80, 105, 95]),
     }
     df = pd.DataFrame(locdata_dict)
+    df = convert_property_types(df, types=PROPERTY_KEYS)
     df.index = [2, 1, 5, 10, 100, 200]
     meta_ = locan.data.metadata_pb2.Metadata()
     meta_.creation_time.seconds = 1
@@ -192,13 +201,13 @@ def locdata_non_standard_index():
 
 
 @pytest.fixture(scope="session")
-def locdata_rapidSTORM_2d():
+def locdata_dSTORM_2d():
     """
     Fixture for returning `LocData` carrying 2D localizations from
-    rapidSTORM_dstorm_data.txt.
+    npc_gp210.asdf.
     """
-    path = Path(ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_data.txt")
-    dat = load_rapidSTORM_file(path)
+    path = Path(ROOT_DIR / "tests/test_data/npc_gp210.asdf")
+    dat = load_asdf_file(path)
     dat.meta.creation_time.FromSeconds(1)
     return dat
 
@@ -240,6 +249,7 @@ def locdata_two_cluster_2d():
         "cluster_label": np.array([1, 1, 1, 2, 2, 2]),
     }
     df = pd.DataFrame(locdata_dict)
+    df = convert_property_types(df, types=PROPERTY_KEYS)
     meta_ = locan.data.metadata_pb2.Metadata()
     meta_.creation_time.seconds = 1
     locdata = LocData.from_dataframe(dataframe=df, meta=meta_)
@@ -262,6 +272,7 @@ def locdata_two_cluster_with_noise_2d():
         "cluster_label": np.array([1, 1, 1, 2, 2, 2, -1]),
     }
     df = pd.DataFrame(locdata_dict)
+    df = convert_property_types(df, types=PROPERTY_KEYS)
     meta_ = locan.data.metadata_pb2.Metadata()
     meta_.creation_time.seconds = 1
     locdata = LocData.from_dataframe(dataframe=df, meta=meta_)

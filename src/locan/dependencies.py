@@ -5,9 +5,11 @@ Optional dependencies are defined in pyproject.toml.
 
 In any module that requires an optional dependency the import should be
 conditioned:
+
     if HAS_DEPENDENCY["package"]: import package
 
 Any function that makes use of the optional dependency should be decorated with
+
     @needs_package("package")
 
 

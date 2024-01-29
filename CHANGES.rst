@@ -11,7 +11,9 @@ New Features
 
 API Changes
 -----------
-- ...
+- change color of contours to gray in LocalizationProperty2d
+- sort show_versions output
+- add register method based on skimage and refactor register_cc
 
 Bug Fixes
 ---------
@@ -19,7 +21,15 @@ Bug Fixes
 
 Other Changes and Additions
 ---------------------------
-- ...
+- various changes to documentation
+- lint for numpy=2.0 and fix new ruff issues
+- refactor: gitignore
+- refactor dockerfiles
+- add tool show_test_data to show test data
+- remove requirements.txt and requirements_dev.txt
+- fix tests to be compatible with pandas 2.2.0
+- speed up tests for localization_precision
+- optimize test data
 
 0.19 - 2023-12-12
 =================

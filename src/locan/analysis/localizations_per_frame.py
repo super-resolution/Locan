@@ -164,8 +164,8 @@ class LocalizationsPerFrame(_Analysis):
         in `locdata`.
     time_delta : int | float | str | pd.Timedelta | None
         Time per frame in milliseconds. String must specify the unit like
-        "10ms".
-         For "integration_time" the time is taken from
+        '10ms'.
+        For 'integration_time' the time is taken from
         locdata.meta.experiment.setups[0].optical_units[0].detection.camera.integration_time
     resample : DateOffset | Timedelta | str
         Parameter for :func:`pandas.Series.resample`: The offset string or

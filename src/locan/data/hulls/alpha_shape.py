@@ -435,16 +435,16 @@ class AlphaComplex:
             return_value = np.max([ac[1] for ac in self.lines])
         return return_value
 
-    def alphas(self) -> npt.NDArray[np.float_]:
+    def alphas(self) -> npt.NDArray[np.float64]:
         """
         Return alpha values at which the corresponding alpha shape changes.
 
         Returns
         -------
-        npt.NDArray[np.float_]
+        npt.NDArray[np.float64]
         """
         if len(self.lines) == 0:
-            return np.array([], dtype=np.float_)
+            return np.array([], dtype=np.float64)
         else:
             return np.unique([ac[1:] for ac in self.lines])
 
@@ -635,7 +635,7 @@ class AlphaShape:
         return self.alpha_complex.get_alpha_complex_lines(self.alpha, type="all")
 
     @property
-    def vertices(self) -> npt.NDArray[np.float_]:
+    def vertices(self) -> npt.NDArray[np.float64]:
         return self.points[self.vertex_indices]
 
     @property
@@ -645,7 +645,7 @@ class AlphaShape:
         return return_value
 
     @property
-    def vertices_alpha_shape(self) -> npt.NDArray[np.float_]:
+    def vertices_alpha_shape(self) -> npt.NDArray[np.float64]:
         return self.points[self.vertex_alpha_shape_indices]
 
     @property

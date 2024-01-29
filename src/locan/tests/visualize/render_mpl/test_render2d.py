@@ -48,7 +48,7 @@ def test_render_2d_mpl(locdata_blobs_2d):
     render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range=None, rescale=(0, 50))
     render_2d_mpl(locdata_blobs_2d, bin_size=100, bin_range="zero")
 
-    fig, ax = plt.subplots(nrows=1, ncols=2)
+    _fig, ax = plt.subplots(nrows=1, ncols=2)
     render_2d_mpl(locdata_blobs_2d, ax=ax[0])
     render_2d_mpl(locdata_blobs_2d, bin_range="zero", ax=ax[1])
 

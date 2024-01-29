@@ -201,7 +201,7 @@ def test_Rectangle():
 
 def test_Rectangle_visual():
     region = Rectangle((0, 0), 2, 1, 90)
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*region.points.T, marker="o", color="Blue")
     ax.add_patch(region.as_artist(origin=(0, 0), fill=True, alpha=0.2))
     ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker=".", color="Red")
@@ -255,7 +255,7 @@ def test_Ellipse():
 
 def test_Ellipse_visual():
     region = Ellipse((10, 10), 4, 2, 90)
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*region.points.T, marker="o", color="Blue")
     ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker=".", color="Red")
     ax.add_patch(region.as_artist(origin=(0, 0), fill=True, alpha=0.2))
@@ -316,7 +316,7 @@ def test_Polygon():
 def test_Polygon_visual():
     points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
     region = Polygon(points)
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*region.points.T, marker=".", color="Blue")
     ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker=".", color="Red")
     ax.add_patch(region.as_artist(fill=True, alpha=0.2))
@@ -397,7 +397,7 @@ def test_Polygon_with_holes_visual():
         ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45)),
     ]
     region = Polygon(points, holes)
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*region.points.T, marker="o", color="Blue")
     ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker=".", color="Red")
     ax.add_patch(region.as_artist(fill=True, alpha=0.2))
@@ -463,7 +463,7 @@ def test_Polygon_from_shapely_visual():
     shapely_polygon = shPolygon(points, holes)
     region = Polygon.from_shapely(shapely_polygon)
 
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*region.points.T, marker="o", color="Blue")
     ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker=".", color="Red")
     ax.add_patch(region.as_artist(fill=True, alpha=0.2))
@@ -539,7 +539,7 @@ def test_MultiPolygon_visual():
     region_1 = Polygon(points, holes)
     region = MultiPolygon([region_0, region_1])
 
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     for polygon in region.polygons:
         ax.plot(*polygon.points.T, marker="o", color="Blue")
         ax.plot(
@@ -596,7 +596,7 @@ def test_Polygon_union_visual():
     region_1 = Polygon(points, holes)
     region = region_0.union(region_1)
 
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color="Red"))
     ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color="Green"))
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
@@ -607,7 +607,7 @@ def test_Polygon_union_visual():
     # visualize points inside
     points = np.random.default_rng().random(size=(1_000, 2)) * 10
     points_inside = points[region.contains(points)]
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*points_inside.T, ".", markersize=1, color="Blue")
     ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     plt.show()
@@ -638,7 +638,7 @@ def test_Polygon_union_ragged_visual():
     region_1 = Polygon(points, holes)
     region = region_0.union(region_1)
 
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color="Red"))
     ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color="Green"))
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
@@ -649,7 +649,7 @@ def test_Polygon_union_ragged_visual():
     # visualize points inside
     points = np.random.default_rng().random(size=(1_000, 2)) * 10
     points_inside = points[region.contains(points)]
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*points_inside.T, ".", markersize=1, color="Blue")
     ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     plt.show()
@@ -696,7 +696,7 @@ def test_Polygon_intersection_visual():
     region_1 = Polygon(points, holes)
     region = region_0.intersection(region_1)
 
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color="Red"))
     ax.add_patch(region_1.as_artist(fill=True, alpha=0.2, color="Green"))
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
@@ -707,7 +707,7 @@ def test_Polygon_intersection_visual():
     # visualize points inside
     points = np.random.default_rng().random(size=(100_000, 2)) * 10
     points_inside = points[region.contains(points)]
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*points_inside.T, ".", markersize=1, color="Blue")
     ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     plt.show()
@@ -752,7 +752,7 @@ def test_Polygon_difference_visual():
     other_region = Polygon(points, holes)
     region = region_0.symmetric_difference(other_region)
 
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.add_patch(region_0.as_artist(fill=True, alpha=0.2, color="Red"))
     ax.add_patch(other_region.as_artist(fill=True, alpha=0.2, color="Green"))
     ax.add_patch(region.as_artist(fill=True, alpha=0.2, color="Blue"))
@@ -763,7 +763,7 @@ def test_Polygon_difference_visual():
     # visualize points inside
     points = np.random.default_rng().random(size=(100_000, 2)) * 10
     points_inside = points[region.contains(points)]
-    fig, ax = plt.subplots(nrows=1, ncols=1)
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.plot(*points_inside.T, ".", markersize=1, color="Blue")
     ax.add_patch(region.as_artist(fill=True, alpha=0.2))
     plt.show()

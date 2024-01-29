@@ -347,14 +347,14 @@ class PairwiseDistance1d(stats.rv_continuous):
         mu: npt.ArrayLike,
         sigma_1: npt.ArrayLike,
         sigma_2: npt.ArrayLike,
-    ) -> npt.NDArray[np.float_]:
+    ) -> npt.NDArray[np.float64]:
         x = np.asarray(x)
         mu = np.asarray(mu)
         sigma_1 = np.asarray(sigma_1)
         sigma_2 = np.asarray(sigma_2)
 
         sigma = np.sqrt(sigma_1**2 + sigma_2**2)
-        return_value: npt.NDArray[np.float_] = (
+        return_value: npt.NDArray[np.float64] = (
             np.sqrt(2 / np.pi)
             / sigma
             * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
@@ -399,14 +399,14 @@ class PairwiseDistance2d(stats.rv_continuous):
         mu: npt.ArrayLike,
         sigma_1: npt.ArrayLike,
         sigma_2: npt.ArrayLike,
-    ) -> npt.NDArray[np.float_]:
+    ) -> npt.NDArray[np.float64]:
         x = np.asarray(x)
         mu = np.asarray(mu)
         sigma_1 = np.asarray(sigma_1)
         sigma_2 = np.asarray(sigma_2)
 
         sigma = np.sqrt(sigma_1**2 + sigma_2**2)
-        return_value: npt.NDArray[np.float_] = (
+        return_value: npt.NDArray[np.float64] = (
             x
             / (sigma**2)
             * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
@@ -445,12 +445,12 @@ class PairwiseDistance2dIdenticalSigma(stats.rv_continuous):
 
     def _pdf(
         self, x: npt.ArrayLike, mu: npt.ArrayLike, sigma: npt.ArrayLike
-    ) -> npt.NDArray[np.float_]:
+    ) -> npt.NDArray[np.float64]:
         x = np.asarray(x)
         mu = np.asarray(mu)
         sigma = np.asarray(sigma)
 
-        return_value: npt.NDArray[np.float_] = (
+        return_value: npt.NDArray[np.float64] = (
             x
             / (sigma**2)
             * np.exp(-(mu**2 + x**2) / (2 * sigma**2))
@@ -495,7 +495,7 @@ class PairwiseDistance3d(stats.rv_continuous):
         mu: npt.ArrayLike,
         sigma_1: npt.ArrayLike,
         sigma_2: npt.ArrayLike,
-    ) -> npt.NDArray[np.float_]:
+    ) -> npt.NDArray[np.float64]:
         x = np.asarray(x)
         mu = np.asarray(mu)
         sigma_1 = np.asarray(sigma_1)
@@ -503,7 +503,7 @@ class PairwiseDistance3d(stats.rv_continuous):
 
         sigma = np.sqrt(sigma_1**2 + sigma_2**2)
         if all(mu == 0):
-            return_value: npt.NDArray[np.float_] = (
+            return_value: npt.NDArray[np.float64] = (
                 np.sqrt(2 / np.pi)
                 * x
                 / sigma
@@ -549,11 +549,11 @@ class PairwiseDistance1dIdenticalSigmaZeroMu(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(self, x: npt.ArrayLike, sigma: npt.ArrayLike) -> npt.NDArray[np.float_]:
+    def _pdf(self, x: npt.ArrayLike, sigma: npt.ArrayLike) -> npt.NDArray[np.float64]:
         x = np.asarray(x)
         sigma = np.asarray(sigma)
 
-        return_value: npt.NDArray[np.float_] = (
+        return_value: npt.NDArray[np.float64] = (
             np.sqrt(2 / np.pi) / sigma * np.exp(-(x**2) / (2 * sigma**2))
         )
         return return_value
@@ -585,11 +585,11 @@ class PairwiseDistance2dIdenticalSigmaZeroMu(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(self, x: npt.ArrayLike, sigma: npt.ArrayLike) -> npt.NDArray[np.float_]:
+    def _pdf(self, x: npt.ArrayLike, sigma: npt.ArrayLike) -> npt.NDArray[np.float64]:
         x = np.asarray(x)
         sigma = np.asarray(sigma)
 
-        return_value: npt.NDArray[np.float_] = (
+        return_value: npt.NDArray[np.float64] = (
             x / (sigma**2) * np.exp(-(x**2) / (2 * sigma**2))
         )
         return return_value
@@ -621,11 +621,11 @@ class PairwiseDistance3dIdenticalSigmaZeroMu(stats.rv_continuous):
        doi.org/10.1529/biophysj.105.065599.
     """
 
-    def _pdf(self, x: npt.ArrayLike, sigma: npt.ArrayLike) -> npt.NDArray[np.float_]:
+    def _pdf(self, x: npt.ArrayLike, sigma: npt.ArrayLike) -> npt.NDArray[np.float64]:
         x = np.asarray(x)
         sigma = np.asarray(sigma)
 
-        return_value: npt.NDArray[np.float_] = (
+        return_value: npt.NDArray[np.float64] = (
             np.sqrt(2 / np.pi)
             * x
             / sigma

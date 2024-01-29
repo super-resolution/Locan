@@ -12,52 +12,50 @@ from locan.analysis.localizations_per_frame import (
 )
 
 
-def test__localizations_per_frame(caplog, locdata_rapidSTORM_2d):
-    series = _localizations_per_frame(locdata=locdata_rapidSTORM_2d)
-    assert len(series) == 48
-    assert series.iloc[0] == 22
-    assert series.index[-1] == 47
+def test__localizations_per_frame(caplog, locdata_dSTORM_2d):
+    series = _localizations_per_frame(locdata=locdata_dSTORM_2d)
+    assert len(series) == 202
+    assert series.iloc[0] == 1
+    assert series.index[-1] == 24909
     assert series.name == "n_localizations"
 
     series = _localizations_per_frame(
-        locdata=locdata_rapidSTORM_2d, norm=2, time_delta=None
+        locdata=locdata_dSTORM_2d, norm=2, time_delta=None
     )
-    assert len(series) == 48
-    assert series.iloc[0] == 11
-    assert series.index[-1] == 47
+    assert len(series) == 202
+    assert series.iloc[0] == 0.5
+    assert series.index[-1] == 24909
     assert series.name == "n_localizations / 2"
 
-    series = _localizations_per_frame(locdata=locdata_rapidSTORM_2d, norm=2)
-    assert len(series) == 48
-    assert series.iloc[0] == 11
-    assert series.index[-1] == 47
+    series = _localizations_per_frame(locdata=locdata_dSTORM_2d, norm=2)
+    assert len(series) == 202
+    assert series.iloc[0] == 0.5
+    assert series.index[-1] == 24909
 
     series = _localizations_per_frame(
-        locdata=locdata_rapidSTORM_2d, time_delta=pd.Timedelta(10, "ms")
+        locdata=locdata_dSTORM_2d, time_delta=pd.Timedelta(10, "ms")
     )
-    assert len(series) == 48
-    assert series.iloc[0] == 22
-    assert series.index[-1].value == 47 * 10_000_000
+    assert len(series) == 202
+    assert series.iloc[0] == 1
+    assert series.index[-1].value == 24909 * 10_000_000
     assert series.name == "n_localizations"
 
-    series = _localizations_per_frame(locdata=locdata_rapidSTORM_2d, time_delta="10ms")
-    assert len(series) == 48
-    assert series.iloc[0] == 22
-    assert series.index[-1].value == 47 * 10_000_000
+    series = _localizations_per_frame(locdata=locdata_dSTORM_2d, time_delta="10ms")
+    assert len(series) == 202
+    assert series.iloc[0] == 1
+    assert series.index[-1].value == 24909 * 10_000_000
     assert series.name == "n_localizations"
 
-    series = _localizations_per_frame(
-        locdata=locdata_rapidSTORM_2d, time_delta="10000us"
-    )
-    assert len(series) == 48
-    assert series.iloc[0] == 22
-    assert series.index[-1].value == 47 * 10_000_000
+    series = _localizations_per_frame(locdata=locdata_dSTORM_2d, time_delta="10000us")
+    assert len(series) == 202
+    assert series.iloc[0] == 1
+    assert series.index[-1].value == 24909 * 10_000_000
     assert series.name == "n_localizations"
 
-    series = _localizations_per_frame(locdata=locdata_rapidSTORM_2d, time_delta=10)
-    assert len(series) == 48
-    assert series.iloc[0] == 22
-    assert series.index[-1].value == 47 * 10_000_000
+    series = _localizations_per_frame(locdata=locdata_dSTORM_2d, time_delta=10)
+    assert len(series) == 202
+    assert series.iloc[0] == 1
+    assert series.index[-1].value == 24909 * 10_000_000
     assert series.name == "n_localizations"
 
     series = _localizations_per_frame(locdata=range(10))
@@ -67,11 +65,11 @@ def test__localizations_per_frame(caplog, locdata_rapidSTORM_2d):
     assert series.name == "n_localizations"
 
     series = _localizations_per_frame(
-        locdata=locdata_rapidSTORM_2d, time_delta=10, resample="100ms"
+        locdata=locdata_dSTORM_2d, time_delta=10, resample="100ms"
     )
-    assert len(series) == 5
-    assert series.iloc[0] == 215
-    assert series.index[-1].value == 400_000_000
+    assert len(series) == 2489
+    assert series.iloc[0] == 3
+    assert series.index[-1].value == 249_040_000_000
     assert series.name == "n_localizations"
 
     with pytest.raises(TypeError):
@@ -100,7 +98,7 @@ def test__localizations_per_frame(caplog, locdata_rapidSTORM_2d):
         ),
     ]
 
-    locdata_with_meta = deepcopy(locdata_rapidSTORM_2d)
+    locdata_with_meta = deepcopy(locdata_dSTORM_2d)
     setup = locdata_with_meta.meta.experiment.setups.add()
     ou = setup.optical_units.add()
     ou.detection.camera.integration_time.FromMilliseconds(10)
@@ -108,14 +106,14 @@ def test__localizations_per_frame(caplog, locdata_rapidSTORM_2d):
     series = _localizations_per_frame(
         locdata=locdata_with_meta, time_delta="integration_time"
     )
-    assert len(series) == 48
-    assert series.iloc[0] == 22
-    assert series.index[-1].value == 47 * 10_000_000
+    assert len(series) == 202
+    assert series.iloc[0] == 1
+    assert series.index[-1].value == 24909 * 10_000_000
     assert series.name == "n_localizations"
 
 
 class TestLocalizationsPerFrame:
-    def test_init(self, locdata_rapidSTORM_2d):
+    def test_init(self, locdata_dSTORM_2d):
         lpf = LocalizationsPerFrame(meta={"comment": "this is an example"})
         assert (
             str(lpf)
@@ -142,18 +140,18 @@ class TestLocalizationsPerFrame:
 
         plt.close("all")
 
-    def test_compute(self, locdata_rapidSTORM_2d):
-        lpf = LocalizationsPerFrame().compute(locdata=locdata_rapidSTORM_2d)
+    def test_compute(self, locdata_dSTORM_2d):
+        lpf = LocalizationsPerFrame().compute(locdata=locdata_dSTORM_2d)
         assert isinstance(lpf.results, _Results)
         assert isinstance(lpf.results.time_series, pd.Series)
 
         # print(lpf.results.time_series.head())
-        assert len(lpf.results.time_series) == 48
-        assert lpf.results.time_series.iloc[0] == 22
-        assert lpf.results.time_series.index[-1] == 47
+        assert len(lpf.results.time_series) == 202
+        assert lpf.results.time_series.iloc[0] == 1
+        assert lpf.results.time_series.index[-1] == 24909
 
-        assert lpf.results.accumulation_time() == 22
-        assert lpf.results.accumulation_time(fraction=0.8) == 38
+        assert lpf.results.accumulation_time() == 6268
+        assert lpf.results.accumulation_time(fraction=0.8) == 13708
 
         lpf.plot()
         lpf.plot(window=10)
@@ -165,10 +163,10 @@ class TestLocalizationsPerFrame:
 
         plt.close("all")
 
-    def test_resample(self, locdata_rapidSTORM_2d):
+    def test_resample(self, locdata_dSTORM_2d):
         lpf = LocalizationsPerFrame(
             norm="localization_density_bb", time_delta=1000, resample="1s"
-        ).compute(locdata=locdata_rapidSTORM_2d)
+        ).compute(locdata=locdata_dSTORM_2d)
         assert (
             lpf.results.time_series.name == "n_localizations / localization_density_bb"
         )
@@ -180,22 +178,22 @@ class TestLocalizationsPerFrame:
 
         plt.close("all")
 
-    def test_norm(self, locdata_rapidSTORM_2d):
-        lpf = LocalizationsPerFrame(norm=5).compute(locdata=locdata_rapidSTORM_2d)
+    def test_norm(self, locdata_dSTORM_2d):
+        lpf = LocalizationsPerFrame(norm=5).compute(locdata=locdata_dSTORM_2d)
         assert lpf.results.time_series.name == "n_localizations / 5"
 
-        locdata_rapidSTORM_2d_ = deepcopy(locdata_rapidSTORM_2d)
-        od = locdata_rapidSTORM_2d_.meta.experiment.setups.add().optical_units.add()
+        locdata_dSTORM_2d_ = deepcopy(locdata_dSTORM_2d)
+        od = locdata_dSTORM_2d_.meta.experiment.setups.add().optical_units.add()
         od.detection.camera.integration_time.FromMilliseconds(10)
-        lpf = LocalizationsPerFrame(norm=None).compute(locdata=locdata_rapidSTORM_2d_)
+        lpf = LocalizationsPerFrame(norm=None).compute(locdata=locdata_dSTORM_2d_)
         assert lpf.results.time_series.name == "n_localizations"
 
 
 @pytest.mark.visual
 class TestLocalizationsPerFrameVisual:
     @pytest.fixture()
-    def lpf(self, locdata_rapidSTORM_2d):
-        return LocalizationsPerFrame().compute(locdata=locdata_rapidSTORM_2d)
+    def lpf(self, locdata_dSTORM_2d):
+        return LocalizationsPerFrame().compute(locdata=locdata_dSTORM_2d)
 
     def test_plot(self, lpf):
         lpf.plot()
@@ -220,8 +218,8 @@ class TestLocalizationsPerFrameVisual:
 
 
 class TestDistributionFits:
-    def test_fit(self, locdata_rapidSTORM_2d):
-        lpf = LocalizationsPerFrame().compute(locdata=locdata_rapidSTORM_2d)
+    def test_fit(self, locdata_dSTORM_2d):
+        lpf = LocalizationsPerFrame().compute(locdata=locdata_dSTORM_2d)
         distribution_statistics = _DistributionFits(lpf)
         # print(distribution_statistics)
         assert distribution_statistics.parameter_dict() == {}

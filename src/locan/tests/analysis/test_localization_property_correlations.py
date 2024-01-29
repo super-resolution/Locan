@@ -13,19 +13,20 @@ def test_Localization_property_correlations_empty(caplog):
     ]
 
 
-def test_Localization_property_correlations(locdata_rapidSTORM_2d):
-    lpcorr = LocalizationPropertyCorrelations().compute(locdata=locdata_rapidSTORM_2d)
+def test_Localization_property_correlations(locdata_dSTORM_2d):
+    lpcorr = LocalizationPropertyCorrelations().compute(locdata=locdata_dSTORM_2d)
     # print(lpcorr.results)
-    for i in range(len(locdata_rapidSTORM_2d.data.columns)):
+    for i in range(len(locdata_dSTORM_2d.data.columns)):
         assert lpcorr.results.iloc[i, i] == pytest.approx(1)
 
     lpcorr = LocalizationPropertyCorrelations(
         loc_properties=["intensity", "local_background"]
-    ).compute(locdata=locdata_rapidSTORM_2d)
+    ).compute(locdata=locdata_dSTORM_2d)
     for i in range(2):
         assert lpcorr.results.iloc[i, i] == pytest.approx(1)
 
     lpcorr.plot()
+
     # lpcorr.plot(cbar=False, vmin=0)
     # plt.show()
 

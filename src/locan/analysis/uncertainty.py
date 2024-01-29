@@ -46,13 +46,13 @@ __all__: list[str] = ["LocalizationUncertainty"]
 
 logger = logging.getLogger(__name__)
 
-LocalizationPrecisionModel = Callable[..., npt.NDArray[np.float_]]
+LocalizationPrecisionModel = Callable[..., npt.NDArray[np.float64]]
 
 
 # The algorithms
 
 
-def localization_precision_model_1(intensity: npt.ArrayLike) -> npt.NDArray[np.float_]:
+def localization_precision_model_1(intensity: npt.ArrayLike) -> npt.NDArray[np.float64]:
     """
     Localization precision as function of
     intensity (I) according to:
@@ -69,16 +69,16 @@ def localization_precision_model_1(intensity: npt.ArrayLike) -> npt.NDArray[np.f
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
     """
     intensity = np.asarray(intensity)
-    sigma: npt.NDArray[np.float_] = np.sqrt(intensity)
+    sigma: npt.NDArray[np.float64] = np.sqrt(intensity)
     return sigma
 
 
 def localization_precision_model_2(
     intensity: npt.ArrayLike, psf_sigma: npt.ArrayLike
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Localization precision as function of
     intensity (I), PSF width (sigma_PSF) according to:
@@ -96,11 +96,11 @@ def localization_precision_model_2(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
     """
     intensity = np.asarray(intensity)
     psf_sigma = np.asarray(psf_sigma)
-    sigma: npt.NDArray[np.float_] = psf_sigma / np.sqrt(intensity)
+    sigma: npt.NDArray[np.float64] = psf_sigma / np.sqrt(intensity)
     return sigma
 
 
@@ -109,7 +109,7 @@ def localization_precision_model_3(
     psf_sigma: npt.ArrayLike,
     pixel_size: npt.ArrayLike,
     local_background: npt.ArrayLike,
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Localization precision as function of
     intensity (I), PSF size (\\sigma_{PSF}), pixel size (a), background (b)
@@ -137,7 +137,7 @@ def localization_precision_model_3(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
     """
     intensity = np.asarray(intensity)
     psf_sigma = np.asarray(psf_sigma)
@@ -150,7 +150,7 @@ def localization_precision_model_3(
     sigma_squared = (
         sigma_a_squared / intensity * (1 + 4 * tau + np.sqrt(2 * tau / (1 + 4 * tau)))
     )
-    sigma: npt.NDArray[np.float_] = np.sqrt(sigma_squared)
+    sigma: npt.NDArray[np.float64] = np.sqrt(sigma_squared)
     return sigma
 
 

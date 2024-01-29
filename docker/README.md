@@ -16,8 +16,8 @@ You can use the provided Dockerfiles to set up a docker image and run the projec
 
 We provide dockerfiles for testing and deployment.
 
-1) Run tests in a Python 3 environment based on miniconda or a virtual environment (venv) on Debian Linux.
-2) Run the project in a Python 3 miniconda environment with Jupyter lab for interactive work (Debian Linux).
+1) Run tests in a Python 3 environment based on conda or a PyPI environment on Debian Linux.
+2) Run the project in a Python 3 conda environment with Jupyter lab for interactive work (Debian Linux).
 
 
 ## Build a docker image

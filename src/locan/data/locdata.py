@@ -106,7 +106,7 @@ class LocData:
         dataframe: pd.DataFrame | None = None,
         indices: int
         | list[int | bool]
-        | npt.NDArray[np.int_ | np.bool_]
+        | npt.NDArray[np.int64 | np.bool_]
         | slice
         | pd.Index[int]
         | None = None,
@@ -125,7 +125,7 @@ class LocData:
             pd.DataFrame() if dataframe is None else dataframe
         )
         self.indices: int | list[int | bool] | npt.NDArray[
-            np.int_ | np.bool_
+            np.int64 | np.bool_
         ] | slice | pd.Index[int] | None = indices
         self.meta: metadata_pb2.Metadata = metadata_pb2.Metadata()
         self.properties: dict[str, Any] = {}
@@ -616,15 +616,15 @@ class LocData:
             return self.dataframe
 
     @property
-    def coordinates(self) -> npt.NDArray[np.float_]:
+    def coordinates(self) -> npt.NDArray[np.float64]:
         """npt.NDArray[float]: Return all coordinate values."""
-        return_value: npt.NDArray[np.float_] = self.data[self.coordinate_keys].values
+        return_value: npt.NDArray[np.float64] = self.data[self.coordinate_keys].values
         return return_value
 
     @property
-    def centroid(self) -> npt.NDArray[np.float_]:
+    def centroid(self) -> npt.NDArray[np.float64]:
         """
-        npt.NDArray[np.float_]: Return coordinate values of the centroid
+        npt.NDArray[np.float64]: Return coordinate values of the centroid
         (being the property values for all coordinate labels).
         """
         return np.array(
@@ -748,7 +748,7 @@ class LocData:
         locdata: LocData,
         indices: int
         | list[int | bool]
-        | npt.NDArray[np.int_ | np.bool_]
+        | npt.NDArray[np.int64 | np.bool_]
         | slice
         | pd.Index[int]
         | None = None,

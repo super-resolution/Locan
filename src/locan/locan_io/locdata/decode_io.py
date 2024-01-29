@@ -91,7 +91,7 @@ def load_decode_header(
     Parameters
     ----------
     path : str | os.PathLike | SupportsRead
-        File path or file-like object for a DECODE file to load.
+        File path or file-like object for a file to load.
 
     Returns
     -------
@@ -116,7 +116,7 @@ def load_decode_file(
     Parameters
     ----------
     path
-        File path or file-like object for a Thunderstorm file to load.
+        File path or file-like object for a file to load.
     nrows
         The number of localizations to load from file.
         None means that all available rows are loaded.
@@ -130,7 +130,7 @@ def load_decode_file(
         A new instance of LocData with all localizations.
     """
     with h5py.File(path, "r") as file:
-        columns, meta, decode = _read_decode_header(file)
+        columns, meta, _ = _read_decode_header(file)
 
         if file["data"]["xyz"].shape == (0, 3):  # empty file
             logger.warning("File does not contain any data.")

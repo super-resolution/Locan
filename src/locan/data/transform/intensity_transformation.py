@@ -29,7 +29,7 @@ def _transform_counts_to_photons(
     offset: int | float = 0,
     gain: int | float = 1,
     electrons_per_count: int | float = 1,
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Convert camera analog-to-digital converter (ADC) counts into photo
     electrons.
@@ -49,7 +49,7 @@ def _transform_counts_to_photons(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         Photo electrons
     """
     intensities = np.asarray(intensities)

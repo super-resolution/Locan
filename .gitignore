@@ -146,4 +146,4 @@ cython_debug/
 .vscode/
 
 # Project specific
-locan/_version.py
+src/locan/_version.py

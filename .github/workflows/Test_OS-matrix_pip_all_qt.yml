@@ -38,7 +38,7 @@ jobs:
         with:
           run: pytest
       - name: "Freeze requirements"
-        run: pip-compile pyproject.toml --extra test --output-file ${{ env.REQUIREMENTS_FILE }}
+        run: pip-compile pyproject.toml --extra all --output-file ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"
         uses: actions/upload-artifact@v3
         with:

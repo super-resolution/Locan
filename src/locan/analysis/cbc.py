@@ -52,7 +52,7 @@ def _coordinate_based_colocalization(
     other_points: npt.ArrayLike | None = None,
     radius: int | float = 100,
     n_steps: int = 10,
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Compute a colocalization index for each localization by coordinate-based
     colocalization.
@@ -75,7 +75,7 @@ def _coordinate_based_colocalization(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         An array with coordinate-based colocalization coefficients for each
         input point.
     """
@@ -106,7 +106,7 @@ def _coordinate_based_colocalization(
             values_2 = np.cumsum(hist_2) * radius**2 / radii[1:] ** 2 / len(d_2)
 
             # Spearman rank correlation
-            rho, pval = spearmanr(values_1, values_2)
+            rho, _pval = spearmanr(values_1, values_2)
             correlation[i] = rho
         else:
             correlation[i] = np.nan

@@ -36,7 +36,7 @@ def _add_arguments(parser: argparse.ArgumentParser) -> None:
         "--extra",
         dest="extra",
         action="store_true",
-        help="Include extra dependencies as specified in setup.py.",
+        help="Include extra dependencies.",
     )
     parser.add_argument(
         "-o",

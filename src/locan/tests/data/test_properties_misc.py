@@ -109,7 +109,7 @@ def test_compute_inertia_moments_visual():
         seed=rng,
     )
 
-    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))
+    _fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 5))
     for angle in np.linspace(0, 180, 20):
         rotated_points = affinity.rotate(
             MultiPoint(points), angle, origin=[0, 0], use_radians=False

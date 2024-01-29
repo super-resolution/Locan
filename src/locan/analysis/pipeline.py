@@ -45,7 +45,7 @@ class Pipeline(_Analysis):
 
     Results are provided as customized attributes.
     We suggest abbreviated standard names for the most common procedures
-     such as:
+    such as:
 
     * lp - Localization Precision
     * lprop - Localization Property

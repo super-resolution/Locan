@@ -23,7 +23,7 @@ def _random_walk_drift(
     diffusion_constant: npt.ArrayLike,
     velocity: npt.ArrayLike,
     seed: RandomGeneratorSeed = None,
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Transform locdata coordinates according to a simulated drift.
 
@@ -51,7 +51,7 @@ def _random_walk_drift(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         Position deltas with shape (n_points, diffusion_constant.shape)
         that have to be added to the original localizations.
     """
@@ -74,7 +74,7 @@ def _drift(
     diffusion_constant: tuple[float, ...] | None = None,
     velocity: tuple[float, ...] | None = None,
     seed: RandomGeneratorSeed = None,
-) -> npt.NDArray[np.float_]:
+) -> npt.NDArray[np.float64]:
     """
     Compute position deltas as function of frame number.
 
@@ -96,7 +96,7 @@ def _drift(
 
     Returns
     -------
-    npt.NDArray[np.float_]
+    npt.NDArray[np.float64]
         Position deltas with shape (n_points, diffusion_constant.shape)
         that have to be added to the original localizations.
     """
@@ -165,13 +165,16 @@ def add_drift(
 
     # new LocData object
     new_dataframe = locdata.data.copy()
-    new_dataframe.update(
-        pd.DataFrame(
-            transformed_points,
-            columns=locdata.coordinate_keys,
-            index=locdata.data.index,
-        )
+
+    df = pd.DataFrame(
+        transformed_points,
+        columns=locdata.coordinate_keys,
+        index=locdata.data.index,
     )
+    # cast dtypes
+    df = df.astype(new_dataframe[locdata.coordinate_keys].dtypes)
+
+    new_dataframe.update(df)
     new_locdata = LocData.from_dataframe(new_dataframe)
 
     # update metadata

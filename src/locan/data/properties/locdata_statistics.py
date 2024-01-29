@@ -74,7 +74,7 @@ def ranges(
     loc_properties: str | Iterable[str] | Literal[True] | None = None,
     special: Literal["zero", "link"] | None = None,
     epsilon: float = 1,
-) -> npt.NDArray[np.float_] | None:
+) -> npt.NDArray[np.float64] | None:
     """
     Provide data ranges for localization properties.
     If LocData is empty, None is returned.
@@ -99,7 +99,7 @@ def ranges(
 
     Returns
     -------
-    npt.NDArray[np.float_] | None
+    npt.NDArray[np.float64] | None
         The data range (min, max) for each localization property.
         Array of shape (dimension, 2).
     """

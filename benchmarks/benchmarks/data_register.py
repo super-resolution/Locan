@@ -1,5 +1,5 @@
 """
-Benchmark functions to be used with Airspeed Velocity.
+Benchmark functions for :mod:`locan.data.register`
 """
 import locan as lc
 import numpy as np
@@ -50,9 +50,37 @@ class BenchmarkRegister:
         assert np.allclose(matrix, self.matrix_true)
 
 
+def main():
+    bm = BenchmarkRegister()
+    bm.setup()
+    bm.time__register_cc_skimage()
+    bm.time__register_icp_open3d()
+    bm.time_register_icp()
+
+
+def main_profile():
+    """
+    Run benchmarks through profiler.
+    """
+    import cProfile
+    import pstats
+
+    bm = BenchmarkRegister()
+    bm.setup()
+
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    for _ in range(100):
+        bm.time__register_cc_skimage()
+        bm.time__register_icp_open3d()
+        bm.time_register_icp()
+
+    profiler.disable()
+    stats = pstats.Stats(profiler).sort_stats("cumtime")
+    stats.print_stats("time_")
+
+
 if __name__ == "__main__":
-    class_ = BenchmarkRegister()
-    class_.setup()
-    class_.time__register_cc_skimage()
-    class_.time__register_icp_open3d()
-    class_.time_register_icp()
+    # main()
+    main_profile()

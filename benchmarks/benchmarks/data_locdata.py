@@ -1,5 +1,5 @@
 """
-Benchmark functions to be used with Airspeed Velocity.
+Benchmark functions for :mod:`locan.data`
 """
 import locan as lc
 import numpy as np
@@ -29,7 +29,7 @@ class BenchmarkLocData:
     """
 
     def setup(self):
-        n_points = 1_000_000
+        n_points = 10_000
         coordinates = rng.uniform(low=0, high=10_000, size=(4, n_points))
         locdata_dict = {
             "position_x": coordinates[0],
@@ -89,7 +89,37 @@ class BenchmarkLocData:
         return self.collection.reduce()
 
 
+def main():
+    bm = BenchmarkLocData()
+    bm.setup()
+    bm.time_initialize_locdata_from_dataframe()
+    bm.time_locdata_selection()
+    bm.time_locdata_collection()
+
+
+def main_profile():
+    """
+    Run benchmarks through profiler.
+    """
+    import cProfile
+    import pstats
+
+    bm = BenchmarkLocData()
+    bm.setup()
+
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    for _ in range(100):
+        bm.time_initialize_locdata_from_dataframe()
+        bm.time_locdata_selection()
+        bm.time_locdata_collection()
+
+    profiler.disable()
+    stats = pstats.Stats(profiler).sort_stats("cumtime")
+    stats.print_stats("time_")
+
+
 if __name__ == "__main__":
-    class_ = BenchmarkLocData()
-    class_.setup()
-    print(class_.collection.data)
+    # main()
+    main_profile()

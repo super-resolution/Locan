@@ -1,5 +1,5 @@
 """
-Benchmark functions to be used with Airspeed Velocity.
+Benchmark functions for :mod:`locan.data.aggregate`
 """
 import locan as lc
 import numpy as np
@@ -57,7 +57,39 @@ class BenchmarkHistogram:
         )
 
 
+def main():
+    bm = BenchmarkHistogram()
+    bm.setup()
+    bm.time__histogram_fast_histogram()
+    bm.time__histogram_boost_histogram()
+    bm.time__histogram_mean_fast_histogram()
+    bm.time__histogram_mean_boost_histogram()
+
+
+def main_profile():
+    """
+    Run benchmarks through profiler.
+    """
+    import cProfile
+    import pstats
+
+    bm = BenchmarkHistogram()
+    bm.setup()
+
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    for _ in range(100):
+        bm.time__histogram_fast_histogram()
+        bm.time__histogram_boost_histogram()
+        bm.time__histogram_mean_fast_histogram()
+        bm.time__histogram_mean_boost_histogram()
+
+    profiler.disable()
+    stats = pstats.Stats(profiler).sort_stats("cumtime")
+    stats.print_stats("time_")
+
+
 if __name__ == "__main__":
-    class_ = BenchmarkHistogram()
-    class_.setup()
-    class_.time__histogram_fast_histogram()
+    # main()
+    main_profile()

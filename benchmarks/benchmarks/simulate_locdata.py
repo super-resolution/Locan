@@ -1,5 +1,5 @@
 """
-Benchmark functions to be used with Airspeed Velocity.
+Benchmark functions for :mod:`locan.simulation`
 """
 import locan as lc
 import numpy as np
@@ -28,7 +28,35 @@ class BenchmarkResample:
         return self.new_locdata
 
 
+def main():
+    bm = BenchmarkResample()
+    bm.setup()
+    print(bm.locdata.data.info())
+    bm.time_resample()
+    print(bm.new_locdata.data.info())
+
+
+def main_profile():
+    """
+    Run benchmarks through profiler.
+    """
+    import cProfile
+    import pstats
+
+    bm = BenchmarkResample()
+    bm.setup()
+
+    profiler = cProfile.Profile()
+    profiler.enable()
+
+    for _ in range(10):
+        bm.time_resample()
+
+    profiler.disable()
+    stats = pstats.Stats(profiler).sort_stats("cumtime")
+    stats.print_stats("time_")
+
+
 if __name__ == "__main__":
-    class_ = BenchmarkResample()
-    class_.setup()
-    print(class_.collection.data)
+    main()
+    main_profile()

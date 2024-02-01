@@ -82,7 +82,7 @@ def test_render_3d_napari_single_gui(locdata_single_localization_3d, caplog):
     except IndexError:
         record_tuples_ = caplog.record_tuples[0]
     assert record_tuples_ == (
-        "locan.visualize.napari.render3d",
+        "locan.visualize.render_napari.render3d",
         30,
         "Locdata carries a single localization.",
     )
@@ -104,8 +104,8 @@ def test_render_3d_napari_single(
         gamma=0.1,
     )
     viewer.close()
-    assert caplog.record_tuples[0] == (
-        "locan.visualize.napari.render3d",
+    assert caplog.record_tuples[-1] == (
+        "locan.visualize.render_napari.render3d",
         30,
         "Locdata carries a single localization.",
     )

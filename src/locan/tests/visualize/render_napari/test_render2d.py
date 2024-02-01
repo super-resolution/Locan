@@ -116,7 +116,10 @@ def test_render_2d_napari(make_napari_viewer, locdata_blobs_2d):
     with pytest.raises(ValueError):
         # bins that are not equally sized cannot be displayed in napari.
         render_2d_napari(
-            locdata_blobs_2d, viewer=viewer, bin_edges=((0, 10, 100), (0, 10, 100))
+            locdata_blobs_2d,
+            viewer=viewer,
+            cmap="viridis",
+            bin_edges=((0, 10, 100), (0, 10, 100)),
         )
 
     viewer_ = render_2d_napari(
@@ -126,7 +129,7 @@ def test_render_2d_napari(make_napari_viewer, locdata_blobs_2d):
     assert len(viewer.layers) == 1
     assert viewer.layers[0].name == "LocData 0"
     assert np.array_equal(viewer.layers[0].corner_pixels, [[0, 0], [8, 5]])
-    print(viewer.layers[0].data_to_world(viewer.layers[0].corner_pixels))
+    # print(viewer.layers[0].data_to_world(viewer.layers[0].corner_pixels))
     assert np.array_equal(
         viewer.layers[0].data_to_world(viewer.layers[0].corner_pixels),
         [[162.0, 515.0], [962.0, 1015.0]],
@@ -159,8 +162,8 @@ def test_render_2d_napari_single_gui(locdata_single_localization, caplog):
     render_2d_napari(
         locdata_single_localization, bin_size=100, cmap="viridis", gamma=0.1
     )
-    assert caplog.record_tuples[1] == (
-        "locan.render.render2d",
+    assert caplog.record_tuples[-1] == (
+        "locan.visualize.render_napari.render2d",
         30,
         "Locdata carries a single localization.",
     )
@@ -182,8 +185,8 @@ def test_render_2d_napari_single(
         gamma=0.1,
     )
     viewer.close()
-    assert caplog.record_tuples[0] == (
-        "locan.visualize.napari.render2d",
+    assert caplog.record_tuples[-1] == (
+        "locan.visualize.render_napari.render2d",
         30,
         "Locdata carries a single localization.",
     )

@@ -4,6 +4,7 @@ Utility script to print locan.__all__ elements.
 These items need to be explicitly re-exported in locan.__init__
 to satisfy mypy.
 """
+
 from importlib import import_module
 
 submodules: list[str] = [

@@ -7,6 +7,7 @@ E.g. looking at how the local background is distributed over localization
 coordinates helps to characterize the
 illumination profile in SMLM experiments.
 """
+
 from __future__ import annotations
 
 import logging
@@ -163,11 +164,13 @@ def _localization_property2d(
     n_bins: int | Sequence[int] | None = None,
     bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = 10,
     bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
-    bin_range: tuple[float, float]
-    | Sequence[float]
-    | Sequence[Sequence[float]]
-    | Literal["zero", "link"]
-    | None = None,
+    bin_range: (
+        tuple[float, float]
+        | Sequence[float]
+        | Sequence[Sequence[float]]
+        | Literal["zero", "link"]
+        | None
+    ) = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
 ) -> FitImageResults:
     # bin localization data
@@ -276,11 +279,13 @@ class LocalizationProperty2d(_Analysis):
         n_bins: int | Sequence[int] | None = None,
         bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = 100,
         bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
-        bin_range: tuple[float, float]
-        | Sequence[float]
-        | Sequence[Sequence[float]]
-        | str
-        | None = None,
+        bin_range: (
+            tuple[float, float]
+            | Sequence[float]
+            | Sequence[Sequence[float]]
+            | str
+            | None
+        ) = None,
         rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     ) -> None:
         parameters = self._get_parameters(locals())

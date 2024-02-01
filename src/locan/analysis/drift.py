@@ -49,6 +49,7 @@ References
    Opt Express. 2011 Aug 1;19(16):15009-19.
 
 """
+
 from __future__ import annotations
 
 import logging
@@ -85,14 +86,11 @@ logger = logging.getLogger(__name__)
 
 
 class DriftModel(Protocol):
-    def fit(self, *args: Any, **kwargs: Any) -> Any:
-        ...
+    def fit(self, *args: Any, **kwargs: Any) -> Any: ...
 
-    def eval(self, *args: Any, **kwargs: Any) -> Any:
-        ...
+    def eval(self, *args: Any, **kwargs: Any) -> Any: ...
 
-    def plot(self, *args: Any, **kwargs: Any) -> Any:
-        ...
+    def plot(self, *args: Any, **kwargs: Any) -> Any: ...
 
 
 # The algorithms
@@ -432,11 +430,11 @@ class DriftComponent:
 
     def __init__(
         self,
-        type: Literal[
-            "none", "zero", "one", "constant", "linear", "polynomial", "spline"
-        ]
-        | ModelLmf
-        | None = None,
+        type: (
+            Literal["none", "zero", "one", "constant", "linear", "polynomial", "spline"]
+            | ModelLmf
+            | None
+        ) = None,
         **kwargs: Any,
     ) -> None:
         self.type = type

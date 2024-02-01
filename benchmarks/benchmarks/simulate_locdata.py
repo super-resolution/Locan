@@ -1,6 +1,7 @@
 """
 Benchmark functions for :mod:`locan.simulation`
 """
+
 import locan as lc
 import numpy as np
 

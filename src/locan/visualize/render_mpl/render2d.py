@@ -3,6 +3,7 @@
 This module provides functions for rendering locdata objects in 2D.
 
 """
+
 from __future__ import annotations
 
 import logging
@@ -54,11 +55,13 @@ def render_2d_mpl(
     n_bins: int | Sequence[int] | None = None,
     bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = 10,
     bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
-    bin_range: tuple[float, float]
-    | Sequence[float]
-    | Sequence[Sequence[float]]
-    | Literal["zero", "link"]
-    | None = None,
+    bin_range: (
+        tuple[float, float]
+        | Sequence[float]
+        | Sequence[Sequence[float]]
+        | Literal["zero", "link"]
+        | None
+    ) = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     ax: mpl.axes.Axes | None = None,
     cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
@@ -186,11 +189,13 @@ def render_2d_scatter_density(
     locdata: LocData,
     loc_properties: list[str] | None = None,
     other_property: str | None = None,
-    bin_range: tuple[float, float]
-    | Sequence[float]
-    | Sequence[Sequence[float]]
-    | Literal["zero", "link"]
-    | None = None,
+    bin_range: (
+        tuple[float, float]
+        | Sequence[float]
+        | Sequence[Sequence[float]]
+        | Literal["zero", "link"]
+        | None
+    ) = None,
     ax: mpl.axes.Axes | None = None,
     cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
     cbar: bool = True,
@@ -444,11 +449,13 @@ def render_2d_rgb_mpl(
     n_bins: int | Sequence[int] | None = None,
     bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = 10,
     bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
-    bin_range: tuple[float, float]
-    | Sequence[float]
-    | Sequence[Sequence[float]]
-    | Literal["zero", "link"]
-    | None = None,
+    bin_range: (
+        tuple[float, float]
+        | Sequence[float]
+        | Sequence[Sequence[float]]
+        | Literal["zero", "link"]
+        | None
+    ) = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     ax: mpl.axes.Axes | None = None,
     interpolation: str = "nearest",

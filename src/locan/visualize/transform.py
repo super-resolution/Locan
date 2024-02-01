@@ -13,6 +13,7 @@ Callable transformation classes that inherit from
 can be passed to the `norm` parameter.
 
 """
+
 from __future__ import annotations
 
 import logging

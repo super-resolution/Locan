@@ -8,6 +8,7 @@ sporadically:
 E       assert (19 + 2) == 15
 locan\\tests\\data\\test_locdata.py:60: AssertionError
 """
+
 import copy
 
 from locan import LocData

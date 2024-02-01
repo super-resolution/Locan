@@ -14,6 +14,7 @@ results.
 This module provides a class `Pipeline` to combine the analysis procedure,
 parameters and results in a single pickleable object.
 """
+
 from __future__ import annotations
 
 import inspect

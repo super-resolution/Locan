@@ -6,6 +6,7 @@ This module provides classes to define geometric regions for localization data.
 All region classes inherit from the abstract base class `Region`.
 
 """
+
 # todo: fix docstrings
 from __future__ import annotations
 
@@ -1821,9 +1822,7 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def max_distance(self) -> float:
-        return_value: float = np.sqrt(
-            self.length**2 + self.width**2 + self.height**2
-        )
+        return_value: float = np.sqrt(self.length**2 + self.width**2 + self.height**2)
         return return_value
 
     @property
@@ -2016,9 +2015,7 @@ class Cuboid(Region3D):
 
     @property
     def max_distance(self) -> float:
-        return_value: float = np.sqrt(
-            self.length**2 + self.width**2 + self.height**2
-        )
+        return_value: float = np.sqrt(self.length**2 + self.width**2 + self.height**2)
         return return_value
 
     @property

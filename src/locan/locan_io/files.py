@@ -5,6 +5,7 @@ Identify, match, and group files to be batch-processed.
 The class Files is a wrapper for a pandas.DataFrame with selected methods to
 identify, match, and group file paths.
 """
+
 from __future__ import annotations
 
 import functools

@@ -6,6 +6,7 @@ This module computes specific hulls for the bounding box, convex hull and
 oriented bounding box and related properties for LocData objects.
 
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Literal

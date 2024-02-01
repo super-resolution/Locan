@@ -6,6 +6,7 @@ This module provides functions for filtering LocData objects.
 The functions take LocData as input and compute new LocData objects.
 
 """
+
 from __future__ import annotations
 
 import sys

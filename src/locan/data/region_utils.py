@@ -8,6 +8,7 @@ See Also
 :func:`locan.data.properties.misc.distance_to_region`
 :func:`locan.data.properties.misc.distance_to_region_boundary`
 """
+
 from __future__ import annotations
 
 from typing import Any

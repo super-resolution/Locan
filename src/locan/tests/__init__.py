@@ -6,6 +6,7 @@ This module includes unit tests for all modules within the locan package.
 The tests are organized following the subpackage structure of locan.
 
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

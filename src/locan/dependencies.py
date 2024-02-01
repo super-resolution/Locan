@@ -23,6 +23,7 @@ CONSTANTS
    IMPORT_NAMES
    HAS_DEPENDENCY
 """
+
 from __future__ import annotations
 
 import importlib.metadata

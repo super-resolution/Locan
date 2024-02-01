@@ -3,6 +3,7 @@
 Type definitions
 
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -25,8 +26,7 @@ class DataFrame(Protocol):
 
     def __dataframe__(
         self, nan_as_null: bool = False, allow_copy: bool = True
-    ) -> DataFrame:
-        ...
+    ) -> DataFrame: ...
 
 
 class LocData(Protocol):
@@ -34,8 +34,6 @@ class LocData(Protocol):
     references: Any
 
     @property
-    def data(self) -> Any:
-        ...
+    def data(self) -> Any: ...
 
-    def __len__(self) -> int:
-        ...
+    def __len__(self) -> int: ...

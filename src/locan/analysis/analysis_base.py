@@ -3,6 +3,7 @@ Base class that serves as template for a specialized analysis class.
 
 It also provides helper functions to be used in specialized analysis classes.
 """
+
 from __future__ import annotations
 
 import sys

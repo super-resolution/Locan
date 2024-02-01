@@ -118,7 +118,6 @@ docs = [
     "furo",
     "ipython",
     "myst-nb",
-    "pydantic<2",
     "ray[default]",
     "sphinx",
     "sphinx-autodoc-typehints",
@@ -126,7 +125,7 @@ docs = [
 ]
 dev = [
     "asv",
-    "black~=23.0",
+    "black~=24.0",
     "build",
     "coverage[toml]",
     "mypy",

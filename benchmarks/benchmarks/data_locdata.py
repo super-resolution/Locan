@@ -1,6 +1,7 @@
 """
 Benchmark functions for :mod:`locan.data`
 """
+
 import locan as lc
 import numpy as np
 import pandas as pd

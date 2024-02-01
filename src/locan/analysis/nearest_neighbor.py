@@ -35,6 +35,7 @@ References
    20 December 2001
 
 """
+
 from __future__ import annotations
 
 import logging
@@ -352,9 +353,7 @@ class NNDistances_csr_2d(stats.rv_continuous):
     """
 
     def _pdf(self, x: float, density: float) -> float:
-        return_value: float = (
-            2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
-        )
+        return_value: float = 2 * density * np.pi * x * np.exp(-density * np.pi * x**2)
         return return_value
 
 

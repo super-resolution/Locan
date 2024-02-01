@@ -47,6 +47,7 @@ References
    Biophysical journal, 2009, 97, 1095–1103.
 
 """
+
 from __future__ import annotations
 
 import logging

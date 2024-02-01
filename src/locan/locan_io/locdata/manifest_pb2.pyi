@@ -69,6 +69,7 @@ class FileInfo(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[int] = ...
         ) -> None: ...
+
     CHANNEL_FIELD_NUMBER: _ClassVar[int]
     EXPOSURE_FIELD_NUMBER: _ClassVar[int]
     FORMAT_FIELD_NUMBER: _ClassVar[int]
@@ -183,6 +184,7 @@ class Manifest(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     AUTHOR_FIELD_NUMBER: _ClassVar[int]
     CITATION_FIELD_NUMBER: _ClassVar[int]
     DATE_FIELD_NUMBER: _ClassVar[int]

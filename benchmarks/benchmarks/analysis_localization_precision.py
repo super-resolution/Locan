@@ -1,6 +1,7 @@
 """
 Benchmark functions for :mod:`locan.analysis.localization_precision`
 """
+
 import locan as lc
 from locan.analysis.localization_precision import (
     _localization_precision,

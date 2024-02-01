@@ -1,6 +1,7 @@
 """
 Benchmark functions for :mod:`locan.locan_io`
 """
+
 import locan as lc
 
 

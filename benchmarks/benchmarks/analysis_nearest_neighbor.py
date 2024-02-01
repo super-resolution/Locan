@@ -1,6 +1,7 @@
 """
 Benchmark functions for :mod:`locan.analysis.nearest_neighbor`
 """
+
 import locan as lc
 from locan.analysis.nearest_neighbor import (
     _nearest_neighbor_distances,

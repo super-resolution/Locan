@@ -1,6 +1,7 @@
 """
 Benchmark functions for :mod:`locan.analysis.ripley`
 """
+
 import locan as lc
 import numpy as np
 from locan.analysis.ripley import (

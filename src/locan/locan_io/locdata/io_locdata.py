@@ -3,6 +3,7 @@
 File input/output for localization data.
 
 """
+
 from __future__ import annotations
 
 import logging
@@ -184,10 +185,9 @@ def _map_file_type_to_load_function(
 
 def load_locdata(
     path: str | os.PathLike[Any] | SupportsRead[Any],
-    file_type: int
-    | str
-    | locan.constants.FileType
-    | locan.data.metadata_pb2.Metadata = 1,
+    file_type: (
+        int | str | locan.constants.FileType | locan.data.metadata_pb2.Metadata
+    ) = 1,
     nrows: int | None = None,
     **kwargs: Any,
 ) -> LocData:

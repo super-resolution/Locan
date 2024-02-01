@@ -26,6 +26,7 @@ References
    Astrophysical Journal 1952, vol. 116, p.144.
 
 """
+
 from __future__ import annotations
 
 import logging

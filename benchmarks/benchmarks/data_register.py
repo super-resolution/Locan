@@ -1,6 +1,7 @@
 """
 Benchmark functions for :mod:`locan.data.register`
 """
+
 import locan as lc
 import numpy as np
 from locan.data.register import (

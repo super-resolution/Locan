@@ -21,6 +21,7 @@ Locan consists of the following modules:
    utils
    visualize
 """
+
 from __future__ import annotations
 
 import lazy_loader as lazy

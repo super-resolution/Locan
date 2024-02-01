@@ -15,6 +15,7 @@ Constants used throughout the project.
    SMLM_KEYS
    THUNDERSTORM_KEYS
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

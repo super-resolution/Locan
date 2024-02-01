@@ -15,6 +15,7 @@ See Also
 position_variance_expectation
 convex_hull_expectation
 """
+
 from __future__ import annotations
 
 import logging
@@ -215,10 +216,9 @@ class GroupedPropertyExpectation(_Analysis):
         n_bins: int | Sequence[int] | None = None,
         bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
         bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
-        bin_range: tuple[float, float]
-        | Sequence[float]
-        | Sequence[Sequence[float]]
-        | None = None,
+        bin_range: (
+            tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | None
+        ) = None,
         log: bool = True,
         fit: bool = False,
         **kwargs: Any,

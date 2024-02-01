@@ -3,6 +3,7 @@
 File input/output for localization data in Thunderstorm files.
 
 """
+
 from __future__ import annotations
 
 import logging

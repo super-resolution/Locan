@@ -12,6 +12,7 @@ Configuration variables used throughout the project.
    TQDM_LEAVE
    TQDM_DISABLE
 """
+
 from __future__ import annotations
 
 import logging

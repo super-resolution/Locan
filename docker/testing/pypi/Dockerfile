@@ -1,6 +1,6 @@
 # Use an official image for a Python runtime that is based on debian
 ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim-bullseye
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 ARG PYTHON_VERSION
 ARG ENVIRONMENT_NAME="locan"
@@ -15,13 +15,13 @@ LABEL maintainer="LocanDevelopers" \
 RUN ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
 
 # Install gcc compiler and remove package manager cache
-# install libgtk2.0-dev libgl1 for slim-bullseye when building wheels e.g. for scikit-image
+# Install libglib2.0-0 libegl1 for open source implementations of OpenGL and more
 # install git for setuptools_scm to deal with locan source distribution versioning
 RUN apt-get update && \
     apt-get install -yq \
         gcc \
-        libgtk2.0-dev \
-        libgl1 \
+        libglib2.0-0 \
+        libegl1 \
         git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*

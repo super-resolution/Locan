@@ -136,7 +136,6 @@ def test_render_2d_napari(make_napari_viewer, locdata_blobs_2d):
     )
     assert viewer.scale_bar.unit is None or len(viewer.scale_bar.unit) != 0
     assert viewer.layers[0].metadata["message"]
-    viewer.close()
 
 
 @pytest.mark.gui
@@ -154,7 +153,6 @@ def test_render_2d_napari_empty(make_napari_viewer, locdata_empty):
         locdata_empty, viewer=viewer, bin_size=100, cmap="viridis", gamma=0.1
     )
     assert viewer.layers == []
-    viewer.close()
 
 
 @pytest.mark.gui
@@ -184,7 +182,6 @@ def test_render_2d_napari_single(
         cmap="viridis",
         gamma=0.1,
     )
-    viewer.close()
     assert caplog.record_tuples[-1] == (
         "locan.visualize.render_napari.render2d",
         30,
@@ -208,4 +205,3 @@ def test_render_2d_rgb_napari(make_napari_viewer, locdata_blobs_2d):
     locdata_0 = locdata_blobs_2d
     locdata_1 = transform_affine(locdata_blobs_2d, offset=(20, 0))
     render_2d_rgb_napari([locdata_0, locdata_1], viewer=viewer, bin_size=20)
-    viewer.close()

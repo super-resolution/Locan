@@ -229,4 +229,3 @@ def test_select_by_drawing_napari(make_napari_viewer, locdata_blobs_2d):
     )
     assert len(rois) == 1
     assert repr(rois[0].region) == "Rectangle((100.0, 500.0), 500.0, 200.0, 0)"
-    viewer.close()

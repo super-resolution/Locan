@@ -31,6 +31,8 @@ Other Changes and Additions
 - speed up tests for localization_precision
 - optimize test data
 - fix errors and deprecation warnings for pandas 2.0
+- switch to black ~24.0 format
+- add more benchmarks
 
 0.19 - 2023-12-12
 =================

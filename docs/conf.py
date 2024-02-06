@@ -3,20 +3,10 @@
 # Configuration file for the Sphinx documentation builder.
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import asyncio
 import os
 import sys
 from importlib.metadata import version as get_version
 from typing import Any
-
-# change event loop in windows for python 3.8
-if (
-    sys.version_info.major == 3
-    and sys.version_info.minor == 8
-    and sys.platform.startswith("win")
-):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
 
 # -- Path setup --------------------------------------------------------------
 

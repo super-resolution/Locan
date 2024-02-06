@@ -3,6 +3,7 @@
 File input/output for localization data in DECODE files.
 
 """
+
 from __future__ import annotations
 
 import logging

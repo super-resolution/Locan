@@ -3,6 +3,7 @@
 Utility functions for interacting with napari.
 
 """
+
 from __future__ import annotations
 
 import logging
@@ -146,11 +147,9 @@ def _shapes_to_regions(shapes_data: napari.types.ShapesData) -> list[Region]:
 
 def get_rois(
     shapes_layer: napari.layers.Shapes,
-    reference: LocData
-    | dict[str, str]
-    | metadata_pb2.Metadata
-    | metadata_pb2.File
-    | None = None,
+    reference: (
+        LocData | dict[str, str] | metadata_pb2.Metadata | metadata_pb2.File | None
+    ) = None,
     loc_properties: Sequence[str] | None = None,
 ) -> list[Roi]:
     """

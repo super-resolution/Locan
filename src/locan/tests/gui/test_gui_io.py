@@ -3,6 +3,7 @@
 This module contains tests that need gui interactions.
 
 """
+
 import pytest
 
 from locan import ROOT_DIR

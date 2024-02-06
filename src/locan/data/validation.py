@@ -5,6 +5,7 @@ Validate localization data.
 This module provides functions to validate LocData properties.
 
 """
+
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -22,8 +23,7 @@ class Collection(Protocol):
     references: Iterable[LocData]
     coordinate_keys: list[str]
 
-    def __len__(self) -> int:
-        ...
+    def __len__(self) -> int: ...
 
 
 def _check_loc_properties(

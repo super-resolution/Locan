@@ -8,6 +8,7 @@ to put other localization data in registry.
 Parts of this code is adapted from https://github.com/jungmannlab/picasso.
 (MIT license, Copyright (c) 2016 Jungmann Lab, MPI of Biochemistry)
 """
+
 from __future__ import annotations
 
 import warnings
@@ -339,11 +340,13 @@ def _register_cc_picasso(
     n_bins: int | Sequence[int] | None = None,
     bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
     bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
-    bin_range: tuple[float, float]
-    | Sequence[float]
-    | Sequence[Sequence[float]]
-    | Literal["zero", "link"]
-    | None = None,
+    bin_range: (
+        tuple[float, float]
+        | Sequence[float]
+        | Sequence[Sequence[float]]
+        | Literal["zero", "link"]
+        | None
+    ) = None,
     verbose: bool = False,
 ) -> Transformation:
     """
@@ -405,9 +408,13 @@ def _register_cc_picasso(
     )
 
     if isinstance(locdata, LocData) and isinstance(other_locdata, LocData):
-        bin_range_: tuple[float, float] | Sequence[float] | Sequence[
-            Sequence[float]
-        ] | Literal["zero", "link"] | None
+        bin_range_: (
+            tuple[float, float]
+            | Sequence[float]
+            | Sequence[Sequence[float]]
+            | Literal["zero", "link"]
+            | None
+        )
         if bin_range is None:
             bin_range_ = range_from_collection([locdata, other_locdata])
         else:
@@ -452,11 +459,13 @@ def _register_cc_skimage(
     n_bins: int | Sequence[int] | None = None,
     bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
     bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
-    bin_range: tuple[float, float]
-    | Sequence[float]
-    | Sequence[Sequence[float]]
-    | Literal["zero", "link"]
-    | None = None,
+    bin_range: (
+        tuple[float, float]
+        | Sequence[float]
+        | Sequence[Sequence[float]]
+        | Literal["zero", "link"]
+        | None
+    ) = None,
     **kwargs: Any,
 ) -> Transformation:
     """
@@ -505,9 +514,13 @@ def _register_cc_skimage(
         Matrix and offset representing the optimized transformation.
     """
     if isinstance(locdata, LocData) and isinstance(other_locdata, LocData):
-        bin_range_: tuple[float, float] | Sequence[float] | Sequence[
-            Sequence[float]
-        ] | Literal["zero", "link"] | None
+        bin_range_: (
+            tuple[float, float]
+            | Sequence[float]
+            | Sequence[Sequence[float]]
+            | Literal["zero", "link"]
+            | None
+        )
         if bin_range is None:
             bin_range_ = range_from_collection([locdata, other_locdata])
         else:

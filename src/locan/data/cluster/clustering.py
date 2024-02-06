@@ -3,6 +3,7 @@
 Methods for clustering localization data in LocData objects.
 
 """
+
 from __future__ import annotations
 
 import sys
@@ -224,11 +225,9 @@ def cluster_by_bin(
     n_bins: int | Sequence[int] | None = None,
     bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
     bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
-    bin_range: tuple[float, float]
-    | Sequence[float]
-    | Sequence[Sequence[float]]
-    | str
-    | None = None,
+    bin_range: (
+        tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | str | None
+    ) = None,
     return_counts: bool = False,
 ) -> tuple[Bins | None, npt.NDArray[np.int64], LocData, npt.NDArray[np.int64] | None]:
     """

@@ -27,6 +27,7 @@ References
    pages 652-663, 2005.
 
 """
+
 from __future__ import annotations
 
 import os

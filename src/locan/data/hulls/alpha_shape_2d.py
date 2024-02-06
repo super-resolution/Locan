@@ -1,6 +1,7 @@
 """
 Alpha shape utility functions for 2d.
 """
+
 from __future__ import annotations
 
 import numpy as np

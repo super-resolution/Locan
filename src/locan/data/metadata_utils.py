@@ -5,6 +5,7 @@ Deal with metadata in LocData objects.
 Functions to modify metadata in LocData objects.
 
 """
+
 from __future__ import annotations
 
 import importlib
@@ -305,13 +306,15 @@ def message_scheme(message: Message) -> dict[str, Any]:
 
 def merge_metadata(
     metadata: metadata_pb2.Metadata | None = None,
-    other_metadata: metadata_pb2.Metadata
-    | None
-    | dict[str, Any]
-    | str
-    | bytes
-    | os.PathLike[Any]
-    | BinaryIO = None,
+    other_metadata: (
+        metadata_pb2.Metadata
+        | None
+        | dict[str, Any]
+        | str
+        | bytes
+        | os.PathLike[Any]
+        | BinaryIO
+    ) = None,
 ) -> metadata_pb2.Metadata:
     """
     Merge `other_metadata` into Locdata.meta.

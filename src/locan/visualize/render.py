@@ -5,6 +5,7 @@ Render localization data.
 This module provides convenience functions for rendering localization data.
 
 """
+
 from __future__ import annotations
 
 import logging

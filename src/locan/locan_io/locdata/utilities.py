@@ -3,6 +3,7 @@
 Utility functions for file input/output of localization data.
 
 """
+
 from __future__ import annotations
 
 import io

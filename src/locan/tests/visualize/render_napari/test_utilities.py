@@ -114,8 +114,8 @@ def test_save_rois(make_napari_viewer, locdata_blobs_2d, tmp_path):
     )
 
     # files_path is existing directory
-    roi_path_list = save_rois(rois=rois, file_path=tmp_path)
-    saved_path_list = list(tmp_path.glob("*.yaml"))
+    roi_path_list = sorted(save_rois(rois=rois, file_path=tmp_path))
+    saved_path_list = sorted(list(tmp_path.glob("*.yaml")))
     for roi_path, saved_path in zip(roi_path_list, saved_path_list):
         assert roi_path == saved_path
         assert saved_path.suffix == ".yaml"
@@ -128,8 +128,8 @@ def test_save_rois(make_napari_viewer, locdata_blobs_2d, tmp_path):
     clean_directory(tmp_path)
 
     # file_path is some name in existing directory
-    roi_path_list = save_rois(rois=rois, file_path=tmp_path / "some.txt")
-    saved_path_list = list(tmp_path.glob("*.yaml"))
+    roi_path_list = sorted(save_rois(rois=rois, file_path=tmp_path / "some.txt"))
+    saved_path_list = sorted(list(tmp_path.glob("*.yaml")))
     for roi_path, saved_path in zip(roi_path_list, saved_path_list):
         assert roi_path == saved_path
         assert saved_path.suffix == ".yaml"
@@ -151,8 +151,8 @@ def test_save_rois(make_napari_viewer, locdata_blobs_2d, tmp_path):
         )
         modified_rois.append(roi_)
 
-    roi_path_list = save_rois(rois=modified_rois, file_path="roi_reference")
-    saved_path_list = list(tmp_path.glob("*.yaml"))
+    roi_path_list = sorted(save_rois(rois=modified_rois, file_path="roi_reference"))
+    saved_path_list = sorted(list(tmp_path.glob("*.yaml")))
     for roi_path, saved_path in zip(roi_path_list[:1], saved_path_list):
         assert roi_path == saved_path
         assert saved_path.suffix == ".yaml"
@@ -229,4 +229,3 @@ def test_select_by_drawing_napari(make_napari_viewer, locdata_blobs_2d):
     )
     assert len(rois) == 1
     assert repr(rois[0].region) == "Rectangle((100.0, 500.0), 500.0, 200.0, 0)"
-    viewer.close()

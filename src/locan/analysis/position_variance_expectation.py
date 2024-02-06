@@ -16,6 +16,7 @@ References
    Bioinformatics 38(24), 2022, 5421-5429, doi: 10.1093/bioinformatics/btac700.
 
 """
+
 # todo add fit procedure to estimate variances
 from __future__ import annotations
 
@@ -260,10 +261,9 @@ class PositionVarianceExpectation(_Analysis):
         n_bins: int | Sequence[int] | None = None,
         bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
         bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
-        bin_range: tuple[float, float]
-        | Sequence[float]
-        | Sequence[Sequence[float]]
-        | None = None,
+        bin_range: (
+            tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | None
+        ) = None,
         log: bool = True,
         fit: bool = False,
         **kwargs: Any,

@@ -6,6 +6,7 @@ This module takes localization data and applies transformation procedures on
 coordinates or other properties.
 
 """
+
 from __future__ import annotations
 
 import logging

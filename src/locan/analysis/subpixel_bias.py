@@ -10,6 +10,7 @@ References
    Imaging biological structures with fluorescence photoactivation
    localization microscopy. Nat. Protoc. 4 (2009), 291–308.
 """
+
 from __future__ import annotations
 
 import logging

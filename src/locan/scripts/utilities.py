@@ -3,6 +3,7 @@
 Utility functions for scripts.
 
 """
+
 from __future__ import annotations
 
 import re

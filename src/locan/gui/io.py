@@ -7,6 +7,7 @@ Note
 These functions start a QT app and might interfere with previously started apps.
 
 """
+
 from __future__ import annotations
 
 from locan.dependencies import HAS_DEPENDENCY, needs_package
@@ -61,7 +62,7 @@ def file_dialog(
         None,
         message,
         directory_,
-        filter=filter
+        filter=filter,
         # kwargs: parent, message, directory, filter
         # but kw_names are different for different qt_bindings
     )
@@ -114,7 +115,7 @@ def set_file_path_dialog(
         None,
         message,
         directory_,
-        filter=filter
+        filter=filter,
         # kwargs: parent, message, directory, filter
         # but kw_names are different for different qt_bindings
     )

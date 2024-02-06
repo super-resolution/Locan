@@ -3,6 +3,7 @@
 A class to carry localization data.
 
 """
+
 from __future__ import annotations
 
 import copy
@@ -104,19 +105,23 @@ class LocData:
         self,
         references: LocData | Iterable[LocData] | None = None,
         dataframe: pd.DataFrame | None = None,
-        indices: int
-        | list[int | bool]
-        | npt.NDArray[np.int64 | np.bool_]
-        | slice
-        | pd.Index[int]
-        | None = None,
-        meta: metadata_pb2.Metadata
-        | dict[str, Any]
-        | str
-        | bytes
-        | os.PathLike[Any]
-        | BinaryIO
-        | None = None,
+        indices: (
+            int
+            | list[int | bool]
+            | npt.NDArray[np.int64 | np.bool_]
+            | slice
+            | pd.Index[int]
+            | None
+        ) = None,
+        meta: (
+            metadata_pb2.Metadata
+            | dict[str, Any]
+            | str
+            | bytes
+            | os.PathLike[Any]
+            | BinaryIO
+            | None
+        ) = None,
     ):
         self.__class__.count += 1
 
@@ -124,9 +129,14 @@ class LocData:
         self.dataframe: pd.DataFrame = (
             pd.DataFrame() if dataframe is None else dataframe
         )
-        self.indices: int | list[int | bool] | npt.NDArray[
-            np.int64 | np.bool_
-        ] | slice | pd.Index[int] | None = indices
+        self.indices: (
+            int
+            | list[int | bool]
+            | npt.NDArray[np.int64 | np.bool_]
+            | slice
+            | pd.Index[int]
+            | None
+        ) = indices
         self.meta: metadata_pb2.Metadata = metadata_pb2.Metadata()
         self.properties: dict[str, Any] = {}
 
@@ -342,9 +352,9 @@ class LocData:
                     / self._bounding_box.region_measure
                 )
             if self._bounding_box.subregion_measure:
-                self.properties[
-                    "subregion_measure_bb"
-                ] = self._bounding_box.subregion_measure
+                self.properties["subregion_measure_bb"] = (
+                    self._bounding_box.subregion_measure
+                )
 
     @property
     def convex_hull(self) -> locan.data.hulls.ConvexHull | None:
@@ -373,9 +383,9 @@ class LocData:
                     / self._convex_hull.region_measure
                 )
             if self._convex_hull.subregion_measure:
-                self.properties[
-                    "subregion_measure_ch"
-                ] = self._convex_hull.subregion_measure
+                self.properties["subregion_measure_ch"] = (
+                    self._convex_hull.subregion_measure
+                )
 
     @property
     def oriented_bounding_box(self) -> locan.data.hulls.OrientedBoundingBox | None:
@@ -399,9 +409,9 @@ class LocData:
 
     def _update_properties_oriented_bounding_box(self) -> None:
         if self._oriented_bounding_box is not None:
-            self.properties[
-                "region_measure_obb"
-            ] = self._oriented_bounding_box.region_measure
+            self.properties["region_measure_obb"] = (
+                self._oriented_bounding_box.region_measure
+            )
             if self._oriented_bounding_box.region_measure:
                 self.properties["localization_density_obb"] = (
                     self.properties["localization_count"]
@@ -638,13 +648,15 @@ class LocData:
     def from_dataframe(
         cls: type[T_LocData],  # noqa: UP006
         dataframe: DataFrame | None = None,
-        meta: metadata_pb2.Metadata
-        | dict[str, Any]
-        | str
-        | bytes
-        | os.PathLike[Any]
-        | BinaryIO
-        | None = None,
+        meta: (
+            metadata_pb2.Metadata
+            | dict[str, Any]
+            | str
+            | bytes
+            | os.PathLike[Any]
+            | BinaryIO
+            | None
+        ) = None,
     ) -> T_LocData:
         """
         Create new LocData object from DataFrame with localization data.
@@ -679,13 +691,15 @@ class LocData:
         cls: type[T_LocData],  # noqa: UP006
         coordinates: npt.ArrayLike | None = None,
         coordinate_labels: Sequence[str] | None = None,
-        meta: metadata_pb2.Metadata
-        | dict[str, Any]
-        | str
-        | bytes
-        | os.PathLike[Any]
-        | BinaryIO
-        | None = None,
+        meta: (
+            metadata_pb2.Metadata
+            | dict[str, Any]
+            | str
+            | bytes
+            | os.PathLike[Any]
+            | BinaryIO
+            | None
+        ) = None,
     ) -> T_LocData:
         """
         Create new LocData object from a sequence of localization coordinates.
@@ -746,19 +760,23 @@ class LocData:
     def from_selection(
         cls: type[T_LocData],  # noqa: UP006
         locdata: LocData,
-        indices: int
-        | list[int | bool]
-        | npt.NDArray[np.int64 | np.bool_]
-        | slice
-        | pd.Index[int]
-        | None = None,
-        meta: metadata_pb2.Metadata
-        | dict[str, Any]
-        | str
-        | bytes
-        | os.PathLike[Any]
-        | BinaryIO
-        | None = None,
+        indices: (
+            int
+            | list[int | bool]
+            | npt.NDArray[np.int64 | np.bool_]
+            | slice
+            | pd.Index[int]
+            | None
+        ) = None,
+        meta: (
+            metadata_pb2.Metadata
+            | dict[str, Any]
+            | str
+            | bytes
+            | os.PathLike[Any]
+            | BinaryIO
+            | None
+        ) = None,
     ) -> T_LocData:
         """
         Create new LocData object from selected elements in another `LocData`.
@@ -821,13 +839,15 @@ class LocData:
     def from_collection(
         cls: type[T_LocData],  # noqa: UP006v
         locdatas: Iterable[LocData],
-        meta: metadata_pb2.Metadata
-        | dict[str, Any]
-        | str
-        | bytes
-        | os.PathLike[Any]
-        | BinaryIO
-        | None = None,
+        meta: (
+            metadata_pb2.Metadata
+            | dict[str, Any]
+            | str
+            | bytes
+            | os.PathLike[Any]
+            | BinaryIO
+            | None
+        ) = None,
     ) -> T_LocData:
         """
         Create new LocData object by collecting LocData objects.
@@ -862,13 +882,15 @@ class LocData:
     def concat(
         cls: type[T_LocData],  # noqa: UP006
         locdatas: Iterable[LocData],
-        meta: metadata_pb2.Metadata
-        | dict[str, Any]
-        | str
-        | bytes
-        | os.PathLike[Any]
-        | BinaryIO
-        | None = None,
+        meta: (
+            metadata_pb2.Metadata
+            | dict[str, Any]
+            | str
+            | bytes
+            | os.PathLike[Any]
+            | BinaryIO
+            | None
+        ) = None,
     ) -> T_LocData:
         """
         Concatenate LocData objects.
@@ -920,13 +942,15 @@ class LocData:
         n_chunks: int | None = None,
         order: Literal["successive", "alternating"] = "successive",
         drop: bool = False,
-        meta: metadata_pb2.Metadata
-        | dict[str, Any]
-        | str
-        | bytes
-        | os.PathLike[Any]
-        | BinaryIO
-        | None = None,
+        meta: (
+            metadata_pb2.Metadata
+            | dict[str, Any]
+            | str
+            | bytes
+            | os.PathLike[Any]
+            | BinaryIO
+            | None
+        ) = None,
     ) -> T_LocData:
         """
         Divide locdata in chunks of localization elements.
@@ -1069,13 +1093,15 @@ class LocData:
         self,
         dataframe: pd.DataFrame | None,
         reset_index: bool = False,
-        meta: metadata_pb2.Metadata
-        | dict[str, Any]
-        | str
-        | bytes
-        | os.PathLike[Any]
-        | BinaryIO
-        | None = None,
+        meta: (
+            metadata_pb2.Metadata
+            | dict[str, Any]
+            | str
+            | bytes
+            | os.PathLike[Any]
+            | BinaryIO
+            | None
+        ) = None,
     ) -> Self:
         """
         Update the dataframe attribute in place.
@@ -1284,11 +1310,13 @@ class LocData:
 
     def update_properties_in_references(
         self,
-        properties: dict[str, Iterable[Any]]
-        | pd.Series[Any]
-        | pd.DataFrame
-        | Callable[..., Any]
-        | None = None,
+        properties: (
+            dict[str, Iterable[Any]]
+            | pd.Series[Any]
+            | pd.DataFrame
+            | Callable[..., Any]
+            | None
+        ) = None,
     ) -> Self:
         """
         Add properties for each element in self.references

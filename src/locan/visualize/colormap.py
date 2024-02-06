@@ -38,6 +38,7 @@ Variables
    colormap_registry
 
 """
+
 from __future__ import annotations
 
 import logging

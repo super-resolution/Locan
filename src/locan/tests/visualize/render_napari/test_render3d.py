@@ -57,7 +57,6 @@ def test_render_3d_napari(make_napari_viewer, locdata_blobs_3d):
         blending="additive",
     )
     assert viewer_ is viewer
-    viewer.close()
 
 
 @pytest.mark.skipif(
@@ -69,7 +68,6 @@ def test_render_3d_napari_empty(make_napari_viewer, locdata_empty):
         locdata_empty, viewer=viewer, bin_size=100, cmap="viridis", gamma=0.1
     )
     assert viewer.layers == []
-    viewer.close()
 
 
 @pytest.mark.gui
@@ -82,7 +80,7 @@ def test_render_3d_napari_single_gui(locdata_single_localization_3d, caplog):
     except IndexError:
         record_tuples_ = caplog.record_tuples[0]
     assert record_tuples_ == (
-        "locan.visualize.napari.render3d",
+        "locan.visualize.render_napari.render3d",
         30,
         "Locdata carries a single localization.",
     )
@@ -103,9 +101,8 @@ def test_render_3d_napari_single(
         cmap="viridis",
         gamma=0.1,
     )
-    viewer.close()
-    assert caplog.record_tuples[0] == (
-        "locan.visualize.napari.render3d",
+    assert caplog.record_tuples[-1] == (
+        "locan.visualize.render_napari.render3d",
         30,
         "Locdata carries a single localization.",
     )
@@ -128,4 +125,3 @@ def test_render_3d_rgb_napari(make_napari_viewer, locdata_blobs_3d):
     locdata_0 = locdata_blobs_3d
     locdata_1 = transform_affine(locdata_blobs_3d, offset=(20, 0, 0))
     render_3d_rgb_napari([locdata_0, locdata_1], viewer=viewer, bin_size=20)
-    viewer.close()

@@ -1,6 +1,7 @@
 """
 Functions to compute locdata properties.
 """
+
 from __future__ import annotations
 
 import logging

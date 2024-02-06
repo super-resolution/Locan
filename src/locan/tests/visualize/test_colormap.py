@@ -92,6 +92,9 @@ class TestColormap:
         assert isinstance(colormap.napari, napari.utils.Colormap)
         assert colormap.name == "viridis"
 
+        with pytest.raises(LookupError):
+            Colormap.from_napari(colormap="not in napari")
+
     @pytest.mark.skipif(
         not HAS_DEPENDENCY["colorcet"], reason="Test requires colorcet."
     )
@@ -103,6 +106,10 @@ class TestColormap:
         colormap = Colormap.from_colorcet(colormap="fire")
         assert isinstance(colormap.matplotlib, mcolors.Colormap)
         assert colormap.name == "fire"
+
+        colormap = Colormap.from_registry(colormap="cet_fire")
+        assert isinstance(colormap.matplotlib, mcolors.Colormap)
+        assert colormap.name == "cet_fire"
 
     def test_from_registry(self):
         colormap = Colormap.from_registry(colormap="viridis")

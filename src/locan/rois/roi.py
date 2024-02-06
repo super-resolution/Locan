@@ -7,6 +7,7 @@ The Roi object provides methods for saving all specifications to a
 yaml file, for loading them, and for returning LocData with
 localizations selected to be within the roi region.
 """
+
 from __future__ import annotations
 
 import logging
@@ -207,11 +208,9 @@ class Roi:
     def __init__(
         self,
         region: Region,
-        reference: LocData
-        | dict[str, Any]
-        | metadata_pb2.Metadata
-        | metadata_pb2.File
-        | None = None,
+        reference: (
+            LocData | dict[str, Any] | metadata_pb2.Metadata | metadata_pb2.File | None
+        ) = None,
         loc_properties: Iterable[str] | None = None,
     ):
         self.reference: LocData | metadata_pb2.Metadata | metadata_pb2.File | None
@@ -767,9 +766,9 @@ def rasterize(
     # specify support
     if support is None:
         assert locdata.bounding_box is not None  # type narrowing # noqa: S101
-        support_: tuple[tuple[int], ...] | npt.NDArray[
-            Any
-        ] = locdata.bounding_box.vertices[coordinate_labels_indices]
+        support_: tuple[tuple[int], ...] | npt.NDArray[Any] = (
+            locdata.bounding_box.vertices[coordinate_labels_indices]
+        )
         if len(locdata.bounding_box.width) == 0:
             widths = np.zeros(len(n_regions))
         else:

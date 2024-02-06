@@ -12,6 +12,7 @@ References
    Histochem Cell Biol. 2012, 137(1):1-10.
    doi: 10.1007/s00418-011-0880-5
 """
+
 from __future__ import annotations
 
 import logging

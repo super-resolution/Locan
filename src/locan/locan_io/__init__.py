@@ -15,6 +15,7 @@ Submodules:
    utilities
 
 """
+
 from __future__ import annotations
 
 from locan.locan_io import files, locdata, utilities

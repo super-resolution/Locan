@@ -57,6 +57,7 @@ class Acquisition(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     FRAME_COUNT_FIELD_NUMBER: _ClassVar[int]
     FRAME_OF_INTEREST_FIRST_FIELD_NUMBER: _ClassVar[int]
@@ -155,6 +156,7 @@ class Camera(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     ELECTRONS_PER_COUNT_FIELD_NUMBER: _ClassVar[int]
     FLIPPED_FIELD_NUMBER: _ClassVar[int]
@@ -216,6 +218,7 @@ class Detection(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     CAMERA_FIELD_NUMBER: _ClassVar[int]
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     IDENTIFIER_FIELD_NUMBER: _ClassVar[int]
@@ -244,6 +247,7 @@ class Experiment(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     EXPERIMENTERS_FIELD_NUMBER: _ClassVar[int]
     IDENTIFIER_FIELD_NUMBER: _ClassVar[int]
@@ -278,6 +282,7 @@ class ExperimentalSample(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     BUFFERS_FIELD_NUMBER: _ClassVar[int]
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     FLUOROPHORES_FIELD_NUMBER: _ClassVar[int]
@@ -312,6 +317,7 @@ class ExperimentalSetup(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     IDENTIFIER_FIELD_NUMBER: _ClassVar[int]
     MAP_FIELD_NUMBER: _ClassVar[int]
@@ -370,6 +376,7 @@ class Illumination(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     AREA_FIELD_NUMBER: _ClassVar[int]
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     IDENTIFIER_FIELD_NUMBER: _ClassVar[int]
@@ -410,6 +417,7 @@ class Lightsheet(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     ANGLE_X_FIELD_NUMBER: _ClassVar[int]
     ANGLE_Y_FIELD_NUMBER: _ClassVar[int]
     ANGLE_Z_FIELD_NUMBER: _ClassVar[int]
@@ -452,6 +460,7 @@ class Localizer(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     IDENTIFIER_FIELD_NUMBER: _ClassVar[int]
     INTENSITY_THRESHOLD_FIELD_NUMBER: _ClassVar[int]
@@ -508,6 +517,7 @@ class Metadata(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     ANCESTOR_IDENTIFIERS_FIELD_NUMBER: _ClassVar[int]
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     CREATION_TIME_FIELD_NUMBER: _ClassVar[int]
@@ -662,6 +672,7 @@ class Property(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     IDENTIFIER_FIELD_NUMBER: _ClassVar[int]
     MAP_FIELD_NUMBER: _ClassVar[int]
@@ -696,6 +707,7 @@ class Relation(_message.Message):
         def __init__(
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
+
     COMMENT_FIELD_NUMBER: _ClassVar[int]
     FILE_FIELD_NUMBER: _ClassVar[int]
     IDENTIFIER_FIELD_NUMBER: _ClassVar[int]

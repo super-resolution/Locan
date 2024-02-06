@@ -3,6 +3,7 @@
 Utility methods for clustering locdata.
 
 """
+
 from __future__ import annotations
 
 import itertools

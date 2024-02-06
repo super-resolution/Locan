@@ -20,6 +20,7 @@ References
    Nat Methods. 2016 Nov 29;13(12):963-964. doi: 10.1038/nmeth.406
 
 """
+
 from __future__ import annotations
 
 import logging

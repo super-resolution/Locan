@@ -3,6 +3,7 @@ Utility to visualize test data.
 
 Show all test datasets that are available in locan/tests/test_data.
 """
+
 from __future__ import annotations
 
 from pathlib import Path

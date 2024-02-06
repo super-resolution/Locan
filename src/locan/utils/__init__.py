@@ -13,6 +13,7 @@ Submodules:
    system_information
 
 """
+
 from __future__ import annotations
 
 from locan.utils import miscellaneous, statistics, system_information

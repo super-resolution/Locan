@@ -9,6 +9,7 @@ Specify bins through one of the parameters (`bins`, `bin_edges`, `n_bins`,
 `bin_size`, `bin_range`, `labels`) as further outlined in the documentation
 for :class:`Bins`.
 """
+
 from __future__ import annotations
 
 import logging
@@ -860,14 +861,19 @@ class Bins:
         n_bins: int | Sequence[int] | None = None,
         bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
         bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
-        bin_range: tuple[float, float]
-        | Sequence[float]
-        | Sequence[Sequence[float]]
-        | None = None,
+        bin_range: (
+            tuple[float, float] | Sequence[float] | Sequence[Sequence[float]] | None
+        ) = None,
         labels: list[str] | None = None,
         extend_range: bool | None = None,
     ) -> None:
-        self._bins: Bins | _BinsFromBoostHistogramAxis | _BinsFromNumber | _BinsFromSize | _BinsFromEdges
+        self._bins: (
+            Bins
+            | _BinsFromBoostHistogramAxis
+            | _BinsFromNumber
+            | _BinsFromSize
+            | _BinsFromEdges
+        )
         self._labels: list[str] | None
 
         # check for correct inputs
@@ -1141,11 +1147,13 @@ def histogram(
     n_bins: int | Sequence[int] | None = None,
     bin_size: float | Sequence[float] | Sequence[Sequence[float]] | None = None,
     bin_edges: Sequence[float] | Sequence[Sequence[float]] | None = None,
-    bin_range: tuple[float, float]
-    | Sequence[float]
-    | Sequence[Sequence[float]]
-    | Literal["zero", "link"]
-    | None = None,
+    bin_range: (
+        tuple[float, float]
+        | Sequence[float]
+        | Sequence[Sequence[float]]
+        | Literal["zero", "link"]
+        | None
+    ) = None,
 ) -> tuple[npt.NDArray[np.int64 | np.float64], Bins, list[str]]:
     """
     Make histogram of loc_properties (columns in `locdata.data`)

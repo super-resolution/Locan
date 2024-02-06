@@ -5,6 +5,7 @@ Compute statistics for localization data.
 These values can represent new properties of locdata.
 
 """
+
 from __future__ import annotations
 
 from collections import namedtuple
@@ -22,8 +23,15 @@ __all__: list[str] = ["statistics", "ranges", "range_from_collection"]
 
 def statistics(
     locdata: LocData | pd.DataFrame | pd.Series[Any],
-    statistic_keys: str
-    | Iterable[str] = ("count", "min", "max", "mean", "median", "std", "sem"),
+    statistic_keys: str | Iterable[str] = (
+        "count",
+        "min",
+        "max",
+        "mean",
+        "median",
+        "std",
+        "sem",
+    ),
 ) -> dict[str, Any]:
     """
     Compute selected statistical parameter for localization data.

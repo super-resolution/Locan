@@ -8,6 +8,7 @@ The functions take LocData as input and compute new LocData objects.
 It makes use of the trackpy package.
 
 """
+
 from __future__ import annotations
 
 import sys

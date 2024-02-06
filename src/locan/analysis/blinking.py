@@ -5,6 +5,7 @@ Assuming that the provided localizations are acquired from the same label,
 we analyze the times of recording as
 provided by the `frame` property.
 """
+
 from __future__ import annotations
 
 import logging
@@ -220,9 +221,9 @@ class BlinkStatistics(_Analysis):
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
 
-        self.results: dict[
-            str, npt.NDArray[np.int64 | np.float64] | list[int | float]
-        ] | None = None
+        self.results: (
+            dict[str, npt.NDArray[np.int64 | np.float64] | list[int | float]] | None
+        ) = None
         self.distribution_statistics: dict[str, Any] = {}
 
     def compute(self, locdata: LocData | npt.ArrayLike) -> Self:

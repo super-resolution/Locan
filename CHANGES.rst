@@ -30,6 +30,10 @@ Other Changes and Additions
 - fix tests to be compatible with pandas 2.2.0
 - speed up tests for localization_precision
 - optimize test data
+- fix errors and deprecation warnings for pandas 2.0
+- switch to black ~24.0 format
+- add more benchmarks
+- add dockerfile to deploy locan with jupyter lab
 
 0.19 - 2023-12-12
 =================

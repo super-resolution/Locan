@@ -31,6 +31,7 @@ References
 .. [1] H. Edelsbrunner and E. P. Mücke, Three-dimensional alpha shapes.
    ACM Trans. Graph. 13(1):43-72, 1994.
 """
+
 from __future__ import annotations
 
 import warnings

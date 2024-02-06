@@ -3,6 +3,7 @@
 File input/output for localization data in Elyra files.
 
 """
+
 from __future__ import annotations
 
 import io

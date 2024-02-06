@@ -6,6 +6,7 @@ Localization intensities can be given in counts, electrons or photons.
 This module provides often used transformation functions.
 
 """
+
 from __future__ import annotations
 
 import copy

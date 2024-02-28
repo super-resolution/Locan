@@ -20,9 +20,9 @@ Submodules:
 
 from __future__ import annotations
 
-from locan.data.transform.bunwarpj import *
-from locan.data.transform.intensity_transformation import *
-from locan.data.transform.spatial_transformation import *
+from locan.process.transform.bunwarpj import *
+from locan.process.transform.intensity_transformation import *
+from locan.process.transform.spatial_transformation import *
 
 from . import bunwarpj, intensity_transformation, spatial_transformation
 

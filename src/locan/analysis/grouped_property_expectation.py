@@ -35,7 +35,7 @@ import pandas as pd
 
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
-from locan.data.aggregate import Bins
+from locan.process.aggregate import Bins
 
 if TYPE_CHECKING:
     import matplotlib as mpl

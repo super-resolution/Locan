@@ -8,7 +8,7 @@ from locan.dependencies import HAS_DEPENDENCY
 if HAS_DEPENDENCY["trackpy"]:
     from trackpy import quiet as tp_quiet
 
-    from locan.data.tracking import link_locdata, track
+    from locan.process.tracking import link_locdata, track
 
 
 pytestmark = pytest.mark.skipif(

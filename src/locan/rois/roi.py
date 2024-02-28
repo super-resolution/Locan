@@ -32,10 +32,11 @@ from ruamel.yaml import YAML
 
 import locan.constants
 import locan.locan_io.locdata.io_locdata as io
-from locan.data import metadata_pb2, region
+from locan.data import metadata_pb2
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
-from locan.data.region import Region, RoiRegion
+from locan.data.regions import region
+from locan.data.regions.region import Region, RoiRegion
 from locan.utils.miscellaneous import _get_subclasses
 
 __all__: list[str] = ["Roi", "rasterize"]

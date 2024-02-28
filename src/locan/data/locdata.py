@@ -42,7 +42,7 @@ from locan.data.metadata_utils import (
     merge_metadata,
     metadata_to_formatted_string,
 )
-from locan.data.region import Region, RoiRegion
+from locan.data.regions.region import Region, RoiRegion
 
 if TYPE_CHECKING:
     from locan.locan_types import DataFrame  # noqa F401
@@ -146,7 +146,9 @@ class LocData:
         self._oriented_bounding_box: locan.data.hulls.OrientedBoundingBox | None = None
         self._convex_hull: locan.data.hulls.ConvexHull | None = None
         self._alpha_shape: locan.data.hulls.AlphaShape | None = None
-        self._inertia_moments: locan.data.properties.misc.InertiaMoments | None = None
+        self._inertia_moments: locan.process.properties.misc.InertiaMoments | None = (
+            None
+        )
 
         self.dimension: int = len(self.coordinate_keys)
 
@@ -504,14 +506,14 @@ class LocData:
         return self
 
     @property
-    def inertia_moments(self) -> locan.data.properties.misc.InertiaMoments | None:
+    def inertia_moments(self) -> locan.process.properties.misc.InertiaMoments | None:
         """
         Inertia moments are returned as computed by
-        :func:`locan.data.properties.inertia_moments`.
+        :func:`locan.process.properties.inertia_moments`.
         """
         if self._inertia_moments is None:
             try:
-                self._inertia_moments = locan.data.properties.inertia_moments(
+                self._inertia_moments = locan.process.properties.inertia_moments(
                     self.coordinates
                 )
             except TypeError:

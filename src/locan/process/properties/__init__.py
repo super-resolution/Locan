@@ -10,13 +10,13 @@ Submodules:
    :toctree: ./
 
    misc
-   statistics
+   locdata_statistics
 """
 
 from __future__ import annotations
 
-from locan.data.properties.locdata_statistics import *
-from locan.data.properties.misc import *
+from locan.process.properties.locdata_statistics import *
+from locan.process.properties.misc import *
 
 from . import locdata_statistics, misc
 

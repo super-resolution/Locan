@@ -40,10 +40,10 @@ import pandas as pd
 
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
-from locan.data.cluster.clustering import cluster_hdbscan
-from locan.data.filter import random_subset
 from locan.data.hulls import ConvexHull
 from locan.data.locdata import LocData
+from locan.process.cluster.clustering import cluster_hdbscan
+from locan.process.filter import random_subset
 
 __all__: list[str] = ["AccumulationClusterCheck"]
 

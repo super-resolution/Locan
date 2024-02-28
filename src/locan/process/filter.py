@@ -20,7 +20,7 @@ from locan.configuration import N_JOBS
 from locan.constants import HullType
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
-from locan.data.region import Interval, Region, Region2D, RoiRegion
+from locan.data.regions.region import Interval, Region, Region2D, RoiRegion
 from locan.locan_types import RandomGeneratorSeed
 
 __all__: list[str] = [

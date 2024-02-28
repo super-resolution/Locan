@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from locan import Bins, histogram
-from locan.data.aggregate import (
+from locan.process.aggregate import (
     _accumulate_1d,
     _accumulate_2d,
     _bin_edges_to_bin_centers,
@@ -275,7 +275,7 @@ def test__bin_edges_to_bin_size(caplog):
         caplog.record_tuples,
         [
             (
-                "locan.data.aggregate",
+                "locan.process.aggregate",
                 10,
                 "bin_sizes differ by floating point instability with less than rtol=1.e-5",
             )

@@ -44,8 +44,8 @@ import numpy.typing as npt
 from scipy.spatial import Delaunay
 
 from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance
-from locan.data.region import Polygon, Region
-from locan.data.region_utils import regions_union
+from locan.data.regions.region import Polygon, Region
+from locan.data.regions.region_utils import regions_union
 
 __all__: list[str] = ["AlphaComplex", "AlphaShape"]
 

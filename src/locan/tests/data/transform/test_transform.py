@@ -11,11 +11,11 @@ from locan import (
     standardize,
     transform_affine,
 )
-from locan.data.cluster import cluster_dbscan
-from locan.data.transform.bunwarpj import _read_matrix, _unwarp
-from locan.data.transform.spatial_transformation import _homogeneous_matrix
 from locan.dependencies import HAS_DEPENDENCY
 from locan.locan_io.locdata.io_locdata import load_asdf_file
+from locan.process.cluster import cluster_dbscan
+from locan.process.transform.bunwarpj import _read_matrix, _unwarp
+from locan.process.transform.spatial_transformation import _homogeneous_matrix
 
 
 def test_bunwarp_raw_transformation():

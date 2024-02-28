@@ -8,8 +8,8 @@ import pytest
 from locan import ROOT_DIR, LocData
 from locan.analysis import CoordinateBasedColocalization
 from locan.analysis.cbc import _coordinate_based_colocalization
-from locan.data.transform import transform_affine
 from locan.locan_io.locdata.io_locdata import load_txt_file
+from locan.process.transform import transform_affine
 
 # fixtures
 

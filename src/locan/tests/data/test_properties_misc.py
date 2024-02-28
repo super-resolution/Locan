@@ -169,7 +169,7 @@ def test_compute_inertia_moments_3d(caplog):
     assert np.isnan(inertia_moments_.eccentricity)
     assert caplog.record_tuples == [
         (
-            "locan.data.properties.misc",
+            "locan.process.properties.misc",
             logging.WARNING,
             "Orientation and eccentricity have not yet been implemented for 3D.",
         )

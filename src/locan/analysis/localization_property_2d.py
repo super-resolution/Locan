@@ -35,7 +35,7 @@ from lmfit.model import ModelResult
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.configuration import COLORMAP_DEFAULTS
-from locan.data.aggregate import Bins, histogram
+from locan.process.aggregate import Bins, histogram
 from locan.visualize.transform import Trafo, adjust_contrast
 
 __all__: list[str] = ["LocalizationProperty2d"]

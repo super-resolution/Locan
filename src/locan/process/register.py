@@ -22,11 +22,11 @@ import numpy.typing as npt
 from lmfit import Model, Parameters
 from skimage.registration import phase_cross_correlation
 
-from locan.data.aggregate import Bins, histogram
 from locan.data.locdata import LocData
-from locan.data.properties.locdata_statistics import range_from_collection
-from locan.data.transform.spatial_transformation import _homogeneous_matrix
 from locan.dependencies import HAS_DEPENDENCY, needs_package
+from locan.process.aggregate import Bins, histogram
+from locan.process.properties.locdata_statistics import range_from_collection
+from locan.process.transform.spatial_transformation import _homogeneous_matrix
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d

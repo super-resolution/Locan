@@ -16,10 +16,10 @@ import numpy.typing as npt
 import scipy.spatial as spat
 from shapely.geometry import MultiPoint as shMultiPoint
 
-from locan.data.region import Polygon, Rectangle
+from locan.data.regions.region import Polygon, Rectangle
 
 if TYPE_CHECKING:
-    from locan.data.region import Region
+    from locan.data.regions.region import Region
 
 __all__: list[str] = ["BoundingBox", "ConvexHull", "OrientedBoundingBox"]
 

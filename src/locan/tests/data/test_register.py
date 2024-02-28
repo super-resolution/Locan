@@ -1,14 +1,14 @@
 import numpy as np
 import pytest
 
-from locan.data.register import (
+from locan.dependencies import HAS_DEPENDENCY
+from locan.process.register import (
     _register_cc_picasso,
     _register_cc_skimage,
     register_cc,
     register_icp,
 )
-from locan.data.transform import transform_affine
-from locan.dependencies import HAS_DEPENDENCY
+from locan.process.transform import transform_affine
 
 
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")

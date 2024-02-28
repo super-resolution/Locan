@@ -12,11 +12,11 @@ import numpy.typing as npt
 from scipy.spatial.distance import pdist
 from shapely.geometry import Point
 
-from locan.data.region import Region2D, RoiRegion
+from locan.data.regions.region import Region2D, RoiRegion
 
 if TYPE_CHECKING:
     from locan.data.locdata import LocData
-    from locan.data.region import Region
+    from locan.data.regions.region import Region
 
 __all__: list[str] = [
     "distance_to_region",

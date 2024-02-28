@@ -25,8 +25,8 @@ import numpy as np
 import numpy.typing as npt
 
 from locan.data.locdata import LocData
-from locan.data.properties.locdata_statistics import ranges
 from locan.data.validation import _check_loc_properties
+from locan.process.properties.locdata_statistics import ranges
 
 __all__: list[str] = ["Bins", "histogram"]
 

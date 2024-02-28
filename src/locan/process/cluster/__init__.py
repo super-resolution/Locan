@@ -17,8 +17,8 @@ Submodules:
 
 from __future__ import annotations
 
-from locan.data.cluster.clustering import *
-from locan.data.cluster.utils import *
+from locan.process.cluster.clustering import *
+from locan.process.cluster.utils import *
 
 from . import clustering, utils
 

@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 from locan import LocData
-from locan.data.properties import range_from_collection, ranges, statistics
+from locan.process.properties import range_from_collection, ranges, statistics
 
 
 @pytest.fixture()

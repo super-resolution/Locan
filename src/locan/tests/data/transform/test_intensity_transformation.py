@@ -5,7 +5,9 @@ import numpy as np
 import pytest
 
 from locan import transform_counts_to_photons
-from locan.data.transform.intensity_transformation import _transform_counts_to_photons
+from locan.process.transform.intensity_transformation import (
+    _transform_counts_to_photons,
+)
 
 
 def test__transform_counts_to_photons():
@@ -90,12 +92,12 @@ def test_transform_counts_to_photons(locdata_2d, caplog):
         locdata=locdata, loc_properties=["intensity", "not_present", "local_background"]
     )
     assert caplog.record_tuples[-2] == (
-        "locan.data.transform.intensity_transformation",
+        "locan.process.transform.intensity_transformation",
         30,
         "Localization property not_present is not available.",
     )
     assert caplog.record_tuples[-1] == (
-        "locan.data.transform.intensity_transformation",
+        "locan.process.transform.intensity_transformation",
         20,
         "Successfully converted: ['intensity', 'local_background'].",
     )
@@ -104,7 +106,7 @@ def test_transform_counts_to_photons(locdata_2d, caplog):
     new_locdata_2 = transform_counts_to_photons(locdata=new_locdata)
     assert np.array_equal(new_locdata_2.data.intensity, new_locdata.data.intensity)
     assert caplog.record_tuples[-2] == (
-        "locan.data.transform.intensity_transformation",
+        "locan.process.transform.intensity_transformation",
         30,
         "Localization property intensity is already provided with unit photons",
     )

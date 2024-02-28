@@ -4,9 +4,9 @@ Utility functions for working with regions.
 
 See Also
 --------
-:func:`locan.data.filter.select_by_region`
-:func:`locan.data.properties.misc.distance_to_region`
-:func:`locan.data.properties.misc.distance_to_region_boundary`
+:func:`locan.process.filter.select_by_region`
+:func:`locan.process.properties.misc.distance_to_region`
+:func:`locan.process.properties.misc.distance_to_region_boundary`
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from typing import Any
 
 from shapely.ops import unary_union
 
-from locan.data.region import EmptyRegion, Region, Region2D, RoiRegion
+from locan.data.regions.region import EmptyRegion, Region, Region2D, RoiRegion
 
 __all__: list[str] = ["regions_union", "expand_region", "surrounding_region"]
 

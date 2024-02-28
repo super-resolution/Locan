@@ -17,9 +17,9 @@ from matplotlib import colors as mcolors
 from locan import locdata_id
 from locan.configuration import COLORMAP_DEFAULTS
 from locan.data import LocData
-from locan.data.aggregate import Bins, histogram
 from locan.data.locdata_utils import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY, needs_package
+from locan.process.aggregate import Bins, histogram
 from locan.visualize.colormap import ColormapType, get_colormap
 from locan.visualize.transform import Trafo, adjust_contrast
 

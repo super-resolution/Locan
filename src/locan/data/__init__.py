@@ -10,9 +10,11 @@ Submodules:
    :toctree: ./
 
    hulls
+   images
    locdata
    metadata_utils
    regions
+   region_utils
    validation
 
 """
@@ -32,6 +34,7 @@ from locan.data.hulls import (
     OrientedBoundingBox as OrientedBoundingBox,
 )
 from locan.data.locdata import *
+from locan.data.images import *
 from locan.data.metadata_utils import *
 from locan.data.regions import (
     AxisOrientedCuboid as AxisOrientedCuboid,
@@ -65,6 +68,7 @@ from locan.data.validation import *
 submodules: list[str] = [
     "hulls",
     "locdata",
+    "images",
     "metadata_utils",
     "regions",
     "validation",

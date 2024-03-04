@@ -107,6 +107,7 @@ from .data import (
     metadata_to_formatted_string as metadata_to_formatted_string,
     regions_union as regions_union,
     surrounding_region as surrounding_region,
+    Image as Image,
 )
 from .datasets import load_npc as load_npc, load_tubulin as load_tubulin
 from .dependencies import (

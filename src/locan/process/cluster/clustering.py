@@ -6,6 +6,7 @@ Methods for clustering localization data in LocData objects.
 
 from __future__ import annotations
 
+import logging
 import sys
 from collections.abc import Sequence
 from copy import copy
@@ -288,24 +289,30 @@ def cluster_by_bin(
 
     loc_properties = _check_loc_properties(locdata, loc_properties)
     data = locdata.data[loc_properties].values
-    if (bin_range is None or isinstance(bin_range, str)) and bin_edges is None:
-        bin_range_ = ranges(locdata, loc_properties=loc_properties, special=bin_range)  # type: ignore
-    else:
-        bin_range_ = bin_range  # type: ignore
 
-    try:
-        bins = Bins(
-            bins=bins,
-            n_bins=n_bins,
-            bin_size=bin_size,
-            bin_edges=bin_edges,
-            bin_range=bin_range_,  # type: ignore
-            labels=loc_properties,
-        )
-    except ValueError as exc:
-        raise ValueError(
-            "Bin dimension and len of `loc_properties` is incompatible."
-        ) from exc
+    if bins is not None:
+        bins = bins
+        if any([item is not None for item in [n_bins, bin_size, bin_edges, bin_range]]):
+            logging.warning("bins are used - all other bin specifications are ignored.")
+    else:
+        if (bin_range is None or isinstance(bin_range, str)) and bin_edges is None:
+            bin_range_ = ranges(locdata, loc_properties=loc_properties, special=bin_range)  # type: ignore
+        else:
+            bin_range_ = bin_range  # type: ignore
+
+        try:
+            bins = Bins(
+                bins=bins,
+                n_bins=n_bins,
+                bin_size=bin_size,
+                bin_edges=bin_edges,
+                bin_range=bin_range_,  # type: ignore
+                labels=loc_properties,
+            )
+        except ValueError as exc:
+            raise ValueError(
+                "Bin dimension and len of `loc_properties` is incompatible."
+            ) from exc
 
     bin_indices, data_indices, _, counts = _accumulate_2d(
         data, bin_edges=bins.bin_edges, return_counts=True

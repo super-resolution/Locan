@@ -2,7 +2,6 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
-
 from locan import (
     Bins,
     cluster_by_bin,
@@ -229,6 +228,15 @@ def test_cluster_by_bin_empty_locdata(
 def test_cluster_by_bin(locdata_2d):
     bins, bin_indices, collection, counts = cluster_by_bin(
         locdata_2d, loc_properties=["position_x", "position_y"], bin_size=5
+    )
+    assert bins.bin_size == (4, 5)
+    assert np.array_equal(bin_indices, [[1, 1], [1, 2], [2, 1]])
+    assert len(bin_indices) == len(collection)
+    assert counts is None
+
+    bins = Bins(n_bins=1, bin_range=((1, 5), (1, 6)))
+    bins, bin_indices, collection, counts = cluster_by_bin(
+        locdata_2d, loc_properties=["position_x", "position_y"], bins=bins
     )
     assert bins.bin_size == (4, 5)
     assert np.array_equal(bin_indices, [[1, 1], [1, 2], [2, 1]])

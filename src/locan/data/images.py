@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 import uuid
 from abc import ABC, abstractmethod
-from typing import Any, Protocol, TypeVar
+from typing import TYPE_CHECKING, Any, Protocol, TypeVar
 
 import numpy as np
 import numpy.typing as npt
@@ -19,7 +19,9 @@ from google.protobuf import json_format
 from locan.data import metadata_pb2
 from locan.data.metadata_utils import merge_metadata
 from locan.dependencies import HAS_DEPENDENCY, needs_package
-from locan.process.aggregate import Bins
+
+if TYPE_CHECKING:
+    from locan.process.aggregate import Bins
 
 if HAS_DEPENDENCY["napari"]:
     import napari
@@ -34,7 +36,7 @@ class ImageProtocol(Protocol):
     data: npt.NDArray[Any]
     is_rgb: bool
     bins: Bins | None
-    meta: metadata_pb2.Metadata | None
+    meta: metadata_pb2.Metadata
 
 
 class ArrayApiObject(Protocol):
@@ -72,6 +74,11 @@ class ImageBase(ABC):
     @property
     @abstractmethod
     def is_rgb(self) -> bool:
+        pass
+
+    @property
+    @abstractmethod
+    def bins(self) -> Bins | None:
         pass
 
 
@@ -112,7 +119,7 @@ class Image(ImageBase):
         If `False` the image is interpreted as a luminance image.
     bins: Bins | None
         Bins instance carrying pixel coordinates
-    meta: locan.data.metadata_pb2.Metadata | None
+    meta: locan.data.metadata_pb2.Metadata
         Metadata about the current dataset.
     """
 

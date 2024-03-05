@@ -291,7 +291,7 @@ def cluster_by_bin(
     data = locdata.data[loc_properties].values
 
     if bins is not None:
-        bins = bins
+        bins = Bins(bins=bins)
         if any([item is not None for item in [n_bins, bin_size, bin_edges, bin_range]]):
             logging.warning("bins are used - all other bin specifications are ignored.")
     else:
@@ -314,10 +314,13 @@ def cluster_by_bin(
                 "Bin dimension and len of `loc_properties` is incompatible."
             ) from exc
 
-    bin_indices, data_indices, _, counts = _accumulate_2d(
-        data, bin_edges=bins.bin_edges, return_counts=True
-    )
-    assert counts is not None  # type narrowing # noqa: S101
+    if bins.dimension == 2:
+        bin_indices, data_indices, _, counts = _accumulate_2d(
+            data, bin_edges=bins.bin_edges, return_counts=True
+        )
+        assert counts is not None  # type narrowing # noqa: S101
+    else:
+        raise NotImplementedError("Only implemented for dimension 2.")
 
     if min_samples > 1:
         mask = counts >= min_samples

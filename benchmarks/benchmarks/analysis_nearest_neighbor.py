@@ -53,7 +53,7 @@ def main_profile():
         bm.time__nearest_neighbor_distances()
 
     profiler.disable()
-    stats = pstats.Stats(profiler).sort_stats("tottime")
+    stats = pstats.Stats(profiler).sort_stats("cumtime")
     stats.print_stats("time_")
 
 

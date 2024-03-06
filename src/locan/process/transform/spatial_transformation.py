@@ -398,7 +398,6 @@ def overlay(
     LocData
         Collection with transformed locdatas.
     """
-    logger.info("I as here")
     local_parameter = locals()
 
     if not locdatas or not isinstance(locdatas, (tuple, list)):

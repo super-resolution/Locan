@@ -14,7 +14,7 @@ locan = ["py.typed", "*.pyi"]
 [tool.setuptools_scm]
 version_file = "src/locan/_version.py"
 version_scheme = "release-branch-semver"
-fallback_version = "0.19-fallback"
+fallback_version = "0.20-fallback"
 
 [project]
 name = "locan"
@@ -55,90 +55,87 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "asdf",
-    "tifffile",
-    "ruamel.yaml",
-    "fast-histogram",
     "boost-histogram",
-    "lmfit",
-    "protobuf",
-    "shapely!=2.0.0,!=2.0.1",
-    "networkx",
-    "scikit-learn",
-    "scikit-image",
-    "matplotlib",
-    "scipy",
-    "pandas",
-    "numpy>1.20.0",
-    "tqdm",
     "cython",
-    "tomli>=1.1.0; python_version<'3.11'",
-    "qtpy!=2.3.0",
-    "typing_extensions",
+    "fast-histogram",
     "lazy_loader>=0.3",
+    "lmfit",
+    "matplotlib",
+    "networkx",
+    "numpy>1.20.0",
+    "pandas",
+    "protobuf<5",
+    "qtpy!=2.3.0",
+    "ruamel.yaml",
+    "scikit-image",
+    "scikit-learn",
+    "scipy",
+    "shapely!=2.0.0,!=2.0.1",
+    "tifffile",
+    "tomli>=1.1.0; python_version<'3.11'",
+    "tqdm",
+    "typing_extensions",
 ]
 
 [project.optional-dependencies]
+color = ["colorcet"]
+hdbscan = ["hdbscan"]
+hdf5 = ["h5py"]
+html = ["requests"]
+napari = ["napari"]
+pyqt5 = ["PyQt5"]
+pyside2 = ["PySide2"]
+register = [
+    "open3d-cpu!=0.12.0; platform_system=='Linux' and python_version<'3.12'",
+    "open3d!=0.12.0; platform_system!='Linux' and python_version<'3.12'"]
+scatter_density = ["mpl_scatter_density"]
 test = [
     "pytest",
 ]
 test-qt = [
     "pytest",
+    "pytest-qt;python_version<'3.13'",
     "PyQt5",
-    "pytest-qt;python_version<'3.11'"
 ]
-pyside2 = ["PySide2"]
-pyqt5 = ["PyQt5"]
-color = ["colorcet"]
 track = ["trackpy"]
-register = [
-    "open3d-cpu!=0.12.0; platform_system=='Linux' and python_version<'3.11'",
-    "open3d!=0.12.0; platform_system!='Linux' and python_version<'3.11'"]
-napari = ["napari"]
-scatter_density = ["mpl_scatter_density"]
-html = ["requests"]
-hdf5 = ["h5py"]
-hdbscan = ["hdbscan"]
 all = [
-    "PyQt5",
-    "locan[test]",
     "colorcet",
-    "trackpy",
-    "locan[register]",
-    "napari",
-    "mpl_scatter_density",
-    "requests",
+    "hdbscan",
     "h5py",
-    "hdbscan"
+    "PyQt5",
+    "locan[register]",
+    "locan[test]",
+    "mpl_scatter_density",
+    "napari",
+    "requests",
+    "trackpy",
 ]
 gpu = [
     "cupy",
-    "open3d!=0.12.0; python_version<'3.11'"
+    "open3d!=0.12.0; python_version<'3.12'"
 ]
 docs = [
-    "sphinx",
+    "furo",
     "ipython",
     "myst-nb",
+    "ray[default]",
+    "sphinx",
+    "sphinx-autodoc-typehints",
     "sphinx-copybutton",
-    "sphinx_rtd_theme",
-    "sphinx_autodoc_typehints",
-    "furo",
-    "ray",
 ]
 dev = [
-    "locan[test]",
-    "coverage[toml]",
-    "build",
-    "twine",
-    "black~=23.0",
-    "pre-commit",
     "asv",
-    "ruff",
+    "black~=24.0",
+    "build",
+    "coverage[toml]",
     "mypy",
-    "numpy>1.20.0",  # required by mypy
+    "pandas-stubs",  # required by mypy
+    "pre-commit",
+    "ruff",
+    "twine",
     "types-protobuf",  # required by mypy
     "types-requests",  # required by mypy
     "types-tqdm",  # required by mypy
-    "pandas-stubs",  # required by mypy
 ]
 
 [project.urls]
@@ -171,15 +168,15 @@ include = [
     "src/locan/*"
 ]
 omit = [
-    "locan/tests/*",
-    "locan/scripts/*",
-    "locan/__main__.py",
-    "locan/data/metadata_pb2.py",
-    "locan/data/metadata_pb2.pyi",
-    "locan/analysis/metadata_analysis_pb2.py",
-    "locan/analysis/metadata_analysis_pb2.pyi",
-    "locan/locan_io/locdata/manifest_pb2.py",
-    "locan/locan_io/locdata/manifest_pb2.pyi",
+    "src/locan/tests/*",
+    "src/locan/scripts/*",
+    "src/locan/__main__.py",
+    "src/locan/data/metadata_pb2.py",
+    "src/locan/data/metadata_pb2.pyi",
+    "src/locan/analysis/metadata_analysis_pb2.py",
+    "src/locan/analysis/metadata_analysis_pb2.pyi",
+    "src/locan/locan_io/locdata/manifest_pb2.py",
+    "src/locan/locan_io/locdata/manifest_pb2.pyi",
 ]
 
 [tool.coverage.report]
@@ -237,7 +234,9 @@ exclude = [
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["E402", "F401", "F403", "F405", "I001"]
 "__init__.pyi" = ["E401", "F401", "I001"]
-"test_*.py" = ["S101", "S307", "S605", "S607"]
+"test_*.py" = ["S101", "S307", "S403", "S605", "S607"]
+"test_simulation.py" = ["F841"]
+"benchmarks/benchmarks/*.py" = ["S101"]
 
 [tool.ruff.flake8-quotes]
 docstring-quotes = "double"
@@ -255,6 +254,10 @@ boost_histogram = "bh"
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
+
+[tool.ruff.lint]
+extend-select = ["NPY201"]
+preview = true
 
 [tool.mypy]
 plugins = ['numpy.typing.mypy_plugin']

@@ -60,7 +60,7 @@ dependencies = [
     "fast-histogram",
     "boost-histogram",
     "lmfit",
-    "protobuf",
+    "protobuf<5",
     "shapely!=2.0.0,!=2.0.1",
     "networkx",
     "scikit-learn",

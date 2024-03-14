@@ -1,71 +1,48 @@
 """
-Benchmark functions for :mod:`locan.data`
+Benchmark functions for :func:`locan.data.LocData`
 """
+
+from copy import deepcopy
 
 import locan as lc
 import numpy as np
-import pandas as pd
+from locan.data.locdata import LocData
 
 rng = np.random.default_rng(seed=1)
 
 
-class BenchmarkMetadata:
+class BenchmarkLocDataFromSelection:
     """
-    Benchmarks for data.metadata_pb2.Metadata objects
-    """
-
-    def setup(self):
-        self.metadata = lc.data.metadata_pb2.Metadata()
-
-    def time_initialize_metadata(self):
-        lc.data.metadata_pb2.Metadata()
-
-    def mem_metadata(self):
-        return self.metadata
-
-
-class BenchmarkLocData:
-    """
-    Benchmarks for initializing LocData objects
+    Benchmarks for selecting LocData objects
     """
 
     def setup(self):
-        n_points = 10_000
-        coordinates = rng.uniform(low=0, high=10_000, size=(4, n_points))
-        locdata_dict = {
-            "position_x": coordinates[0],
-            "position_y": coordinates[1],
-            "position_z": coordinates[2],
-            "frame": np.linspace(0, n_points, n_points, dtype=int),
-            "intensity": coordinates[3],
-        }
-        self.locdata_df = pd.DataFrame(locdata_dict)
-        self.meta = lc.data.metadata_pb2.Metadata()
-        self.meta.creation_time.seconds = 1
-        self.locdata_3d = lc.LocData.from_dataframe(
-            dataframe=self.locdata_df, meta=self.meta
+        path = lc.ROOT_DIR / "tests/test_data/five_blobs.txt"
+        self.locdata = lc.load_txt_file(path)
+        self.df = deepcopy(self.locdata.data)
+        # print(self.locdata.data.info())
+
+        n_selected_points = 40
+        self.selection_indices = rng.integers(
+            low=0, high=50, size=(10, n_selected_points)
         )
 
-        n_selected_points = 1_000
-        self.selection_indices = rng.integers(
-            low=0, high=n_points, size=n_selected_points
-        ).tolist()
-        self.selection = lc.LocData.from_selection(
-            locdata=self.locdata_3d, indices=self.selection_indices
+        self.selection = LocData.from_selection(
+            locdata=self.locdata, indices=self.selection_indices[0].tolist()
         )
 
         self.locdatas = [
-            lc.LocData.from_selection(locdata=self.locdata_3d, indices=idxs.tolist())
-            for idxs in rng.integers(low=0, high=n_points, size=(10, n_selected_points))
+            LocData.from_selection(locdata=self.locdata, indices=idxs.tolist())
+            for idxs in self.selection_indices
         ]
         self.collection = lc.LocData.from_collection(locdatas=self.locdatas)
 
     def time_initialize_locdata_from_dataframe(self):
-        lc.LocData.from_dataframe(dataframe=self.locdata_df, meta=self.meta)
+        LocData.from_dataframe(dataframe=self.df)
 
     def time_locdata_selection(self):
-        lc.LocData.from_selection(
-            locdata=self.locdata_3d, indices=self.selection_indices
+        LocData.from_selection(
+            locdata=self.locdata, indices=self.selection_indices[0].tolist()
         )
 
     def time_locdata_collection(self):
@@ -75,7 +52,7 @@ class BenchmarkLocData:
         return lc.LocData()
 
     def mem_locdata_from_dataframe(self):
-        return self.locdata_3d
+        return self.locdata
 
     def mem_locdata_selection(self):
         return self.selection
@@ -91,7 +68,7 @@ class BenchmarkLocData:
 
 
 def main():
-    bm = BenchmarkLocData()
+    bm = BenchmarkLocDataFromSelection()
     bm.setup()
     bm.time_initialize_locdata_from_dataframe()
     bm.time_locdata_selection()
@@ -105,7 +82,7 @@ def main_profile():
     import cProfile
     import pstats
 
-    bm = BenchmarkLocData()
+    bm = BenchmarkLocDataFromSelection()
     bm.setup()
 
     profiler = cProfile.Profile()
@@ -119,6 +96,7 @@ def main_profile():
     profiler.disable()
     stats = pstats.Stats(profiler).sort_stats("cumtime")
     stats.print_stats("time_")
+    stats.print_stats()
 
 
 if __name__ == "__main__":

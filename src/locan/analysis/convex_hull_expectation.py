@@ -321,12 +321,12 @@ class ConvexHullExpectation(_Analysis):
 
         try:
             self.results.values = locdata.data.loc[
-                :, ["localization_count", loc_property]
+                :, ["localization_count", loc_property]  # type: ignore[list-item]
             ]
         except KeyError:
             locdata.update_convex_hulls_in_references()
             self.results.values = locdata.data.loc[
-                :, ["localization_count", loc_property]
+                :, ["localization_count", loc_property]  # type: ignore[list-item]
             ]
 
         grouped = self.results.values.groupby("localization_count")

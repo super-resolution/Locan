@@ -2,8 +2,9 @@
 Benchmark functions for :mod:`locan.process.register`
 """
 
-import locan as lc
 import numpy as np
+
+import locan as lc
 from locan.process.register import (
     _register_cc_skimage,
     _register_icp_open3d,

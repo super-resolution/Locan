@@ -2,8 +2,9 @@
 Benchmark functions for :mod:`locan.simulation`
 """
 
-import locan as lc
 import numpy as np
+
+import locan as lc
 
 rng = np.random.default_rng(seed=1)
 

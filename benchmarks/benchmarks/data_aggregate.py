@@ -2,8 +2,9 @@
 Benchmark functions for :mod:`locan.process.aggregate`
 """
 
-import locan as lc
 import numpy as np
+
+import locan as lc
 from locan.process.aggregate import (
     _histogram_boost_histogram,
     _histogram_fast_histogram,

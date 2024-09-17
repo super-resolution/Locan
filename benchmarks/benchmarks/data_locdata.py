@@ -4,8 +4,9 @@ Benchmark functions for :func:`locan.data.LocData`
 
 from copy import deepcopy
 
-import locan as lc
 import numpy as np
+
+import locan as lc
 from locan.data.locdata import LocData
 
 rng = np.random.default_rng(seed=1)

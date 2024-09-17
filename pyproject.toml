@@ -95,14 +95,12 @@ test = [
 test-qt = [
     "pytest",
     "pytest-qt;python_version<'3.13'",
-    "PyQt5",
 ]
 track = ["trackpy"]
 all = [
     "colorcet",
     "hdbscan",
     "h5py",
-    "PyQt5",
     "locan[http]",
     "locan[register]",
     "locan[test]",

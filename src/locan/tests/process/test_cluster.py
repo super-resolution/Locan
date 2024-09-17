@@ -30,7 +30,7 @@ def test_cluster_hdbscan_2d(locdata_two_cluster_2d):
     )
     assert len(clust) == 1
     assert clust.data.localization_count[0] == 6
-    assert all(np.in1d(clust.references[0].data.cluster_label, [1, 2]))
+    assert all(np.isin(clust.references[0].data.cluster_label, [1, 2]))
     assert clust.region == locdata_two_cluster_2d.region
 
     noise, clust = cluster_hdbscan(
@@ -66,7 +66,7 @@ def test_cluster_hdbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
     assert len(noise) == 1
     assert len(clust) == 1
     assert clust.data.localization_count[0] == 6
-    assert all(np.in1d(clust.references[0].data.cluster_label, [1, 2]))
+    assert all(np.isin(clust.references[0].data.cluster_label, [1, 2]))
     assert noise.region == locdata_two_cluster_with_noise_2d.region
     assert clust.region == locdata_two_cluster_with_noise_2d.region
 
@@ -117,7 +117,7 @@ def test_cluster_dbscan_2d(locdata_two_cluster_2d):
     noise, clust = cluster_dbscan(locdata_two_cluster_2d, eps=20, min_samples=1)
     assert len(clust) == 1
     assert clust.data.localization_count[0] == 6
-    assert all(np.in1d(clust.references[0].data.cluster_label, [1, 2]))
+    assert all(np.isin(clust.references[0].data.cluster_label, [1, 2]))
     assert clust.region == locdata_two_cluster_2d.region
 
     noise, clust = cluster_dbscan(
@@ -162,7 +162,7 @@ def test_cluster_dbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
     assert len(noise) == 1
     assert len(clust) == 1
     assert clust.data.localization_count[0] == 6
-    assert all(np.in1d(clust.references[0].data.cluster_label, [1, 2]))
+    assert all(np.isin(clust.references[0].data.cluster_label, [1, 2]))
     assert noise.region == locdata_two_cluster_with_noise_2d.region
     assert clust.region == locdata_two_cluster_with_noise_2d.region
 

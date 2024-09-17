@@ -53,7 +53,7 @@ dependencies:
 - trackpy
 - napari
 - mpl-scatter-density
-- requests
+- httpx
 - h5py
 
 # Various issues
@@ -77,7 +77,6 @@ dependencies:
 - pre-commit
 - ruff
 - twine
-- types-requests
 - types-protobuf
 - types-tqdm
 

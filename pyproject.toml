@@ -81,7 +81,7 @@ dependencies = [
 color = ["colorcet"]
 hdbscan = ["hdbscan"]
 hdf5 = ["h5py"]
-html = ["requests"]
+html = ["httpx"]
 napari = ["napari"]
 pyqt5 = ["PyQt5"]
 pyside2 = ["PySide2"]
@@ -107,7 +107,7 @@ all = [
     "locan[test]",
     "mpl_scatter_density",
     "napari",
-    "requests",
+    "httpx",
     "trackpy",
 ]
 gpu = [
@@ -134,7 +134,6 @@ dev = [
     "ruff",
     "twine",
     "types-protobuf",  # required by mypy
-    "types-requests",  # required by mypy
     "types-tqdm",  # required by mypy
 ]
 

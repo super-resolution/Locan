@@ -2,7 +2,7 @@ import pytest
 
 from locan.datasets import load_npc, load_tubulin
 
-requests = pytest.importorskip("requests", reason="requires requests for html download")
+httpx = pytest.importorskip("httpx", reason="requires httpx for html download")
 
 
 def test_load_npc():

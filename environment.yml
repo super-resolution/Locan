@@ -54,7 +54,7 @@ dependencies:
 - trackpy
 - napari
 - mpl-scatter-density
-- requests
+- httpx
 - h5py
 
 # Various issues

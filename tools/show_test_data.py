@@ -8,10 +8,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import locan as lc
 import matplotlib.pyplot as plt
 import numpy as np
 import tifffile as tif
+
+import locan as lc
 from locan import ROOT_DIR
 
 PATH_TEST_DATA = ROOT_DIR / "tests/test_data"

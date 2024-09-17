@@ -22,7 +22,7 @@ jobs:
     env:
       REQUIREMENTS_FILE: "environment-linux-py${{ matrix.python-version }}.yml"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
@@ -40,7 +40,7 @@ jobs:
       - name: "Freeze environment"
         run: conda env export > ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ env.REQUIREMENTS_FILE }}"
           path: ${{ env.REQUIREMENTS_FILE }}

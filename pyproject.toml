@@ -81,7 +81,7 @@ dependencies = [
 color = ["colorcet"]
 hdbscan = ["hdbscan"]
 hdf5 = ["h5py"]
-html = ["httpx"]
+http = ["httpx"]
 napari = ["napari"]
 pyqt5 = ["PyQt5"]
 pyside2 = ["PySide2"]
@@ -103,11 +103,11 @@ all = [
     "hdbscan",
     "h5py",
     "PyQt5",
+    "locan[http]",
     "locan[register]",
     "locan[test]",
     "mpl_scatter_density",
     "napari",
-    "httpx",
     "trackpy",
 ]
 gpu = [

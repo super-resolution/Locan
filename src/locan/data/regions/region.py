@@ -1029,7 +1029,7 @@ class Rectangle(Region2D):
         self._shapely_object = None
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({tuple(self.corner)}, {self.width}, {self.height}, {self.angle})"
+        return f"{self.__class__.__name__}({tuple(self.corner.tolist())}, {self.width}, {self.height}, {self.angle})"
 
     def __getattr__(self, attr: str) -> Any:
         """All non-adapted calls are passed to shapely object"""
@@ -1235,7 +1235,7 @@ class Ellipse(Region2D):
         self._shapely_object = None
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({tuple(self.center)}, {self.width}, {self.height}, {self.angle})"
+        return f"{self.__class__.__name__}({tuple(self.center.tolist())}, {self.width}, {self.height}, {self.angle})"
 
     def __getattr__(self, attr: str) -> Any:
         """All non-adapted calls are passed to shapely object"""
@@ -1695,7 +1695,7 @@ class AxisOrientedCuboid(Region3D):
 
     def __repr__(self) -> str:
         return (
-            f"{self.__class__.__name__}({tuple(self.corner)}, "
+            f"{self.__class__.__name__}({tuple(self.corner.tolist())}, "
             f"{self.length}, {self.width}, {self.height})"
         )
 
@@ -1914,7 +1914,7 @@ class Cuboid(Region3D):
 
     def __repr__(self) -> str:
         return (
-            f"{self.__class__.__name__}({tuple(self.corner)}, "
+            f"{self.__class__.__name__}({tuple(self.corner.tolist())}, "
             f"{self.length}, {self.width}, {self.height}, "
             f"{self.alpha}, {self.beta}, {self.gamma})"
         )
@@ -2081,7 +2081,7 @@ class AxisOrientedHypercuboid(RegionND):
         self._lengths = lengths
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({tuple(self.corner)}, {tuple(self.lengths)})"
+        return f"{self.__class__.__name__}({tuple(self.corner.tolist())}, {tuple(self.lengths.tolist())})"
 
     @classmethod
     def from_intervals(

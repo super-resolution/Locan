@@ -34,7 +34,7 @@ dependencies:
 - lmfit
 
 # Google
-- protobuf<5
+- protobuf
 
 # File formats
 - ruamel.yaml

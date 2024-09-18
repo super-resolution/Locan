@@ -2,9 +2,9 @@
 // Python code:
 //
 // Run protobuf compiler from Locan root directory:
-// protoc --proto_path="." --proto_path="./locan/io/locdata" --python_out="." "./locan/io/locdata/manifest.proto"
+// protoc --proto_path="." --proto_path="./locan/locan_io/locdata" --python_out="." --pyi_out="." "./locan/locan_io/locdata/manifest.proto"
 
-// protoc --proto_path="." --proto_path="./locan/io/locdata" --python_out="." "./locan/data/metadata.proto" "./locan/io/locdata/manifest.proto"
+// protoc --proto_path="." --proto_path="./locan/io/locdata" --python_out="." "./locan/data/metadata.proto" "./locan/locan_io/locdata/manifest.proto"
 syntax = "proto2";
 
 package locan.locan_io.locdata;

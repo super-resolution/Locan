@@ -40,7 +40,7 @@ dependencies:
 - tifffile
 - asdf
 - # only needed for python < 3.11:
-- tomli>=1.1.0
+# - tomli>=1.1.0
 
 # Data analysis tools
 - boost-histogram
@@ -48,6 +48,7 @@ dependencies:
 
 # Extra requirements
 # - pyside2>=5.12.3
+- pyside6
 - colorcet
 - trackpy
 - napari

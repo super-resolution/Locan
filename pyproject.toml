@@ -64,7 +64,7 @@ dependencies = [
     "networkx",
     "numpy>1.20.0",
     "pandas",
-    "protobuf<5",
+    "protobuf",
     "qtpy!=2.3.0",
     "ruamel.yaml",
     "scikit-image",

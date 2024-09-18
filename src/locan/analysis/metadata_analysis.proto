@@ -4,7 +4,7 @@
 // protoc --python_out=. metadata_analysis.proto
 
 // Alternatively, run protobuf compiler from from Locan root directory:
-// protoc --proto_path="." --python_out="."  "./locan/analysis/metadata_analysis.proto
+// protoc --proto_path="." --python_out="." --pyi_out="." "./locan/analysis/metadata_analysis.proto"
 //
 // Update all *.proto files from Locan root directory:
 // protoc --proto_path="." --proto_path="./locan/locan_io/locdata" --python_out="." --pyi_out="." "./locan/data/metadata.proto" "./locan/analysis/metadata_analysis.proto" "./locan/locan_io/locdata/manifest.proto"

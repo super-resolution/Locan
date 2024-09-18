@@ -49,7 +49,6 @@ dependencies:
 
 # Extra requirements
 # - pyside2>=5.12.3
-- hdbscan
 - colorcet
 - trackpy
 - napari

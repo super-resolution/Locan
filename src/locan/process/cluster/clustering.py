@@ -13,17 +13,13 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import numpy.typing as npt
-from sklearn.cluster import DBSCAN
+from sklearn.cluster import DBSCAN, HDBSCAN
 
 from locan.configuration import N_JOBS
 from locan.data.locdata import LocData
 from locan.data.locdata_utils import _check_loc_properties
-from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.process.aggregate import Bins, _accumulate_2d
 from locan.process.properties.locdata_statistics import ranges
-
-if HAS_DEPENDENCY["hdbscan"]:
-    from hdbscan import HDBSCAN
 
 if TYPE_CHECKING:
     import boost_histogram as bh
@@ -31,7 +27,6 @@ if TYPE_CHECKING:
 __all__: list[str] = ["cluster_hdbscan", "cluster_dbscan", "cluster_by_bin"]
 
 
-@needs_package("hdbscan")
 def cluster_hdbscan(
     locdata: LocData,
     min_cluster_size: int = 5,
@@ -65,6 +60,14 @@ def cluster_hdbscan(
         of any cluster.
         The second LocData object is a LocData instance assembling all
         generated selections (i.e. localization cluster).
+
+    Note
+    ----
+    In locdata 0.20.0 the original hdbscan implementation was replaced by the
+    scikit-learn implementation.
+    The new implementation should yield identical results if the min_samples
+    parameter is increased by one. See notes at
+    https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html
     """
     parameter = locals()
 
@@ -85,7 +88,6 @@ def cluster_hdbscan(
         labels = HDBSCAN(
             min_cluster_size=min_cluster_size,
             allow_single_cluster=allow_single_cluster,
-            gen_min_span_tree=False,
             **kwargs,
         ).fit_predict(fit_data)
 

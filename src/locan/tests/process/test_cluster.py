@@ -10,14 +10,11 @@ from locan import (
     cluster_hdbscan,
     serial_clustering,
 )
-from locan.dependencies import HAS_DEPENDENCY
 
 
-# tests hdbscan
-@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 def test_cluster_hdbscan_2d(locdata_two_cluster_2d):
     noise, clust = cluster_hdbscan(
-        locdata_two_cluster_2d, min_cluster_size=2, allow_single_cluster=False
+        locdata_two_cluster_2d, min_cluster_size=3, allow_single_cluster=False
     )
     assert noise.data.empty
     assert len(clust) == 2
@@ -26,7 +23,7 @@ def test_cluster_hdbscan_2d(locdata_two_cluster_2d):
     assert clust.region == locdata_two_cluster_2d.region
 
     noise, clust = cluster_hdbscan(
-        locdata_two_cluster_2d, min_cluster_size=5, allow_single_cluster=True
+        locdata_two_cluster_2d, min_cluster_size=6, allow_single_cluster=True
     )
     assert len(clust) == 1
     assert clust.data.localization_count[0] == 6
@@ -46,11 +43,10 @@ def test_cluster_hdbscan_2d(locdata_two_cluster_2d):
     assert clust.region == locdata_two_cluster_2d.region
 
 
-@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 def test_cluster_hdbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
     noise, clust = cluster_hdbscan(
         locdata_two_cluster_with_noise_2d,
-        min_cluster_size=2,
+        min_cluster_size=3,
         allow_single_cluster=False,
     )
     assert len(noise) == 1
@@ -61,7 +57,7 @@ def test_cluster_hdbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
     assert clust.region == locdata_two_cluster_with_noise_2d.region
 
     noise, clust = cluster_hdbscan(
-        locdata_two_cluster_with_noise_2d, min_cluster_size=5, allow_single_cluster=True
+        locdata_two_cluster_with_noise_2d, min_cluster_size=6, allow_single_cluster=True
     )
     assert len(noise) == 1
     assert len(clust) == 1
@@ -71,7 +67,6 @@ def test_cluster_hdbscan_2d_with_noise(locdata_two_cluster_with_noise_2d):
     assert clust.region == locdata_two_cluster_with_noise_2d.region
 
 
-@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 def test_cluster_hdbscan_with_shuffled_index(locdata_two_cluster_with_noise_2d):
     locdata = deepcopy(locdata_two_cluster_with_noise_2d)
     new_index = list(locdata.data.index)
@@ -79,7 +74,7 @@ def test_cluster_hdbscan_with_shuffled_index(locdata_two_cluster_with_noise_2d):
     rng.shuffle(new_index)
     locdata.data.index = new_index
     noise, clust = cluster_hdbscan(
-        locdata, min_cluster_size=2, allow_single_cluster=False
+        locdata, min_cluster_size=3, allow_single_cluster=False
     )
     assert len(noise) == 1
     assert len(clust) == 2
@@ -87,7 +82,6 @@ def test_cluster_hdbscan_with_shuffled_index(locdata_two_cluster_with_noise_2d):
     assert all(clust.references[0].data.cluster_label == 1)
 
 
-@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 @pytest.mark.parametrize(
     "fixture_name, expected",
     [("locdata_empty", (0, 0)), ("locdata_single_localization", (1, 0))],
@@ -97,13 +91,10 @@ def test_cluster_hdbscan_empty_locdata(
 ):
     locdata = eval(fixture_name)
     noise, clust = cluster_hdbscan(
-        locdata, min_cluster_size=2, allow_single_cluster=False
+        locdata, min_cluster_size=3, allow_single_cluster=False
     )
     assert len(noise) == expected[0]
     assert len(clust) == expected[1]
-
-
-# tests dbscan
 
 
 def test_cluster_dbscan_2d(locdata_two_cluster_2d):

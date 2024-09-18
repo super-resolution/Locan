@@ -14,6 +14,13 @@ API Changes
 - change color of contours to gray in LocalizationProperty2d
 - sort show_versions output
 - add register method based on skimage and refactor register_cc
+- replace hdbscan with scikit-learn hdbscan and remove dependency from hdbscan
+
+    The new implementation should yield identical results if the min_samples
+    parameter is increased by one. See notes at
+    https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html
+
+- ...
 
 Bug Fixes
 ---------

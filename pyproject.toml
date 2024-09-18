@@ -79,7 +79,6 @@ dependencies = [
 
 [project.optional-dependencies]
 color = ["colorcet"]
-hdbscan = ["hdbscan"]
 hdf5 = ["h5py"]
 http = ["httpx"]
 napari = ["napari"]
@@ -99,7 +98,6 @@ test-qt = [
 track = ["trackpy"]
 all = [
     "colorcet",
-    "hdbscan",
     "h5py",
     "locan[http]",
     "locan[register]",
@@ -288,7 +286,6 @@ module = [
     'colorcet',
     'fast_histogram',
     'h5py',
-    'hdbscan',
     'lmfit.*',
     'mpl_scatter_density',
     'napari',

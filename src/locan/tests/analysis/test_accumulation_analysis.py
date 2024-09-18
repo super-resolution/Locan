@@ -8,7 +8,6 @@ from locan.analysis.accumulation_analysis import (
     _accumulation_cluster_check,
     _accumulation_cluster_check_for_single_dataset,
 )
-from locan.dependencies import HAS_DEPENDENCY
 
 
 @pytest.fixture()
@@ -21,7 +20,6 @@ def locdata_blobs_3D():
     return io.load_txt_file(path=locan.ROOT_DIR / "tests/test_data/five_blobs_3D.txt")
 
 
-@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 def test___accumulation_cluster_check_for_single_dataset(locdata_blobs):
     res = _accumulation_cluster_check_for_single_dataset(
         locdata_blobs,
@@ -37,7 +35,6 @@ def test___accumulation_cluster_check_for_single_dataset(locdata_blobs):
     assert len(res) == 3
 
 
-@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 def test__accumulation_cluster_check(locdata_blobs):
     results = _accumulation_cluster_check(locdata_blobs)
     assert len(results.columns) == 5
@@ -63,7 +60,6 @@ def test__accumulation_cluster_check(locdata_blobs):
     assert len(results.columns) == 5
 
 
-@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 def test_AccumulationClusterCheck_empty(caplog):
     acc = AccumulationClusterCheck().compute(LocData())
     acc.plot()
@@ -72,14 +68,13 @@ def test_AccumulationClusterCheck_empty(caplog):
     ]
 
 
-@pytest.mark.skipif(not HAS_DEPENDENCY["hdbscan"], reason="Test requires hdbscan.")
 def test_AccumulationClusterCheck(locdata_blobs):
     acc = AccumulationClusterCheck(
-        algo_parameter=dict(min_cluster_size=3, allow_single_cluster=False), n_loc=5
+        algo_parameter=dict(min_cluster_size=4, allow_single_cluster=False), n_loc=5
     ).compute(locdata_blobs)
     assert len(acc.results.columns) == 5
     acc = AccumulationClusterCheck(
-        algo_parameter=dict(min_cluster_size=3, allow_single_cluster=False),
+        algo_parameter=dict(min_cluster_size=4, allow_single_cluster=False),
         n_loc=5,
         n_extrapolate=2,
     ).compute(locdata_blobs)

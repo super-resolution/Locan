@@ -84,6 +84,7 @@ http = ["httpx"]
 napari = ["napari"]
 pyqt5 = ["PyQt5"]
 pyside2 = ["PySide2"]
+pyside6 = ["PySide6"]
 register = [
     "open3d-cpu!=0.12.0; platform_system=='Linux' and python_version<'3.12'",
     "open3d!=0.12.0; platform_system!='Linux' and python_version<'3.12'"]
@@ -103,7 +104,7 @@ all = [
     "locan[register]",
     "locan[test]",
     "mpl_scatter_density",
-    "napari",
+    "locan[napari]",
     "trackpy",
 ]
 gpu = [

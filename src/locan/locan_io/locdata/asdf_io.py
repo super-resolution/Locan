@@ -55,7 +55,7 @@ def save_asdf(
     """
     # Prepare tree
     meta_json = json_format.MessageToJson(
-        locdata.meta, including_default_value_fields=False
+        locdata.meta, always_print_fields_with_no_presence=False
     )
     tree = {
         "data": locdata.data.values,

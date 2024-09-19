@@ -295,7 +295,7 @@ class Roi:
                 meta_.file.path = self.reference.meta.file.path
                 meta_.file.type = self.reference.meta.file.type
                 reference_for_yaml = json_format.MessageToJson(
-                    meta_, including_default_value_fields=False
+                    meta_, always_print_fields_with_no_presence=False
                 )
             else:
                 warnings.warn(
@@ -307,7 +307,7 @@ class Roi:
                 reference_for_yaml = None
         else:
             reference_for_yaml = json_format.MessageToJson(
-                self.reference, including_default_value_fields=False
+                self.reference, always_print_fields_with_no_presence=False
             )
 
         region_for_yaml = repr(self.region)
@@ -585,7 +585,7 @@ class RoiLegacy_0:
                 meta_.file.path = self.reference.meta.file.path
                 meta_.file.type = self.reference.meta.file.type
                 reference_for_yaml = json_format.MessageToJson(
-                    meta_, including_default_value_fields=False
+                    meta_, always_print_fields_with_no_presence=False
                 )
             else:
                 warnings.warn(
@@ -597,7 +597,7 @@ class RoiLegacy_0:
                 reference_for_yaml = None
         else:
             reference_for_yaml = json_format.MessageToJson(
-                self.reference, including_default_value_fields=False
+                self.reference, always_print_fields_with_no_presence=False
             )
 
         # prepare points for yaml representation - numpy.float has to be converted to float

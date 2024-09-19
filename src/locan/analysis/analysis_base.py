@@ -87,7 +87,7 @@ class _Analysis:
         state = self.__dict__.copy()
         # Serialize the unpicklable protobuf entries.
         json_string = json_format.MessageToJson(
-            self.meta, including_default_value_fields=False
+            self.meta, always_print_fields_with_no_presence=False
         )
         state["meta"] = json_string
         return state

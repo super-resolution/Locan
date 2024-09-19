@@ -44,7 +44,9 @@ def test_manifest_from_locdata(locdata_2d):
 
     # check for capital letters in manifest that should be introduced by manifest_pb2.Manifest
     json_string = json_format.MessageToJson(
-        manifest, preserving_proto_field_name=True, including_default_value_fields=False
+        manifest,
+        preserving_proto_field_name=True,
+        always_print_fields_with_no_presence=False,
     )
     assert json_string
     assert "BINARY" in json_string

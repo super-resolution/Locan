@@ -41,6 +41,7 @@ Other Changes and Additions
 - switch to black ~24.0 format
 - add more benchmarks
 - add dockerfile to deploy locan with jupyter lab
+- update protobuf files and pin protobuf>=5.26
 
 0.19 - 2023-12-12
 =================

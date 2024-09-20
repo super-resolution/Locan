@@ -7,6 +7,7 @@ This module provides functions for rendering locdata objects in 2D.
 from __future__ import annotations
 
 import logging
+import warnings
 from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -245,9 +246,21 @@ def render_2d_scatter_density(
     -------
     matplotlib.axes.Axes
         Axes object with the image.
+
+    Warnings
+    ________
+    This function is deprecated.
+    Use third-party methods like datashader instead.
     """
     if not HAS_DEPENDENCY["mpl_scatter_density"]:
         raise ImportError("mpl-scatter-density is required.")
+
+    warnings.warn(
+        "This function is deprecated. "
+        "Use third-party methods like datashader instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
     # Provide matplotlib.axes.Axes if not provided
     if ax is None:

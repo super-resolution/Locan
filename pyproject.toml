@@ -89,7 +89,10 @@ register = [
     "open3d-cpu!=0.12.0; platform_system=='Linux' and python_version<'3.12'",
     "open3d!=0.12.0; platform_system!='Linux' and python_version<'3.12'",
 ]
-scatter_density = ["mpl_scatter_density"]
+scatter_density = [
+    "mpl_scatter_density",
+    "setuptools",
+]
 test = [
     "pytest",
 ]
@@ -102,10 +105,10 @@ all = [
     "colorcet",
     "h5py",
     "locan[http]",
-    "locan[register]",
-    "locan[test]",
-    "mpl_scatter_density",
     "locan[napari]",
+    "locan[register]",
+    "locan[scatter_density]",
+    "locan[test]",
     "trackpy",
 ]
 gpu = [

@@ -1,3 +1,5 @@
+import pickle
+import tempfile
 from copy import deepcopy
 from pathlib import Path
 
@@ -305,3 +307,16 @@ def test_set_group_identifier(test_files, capfd):
 
     assert "group_b" in files.group_identifiers()
     assert isinstance(files.grouped(), pd.core.groupby.DataFrameGroupBy)
+
+
+def test_pickling_Files(test_files):
+    files = Files().from_glob(directory=test_files, pattern="**/*.*")
+    assert len(files.df) == 5
+
+    with tempfile.TemporaryDirectory() as tmp_directory:
+        file_path = Path(tmp_directory) / "pickled_files.pickle"
+        with open(file_path, "wb") as file:
+            pickle.dump(files, file, pickle.HIGHEST_PROTOCOL)
+        with open(file_path, "rb") as file:
+            pickled_files = pickle.load(file)  # noqa S301
+        assert len(pickled_files.df) == len(files.df)

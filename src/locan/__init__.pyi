@@ -104,6 +104,7 @@ from .dependencies import (
     INSTALL_REQUIRES as INSTALL_REQUIRES,
     QtBindings as QtBindings,
     needs_package as needs_package,
+    needs_package_version as needs_package_version,
 )
 from .gui import (
     file_dialog as file_dialog,

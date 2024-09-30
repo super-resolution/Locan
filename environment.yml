@@ -34,7 +34,7 @@ dependencies:
 - lmfit
 
 # Google
-- protobuf
+- protobuf>=5.26.0
 
 # File formats
 - ruamel.yaml
@@ -49,6 +49,7 @@ dependencies:
 
 # Extra requirements
 # - pyside2>=5.12.3
+#- pyside6
 - colorcet
 - trackpy
 - napari>=0.5.3

@@ -33,22 +33,22 @@ dependencies:
 - lmfit
 
 # Google
-- protobuf
+- protobuf>=5.26.0
 
 # File formats
 - ruamel.yaml
 - tifffile
 - asdf
 - # only needed for python < 3.11:
-# - tomli>=1.1.0
+- tomli>=1.1.0
 
 # Data analysis tools
 - boost-histogram
 - fast-histogram
 
 # Extra requirements
-# - pyside2>=5.12.3
-- pyside6
+#- pyside2>=5.12.3
+#- pyside6
 - colorcet
 - trackpy
 - napari>=0.5.3

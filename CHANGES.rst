@@ -20,11 +20,14 @@ API Changes
     parameter is increased by one. See notes at
     https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html
 
-- ...
+- refactor: deprecate mpl-scatter-density
 
 Bug Fixes
 ---------
-- ...
+- fix: tests that mutate locdata_2d fixture
+- fix: change VisibleDeprecationWarning to exceptions.VisibleDeprecationWarning
+- fix: change deprecated numpy function in1d to isin
+- fix: tests with numeric representations of numpy arrays
 
 Other Changes and Additions
 ---------------------------
@@ -42,6 +45,13 @@ Other Changes and Additions
 - add more benchmarks
 - add dockerfile to deploy locan with jupyter lab
 - update protobuf files and pin protobuf>=5.26
+- restructured module layout
+- refactor: replace requests with httpx
+- refactor: replace optional-dependencies for html with http
+- refactor: remove qt dependency from locan[all] and from locan[test-qt]
+- fix: update protobuf compiler and pb2 files with protoc 28.2
+- refactor: add check for runtime numpy version in open3d functions.
+
 
 0.19 - 2023-12-12
 =================

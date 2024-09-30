@@ -51,7 +51,7 @@ dependencies:
 - pyside6
 - colorcet
 - trackpy
-- napari
+- napari>=0.5.3
 - mpl-scatter-density
 - httpx
 - h5py

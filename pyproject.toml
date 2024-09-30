@@ -81,7 +81,7 @@ dependencies = [
 color = ["colorcet"]
 hdf5 = ["h5py"]
 http = ["httpx"]
-napari = ["napari"]
+napari = ["napari>=0.5.3"]
 pyqt5 = ["PyQt5"]
 pyside2 = ["PySide2"]
 pyside6 = ["PySide6"]

@@ -128,11 +128,11 @@ def test_render_2d_napari(make_napari_viewer, locdata_blobs_2d):
     assert viewer_ is viewer
     assert len(viewer.layers) == 1
     assert viewer.layers[0].name == "LocData 0"
-    assert np.array_equal(viewer.layers[0].corner_pixels, [[0, 0], [8, 5]])
+    assert np.array_equal(viewer.layers[0].corner_pixels, [[0, 0], [7, 4]])
     # print(viewer.layers[0].data_to_world(viewer.layers[0].corner_pixels))
     assert np.array_equal(
         viewer.layers[0].data_to_world(viewer.layers[0].corner_pixels),
-        [[162.0, 515.0], [962.0, 1015.0]],
+        [[162.0, 515.0], [862.0, 915.0]],
     )
     assert viewer.scale_bar.unit is None or len(viewer.scale_bar.unit) != 0
     assert viewer.layers[0].metadata["message"]

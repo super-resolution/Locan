@@ -1,3 +1,5 @@
+from importlib.metadata import version
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -133,6 +135,12 @@ def test_standard_locdata_objects(
 
 
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
+@pytest.mark.skipif(
+    HAS_DEPENDENCY["open3d"]
+    and version("open3d").startswith("0.18")
+    and version("numpy").startswith("2"),
+    reason="Test requires open3d>0.18 or numpy<2.",
+)
 @pytest.mark.parametrize(
     "fixture_name, expected",
     [
@@ -185,6 +193,12 @@ def test_transformation_affine_2d(locdata_2d):
 
 
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
+@pytest.mark.skipif(
+    HAS_DEPENDENCY["open3d"]
+    and version("open3d").startswith("0.18")
+    and version("numpy").startswith("2"),
+    reason="Test requires open3d>0.18 or numpy<2.",
+)
 def test_transformation_affine_2d_open3d(locdata_2d):
     new_locdata = transform_affine(locdata_2d, method="open3d")
     assert np.array_equal(new_locdata.coordinates, locdata_2d.coordinates)
@@ -242,6 +256,12 @@ def test_transformation_affine_3d(locdata_3d):
 
 
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
+@pytest.mark.skipif(
+    HAS_DEPENDENCY["open3d"]
+    and version("open3d").startswith("0.18")
+    and version("numpy").startswith("2"),
+    reason="Test requires open3d>0.18 or numpy<2.",
+)
 def test_transformation_affine_3d_open3d(locdata_3d):
     new_locdata = transform_affine(locdata_3d, method="open3d")
     assert np.array_equal(new_locdata.coordinates, locdata_3d.coordinates)

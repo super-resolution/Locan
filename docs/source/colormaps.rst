@@ -16,9 +16,8 @@ Therefore, we recommend using colormaps that are optimized for accurate percepti
 library.
 
 We recommend default use for various types of colormaps:
-All 2D one-channel plot functions use the `fire`_ colormap as default if `colorcet` is installed.
-Otherwise we use the matplotlib colormap `viridis`_ as default.
-
+All 2D one-channel plot functions use the `fire`_ colormap as default.
+Alternatively, we use the matplotlib colormap `viridis`_ for continuous data.
 For categorical data we use `glasbey_dark`_ from `colorcet` as default colormap or alternatively `tab20` from
 `matplotlib`.
 For diverging data we use `coolwarm`_ from `colorcet` as default colormap or alternatively `coolwarm` from

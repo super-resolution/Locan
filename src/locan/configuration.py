@@ -59,26 +59,16 @@ TQDM_DISABLE: bool = False
 #: See details in locan documentation on colormaps.
 COLORMAP_DEFAULTS: Mapping[str, str] = dict()
 
-if HAS_DEPENDENCY["colorcet"]:
-    COLORMAP_DEFAULTS = dict(
-        CONTINUOUS="cet_fire",
-        CONTINUOUS_REVERSE="cet_fire_r",
-        CONTINUOUS_GRAY="cet_gray",
-        CONTINUOUS_GRAY_REVERSE="cet_gray_r",
-        DIVERGING="cet_coolwarm",
-        CATEGORICAL="cet_glasbey_dark",
-        TURBO="turbo",
-    )
-else:
-    COLORMAP_DEFAULTS = dict(
-        CONTINUOUS="viridis",
-        CONTINUOUS_REVERSE="viridis_r",
-        CONTINUOUS_GRAY="gray",
-        CONTINUOUS_GRAY_REVERSE="gray_r",
-        DIVERGING="coolwarm",
-        CATEGORICAL="tab20",
-        TURBO="turbo",
-    )
+COLORMAP_DEFAULTS = dict(
+    CONTINUOUS="cet_fire",
+    CONTINUOUS_REVERSE="cet_fire_r",
+    CONTINUOUS_GRAY="cet_gray",
+    CONTINUOUS_GRAY_REVERSE="cet_gray_r",
+    DIVERGING="cet_coolwarm",
+    CATEGORICAL="cet_glasbey_dark",
+    TURBO="turbo",
+)
+
 
 # Preferred QT binding. At this point this variable cannot be set at
 # runtime.

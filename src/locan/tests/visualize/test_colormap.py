@@ -20,11 +20,13 @@ def test_COLORMAP_DEFAULTS_and_Colormaps():
     assert all(
         name in COLORMAP_DEFAULTS for name, value in Colormaps.__members__.items()
     )
-    assert (
-        COLORMAP_DEFAULTS[Colormaps.CONTINUOUS.name] == "cet_fire"
-        if HAS_DEPENDENCY["colorcet"]
-        else "viridis"
-    )
+    assert COLORMAP_DEFAULTS[Colormaps.CONTINUOUS.name] == "cet_fire"
+    assert COLORMAP_DEFAULTS[Colormaps.CONTINUOUS_REVERSE.name] == "cet_fire_r"
+    assert COLORMAP_DEFAULTS[Colormaps.CONTINUOUS_GRAY.name] == "cet_gray"
+    assert COLORMAP_DEFAULTS[Colormaps.CONTINUOUS_GRAY_REVERSE.name] == "cet_gray_r"
+    assert COLORMAP_DEFAULTS[Colormaps.DIVERGING.name] == "cet_coolwarm"
+    assert COLORMAP_DEFAULTS[Colormaps.CATEGORICAL.name] == "cet_glasbey_dark"
+    assert COLORMAP_DEFAULTS[Colormaps.TURBO.name] == "turbo"
 
 
 def test_colormap_registry():
@@ -107,11 +109,11 @@ class TestColormap:
         assert isinstance(colormap.matplotlib, mcolors.Colormap)
         assert colormap.name == "fire"
 
+    def test_from_registry(self):
         colormap = Colormap.from_registry(colormap="cet_fire")
         assert isinstance(colormap.matplotlib, mcolors.Colormap)
         assert colormap.name == "cet_fire"
 
-    def test_from_registry(self):
         colormap = Colormap.from_registry(colormap="viridis")
         assert isinstance(colormap.matplotlib, mcolors.Colormap)
         assert colormap.name == "viridis"
@@ -162,3 +164,25 @@ def test_get_colormap():
         get_colormap("does not exist")
     with pytest.raises(TypeError):
         get_colormap([])
+
+
+def test_colormap_definitions():
+    colormap = get_colormap("cet_fire")
+    assert isinstance(colormap.matplotlib, mcolors.Colormap)
+    assert colormap.name == "cet_fire"
+
+    colormap = get_colormap("cet_fire_r")
+    assert isinstance(colormap.matplotlib, mcolors.Colormap)
+    assert colormap.name == "cet_fire_r"
+
+    colormap = get_colormap("cet_gray")
+    assert isinstance(colormap.matplotlib, mcolors.Colormap)
+    assert colormap.name == "cet_gray"
+
+    colormap = get_colormap("cet_gray_r")
+    assert isinstance(colormap.matplotlib, mcolors.Colormap)
+    assert colormap.name == "cet_gray_r"
+
+    colormap = get_colormap("cet_glasbey_dark")
+    assert isinstance(colormap.matplotlib, mcolors.Colormap)
+    assert colormap.name == "cet_glasbey_dark"

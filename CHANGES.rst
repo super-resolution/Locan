@@ -28,6 +28,7 @@ Bug Fixes
 - fix: change VisibleDeprecationWarning to exceptions.VisibleDeprecationWarning
 - fix: change deprecated numpy function in1d to isin
 - fix: tests with numeric representations of numpy arrays
+- refactor: integrate colorcet colormaps as default without relying on the colorcet package.
 
 Other Changes and Additions
 ---------------------------

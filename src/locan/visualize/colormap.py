@@ -156,11 +156,20 @@ class Colormap:
     def napari(self) -> napari.utils.Colormap:
         if self._napari is None:
             if self._matplotlib is not None:
-                self._napari = (
-                    napari.utils.colormaps.colormap_utils.vispy_or_mpl_colormap(
-                        name=self.matplotlib.name
+                try:
+                    self._napari = (
+                        napari.utils.colormaps.colormap_utils.vispy_or_mpl_colormap(
+                            name=self.matplotlib.name
+                        )
                     )
-                )
+                except KeyError:
+                    colors = self(np.linspace(0, 1, 256))
+                    colormap_dict = {
+                        "colors": colors,
+                        "name": self.matplotlib.name,
+                        "interpolation": "linear",
+                    }
+                    self._napari = napari.utils.colormaps.Colormap(**colormap_dict)
             else:
                 raise ValueError("No colormap available")
         return self._napari

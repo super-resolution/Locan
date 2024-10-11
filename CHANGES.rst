@@ -7,7 +7,7 @@ Changelog
 
 New Features
 ------------
-- ...
+- make locan default colormaps available for napari
 
 API Changes
 -----------

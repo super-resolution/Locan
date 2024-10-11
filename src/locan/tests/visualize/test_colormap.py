@@ -71,6 +71,11 @@ class TestColormap:
         assert isinstance(colormap.napari, napari.utils.Colormap)
         assert colormap.napari.name == "viridis"
 
+        # from locan default colormaps that are not in napari
+        colormap = colormap_registry["cet_fire"]
+        assert isinstance(colormap.napari, napari.utils.Colormap)
+        assert colormap.name == "cet_fire"
+
     @pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
     def test_from_napari(self):
         white_green_cmap = {

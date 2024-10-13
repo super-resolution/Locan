@@ -1,4 +1,5 @@
 import logging
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 import numpy as np
@@ -29,6 +30,21 @@ def pytest_configure(config):
         "markers",
         "visual: marks tests that require visual inspection (skipped by default)",
     )
+
+
+def get_open3d_version():
+    try:
+        return version("open3d")
+    except PackageNotFoundError:
+        try:
+            return version("open3d-cpu")
+        except PackageNotFoundError:
+            try:
+                return version("open3d-gpu")
+            except PackageNotFoundError:
+                raise PackageNotFoundError(
+                    "No package metadata was found for open3d variant"
+                ) from None
 
 
 # fixtures for random points

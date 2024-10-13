@@ -18,6 +18,7 @@ from locan.locan_io.locdata.io_locdata import load_asdf_file
 from locan.process.cluster import cluster_dbscan
 from locan.process.transform.bunwarpj import _read_matrix, _unwarp
 from locan.process.transform.spatial_transformation import _homogeneous_matrix
+from locan.tests.conftest import get_open3d_version
 
 
 def test_bunwarp_raw_transformation():
@@ -137,7 +138,7 @@ def test_standard_locdata_objects(
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
 @pytest.mark.skipif(
     HAS_DEPENDENCY["open3d"]
-    and version("open3d").startswith("0.18")
+    and get_open3d_version().startswith("0.18")
     and version("numpy").startswith("2"),
     reason="Test requires open3d>0.18 or numpy<2.",
 )
@@ -195,7 +196,7 @@ def test_transformation_affine_2d(locdata_2d):
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
 @pytest.mark.skipif(
     HAS_DEPENDENCY["open3d"]
-    and version("open3d").startswith("0.18")
+    and get_open3d_version().startswith("0.18")
     and version("numpy").startswith("2"),
     reason="Test requires open3d>0.18 or numpy<2.",
 )
@@ -258,7 +259,7 @@ def test_transformation_affine_3d(locdata_3d):
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
 @pytest.mark.skipif(
     HAS_DEPENDENCY["open3d"]
-    and version("open3d").startswith("0.18")
+    and get_open3d_version().startswith("0.18")
     and version("numpy").startswith("2"),
     reason="Test requires open3d>0.18 or numpy<2.",
 )

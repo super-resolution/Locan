@@ -11,12 +11,13 @@ from locan.process.register import (
     register_icp,
 )
 from locan.process.transform import transform_affine
+from locan.tests.conftest import get_open3d_version
 
 
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
 @pytest.mark.skipif(
     HAS_DEPENDENCY["open3d"]
-    and version("open3d").startswith("0.18")
+    and get_open3d_version().startswith("0.18")
     and version("numpy").startswith("2"),
     reason="Test requires open3d>0.18 or numpy<2.",
 )
@@ -45,7 +46,7 @@ def test_register_icp_2d(locdata_blobs_2d):
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
 @pytest.mark.skipif(
     HAS_DEPENDENCY["open3d"]
-    and version("open3d").startswith("0.18")
+    and get_open3d_version().startswith("0.18")
     and version("numpy").startswith("2"),
     reason="Test requires open3d>0.18 or numpy<2.",
 )

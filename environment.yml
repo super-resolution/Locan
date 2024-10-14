@@ -49,7 +49,7 @@ dependencies:
 
 # Extra requirements
 # - pyside2>=5.12.3
-#- pyside6
+- pyside6!=3.8.0
 - colorcet
 - trackpy
 - napari>=0.5.3

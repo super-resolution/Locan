@@ -28,7 +28,7 @@ jobs:
           auto-update-conda: true
           activate-environment: locan
           environment-file: environment.yml
-          miniforge-variant: Mambaforge
+          miniforge-variant: Miniforge
           miniforge-version: latest
           python-version: ${{ matrix.python-version }}
           use-mamba: true

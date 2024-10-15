@@ -940,4 +940,4 @@ def test_pickling_Region():
                 pickle.dump(region, file, pickle.HIGHEST_PROTOCOL)
             with open(file_path, "rb") as file:
                 region_pickled = pickle.load(file)  # noqa S301
-            assert type(region_pickled) == type(region)
+            assert type(region_pickled) is type(region)

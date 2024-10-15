@@ -1,4 +1,4 @@
-name: Tests with ubuntu, Mambaforge, py3.11
+name: Tests with ubuntu, Mambaforge, py3.12
 # skips qt-related tests
 
 on:
@@ -12,12 +12,12 @@ defaults:
 
 env:
   OS: "linux"
-  PYTHON_VERSION: "3.11"
-  REQUIREMENTS_FILE: "environment-linux-py3.11.yml"
+  PYTHON_VERSION: "3.12"
+  REQUIREMENTS_FILE: "environment-linux-py3.12.yml"
 
 jobs:
   test-on-mambaforge:
-    name: "Tests with linux, py3.11, Mambaforge"
+    name: "Tests with linux, py3.12, Mambaforge"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

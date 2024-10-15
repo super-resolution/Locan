@@ -25,6 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install pip-tools
       - name: "Install locan"
-        run: pip install .[test]
+        run: pip install pyside6 .[test]
       - name: "Run tests"
         run: pytest

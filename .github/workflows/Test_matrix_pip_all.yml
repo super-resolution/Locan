@@ -29,7 +29,7 @@ jobs:
           pip install pip-tools
       - name: "Run locan with extra requirements"
         run: |
-          pip install .[all]
+          pip install pyqt6 .[all]
       - name: "Run tests"
         run: pytest
       - name: "Freeze requirements"

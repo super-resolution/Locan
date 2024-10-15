@@ -34,7 +34,7 @@ RUN conda init bash && \
     conda update -n base -c defaults conda && \
     conda info && \
     conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION -c conda-forge && \
-    conda env update -n $ENVIRONMENT_NAME --file environment.yml --solver libmamba && \
+    conda env update -n $ENVIRONMENT_NAME --file environment.yml && \
     conda activate $ENVIRONMENT_NAME && \
     pip install . && \
     conda clean -afy

@@ -33,14 +33,10 @@ dependencies:
 - shapely!=2.0.0,!=2.0.1
 - lmfit
 
-# Google
-- protobuf>=5.26.0
-
 # File formats
-- ruamel.yaml
 - tifffile
 - asdf
-- # only needed for python < 3.11:
+# only needed for python < 3.11:
 - tomli>=1.1.0
 
 # Data analysis tools
@@ -61,4 +57,6 @@ dependencies:
 - pydantic!=1.8.0
 
 - pip:
-    - open3d!=0.12.0; python_version<'3.12'
+  - protobuf>=5.26.0
+  - ruamel.yaml
+  - open3d!=0.12.0; python_version<'3.12'

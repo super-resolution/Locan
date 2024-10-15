@@ -32,7 +32,7 @@ jobs:
           pip install pip-tools
       - name: "Run locan with extra requirements"
         run: |
-          pip install .[all]
+          pip install pyside6 .[all]
       - name: "Run tests"
         uses: coactions/setup-xvfb@v1
         with:

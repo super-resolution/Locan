@@ -3,7 +3,8 @@ ARG PYTHON_VERSION=3.11
 FROM python:${PYTHON_VERSION}-slim-bookworm
 
 ARG PYTHON_VERSION
-ARG ENVIRONMENT_NAME="locan"
+# one of pyside2, pyqt5, pyside6, pyqt6
+ARG QT_BINDING="pyside6"
 
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 
@@ -40,7 +41,7 @@ ENV PATH "$VIRTUAL_ENV/bin:$PATH"
 RUN pip install --no-cache-dir \
         setuptools \
         pip-tools && \
-    pip install .[test]
+    pip install $QT_BINDING .[test]
 
 # Volume for data
 VOLUME ["/shared"]

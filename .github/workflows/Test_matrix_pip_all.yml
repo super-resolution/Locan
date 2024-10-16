@@ -24,7 +24,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: "Install ubuntu libraries"
-        run: sudo apt update && install libegl1 -y
+        run: |
+          sudo apt update 
+          sudo apt -y install libegl1
 
       - name: "Install and upgrade"
         run: |

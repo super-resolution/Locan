@@ -551,7 +551,7 @@ def _register_cc_skimage(
     dimension = image.ndim
     matrix = np.identity(dimension)
 
-    shift, _, _ = phase_cross_correlation(
+    shift, _, _ = phase_cross_correlation(  # type: ignore
         reference_image=other_image,
         moving_image=image,
         **dict(

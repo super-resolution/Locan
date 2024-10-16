@@ -59,7 +59,7 @@ def load_npc(**kwargs: Any) -> LocData:
         DATASETS_DIR.mkdir(exist_ok=True)
         url = "https://raw.githubusercontent.com/super-resolution/LocanDatasets/main/smlm_data/npc_gp210.asdf"
         response = httpx.get(url, timeout=10)
-        if response.status_code != httpx.codes.ok:
+        if response.status_code != httpx.codes.ok:  # type: ignore
             raise ConnectionError("response.status_code != requests.codes.ok")
         with open(path, "wb") as file:
             for chunk in response.iter_bytes(chunk_size=128):
@@ -100,7 +100,7 @@ def load_tubulin(**kwargs: Any) -> LocData:
         DATASETS_DIR.mkdir(exist_ok=True)
         url = "https://raw.githubusercontent.com/super-resolution/LocanDatasets/main/smlm_data/tubulin_cos7.asdf"
         response = httpx.get(url, timeout=10)
-        if response.status_code != httpx.codes.ok:
+        if response.status_code != httpx.codes.ok:  # type: ignore
             raise ConnectionError("response.status_code != httpx.codes.ok")
         with open(path, "wb") as file:
             for chunk in response.iter_bytes(chunk_size=128):

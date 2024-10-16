@@ -34,7 +34,26 @@ from locan.data.hulls import (
 )
 from locan.data.locdata import *
 from locan.data.metadata_utils import *
-from locan.data.regions import *
+from locan.data.regions import (
+    AxisOrientedCuboid as AxisOrientedCuboid,
+    AxisOrientedHypercuboid as AxisOrientedHypercuboid,
+    Cuboid as Cuboid,
+    Ellipse as Ellipse,
+    EmptyRegion as EmptyRegion,
+    Interval as Interval,
+    MultiPolygon as MultiPolygon,
+    Polygon as Polygon,
+    Rectangle as Rectangle,
+    Region as Region,
+    Region1D as Region1D,
+    Region2D as Region2D,
+    Region3D as Region3D,
+    RegionND as RegionND,
+    RoiRegion as RoiRegion,
+    expand_region as expand_region,
+    regions_union as regions_union,
+    surrounding_region as surrounding_region,
+)
 from locan.data.validation import *
 
 submodules: list[str] = [

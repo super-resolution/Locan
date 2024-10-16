@@ -32,7 +32,7 @@ def pytest_configure(config):
     )
 
 
-def get_open3d_version():
+def get_open3d_version() -> str:
     try:
         return version("open3d")
     except PackageNotFoundError:

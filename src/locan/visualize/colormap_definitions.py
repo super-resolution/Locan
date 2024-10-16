@@ -7,7 +7,7 @@ Creative Commons Attribution 4.0 International Public License (CC-BY).
 """
 
 # linear_kryw_0_100_c71
-cet_fire_colors = [
+cet_fire_colors: list[list[float]] = [
     [0, 0, 0],
     [0.027065, 2.143e-05, 0],
     [0.052054, 7.4728e-05, 0],
@@ -267,7 +267,7 @@ cet_fire_colors = [
 ]
 
 # linear_grey_0_100_c0_colors
-cet_gray_colors = [
+cet_gray_colors: list[list[float]] = [
     [0.0, 0.0, 0.0, 1.0],
     [0.0055606, 0.0055631, 0.0055625, 1.0],
     [0.011212, 0.011219, 0.011217, 1.0],
@@ -527,7 +527,7 @@ cet_gray_colors = [
 ]
 
 # diverging_bwr_40_95_c42
-cet_coolwarm_colors = [
+cet_coolwarm_colors: list[list[float]] = [
     [0.12757, 0.31619, 0.85836, 1.0],
     [0.14675, 0.32048, 0.85923, 1.0],
     [0.16386, 0.32476, 0.8601, 1.0],
@@ -787,7 +787,7 @@ cet_coolwarm_colors = [
 ]
 
 # glasbey_bw_minc_20_maxl_70
-cet_glasbey_dark_colors = [
+cet_glasbey_dark_colors: list[list[float]] = [
     [0.843137, 0.0, 0.0, 1.0],
     [0.54902, 0.235294, 1.0, 1.0],
     [0.007843, 0.533333, 0.0, 1.0],

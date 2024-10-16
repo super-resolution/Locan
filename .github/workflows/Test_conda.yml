@@ -1,4 +1,4 @@
-name: Tests with ubuntu, Mambaforge, py3.12
+name: Tests with ubuntu, Miniforge, py3.12
 # skips qt-related tests
 
 on:
@@ -17,7 +17,7 @@ env:
 
 jobs:
   test-on-mambaforge:
-    name: "Tests with linux, py3.12, Mambaforge"
+    name: "Tests with linux, py3.12, Miniforge"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,10 +26,8 @@ jobs:
           auto-update-conda: true
           activate-environment: locan
           environment-file: environment.yml
-          miniforge-variant: Miniforge
           miniforge-version: latest
           python-version: ${{ env.PYTHON_VERSION }}
-          use-mamba: true
       - name: "Install locan"
         run: |
           pip install .

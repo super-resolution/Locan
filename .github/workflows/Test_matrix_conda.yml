@@ -1,4 +1,4 @@
-name: Tests with python matrix, Mambaforge
+name: Tests with python matrix, Miniforge
 # skips qt-related tests
 
 on:
@@ -13,7 +13,7 @@ defaults:
 
 jobs:
   matrix-test-on-mambaforge:
-    name: "Tests with linux,, py${{ matrix.python-version }}, Mambaforge"
+    name: "Tests with linux,, py${{ matrix.python-version }}, Miniforge"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -28,10 +28,8 @@ jobs:
           auto-update-conda: true
           activate-environment: locan
           environment-file: environment.yml
-          miniforge-variant: Miniforge
           miniforge-version: latest
           python-version: ${{ matrix.python-version }}
-          use-mamba: true
       - name: "Install locan"
         run: |
           pip install .

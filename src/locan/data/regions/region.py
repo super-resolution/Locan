@@ -592,9 +592,9 @@ class Region2D(Region):
         """
         ptype = shapely_object.geom_type
         if ptype == "Polygon":
-            return Polygon.from_shapely(shapely_object)
+            return Polygon.from_shapely(shapely_object)  # type: ignore
         elif ptype == "MultiPolygon":
-            return MultiPolygon.from_shapely(shapely_object)
+            return MultiPolygon.from_shapely(shapely_object)  # type: ignore
         else:
             raise TypeError(f"shapely_object cannot be of type {ptype}")
 
@@ -1026,7 +1026,7 @@ class Rectangle(Region2D):
         self._height = height
         self._angle = angle
         self._region_specs = (corner, width, height, angle)
-        self._shapely_object = None
+        self._shapely_object: shPolygon | None = None
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({tuple(self.corner.tolist())}, {self.width}, {self.height}, {self.angle})"
@@ -1232,7 +1232,7 @@ class Ellipse(Region2D):
         self._height = height
         self._angle = angle
         self._region_specs = (center, width, height, angle)
-        self._shapely_object = None
+        self._shapely_object: shPolygon | None = None
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({tuple(self.center.tolist())}, {self.width}, {self.height}, {self.angle})"
@@ -1406,7 +1406,7 @@ class Polygon(Region2D):
         else:
             self._holes = [np.array(hole) for hole in holes]
         self._region_specs = None
-        self._shapely_object = None
+        self._shapely_object: shPolygon | None = None
 
     def __repr__(self) -> str:
         if self.holes is None:
@@ -1426,13 +1426,13 @@ class Polygon(Region2D):
         return getattr(self.shapely_object, attr)
 
     @classmethod
-    def from_shapely(cls, polygon: shPolygon) -> Polygon | EmptyRegion:
+    def from_shapely(cls, polygon: shPolygon) -> Polygon | EmptyRegion:  # type: ignore
         if polygon.is_empty:
             return EmptyRegion()
         else:
             points = np.array(polygon.exterior.coords).tolist()
             holes = [
-                np.array(interiors.coords).tolist() for interiors in polygon.interiors
+                np.array(interiors.coords).tolist() for interiors in polygon.interiors  # type: ignore
             ]
             return cls(points, holes)
 
@@ -1541,7 +1541,7 @@ class MultiPolygon(Region2D):
     def __init__(self, polygons: list[Polygon]) -> None:
         self._polygons = polygons
         self._region_specs = None
-        self._shapely_object = None
+        self._shapely_object: shMultiPolygon | None = None
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.polygons})"
@@ -1638,7 +1638,7 @@ class MultiPolygon(Region2D):
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         if np.asarray(points).size == 0:
             return np.array([], dtype=np.int64)
-        points_ = shMultiPoint(points)
+        points_ = shMultiPoint(points)  # type: ignore
         prepared_polygon = prep(self.shapely_object)
         mask = list(map(prepared_polygon.contains, points_.geoms))
         inside_indices = np.nonzero(mask)[0]
@@ -1652,7 +1652,7 @@ class MultiPolygon(Region2D):
         return mpl_patches.PathPatch(_polygon_path(polygon), **kwargs)
 
     @classmethod
-    def from_shapely(cls, multipolygon: shMultiPolygon) -> MultiPolygon:
+    def from_shapely(cls, multipolygon: shMultiPolygon) -> MultiPolygon:  # type: ignore
         polygons_ = [Polygon.from_shapely(pol) for pol in multipolygon.geoms]
         polygons__ = [pol for pol in polygons_ if not isinstance(pol, EmptyRegion)]
         return cls(polygons__)
@@ -2213,7 +2213,9 @@ class AxisOrientedHypercuboid(RegionND):
         return AxisOrientedHypercuboid(mins, lengths)
 
 
-def _polygon_path(polygon: Polygon | MultiPolygon) -> mpl_path.Path:
+def _polygon_path(
+    polygon: Polygon | MultiPolygon | shPolygon | shMultiPolygon,
+) -> mpl_path.Path:
     """
     Constructs a compound matplotlib path from a Shapely geometric object.
     Adapted from https://pypi.org/project/descartes/
@@ -2232,7 +2234,7 @@ def _polygon_path(polygon: Polygon | MultiPolygon) -> mpl_path.Path:
     if ptype == "Polygon":
         polygons = [polygon]
     elif ptype == "MultiPolygon":
-        polygons = [shPolygon(p) for p in polygon.geoms]
+        polygons = [shPolygon(p) for p in polygon.geoms]  # type: ignore
     else:
         raise ValueError("A polygon or multi-polygon representation is required")
 
@@ -2240,14 +2242,14 @@ def _polygon_path(polygon: Polygon | MultiPolygon) -> mpl_path.Path:
         [
             np.concatenate(
                 [np.asarray(t.exterior.coords)[:, :2]]
-                + [np.asarray(r.coords)[:, :2] for r in t.interiors]
+                + [np.asarray(r.coords)[:, :2] for r in t.interiors]  # type: ignore
             )
             for t in polygons
         ]
     )
     codes = np.concatenate(
         [
-            np.concatenate([coding(t.exterior)] + [coding(r) for r in t.interiors])
+            np.concatenate([coding(t.exterior)] + [coding(r) for r in t.interiors])  # type: ignore
             for t in polygons
         ]
     )

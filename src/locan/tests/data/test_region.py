@@ -6,6 +6,7 @@ import matplotlib.patches as mPatches
 import matplotlib.pyplot as plt  # needed for visual inspection
 import numpy as np
 import pytest
+from matplotlib.path import Path as mplPath
 from shapely.geometry import MultiPolygon as shMultiPolygon
 from shapely.geometry import Polygon as shPolygon
 
@@ -25,6 +26,7 @@ from locan import (
     Region3D,
     RegionND,
 )
+from locan.data.regions.region import _polygon_path
 
 
 def test_Region():
@@ -941,3 +943,18 @@ def test_pickling_Region():
             with open(file_path, "rb") as file:
                 region_pickled = pickle.load(file)  # noqa S301
             assert type(region_pickled) is type(region)
+
+
+def test__polygon_path():
+    points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    holes = [
+        ((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)),
+        ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45)),
+    ]
+    shapely_polygon = shPolygon(points, holes)
+    path = _polygon_path(polygon=shapely_polygon)
+    assert isinstance(path, mplPath)
+
+    polygon = Polygon(((0, 0), (0, 1), (2, 2)))
+    path = _polygon_path(polygon=polygon)
+    assert isinstance(path, mplPath)

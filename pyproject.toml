@@ -134,7 +134,9 @@ dev = [
     "pre-commit",
     "ruff",
     "twine",
+    "types-networkx",  # required by mypy
     "types-protobuf",  # required by mypy
+    "types-shapely",  # required by mypy
     "types-tqdm",  # required by mypy
 ]
 
@@ -294,10 +296,8 @@ module = [
     'lmfit.*',
     'mpl_scatter_density',
     'napari',
-    'networkx',
     'open3d',
     'scipy.*',
-    'shapely.*',
     'sklearn.*',
     'trackpy',
     'vispy',

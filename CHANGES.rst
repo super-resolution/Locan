@@ -29,6 +29,7 @@ Bug Fixes
 - fix: change deprecated numpy function in1d to isin
 - fix: tests with numeric representations of numpy arrays
 - refactor: integrate colorcet colormaps as default without relying on the colorcet package.
+- fix: wrong computation of localization_precision_model_1
 
 Other Changes and Additions
 ---------------------------

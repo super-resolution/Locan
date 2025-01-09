@@ -21,7 +21,7 @@ import pandas as pd
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 from locan.data.validation import _check_loc_properties
-from locan.dependencies import HAS_DEPENDENCY, needs_package, needs_package_version
+from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
@@ -133,7 +133,6 @@ def _homogeneous_matrix(
 
 
 @needs_package("open3d")
-@needs_package_version(package="numpy", major="1")
 def _transform_affine_open3d(
     points: npt.ArrayLike,
     matrix: npt.ArrayLike | None = None,

@@ -23,7 +23,7 @@ from lmfit import Model, Parameters
 from skimage.registration import phase_cross_correlation
 
 from locan.data.locdata import LocData
-from locan.dependencies import HAS_DEPENDENCY, needs_package, needs_package_version
+from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.process.aggregate import Bins, histogram
 from locan.process.properties.locdata_statistics import range_from_collection
 from locan.process.transform.spatial_transformation import _homogeneous_matrix
@@ -44,7 +44,6 @@ class Transformation(NamedTuple):
 
 
 @needs_package("open3d")
-@needs_package_version(package="numpy", major="1")
 def _register_icp_open3d(
     points: npt.ArrayLike,
     other_points: npt.ArrayLike,

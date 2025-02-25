@@ -1,7 +1,7 @@
 # Use an official image for miniconda3 that is based on debian
 FROM continuumio/miniconda3 AS base
 
-ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION=3.12
 ARG ENVIRONMENT_NAME="locan"
 
 ENV PYTHON_VERSION=${PYTHON_VERSION} \
@@ -31,7 +31,9 @@ WORKDIR /locan
 
 # Update conda & Create environment from environment.yml & Install the project
 RUN conda init bash && \
-    conda update -n base -c defaults conda && \
+    conda config --add channels conda-forge && \
+    conda config --set channel_priority strict && \
+    conda update -n base -c conda-forge conda && \
     conda info && \
     conda create -n $ENVIRONMENT_NAME python=$PYTHON_VERSION -c conda-forge && \
     conda env update -n $ENVIRONMENT_NAME --file environment.yml && \

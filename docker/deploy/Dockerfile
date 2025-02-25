@@ -4,13 +4,14 @@
 # This dockerfile is in parts adapted from dockerfiles by the Jupyter Development Team
 # https://github.com/jupyter/docker-stacks
 #
-# Use an official image for micromamba that is based on debian
-FROM mambaorg/micromamba:bookworm-slim AS base
+# Use an official image for miniforge that is based on ubuntu
+FROM condaforge/miniforge3:latest AS base
 
-ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION=3.12
 
 ENV PYTHON_VERSION=$PYTHON_VERSION \
-    HOME=/home/$MAMBA_USER
+    USER="locan_user"
+ENV HOME=/home/$USER
 
 USER root
 
@@ -54,39 +55,45 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-USER $MAMBA_USER
+RUN useradd -ms /bin/bash $USER
+
+#Activate bash shell for correct use of conda commands
+SHELL [ "/bin/bash", "--login", "-c" ]
 
 
 FROM base AS build
 
-# Copy a conda environment.yml file or source code into the container
-COPY --chown=$MAMBA_USER:$MAMBA_USER . ./locan
+# Copy the current directory contents into the container
+COPY . locan
 
-RUN micromamba install \
+WORKDIR /locan
+
+# Update conda & Create environment from environment.yml & Install the project
+RUN conda init bash && \
+    conda update -n base conda && \
+    conda install \
     --yes \
     --name base \
-    --file ./locan/environment.yml \
-    python=${PYTHON_VERSION} \
+    python=$PYTHON_VERSION \
     locan \
-    napari-locan \
+    #napari-locan \
     jupyterlab && \
-    micromamba clean --yes --all
-
-ARG MAMBA_DOCKERFILE_ACTIVATE=1
-
+    conda env update -n base --file environment.yml && \
+    source activate base && \
 # to install from source code use:
-#RUN pip install ./locan/.
+#    pip install . && \
+    conda clean -afy
 
 
 FROM base
-
-ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 LABEL maintainer="LocanDevelopers" \
       project="locan" \
       python_version=${PYTHON_VERSION}
 
-COPY --from=build /opt/conda /opt/conda
+COPY --from=build --chown=$USER:$USER /opt/conda /opt/conda
+
+USER $USER
 
 # Volume for data
 VOLUME ["/shared"]

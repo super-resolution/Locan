@@ -1,5 +1,5 @@
 # Use an official image for a Python runtime that is based on debian
-ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION=3.12
 FROM python:${PYTHON_VERSION}-slim-bookworm
 
 ARG PYTHON_VERSION

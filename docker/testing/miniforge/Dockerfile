@@ -1,8 +1,10 @@
-# Use an official image for micromamba that is based on debian
-FROM mambaorg/micromamba:bookworm-slim AS base
+# Use an official image for miniforge that is based on ubuntu
+FROM condaforge/miniforge3:latest AS base
 
-ARG PYTHON_VERSION=3.11
-ENV PYTHON_VERSION=${PYTHON_VERSION}
+ARG PYTHON_VERSION=3.12
+
+ENV PYTHON_VERSION=${PYTHON_VERSION} \
+    USER="locan_user"
 
 USER root
 
@@ -18,42 +20,45 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-USER $MAMBA_USER
+RUN useradd -ms /bin/bash $USER
+
+#Activate bash shell for correct use of conda commands
+SHELL [ "/bin/bash", "--login", "-c" ]
 
 
 FROM base AS build
 
 # Copy the current directory contents into the container
-COPY --chown=$MAMBA_USER:$MAMBA_USER . locan
+COPY . locan
 
-RUN micromamba install \
-    --yes \
-    --name base \
-    --file ./locan/environment.yml \
-    python=${PYTHON_VERSION} && \
-    micromamba clean --yes --all
+WORKDIR /locan
 
-ARG MAMBA_DOCKERFILE_ACTIVATE=1
-
-RUN pip install ./locan/.
+# Update conda & Create environment from environment.yml & Install the project
+RUN conda init bash && \
+    conda update -n base conda && \
+    conda install python=$PYTHON_VERSION && \
+    conda env update -n base --file environment.yml && \
+    source activate base && \
+    pip install . && \
+    conda clean -afy
 
 
 FROM base
-
-ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 LABEL maintainer="LocanDevelopers" \
       project="locan" \
       python_version=${PYTHON_VERSION}
 
-COPY --from=build /opt/conda /opt/conda
+COPY --from=build --chown=$USER:$USER /opt/conda /opt/conda
+
+USER $USER
 
 # Volume for data
 VOLUME ["/shared"]
 
 CMD today=$(date +"%Y-%m-%d") && \
     base="-linux-py"${PYTHON_VERSION}_$today && \
-    micromamba env export --name base --explicit > "/shared/environment$base.lock" && \
+    conda env export > "/shared/environment$base.lock" && \
     date > "/shared/versions$base.txt" && \
     locan show_versions -e -v >> "/shared/versions$base.txt" && \
     date > "/shared/test_results$base.txt" && \

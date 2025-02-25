@@ -11,18 +11,28 @@ from typing import (
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class Analysis_routine(_message.Message):
+    __slots__ = ("name", "parameter")
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    PARAMETER_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    parameter: str
+    def __init__(
+        self, name: _Optional[str] = ..., parameter: _Optional[str] = ...
+    ) -> None: ...
+
 class AMetadata(_message.Message):
-    __slots__ = [
-        "comment",
-        "creation_time",
+    __slots__ = (
         "identifier",
-        "map",
+        "comment",
         "method",
+        "map",
+        "creation_time",
         "modification_time",
-    ]
+    )
 
     class MapEntry(_message.Message):
-        __slots__ = ["key", "value"]
+        __slots__ = ("key", "value")
         KEY_FIELD_NUMBER: _ClassVar[int]
         VALUE_FIELD_NUMBER: _ClassVar[int]
         key: str
@@ -31,17 +41,17 @@ class AMetadata(_message.Message):
             self, key: _Optional[str] = ..., value: _Optional[str] = ...
         ) -> None: ...
 
-    COMMENT_FIELD_NUMBER: _ClassVar[int]
-    CREATION_TIME_FIELD_NUMBER: _ClassVar[int]
     IDENTIFIER_FIELD_NUMBER: _ClassVar[int]
-    MAP_FIELD_NUMBER: _ClassVar[int]
+    COMMENT_FIELD_NUMBER: _ClassVar[int]
     METHOD_FIELD_NUMBER: _ClassVar[int]
+    MAP_FIELD_NUMBER: _ClassVar[int]
+    CREATION_TIME_FIELD_NUMBER: _ClassVar[int]
     MODIFICATION_TIME_FIELD_NUMBER: _ClassVar[int]
-    comment: str
-    creation_time: _timestamp_pb2.Timestamp
     identifier: str
-    map: _containers.ScalarMap[str, str]
+    comment: str
     method: Analysis_routine
+    map: _containers.ScalarMap[str, str]
+    creation_time: _timestamp_pb2.Timestamp
     modification_time: _timestamp_pb2.Timestamp
     def __init__(
         self,
@@ -51,14 +61,4 @@ class AMetadata(_message.Message):
         map: _Optional[_Mapping[str, str]] = ...,
         creation_time: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
         modification_time: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
-    ) -> None: ...
-
-class Analysis_routine(_message.Message):
-    __slots__ = ["name", "parameter"]
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    PARAMETER_FIELD_NUMBER: _ClassVar[int]
-    name: str
-    parameter: str
-    def __init__(
-        self, name: _Optional[str] = ..., parameter: _Optional[str] = ...
     ) -> None: ...

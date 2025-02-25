@@ -46,7 +46,7 @@ from locan.data.locdata_utils import (
     _get_loc_property_key_per_dimension,
 )
 from locan.data.metadata_utils import _modify_meta
-from locan.data.region import (
+from locan.data.regions.region import (
     AxisOrientedCuboid,
     AxisOrientedHypercuboid,
     Ellipse,
@@ -55,7 +55,7 @@ from locan.data.region import (
     Rectangle,
     Region,
 )
-from locan.data.region_utils import expand_region
+from locan.data.regions.region_utils import expand_region
 from locan.locan_types import RandomGeneratorSeed
 
 __all__: list[str] = [
@@ -1439,7 +1439,7 @@ def _random_walk(
     """
     rng = np.random.default_rng(seed)
     # equally spaced time steps
-    times = np.arange(n_steps) * time_step
+    times = np.arange(n_steps, dtype=float) * time_step
 
     # random step sizes according to the diffusion constant
     random_numbers = rng.integers(

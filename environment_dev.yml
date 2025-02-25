@@ -1,72 +1,23 @@
 #
 # Tools for locan development
 #
-# Update existing environment: conda env update --file "./environment_dev.yml"
+# Create new environment:
+#    conda env create --file "./environment.yml" --file "./environment_dev.yml"
+# Update existing environment:
+#    conda env update --file "./environment.yml" --file "./environment_dev.yml"
 #
 name: locan
 
 channels:
 - conda-forge
-- defaults
 
 dependencies:
-# Python
-- cython
-- pip
-- tqdm
-- qtpy!=2.3.0
-- typing_extensions
-- lazy_loader>=0.3
-
-# Python tests
-- pytest
-
-# Scientific python
-- numpy>1.20.0
-- pandas
-- scipy
-- scikit-learn
-- scikit-image
-- matplotlib
-- networkx
-- shapely!=2.0.0,!=2.0.1
-- lmfit
-
-# Google
-- protobuf
-
-# File formats
-- ruamel.yaml
-- tifffile
-- asdf
-- # only needed for python < 3.11:
-- tomli>=1.1.0
-
-# Data analysis tools
-- boost-histogram
-- fast-histogram
-
-# Extra requirements
-# - pyside2>=5.12.3
-- hdbscan
-- colorcet
-- trackpy
-- napari
-- mpl-scatter-density
-- requests
-- h5py
-
-# Various issues
-- pydantic!=1.8.0
-
 ############################################
 # additions for development
 ############################################
-
 # Python tests
 - asv
 - coverage
-- pytest
 
 # Development
 - black~=24.0
@@ -77,8 +28,9 @@ dependencies:
 - pre-commit
 - ruff
 - twine
-- types-requests
+- types-networkx
 - types-protobuf
+- types-shapely
 - types-tqdm
 
 # Documentation
@@ -89,10 +41,5 @@ dependencies:
 - sphinx-copybutton
 - sphinx-autodoc-typehints
 
-############################################
-# additions from PyPI
-############################################
-
 - pip:
-    - open3d!=0.12.0; python_version<'3.12'
     - ray[default]

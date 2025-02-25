@@ -32,10 +32,11 @@ from ruamel.yaml import YAML
 
 import locan.constants
 import locan.locan_io.locdata.io_locdata as io
-from locan.data import metadata_pb2, region
+from locan.data import metadata_pb2
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
-from locan.data.region import Region, RoiRegion
+from locan.data.regions import region
+from locan.data.regions.region import Region, RoiRegion
 from locan.utils.miscellaneous import _get_subclasses
 
 __all__: list[str] = ["Roi", "rasterize"]
@@ -294,7 +295,7 @@ class Roi:
                 meta_.file.path = self.reference.meta.file.path
                 meta_.file.type = self.reference.meta.file.type
                 reference_for_yaml = json_format.MessageToJson(
-                    meta_, including_default_value_fields=False
+                    meta_, always_print_fields_with_no_presence=False
                 )
             else:
                 warnings.warn(
@@ -306,7 +307,7 @@ class Roi:
                 reference_for_yaml = None
         else:
             reference_for_yaml = json_format.MessageToJson(
-                self.reference, including_default_value_fields=False
+                self.reference, always_print_fields_with_no_presence=False
             )
 
         region_for_yaml = repr(self.region)
@@ -584,7 +585,7 @@ class RoiLegacy_0:
                 meta_.file.path = self.reference.meta.file.path
                 meta_.file.type = self.reference.meta.file.type
                 reference_for_yaml = json_format.MessageToJson(
-                    meta_, including_default_value_fields=False
+                    meta_, always_print_fields_with_no_presence=False
                 )
             else:
                 warnings.warn(
@@ -596,7 +597,7 @@ class RoiLegacy_0:
                 reference_for_yaml = None
         else:
             reference_for_yaml = json_format.MessageToJson(
-                self.reference, including_default_value_fields=False
+                self.reference, always_print_fields_with_no_presence=False
             )
 
         # prepare points for yaml representation - numpy.float has to be converted to float
@@ -772,10 +773,10 @@ def rasterize(
         if len(locdata.bounding_box.width) == 0:
             widths = np.zeros(len(n_regions))
         else:
-            widths = locdata.bounding_box.width[coordinate_labels_indices] / n_regions
+            widths = locdata.bounding_box.width[coordinate_labels_indices] / n_regions  # type: ignore
     else:
         support_ = support
-        widths = np.diff(support_).flatten() / n_regions
+        widths = np.diff(support_).flatten() / n_regions  # type: ignore
 
     # specify interval corners
     corners_ = [

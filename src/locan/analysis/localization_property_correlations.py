@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
+from locan import get_colormap
+
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
@@ -150,7 +152,14 @@ class LocalizationPropertyCorrelations(_Analysis):
         im = ax.imshow(
             self.results,
             **dict(
-                dict(vmin=-1, vmax=1, cmap=COLORMAP_DEFAULTS["DIVERGING"]), **kwargs
+                dict(
+                    vmin=-1,
+                    vmax=1,
+                    cmap=get_colormap(
+                        colormap=COLORMAP_DEFAULTS["DIVERGING"]
+                    ).matplotlib,
+                ),
+                **kwargs,
             ),
         )
         columns = self.results.columns

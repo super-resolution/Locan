@@ -1,15 +1,16 @@
 """
-Benchmark functions for :mod:`locan.data.register`
+Benchmark functions for :mod:`locan.process.register`
 """
 
-import locan as lc
 import numpy as np
-from locan.data.register import (
+
+import locan as lc
+from locan.process.register import (
     _register_cc_skimage,
     _register_icp_open3d,
     register_icp,
 )
-from locan.data.transform import transform_affine
+from locan.process.transform import transform_affine
 
 
 class BenchmarkRegister:

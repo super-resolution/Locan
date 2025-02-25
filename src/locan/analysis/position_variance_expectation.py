@@ -37,8 +37,8 @@ import pandas as pd
 
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
-from locan.data.aggregate import Bins
 from locan.data.validation import _check_loc_properties
+from locan.process.aggregate import Bins
 from locan.utils.statistics import biased_variance
 
 if TYPE_CHECKING:

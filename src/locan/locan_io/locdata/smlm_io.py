@@ -181,7 +181,7 @@ def manifest_from_locdata(
         json_string = json_format.MessageToJson(
             manifest,
             preserving_proto_field_name=True,
-            including_default_value_fields=False,
+            always_print_fields_with_no_presence=False,
         )
         json_string = _change_upper_to_lower_keys(json_string)
         return json_string
@@ -235,7 +235,7 @@ def save_SMLM(
         manifest_json = json_format.MessageToJson(
             manifest,
             preserving_proto_field_name=True,
-            including_default_value_fields=False,
+            always_print_fields_with_no_presence=False,
         )
         manifest_json = _change_upper_to_lower_keys(manifest_json)
     else:

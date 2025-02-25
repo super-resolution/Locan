@@ -16,6 +16,9 @@ submodules: list[str] = [
     "dependencies",
     "gui",
     "locan_io",
+    "process",
+    "rois",
+    "scripts",
     "simulation",
     "tests",
     "utils",
@@ -110,9 +113,11 @@ def make_explicit_all(submodules: list[str], package: str) -> str:
 
 if __name__ == "__main__":
     package = "locan"
-    # print(submodules)
+    print(submodules)
+    # import locan as lc
+    # print(lc.EXTRAS_REQUIRE)
 
-    print(make_init(submodule="data.cluster", package=package))
+    print(make_init(submodule="data.regions", package=package))
 
     # print(make_explicit_all(submodules=submodules, package=package))
     # print(make_explicit_import_command(submodules=submodules, package=package))

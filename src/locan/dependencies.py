@@ -45,6 +45,7 @@ else:
 logger = logging.getLogger(__name__)
 
 __all__: list[str] = [
+    "needs_package_version",
     "needs_package",
     "IMPORT_NAMES",
     "INSTALL_REQUIRES",
@@ -115,7 +116,12 @@ def needs_package(
 
 def _get_dependencies(package: str) -> tuple[set[str], set[str]]:
     """
-    Read out all required and optional (extra) dependencies for locan.
+    Read out all required and optional (extra) dependencies for package.
+
+    Parameters
+    ----------
+    package
+        Package or dependency name to be checked.
 
     Returns
     -------
@@ -228,3 +234,39 @@ def _set_qt_binding(qt_binding: QtBindings | str) -> str:
         qt_api = ""
 
     return qt_api
+
+
+def needs_package_version(
+    package: str,
+    major: str,
+) -> Callable[[Callable[P, T]], Callable[P, T]]:
+    """
+    Function that returns a decorator to check for package.version starting with major.
+
+    Parameters
+    ----------
+    package
+        Package or dependency name to be checked.
+    major
+        Major version number that is required.
+
+    Returns
+    -------
+    callable
+        A decorator that raises RuntimeError if package is not available.
+    """
+
+    def decorator(func: Callable[P, T]) -> Callable[P, T]:
+        @wraps(func)
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+            version = importlib.metadata.version(package)
+            if not version.startswith(major):  # type: ignore
+                raise RuntimeError(
+                    f"Function {func} needs {package}~{major}. "
+                    f"The installed version is {package}={version}."
+                )
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator

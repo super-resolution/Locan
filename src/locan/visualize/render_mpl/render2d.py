@@ -7,6 +7,7 @@ This module provides functions for rendering locdata objects in 2D.
 from __future__ import annotations
 
 import logging
+import warnings
 from collections.abc import Callable, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -18,10 +19,10 @@ from matplotlib import pyplot as plt
 
 from locan.configuration import COLORMAP_DEFAULTS
 from locan.data import LocData
-from locan.data.aggregate import Bins, histogram
 from locan.data.locdata_utils import _check_loc_properties
-from locan.data.properties.locdata_statistics import ranges
 from locan.dependencies import HAS_DEPENDENCY
+from locan.process.aggregate import Bins, histogram
+from locan.process.properties import ranges
 from locan.rois.roi import Roi, _MplSelector
 from locan.visualize.colormap import ColormapType, get_colormap
 from locan.visualize.transform import adjust_contrast
@@ -245,9 +246,21 @@ def render_2d_scatter_density(
     -------
     matplotlib.axes.Axes
         Axes object with the image.
+
+    Warnings
+    ________
+    This function is deprecated.
+    Use third-party methods like datashader instead.
     """
     if not HAS_DEPENDENCY["mpl_scatter_density"]:
         raise ImportError("mpl-scatter-density is required.")
+
+    warnings.warn(
+        "This function is deprecated. "
+        "Use third-party methods like datashader instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
     # Provide matplotlib.axes.Axes if not provided
     if ax is None:
@@ -373,7 +386,7 @@ def scatter_2d_mpl(
     # plot element number
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
-            ax.text(  # type: ignore[call-arg]
+            ax.text(  # type: ignore
                 *centroid, marker, **dict({"color": "grey", "size": 20}, **text_kwargs)
             )
 

@@ -1,4 +1,4 @@
-name: Tests with ubuntu, Mambaforge, py3.11
+name: Tests with ubuntu, Miniforge, py3.12
 # skips qt-related tests
 
 on:
@@ -12,24 +12,22 @@ defaults:
 
 env:
   OS: "linux"
-  PYTHON_VERSION: "3.11"
-  REQUIREMENTS_FILE: "environment-linux-py3.11.yml"
+  PYTHON_VERSION: "3.12"
+  REQUIREMENTS_FILE: "environment-linux-py3.12.yml"
 
 jobs:
   test-on-mambaforge:
-    name: "Tests with linux, py3.11, Mambaforge"
+    name: "Tests with linux, py3.12, Miniforge"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
           activate-environment: locan
           environment-file: environment.yml
-          miniforge-variant: Mambaforge
           miniforge-version: latest
           python-version: ${{ env.PYTHON_VERSION }}
-          use-mamba: true
       - name: "Install locan"
         run: |
           pip install .
@@ -38,7 +36,7 @@ jobs:
       - name: "Freeze environment"
         run: conda env export > ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.REQUIREMENTS_FILE }}
           path: ${{ env.REQUIREMENTS_FILE }}

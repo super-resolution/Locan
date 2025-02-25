@@ -7,17 +7,29 @@ Changelog
 
 New Features
 ------------
-- ...
+- make locan default colormaps available for napari
 
 API Changes
 -----------
 - change color of contours to gray in LocalizationProperty2d
 - sort show_versions output
 - add register method based on skimage and refactor register_cc
+- replace hdbscan with scikit-learn hdbscan and remove dependency from hdbscan
+
+    The new implementation should yield identical results if the min_samples
+    parameter is increased by one. See notes at
+    https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html
+
+- refactor: deprecate mpl-scatter-density
 
 Bug Fixes
 ---------
-- ...
+- fix: tests that mutate locdata_2d fixture
+- fix: change VisibleDeprecationWarning to exceptions.VisibleDeprecationWarning
+- fix: change deprecated numpy function in1d to isin
+- fix: tests with numeric representations of numpy arrays
+- refactor: integrate colorcet colormaps as default without relying on the colorcet package.
+- fix: wrong computation of localization_precision_model_1
 
 Other Changes and Additions
 ---------------------------
@@ -34,6 +46,14 @@ Other Changes and Additions
 - switch to black ~24.0 format
 - add more benchmarks
 - add dockerfile to deploy locan with jupyter lab
+- update protobuf files and pin protobuf>=5.26
+- restructured module layout
+- refactor: replace requests with httpx
+- refactor: replace optional-dependencies for html with http
+- refactor: remove qt dependency from locan[all] and from locan[test-qt]
+- fix: update protobuf compiler and pb2 files with protoc 28.2
+- refactor: add check for runtime numpy version in open3d functions.
+
 
 0.19 - 2023-12-12
 =================

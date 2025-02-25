@@ -58,6 +58,12 @@ from matplotlib import colors as mcolors
 
 from locan.configuration import COLORMAP_DEFAULTS
 from locan.dependencies import HAS_DEPENDENCY, needs_package
+from locan.visualize.colormap_definitions import (
+    cet_coolwarm_colors,
+    cet_fire_colors,
+    cet_glasbey_dark_colors,
+    cet_gray_colors,
+)
 
 if HAS_DEPENDENCY["colorcet"]:
     import colorcet
@@ -150,11 +156,20 @@ class Colormap:
     def napari(self) -> napari.utils.Colormap:
         if self._napari is None:
             if self._matplotlib is not None:
-                self._napari = (
-                    napari.utils.colormaps.colormap_utils.vispy_or_mpl_colormap(
-                        name=self.matplotlib.name
+                try:
+                    self._napari = (
+                        napari.utils.colormaps.colormap_utils.vispy_or_mpl_colormap(
+                            name=self.matplotlib.name
+                        )
                     )
-                )
+                except KeyError:
+                    colors = self(np.linspace(0, 1, 256))
+                    colormap_dict = {
+                        "colors": colors,
+                        "name": self.matplotlib.name,
+                        "interpolation": "linear",
+                    }
+                    self._napari = napari.utils.colormaps.Colormap(**colormap_dict)
             else:
                 raise ValueError("No colormap available")
         return self._napari
@@ -212,6 +227,33 @@ class Colormap:
         return return_value  # type: ignore
 
 
+# set up a colormap registry
+
+_colormap_cet_fire = mcolors.LinearSegmentedColormap.from_list(
+    name="cet_fire", colors=cet_fire_colors
+)
+
+_colormap_cet_gray = mcolors.LinearSegmentedColormap.from_list(
+    name="cet_gray", colors=cet_gray_colors
+)
+
+_colormap_cet_coolwarm = mcolors.LinearSegmentedColormap.from_list(
+    name="cet_coolwarm", colors=cet_coolwarm_colors
+)
+
+_colormap_cet_glasbey_dark = mcolors.LinearSegmentedColormap.from_list(
+    name="cet_glasbey_dark", colors=cet_glasbey_dark_colors
+)
+
+_colormap_registry_from_definitions: dict[str, Colormap] = {
+    "cet_fire": Colormap(colormap=_colormap_cet_fire),
+    "cet_fire_r": Colormap(colormap=_colormap_cet_fire.reversed()),
+    "cet_gray": Colormap(colormap=_colormap_cet_gray),
+    "cet_gray_r": Colormap(colormap=_colormap_cet_gray.reversed()),
+    "cet_coolwarm": Colormap(colormap=_colormap_cet_coolwarm),
+    "cet_glasbey_dark": Colormap(colormap=_colormap_cet_glasbey_dark),
+}
+
 _colormap_registry_matplotlib: dict[str, Colormap] = {
     "viridis": Colormap.from_matplotlib("viridis"),
     "viridis_r": Colormap.from_matplotlib("viridis_r"),
@@ -222,22 +264,9 @@ _colormap_registry_matplotlib: dict[str, Colormap] = {
     "tab20": Colormap.from_matplotlib("tab20"),
 }
 
-if HAS_DEPENDENCY["colorcet"]:
-    _colormap_registry_colorcet: dict[str, Colormap] = {
-        "cet_fire": Colormap.from_matplotlib("cet_fire"),
-        "cet_fire_r": Colormap.from_matplotlib("cet_fire_r"),
-        "cet_gray": Colormap.from_matplotlib("cet_gray"),
-        "cet_gray_r": Colormap.from_matplotlib("cet_gray_r"),
-        "turbo": Colormap.from_matplotlib("turbo"),
-        "cet_coolwarm": Colormap.from_matplotlib("cet_coolwarm"),
-        "cet_glasbey_dark": Colormap.from_matplotlib("cet_glasbey_dark"),
-    }
-else:
-    _colormap_registry_colorcet = {}
-
 #: A mapping of names onto Colormap instances.
 colormap_registry: Mapping[str, Colormap] = (
-    _colormap_registry_matplotlib | _colormap_registry_colorcet
+    _colormap_registry_from_definitions | _colormap_registry_matplotlib
 )
 
 

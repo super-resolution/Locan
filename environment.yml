@@ -8,7 +8,6 @@ name: locan
 
 channels:
 - conda-forge
-- defaults
 
 dependencies:
 # Python
@@ -33,15 +32,9 @@ dependencies:
 - shapely!=2.0.0,!=2.0.1
 - lmfit
 
-# Google
-- protobuf<5
-
 # File formats
-- ruamel.yaml
 - tifffile
 - asdf
-- # only needed for python < 3.11:
-- tomli>=1.1.0
 
 # Data analysis tools
 - boost-histogram
@@ -49,16 +42,19 @@ dependencies:
 
 # Extra requirements
 # - pyside2>=5.12.3
-- hdbscan
+- pyside6!=3.8.0
 - colorcet
 - trackpy
-- napari
+- napari>=0.5.3
 - mpl-scatter-density
-- requests
+- httpx
 - h5py
 
 # Various issues
 - pydantic!=1.8.0
 
 - pip:
-    - open3d!=0.12.0; python_version<'3.12'
+  - tomli>=1.1.0; python_version<'3.11'
+  - protobuf>=5.26.0
+  - ruamel.yaml
+  - open3d!=0.12.0; python_version<='3.12'

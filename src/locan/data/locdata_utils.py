@@ -129,9 +129,7 @@ def _get_linked_coordinates(
                     with np.errstate(invalid="ignore"):
                         weighted_mean, weighted_variance = weighted_mean_variance(
                             values=locdata[coordinate_key_],
-                            weights=np.power(
-                                1 / locdata[uncertainty_key_], 2
-                            ).to_numpy(),  # type: ignore[attr-defined]
+                            weights=np.power(1 / locdata[uncertainty_key_], 2),
                         )
                         weighted_uncertainty = np.sqrt(weighted_variance)  # type: ignore
 

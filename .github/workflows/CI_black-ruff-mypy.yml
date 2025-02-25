@@ -1,18 +1,18 @@
-name:  CI checks with black, ruff, mypy, py3.11
+name:  CI checks with black, ruff, mypy, py3.12
 
 on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: "3.11"
+  PYTHON_VERSION: "3.12"
 
 jobs:
   check:
-    name: "CI with ubuntu, py3.11, pip"
+    name: "CI with ubuntu, py3.12, pip"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: "Install and upgrade"
@@ -23,6 +23,6 @@ jobs:
       - name: "Format with black"
         run: black --check --diff "."
       - name: "Lint with ruff"
-        run: ruff --output-format=github "."
+        run: ruff check --output-format=github "."
       - name: "Type check with mypy"
         run: mypy

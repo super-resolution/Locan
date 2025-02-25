@@ -1,10 +1,11 @@
 """
-Benchmark functions for :mod:`locan.data.aggregate`
+Benchmark functions for :mod:`locan.process.aggregate`
 """
 
-import locan as lc
 import numpy as np
-from locan.data.aggregate import (
+
+import locan as lc
+from locan.process.aggregate import (
     _histogram_boost_histogram,
     _histogram_fast_histogram,
     _histogram_mean_boost_histogram,

@@ -2,8 +2,9 @@
 Benchmark functions for :mod:`locan.analysis.ripley`
 """
 
-import locan as lc
 import numpy as np
+
+import locan as lc
 from locan.analysis.ripley import (
     _ripleys_k_function,
 )

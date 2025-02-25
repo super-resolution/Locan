@@ -14,6 +14,7 @@ Locan consists of the following modules:
    dependencies
    gui
    locan_io
+   process
    rois
    scripts
    simulation
@@ -48,3 +49,7 @@ locdata_id: int = 0
 
 def __dir__():
     return __lazy_dir__() + ["__version__", "locdata_id"]
+
+
+# initialize configuration settings
+import locan.configuration

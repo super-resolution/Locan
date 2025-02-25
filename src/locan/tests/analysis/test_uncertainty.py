@@ -29,7 +29,7 @@ def test_localization_precision_model_1():
     intensities = [1**2, 2**2, 3**2]
     uncertainties = localization_precision_model_1(intensity=intensities)
     assert isinstance(uncertainties, np.ndarray)
-    assert np.array_equal(uncertainties, [1, 2, 3])
+    assert np.array_equal(uncertainties, [1, 0.5, 1 / 3])
 
 
 def test_localization_precision_model_2():

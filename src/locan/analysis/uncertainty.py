@@ -73,7 +73,7 @@ def localization_precision_model_1(intensity: npt.ArrayLike) -> npt.NDArray[np.f
     npt.NDArray[np.float64]
     """
     intensity = np.asarray(intensity)
-    sigma: npt.NDArray[np.float64] = np.sqrt(intensity)
+    sigma: npt.NDArray[np.float64] = 1 / np.sqrt(intensity)
     return sigma
 
 

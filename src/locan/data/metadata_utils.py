@@ -283,7 +283,9 @@ def message_scheme(message: Message) -> dict[str, Any]:
     """
 
     message_dict = json_format.MessageToDict(
-        message, including_default_value_fields=True, preserving_proto_field_name=True
+        message,
+        always_print_fields_with_no_presence=True,
+        preserving_proto_field_name=True,
     )
 
     for descriptor in message.DESCRIPTOR.fields:

@@ -1,3 +1,5 @@
+from importlib.metadata import version
+
 import matplotlib.pyplot as plt  # this import is needed for visual inspection
 import numpy as np
 import pytest
@@ -15,6 +17,7 @@ from locan.analysis.drift import (
     _SplineModelFacade,
 )
 from locan.dependencies import HAS_DEPENDENCY
+from locan.tests.conftest import get_open3d_version
 
 # data to evaluate fitting
 x = np.array([1, 2, 4, 6, 9, 10, 11, 15, 16, 20])
@@ -212,6 +215,12 @@ def test__estimate_drift_cc(locdata_blobs_2d):
 
 
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
+@pytest.mark.skipif(
+    HAS_DEPENDENCY["open3d"]
+    and get_open3d_version().startswith("0.18")
+    and version("numpy").startswith("2"),
+    reason="Test requires open3d>0.18 or numpy<2.",
+)
 def test__estimate_drift_icp(locdata_blobs_2d):
     collection, transformations = _estimate_drift_icp(
         locdata_blobs_2d,
@@ -419,6 +428,12 @@ def test_Drift_chain(locdata_blobs_2d):
 
 
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
+@pytest.mark.skipif(
+    HAS_DEPENDENCY["open3d"]
+    and get_open3d_version().startswith("0.18")
+    and version("numpy").startswith("2"),
+    reason="Test requires open3d>0.18 or numpy<2.",
+)
 def test_Drift_with_icp(locdata_blobs_2d):
     drift = Drift(chunk_size=15, target="first", method="icp").compute(locdata_blobs_2d)
     assert isinstance(drift.locdata, LocData)

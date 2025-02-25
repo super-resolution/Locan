@@ -1,4 +1,5 @@
 import tempfile
+from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
@@ -43,7 +44,9 @@ def test_manifest_from_locdata(locdata_2d):
 
     # check for capital letters in manifest that should be introduced by manifest_pb2.Manifest
     json_string = json_format.MessageToJson(
-        manifest, preserving_proto_field_name=True, including_default_value_fields=False
+        manifest,
+        preserving_proto_field_name=True,
+        always_print_fields_with_no_presence=False,
     )
     assert json_string
     assert "BINARY" in json_string
@@ -104,19 +107,19 @@ def test_loading_SMLM_file():
 
 
 def test_save_and_load_smlm(locdata_2d):
+    locdata = deepcopy(locdata_2d)
     # introduce different dtypes in data
-    locdata_2d.data["position_x"] = locdata_2d.data["position_x"].astype("float64")
-    locdata_2d.data["position_y"] = locdata_2d.data["position_y"].astype("int32")
-    locdata_2d.data["frame"] = locdata_2d.data["frame"].astype("int32")
-    locdata_2d.data["intensity"] = locdata_2d.data["intensity"].astype("int32")
-    assert all(locdata_2d.data.dtypes.values == ["float64", "int32", "int32", "int32"])
-    # print(locdata_2d.data)
-    # print(locdata_2d.data.dtypes)
+    locdata.data["position_x"] = locdata.data["position_x"].astype("float64")
+    locdata.data["position_y"] = locdata.data["position_y"].astype("int32")
+    locdata.data["frame"] = locdata.data["frame"].astype("int32")
+    locdata.data["intensity"] = locdata.data["intensity"].astype("int32")
+    assert all(locdata.data.dtypes.values == ["float64", "int32", "int32", "int32"])
+    # print(locdata.data)
 
     with tempfile.TemporaryDirectory() as tmp_directory:
         # save smlm file
         file_path = Path(tmp_directory) / "locdata.smlm"
-        save_SMLM(locdata_2d, path=file_path)
+        save_SMLM(locdata, path=file_path)
 
         # read back smlm manifest
         manifest = load_SMLM_manifest(path=file_path)
@@ -124,22 +127,22 @@ def test_save_and_load_smlm(locdata_2d):
             assert key in manifest.keys()
 
         # read back smlm file
-        locdata = load_SMLM_file(path=file_path, convert=False)
-        assert len(locdata) == len(locdata_2d)
-        # assert (locdata.meta.identifier == locdata_2d.meta.identifier)
-        assert locdata.properties.keys() == locdata_2d.properties.keys()
+        locdata_ = load_SMLM_file(path=file_path, convert=False)
+        assert len(locdata_) == len(locdata)
+        assert locdata_.meta.identifier != locdata.meta.identifier
+        assert locdata_.properties.keys() == locdata.properties.keys()
 
         # print(locdata.data)
         # print(locdata.data.dtypes)
-        # print(manifest_from_locdata(locdata_2d))
-        assert_frame_equal(locdata_2d.data, locdata.data, check_dtype=True)
+        # print(manifest_from_locdata(locdata))
+        assert_frame_equal(locdata_.data, locdata.data, check_dtype=True)
 
         # passing manifest
-        manifest = manifest_from_locdata(locdata_2d, return_json_string=True)
-        save_SMLM(locdata_2d, path=file_path, manifest=manifest)
+        manifest = manifest_from_locdata(locdata, return_json_string=True)
+        save_SMLM(locdata, path=file_path, manifest=manifest)
 
-        manifest = manifest_from_locdata(locdata_2d)
-        save_SMLM(locdata_2d, path=file_path, manifest=manifest)
+        manifest = manifest_from_locdata(locdata)
+        save_SMLM(locdata, path=file_path, manifest=manifest)
 
         # read back smlm manifest
         manifest = load_SMLM_manifest(path=file_path)
@@ -147,5 +150,5 @@ def test_save_and_load_smlm(locdata_2d):
             assert key in manifest.keys()
 
         # read back smlm file
-        locdata = load_SMLM_file(path=file_path)
-        assert_frame_equal(locdata_2d.data, locdata.data, check_dtype=False)
+        locdata_ = load_SMLM_file(path=file_path)
+        assert_frame_equal(locdata_.data, locdata.data, check_dtype=False)

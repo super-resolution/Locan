@@ -17,8 +17,8 @@ jobs:
     env:
       REQUIREMENTS_FILE: "requirements-all-linux-py${{ matrix.python-version }}.yml"
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -31,7 +31,7 @@ jobs:
           pip install pip-tools
       - name: "Run locan with extra requirements"
         run: |
-          pip install .[all]
+          pip install pyside6 .[all]
       - name: "Run tests"
         uses: coactions/setup-xvfb@v1
         with:
@@ -39,7 +39,7 @@ jobs:
       - name: "Freeze requirements"
         run: pip-compile pyproject.toml --extra all --output-file ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ env.REQUIREMENTS_FILE }}"
           path: ${{ env.REQUIREMENTS_FILE }}

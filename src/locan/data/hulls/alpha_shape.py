@@ -35,7 +35,7 @@ References
 from __future__ import annotations
 
 import warnings
-from collections.abc import Generator, Sequence
+from collections.abc import Generator, Hashable, Sequence
 from typing import Any, Literal
 
 import networkx as nx
@@ -44,8 +44,8 @@ import numpy.typing as npt
 from scipy.spatial import Delaunay
 
 from locan.data.hulls.alpha_shape_2d import _circumcircle, _half_distance
-from locan.data.region import Polygon, Region
-from locan.data.region_utils import regions_union
+from locan.data.regions.region import Polygon, Region
+from locan.data.regions.region_utils import regions_union
 
 __all__: list[str] = ["AlphaComplex", "AlphaShape"]
 
@@ -336,7 +336,7 @@ class AlphaComplex:
         self,
         alpha: float,
         type: Literal["all", "regular", "singular", "interior", "exterior"] = "all",
-    ) -> nx.Graph:
+    ) -> nx.Graph[Hashable]:
         """
         Return networkx Graph object with nodes and edges from selected lines.
 
@@ -352,23 +352,23 @@ class AlphaComplex:
         -------
         networkx.Graph
         """
-        G = nx.Graph()
+        graph: nx.Graph[Hashable] = nx.Graph()
 
         if len(self.lines) == 0:
-            return G
+            return graph
 
         # positions for all nodes:
         # positions = {i: tuple(point) for i, point in enumerate(self.points)}
-        # G.add_nodes_from(positions)
+        # graph.add_nodes_from(positions)
         ac_simplices = self.get_alpha_complex_lines(alpha, type)
-        G.add_edges_from(ac_simplices, type=type)
-        return G
+        graph.add_edges_from(ac_simplices, type=type)  # type: ignore
+        return graph
 
     def graph_from_triangles(
         self,
         alpha: float,
         type: Literal["all", "regular", "singular", "interior", "exterior"] = "all",
-    ) -> nx.Graph:
+    ) -> nx.Graph[Hashable]:
         """
         Return networkx Graph object with nodes and edges from selected triangles.
 
@@ -384,22 +384,22 @@ class AlphaComplex:
         -------
         networkx.Graph
         """
-        G = nx.MultiGraph()
+        graph: nx.Graph[Hashable] = nx.MultiGraph()
 
         if len(self.triangles) == 0:
-            return G
+            return graph
         assert self.delaunay_triangulation is not None  # type narrowing # noqa: S101
 
         # positions for all nodes:
         # positions = {i: tuple(point) for i, point in enumerate(self.points)}
-        # G.add_nodes_from(positions)
+        # graph.add_nodes_from(positions)
         triangles = self.get_alpha_complex_triangles(alpha=alpha, type=type)
         for triangle, vertices in zip(
             triangles, self.delaunay_triangulation.simplices[triangles]
         ):
             edges = [vertices[[n, m]] for n, m in [(0, 1), (1, 2), (2, 0)]]
-            G.add_edges_from(edges, triangle=triangle)
-        return G
+            graph.add_edges_from(edges, triangle=triangle)
+        return graph
 
     def alpha_shape(self, alpha: float) -> AlphaShape:
         """
@@ -447,7 +447,7 @@ class AlphaComplex:
         if len(self.lines) == 0:
             return np.array([], dtype=np.float64)
         else:
-            return np.unique([ac[1:] for ac in self.lines])
+            return np.unique([ac[1:] for ac in self.lines])  # type: ignore[no-any-return]
 
 
 class AlphaShape:
@@ -615,8 +615,8 @@ class AlphaShape:
             graph = self.alpha_complex.graph_from_triangles(alpha=self.alpha)
             for cc in nx.connected_components(graph):
                 subgraph = graph.subgraph(cc)
-                self._vertices_connected_components_indices.append(list(subgraph.nodes))
-                triangles = list({edge[2] for edge in subgraph.edges.data("triangle")})
+                self._vertices_connected_components_indices.append(list(subgraph.nodes))  # type: ignore
+                triangles = list({edge[2] for edge in subgraph.edges.data("triangle")})  # type: ignore
                 vertices = self.alpha_complex.delaunay_triangulation.simplices[  # type: ignore
                     triangles
                 ]
@@ -642,7 +642,7 @@ class AlphaShape:
     @property
     def vertex_indices(self) -> list[int]:
         array = self.alpha_complex.get_alpha_complex_lines(self.alpha, type="regular")
-        return_value: list[int] = np.unique(array).tolist()
+        return_value: list[int] = np.unique(array).tolist()  # type: ignore[assignment]
         return return_value
 
     @property
@@ -658,5 +658,5 @@ class AlphaShape:
         array_i = self.alpha_complex.get_alpha_complex_lines(
             self.alpha, type="interior"
         )
-        return_value: list[int] = np.unique(array_r + array_s + array_i).tolist()
+        return_value: list[int] = np.unique(array_r + array_s + array_i).tolist()  # type: ignore[assignment]
         return return_value

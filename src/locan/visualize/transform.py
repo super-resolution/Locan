@@ -214,7 +214,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         cdf = np.cumsum(data**self.power)
         cdf = cdf / cdf[-1]
         new_values = np.interp(_values, bin_centers, cdf)
-        return new_values
+        return new_values  # type: ignore[no-any-return]
 
     def inverse(  # type:ignore[override]
         self, values: npt.ArrayLike

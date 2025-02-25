@@ -15,11 +15,12 @@ import numpy as np
 import numpy.typing as npt
 import scipy.spatial as spat
 from shapely.geometry import MultiPoint as shMultiPoint
+from shapely.geometry import Polygon as shPolygon
 
-from locan.data.region import Polygon, Rectangle
+from locan.data.regions.region import Polygon, Rectangle
 
 if TYPE_CHECKING:
-    from locan.data.region import Region
+    from locan.data.regions.region import Region
 
 __all__: list[str] = ["BoundingBox", "ConvexHull", "OrientedBoundingBox"]
 
@@ -56,11 +57,11 @@ class BoundingBox:
     def __init__(self, points: npt.ArrayLike) -> None:
         points = np.asarray(points)
         if np.size(points) == 0:
-            self.dimension = 0
+            self.dimension: int = 0
             self.hull = np.array([])
             self.width = np.zeros(self.dimension)
-            self.region_measure = 0
-            self.subregion_measure = 0
+            self.region_measure: float = 0
+            self.subregion_measure: float = 0
         elif len(points) < 2:
             self.dimension = np.shape(points)[1]
             self.hull = np.array([])
@@ -71,7 +72,7 @@ class BoundingBox:
             self.dimension = np.shape(points)[1]
             self.hull = np.array([np.min(points, axis=0), np.max(points, axis=0)])
             self.width = np.diff(self.hull, axis=0).flatten()
-            self.region_measure = np.prod(self.width)
+            self.region_measure = np.prod(self.width)  # type: ignore
             self.subregion_measure = np.sum(self.width) * 2
 
     @property
@@ -205,7 +206,7 @@ class _ConvexHullShapely:
         # todo: set vertex_indices
         # self.vertex_indices = None
         self.points_on_boundary = (
-            len(self.hull.exterior.coords) - 1
+            len(self.hull.exterior.coords) - 1  # type: ignore
         )  # the first point is repeated in exterior.coords
         self.points_on_boundary_rel = self.points_on_boundary / len(points)
         self.region_measure = self.hull.area
@@ -213,7 +214,7 @@ class _ConvexHullShapely:
 
     @property
     def vertices(self) -> npt.NDArray[np.float64]:
-        return np.array(self.hull.exterior.coords)[:-1]
+        return np.array(self.hull.exterior.coords)[:-1]  # type: ignore
 
     @property
     def region(self) -> Polygon:
@@ -331,14 +332,14 @@ class OrientedBoundingBox:
             )
 
         if len(points) < 3:
-            self.hull = np.array([])
+            self.hull: npt.NDArray[np.float64] = np.array([])
             self.width = np.zeros(self.dimension)
             self.region_measure = 0
             self.subregion_measure = 0
             self.angle = np.nan
             self.elongation = np.nan
         else:
-            self.hull = shMultiPoint(points).minimum_rotated_rectangle
+            self.hull: shPolygon = shMultiPoint(points).minimum_rotated_rectangle  # type: ignore
             difference = np.diff(self.vertices[0:3], axis=0)
             self.width = np.array(
                 [np.linalg.norm(difference[0]), np.linalg.norm(difference[1])]
@@ -349,7 +350,7 @@ class OrientedBoundingBox:
                 np.degrees(np.arctan2(difference[0][1], difference[0][0]))
             )
             # numpy.arctan2(y, x) takes reversed x, y arguments.
-            self.elongation = 1 - np.divide(*sorted(self.width))
+            self.elongation = 1 - np.divide(*sorted(self.width))  # type: ignore
 
     @property
     def vertices(self) -> npt.NDArray[np.float64]:

@@ -19,16 +19,20 @@ jobs:
     env:
       REQUIREMENTS_FILE: "requirements-linux-py${{ matrix.python-version }}.yml"
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: "Install ubuntu libraries"
+        run: |
+          sudo apt update 
+          sudo apt -y install libegl1
       - name: "Install and upgrade"
         run: |
           python -m pip install --upgrade pip
           pip install pip-tools
       - name: "Install locan"
-        run: pip install .[test]
+        run: pip install pyside6 .[test]
       - name: "Run tests"
         if: runner.os != 'Windows'
         run: pytest
@@ -40,7 +44,7 @@ jobs:
       - name: "Freeze requirements"
         run: pip-compile pyproject.toml --extra test --output-file ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ env.REQUIREMENTS_FILE }}"
           path: ${{ env.REQUIREMENTS_FILE }}

@@ -17,8 +17,8 @@ from locan.configuration import DATASETS_DIR
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.locan_io.locdata.asdf_io import load_asdf_file
 
-if HAS_DEPENDENCY["requests"]:
-    import requests
+if HAS_DEPENDENCY["httpx"]:
+    import httpx
 
 if TYPE_CHECKING:
     from locan.data.locdata import LocData
@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 __all__: list[str] = ["load_npc", "load_tubulin"]
 
 
-@needs_package("requests")
+@needs_package("httpx")
 def load_npc(**kwargs: Any) -> LocData:
     """
     Locdata representing nuclear pore complexes.
@@ -57,18 +57,18 @@ def load_npc(**kwargs: Any) -> LocData:
     path = Path(DATASETS_DIR) / "npc_gp210.asdf"
     if not path.exists():
         DATASETS_DIR.mkdir(exist_ok=True)
-        url = "https://raw.github.com/super-resolution/LocanDatasets/main/smlm_data/npc_gp210.asdf"
-        response = requests.get(url, timeout=10)
-        if response.status_code != requests.codes.ok:
+        url = "https://raw.githubusercontent.com/super-resolution/LocanDatasets/main/smlm_data/npc_gp210.asdf"
+        response = httpx.get(url, timeout=10)
+        if response.status_code != httpx.codes.ok:  # type: ignore
             raise ConnectionError("response.status_code != requests.codes.ok")
         with open(path, "wb") as file:
-            for chunk in response.iter_content(chunk_size=128):
+            for chunk in response.iter_bytes(chunk_size=128):
                 file.write(chunk)
     locdata = load_asdf_file(path, **kwargs)
     return locdata
 
 
-@needs_package("requests")
+@needs_package("httpx")
 def load_tubulin(**kwargs: Any) -> LocData:
     """
     Locdata representing microtubules.
@@ -98,12 +98,12 @@ def load_tubulin(**kwargs: Any) -> LocData:
     path = Path(DATASETS_DIR) / "tubulin_cos7.asdf"
     if not path.exists():
         DATASETS_DIR.mkdir(exist_ok=True)
-        url = "https://raw.github.com/super-resolution/LocanDatasets/main/smlm_data/tubulin_cos7.asdf"
-        response = requests.get(url, timeout=10)
-        if response.status_code != requests.codes.ok:
-            raise ConnectionError("response.status_code != requests.codes.ok")
+        url = "https://raw.githubusercontent.com/super-resolution/LocanDatasets/main/smlm_data/tubulin_cos7.asdf"
+        response = httpx.get(url, timeout=10)
+        if response.status_code != httpx.codes.ok:  # type: ignore
+            raise ConnectionError("response.status_code != httpx.codes.ok")
         with open(path, "wb") as file:
-            for chunk in response.iter_content(chunk_size=128):
+            for chunk in response.iter_bytes(chunk_size=128):
                 file.write(chunk)
     locdata = load_asdf_file(path, **kwargs)
     return locdata

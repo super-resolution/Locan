@@ -64,7 +64,7 @@ dependencies = [
     "networkx",
     "numpy>1.20.0",
     "pandas",
-    "protobuf<5",
+    "protobuf>=5.26.0",
     "qtpy!=2.3.0",
     "ruamel.yaml",
     "scikit-image",
@@ -79,40 +79,41 @@ dependencies = [
 
 [project.optional-dependencies]
 color = ["colorcet"]
-hdbscan = ["hdbscan"]
 hdf5 = ["h5py"]
-html = ["requests"]
-napari = ["napari"]
+http = ["httpx"]
+napari = ["napari>=0.5.3"]
 pyqt5 = ["PyQt5"]
 pyside2 = ["PySide2"]
+pyside6 = ["pyside6!=6.8.0"]
 register = [
-    "open3d-cpu!=0.12.0; platform_system=='Linux' and python_version<'3.12'",
-    "open3d!=0.12.0; platform_system!='Linux' and python_version<'3.12'"]
-scatter_density = ["mpl_scatter_density"]
+    "open3d-cpu!=0.12.0; platform_system=='Linux' and python_version<'3.13'",
+    "open3d!=0.12.0; platform_system!='Linux' and python_version<'3.13'",
+]
+scatter_density = [
+    "mpl_scatter_density",
+    "setuptools",
+]
 test = [
     "pytest",
 ]
 test-qt = [
     "pytest",
     "pytest-qt;python_version<'3.13'",
-    "PyQt5",
 ]
 track = ["trackpy"]
 all = [
     "colorcet",
-    "hdbscan",
     "h5py",
-    "PyQt5",
+    "locan[http]",
+    "locan[napari]",
     "locan[register]",
+    "locan[scatter_density]",
     "locan[test]",
-    "mpl_scatter_density",
-    "napari",
-    "requests",
     "trackpy",
 ]
 gpu = [
     "cupy",
-    "open3d!=0.12.0; python_version<'3.12'"
+    "open3d!=0.12.0; python_version<'3.13'"
 ]
 docs = [
     "furo",
@@ -133,8 +134,9 @@ dev = [
     "pre-commit",
     "ruff",
     "twine",
+    "types-networkx",  # required by mypy
     "types-protobuf",  # required by mypy
-    "types-requests",  # required by mypy
+    "types-shapely",  # required by mypy
     "types-tqdm",  # required by mypy
 ]
 
@@ -191,7 +193,18 @@ exclude_lines = [
 
 [tool.ruff]
 line-length = 88
-show-source = false
+# automatically exclude files that are ignored by .gitignore
+exclude = [
+    ".*",
+    "dist",
+    "docs",
+    "docker",
+    "*/*_pb2.py",
+    "*/*_pb2.pyi",
+    "src/locan/_version.py",
+]
+
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -220,29 +233,21 @@ select = [
 # S605 start-process-with-a-shell
 # S607 start-process-with-partial-path
 ignore = ["E501", "B905"]
-# automatically exclude files that are ignored by .gitignore
-exclude = [
-    ".*",
-    "dist",
-    "docs",
-    "docker",
-    "*/*_pb2.py",
-    "*/*_pb2.pyi",
-    "src/locan/_version.py",
-]
+extend-select = ["NPY201"]
+preview = true
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402", "F401", "F403", "F405", "I001"]
 "__init__.pyi" = ["E401", "F401", "I001"]
 "test_*.py" = ["S101", "S307", "S403", "S605", "S607"]
 "test_simulation.py" = ["F841"]
 "benchmarks/benchmarks/*.py" = ["S101"]
 
-[tool.ruff.flake8-quotes]
+[tool.ruff.lint.flake8-quotes]
 docstring-quotes = "double"
 
-[tool.ruff.flake8-import-conventions]
-[tool.ruff.flake8-import-conventions.aliases]
+[tool.ruff.lint.flake8-import-conventions]
+[tool.ruff.lint.flake8-import-conventions.aliases]
 numpy = "np"
 pandas = "pd"
 matplotlib = "mpl"
@@ -252,12 +257,8 @@ scipy = "sp"
 networkx = "nx"
 boost_histogram = "bh"
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
-
-[tool.ruff.lint]
-extend-select = ["NPY201"]
-preview = true
 
 [tool.mypy]
 plugins = ['numpy.typing.mypy_plugin']
@@ -292,14 +293,11 @@ module = [
     'colorcet',
     'fast_histogram',
     'h5py',
-    'hdbscan',
     'lmfit.*',
     'mpl_scatter_density',
     'napari',
-    'networkx',
     'open3d',
     'scipy.*',
-    'shapely.*',
     'sklearn.*',
     'trackpy',
     'vispy',

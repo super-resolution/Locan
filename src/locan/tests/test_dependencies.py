@@ -1,3 +1,5 @@
+import pytest
+
 from locan import (
     EXTRAS_REQUIRE,
     HAS_DEPENDENCY,
@@ -5,6 +7,7 @@ from locan import (
     INSTALL_REQUIRES,
     QtBindings,
     needs_package,
+    needs_package_version,
 )
 from locan.dependencies import _get_dependencies
 
@@ -64,3 +67,12 @@ def test_QtBindings():
             assert not QtBindings.NONE.value
         else:
             assert QtBindings.PYQT5.value
+
+
+def test_needs_package_version():
+    @needs_package_version(package="numpy", major="0")
+    def my_func():
+        return
+
+    with pytest.raises(RuntimeError):
+        my_func()

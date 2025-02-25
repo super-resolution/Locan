@@ -91,7 +91,7 @@ def _unwarp(
     matrix_y_interpolated = rgi_y(point_indices, method="linear")
 
     new_point_indices = np.stack([matrix_x_interpolated, matrix_y_interpolated], axis=1)
-    new_points = np.multiply(new_point_indices, pixel_size)
+    new_points: npt.NDArray[np.float64] = np.multiply(new_point_indices, pixel_size)
     return new_points
 
 

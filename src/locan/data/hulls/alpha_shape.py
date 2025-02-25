@@ -447,7 +447,7 @@ class AlphaComplex:
         if len(self.lines) == 0:
             return np.array([], dtype=np.float64)
         else:
-            return np.unique([ac[1:] for ac in self.lines])
+            return np.unique([ac[1:] for ac in self.lines])  # type: ignore[no-any-return]
 
 
 class AlphaShape:
@@ -642,7 +642,7 @@ class AlphaShape:
     @property
     def vertex_indices(self) -> list[int]:
         array = self.alpha_complex.get_alpha_complex_lines(self.alpha, type="regular")
-        return_value: list[int] = np.unique(array).tolist()
+        return_value: list[int] = np.unique(array).tolist()  # type: ignore[assignment]
         return return_value
 
     @property
@@ -658,5 +658,5 @@ class AlphaShape:
         array_i = self.alpha_complex.get_alpha_complex_lines(
             self.alpha, type="interior"
         )
-        return_value: list[int] = np.unique(array_r + array_s + array_i).tolist()
+        return_value: list[int] = np.unique(array_r + array_s + array_i).tolist()  # type: ignore[assignment]
         return return_value

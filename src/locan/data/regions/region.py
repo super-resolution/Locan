@@ -1029,7 +1029,7 @@ class Rectangle(Region2D):
         self._shapely_object: shPolygon | None = None
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({tuple(self.corner.tolist())}, {self.width}, {self.height}, {self.angle})"
+        return f"{self.__class__.__name__}({tuple(self.corner.tolist())}, {self.width}, {self.height}, {self.angle})"  # type: ignore[arg-type]
 
     def __getattr__(self, attr: str) -> Any:
         """All non-adapted calls are passed to shapely object"""
@@ -1189,7 +1189,7 @@ class Rectangle(Region2D):
         polygon_path = mpl_path.Path(self.points, closed=True)
         mask = polygon_path.contains_points(points)
         inside_indices = np.nonzero(mask)[0]
-        return inside_indices
+        return inside_indices  # type: ignore
 
     def as_artist(
         self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
@@ -1235,7 +1235,7 @@ class Ellipse(Region2D):
         self._shapely_object: shPolygon | None = None
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({tuple(self.center.tolist())}, {self.width}, {self.height}, {self.angle})"
+        return f"{self.__class__.__name__}({tuple(self.center.tolist())}, {self.width}, {self.height}, {self.angle})"  # type: ignore[arg-type]
 
     def __getattr__(self, attr: str) -> Any:
         """All non-adapted calls are passed to shapely object"""
@@ -1361,7 +1361,7 @@ class Ellipse(Region2D):
         )
 
         inside_indices = np.nonzero(rad_cc < 1.0)[0]
-        return inside_indices
+        return inside_indices  # type: ignore
 
     def as_artist(
         self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
@@ -1434,7 +1434,7 @@ class Polygon(Region2D):
             holes = [
                 np.array(interiors.coords).tolist() for interiors in polygon.interiors  # type: ignore
             ]
-            return cls(points, holes)
+            return cls(points, holes)  # type: ignore[arg-type]
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
@@ -1514,7 +1514,7 @@ class Polygon(Region2D):
         points_ = shMultiPoint(_points[preselected_points_indices])
         prepared_polygon = prep(self.shapely_object)
         mask = list(map(prepared_polygon.contains, points_.geoms))
-        inside_indices = np.nonzero(mask)[0]
+        inside_indices = np.nonzero(mask)[0]  # type: ignore[arg-type]
         if len(inside_indices) == 0:
             return np.array([], dtype=bool)
         else:
@@ -1641,7 +1641,7 @@ class MultiPolygon(Region2D):
         points_ = shMultiPoint(points)  # type: ignore
         prepared_polygon = prep(self.shapely_object)
         mask = list(map(prepared_polygon.contains, points_.geoms))
-        inside_indices = np.nonzero(mask)[0]
+        inside_indices = np.nonzero(mask)[0]  # type: ignore[arg-type]
         return inside_indices
 
     def as_artist(
@@ -1695,7 +1695,7 @@ class AxisOrientedCuboid(Region3D):
 
     def __repr__(self) -> str:
         return (
-            f"{self.__class__.__name__}({tuple(self.corner.tolist())}, "
+            f"{self.__class__.__name__}({tuple(self.corner.tolist())}, "  # type: ignore[arg-type]
             f"{self.length}, {self.width}, {self.height})"
         )
 
@@ -1914,7 +1914,7 @@ class Cuboid(Region3D):
 
     def __repr__(self) -> str:
         return (
-            f"{self.__class__.__name__}({tuple(self.corner.tolist())}, "
+            f"{self.__class__.__name__}({tuple(self.corner.tolist())}, "  # type: ignore[arg-type]
             f"{self.length}, {self.width}, {self.height}, "
             f"{self.alpha}, {self.beta}, {self.gamma})"
         )
@@ -2081,7 +2081,7 @@ class AxisOrientedHypercuboid(RegionND):
         self._lengths = lengths
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({tuple(self.corner.tolist())}, {tuple(self.lengths.tolist())})"
+        return f"{self.__class__.__name__}({tuple(self.corner.tolist())}, {tuple(self.lengths.tolist())})"  # type: ignore[arg-type]
 
     @classmethod
     def from_intervals(

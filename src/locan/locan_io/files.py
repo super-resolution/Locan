@@ -406,7 +406,7 @@ class Files:
         """
         return self.df.group.cat.categories
 
-    def grouped(self) -> pd.core.groupby.DataFrameGroupBy[Any]:  # type: ignore[name-defined]
+    def grouped(self) -> pd.core.groupby.DataFrameGroupBy[Any]:  # type: ignore[type-arg]
         """
         Get groupby instance based on group_identifiers.
 

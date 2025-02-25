@@ -1439,7 +1439,7 @@ def _random_walk(
     """
     rng = np.random.default_rng(seed)
     # equally spaced time steps
-    times = np.arange(n_steps) * time_step
+    times = np.arange(n_steps, dtype=float) * time_step
 
     # random step sizes according to the diffusion constant
     random_numbers = rng.integers(

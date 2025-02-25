@@ -53,8 +53,8 @@ def _transform_counts_to_photons(
     npt.NDArray[np.float64]
         Photo electrons
     """
-    intensities = np.asarray(intensities)
-    return (intensities - offset) * electrons_per_count / gain
+    intensities = np.asarray(intensities, dtype=np.float64)
+    return (intensities - offset) * electrons_per_count / gain  # type: ignore
 
 
 def transform_counts_to_photons(

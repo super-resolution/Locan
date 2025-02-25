@@ -57,11 +57,11 @@ class BoundingBox:
     def __init__(self, points: npt.ArrayLike) -> None:
         points = np.asarray(points)
         if np.size(points) == 0:
-            self.dimension = 0
+            self.dimension: int = 0
             self.hull = np.array([])
             self.width = np.zeros(self.dimension)
-            self.region_measure = 0
-            self.subregion_measure = 0
+            self.region_measure: float = 0
+            self.subregion_measure: float = 0
         elif len(points) < 2:
             self.dimension = np.shape(points)[1]
             self.hull = np.array([])
@@ -72,7 +72,7 @@ class BoundingBox:
             self.dimension = np.shape(points)[1]
             self.hull = np.array([np.min(points, axis=0), np.max(points, axis=0)])
             self.width = np.diff(self.hull, axis=0).flatten()
-            self.region_measure = np.prod(self.width)
+            self.region_measure = np.prod(self.width)  # type: ignore
             self.subregion_measure = np.sum(self.width) * 2
 
     @property
@@ -350,7 +350,7 @@ class OrientedBoundingBox:
                 np.degrees(np.arctan2(difference[0][1], difference[0][0]))
             )
             # numpy.arctan2(y, x) takes reversed x, y arguments.
-            self.elongation = 1 - np.divide(*sorted(self.width))
+            self.elongation = 1 - np.divide(*sorted(self.width))  # type: ignore
 
     @property
     def vertices(self) -> npt.NDArray[np.float64]:

@@ -226,7 +226,7 @@ def _get_convex_hull_property_expectation(
 
     result = ConvexHullExpectationValues(
         n_points=n_points,
-        expectation=convex_hull_expectation_values.expectation[indices] * factor,
+        expectation=convex_hull_expectation_values.expectation[indices] * factor,  # type: ignore[arg-type]
         std_pos=convex_hull_expectation_values.std_pos[indices] * factor,
         std_neg=convex_hull_expectation_values.std_neg[indices] * factor,
     )

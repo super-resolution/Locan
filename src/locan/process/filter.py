@@ -157,7 +157,7 @@ def select_by_condition(locdata: LocData, condition: str) -> LocData:
     new_indices = locdata.data.query(condition).index.values.tolist()
 
     # instantiate
-    new_locdata = LocData.from_selection(locdata=locdata, indices=new_indices)
+    new_locdata = LocData.from_selection(locdata=locdata, indices=new_indices)  # type: ignore[arg-type]
 
     # update metadata
     meta_ = _modify_meta(

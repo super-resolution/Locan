@@ -68,7 +68,7 @@ def scatter_3d_mpl(
     # plot element number
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
-            ax.text(  # type:ignore[call-arg]
+            ax.text(  # type:ignore
                 *centroid, marker, **dict({"color": "grey", "size": 20}, **text_kwargs)
             )
 

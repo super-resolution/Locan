@@ -773,10 +773,10 @@ def rasterize(
         if len(locdata.bounding_box.width) == 0:
             widths = np.zeros(len(n_regions))
         else:
-            widths = locdata.bounding_box.width[coordinate_labels_indices] / n_regions
+            widths = locdata.bounding_box.width[coordinate_labels_indices] / n_regions  # type: ignore
     else:
         support_ = support
-        widths = np.diff(support_).flatten() / n_regions
+        widths = np.diff(support_).flatten() / n_regions  # type: ignore
 
     # specify interval corners
     corners_ = [

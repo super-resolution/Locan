@@ -30,13 +30,14 @@ Bug Fixes
 - fix: tests with numeric representations of numpy arrays
 - refactor: integrate colorcet colormaps as default without relying on the colorcet package.
 - fix: wrong computation of localization_precision_model_1
+- fix: code coverage in GitHub actions
 
 Other Changes and Additions
 ---------------------------
 - various changes to documentation
 - lint for numpy=2.0 and fix new ruff issues
 - refactor: gitignore
-- refactor dockerfiles
+- refactor dockerfiles to make use of miniforge
 - add tool show_test_data to show test data
 - remove requirements.txt and requirements_dev.txt
 - fix tests to be compatible with pandas 2.2.0

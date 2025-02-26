@@ -12,17 +12,13 @@ Submodules:
 .. autosummary::
    :toctree: ./
 
-   spatial_transform
-   intensity_transform
-   temporal_transform
+   aggregate
+   cluster
    filter
    register
-   aggregate
-   filter
-   transform
-   cluster
-   tracking
    properties
+   tracking
+   transform
 """
 
 from __future__ import annotations

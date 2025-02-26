@@ -9,11 +9,10 @@ Submodules:
 .. autosummary::
    :toctree: ./
 
-   locdata
    hulls
-   region
-   region_utils
+   locdata
    metadata_utils
+   regions
    validation
 
 """

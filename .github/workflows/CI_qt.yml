@@ -66,11 +66,12 @@ jobs:
 
       - name: "Upload coverage to CodeCov"
         if: ${{ github.ref == 'refs/heads/main' }}
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           files: coverage.xml
           flags: unittests
+          token: ${{ secrets.CODECOV_TOKEN }}
           name: "CodeCov report"
           verbose: true
 

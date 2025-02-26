@@ -2,7 +2,26 @@
 Changelog
 =======================
 
-0.20 - dev
+0.21 - dev
+=================
+
+New Features
+------------
+- ...
+
+API Changes
+-----------
+- ...
+
+Bug Fixes
+---------
+- ...
+
+Other Changes and Additions
+---------------------------
+- ...
+
+0.20 - 2025-02-26
 =================
 
 New Features
@@ -55,6 +74,12 @@ Other Changes and Additions
 - fix: update protobuf compiler and pb2 files with protoc 28.2
 - refactor: add check for runtime numpy version in open3d functions.
 
+0.19.1 - 2024-03-14
+===================
+
+Other Changes and Additions
+---------------------------
+- constrain protobuf version to <5
 
 0.19 - 2023-12-12
 =================

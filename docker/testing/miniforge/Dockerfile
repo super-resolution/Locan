@@ -50,8 +50,12 @@ LABEL maintainer="LocanDevelopers" \
       python_version=${PYTHON_VERSION}
 
 COPY --from=build --chown=$USER:$USER /opt/conda /opt/conda
+COPY --from=build --chown=$USER:$USER /locan/tests /locan/tests
+COPY --from=build --chown=$USER:$USER /locan/pyproject.toml /locan
 
 USER $USER
+
+WORKDIR /locan
 
 # Volume for data
 VOLUME ["/shared"]
@@ -62,4 +66,5 @@ CMD today=$(date +"%Y-%m-%d") && \
     date > "/shared/versions$base.txt" && \
     locan show_versions -e -v >> "/shared/versions$base.txt" && \
     date > "/shared/test_results$base.txt" && \
-    locan test >> "/shared/test_results$base.txt"
+    locan test >> "/shared/test_results$base.txt" && \
+    pytest -s ./tests >> "/shared/pytest_results$base.txt"

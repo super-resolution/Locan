@@ -56,4 +56,5 @@ CMD today=$(date +"%Y-%m-%d") && \
     date > "/shared/versions$base.txt" && \
     locan show_versions -e -v >> "/shared/versions$base.txt" && \
     date > "/shared/test_results$base.txt" && \
-    locan test >> "/shared/test_results$base.txt"
+    locan test >> "/shared/test_results$base.txt" && \
+    pytest -s ./tests >> "/shared/pytest_results$base.txt"

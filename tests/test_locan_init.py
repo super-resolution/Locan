@@ -1,4 +1,4 @@
-import os
+import subprocess
 import warnings
 
 import locan
@@ -34,8 +34,9 @@ def test_entrypoint(capfd):
     assert captured.out[:47] == "This is the command line entry point for locan."
 
 
-def test_entrypoint_from_sys(capfd):
-    exit_status = os.system("locan")
-    captured = capfd.readouterr()
-    assert captured.out[:47] == "This is the command line entry point for locan."
-    assert exit_status == 0
+def test_entrypoint_from_sys():
+    exit_status = subprocess.run(  # noqa S603
+        "locan", capture_output=True, encoding="utf-8"
+    )
+    assert exit_status.stdout[:47] == "This is the command line entry point for locan."
+    exit_status.check_returncode()

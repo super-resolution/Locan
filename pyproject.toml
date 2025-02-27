@@ -230,6 +230,8 @@ select = [
 # Q000 bad-quotes-inline-string
 # S101 assert
 # S307 suspicious-eval-usage
+# S404 `subprocess` module is possibly insecure
+# S603 `subprocess` call: check for execution of untrusted input
 # S605 start-process-with-a-shell
 # S607 start-process-with-partial-path
 ignore = ["E501", "B905"]
@@ -239,7 +241,7 @@ preview = true
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402", "F401", "F403", "F405", "I001"]
 "__init__.pyi" = ["E401", "F401", "I001"]
-"test_*.py" = ["S101", "S307", "S403", "S605", "S607"]
+"test_*.py" = ["S101", "S307", "S403", "S404", "S605", "S607"]
 "test_simulation.py" = ["F841"]
 "benchmarks/benchmarks/*.py" = ["S101"]
 

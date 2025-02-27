@@ -1,14 +1,14 @@
 from io import StringIO
 
-import locan.constants
 from locan import FileType
 from locan.locan_io import load_Nanoimager_file
 from locan.locan_io.locdata.nanoimager_io import load_Nanoimager_header
+from tests import TEST_DIR
 
 
 def test_get_correct_column_names_from_Nanoimager_header():
     columns = load_Nanoimager_header(
-        path=locan.ROOT_DIR / "tests/test_data/Nanoimager_dstorm_data.csv"
+        path=TEST_DIR / "test_data/Nanoimager_dstorm_data.csv"
     )
     assert columns == [
         "channel",
@@ -37,7 +37,7 @@ def test_get_correct_column_names_from_Nanoimager_header():
 
 
 def test_loading_Nanoimager_file():
-    file_path = locan.ROOT_DIR / "tests/test_data/Nanoimager_dstorm_data.csv"
+    file_path = TEST_DIR / "test_data/Nanoimager_dstorm_data.csv"
     dat = load_Nanoimager_file(path=file_path, nrows=10)
     # print(dat.data.columns)
     assert len(dat) == 10

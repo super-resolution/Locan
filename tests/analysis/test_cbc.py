@@ -1,29 +1,28 @@
-from pathlib import Path
-
 import matplotlib.pyplot as plt  # this import is needed for visual inspection
 import numpy as np
 import pandas as pd
 import pytest
 
-from locan import ROOT_DIR, LocData
+from locan import LocData
 from locan.analysis import CoordinateBasedColocalization
 from locan.analysis.cbc import _coordinate_based_colocalization
 from locan.locan_io.locdata.io_locdata import load_txt_file
 from locan.process.transform import transform_affine
+from tests import TEST_DIR
 
 # fixtures
 
 
 @pytest.fixture()
 def locdata():
-    path = Path(ROOT_DIR / "tests/test_data/five_blobs.txt")
+    path = TEST_DIR / "test_data/five_blobs.txt"
     dat = load_txt_file(path)
     return dat
 
 
 @pytest.fixture()
 def locdata_3d():
-    path = Path(ROOT_DIR / "tests/test_data/five_blobs_3D.txt")
+    path = TEST_DIR / "test_data/five_blobs_3D.txt"
     dat = load_txt_file(path)
     return dat
 

@@ -7,10 +7,11 @@ import pandas as pd
 import pytest
 
 import locan
-from locan import ROOT_DIR, LocData
+from locan import LocData
 from locan.data import metadata_pb2
 from locan.locan_io.locdata.io_locdata import load_txt_file
 from locan.rois.roi import RoiLegacy_0
+from tests import TEST_DIR
 
 # fixtures
 
@@ -112,7 +113,7 @@ def test_pickling_locdata_from_Roi(locdata_2d):
 def test_Roi_io(locdata):
     with tempfile.TemporaryDirectory() as tmp_directory:
         file_path = Path(tmp_directory) / "roi.yaml"
-        # file_path = ROOT_DIR / 'tests/test_data/roi.yaml'
+        # file_path = TEST_DIR / "test_data/roi.yaml"
 
         roi = RoiLegacy_0(
             reference=locdata, region_type="rectangle", region_specs=((0, 0), 2, 1, 10)
@@ -125,7 +126,7 @@ def test_Roi_io(locdata):
 
         roi = RoiLegacy_0(
             reference=dict(
-                file_path=ROOT_DIR / "tests/test_data/five_blobs.txt", file_type=1
+                file_path=TEST_DIR / "test_data/five_blobs.txt", file_type=1
             ),
             region_type="rectangle",
             region_specs=((0, 0), 2, 1, 10),
@@ -169,7 +170,7 @@ def test_Roi_io(locdata):
 
 
 def test_roi_locdata_from_file():
-    locdata = load_txt_file(path=ROOT_DIR / "tests/test_data/five_blobs_3D.txt")
+    locdata = load_txt_file(path=TEST_DIR / "test_data/five_blobs_3D.txt")
 
     roi = RoiLegacy_0(
         reference=locdata,

@@ -1,15 +1,13 @@
 from io import StringIO
 
-import locan.constants
 from locan import FileType
 from locan.locan_io import load_Elyra_file
 from locan.locan_io.locdata.elyra_io import load_Elyra_header
+from tests import TEST_DIR
 
 
 def test_get_correct_column_names_from_Elyra_header():
-    columns = load_Elyra_header(
-        path=locan.ROOT_DIR / "tests/test_data/Elyra_dstorm_data.txt"
-    )
+    columns = load_Elyra_header(path=TEST_DIR / "test_data/Elyra_dstorm_data.txt")
     assert columns == [
         "original_index",
         "frame",
@@ -42,7 +40,7 @@ def test_get_correct_column_names_from_Elyra_header():
 
 
 def test_loading_Elyra_file():
-    file_path = locan.ROOT_DIR / "tests/test_data/Elyra_dstorm_data.txt"
+    file_path = TEST_DIR / "test_data/Elyra_dstorm_data.txt"
     dat = load_Elyra_file(path=file_path)
     # loading is not limited by nrows=10 to ensure correct treatment of file appendix and NUL character.
     assert len(dat) == 15

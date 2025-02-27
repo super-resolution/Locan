@@ -1,7 +1,7 @@
 import pytest
 
-from locan import ROOT_DIR
 from locan.data import metadata_pb2
+from tests import TEST_DIR
 
 
 @pytest.fixture
@@ -252,7 +252,7 @@ def test_save_proto_message_locdata_metadata(metadata_pb2_Metadata_v0p12):
 
     print(metadata)
 
-    path = ROOT_DIR / "tests/test_data/protobuf_message_metadata_pb2.Metadata_v0px"
+    path = TEST_DIR / "test_data/protobuf_message_metadata_pb2.Metadata_v0px"
     with open(path, "wb") as file:
         file.write(metadata.SerializeToString())
 
@@ -266,7 +266,7 @@ def test_save_proto_message_locdata_metadata(metadata_pb2_Metadata_v0p12):
 def test_read_proto_message_locdata_metadata_v0p11(metadata_pb2_Metadata_v0p11_latest):
     metadata = metadata_pb2_Metadata_v0p11_latest
     metadata_new = metadata_pb2.Metadata()
-    path = ROOT_DIR / "tests/test_data/protobuf_message_metadata_pb2.Metadata_v0p11"
+    path = TEST_DIR / "test_data/protobuf_message_metadata_pb2.Metadata_v0p11"
     with open(path, "rb") as file:
         metadata_new.ParseFromString(file.read())
 
@@ -283,7 +283,7 @@ def test_read_proto_message_locdata_metadata(metadata_pb2_Metadata_v0p12):
 
     # print(metadata)
 
-    path = ROOT_DIR / "tests/test_data/protobuf_message_metadata_pb2.Metadata_v0p12"
+    path = TEST_DIR / "test_data/protobuf_message_metadata_pb2.Metadata_v0p12"
     metadata_new = metadata_pb2.Metadata()
     with open(path, "rb") as file:
         metadata_new.ParseFromString(file.read())

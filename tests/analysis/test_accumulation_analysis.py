@@ -1,6 +1,5 @@
 import pytest
 
-import locan.constants
 import locan.locan_io.locdata.io_locdata as io
 from locan import LocData
 from locan.analysis import AccumulationClusterCheck
@@ -8,16 +7,17 @@ from locan.analysis.accumulation_analysis import (
     _accumulation_cluster_check,
     _accumulation_cluster_check_for_single_dataset,
 )
+from tests import TEST_DIR
 
 
 @pytest.fixture()
 def locdata_blobs():
-    return io.load_txt_file(path=locan.ROOT_DIR / "tests/test_data/five_blobs.txt")
+    return io.load_txt_file(path=TEST_DIR / "test_data/five_blobs.txt")
 
 
 @pytest.fixture()
 def locdata_blobs_3D():
-    return io.load_txt_file(path=locan.ROOT_DIR / "tests/test_data/five_blobs_3D.txt")
+    return io.load_txt_file(path=TEST_DIR / "test_data/five_blobs_3D.txt")
 
 
 def test___accumulation_cluster_check_for_single_dataset(locdata_blobs):

@@ -5,29 +5,29 @@ from platform import system
 import numpy as np
 import pytest
 
-from locan import ROOT_DIR
 from locan.constants import DECODE_KEYS, THUNDERSTORM_KEYS
 from locan.locan_io import convert_property_names, convert_property_types
 from locan.locan_io.locdata.utilities import open_path_or_file_like
+from tests import TEST_DIR
 
 
 def test_open_path_or_file_like():
     if system() == "Linux":
         inputs = [
-            str(ROOT_DIR) + "/tests/test_data/rapidSTORM_dstorm_data.txt",
-            ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_data.txt",
+            str(TEST_DIR) + "/test_data/rapidSTORM_dstorm_data.txt",
+            TEST_DIR / "test_data/rapidSTORM_dstorm_data.txt",
         ]
     elif system() == "Windows":
         inputs = [
-            str(ROOT_DIR) + "/tests/test_data/rapidSTORM_dstorm_data.txt",
-            str(ROOT_DIR) + r"\tests\test_data\rapidSTORM_dstorm_data.txt",
-            ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_data.txt",
-            ROOT_DIR / r"tests\test_data\rapidSTORM_dstorm_data.txt",
+            str(TEST_DIR) + "/test_data/rapidSTORM_dstorm_data.txt",
+            str(TEST_DIR) + r"\test_data\rapidSTORM_dstorm_data.txt",
+            TEST_DIR / "test_data/rapidSTORM_dstorm_data.txt",
+            TEST_DIR / r"test_data\rapidSTORM_dstorm_data.txt",
         ]
     else:
         inputs = [
-            str(ROOT_DIR) + "/tests/test_data/rapidSTORM_dstorm_data.txt",
-            ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_data.txt",
+            str(TEST_DIR) + "/test_data/rapidSTORM_dstorm_data.txt",
+            TEST_DIR / "test_data/rapidSTORM_dstorm_data.txt",
         ]
 
     for pfl in inputs:
@@ -54,7 +54,7 @@ def test_open_path_or_file_like():
         assert not data.closed
     assert data.closed
 
-    pfl = ROOT_DIR / "tests/test_data/some_file_that_does_not_exits.txt"
+    pfl = TEST_DIR / "test_data/some_file_that_does_not_exits.txt"
     with pytest.raises(FileNotFoundError):
         with open_path_or_file_like(path_or_file_like=pfl):
             pass

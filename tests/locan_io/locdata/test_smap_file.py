@@ -6,7 +6,6 @@ import numpy as np
 import pytest
 from pandas.testing import assert_frame_equal
 
-import locan as lc
 import locan.constants
 from locan import (
     FileType,
@@ -16,14 +15,13 @@ from locan import (
     save_SMAP_csv,
 )
 from locan.dependencies import HAS_DEPENDENCY
+from tests import TEST_DIR
 
 pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["h5py"], reason="requires h5py.")
 
 
 def test_load_SMAP_header(caplog):
-    columns = load_SMAP_header(
-        path=lc.ROOT_DIR / "tests/test_data/smap_dstorm_data.mat"
-    )
+    columns = load_SMAP_header(path=TEST_DIR / "test_data/smap_dstorm_data.mat")
     assert np.array_equal(
         columns,
         [
@@ -70,7 +68,7 @@ def test_load_SMAP_header(caplog):
 
 
 def test_loading_SMAP_file(caplog):
-    file_path = lc.ROOT_DIR / "tests/test_data/smap_dstorm_data.mat"
+    file_path = TEST_DIR / "test_data/smap_dstorm_data.mat"
     locdata = load_SMAP_file(path=file_path, nrows=10)
     assert len(locdata) == 10
     assert np.array_equal(

@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-import locan.constants
 from locan import (
     bunwarp,
     overlay,
@@ -18,16 +17,14 @@ from locan.locan_io.locdata.io_locdata import load_asdf_file
 from locan.process.cluster import cluster_dbscan
 from locan.process.transform.bunwarpj import _read_matrix, _unwarp
 from locan.process.transform.spatial_transformation import _homogeneous_matrix
-from locan.tests.conftest import get_open3d_version
+from tests import TEST_DIR
+from tests.conftest import get_open3d_version
 
 
 def test_bunwarp_raw_transformation():
-    matrix_path = (
-        locan.ROOT_DIR
-        / "tests/test_data/transform/BunwarpJ_transformation_raw_green.txt"
-    )
+    matrix_path = TEST_DIR / "test_data/transform/BunwarpJ_transformation_raw_green.txt"
     dat_green = load_asdf_file(
-        path=locan.ROOT_DIR / "tests/test_data/transform/rapidSTORM_beads_green.asdf"
+        path=TEST_DIR / "test_data/transform/rapidSTORM_beads_green.asdf"
     )
 
     matrix_x, matrix_y = _read_matrix(path=matrix_path)
@@ -54,7 +51,7 @@ def test_bunwarp_raw_transformation():
 
     # for visual inspection
     dat_red = load_asdf_file(
-        path=locan.ROOT_DIR / "tests/test_data/transform/rapidSTORM_beads_red.asdf"
+        path=TEST_DIR / "test_data/transform/rapidSTORM_beads_red.asdf"
     )
 
     _fig, ax = plt.subplots(1, 1, figsize=(16, 8))

@@ -17,7 +17,7 @@ from locan.analysis.drift import (
     _SplineModelFacade,
 )
 from locan.dependencies import HAS_DEPENDENCY
-from locan.tests.conftest import get_open3d_version
+from tests.conftest import get_open3d_version
 
 # data to evaluate fitting
 x = np.array([1, 2, 4, 6, 9, 10, 11, 15, 16, 20])

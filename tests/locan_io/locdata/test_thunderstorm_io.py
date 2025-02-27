@@ -1,14 +1,14 @@
 from io import StringIO
 
-import locan.constants
 from locan import FileType
 from locan.locan_io import load_thunderstorm_file
 from locan.locan_io.locdata.thunderstorm_io import load_thunderstorm_header
+from tests import TEST_DIR
 
 
 def test_get_correct_column_names_from_Thunderstorm_header():
     columns = load_thunderstorm_header(
-        path=locan.ROOT_DIR / "tests/test_data/Thunderstorm_dstorm_data.csv"
+        path=TEST_DIR / "test_data/Thunderstorm_dstorm_data.csv"
     )
     assert columns == [
         "original_index",
@@ -31,7 +31,7 @@ def test_get_correct_column_names_from_Thunderstorm_header():
 
 
 def test_loading_Thunderstorm_file():
-    file_path = locan.ROOT_DIR / "tests/test_data/Thunderstorm_dstorm_data.csv"
+    file_path = TEST_DIR / "test_data/Thunderstorm_dstorm_data.csv"
     dat = load_thunderstorm_file(path=file_path, nrows=10)
     # print(dat.data.columns)
     assert len(dat) == 10

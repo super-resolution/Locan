@@ -8,11 +8,12 @@ from locan.locan_io.locdata.rapidstorm_io import (
     load_rapidSTORM_header,
     load_rapidSTORM_track_header,
 )
+from tests import TEST_DIR
 
 
 def test_get_correct_column_names_from_rapidSTORM_header():
     columns = load_rapidSTORM_header(
-        path=locan.ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_data.txt"
+        path=TEST_DIR / "test_data/rapidSTORM_dstorm_data.txt"
     )
     assert columns == [
         "position_x",
@@ -39,7 +40,7 @@ def test_get_correct_column_names_from_rapidSTORM_header():
 
 
 def test_loading_rapidSTORM_file():
-    path = locan.ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_data.txt"
+    path = TEST_DIR / "test_data/rapidSTORM_dstorm_data.txt"
     dat = load_rapidSTORM_file(path=path, nrows=10)
     # print(dat.data.head())
     # dat.print_meta()
@@ -57,7 +58,7 @@ def test_loading_rapidSTORM_file():
 
 def test_get_correct_column_names_from_rapidSTORM_track_header():
     columns = load_rapidSTORM_track_header(
-        path=locan.ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_track_data.txt"
+        path=TEST_DIR / "test_data/rapidSTORM_dstorm_track_data.txt"
     )
     assert columns == (
         ["position_x", "position_y", "frame", "intensity"],
@@ -95,7 +96,7 @@ def test_get_correct_column_names_from_rapidSTORM_track_header():
 
 def test_loading_rapidSTORM_track_file():
     dat = load_rapidSTORM_track_file(
-        path=locan.ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_track_data.txt",
+        path=TEST_DIR / "test_data/rapidSTORM_dstorm_track_data.txt",
         min_localization_count=2,
         nrows=10,
     )
@@ -122,7 +123,7 @@ def test_loading_rapidSTORM_track_file():
     # len(dat) is 9 and not 10 since one row is filtered out y min_localization_count=2
 
     dat = load_rapidSTORM_track_file(
-        path=locan.ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_track_data.txt",
+        path=TEST_DIR / "test_data/rapidSTORM_dstorm_track_data.txt",
         collection=False,
         nrows=10,
     )

@@ -11,17 +11,16 @@ from locan.data import metadata_pb2
 from locan.dependencies import HAS_DEPENDENCY
 from locan.locan_io import load_locdata, load_txt_file
 from locan.locan_io.locdata.io_locdata import _map_file_type_to_load_function
+from tests import TEST_DIR
 
 
 def test_loading_txt_file(caplog):
-    dat = load_txt_file(
-        path=locan.ROOT_DIR / "tests/test_data/five_blobs.txt", nrows=10
-    )
+    dat = load_txt_file(path=TEST_DIR / "test_data/five_blobs.txt", nrows=10)
     # print(dat.data)
     assert len(dat) == 10
 
     dat = load_txt_file(
-        path=locan.ROOT_DIR / "tests/test_data/five_blobs.txt",
+        path=TEST_DIR / "test_data/five_blobs.txt",
         columns=["index", "position_x", "position_y", "cluster_label", "frame"],
         nrows=10,
     )
@@ -37,7 +36,7 @@ def test_loading_txt_file(caplog):
     assert len(dat) == 1
 
     dat = load_txt_file(
-        path=locan.ROOT_DIR / "tests/test_data/five_blobs.txt", columns=["c1"], nrows=10
+        path=TEST_DIR / "test_data/five_blobs.txt", columns=["c1"], nrows=10
     )
     # print(dat.data)
     assert caplog.record_tuples == [
@@ -51,7 +50,7 @@ def test_loading_txt_file(caplog):
     assert len(dat) == 10
 
     dat = load_txt_file(
-        path=locan.ROOT_DIR / "tests/test_data/five_blobs.txt",
+        path=TEST_DIR / "test_data/five_blobs.txt",
         columns=["c1"],
         nrows=10,
         property_mapping={"c1": "something"},
@@ -74,49 +73,49 @@ def test__map_file_type_to_load_function():
 
 def test_load_locdata():
     dat = load_locdata(
-        path=locan.ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_data.txt",
+        path=TEST_DIR / "test_data/rapidSTORM_dstorm_data.txt",
         file_type="RAPIDSTORM",
         nrows=10,
     )
     assert len(dat) == 10
 
     dat = load_locdata(
-        path=locan.ROOT_DIR / "tests/test_data/Elyra_dstorm_data.txt",
+        path=TEST_DIR / "test_data/Elyra_dstorm_data.txt",
         file_type="ELYRA",
         nrows=10,
     )
     assert len(dat) == 10
 
     dat = load_locdata(
-        path=locan.ROOT_DIR / "tests/test_data/Elyra_dstorm_data.txt",
+        path=TEST_DIR / "test_data/Elyra_dstorm_data.txt",
         file_type="elyra",
         nrows=10,
     )
     assert len(dat) == 10
 
     dat = load_locdata(
-        path=locan.ROOT_DIR / "tests/test_data/Elyra_dstorm_data.txt",
+        path=TEST_DIR / "test_data/Elyra_dstorm_data.txt",
         file_type=3,
         nrows=10,
     )
     assert len(dat) == 10
 
     dat = load_locdata(
-        path=locan.ROOT_DIR / "tests/test_data/Nanoimager_dstorm_data.csv",
+        path=TEST_DIR / "test_data/Nanoimager_dstorm_data.csv",
         file_type="NANOIMAGER",
         nrows=10,
     )
     assert len(dat) == 10
 
     dat = load_locdata(
-        path=locan.ROOT_DIR / "tests/test_data/rapidSTORM_dstorm_track_data.txt",
+        path=TEST_DIR / "test_data/rapidSTORM_dstorm_track_data.txt",
         file_type="RAPIDSTORMTRACK",
         nrows=10,
     )
     assert len(dat) == 10
 
     dat = load_locdata(
-        path=locan.ROOT_DIR / "tests/test_data/SMLM_dstorm_data.smlm",
+        path=TEST_DIR / "test_data/SMLM_dstorm_data.smlm",
         file_type="SMLM",
         nrows=10,
     )
@@ -126,14 +125,14 @@ def test_load_locdata():
 @pytest.mark.skipif(not HAS_DEPENDENCY["h5py"], reason="requires h5py.")
 def test_load_locdata_2():
     dat = load_locdata(
-        path=locan.ROOT_DIR / "tests/test_data/decode_dstorm_data.h5",
+        path=TEST_DIR / "test_data/decode_dstorm_data.h5",
         file_type="DECODE",
         nrows=10,
     )
     assert len(dat) == 10
 
     dat = load_locdata(
-        path=locan.ROOT_DIR / "tests/test_data/smap_dstorm_data.mat",
+        path=TEST_DIR / "test_data/smap_dstorm_data.mat",
         file_type="SMAP",
         nrows=10,
     )

@@ -11,7 +11,7 @@ from locan.process.register import (
     register_icp,
 )
 from locan.process.transform import transform_affine
-from locan.tests.conftest import get_open3d_version
+from tests.conftest import get_open3d_version
 
 
 @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")

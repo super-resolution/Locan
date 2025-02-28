@@ -176,6 +176,7 @@ include = [
     "tests/*"
 ]
 omit = [
+    "tests/*",
     "src/locan/tests/*",
     "src/locan/scripts/*",
     "src/locan/__main__.py",

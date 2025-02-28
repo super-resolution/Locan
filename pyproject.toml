@@ -172,7 +172,8 @@ markers = [
 
 [tool.coverage.run]
 include = [
-    "src/locan/*"
+    "src/locan/*",
+    "tests/*"
 ]
 omit = [
     "src/locan/tests/*",

@@ -163,7 +163,7 @@ filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
     "ignore::DeprecationWarning:hdbscan",
 ]
-addopts = "--strict-markers -m 'not gui and not visual'"
+addopts = "--import-mode=importlib --strict-markers -m 'not gui and not visual'"
 markers = [
     "gui: marks tests that require user interaction (skipped by default)",
     "visual: marks tests that require visual inspection (skipped by default)",

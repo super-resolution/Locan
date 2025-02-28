@@ -1,5 +1,9 @@
 import subprocess
 
+import pytest
+
+pytestmark = pytest.mark.slow
+
 
 def test_entrypoint_from_sys():
     exit_status = subprocess.run(  # noqa S603

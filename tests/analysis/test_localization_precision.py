@@ -16,6 +16,8 @@ from locan.analysis.localization_precision import (
     _DistributionFits,
 )
 
+pytestmark = pytest.mark.slow
+
 
 @pytest.fixture()
 def locdata_simple_1d():

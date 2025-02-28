@@ -155,14 +155,19 @@ locan = "locan.__main__:main"
 line_length = 88
 
 [tool.pytest.ini_options]
+testpaths = [
+    "src/locan/tests",
+    "tests"
+]
 filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
     "ignore::DeprecationWarning:hdbscan",
 ]
-addopts = "-m 'not gui and not visual'"
+addopts = "--strict-markers -m 'not gui and not visual'"
 markers = [
     "gui: marks tests that require user interaction (skipped by default)",
     "visual: marks tests that require visual inspection (skipped by default)",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
 
 [tool.coverage.run]

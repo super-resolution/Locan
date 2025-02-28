@@ -12,6 +12,9 @@ from locan.analysis.nearest_neighbor import (
     pdf_nnDistances_csr_3D,
 )
 
+pytestmark = pytest.mark.slow
+
+
 # fixtures
 
 

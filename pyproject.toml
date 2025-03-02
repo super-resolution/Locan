@@ -176,15 +176,15 @@ source = [
 ]
 omit = [
     "tests/*",
-    "src/locan/tests/*",
-    "src/locan/scripts/*",
-    "src/locan/__main__.py",
-    "src/locan/data/metadata_pb2.py",
-    "src/locan/data/metadata_pb2.pyi",
-    "src/locan/analysis/metadata_analysis_pb2.py",
-    "src/locan/analysis/metadata_analysis_pb2.pyi",
-    "src/locan/locan_io/locdata/manifest_pb2.py",
-    "src/locan/locan_io/locdata/manifest_pb2.pyi",
+    "*/locan/tests/*",
+    "*/locan/scripts/*",
+    "*/locan/__main__.py",
+    "*/locan/data/metadata_pb2.py",
+    "*/locan/data/metadata_pb2.pyi",
+    "*/locan/analysis/metadata_analysis_pb2.py",
+    "*/locan/analysis/metadata_analysis_pb2.pyi",
+    "*/locan/locan_io/locdata/manifest_pb2.py",
+    "*/locan/locan_io/locdata/manifest_pb2.pyi",
 ]
 
 [tool.coverage.report]
@@ -193,6 +193,7 @@ exclude_lines = [
     "raise NotImplementedError",
     "if 0:",
     "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
     "class .*\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]

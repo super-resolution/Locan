@@ -16,7 +16,7 @@ env:
   REQUIREMENTS_FILE: "environment-linux-py3.12.yml"
 
 jobs:
-  test-on-mambaforge:
+  test-on-miniforge:
     name: "Tests with linux, py3.12, Miniforge"
     runs-on: ubuntu-latest
     steps:

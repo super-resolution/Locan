@@ -12,7 +12,7 @@ defaults:
 
 
 jobs:
-  matrix-test-on-mambaforge:
+  matrix-test-on-miniforge:
     name: "Tests with linux,, py${{ matrix.python-version }}, Miniforge"
     runs-on: ubuntu-latest
     strategy:

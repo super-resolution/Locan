@@ -155,30 +155,36 @@ locan = "locan.__main__:main"
 line_length = 88
 
 [tool.pytest.ini_options]
+testpaths = [
+    "src/locan/tests",
+    "tests"
+]
 filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
     "ignore::DeprecationWarning:hdbscan",
 ]
-addopts = "-m 'not gui and not visual'"
+addopts = "--import-mode=importlib --strict-markers -m 'not gui and not visual'"
 markers = [
     "gui: marks tests that require user interaction (skipped by default)",
     "visual: marks tests that require visual inspection (skipped by default)",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
 
 [tool.coverage.run]
-include = [
-    "src/locan/*"
+source = [
+    "locan"
 ]
 omit = [
-    "src/locan/tests/*",
-    "src/locan/scripts/*",
-    "src/locan/__main__.py",
-    "src/locan/data/metadata_pb2.py",
-    "src/locan/data/metadata_pb2.pyi",
-    "src/locan/analysis/metadata_analysis_pb2.py",
-    "src/locan/analysis/metadata_analysis_pb2.pyi",
-    "src/locan/locan_io/locdata/manifest_pb2.py",
-    "src/locan/locan_io/locdata/manifest_pb2.pyi",
+    "tests/*",
+    "*/locan/tests/*",
+    "*/locan/scripts/*",
+    "*/locan/__main__.py",
+    "*/locan/data/metadata_pb2.py",
+    "*/locan/data/metadata_pb2.pyi",
+    "*/locan/analysis/metadata_analysis_pb2.py",
+    "*/locan/analysis/metadata_analysis_pb2.pyi",
+    "*/locan/locan_io/locdata/manifest_pb2.py",
+    "*/locan/locan_io/locdata/manifest_pb2.pyi",
 ]
 
 [tool.coverage.report]
@@ -187,6 +193,7 @@ exclude_lines = [
     "raise NotImplementedError",
     "if 0:",
     "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
     "class .*\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
@@ -230,6 +237,8 @@ select = [
 # Q000 bad-quotes-inline-string
 # S101 assert
 # S307 suspicious-eval-usage
+# S404 `subprocess` module is possibly insecure
+# S603 `subprocess` call: check for execution of untrusted input
 # S605 start-process-with-a-shell
 # S607 start-process-with-partial-path
 ignore = ["E501", "B905"]
@@ -239,7 +248,7 @@ preview = true
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402", "F401", "F403", "F405", "I001"]
 "__init__.pyi" = ["E401", "F401", "I001"]
-"test_*.py" = ["S101", "S307", "S403", "S605", "S607"]
+"test_*.py" = ["S101", "S307", "S403", "S404", "S605", "S607"]
 "test_simulation.py" = ["F841"]
 "benchmarks/benchmarks/*.py" = ["S101"]
 

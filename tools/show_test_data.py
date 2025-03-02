@@ -1,7 +1,7 @@
 """
 Utility to visualize test data.
 
-Show all test datasets that are available in locan/tests/test_data.
+Show all test datasets that are available in /tests/test_data.
 """
 
 from __future__ import annotations
@@ -13,12 +13,12 @@ import numpy as np
 import tifffile as tif
 
 import locan as lc
-from locan import ROOT_DIR
 
-PATH_TEST_DATA = ROOT_DIR / "tests/test_data"
+TEST_DIR: Path = Path(__file__).parents[1] / "tests"
+PATH_TEST_DATA = TEST_DIR / "test_data"
 
 
-def get_files(path: Path = ROOT_DIR / "tests/test_data") -> list[Path]:
+def get_files(path: Path = PATH_TEST_DATA) -> list[Path]:
     files = path.rglob(pattern="*.*")
     file_list = [file.relative_to(path) for file in files]
     return file_list

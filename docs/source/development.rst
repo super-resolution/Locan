@@ -40,13 +40,16 @@ This is enforced through ruff following specifications in pyproject.toml.
 Unit tests
 ===========
 
-For testing we use py.test_.
+For testing we use pytest_.
 
-.. _py.test: https://docs.pytest.org/en/latest/index.html
+.. _pytest: https://docs.pytest.org/en/latest/index.html
 
-A test suite is provided in locan/tests.
+A minimal test suite is provided in `src/locan/tests`.
+The extended test suite is provided in `tests`.
 
-For unit testing we supply test data as data files located in locan/tests/test_data.
+For unit testing we supply test data as data files located in `tests/test_data`.
+
+Configurations are kept in pyproject.toml.
 
 Coverage
 ===========

@@ -2,8 +2,9 @@
 
 Test the locan package.
 
-This module includes unit tests for all modules within the locan package.
-The tests are organized following the subpackage structure of locan.
+This module includes a minimal set of unit tests for the locan package.
+An extended set of tests is available in the upstream tests directory and
+organized following the subpackage structure of locan.
 
 """
 

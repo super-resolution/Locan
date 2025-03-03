@@ -96,8 +96,7 @@ class SubpixelBias(_Analysis):
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
     results : pandas.DataFrame
-        The number of localizations per frame or
-        the number of localizations per frame normalized to region_measure(hull).
+        A dataframe with localization coordinates.
     """
 
     count = 0

@@ -130,7 +130,7 @@ docs = [
 ]
 dev = [
     "asv",
-    "black~=24.0",
+    "black~=25.0",
     "build",
     "coverage[toml]",
     "mypy",
@@ -165,7 +165,7 @@ test-qt = [
     "pytest-qt;python_version<'3.13'",
 ]
 lint = [
-    "black~=24.0",
+    "black~=25.0",
     "ruff",
 ]
 typing = [

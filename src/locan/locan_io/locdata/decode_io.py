@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 @needs_package("h5py")
 def _read_decode_header(
-    file: Mapping[str, Any]
+    file: Mapping[str, Any],
 ) -> tuple[list[str], dict[str, Any], dict[str, Any]]:
     """
     Read header from a DECODE single-molecule localization file and identify

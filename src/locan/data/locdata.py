@@ -1015,7 +1015,7 @@ class LocData:
                     chunk_sizes = [chunk_size] * n_chunks
                 else:
                     chunk_sizes = [chunk_size] * (n_chunks - 1) + [
-                        (len(locdata) % chunk_size)
+                        len(locdata) % chunk_size
                     ]
                 cum_chunk_sizes = list(accumulate(chunk_sizes))
                 cum_chunk_sizes.insert(0, 0)

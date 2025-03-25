@@ -394,7 +394,7 @@ class Files:
         print(f"Number of files: {len(self.df)}")
         print(f"Base directory: {self.directory}")
         print(f"Columns: {self.df.columns}")
-        print(self.df.describe().loc[["count", "unique"]])
+        print(self.df.describe().loc[["count", "unique"]])  # type: ignore[index]
 
     def group_identifiers(self) -> Any:  # todo: fix type
         """

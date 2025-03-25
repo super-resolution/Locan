@@ -60,6 +60,22 @@ For measuring code coverage in testing we use coverage.py_.
 
 Configurations are kept in pyproject.toml.
 
+Code checks
+============
+
+We use black_ for formating and ruff_ for code linting.
+
+.. _black: https://pypi.org/project/black/
+.. _ruff: https://pypi.org/project/ruff
+
+Configurations are kept in pyproject.toml.
+
+We use mypy_ for type checking.
+
+.. _mypy: https://github.com/python/mypy
+
+Configurations are kept in pyproject.toml.
+
 Versioning
 ===========
 

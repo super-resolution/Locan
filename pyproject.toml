@@ -130,7 +130,7 @@ docs = [
 ]
 dev = [
     "asv",
-    "black~=24.0",
+    "black~=25.0",
     "build",
     "coverage[toml]",
     "mypy",
@@ -165,7 +165,7 @@ test-qt = [
     "pytest-qt;python_version<'3.13'",
 ]
 lint = [
-    "black~=24.0",
+    "black~=25.0",
     "ruff",
 ]
 typing = [
@@ -316,7 +316,10 @@ convention = "numpy"
 
 [tool.mypy]
 plugins = ['numpy.typing.mypy_plugin']
-files = ["src"]
+files = [
+    "$MYPY_CONFIG_FILE_DIR/src",
+    "$MYPY_CONFIG_FILE_DIR/tests/"
+]
 strict = true
 
 # warn-unused-ignores is not quite reproducible
@@ -335,6 +338,16 @@ ignore_errors = true
 [[tool.mypy.overrides]]
 module = [
     'locan.tests.*',
+]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = false
+disable_error_code = ["attr-defined"]
+
+# all attr-defined errors are due to star imports
+[[tool.mypy.overrides]]
+module = [
+    'tests.*',
 ]
 disallow_untyped_defs = false
 disallow_incomplete_defs = false

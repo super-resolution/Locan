@@ -10,7 +10,7 @@ Dependencies
 * python 3
 * standard scipy and other open source libraries
 
-A list with all hard and optional dependencies is given in `pyproject.toml`, `environment.yml` and `requirements.txt`.
+A list with all hard and optional dependencies is given in `pyproject.toml` and `environment.yml`.
 
 Install from pypi
 ------------------------------
@@ -49,11 +49,11 @@ Install from local sources::
 Run tests
 -----------------------
 
-Use pytest to run the tests from the source directory::
+Use pytest to run tests from the source or tests directory::
 
     pytest
 
-Or run a locan script from any directory::
+Or run a minimal test suite from the locan command line::
 
     locan test
 
@@ -61,7 +61,7 @@ Or run a locan script from any directory::
 Using conda to set up a dedicated environment:
 ------------------------------------------------------------------------------------------
 
-1) Install miniconda or anaconda (platform-independent)
+1) Install mniforge, miniconda or anaconda (platform-independent)
 2) Setup a new environment from the environment.yml file::
 
 	conda env create --file "./environment.yml"
@@ -73,14 +73,10 @@ Using conda to set up a dedicated environment:
 
 3) Activate the environment and install locan.
 
-We recommend using `mamba`_ to speed up dependency resolution::
-
-	mamba create --name locan python=3.10
-	mamba env update --name locan --file "./environment.yml"
-	mamba install --name locan -c conda-forge locan
+	conda create --name locan -c conda-forge python=3.10
+	conda env update --name locan --file "./environment.yml"
+	conda install --name locan -c conda-forge locan
 	conda activate locan
-
-.. _mamba: https://mamba.readthedocs.io
 
 
 Jupyter
@@ -94,13 +90,13 @@ or inside a conda environment::
 
     conda install -c conda-forge jupyterlab
 
-Make sure to add the appropriate lab extensions::
+(Outdated) Make sure to add the appropriate lab extensions::
 
     jupyter labextension install @jupyter-widgets/jupyterlab-manager \
                                  @pyviz/jupyterlab_pyviz \
                                  jupyter-matplotlib
 
-You may need to install node.js for rebuilding jupyter lab::
+(Outdated) You may need to install node.js for rebuilding jupyter lab::
 
     conda install -c conda-forge nodejs
 

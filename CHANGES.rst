@@ -8,6 +8,7 @@ Changelog
 New Features
 ------------
 - add helper function locan.rois.roi.load_locdata_from_roi_file().
+- add dependency-groups in pyproject-toml
 
 API Changes
 -----------
@@ -19,7 +20,9 @@ Bug Fixes
 
 Other Changes and Additions
 ---------------------------
-- ...
+- refactor tests layout
+- refactor: add test for subpackage imports
+- refactor: update to python 3.13
 
 0.20 - 2025-02-26
 =================

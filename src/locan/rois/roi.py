@@ -835,12 +835,12 @@ def load_locdata_from_roi_file(
     path = Path(path)
     roi = Roi.from_yaml(path=path)
     if reference_path == "path":
-        roi.reference.file.path = str(
-            path.with_name(Path(roi.reference.file.path).name)
+        roi.reference.file.path = str(  # type: ignore[union-attr]
+            path.with_name(Path(roi.reference.file.path).name)  # type: ignore[union-attr]
         )
     elif reference_path is not None:
-        roi.reference.file.path = str(
-            Path(reference_path).with_name(Path(roi.reference.file.path).name)
+        roi.reference.file.path = str(  # type: ignore[union-attr]
+            Path(reference_path).with_name(Path(roi.reference.file.path).name)  # type: ignore[union-attr]
         )
     locdata = roi.locdata()
     return locdata

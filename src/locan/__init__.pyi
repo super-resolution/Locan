@@ -175,7 +175,11 @@ from .process import (
     transform_affine as transform_affine,
     transform_counts_to_photons as transform_counts_to_photons,
 )
-from .rois import Roi as Roi, rasterize as rasterize
+from .rois import (
+    Roi as Roi,
+    rasterize as rasterize,
+    load_locdata_from_roi_file as load_locdata_from_roi_file,
+)
 from .simulation import (
     add_drift as add_drift,
     make_Matern as make_Matern,

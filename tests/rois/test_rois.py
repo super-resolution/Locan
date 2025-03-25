@@ -4,7 +4,17 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pytest
 
-from locan import ROOT_DIR, Ellipse, LocData, Polygon, Rectangle, Roi, rasterize
+from locan import (
+    ROOT_DIR,
+    Ellipse,
+    LocData,
+    Polygon,
+    Rectangle,
+    Roi,
+    load_locdata_from_roi_file,
+    rasterize,
+    save_asdf,
+)
 from locan.data import metadata_pb2
 
 
@@ -185,6 +195,33 @@ def test_roi_locdata_from_file(locdata_blobs_3d):
     )
     dat = roi.locdata()
     assert len(dat) == 10
+
+
+def test_load_locdata_from_roi_file(locdata_3d, tmp_path):
+    file_path = tmp_path / "roi.yaml"
+    locdata_path = file_path.with_name("locdata_3d.asdf")
+    save_asdf(path=locdata_path, locdata=locdata_3d)
+
+    roi = Roi(
+        reference=dict(file_path=locdata_path, file_type="ASDF"),
+        region=Rectangle((0, 0), 200, 200, 0),
+        loc_properties=["position_x", "position_y"],
+    )
+    roi.to_yaml(path=file_path)
+
+    locdata = load_locdata_from_roi_file(path=file_path)
+    assert len(locdata) == 6
+    assert locdata.region is None  # since locdata is 3D but the roi is 2D
+
+    reference_path = file_path
+    locdata = load_locdata_from_roi_file(path=file_path, reference_path=reference_path)
+    assert len(locdata) == 6
+    assert locdata.region is None  # since locdata is 3D but the roi is 2D
+
+    reference_path = "path"
+    locdata = load_locdata_from_roi_file(path=file_path, reference_path=reference_path)
+    assert len(locdata) == 6
+    assert locdata.region is None  # since locdata is 3D but the roi is 2D
 
 
 def test_as_artist():

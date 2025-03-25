@@ -20,7 +20,7 @@ from collections.abc import Iterable, Sequence
 from inspect import isabstract
 from itertools import product
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -39,7 +39,7 @@ from locan.data.regions import region
 from locan.data.regions.region import Region, RoiRegion
 from locan.utils.miscellaneous import _get_subclasses
 
-__all__: list[str] = ["Roi", "rasterize"]
+__all__: list[str] = ["Roi", "rasterize", "load_locdata_from_roi_file"]
 
 logger = logging.getLogger(__name__)
 
@@ -802,3 +802,45 @@ def rasterize(
         ]
     )
     return new_rois
+
+
+def load_locdata_from_roi_file(
+    path: str | os.PathLike[Any],
+    reference_path: str | os.PathLike[Any] | Literal["path"] | None = None,
+) -> LocData:
+    """
+    A helper function to load localization data according to the chosen roi
+    file.
+
+    Parameters
+    ----------
+    path
+        File path for a file to load.
+    reference_path
+        Taken as new roi reference path but with the localization file name.
+        If "path", reference path will be set to path but with the
+        localization file name
+
+    Returns
+    -------
+    LocData
+        A new instance of LocData with all localizations.
+
+    See Also
+    --------
+    :func:`locan.rois.roi.Roi.from_yaml()`
+    :func:`locan.rois.roi.Roi.locdata()`
+
+    """
+    path = Path(path)
+    roi = Roi.from_yaml(path=path)
+    if reference_path == "path":
+        roi.reference.file.path = str(
+            path.with_name(Path(roi.reference.file.path).name)
+        )
+    elif reference_path is not None:
+        roi.reference.file.path = str(
+            Path(reference_path).with_name(Path(roi.reference.file.path).name)
+        )
+    locdata = roi.locdata()
+    return locdata

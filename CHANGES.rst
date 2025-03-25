@@ -7,7 +7,7 @@ Changelog
 
 New Features
 ------------
-- ...
+- add helper function locan.rois.roi.load_locdata_from_roi_file().
 
 API Changes
 -----------

@@ -9,6 +9,7 @@ New Features
 ------------
 - add helper function locan.rois.roi.load_locdata_from_roi_file().
 - add dependency-groups in pyproject-toml
+- implement BoundingBox.region for 3D
 
 API Changes
 -----------

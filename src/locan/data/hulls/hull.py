@@ -17,7 +17,7 @@ import scipy.spatial as spat
 from shapely.geometry import MultiPoint as shMultiPoint
 from shapely.geometry import Polygon as shPolygon
 
-from locan.data.regions.region import Polygon, Rectangle
+from locan.data.regions.region import Cuboid, Polygon, Rectangle
 
 if TYPE_CHECKING:
     from locan.data.regions.region import Region
@@ -81,9 +81,19 @@ class BoundingBox:
 
     @property
     def region(self) -> Region:
+        region_: Region
         if self.dimension == 2:
             region_ = Rectangle(self.hull[0], self.width[0], self.width[1], 0)
-            # region_ = RoiRegion(region_type='rectangle', region_specs=(self.hull[0], self.width[0], self.width[1], 0))
+        elif self.dimension == 3:
+            region_ = Cuboid(
+                self.hull[0],
+                length=self.width[0],
+                width=self.width[1],
+                height=self.width[2],
+                alpha=0,
+                beta=0,
+                gamma=0,
+            )
         else:
             raise NotImplementedError
         return region_

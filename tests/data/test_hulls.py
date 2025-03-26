@@ -25,8 +25,7 @@ def test_BoundingBox_3d(locdata_3d):
     assert hull.region_measure == 80
     assert hull.subregion_measure == 26
     np.testing.assert_array_equal(hull.hull, true_hull)
-    with pytest.raises(NotImplementedError):
-        assert hull.region.region_measure == 80
+    assert hull.region.region_measure == 80
 
 
 @pytest.mark.parametrize(

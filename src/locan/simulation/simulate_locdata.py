@@ -229,8 +229,8 @@ def make_Poisson(
         for _i in range(region.dimension):
             samples = samples[..., np.newaxis]
     elif isinstance(
-        region, (Interval, Rectangle, AxisOrientedCuboid, AxisOrientedHypercuboid)
-    ):
+        region, (Interval, AxisOrientedCuboid, AxisOrientedHypercuboid)
+    ) or (isinstance(region, Rectangle) and region.angle == 0):
         samples = rng.uniform(
             region.bounds[: region.dimension],
             region.bounds[region.dimension :],

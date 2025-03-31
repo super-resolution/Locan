@@ -128,8 +128,8 @@ def make_uniform(
         theta = rng.random(n_samples) * 2 * np.pi
         rho = radius * np.sqrt(rng.random(n_samples))
         # Convert from polar to Cartesian coordinates
-        xx = rho * np.cos(theta)
-        yy = rho * np.sin(theta)
+        xx = rho * np.cos(theta) + region.center[0]
+        yy = rho * np.sin(theta) + region.center[1]
         samples = np.array((xx, yy)).T
     else:
         sampling_ratio = region.region_measure / region.bounding_box.region_measure
@@ -242,8 +242,8 @@ def make_Poisson(
         theta = rng.random(n_samples) * 2 * np.pi
         rho = radius * np.sqrt(rng.random(n_samples))
         # Convert from polar to Cartesian coordinates
-        xx = rho * np.cos(theta)
-        yy = rho * np.sin(theta)
+        xx = rho * np.cos(theta) + region.center[0]
+        yy = rho * np.sin(theta) + region.center[0]
         samples = np.array((xx, yy)).T
     else:
         sampling_ratio = region.region_measure / region.bounding_box.region_measure

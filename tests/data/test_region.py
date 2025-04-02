@@ -13,6 +13,7 @@ from shapely.geometry import Polygon as shPolygon
 from locan import (
     AxisOrientedCuboid,
     AxisOrientedHypercuboid,
+    AxisOrientedRectangle,
     Cuboid,
     Ellipse,
     EmptyRegion,
@@ -145,6 +146,59 @@ def test_Interval():
     assert repr(region) == "Interval(0, 2)"
     region = Interval.from_intervals(np.array([0, 2]))
     assert repr(region) == "Interval(0, 2)"
+
+
+def test_AxisOrientedRectangle():
+    region = AxisOrientedRectangle((0, 0), 2, 1)
+    assert (10, 1) not in region
+    assert (0.5, 0.5) in region
+    assert isinstance(region, Region)
+    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+    assert str(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+    new_reg = eval(repr(region))
+    assert isinstance(new_reg, AxisOrientedRectangle)
+    with pytest.raises(AttributeError):
+        region.corner = None
+        region.width = None
+        region.height = None
+    assert region.dimension == 2
+    assert region.bounds == pytest.approx((0, 0, 2, 1))
+    assert np.array_equal(region.intervals, [(0, pytest.approx(2)), (0, 1)])
+    assert region.extent == pytest.approx((2, 1))
+    assert len(region.points) == 5
+    assert np.allclose(
+        region.points.astype(float),
+        [[0.0, 0.0], [0.0, 1.0], [2.0, 1.0], [2.0, 0.0], [0.0, 0.0]],
+    )
+    assert np.array_equal(region.centroid, (1, 0.5))
+    assert region.max_distance == np.sqrt(5)
+    assert region.region_measure == 2
+    assert region.subregion_measure == 6
+    assert np.array_equal(
+        region.contains([[0, 0], [0.5, 0.5], [100, 100], [-1, 2]]), (1,)
+    )
+    other = AxisOrientedRectangle((0, 0), 2, 1)
+    assert isinstance(region.intersection(other), Polygon)
+    assert isinstance(region.symmetric_difference(other), EmptyRegion)
+    assert isinstance(region.union(other), Polygon)
+
+    assert region.contains([(0.5, 1)]) == (0,)
+    assert region.contains([(10, 10)]).size == 0
+    assert region.contains([]).size == 0
+    assert isinstance(region.as_artist(), mPatches.Rectangle)
+    assert isinstance(region.shapely_object, shPolygon)
+    assert region.region_measure == region.shapely_object.area
+    assert isinstance(region.buffer(1), Polygon)
+    assert np.array_equal(region.bounding_box.corner, (0.0, 0.0))
+    assert region.bounding_box.width == pytest.approx(2)
+    assert region.bounding_box.height == pytest.approx(1)
+
+    region = AxisOrientedRectangle.from_intervals(((0, 2), (0, 1)))
+    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+    region = AxisOrientedRectangle.from_intervals([(0, 2), (0, 1)])
+    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+    region = AxisOrientedRectangle.from_intervals(np.array([(0, 2), (0, 1)]))
+    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
 
 
 def test_Rectangle():

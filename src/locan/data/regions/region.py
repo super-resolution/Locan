@@ -40,6 +40,7 @@ __all__: list[str] = [
     "Region1D",
     "Interval",
     "Region2D",
+    "AxisOrientedRectangle",
     "Rectangle",
     "Ellipse",
     "Polygon",
@@ -245,7 +246,9 @@ class Region(ABC):
     @staticmethod
     def from_intervals(
         intervals: npt.ArrayLike,
-    ) -> Interval | Rectangle | AxisOrientedCuboid | AxisOrientedHypercuboid:
+    ) -> (
+        Interval | AxisOrientedRectangle | AxisOrientedCuboid | AxisOrientedHypercuboid
+    ):
         """
         Constructor for instantiating axis-oriented, box-like Region from list of
         (min, max) bounds.
@@ -259,12 +262,12 @@ class Region(ABC):
 
         Returns
         -------
-        Interval | Rectangle | AxisOrientedCuboid | AxisOrientedHypercuboid
+        Interval | AxisOrientedRectangle | AxisOrientedCuboid | AxisOrientedHypercuboid
         """
         if np.shape(intervals) == (2,):
             return Interval.from_intervals(intervals)
         elif np.shape(intervals) == (2, 2):
-            return Rectangle.from_intervals(intervals)
+            return AxisOrientedRectangle.from_intervals(intervals)
         elif np.shape(intervals) == (3, 2):
             return AxisOrientedCuboid.from_intervals(intervals)
         elif np.shape(intervals)[0] > 3 and np.shape(intervals)[1] == 2:
@@ -992,6 +995,181 @@ class Interval(Region1D):
         l_bound = self.lower_bound - distance
         u_bound = self.upper_bound + distance
         return Interval(lower_bound=l_bound, upper_bound=u_bound)
+
+
+T_AxisOrientedRectangle = TypeVar(
+    "T_AxisOrientedRectangle", bound="AxisOrientedRectangle"
+)
+
+
+class AxisOrientedRectangle(Region2D):
+    """
+    Region class to define an axis-aligned rectangle.
+
+    Parameters
+    ----------
+    corner : npt.ArrayLike
+        A point that defines the lower left corner with shape (2,).
+    width : float
+        The length of a vector describing the edge in x-direction.
+    height : float
+        The length of a vector describing the edge in y-direction.
+    """
+
+    def __init__(
+        self,
+        corner: npt.ArrayLike = (0, 0),
+        width: float = 1,
+        height: float = 1,
+    ) -> None:
+        self._corner = np.asarray(corner)
+        self._width = width
+        self._height = height
+        self._shapely_object: shPolygon | None = None
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({tuple(self.corner.tolist())}, {self.width}, {self.height})"  # type: ignore[arg-type]
+
+    def __getattr__(self, attr: str) -> Any:
+        """All non-adapted calls are passed to shapely object"""
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
+            raise AttributeError
+        return getattr(self.shapely_object, attr)
+
+    @classmethod
+    def from_intervals(
+        cls: type[T_AxisOrientedRectangle], intervals: npt.ArrayLike  # noqa: UP006
+    ) -> T_AxisOrientedRectangle:
+        """
+        Constructor for instantiating Region from list of (min, max) bounds.
+
+        Parameters
+        ----------
+        intervals
+            The region bounds for each dimension of shape (2, 2)
+
+        Returns
+        -------
+        cls
+        """
+        intervals = np.asarray(intervals)
+        if np.shape(intervals) != (2, 2):
+            raise TypeError(
+                f"Intervals must be of shape (2, 2) and not {np.shape(intervals)}."
+            )
+        min_x, max_x = intervals[0]
+        min_y, max_y = intervals[1]
+        corner = (min_x, min_y)
+        width = max_x - min_x
+        height = max_y - min_y
+        return cls(corner, width, height)
+
+    @property
+    def corner(self) -> npt.NDArray[np.float64]:
+        """
+        A point that defines the lower left corner.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            with shape (2,)
+        """
+        return self._corner
+
+    @property
+    def width(self) -> float:
+        """
+        The length of a vector describing the edge in x-direction.
+
+        Returns
+        -------
+        float
+        """
+        return self._width
+
+    @property
+    def height(self) -> float:
+        """
+        The length of a vector describing the edge in y-direction.
+
+        Returns
+        -------
+        float
+        """
+        return self._height
+
+    @property
+    def intervals(self) -> npt.NDArray[np.float64]:
+        """
+        Provide bounds in a tuple (min, max) arrangement.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            ((min_x, max_x), ...) of shape(dimension, 2)
+        """
+        lower_bounds = self.bounds[: self.dimension]
+        upper_bounds = self.bounds[self.dimension :]
+        return np.array(
+            [(lower, upper) for lower, upper in zip(lower_bounds, upper_bounds)]
+        )
+
+    @property
+    def points(self) -> npt.NDArray[np.float64]:
+        rectangle = mpl_patches.Rectangle(
+            self.corner,  # type: ignore[arg-type]
+            self.width,
+            self.height,
+            angle=0,
+            fill=False,
+            edgecolor="b",
+            linewidth=1,
+        )
+        points: npt.NDArray[np.float64] = rectangle.get_verts()  # type: ignore
+        return np.array(points[::-1])
+
+    @property
+    def shapely_object(self) -> shPolygon:
+        if self._shapely_object is None:
+            self._shapely_object = shPolygon(self.points[:-1])
+        return self._shapely_object
+
+    @property
+    def centroid(self) -> npt.NDArray[np.float64]:
+        return np.array(list(self.shapely_object.centroid.coords)[0])
+
+    @property
+    def max_distance(self) -> float:
+        return_value: float = np.sqrt(self.width**2 + self.height**2)
+        return return_value
+
+    @property
+    def region_measure(self) -> float:
+        return self.width * self.height
+
+    @property
+    def subregion_measure(self) -> float:
+        return 2 * self.width + 2 * self.height
+
+    def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
+        points = np.asarray(points)
+        if points.size == 0:
+            return np.array([], dtype=np.int64)
+        polygon_path = mpl_path.Path(self.points, closed=True)
+        mask = polygon_path.contains_points(points)
+        inside_indices = np.nonzero(mask)[0]
+        return inside_indices  # type: ignore
+
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
+        origin = np.asarray(origin)
+        xy = self.corner[0] - origin[0], self.corner[1] - origin[1]
+        return mpl_patches.Rectangle(
+            xy=xy, width=self.width, height=self.height, angle=0, **kwargs
+        )
 
 
 T_Rectangle = TypeVar("T_Rectangle", bound="Rectangle")

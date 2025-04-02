@@ -15,6 +15,8 @@ import sys
 from abc import ABC, abstractmethod
 from typing import Any, TypeVar
 
+from locan.dependencies import HAS_DEPENDENCY, needs_package
+
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
@@ -33,6 +35,9 @@ from shapely.geometry import MultiPolygon as shMultiPolygon
 from shapely.geometry import Point as shPoint
 from shapely.geometry import Polygon as shPolygon
 from shapely.prepared import prep
+
+if HAS_DEPENDENCY["open3d"]:
+    import open3d as o3d
 
 __all__: list[str] = [
     "Region",
@@ -561,9 +566,9 @@ class Region2D(Region):
         return np.array([abs(max_x - min_x), abs(max_y - min_y)])
 
     @property
-    def bounding_box(self) -> Rectangle:
+    def bounding_box(self) -> AxisOrientedRectangle:
         min_x, min_y, max_x, max_y = self.bounds
-        return Rectangle((min_x, min_y), max_x - min_x, max_y - min_y, 0)
+        return AxisOrientedRectangle((min_x, min_y), max_x - min_x, max_y - min_y)
 
     @property
     @abstractmethod
@@ -700,6 +705,31 @@ class Region3D(Region):
     @property
     def dimension(self) -> int:
         return 3
+
+    @staticmethod
+    def from_open3d(
+        open3d_object: (
+            o3d.geometry.AxisAlignedBoundingBox | o3d.geometry.OrientedBoundingBox
+        ),
+    ) -> AxisOrientedCuboid | Cuboid | EmptyRegion:
+        """
+        Constructor for instantiating Region from `open3d` object.
+
+        Parameters
+        ----------
+        open3d_object
+            Geometric object to be converted into Region
+
+        Returns
+        -------
+        AxisOrientedCuboid | Cuboid | EmptyRegion
+        """
+        if isinstance(open3d_object, o3d.geometry.AxisAlignedBoundingBox):
+            return AxisOrientedCuboid.from_open3d(open3d_object)  # type: ignore
+        elif isinstance(open3d_object, o3d.geometry.OrientedBoundingBox):
+            return Cuboid.from_open3d(open3d_object)  # type: ignore
+        else:
+            raise TypeError(f"open3d_object cannot be of type {type(open3d_object)}")
 
     @abstractmethod
     def as_artist(
@@ -1870,6 +1900,7 @@ class AxisOrientedCuboid(Region3D):
         self._length = length
         self._width = width
         self._height = height
+        self._open3d_object: o3d.geometry.AxisAlignedBoundingBox | None = None
 
     def __repr__(self) -> str:
         return (
@@ -1907,6 +1938,39 @@ class AxisOrientedCuboid(Region3D):
         width = max_y - min_y
         height = max_z - min_z
         return cls(corner, length, width, height)
+
+    @staticmethod
+    @needs_package("open3d")
+    def from_open3d(
+        open3d_object: o3d.geometry.AxisAlignedBoundingBox,
+    ) -> T_AxisOrientedCuboid | EmptyRegion:
+        """
+        Constructor for instantiating Region from `open3d` object.
+
+        Parameters
+        ----------
+        open3d_object
+            Geometric object to be converted into Region
+
+        Returns
+        -------
+        AxisOrientedCuboid | EmptyRegion
+        """
+        min_bounds = open3d_object.get_min_bound()
+        max_bounds = open3d_object.get_max_bound()
+        intervals = np.array([min_bounds, max_bounds]).T
+        instance = AxisOrientedCuboid.from_intervals(intervals=intervals)
+        instance._open3d_object = open3d_object
+        return instance
+
+    # @needs_package("open3d")
+    @property
+    def open3d_object(self) -> o3d.geometry.AxisAlignedBoundingBox:
+        if self._open3d_object is None:
+            self._open3d_object = o3d.geometry.AxisAlignedBoundingBox(
+                min_bound=self.bounds[:3], max_bound=self.bounds[3:]
+            )
+        return self._open3d_object
 
     @property
     def corner(self) -> npt.NDArray[np.float64]:

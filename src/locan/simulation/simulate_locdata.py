@@ -139,7 +139,7 @@ def make_uniform(
         n_remaining = n_samples
         while n_remaining > 0:
             new_samples = rng.random(size=(n_samples_updated, region.dimension))  # type: ignore
-            new_samples = region.extent * new_samples + region.bounding_box.corner  # type: ignore
+            new_samples = region.bounding_box.extent * new_samples + region.bounding_box.corner  # type: ignore
             new_samples = new_samples[region.contains(new_samples)]
             samples_.append(new_samples)
             n_remaining = n_remaining - len(new_samples)
@@ -254,7 +254,7 @@ def make_Poisson(
         while n_remaining > 0:
             assert region.dimension is not None  # type narrowing # noqa: S101
             new_samples = rng.random(size=(n_samples_updated, region.dimension))
-            new_samples = region.extent * new_samples + region.bounding_box.corner  # type: ignore
+            new_samples = region.bounding_box.extent * new_samples + region.bounding_box.corner  # type: ignore
             new_samples = new_samples[region.contains(new_samples)]
             samples_.append(new_samples)
             n_remaining = n_remaining - len(new_samples)

@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 from scipy.spatial.distance import pdist
+from scipy.spatial.transform import Rotation as spRotation
 from shapely.affinity import rotate, scale, translate
 from shapely.geometry import MultiPoint as shMultiPoint
 from shapely.geometry import MultiPolygon as shMultiPolygon
@@ -709,7 +710,7 @@ class Region3D(Region):
     @staticmethod
     def from_open3d(
         open3d_object: (
-            o3d.geometry.AxisAlignedBoundingBox | o3d.geometry.OrientedBoundingBox
+            o3d.t.geometry.AxisAlignedBoundingBox | o3d.t.geometry.OrientedBoundingBox
         ),
     ) -> AxisOrientedCuboid | Cuboid | EmptyRegion:
         """
@@ -724,9 +725,9 @@ class Region3D(Region):
         -------
         AxisOrientedCuboid | Cuboid | EmptyRegion
         """
-        if isinstance(open3d_object, o3d.geometry.AxisAlignedBoundingBox):
+        if isinstance(open3d_object, o3d.t.geometry.AxisAlignedBoundingBox):
             return AxisOrientedCuboid.from_open3d(open3d_object)  # type: ignore
-        elif isinstance(open3d_object, o3d.geometry.OrientedBoundingBox):
+        elif isinstance(open3d_object, o3d.t.geometry.OrientedBoundingBox):
             return Cuboid.from_open3d(open3d_object)  # type: ignore
         else:
             raise TypeError(f"open3d_object cannot be of type {type(open3d_object)}")
@@ -1900,7 +1901,7 @@ class AxisOrientedCuboid(Region3D):
         self._length = length
         self._width = width
         self._height = height
-        self._open3d_object: o3d.geometry.AxisAlignedBoundingBox | None = None
+        self._open3d_object: o3d.t.geometry.AxisAlignedBoundingBox | None = None
 
     def __repr__(self) -> str:
         return (
@@ -1942,7 +1943,7 @@ class AxisOrientedCuboid(Region3D):
     @staticmethod
     @needs_package("open3d")
     def from_open3d(
-        open3d_object: o3d.geometry.AxisAlignedBoundingBox,
+        open3d_object: o3d.t.geometry.AxisAlignedBoundingBox,
     ) -> T_AxisOrientedCuboid | EmptyRegion:
         """
         Constructor for instantiating Region from `open3d` object.
@@ -1956,19 +1957,20 @@ class AxisOrientedCuboid(Region3D):
         -------
         AxisOrientedCuboid | EmptyRegion
         """
-        min_bounds = open3d_object.get_min_bound()
-        max_bounds = open3d_object.get_max_bound()
+        min_bounds = open3d_object.min_bound.numpy()
+        max_bounds = open3d_object.max_bound.numpy()
         intervals = np.array([min_bounds, max_bounds]).T
         instance = AxisOrientedCuboid.from_intervals(intervals=intervals)
         instance._open3d_object = open3d_object
         return instance
 
-    # @needs_package("open3d")
     @property
-    def open3d_object(self) -> o3d.geometry.AxisAlignedBoundingBox:
+    @needs_package("open3d")
+    def open3d_object(self) -> o3d.t.geometry.AxisAlignedBoundingBox:
         if self._open3d_object is None:
-            self._open3d_object = o3d.geometry.AxisAlignedBoundingBox(
-                min_bound=self.bounds[:3], max_bound=self.bounds[3:]
+            self._open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
+                min_bound=o3d.core.Tensor(self.bounds[:3]),
+                max_bound=o3d.core.Tensor(self.bounds[3:]),
             )
         return self._open3d_object
 
@@ -2039,7 +2041,7 @@ class AxisOrientedCuboid(Region3D):
             cor + dist
             for cor, dist in zip(self.corner, (self.length, self.width, self.height))
         ]
-        return np.array([min_x, min_y, min_z, max_x, max_y, max_z])
+        return np.array([min_x, min_y, min_z, max_x, max_y, max_z], dtype="float64")
 
     @property
     def intervals(self) -> npt.NDArray[np.float64]:
@@ -2110,14 +2112,20 @@ class AxisOrientedCuboid(Region3D):
         )
 
 
-# todo: complete implementation
+T_Cuboid = TypeVar("T_Cuboid", bound="Cuboid")
+
+
 class Cuboid(Region3D):
     """
     Region class to define a cuboid.
 
     This is a 3-dimensional convex region with rectangular faces.
     Extension in x-, y-, z-coordinates correspond to length, width, height.
+
     Corresponding Euler angles are defined by alpha, beta, gamma.
+    Rotation has to be carried to in "zyx"-order.
+    The corresponding rotation matrix can be generated from
+    `Cuboid.rotation.from_euler("zyx", [gamma, beta, alpha]).as_matrix()`.
 
     Parameters
     ----------
@@ -2152,6 +2160,16 @@ class Cuboid(Region3D):
         self._alpha = alpha
         self._beta = beta
         self._gamma = gamma
+
+        self._points: npt.NDArray[np.float64] | None = None
+        self._centroid = None
+        self._bounds = None
+        self._extent = None
+        self._bounding_box = None
+        self._open3d_object: o3d.t.geometry.OrientedBoundingBox | None = None
+        self._rotation: spRotation | None = spRotation.from_euler(
+            seq="zyx", angles=[self.gamma, self.beta, self.alpha], degrees=True
+        )
         self._region_specs = (corner, length, width, height, alpha, beta, gamma)
 
     def __repr__(self) -> str:
@@ -2160,6 +2178,87 @@ class Cuboid(Region3D):
             f"{self.length}, {self.width}, {self.height}, "
             f"{self.alpha}, {self.beta}, {self.gamma})"
         )
+
+    @staticmethod
+    @needs_package("open3d")
+    def from_open3d(
+        open3d_object: o3d.t.geometry.OrientedBoundingBox,
+    ) -> T_Cuboid | EmptyRegion:
+        """
+        Constructor for instantiating Region from `open3d` object.
+
+        Parameters
+        ----------
+        open3d_object
+            Geometric object to be converted into Region
+
+        Returns
+        -------
+        Cuboid | EmptyRegion
+        """
+        if open3d_object.is_empty():
+            return EmptyRegion()
+
+        length, width, height = open3d_object.extent.numpy()
+        rotation_matrix = open3d_object.rotation.numpy()
+        center = open3d_object.center.numpy()
+        rotation = spRotation.from_matrix(matrix=rotation_matrix)
+        gamma, beta, alpha = rotation.as_euler("zyx", degrees=True)
+        corner_ = -open3d_object.extent.numpy() / 2
+        corner_ = rotation.apply(corner_)
+        corner = corner_ + center
+
+        instance = Cuboid(
+            corner=corner,
+            length=length,
+            width=width,
+            height=height,
+            alpha=alpha,
+            beta=beta,
+            gamma=gamma,
+        )
+        # instance._open3d_object = open3d_object
+        return instance
+
+    @property
+    @needs_package("open3d")
+    def open3d_object(self) -> o3d.t.geometry.OrientedBoundingBox:
+        if self._open3d_object is None:
+            o3d_corner = o3d.core.Tensor(self.corner, dtype=o3d.core.Dtype.Float64)
+            o3d_rotation_matrix = o3d.core.Tensor(
+                self.rotation.as_matrix(), dtype=o3d.core.Dtype.Float64
+            )
+            o3d_extent = o3d.core.Tensor(
+                [self.length, self.width, self.height], dtype=o3d.core.Dtype.Float64
+            )
+            open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
+                min_bound=o3d.core.Tensor(
+                    [0.0, 0.0, 0.0], dtype=o3d.core.Dtype.Float64
+                ),
+                max_bound=o3d_extent,
+            )
+            open3d_object = open3d_object.get_oriented_bounding_box()
+            open3d_object = open3d_object.rotate(
+                rotation=o3d_rotation_matrix, center=o3d.core.Tensor([0.0, 0.0, 0.0])
+            )
+            open3d_object = open3d_object.translate(o3d_corner)
+            self._open3d_object = open3d_object
+        return self._open3d_object
+
+    @property
+    def rotation(self) -> spRotation:
+        """
+        An instance of scipy.stats.transform.Rotation.
+
+        Returns
+        -------
+        scipy.stats.transform.Rotation
+        """
+        if self._rotation is None:
+            self._rotation = spRotation.from_euler(
+                seq="xyz", angles=[self.alpha, self.beta, self.gamma], degrees=True
+            )
+        return self._rotation
 
     @property
     def corner(self) -> npt.NDArray[np.float64]:
@@ -2241,19 +2340,46 @@ class Cuboid(Region3D):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
-        raise NotImplementedError
+        if self._points is None:
+            axis_oriented_cuboid = AxisOrientedCuboid(
+                corner=self.corner,
+                length=self.length,
+                width=self.width,
+                height=self.height,
+            )
+            axis_oriented_points = axis_oriented_cuboid.points
+            self._points = self.rotation.apply(axis_oriented_points)
+        return self._points
 
     @property
     def bounds(self) -> npt.NDArray[np.float64]:
-        raise NotImplementedError
+        if self._bounds is None:
+            if self._open3d_object is not None:
+                min_bounds = self._open3d_object.get_min_bound().numpy()
+                max_bounds = self._open3d_object.get_max_bound().numpy()
+            else:
+                min_bounds = np.min(self.points, axis=0)
+                max_bounds = np.max(self.points, axis=0)
+            self._bounds = np.concatenate([min_bounds, max_bounds])
+        return self._bounds
 
     @property
     def extent(self) -> npt.NDArray[np.float64]:
-        raise NotImplementedError
+        if self._extent is None:
+            self._extent = np.abs(np.diff(self.bounds.reshape(2, 3), axis=0))[0]
+        return self._extent
+
+    @property
+    def bounding_box(self) -> AxisOrientedCuboid:
+        if self._bounding_box is None:
+            self._bounding_box = AxisOrientedCuboid(self.bounds[:3], *self.extent)
+        return self._bounding_box
 
     @property
     def centroid(self) -> npt.NDArray[np.float64]:
-        raise NotImplementedError
+        if self._centroid is None:
+            self._centroid = np.mean(self.points, axis=0)
+        return self._centroid
 
     @property
     def max_distance(self) -> float:
@@ -2275,7 +2401,14 @@ class Cuboid(Region3D):
         return return_value
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
-        raise NotImplementedError
+        points = np.asarray(points, dtype="float64")
+        if points.size == 0:
+            indices = np.array([])
+        else:
+            indices = self.open3d_object.get_point_indices_within_bounding_box(
+                points=o3d.core.Tensor(points, dtype=o3d.core.Dtype.Float64)
+            ).numpy()
+        return indices
 
     def as_artist(
         self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
@@ -2284,10 +2417,6 @@ class Cuboid(Region3D):
 
     def buffer(self, distance: float, **kwargs: Any) -> Region:
         raise NotImplementedError
-
-    @property
-    def bounding_box(self) -> Self:
-        return self
 
 
 T_AxisOrientedHypercuboid = TypeVar(

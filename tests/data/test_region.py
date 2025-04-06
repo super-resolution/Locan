@@ -79,8 +79,8 @@ class TestRegion3D:
 
     @needs_package("open3d")
     def test_from_open3d(self):
-        open3d_object = o3d.geometry.AxisAlignedBoundingBox(
-            min_bound=[1, 1, 1], max_bound=[9, 19, 29]
+        open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
+            min_bound=[1.0, 1.0, 1.0], max_bound=[9.0, 19.0, 29.0]
         )
         region = Region3D.from_open3d(open3d_object=open3d_object)
         assert repr(region) == "AxisOrientedCuboid((1.0, 1.0, 1.0), 8.0, 18.0, 28.0)"
@@ -876,7 +876,10 @@ class TestAxisOrientedCuboid:
         assert region.bounding_box.width == pytest.approx(19)
         assert region.bounding_box.height == pytest.approx(29)
 
-        assert isinstance(region.open3d_object, o3d.geometry.AxisAlignedBoundingBox)
+    @needs_package("open3d")
+    def test_attributes_open3d(self):
+        region = AxisOrientedCuboid((1, 1, 1), 9, 19, 29)
+        assert isinstance(region.open3d_object, o3d.t.geometry.AxisAlignedBoundingBox)
         assert region.region_measure == region.open3d_object.volume()
 
     def test_methods(self):
@@ -901,7 +904,10 @@ class TestAxisOrientedCuboid:
         # assert isinstance(region.as_artist(), mPatches.Rectangle)
 
         assert isinstance(region.buffer(1), AxisOrientedCuboid)
-        assert repr(region.buffer(1)) == "AxisOrientedCuboid((0, 0, 0), 11, 21, 31)"
+        assert (
+            repr(region.buffer(1))
+            == "AxisOrientedCuboid((0.0, 0.0, 0.0), 11.0, 21.0, 31.0)"
+        )
 
     def test_from_intervals(self):
         region = AxisOrientedCuboid.from_intervals(((1, 10), (1, 20), (1, 30)))
@@ -915,53 +921,129 @@ class TestAxisOrientedCuboid:
 
     @needs_package("open3d")
     def test_from_open3d(self):
-        open3d_object = o3d.geometry.AxisAlignedBoundingBox(
-            min_bound=[1, 1, 1], max_bound=[9, 19, 29]
+        open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
+            min_bound=o3d.core.Tensor([1.0, 1.0, 1.0]),
+            max_bound=o3d.core.Tensor([9.0, 19.0, 29.0]),
         )
         region = AxisOrientedCuboid.from_open3d(open3d_object=open3d_object)
         assert repr(region) == "AxisOrientedCuboid((1.0, 1.0, 1.0), 8.0, 18.0, 28.0)"
 
 
-def test_Cuboid():
-    region = Cuboid((1, 1, 1), 9, 19, 29, 0, 0, 0)
-    assert isinstance(region, Region)
-    assert isinstance(region, Region3D)
-    assert repr(region) == "Cuboid((1, 1, 1), 9, 19, 29, 0, 0, 0)"
-    assert str(region) == "Cuboid((1, 1, 1), 9, 19, 29, 0, 0, 0)"
-    new_reg = eval(repr(region))
-    assert isinstance(new_reg, Cuboid)
-    with pytest.raises(AttributeError):
-        region.corner = None
-        region.length = None
-        region.width = None
-        region.height = None
-        region.alpha = None
-        region.beta = None
-        region.gamma = None
-    assert region.dimension == 3
-    # assert region.bounds == pytest.approx((1, 1, 1, 10, 20, 30))
-    # assert region.extent == pytest.approx((9, 19, 29))
-    # assert len(region.points) == 8
-    # assert region.centroid == (5.5, 10.5, 15.5)
-    assert region.max_distance == np.sqrt(9**2 + 19**2 + 29**2)
-    assert region.region_measure == (9 * 19 * 29)
-    assert region.subregion_measure == 2 * (9 * 19 + 19 * 29 + 29 * 9)
-    # assert np.array_equal(region.contains([[0, 0, 0], [1, 10, 10], [10, 10, 10], [5, 100, 10], [5, 10, 100]]), (1,))
-    # other = Rectangle((0, 0), 2, 1, 0)
-    # assert isinstance(region.intersection(other), Polygon)
-    # assert isinstance(region.symmetric_difference(other), MultiPolygon)
-    # assert isinstance(region.union(other), Polygon)
+class TestCuboid:
 
-    # assert region.contains([(2, 2, 2)]) == (0,)
-    # assert region.contains([(0, 0, 0)]).size == 0
-    # assert region.contains([]).size == 0
-    # assert isinstance(region.as_artist(), mPatches.Rectangle)
-    # assert isinstance(region.buffer(1), AxisOrientedCuboid)
-    # assert repr(region.buffer(1)) == 'AxisOrientedCuboid((0, 0, 0), 11, 21, 31)'
-    # assert region.bounding_box.corner == (1, 1, 1)
-    # assert region.bounding_box.length == pytest.approx(9)
-    # assert region.bounding_box.width == pytest.approx(19)
-    # assert region.bounding_box.height == pytest.approx(29)
+    def test_init(self):
+        region = Cuboid((1, 1, 1), 9, 19, 29, 45, 45, 45)
+        assert isinstance(region, Region)
+        assert isinstance(region, Region3D)
+        assert repr(region) == "Cuboid((1, 1, 1), 9, 19, 29, 45, 45, 45)"
+        assert str(region) == "Cuboid((1, 1, 1), 9, 19, 29, 45, 45, 45)"
+        new_reg = eval(repr(region))
+        assert isinstance(new_reg, Cuboid)
+        for attr in ["corner", "length"]:
+            with pytest.raises(AttributeError):
+                setattr(region, attr, None)
+
+    def test_attributes(self):
+        region = Cuboid((1, 1, 1), 9, 19, 29, 10.0, 20.0, 30.0)
+        assert region.dimension == 3
+        g, b, a = region.rotation.as_euler("zyx", degrees=True)
+        assert region.alpha == pytest.approx(a)
+        assert region.beta == pytest.approx(b)
+        assert region.gamma == pytest.approx(g)
+        assert region.bounds == pytest.approx(
+            (
+                -8.24110838,
+                -3.52826625,
+                -0.80452893,
+                17.9287348,
+                21.73866441,
+                33.93353878,
+            )
+        )
+        assert region.extent == pytest.approx((26.16984319, 25.26693065, 34.73806771))
+        assert len(region.points) == 8
+        assert region.centroid == pytest.approx((4.84381321, 9.10519908, 16.56450492))
+        assert region.max_distance == np.sqrt(9**2 + 19**2 + 29**2)
+        assert region.region_measure == (9 * 19 * 29)
+        assert region.subregion_measure == 2 * (9 * 19 + 19 * 29 + 29 * 9)
+
+        assert isinstance(region.bounding_box, AxisOrientedCuboid)
+        assert region.bounding_box.corner == pytest.approx(
+            (-8.24110838, -3.52826625, -0.80452893)
+        )
+        assert region.bounding_box.length == pytest.approx(26.169843186054884)
+        assert region.bounding_box.width == pytest.approx(25.26693065443495)
+        assert region.bounding_box.height == pytest.approx(34.738067706223326)
+
+    def test_methods(self):
+        region = Cuboid((1, 1, 1), 9, 19, 29, 45, 45, 45)
+        indices_in = region.contains(
+            [
+                [1.001, 1.001, 1.001],
+                [1, 10, 10],
+                [10, 10, 10],
+                [5, 100, 10],
+                [5, 10, 100],
+            ]
+        )
+        assert np.array_equal(indices_in, (0,))
+
+        assert region.contains([(2, 2, 2)]) == (0,)
+        assert region.contains([(0, 0, 0)]).size == 0
+        assert region.contains([]).size == 0
+
+        # other = Rectangle((0, 0), 2, 1, 0)
+        # assert isinstance(region.intersection(other), Polygon)
+        # assert isinstance(region.symmetric_difference(other), MultiPolygon)
+        # assert isinstance(region.union(other), Polygon)
+
+        # assert isinstance(region.as_artist(), mPatches.Rectangle)
+
+        with pytest.raises(NotImplementedError):
+            region.buffer(1)
+        # assert isinstance(region.buffer(1), Cuboid)
+        # assert repr(region.buffer(1)) == "Cuboid((0, 0, 0), 11, 21, 31, 45, 45, 45))"
+
+    @needs_package("open3d")
+    def test_attributes_open3d(self):
+        region = Cuboid((1, 1, 1), 9, 19, 29, 45, 45, 45)
+        assert isinstance(region.open3d_object, o3d.t.geometry.OrientedBoundingBox)
+        assert len(region.bounds) == 6
+        assert region.open3d_object.extent.numpy() == pytest.approx(
+            [region.length, region.width, region.height]
+        )
+        assert region.rotation.as_matrix() == pytest.approx(
+            region.open3d_object.rotation.numpy()
+        )
+        assert region.region_measure == pytest.approx(region.open3d_object.volume())
+
+    @needs_package("open3d")
+    def test_from_open3d(self):
+        # preparation
+        corner = o3d.core.Tensor([1.0, 1.0, 1.0])
+        rotation_matrix = o3d.geometry.get_rotation_matrix_from_xyz(
+            (np.pi / 4, 0, np.pi / 8)
+        )
+        aabb = o3d.t.geometry.AxisAlignedBoundingBox(
+            min_bound=corner, max_bound=o3d.core.Tensor([9.0, 19.0, 29.0])
+        )
+        obb = o3d.t.geometry.OrientedBoundingBox.create_from_axis_aligned_bounding_box(
+            aabb
+        )
+        open3d_object = obb.rotate(rotation=rotation_matrix, center=corner)
+
+        # tests
+        region = Cuboid.from_open3d(open3d_object=open3d_object)
+        assert isinstance(region, Cuboid)
+        assert region.corner == pytest.approx((1.0, 1.0, 1.0))
+
+        assert region.length == pytest.approx(8)
+        assert region.width == pytest.approx(18)
+        assert region.height == pytest.approx(28)
+
+        assert region.alpha == pytest.approx(180 / 4)
+        assert region.beta == pytest.approx(0)
+        assert region.gamma == pytest.approx(180 / 8)
 
 
 def test_AxisOrientedHypercuboid():

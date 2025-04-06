@@ -15,7 +15,7 @@ Functions that are named as make_* provide point data arrays.
 Functions that are named as simulate_* provide locdata.
 
 
-Parts of this code is adapted from
+Part of this code is adapted from
 scikit-learn/sklearn/datasets/_samples_generator.py .
 (BSD 3-Clause License, Copyright (c) 2007-2020 The scikit-learn developers.)
 
@@ -49,6 +49,7 @@ from locan.data.metadata_utils import _modify_meta
 from locan.data.regions.region import (
     AxisOrientedCuboid,
     AxisOrientedHypercuboid,
+    Cuboid,
     Ellipse,
     EmptyRegion,
     Interval,
@@ -131,6 +132,22 @@ def make_uniform(
         xx = rho * np.cos(theta) + region.center[0]
         yy = rho * np.sin(theta) + region.center[1]
         samples = np.array((xx, yy)).T
+    elif isinstance(region, Cuboid):
+        axis_aligned_corner = region.rotation.apply(region.corner, inverse=True)
+        intervals = np.stack(
+            [
+                axis_aligned_corner,
+                axis_aligned_corner + [region.length, region.width, region.height],
+            ],
+            axis=-1,
+        )
+        axis_aligned_cuboid = AxisOrientedCuboid.from_intervals(intervals=intervals)
+        samples = rng.uniform(
+            axis_aligned_cuboid.bounds[: axis_aligned_cuboid.dimension],
+            axis_aligned_cuboid.bounds[axis_aligned_cuboid.dimension :],
+            size=(n_samples, region.dimension),
+        )
+        samples = region.rotation.apply(samples)
     else:
         sampling_ratio = region.region_measure / region.bounding_box.region_measure
         n_samples_updated = int(n_samples / sampling_ratio * 2)

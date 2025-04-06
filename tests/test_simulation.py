@@ -7,7 +7,9 @@ import pandas as pd
 import pytest
 
 from locan import (
+    AxisOrientedCuboid,
     AxisOrientedRectangle,
+    Cuboid,
     Ellipse,
     EmptyRegion,
     Interval,
@@ -118,6 +120,27 @@ def test_make_uniform():
     assert np.all(samples[:, 0] < 1)
     assert np.all(10 <= samples[:, 1])
     assert np.all(samples[:, 1] < 11)
+
+
+def test_make_uniform_3D():
+    rng = np.random.default_rng(seed=1)
+    samples = make_uniform(
+        n_samples=10, region=AxisOrientedCuboid((0, 10, 10), 1, 2, 3), seed=rng
+    )
+    assert len(samples) == 10
+    assert samples.shape[1] == 3
+
+    samples = make_uniform(
+        n_samples=10, region=Cuboid((0, 10, 10), 1, 2, 3, 0, 0, 0), seed=rng
+    )
+    assert len(samples) == 10
+    assert samples.shape[1] == 3
+
+    samples = make_uniform(
+        n_samples=10, region=Cuboid((0, 10, 10), 1, 2, 3, 45, 45, 45), seed=rng
+    )
+    assert len(samples) == 10
+    assert samples.shape[1] == 3
 
 
 def test_simulate_uniform():

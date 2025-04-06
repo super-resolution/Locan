@@ -295,6 +295,7 @@ preview = true
 "__init__.pyi" = ["E401", "F401", "I001"]
 "test_*.py" = ["S101", "S307", "S403", "S404", "S605", "S607"]
 "test_simulation.py" = ["F841"]
+"tests/data/adapter/test_adapter_open3d.py" = ["E402"]
 "benchmarks/benchmarks/*.py" = ["S101"]
 
 [tool.ruff.lint.flake8-quotes]

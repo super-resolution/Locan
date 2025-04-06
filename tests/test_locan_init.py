@@ -1,6 +1,8 @@
 import subprocess
 import warnings
 
+import pytest
+
 import locan
 from locan.__main__ import main
 
@@ -34,6 +36,7 @@ def test_entrypoint(capfd):
     assert captured.out[:47] == "This is the command line entry point for locan."
 
 
+@pytest.mark.slow
 def test_entrypoint_from_sys():
     exit_status = subprocess.run(  # noqa S603
         "locan", capture_output=True, encoding="utf-8"

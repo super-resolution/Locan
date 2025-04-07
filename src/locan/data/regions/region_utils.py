@@ -71,7 +71,10 @@ def expand_region(
     --------
     Region
     """
-    expanded_region = region.buffer(distance, **kwargs)
+    if distance == 0:
+        expanded_region = region
+    else:
+        expanded_region = region.buffer(distance, **kwargs)
 
     if support is not None:
         expanded_region = support.intersection(expanded_region)

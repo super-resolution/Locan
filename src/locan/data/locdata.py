@@ -419,8 +419,11 @@ class LocData:
                     self.properties["localization_count"]
                     / self._oriented_bounding_box.region_measure
                 )
-            self.properties["orientation_obb"] = self._oriented_bounding_box.angle
-            self.properties["circularity_obb"] = self._oriented_bounding_box.elongation
+            if self.dimension == 2:
+                self.properties["orientation_obb"] = self._oriented_bounding_box.angle
+                self.properties["circularity_obb"] = (
+                    self._oriented_bounding_box.elongation
+                )
 
     @property
     def alpha_shape(self) -> locan.data.hulls.AlphaShape | None:

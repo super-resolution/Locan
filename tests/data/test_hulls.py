@@ -244,6 +244,19 @@ class TestOrientedBoundingBox:
                 locdata_single_localization.coordinates, method="open3d"
             )
 
+    @pytest.mark.parametrize(
+        "fixture_name, expected",
+        [("locdata_empty", 0), ("locdata_single_localization", 0)],
+    )
+    def test_OrientedBoundingBox(
+        self, locdata_empty, locdata_single_localization, fixture_name, expected
+    ):
+        locdata = eval(fixture_name)
+        with pytest.raises(TypeError):
+            OrientedBoundingBox(locdata.coordinates, method="shapely")
+        with pytest.raises(TypeError):
+            OrientedBoundingBox(locdata.coordinates, method="open3d")
+
 
 @pytest.mark.visual
 def test_OrientedBoundingBox_2d_points_visual():

@@ -36,6 +36,7 @@ from locan.data.metadata_utils import *
 from locan.data.regions import (
     AxisOrientedCuboid as AxisOrientedCuboid,
     AxisOrientedHypercuboid as AxisOrientedHypercuboid,
+    AxisOrientedRectangle as AxisOrientedRectangle,
     Cuboid as Cuboid,
     Ellipse as Ellipse,
     EmptyRegion as EmptyRegion,

@@ -333,11 +333,16 @@ class RadialDistribution(_Analysis):
         if self.results is None:
             return ax
 
-        ax.bar(
-            x=self.results.data.index,
-            height=self.results.data["rdf"],
-            align="edge",
-            width=self.results.radii["delta_radii"],
+        bin_edges = np.append(
+            arr=self.results.data.index,
+            values=self.results.data.index[-1]
+            + self.results.radii["delta_radii"].iloc[-1],
+        )
+
+        ax.hist(
+            x=self.results.radii.index,
+            bins=bin_edges,
+            weights=self.results.data["rdf"],
             **dict(
                 dict(
                     label="rdf",

@@ -114,10 +114,10 @@ def _local_density(
         overlap_factors_list = []
         for radius_ in radii:
             if dimension == 2:
-                local_regions = [
-                    Ellipse(center=point_, width=radius_, height=radius_)
+                local_regions = (
+                    Ellipse(center=point_, width=2 * radius_, height=2 * radius_)
                     for point_ in points
-                ]
+                )
             else:
                 raise NotImplementedError
             overlap_factors_ = [

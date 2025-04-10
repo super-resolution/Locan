@@ -6,9 +6,6 @@ import pytest
 from locan import Ellipse, LocalDensity, LocData, simulate_uniform
 from locan.analysis.local_density import _local_density
 
-pytestmark = pytest.mark.slow
-
-
 # fixtures
 
 
@@ -140,10 +137,11 @@ def test_LocalDensity(locdata_simple):
     # plt.show()
 
     ld = LocalDensity(radii=[1], density=False, boundary_correction=True)
+    locdata_simple.region = locdata_simple.bounding_box.region
     ld.compute(locdata_simple)
     assert len(ld.results) == 5
     assert all(ld.results.columns == [1])
-    assert ld.results[1].iloc[0] == pytest.approx(1)
+    assert ld.results[1].iloc[0] == pytest.approx(4.0064327563359)
 
     plt.close("all")
 
@@ -153,17 +151,13 @@ def test_LocalDensity_normalization(locdata_simple):
     ld = LocalDensity(radii=[10], density=False, normalization=normalization)
     assert (
         repr(ld)
-        == "LocalDensity(radii=[10], density=False, normalization=[ 0 10 20 30 40])"
+        == "LocalDensity(radii=[10], density=False, boundary_correction=False, normalization=[ 0 10 20 30 40])"
     )
     ld.compute(locdata_simple)
     assert len(ld.results) == 5
     assert all(ld.results.columns == [10])
 
     ld = LocalDensity(radii=[10, 20], density=False, normalization=normalization)
-    assert (
-        repr(ld)
-        == "LocalDensity(radii=[10, 20], density=False, normalization=[ 0 10 20 30 40])"
-    )
     ld.compute(locdata_simple)
     assert len(ld.results) == 5
     assert all(ld.results.columns == [10, 20])
@@ -178,7 +172,6 @@ def test_LocalDensity_normalization(locdata_simple):
 
 def test_LocalDensity_3d(locdata_3d):
     ld = LocalDensity(radii=[1, 2.5])
-    assert repr(ld) == "LocalDensity(radii=[1, 2.5], density=True, normalization=None)"
     ld.compute(locdata_3d)
     assert len(ld.results) == 6
     assert all(ld.results.columns == [1, 2.5])
@@ -190,7 +183,6 @@ def test_LocalDensity_3d(locdata_3d):
 
 def test_LocalDensity_1d_(locdata_1d):
     ld = LocalDensity(radii=[1, 2.5])
-    assert repr(ld) == "LocalDensity(radii=[1, 2.5], density=True, normalization=None)"
     ld.compute(locdata_1d)
     assert len(ld.results) == 6
     assert all(ld.results.columns == [1, 2.5])

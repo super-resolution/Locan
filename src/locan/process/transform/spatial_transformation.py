@@ -148,7 +148,7 @@ def _transform_affine_open3d(
     points
         Points on which to perform the manipulation.
     matrix
-        Transformation matrix. If None the unit matrix is used.
+        Transformation matrix.
         Array with shape (ndim, ndim).
         If None the unit matrix is used.
     offset

@@ -10,20 +10,30 @@ New Features
 - add helper function locan.rois.roi.load_locdata_from_roi_file().
 - add dependency-groups in pyproject-toml
 - implement BoundingBox.region for 3D
+- implement OrientedBoundingBox for 3D
+- Add AxisOrientedRectangle in locan.data.region
+- Add analysis routine for `LocalDensity`
+- Add analysis routine for `PairDistances`
+- Add analysis routine for `RadialDistribution`
+- Add adapter functions for open3d
 
 API Changes
 -----------
-- ...
+- complete implementation of Cuboid.
+- introduce from_open3d and open3d_object.
+- add attribute for rotation and bounding_box
 
 Bug Fixes
 ---------
-- ...
+- locan.simulation: move simulated data in circle according to region center.
 
 Other Changes and Additions
 ---------------------------
 - refactor tests layout
 - refactor: add test for subpackage imports
 - refactor: update to python 3.13
+- add adapter functions for open3d
+- add tutorials for local density, pair distances and radial distribution analysis
 
 0.20 - 2025-02-26
 =================

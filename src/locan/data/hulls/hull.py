@@ -17,7 +17,18 @@ import scipy.spatial as spat
 from shapely.geometry import MultiPoint as shMultiPoint
 from shapely.geometry import Polygon as shPolygon
 
-from locan.data.regions.region import Cuboid, Polygon, Rectangle
+from locan.data.adapter.adapter_open3d import points_to_open3d
+from locan.data.regions.region import (
+    AxisOrientedCuboid,
+    AxisOrientedRectangle,
+    Cuboid,
+    Polygon,
+    Rectangle,
+)
+from locan.dependencies import HAS_DEPENDENCY, needs_package
+
+if HAS_DEPENDENCY["open3d"]:
+    import open3d as o3d
 
 if TYPE_CHECKING:
     from locan.data.regions.region import Region
@@ -50,8 +61,8 @@ class BoundingBox:
         Hull measure, i.e. area or volume
     subregion_measure : float
         Measure of the sub-dimensional region, i.e. circumference or surface
-    region : RoiRegion
-        Convert the hull to a RoiRegion object.
+    region : Region
+        Convert the hull to a Region object.
     """
 
     def __init__(self, points: npt.ArrayLike) -> None:
@@ -83,17 +94,15 @@ class BoundingBox:
     def region(self) -> Region:
         region_: Region
         if self.dimension == 2:
-            region_ = Rectangle(self.hull[0], self.width[0], self.width[1], 0)
+            region_ = AxisOrientedRectangle(self.hull[0], self.width[0], self.width[1])
         elif self.dimension == 3:
-            region_ = Cuboid(
+            region_ = AxisOrientedCuboid(
                 self.hull[0],
                 length=self.width[0],
                 width=self.width[1],
                 height=self.width[2],
-                alpha=0,
-                beta=0,
-                gamma=0,
             )
+        # todo: implement higher dimensions
         else:
             raise NotImplementedError
         return region_
@@ -155,14 +164,14 @@ class _ConvexHullScipy:
 
     @property
     def region(self) -> Polygon:
-        if self.dimension > 2:
-            raise NotImplementedError(
-                "Region for 3D data has not yet been implemented."
-            )
-        else:
+        if self.dimension == 1:
+            raise NotImplementedError
+        elif self.dimension == 2:
             # closed_vertices = np.append(self.vertices, [self.vertices[0]], axis=0)
             # region_ = RoiRegion(region_type='polygon', region_specs=closed_vertices)
             return Polygon(self.vertices)
+        else:
+            raise NotImplementedError
 
 
 class _ConvexHullShapely:
@@ -207,9 +216,9 @@ class _ConvexHullShapely:
                 )
 
         self.dimension = np.shape(points)[1]
-        if self.dimension >= 3:
+        if self.dimension != 2:
             raise TypeError(
-                "ConvexHullShapely only takes 1 or 2-dimensional points as input."
+                "ConvexHullShapely only takes 2-dimensional points as input."
             )
 
         self.hull = shMultiPoint(points).convex_hull
@@ -299,7 +308,7 @@ class ConvexHull:
         return getattr(self._special_class, attr)
 
 
-class OrientedBoundingBox:
+class _OrientedBoundingBoxShapely:
     """
     Class with oriented bounding box computed using the shapely
     minimum_rotated_rectangle method.
@@ -336,9 +345,16 @@ class OrientedBoundingBox:
         points = np.asarray(points)
         self.dimension = np.shape(points)[1]
 
-        if self.dimension >= 3:
+        if len(points) < 6:
+            unique_points = np.array(list(set(tuple(point) for point in points)))
+            if len(unique_points) < 3:
+                raise TypeError(
+                    "OrientedBoundingBox needs at least 3 different points as input."
+                )
+
+        if self.dimension != 2:
             raise TypeError(
-                "OrientedBoundingBox only takes 1 or 2-dimensional points as input."
+                "OrientedBoundingBox only takes 2-dimensional points as input."
             )
 
         if len(points) < 3:
@@ -369,10 +385,162 @@ class OrientedBoundingBox:
     @property
     def region(self) -> Rectangle:
         if self.dimension == 2:
-            # region_ = RoiRegion(
-            # region_type='rectangle',
-            # region_specs=(self.vertices[0], self.width[0], self.width[1], self.angle)
-            # )
             return Rectangle(self.vertices[0], self.width[0], self.width[1], self.angle)
         else:
             raise NotImplementedError
+
+
+@needs_package("open3d")
+class _OrientedBoundingBoxOpen3D:
+    """
+    Class with minimal oriented bounding box computed using open3D.
+    The bounding box is oriented such that its volume is minimized.
+
+    Parameters
+    ----------
+    points : npt.ArrayLike
+        Coordinates of input points with shape (npoints, ndim).
+
+    Attributes
+    ----------
+    hull : open3d.t.geometry.OrientedBoundingBox
+        OrientedBoundingBox object from the
+        PointCloud.get_minimal_oriented_bounding_box() method
+    dimension : int
+        Spatial dimension of hull
+    vertices : npt.NDArray[np.float64]
+        Coordinates of points that make up the hull.
+        Array of shape (ndim, 2).
+    width : npt.NDArray[np.float64]
+        Array with lengths of box edges.
+    region_measure : float
+        hull measure, i.e. area or volume
+    subregion_measure : float
+        measure of the sub-dimensional region, i.e. circumference or surface
+    region : Region
+        Convert the hull to a Region object.
+    """
+
+    def __init__(self, points: npt.ArrayLike) -> None:
+        points = np.asarray(points)
+        self.dimension = np.shape(points)[1]
+
+        if len(points) < 6:
+            unique_points = np.array(list(set(tuple(point) for point in points)))
+            if len(unique_points) < 3:
+                raise TypeError(
+                    "OrientedBoundingBox needs at least 3 different points as input."
+                )
+
+        point_cloud_open3d = points_to_open3d(points=points)
+
+        if self.dimension == 3:
+            if len(points) < 3:
+                self.hull: npt.NDArray[np.float64] = np.array([])
+                self.width = np.zeros(self.dimension)
+                self.region_measure = 0
+                self.subregion_measure = 0
+                self.elongation = np.nan
+            else:
+                self.hull: o3d.t.geometry.OrientedBoundingBox = (
+                    point_cloud_open3d.get_oriented_bounding_box()
+                )
+                self.width = self.hull.extent.numpy()
+                self.subregion_measure = 2 * (
+                    self.width[0] * self.width[1]
+                    + self.width[1] * self.width[2]
+                    + self.width[2] * self.width[0]
+                )
+                self.region_measure = self.hull.volume()
+                self.elongation = 1 - np.divide(
+                    *[sorted(self.width)[i] for i in [0, 2]]
+                )
+        else:
+            raise TypeError(
+                "_OrientedBoundingBoxOpen3d only takes 3-dimensional points as input."
+            )
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        return np.array(self.hull.get_box_points())
+
+    @property
+    def region(self) -> Cuboid:
+        if self.dimension == 3:
+            return Cuboid.from_open3d(self.hull)
+        else:
+            raise NotImplementedError
+
+
+class OrientedBoundingBox:
+    """
+    Class with minimal oriented bounding box of localization data.
+
+    Parameters
+    ----------
+    points
+        Coordinates of input points with shape (npoints, ndim).
+    method
+        Specific class to compute the convex hull and attributes.
+
+    Attributes
+    ----------
+    method : Literal['shapely', 'open3d'] | None
+        Specific class to compute the convex hull and attributes.
+    hull : Polygon
+        Object from the minimum_rotated_rectangle method
+    dimension : int
+        Spatial dimension of hull
+    vertices : npt.NDArray[np.float64]
+        Coordinates of points that make up the hull.
+        Array of shape (ndim, 2).
+    width : npt.NDArray[np.float64]
+        Array with lengths of box edges.
+    region_measure : float
+        hull measure, i.e. area or volume
+    subregion_measure : float
+        measure of the sub-dimensional region, i.e. circumference or surface
+    region : Region
+        Convert the hull to a Region object.
+    """
+
+    def __init__(
+        self, points: npt.ArrayLike, method: Literal["shapely", "open3d"] | None = None
+    ) -> None:
+        points = np.asarray(points)
+
+        if np.size(points) == 0:
+            self.dimension: int = 0
+            self.hull = np.array([])
+            self.width = np.zeros(self.dimension)
+            self.region_measure: float = 0
+            self.subregion_measure: float = 0
+
+        else:
+            self.dimension = np.shape(points)[1]
+
+        self._special_class: _OrientedBoundingBoxShapely | _OrientedBoundingBoxOpen3D
+        if method is None and self.dimension == 2:
+            self._special_class = _OrientedBoundingBoxShapely(points)
+        elif method is None and self.dimension == 3:
+            self._special_class = _OrientedBoundingBoxOpen3D(points)
+        elif method is None:
+            raise TypeError(
+                "OrientedBoundingBox only takes 2- or3-dimensional points as input."
+            )
+        elif method == "shapely":
+            self._special_class = _OrientedBoundingBoxShapely(points)
+        elif method == "open3d":
+            self._special_class = _OrientedBoundingBoxOpen3D(points)
+        else:
+            raise ValueError(f"The provided method {method} is not available.")
+
+    def __getattr__(self, attr: str) -> Any:
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
+            raise AttributeError
+
+        if attr in self.__dict__:
+            return getattr(self, attr)
+        return getattr(self._special_class, attr)

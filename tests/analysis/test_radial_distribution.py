@@ -1,0 +1,202 @@
+import matplotlib.pyplot as plt  # this import is needed for visual inspection
+import pandas as pd
+import pytest
+
+from locan import (
+    LocData,
+    PairDistances,
+    RadialDistribution,
+    RadialDistributionBatch,
+    RadialDistributionResults,
+    simulate_uniform,
+)
+from locan.analysis.radial_distribution import _radial_distribution_function
+
+pytestmark = pytest.mark.slow
+
+
+@pytest.fixture()
+def locdata_simple():
+    locdata_dict = {
+        "position_x": [0, 0, 1, 4, 5],
+        "position_y": [0, 1, 3, 4, 1],
+    }
+    return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
+
+
+@pytest.fixture()
+def other_locdata_simple():
+    locdata_dict = {
+        "position_x": [10, 11],
+        "position_y": [10, 11],
+    }
+    return LocData(dataframe=pd.DataFrame.from_dict(locdata_dict))
+
+
+def test__radial_distribution_function():
+    with pytest.raises(NotImplementedError):
+        _radial_distribution_function(range(5), 4, 1, 1, 10)
+
+
+class TestRadialDistribution:
+
+    def test_init_empty(self, caplog):
+        rdb = RadialDistribution()
+        assert rdb.results is None
+
+        rdf = RadialDistribution(bins=10).compute(LocData())
+        assert rdf.results is None
+        rdf.hist()
+        assert caplog.record_tuples == [
+            ("locan.analysis.radial_distribution", 30, "Locdata is empty.")
+        ]
+
+    def test_RadialDistribution(self, locdata_simple):
+        rdf = RadialDistribution(bins=10)
+        assert repr(rdf) == "RadialDistribution(bins=10, pair_distances=None)"
+        rdf.compute(locdata_simple)
+        assert rdf.dimension == 2
+        assert len(rdf.results.radii) == 10
+        assert len(rdf.results.data) == 10
+        assert all(rdf.results.data.columns == ["rdf"])
+        rdf.hist()
+        # plt.show()
+
+        pd = PairDistances().compute(locdata_simple)
+        rdf = RadialDistribution(bins=10, pair_distances=pd)
+        assert (
+            repr(rdf) == "RadialDistribution(bins=10, pair_distances=PairDistances())"
+        )
+        rdf.compute(locdata_simple)
+        assert rdf.dimension == 2
+        assert len(rdf.results.radii) == 10
+        assert len(rdf.results.data) == 10
+        rdf.hist()
+        # plt.show()
+
+        plt.close("all")
+
+    def test_RadialDistribution_other(self, locdata_simple, other_locdata_simple):
+        rdf = RadialDistribution(bins=10).compute(
+            locdata_simple, other_locdata=other_locdata_simple
+        )
+        assert len(rdf.results.radii) == 10
+        assert len(rdf.results.data) == 10
+
+    def test_RadialDistribution_3D(self, locdata_3d):
+        rdf = RadialDistribution(bins=10)
+        rdf.compute(locdata_3d)
+        assert rdf.dimension == 3
+        assert len(rdf.results.radii) == 10
+        assert len(rdf.results.data) == 10
+        rdf.hist()
+        # plt.show()
+
+        plt.close("all")
+
+
+@pytest.mark.visual
+def test_PairDistances_2d_random():
+    locdata = simulate_uniform(n_samples=1_000, region=((0, 100), (0, 100)))
+    rdf = RadialDistribution(bins=10).compute(locdata)
+    rdf.hist()
+    plt.show()
+
+
+@pytest.mark.visual
+def test_PairDistances_3d_random():
+    locdata = simulate_uniform(n_samples=1_000, region=((0, 1), (0, 1), (0, 1)))
+    rdf = RadialDistribution(bins=10).compute(locdata)
+    rdf.hist()
+    plt.show()
+
+
+class TestRadialDistributionBatch:
+
+    def test_init(self, locdata_2d):
+        rdb = RadialDistributionBatch()
+        assert rdb.results is None
+        assert rdb.batch is None
+
+        rdb = RadialDistributionBatch(bins=10, meta={"comment": "this is an example"})
+        assert str(rdb) == "RadialDistributionBatch(bins=10)"
+        assert rdb.results is None
+        assert rdb.batch is None
+        assert rdb.meta.comment == "this is an example"
+
+    def test_compute_empty_locdata(self, caplog):
+        rdb = RadialDistributionBatch(bins=10).compute(locdatas=[LocData(), LocData()])
+        assert rdb.results is None
+        assert rdb.batch is None
+        assert caplog.record_tuples == [
+            ("locan.analysis.radial_distribution", 30, "Locdata is empty."),
+            ("locan.analysis.radial_distribution", 30, "Locdata is empty."),
+            ("locan.analysis.radial_distribution", 30, "The batch is empty."),
+        ]
+        rdb.hist()
+        # plt.show()
+        plt.close("all")
+
+    def test_compute_empty_locdatas(self, caplog):
+        rdb = RadialDistributionBatch().compute(locdatas=[])
+        assert rdb.results is None
+        assert rdb.batch is None
+        assert caplog.record_tuples == [
+            ("locan.analysis.radial_distribution", 30, "The batch is empty."),
+        ]
+        rdb.hist()
+        # plt.show()
+        plt.close("all")
+
+    def test_from_batch_empty_item(self, caplog):
+        rdb = RadialDistributionBatch.from_batch(
+            batch=[RadialDistribution(), RadialDistribution()]
+        )
+        assert rdb.results is None
+        assert rdb.batch is None
+        rdb.hist()
+        # plt.show()
+
+        assert caplog.record_tuples == [
+            ("locan.analysis.radial_distribution", 30, "The batch is empty."),
+        ]
+
+        plt.close("all")
+
+    def test_from_batch_empty(self, caplog):
+        rdb = RadialDistributionBatch.from_batch(batch=[])
+        assert rdb.results is None
+        assert rdb.batch is None
+        assert caplog.record_tuples == [
+            ("locan.analysis.radial_distribution", 30, "The batch is empty."),
+        ]
+        rdb.hist()
+        # plt.show()
+        plt.close("all")
+
+    def test_compute(self, locdata_simple):
+        rdb = RadialDistributionBatch(bins=10).compute(
+            locdatas=[locdata_simple, locdata_simple]
+        )
+        assert isinstance(rdb.results, RadialDistributionResults)
+        assert len(rdb.results.data.index) == 10
+        assert len(rdb.results.data.columns) == 2
+
+        rdb.hist()
+        # plt.show()
+
+        plt.close("all")
+
+    def test_from_batch(self, locdata_simple):
+        rdf_0 = RadialDistribution(bins=10).compute(locdata_simple)
+        rdf_1 = RadialDistribution(bins=10).compute(locdata_simple)
+
+        rdb = RadialDistributionBatch().from_batch(batch=[rdf_0, rdf_1])
+        assert isinstance(rdb.results, RadialDistributionResults)
+        assert len(rdb.results.data.index) == 10
+        assert len(rdb.results.data.columns) == 2
+
+        rdb.hist()
+        # plt.show()
+
+        plt.close("all")

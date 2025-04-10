@@ -179,6 +179,8 @@ class TestRadialDistributionBatch:
             locdatas=[locdata_simple, locdata_simple]
         )
         assert isinstance(rdb.results, RadialDistributionResults)
+        assert isinstance(rdb.results.radii, pd.DataFrame)
+        assert isinstance(rdb.results.data, pd.DataFrame)
         assert len(rdb.results.data.index) == 10
         assert len(rdb.results.data.columns) == 2
 

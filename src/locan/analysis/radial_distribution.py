@@ -450,22 +450,21 @@ class RadialDistributionBatch(_Analysis):
             raise ValueError("The dimensions of all locdata must be the same.")
 
         results = RadialDistributionResults()
-
-        delta_radii_ = batch[0].results.radii.delta_radii
-        if all(
-            np.array_equal(delta_radii_, item_.results.radii.delta_radii)
-            for item_ in batch
-        ):
-            results.radii = delta_radii_
-        else:
-            raise ValueError("The bin_widths must be identical for all batch elements.")
-
         radii_ = batch[0].results.radii.index
         if all(np.array_equal(radii_, item_.results.radii.index) for item_ in batch):
             results.radii.index = radii_
             results.data.index = radii_
         else:
             raise ValueError("The radii must be identical for all batch elements.")
+
+        delta_radii_ = batch[0].results.radii.delta_radii
+        if all(
+            np.array_equal(delta_radii_, item_.results.radii.delta_radii)
+            for item_ in batch
+        ):
+            results.radii["delta_radii"] = delta_radii_
+        else:
+            raise ValueError("The bin_widths must be identical for all batch elements.")
 
         results.data = pd.concat(
             [item_.results.data for item_ in batch if item_.results is not None], axis=1

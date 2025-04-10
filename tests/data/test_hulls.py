@@ -128,10 +128,9 @@ class TestConvexHull:
         self, locdata_empty, locdata_single_localization, fixture_name, expected
     ):
         locdata = eval(fixture_name)
-        with pytest.raises(TypeError):
-            ConvexHull(locdata.coordinates, method="scipy")
-        with pytest.raises(TypeError):
-            ConvexHull(locdata.coordinates, method="shapely")
+        hull = ConvexHull(locdata.coordinates)
+        assert hull.hull is None
+        assert hull.region_measure == 0
 
 
 class TestOrientedBoundingBoxShapely:
@@ -218,32 +217,6 @@ class TestOrientedBoundingBox:
         assert hull.vertices.shape == (8, 3)
         assert hull.region.region_measure == hull.region_measure
 
-    def test_OrientedBoundingBox_empty_shapely(self, locdata_empty):
-        with pytest.raises(TypeError):
-            OrientedBoundingBox(locdata_empty.coordinates, method="shapely")
-
-    @pytest.mark.skipif(
-        not HAS_DEPENDENCY["open3d"], reason="requires optional package"
-    )
-    def test_OrientedBoundingBox_empty_open3d(self, locdata_empty):
-        with pytest.raises(TypeError):
-            OrientedBoundingBox(locdata_empty.coordinates, method="open3d")
-
-    def test_OrientedBoundingBox_single_shapely(self, locdata_single_localization):
-        with pytest.raises(TypeError):
-            OrientedBoundingBox(
-                locdata_single_localization.coordinates, method="shapely"
-            )
-
-    @pytest.mark.skipif(
-        not HAS_DEPENDENCY["open3d"], reason="requires optional package"
-    )
-    def test_OrientedBoundingBox_single_open3d(self, locdata_single_localization):
-        with pytest.raises(TypeError):
-            OrientedBoundingBox(
-                locdata_single_localization.coordinates, method="open3d"
-            )
-
     @pytest.mark.parametrize(
         "fixture_name, expected",
         [("locdata_empty", 0), ("locdata_single_localization", 0)],
@@ -252,10 +225,9 @@ class TestOrientedBoundingBox:
         self, locdata_empty, locdata_single_localization, fixture_name, expected
     ):
         locdata = eval(fixture_name)
-        with pytest.raises(TypeError):
-            OrientedBoundingBox(locdata.coordinates, method="shapely")
-        with pytest.raises(TypeError):
-            OrientedBoundingBox(locdata.coordinates, method="open3d")
+        hull = OrientedBoundingBox(locdata.coordinates)
+        assert hull.hull is None
+        assert hull.region_measure == 0
 
 
 @pytest.mark.visual

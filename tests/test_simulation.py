@@ -1,4 +1,3 @@
-import warnings
 from copy import deepcopy
 
 import matplotlib.pyplot as plt  # needed for visual inspection
@@ -1922,16 +1921,14 @@ def test_simulate_frame_numbers(locdata_2d):
 
 def test_randomize_2d(locdata_2d):
     locdata = LocData()
-    with pytest.raises(AttributeError):
-        randomize(locdata, hull_region="bb")
-    with pytest.raises(AttributeError):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            randomize(locdata, hull_region="ch")
-    with pytest.raises(AttributeError):
-        randomize(locdata, hull_region="as")
-    with pytest.raises(AttributeError):
-        randomize(locdata, hull_region="something")
+    locdata_randomized = randomize(locdata, hull_region="bb")
+    assert len(locdata_randomized) == 0
+    locdata_randomized = randomize(locdata, hull_region="ch")
+    assert len(locdata_randomized) == 0
+    locdata_randomized = randomize(locdata, hull_region="obb")
+    assert len(locdata_randomized) == 0
+    locdata_randomized = randomize(locdata, hull_region="something")
+    assert len(locdata_randomized) == 0
 
     locdata_2d = deepcopy(locdata_2d)
 
@@ -1951,6 +1948,9 @@ def test_randomize_2d(locdata_2d):
     locdata_randomized = randomize(locdata_2d, hull_region="as")
     assert len(locdata_randomized) == 6
 
+    with pytest.raises(AttributeError):
+        randomize(locdata_2d, hull_region="something")
+
     region = Polygon(((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
     locdata_randomized = randomize(locdata_2d, hull_region=region)
     assert len(locdata_randomized) == 6
@@ -1965,6 +1965,10 @@ def test_randomize_3d(locdata_3d):
     with pytest.raises(NotImplementedError):
         locdata_randomized = randomize(locdata_3d, hull_region="ch")
         assert len(locdata_randomized) == 6
+
+    locdata_randomized = randomize(locdata_3d, hull_region="obb")
+    assert len(locdata_randomized) == 6
+    assert locdata_randomized.meta.history[-1].name == "randomize"
 
     # region_dict = dict(region='polygon', region_specs=((0, 0, 0), (0, 5, 0), (4, 3, 2), (2, 0.5, 2), (0, 0, 0)))
     # locdata_randomized = randomize(locdata_3d, hull_region=region_dict)

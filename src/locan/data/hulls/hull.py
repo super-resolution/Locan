@@ -289,6 +289,8 @@ class ConvexHull:
         self, points: npt.ArrayLike, method: Literal["scipy", "shapely"] = "scipy"
     ) -> None:
         points = np.asarray(points)
+        self._special_class: _ConvexHullScipy | _ConvexHullShapely | None = None
+
         if np.size(points) == 0:
             self.dimension: int = 0
             self.hull = None
@@ -311,7 +313,6 @@ class ConvexHull:
 
         else:
             self.method = method
-            self._special_class: _ConvexHullScipy | _ConvexHullShapely
             if method == "scipy":
                 self._special_class = _ConvexHullScipy(points)
             elif method == "shapely":
@@ -530,42 +531,30 @@ class OrientedBoundingBox:
         self, points: npt.ArrayLike, method: Literal["shapely", "open3d"] | None = None
     ) -> None:
         points = np.asarray(points)
-        if np.size(points) == 0:
-            self.dimension: int = 0
-            self.hull = None
-            self.vertices = np.array([])
-            self.width = np.zeros(self.dimension)
-            self.region_measure: float = 0
-            self.subregion_measure: float = 0
+        self.dimension = np.shape(points)[1]
+        self._special_class: (
+            _OrientedBoundingBoxShapely | _OrientedBoundingBoxOpen3D | None
+        ) = None
 
-        elif np.shape(points)[0] == 1:
-            self.dimension: int = np.shape(points)[1]
-            self.hull = None
-            self.vertices = np.array([])
-            self.width = np.zeros(self.dimension)
-            self.region_measure: float = 0
-            self.subregion_measure: float = 0
-
-        else:
-            self.dimension = np.shape(points)[1]
-
-            self._special_class: (
-                _OrientedBoundingBoxShapely | _OrientedBoundingBoxOpen3D
+        if np.size(points) == 0 or len(points) < 3:
+            raise TypeError(
+                "OrientedBoundingBox needs at least 3 different points as input."
             )
-            if method is None and self.dimension == 2:
-                self._special_class = _OrientedBoundingBoxShapely(points)
-            elif method is None and self.dimension == 3:
-                self._special_class = _OrientedBoundingBoxOpen3D(points)
-            elif method is None:
-                raise TypeError(
-                    "OrientedBoundingBox only takes 2- or3-dimensional points as input."
-                )
-            elif method == "shapely":
-                self._special_class = _OrientedBoundingBoxShapely(points)
-            elif method == "open3d":
-                self._special_class = _OrientedBoundingBoxOpen3D(points)
-            else:
-                raise ValueError(f"The provided method {method} is not available.")
+
+        if method is None and self.dimension == 2:
+            self._special_class = _OrientedBoundingBoxShapely(points)
+        elif method is None and self.dimension == 3:
+            self._special_class = _OrientedBoundingBoxOpen3D(points)
+        elif method is None:
+            raise TypeError(
+                "OrientedBoundingBox only takes 2- or3-dimensional points as input."
+            )
+        elif method == "shapely":
+            self._special_class = _OrientedBoundingBoxShapely(points)
+        elif method == "open3d":
+            self._special_class = _OrientedBoundingBoxOpen3D(points)
+        else:
+            raise ValueError(f"The provided method {method} is not available.")
 
     def __getattr__(self, attr: str) -> Any:
         if attr.startswith("__") and attr.endswith(

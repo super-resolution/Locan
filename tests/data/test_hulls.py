@@ -225,9 +225,8 @@ class TestOrientedBoundingBox:
         self, locdata_empty, locdata_single_localization, fixture_name, expected
     ):
         locdata = eval(fixture_name)
-        hull = OrientedBoundingBox(locdata.coordinates)
-        assert hull.hull is None
-        assert hull.region_measure == 0
+        with pytest.raises(TypeError):
+            OrientedBoundingBox(locdata.coordinates)
 
 
 @pytest.mark.visual

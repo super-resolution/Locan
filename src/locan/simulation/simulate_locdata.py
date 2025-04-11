@@ -1724,29 +1724,36 @@ def randomize(
     LocData
         New localization data with randomized coordinates.
     """
-    # todo: fix treatment of empty locdata
     local_parameter = locals()
 
-    rng = np.random.default_rng(seed)
+    if len(locdata) == 0:
+        new_locdata = LocData()
 
-    try:
-        if hull_region == "bb":
-            region_ = locdata.bounding_box.hull.T  # type: ignore[union-attr]
-        elif hull_region == "ch":
-            region_ = locdata.convex_hull.region  # type: ignore[union-attr]
-        elif hull_region == "as":
-            region_ = locdata.alpha_shape.region  # type: ignore[union-attr]
-        elif hull_region == "obb":
-            region_ = locdata.oriented_bounding_box.region  # type: ignore[union-attr]
-        elif isinstance(hull_region, Region):
-            region_ = hull_region
-        else:
-            raise ValueError
+    else:
+        rng = np.random.default_rng(seed)
 
-        new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
+        try:
+            if hull_region == "bb":
+                region_ = locdata.bounding_box.hull.T  # type: ignore[union-attr]
+            elif hull_region == "ch":
+                region_ = locdata.convex_hull.region  # type: ignore[union-attr]
+            elif hull_region == "as":
+                region_ = locdata.alpha_shape.region  # type: ignore[union-attr]
+            elif hull_region == "obb":
+                region_ = locdata.oriented_bounding_box.region  # type: ignore[union-attr]
+            elif isinstance(hull_region, Region):
+                region_ = hull_region
+            else:
+                raise ValueError
 
-    except (AttributeError, ValueError, TypeError) as exception:
-        raise AttributeError(f"Region {hull_region} is not available.") from exception
+            new_locdata = simulate_uniform(
+                n_samples=len(locdata), region=region_, seed=rng
+            )
+
+        except (AttributeError, ValueError, TypeError) as exception:
+            raise AttributeError(
+                f"Region {hull_region} is not available."
+            ) from exception
 
     # update metadata
     meta_ = _modify_meta(

@@ -8,6 +8,8 @@ We use the tensor modules in open3d.
 
 """
 
+from __future__ import annotations
+
 import numpy as np
 import numpy.typing as npt
 

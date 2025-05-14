@@ -5,7 +5,7 @@ import scipy.spatial
 from shapely import affinity
 from shapely.geometry import MultiPoint, Polygon
 
-from locan import BoundingBox, ConvexHull, OrientedBoundingBox
+from locan import BoundingBox, ConvexHull, OrientedBoundingBox, Rectangle
 from locan.data.hulls.hull import (
     _ConvexHullScipy,
     _ConvexHullShapely,
@@ -135,17 +135,36 @@ class TestConvexHull:
 
 class TestOrientedBoundingBoxShapely:
 
-    def test_OrientedBoundingBoxShapely_2d_points(self):
-        points = np.array([[0, 0], [0, 2], [1, 2], [1, 0], [0, 0]])
+    def test_OrientedBoundingBoxShapely_2d_points_0(self):
+        points = np.array([[0, 0], [0.3, 0.6], [0, 2], [1, 2], [1, 0], [0, 0]])
+        obb = _OrientedBoundingBoxShapely(points)
+        assert round(obb.angle) in [0, 90, 180, -90]
+        assert len(obb.vertices) == 5
+        assert np.isclose(obb.width[0], 1) or np.isclose(obb.width[0], 2)
+        assert np.isclose(obb.width[1], 1) or np.isclose(obb.width[1], 2)
+        assert np.isclose(obb.region_measure, 2)
+        assert np.isclose(obb.subregion_measure, 6)
+        assert isinstance(obb.region, Rectangle)
+        assert np.isclose(obb.region_measure, obb.region.region_measure)
+
+    def test_OrientedBoundingBoxShapely_2d_points_rotated(self):
+        points = np.array(
+            [[0.2, 0.2], [0.3, 0.6], [0, 2], [1, 2], [1, 0], [0.2, 0.2]]
+        ) + (1, 2)
         for angle in np.linspace(0, 180, 5):
             rotated_points = affinity.rotate(
                 MultiPoint(points), angle, origin=[0, 0], use_radians=False
             )
             rotated_points = np.array([rpts.coords[0] for rpts in rotated_points.geoms])
-            obb = OrientedBoundingBox(rotated_points)
+            obb = _OrientedBoundingBoxShapely(rotated_points)
             assert round(obb.angle) in [0, 45, 90, 135, 180, -135, -90, -45]
+            assert len(obb.vertices) == 5
+            assert np.isclose(obb.width[0], 1) or np.isclose(obb.width[0], 2)
+            assert np.isclose(obb.width[1], 1) or np.isclose(obb.width[1], 2)
             assert np.isclose(obb.region_measure, 2)
             assert np.isclose(obb.subregion_measure, 6)
+            assert isinstance(obb.region, Rectangle)
+            assert np.isclose(obb.region_measure, obb.region.region_measure)
 
     def test__OrientedBoundingBoxShapely_2d(self, locdata_2d):
         hull = _OrientedBoundingBoxShapely(locdata_2d.coordinates)
@@ -157,6 +176,31 @@ class TestOrientedBoundingBoxShapely:
     def test__OrientedBoundingBoxShapely_3d(self, locdata_3d):
         with pytest.raises(TypeError):
             _OrientedBoundingBoxShapely(locdata_3d.coordinates)
+
+    @pytest.mark.visual
+    def test__OrientedBoundingBoxShapely_2d_visual_2(self):
+        points = np.array(
+            [[0.2, 0.2], [0.3, 0.6], [0, 2], [1, 2], [1, 0], [0.2, 0.2]]
+        ) + (1, 2)
+
+        _fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5, 5))
+        for angle in np.linspace(0, 180, 5):
+            rotated_points = affinity.rotate(
+                MultiPoint(points), angle, origin=[0, 0], use_radians=False
+            )
+            rotated_points = np.array([rpts.coords[0] for rpts in rotated_points.geoms])
+            ax.plot(*rotated_points.T)
+
+            obb = _OrientedBoundingBoxShapely(rotated_points)
+            print(f"{obb.region =}")
+            print(f"{obb.region.points =}")
+            print(f"{obb.vertices =}")
+            print(f"{obb.width =}")
+            print(f"{angle = }", f" {obb.angle = }")
+            ax.plot(*obb.vertices.T, c="blue", marker="+", alpha=0.5)
+            ax.add_patch(obb.region.as_artist())
+        ax.set(xlim=(-5, 5), ylim=(-5, 5))
+        plt.show()
 
 
 class TestOrientedBoundingBoxOpen3d:
@@ -227,27 +271,3 @@ class TestOrientedBoundingBox:
         locdata = eval(fixture_name)
         with pytest.raises(TypeError):
             OrientedBoundingBox(locdata.coordinates)
-
-
-@pytest.mark.visual
-def test_OrientedBoundingBox_2d_points_visual():
-    points = np.array([[0, 0], [0, 2], [1, 2], [1, 0], [0, 0]])
-
-    _fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5, 5))
-    for angle in np.linspace(0, 180, 5):
-        rotated_points = affinity.rotate(
-            MultiPoint(points), angle, origin=[0, 0], use_radians=False
-        )
-        rotated_points = np.array([rpts.coords[0] for rpts in rotated_points.geoms])
-        ax.plot(*rotated_points.T)
-
-        obb = OrientedBoundingBox(rotated_points)
-        assert round(obb.angle) in [0, 45, 90, -45]
-        print(obb.region)
-        print(obb.vertices)
-        print(obb.width)
-        print(angle, obb.angle)
-        ax.plot(*obb.vertices.T)
-        ax.add_patch(obb.region.as_artist())
-    ax.set(xlim=(-3, 3), ylim=(-3, 3))
-    plt.show()

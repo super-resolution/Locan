@@ -388,15 +388,17 @@ class _OrientedBoundingBoxShapely:
             self.angle = np.nan
             self.elongation = np.nan
         else:
-            self.hull: shPolygon = shMultiPoint(points).minimum_rotated_rectangle  # type: ignore
+            self.hull: shPolygon = shMultiPoint(points).minimum_rotated_rectangle.normalize()  # type: ignore
             difference = np.diff(self.vertices[0:3], axis=0)
+            # vertices are counter-clockwise listed. To get width in (x, y)
+            # we have to look at difference[1], difference[0], respectively:
             self.width = np.array(
-                [np.linalg.norm(difference[0]), np.linalg.norm(difference[1])]
+                [np.linalg.norm(difference[1]), np.linalg.norm(difference[0])]
             )
             self.region_measure = self.hull.area  # type: ignore[attr-defined]
             self.subregion_measure = self.hull.length  # type: ignore[attr-defined]
             self.angle = float(
-                np.degrees(np.arctan2(difference[0][1], difference[0][0]))
+                np.degrees(np.arctan2(difference[1][1], difference[1][0]))
             )
             # numpy.arctan2(y, x) takes reversed x, y arguments.
             self.elongation = 1 - np.divide(*sorted(self.width))  # type: ignore

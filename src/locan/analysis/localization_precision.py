@@ -106,6 +106,7 @@ def _localization_precision(locdata: LocData, radius: int | float = 50) -> pd.Da
                             }
                         )
                         df = df.assign(position_distance=min_distance)
+                        df = df.assign(original_index=points.index[n])
                         df = df.assign(frame=i)
                         results = pd.concat([results, df])
         except KeyError:

@@ -41,7 +41,7 @@ def test__radial_distribution_function():
 class TestRadialDistribution:
 
     def test_init_empty(self, caplog):
-        rdb = RadialDistribution()
+        rdb = RadialDistribution(bins=10)
         assert rdb.results is None
 
         rdf = RadialDistribution(bins=10).compute(LocData())
@@ -124,55 +124,23 @@ class TestRadialDistributionBatch:
         assert rdb.batch is None
         assert rdb.meta.comment == "this is an example"
 
-    def test_compute_empty_locdata(self, caplog):
-        rdb = RadialDistributionBatch(bins=10).compute(locdatas=[LocData(), LocData()])
-        assert rdb.results is None
-        assert rdb.batch is None
-        assert caplog.record_tuples == [
-            ("locan.analysis.radial_distribution", 30, "Locdata is empty."),
-            ("locan.analysis.radial_distribution", 30, "Locdata is empty."),
-            ("locan.analysis.radial_distribution", 30, "The batch is empty."),
-        ]
-        rdb.hist()
-        # plt.show()
-        plt.close("all")
+    def test_compute_empty_locdata(self):
+        with pytest.raises(ValueError):
+            RadialDistributionBatch(bins=10).compute(locdatas=[LocData(), LocData()])
 
     def test_compute_empty_locdatas(self, caplog):
-        rdb = RadialDistributionBatch().compute(locdatas=[])
-        assert rdb.results is None
-        assert rdb.batch is None
-        assert caplog.record_tuples == [
-            ("locan.analysis.radial_distribution", 30, "The batch is empty."),
-        ]
-        rdb.hist()
-        # plt.show()
-        plt.close("all")
+        with pytest.raises(ValueError):
+            RadialDistributionBatch(bins=10).compute(locdatas=[])
 
     def test_from_batch_empty_item(self, caplog):
-        rdb = RadialDistributionBatch.from_batch(
-            batch=[RadialDistribution(), RadialDistribution()]
-        )
-        assert rdb.results is None
-        assert rdb.batch is None
-        rdb.hist()
-        # plt.show()
-
-        assert caplog.record_tuples == [
-            ("locan.analysis.radial_distribution", 30, "The batch is empty."),
-        ]
-
-        plt.close("all")
+        with pytest.raises(ValueError):
+            RadialDistributionBatch.from_batch(
+                batch=[RadialDistribution(bins=10), RadialDistribution(bins=10)]
+            )
 
     def test_from_batch_empty(self, caplog):
-        rdb = RadialDistributionBatch.from_batch(batch=[])
-        assert rdb.results is None
-        assert rdb.batch is None
-        assert caplog.record_tuples == [
-            ("locan.analysis.radial_distribution", 30, "The batch is empty."),
-        ]
-        rdb.hist()
-        # plt.show()
-        plt.close("all")
+        with pytest.raises(ValueError):
+            RadialDistributionBatch.from_batch(batch=[])
 
     def test_compute(self, locdata_simple):
         rdb = RadialDistributionBatch(bins=10).compute(

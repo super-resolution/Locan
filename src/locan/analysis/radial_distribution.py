@@ -428,7 +428,7 @@ class RadialDistributionBatch(_Analysis):
         -------
         RadialDistributionBatch
         """
-        if other_locdatas is None:
+        if other_locdatas is not None:
             raise NotImplementedError(
                 "Compute individual RadialDistribution and use RadialDistributionBatch.from_batch"
             )

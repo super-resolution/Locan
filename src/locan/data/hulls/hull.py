@@ -22,6 +22,7 @@ from locan.data.regions.region import (
     AxisOrientedCuboid,
     AxisOrientedRectangle,
     Cuboid,
+    EmptyRegion,
     Polygon,
     Rectangle,
 )
@@ -302,14 +303,14 @@ class ConvexHull:
             self.subregion_measure: float = 0
 
         elif np.shape(points)[0] == 1:
-            self.dimension: int = np.shape(points)[1]
+            self.dimension = np.shape(points)[1]
             self.hull = None
             self.vertices = np.array([])
             self.vertex_indices = np.array([])
             self.points_on_boundary = 0
             self.points_on_boundary_rel = 0
-            self.region_measure: float = 0
-            self.subregion_measure: float = 0
+            self.region_measure = 0
+            self.subregion_measure = 0
 
         else:
             self.method = method
@@ -449,6 +450,7 @@ class _OrientedBoundingBoxOpen3D:
     def __init__(self, points: npt.ArrayLike) -> None:
         points = np.asarray(points)
         self.dimension = np.shape(points)[1]
+        self.hull: npt.NDArray[np.float64] | o3d.t.geometry.OrientedBoundingBox
 
         if len(points) < 6:
             unique_points = np.array(list(set(tuple(point) for point in points)))
@@ -461,15 +463,13 @@ class _OrientedBoundingBoxOpen3D:
 
         if self.dimension == 3:
             if len(points) < 3:
-                self.hull: npt.NDArray[np.float64] = np.array([])
-                self.width = np.zeros(self.dimension)
+                self.hull = np.array([])
+                self.width = np.zeros(self.dimension)  # type: ignore
                 self.region_measure = 0
                 self.subregion_measure = 0
                 self.elongation = np.nan
             else:
-                self.hull: o3d.t.geometry.OrientedBoundingBox = (
-                    point_cloud_open3d.get_oriented_bounding_box()
-                )
+                self.hull = point_cloud_open3d.get_oriented_bounding_box()
                 self.width = self.hull.extent.numpy()
                 self.subregion_measure = 2 * (
                     self.width[0] * self.width[1]
@@ -477,8 +477,8 @@ class _OrientedBoundingBoxOpen3D:
                     + self.width[2] * self.width[0]
                 )
                 self.region_measure = self.hull.volume()
-                self.elongation = 1 - np.divide(
-                    *[sorted(self.width)[i] for i in [0, 2]]
+                self.elongation = 1 - np.divide(  # type: ignore[call-overload]
+                    *[sorted(self.width)[i] for i in [0, 2]]  # type: ignore[type-var]
                 )
         else:
             raise TypeError(
@@ -487,10 +487,13 @@ class _OrientedBoundingBoxOpen3D:
 
     @property
     def vertices(self) -> npt.NDArray[np.float64]:
-        return np.array(self.hull.get_box_points())
+        if not self.hull:
+            return np.array([])
+        else:
+            return np.array(self.hull.get_box_points())  # type: ignore[union-attr]
 
     @property
-    def region(self) -> Cuboid:
+    def region(self) -> Cuboid | EmptyRegion:
         if self.dimension == 3:
             return Cuboid.from_open3d(self.hull)
         else:

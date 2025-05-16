@@ -64,9 +64,11 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections.abc import Collection, Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
+
+from typing_extensions import TypeVar
 
 from locan import PairDistances
 
@@ -106,8 +108,8 @@ def _radial_distribution_function(
     dimension: int,
     n_points: int,
     other_points_density: float,
-    bins: int | list[int | float],
-) -> tuple[npt.NDArray[np.float64]]:
+    bins: int | Sequence[int | float] | str,
+) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """
     Compute the radial distribution function from pairwise distances
     between point set A and other point set B.
@@ -130,6 +132,8 @@ def _radial_distribution_function(
     tuple[npt.NDArray[np.float64]]
     """
     pair_distances = np.asarray(pair_distances)
+    values: npt.NDArray[np.float64]
+    bin_edges: npt.NDArray[np.float64]
 
     values, bin_edges = np.histogram(
         pair_distances,
@@ -213,7 +217,7 @@ class RadialDistribution(_Analysis):
 
     def __init__(
         self,
-        bins: int | list[int | float | None] = None,
+        bins: int | Sequence[int | float] | str,
         pair_distances: npt.ArrayLike | PairDistances | None = None,
         meta: metadata_analysis_pb2.AMetadata | None = None,
     ) -> None:
@@ -237,9 +241,6 @@ class RadialDistribution(_Analysis):
         -------
         Self
         """
-        if self.parameter["bins"] is None:
-            raise ValueError("Valid bins must be suppplied.")
-
         if not len(locdata):
             logger.warning("Locdata is empty.")
             return self
@@ -341,7 +342,7 @@ class RadialDistribution(_Analysis):
 
         ax.hist(
             x=self.results.radii.index,
-            bins=bin_edges,
+            bins=bin_edges,  # type: ignore[arg-type]
             weights=self.results.data["rdf"],
             **dict(
                 dict(
@@ -359,6 +360,11 @@ class RadialDistribution(_Analysis):
         ax.legend(loc="best")
 
         return ax
+
+
+T_RadialDistributionBatch = TypeVar(
+    "T_RadialDistributionBatch", bound="RadialDistributionBatch"
+)
 
 
 class RadialDistributionBatch(_Analysis):
@@ -394,7 +400,7 @@ class RadialDistributionBatch(_Analysis):
 
     def __init__(
         self,
-        bins: int | list[int | float | None] = None,
+        bins: int | list[int | float] | None = None,
         meta: metadata_analysis_pb2.AMetadata | None = None,
     ) -> None:
         parameters = self._get_parameters(locals())
@@ -404,7 +410,9 @@ class RadialDistributionBatch(_Analysis):
         self.dimension: int | None = None
 
     def compute(
-        self, locdatas: Iterable[LocData], other_locdatas: Iterable[LocData] = None
+        self,
+        locdatas: Iterable[LocData],
+        other_locdatas: Iterable[LocData] | None = None,
     ) -> Self:
         """
         Run the computation.
@@ -420,6 +428,11 @@ class RadialDistributionBatch(_Analysis):
         -------
         RadialDistributionBatch
         """
+        if other_locdatas is None:
+            raise NotImplementedError(
+                "Compute individual RadialDistribution and use RadialDistributionBatch.from_batch"
+            )
+
         radial_distribution_expectation_batch: list[RadialDistribution] = []
 
         if bool(locdatas):
@@ -433,15 +446,20 @@ class RadialDistributionBatch(_Analysis):
             rd = RadialDistribution(bins=self.parameter["bins"]).compute(locdata_)
             radial_distribution_expectation_batch.append(rd)
 
-        return RadialDistributionBatch(**self.parameter).from_batch(
+        instance = RadialDistributionBatch.from_batch(
             batch=radial_distribution_expectation_batch
         )
+        self.dimension = instance.dimension
+        self.results = instance.results
+        return self
 
     @classmethod
-    def from_batch(cls, batch: Collection[RadialDistribution]) -> Any:
-        if not bool(batch) or all(item_.results is None for item_ in batch):
-            logger.warning("The batch is empty.")
-            return cls(bins=None)
+    def from_batch(
+        cls: type[T_RadialDistributionBatch], batch: Sequence[RadialDistribution]
+    ) -> T_RadialDistributionBatch:
+        batch = [item_ for item_ in batch if item_.results is not None]
+        if not bool(batch):
+            raise ValueError("The batch is empty.")
 
         dimension_ = set(item_.dimension for item_ in batch)
         if len(dimension_) == 1:
@@ -450,16 +468,17 @@ class RadialDistributionBatch(_Analysis):
             raise ValueError("The dimensions of all locdata must be the same.")
 
         results = RadialDistributionResults()
+        assert batch[0].results is not None  # type narrowing # noqa: S101
         radii_ = batch[0].results.radii.index
-        if all(np.array_equal(radii_, item_.results.radii.index) for item_ in batch):
-            results.radii.index = radii_
-            results.data.index = radii_
+        if all(np.array_equal(radii_, item_.results.radii.index) for item_ in batch):  # type: ignore[union-attr]
+            results.radii.index = radii_  # type: ignore[union-attr]
+            results.data.index = radii_  # type: ignore[union-attr]
         else:
             raise ValueError("The radii must be identical for all batch elements.")
 
         delta_radii_ = batch[0].results.radii.delta_radii
         if all(
-            np.array_equal(delta_radii_, item_.results.radii.delta_radii)
+            np.array_equal(delta_radii_, item_.results.radii.delta_radii)  # type: ignore[union-attr]
             for item_ in batch
         ):
             results.radii["delta_radii"] = delta_radii_

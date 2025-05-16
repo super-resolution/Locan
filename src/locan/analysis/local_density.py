@@ -39,7 +39,7 @@ __all__: list[str] = ["LocalDensity"]
 logger = logging.getLogger(__name__)
 
 
-def _overlap_factor(region, other_region):
+def _overlap_factor(region: Region, other_region: Region) -> float:
     region_measure = region.region_measure
     region_measure_intersection = region.intersection(other_region).region_measure
     return region_measure_intersection / region_measure

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import itertools as it
 import sys
+import warnings
 from abc import ABC, abstractmethod
 from typing import Any, TypeVar
 
@@ -1165,6 +1166,7 @@ class AxisOrientedRectangle(Region2D):
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
             self._shapely_object = shPolygon(self.points[:-1])
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
     @property
@@ -1251,7 +1253,7 @@ class Rectangle(Region2D):
     @classmethod
     def from_intervals(
         cls: type[T_Rectangle], intervals: npt.ArrayLike  # noqa: UP006
-    ) -> T_Rectangle:
+    ) -> AxisOrientedRectangle:
         """
         Constructor for instantiating Region from list of (min, max) bounds.
 
@@ -1264,6 +1266,13 @@ class Rectangle(Region2D):
         -------
         cls
         """
+        warnings.warn(
+            "This function is deprecated. "
+            "Use AxisOrientedRectangle.from_intervals() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         intervals = np.asarray(intervals)
         if np.shape(intervals) != (2, 2):
             raise TypeError(
@@ -1274,8 +1283,7 @@ class Rectangle(Region2D):
         corner = (min_x, min_y)
         width = max_x - min_x
         height = max_y - min_y
-        angle = 0
-        return cls(corner, width, height, angle)
+        return AxisOrientedRectangle(corner, width, height)
 
     @property
     def corner(self) -> npt.NDArray[np.float64]:
@@ -1372,6 +1380,7 @@ class Rectangle(Region2D):
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
             self._shapely_object = shPolygon(self.points[:-1])
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
     @property
@@ -1528,6 +1537,7 @@ class Ellipse(Region2D):
             ellipse = scale(circle, self.width / 2, self.height / 2)
             rotated_ellipse = rotate(ellipse, self.angle)
             self._shapely_object = translate(rotated_ellipse, *self.center)
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
     @property
@@ -1688,6 +1698,7 @@ class Polygon(Region2D):
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
             self._shapely_object = shPolygon(self.points, self.holes)
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
     @property
@@ -1822,6 +1833,7 @@ class MultiPolygon(Region2D):
             self._shapely_object = shMultiPolygon(
                 [pol.shapely_object for pol in self._polygons]
             )
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
     @property
@@ -1941,10 +1953,10 @@ class AxisOrientedCuboid(Region3D):
         return cls(corner, length, width, height)
 
     @staticmethod
-    @needs_package("open3d")
+    @needs_package("open3d")  # type: ignore[arg-type]
     def from_open3d(
         open3d_object: o3d.t.geometry.AxisAlignedBoundingBox,
-    ) -> T_AxisOrientedCuboid | EmptyRegion:
+    ) -> AxisOrientedCuboid | EmptyRegion:
         """
         Constructor for instantiating Region from `open3d` object.
 
@@ -1957,6 +1969,8 @@ class AxisOrientedCuboid(Region3D):
         -------
         AxisOrientedCuboid | EmptyRegion
         """
+        if open3d_object.is_empty():
+            return EmptyRegion()
         min_bounds = open3d_object.min_bound.numpy()
         max_bounds = open3d_object.max_bound.numpy()
         intervals = np.array([min_bounds, max_bounds]).T
@@ -1972,6 +1986,7 @@ class AxisOrientedCuboid(Region3D):
                 min_bound=o3d.core.Tensor(self.bounds[:3]),
                 max_bound=o3d.core.Tensor(self.bounds[3:]),
             )
+        assert self._open3d_object is not None  # type narrowing # noqa: S101
         return self._open3d_object
 
     @property
@@ -2162,10 +2177,10 @@ class Cuboid(Region3D):
         self._gamma = gamma
 
         self._points: npt.NDArray[np.float64] | None = None
-        self._centroid = None
-        self._bounds = None
-        self._extent = None
-        self._bounding_box = None
+        self._centroid: npt.NDArray[np.float64] | None = None
+        self._bounds: npt.NDArray[np.float64] | None = None
+        self._extent: npt.NDArray[np.float64] | None = None
+        self._bounding_box: AxisOrientedCuboid | None = None
         self._open3d_object: o3d.t.geometry.OrientedBoundingBox | None = None
         self._rotation: spRotation | None = spRotation.from_euler(
             seq="zyx", angles=[self.gamma, self.beta, self.alpha], degrees=True
@@ -2180,10 +2195,10 @@ class Cuboid(Region3D):
         )
 
     @staticmethod
-    @needs_package("open3d")
+    @needs_package("open3d")  # type: ignore[arg-type]
     def from_open3d(
         open3d_object: o3d.t.geometry.OrientedBoundingBox,
-    ) -> T_Cuboid | EmptyRegion:
+    ) -> Cuboid | EmptyRegion:
         """
         Constructor for instantiating Region from `open3d` object.
 
@@ -2243,6 +2258,7 @@ class Cuboid(Region3D):
             )
             open3d_object = open3d_object.translate(o3d_corner)
             self._open3d_object = open3d_object
+        assert self._open3d_object is not None  # type narrowing # noqa: S101
         return self._open3d_object
 
     @property
@@ -2361,24 +2377,28 @@ class Cuboid(Region3D):
                 min_bounds = np.min(self.points, axis=0)
                 max_bounds = np.max(self.points, axis=0)
             self._bounds = np.concatenate([min_bounds, max_bounds])
+        assert self._bounds is not None  # type narrowing # noqa: S101
         return self._bounds
 
     @property
     def extent(self) -> npt.NDArray[np.float64]:
         if self._extent is None:
             self._extent = np.abs(np.diff(self.bounds.reshape(2, 3), axis=0))[0]
+        assert self._extent is not None  # type narrowing # noqa: S101
         return self._extent
 
     @property
     def bounding_box(self) -> AxisOrientedCuboid:
         if self._bounding_box is None:
             self._bounding_box = AxisOrientedCuboid(self.bounds[:3], *self.extent)
+        assert self._bounding_box is not None  # type narrowing # noqa: S101
         return self._bounding_box
 
     @property
     def centroid(self) -> npt.NDArray[np.float64]:
         if self._centroid is None:
             self._centroid = np.mean(self.points, axis=0)
+        assert self._centroid is not None  # type narrowing # noqa: S101
         return self._centroid
 
     @property

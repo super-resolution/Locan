@@ -83,7 +83,7 @@ def _pair_distances(
         distance_matrix = pairwise_distances(X=points, Y=other_points)
         distances = distance_matrix.reshape(-1)
 
-    return distances
+    return distances  # type: ignore[no-any-return]
 
 
 # The specific analysis classes

@@ -262,11 +262,11 @@ def test_Rectangle():
     assert region.bounding_box.height == pytest.approx(2)
 
     region = Rectangle.from_intervals(((0, 2), (0, 1)))
-    assert repr(region) == "Rectangle((0, 0), 2, 1, 0)"
+    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
     region = Rectangle.from_intervals([(0, 2), (0, 1)])
-    assert repr(region) == "Rectangle((0, 0), 2, 1, 0)"
+    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
     region = Rectangle.from_intervals(np.array([(0, 2), (0, 1)]))
-    assert repr(region) == "Rectangle((0, 0), 2, 1, 0)"
+    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
 
 
 def test_Rectangle_visual():

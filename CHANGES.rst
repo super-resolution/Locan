@@ -22,10 +22,13 @@ API Changes
 - complete implementation of Cuboid.
 - introduce from_open3d and open3d_object.
 - add attribute for rotation and bounding_box
+- add original_index to LocalizationPrecision results
 
 Bug Fixes
 ---------
 - locan.simulation: move simulated data in circle according to region center.
+- correct region for _OrientedBoundingBoxShapely
+- dealing with oriented bounding box and locdata.oriented_bounding_box for empty locdata.
 
 Other Changes and Additions
 ---------------------------

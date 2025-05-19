@@ -4,7 +4,6 @@ Regions as support for localization data.
 
 This module provides classes to define geometric regions for localization data.
 All region classes inherit from the abstract base class `Region`.
-
 """
 
 # todo: fix docstrings
@@ -32,6 +31,7 @@ import numpy.typing as npt
 from scipy.spatial.distance import pdist
 from scipy.spatial.transform import Rotation as spRotation
 from shapely.affinity import rotate, scale, translate
+from shapely.geometry import LineString as shLine
 from shapely.geometry import MultiPoint as shMultiPoint
 from shapely.geometry import MultiPolygon as shMultiPolygon
 from shapely.geometry import Point as shPoint
@@ -42,21 +42,22 @@ if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
 
 __all__: list[str] = [
-    "Region",
-    "EmptyRegion",
-    "Region1D",
-    "Interval",
-    "Region2D",
-    "AxisOrientedRectangle",
-    "Rectangle",
-    "Ellipse",
-    "Polygon",
-    "MultiPolygon",
-    "Region3D",
     "AxisOrientedCuboid",
-    "Cuboid",
-    "RegionND",
     "AxisOrientedHypercuboid",
+    "AxisOrientedRectangle",
+    "Cuboid",
+    "Ellipse",
+    "EmptyRegion",
+    "Interval",
+    "Line2D",
+    "MultiPolygon",
+    "Rectangle",
+    "Region",
+    "Region1D",
+    "Region2D",
+    "Region3D",
+    "RegionND",
+    "Polygon",
 ]
 
 # __all__ += ['Ellipsoid' 'Polyhedron']
@@ -335,19 +336,6 @@ class Region(ABC):
 
     @property
     @abstractmethod
-    def points(self) -> npt.NDArray[np.float64] | list[npt.NDArray[np.float64]]:
-        """
-        Point coordinates.
-
-        Returns
-        -------
-        npt.NDArray[np.float64] | list[npt.NDArray[np.float64]]
-            of shape (n_points, dimension)
-        """
-        pass
-
-    @property
-    @abstractmethod
     def centroid(self) -> npt.NDArray[np.float64] | None:
         """
         Point coordinates for region centroid.
@@ -574,6 +562,22 @@ class Region2D(Region):
     def bounds(self) -> npt.NDArray[np.float64]:
         min_x, min_y, max_x, max_y = self.shapely_object.bounds
         return np.array([min_x, min_y, max_x, max_y])
+
+    @property
+    def intervals(self) -> npt.NDArray[np.float64]:
+        """
+        Provide bounds in a tuple (min, max) arrangement.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            ((min_x, max_x), ...) of shape(dimension, 2)
+        """
+        lower_bounds = self.bounds[: self.dimension]
+        upper_bounds = self.bounds[self.dimension :]
+        return np.array(
+            [(lower, upper) for lower, upper in zip(lower_bounds, upper_bounds)]
+        )
 
     @property
     def extent(self) -> npt.NDArray[np.float64]:
@@ -1060,6 +1064,156 @@ class Interval(Region1D):
         return Interval(lower_bound=l_bound, upper_bound=u_bound)
 
 
+T_Line2D = TypeVar("T_Line2D", bound="Line2D")
+
+
+class Line2D(Region2D):
+    """
+    Region class to define a line.
+
+    The line is constructed from a list of two points.
+    A direction can be given by providing a starting point as origin.
+
+    Parameters
+    ----------
+    points  : npt.ArrayLike
+        Points with shape (2, dimension)
+    origin : int | None
+        index to points identifying the starting point of a directed line.
+    """
+
+    def __init__(
+        self,
+        points: npt.ArrayLike,
+        origin: int | None = None,
+    ) -> None:
+        self._vertices = np.asarray(points)
+        self._origin = origin
+        if origin is None:
+            self.is_directed = False
+        else:
+            self.is_directed = True
+        self._shapely_object: shLine | None = None
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.vertices.tolist()}, {self.origin})"
+
+    def __getattr__(self, attr: str) -> Any:
+        """All non-adapted calls are passed to shapely object"""
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
+            raise AttributeError
+        return getattr(self.shapely_object, attr)
+
+    @classmethod
+    def from_intervals(cls: type[T_Line2D], intervals: npt.ArrayLike) -> T_Line2D:
+        """
+        Constructor for instantiating Line from list of (min, max) bounds.
+
+        Parameters
+        ----------
+        intervals
+            The region bounds for each dimension of shape (dimension, 2)
+
+        Returns
+        -------
+        Line2D
+        """
+        intervals = np.asarray(intervals)
+        if np.shape(intervals)[-1] != 2:
+            raise TypeError(
+                f"Intervals must be of shape (dimension, 2) and not {np.shape(intervals)}."
+            )
+        points = intervals.T
+        return cls(points=points)
+
+    @classmethod
+    def from_shapely(cls: type[T_Line2D], line: shLine) -> T_Line2D | EmptyRegion:
+        if line.is_empty:
+            return EmptyRegion()
+        else:
+            points = np.array(line.xy)
+            return cls(points)
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        """
+        Terminal points of line.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            of shape(2, dimension)
+        """
+        return self._vertices
+
+    @property
+    def origin(self) -> npt.NDArray[np.float64] | None:
+        """
+        The starting point of a directed line.
+
+        Returns
+        -------
+        npt.NDArray[np.float64] | None
+            of shape(dimension)
+        """
+        return self._origin
+
+    @property
+    def shapely_object(self) -> shLine:
+        if self._shapely_object is None:
+            self._shapely_object = shLine(coordinates=self.vertices)
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
+        return self._shapely_object
+
+    @property
+    def centroid(self) -> npt.NDArray[np.float64]:
+        return np.mean(self.intervals, axis=-1)
+
+    @property
+    def max_distance(self) -> float:
+        distance: float = np.linalg.norm(self.vertices)
+        return distance
+
+    @property
+    def region_measure(self) -> float:
+        return 0
+
+    @property
+    def subregion_measure(self) -> float:
+        return_value: float = np.linalg.norm(self.vertices)
+        return return_value
+
+    def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
+        _points = np.asarray(points)
+        if _points.size == 0:
+            return np.array([], dtype=bool)
+
+        # preselect points inside the polygons bounding box to increase performance.
+        preselected_points_indices = self.bounding_box.contains(_points)
+        if len(preselected_points_indices) == 0:
+            return np.array([], dtype=bool)
+
+        points_ = shMultiPoint(_points[preselected_points_indices])
+        prepared_polygon = prep(self.shapely_object)
+        mask = list(map(prepared_polygon.contains, points_.geoms))
+        inside_indices = np.nonzero(mask)[0]  # type: ignore[arg-type]
+        if len(inside_indices) == 0:
+            return np.array([], dtype=bool)
+        else:
+            return preselected_points_indices[inside_indices]
+
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
+        # todo implement origin
+        codes = [mpl_path.Path.MOVETO] + [mpl_path.Path.LINETO]
+        vertices = self.vertices
+        path = mpl_path.Path(vertices, codes)
+        return mpl_patches.PathPatch(path, **kwargs)
+
+
 T_AxisOrientedRectangle = TypeVar(
     "T_AxisOrientedRectangle", bound="AxisOrientedRectangle"
 )
@@ -1380,22 +1534,6 @@ class Rectangle(Region2D):
         float
         """
         return self._angle
-
-    @property
-    def intervals(self) -> npt.NDArray[np.float64]:
-        """
-        Provide bounds in a tuple (min, max) arrangement.
-
-        Returns
-        -------
-        npt.NDArray[np.float64]
-            ((min_x, max_x), ...) of shape(dimension, 2)
-        """
-        lower_bounds = self.bounds[: self.dimension]
-        upper_bounds = self.bounds[self.dimension :]
-        return np.array(
-            [(lower, upper) for lower, upper in zip(lower_bounds, upper_bounds)]
-        )
 
     @property
     def points(self) -> npt.NDArray[np.float64]:

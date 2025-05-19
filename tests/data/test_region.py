@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt  # needed for visual inspection
 import numpy as np
 import pytest
 from matplotlib.path import Path as mplPath
+from shapely.geometry import LineString as shLine
 from shapely.geometry import MultiPolygon as shMultiPolygon
 from shapely.geometry import Polygon as shPolygon
 
@@ -18,6 +19,7 @@ from locan import (
     Ellipse,
     EmptyRegion,
     Interval,
+    Line2D,
     MultiPolygon,
     Polygon,
     Rectangle,
@@ -163,6 +165,77 @@ def test_Interval():
     assert repr(region) == "Interval(0, 2)"
     region = Interval.from_intervals(np.array([0, 2]))
     assert repr(region) == "Interval(0, 2)"
+
+
+def test_Line2D():
+    region = Line2D(points=((0, 0), (1, 1)))
+    assert np.array_equal(region.vertices, ((0, 0), (1, 1)))
+    assert region.origin is None
+    assert region.is_directed is False
+    region = Line2D(points=((0, 0), (1, 1)), origin=0)
+    assert region.origin == 0
+    assert region.is_directed is True
+    assert isinstance(region, Region)
+    assert isinstance(region, Region2D)
+    assert repr(region) == "Line2D([[0, 0], [1, 1]], 0)"
+    assert str(region) == "Line2D([[0, 0], [1, 1]], 0)"
+    new_reg = eval(repr(region))
+    assert isinstance(new_reg, Line2D)
+    with pytest.raises(AttributeError):
+        region.vertices = None
+        region.origin = None
+    assert region.dimension == 2
+    assert region.bounds == pytest.approx((0, 0, 1, 1))
+    assert np.array_equal(region.intervals, [(0, 1), (0, 1)])
+    assert region.extent == pytest.approx((1, 1))
+    assert len(region.vertices) == 2
+    assert np.allclose(
+        region.vertices.astype(float),
+        [[0.0, 0.0], [1.0, 1.0]],
+    )
+    assert np.array_equal(region.centroid, (0.5, 0.5))
+    assert region.max_distance == pytest.approx(np.sqrt(2))
+    assert region.subregion_measure == region.max_distance
+    assert region.region_measure == 0
+
+    assert (0.1, 0.1) in region
+    assert (0, 1) not in region
+    assert np.array_equal(
+        region.contains([[0.5, 0.5], [-0.5, 0.5], [100, 100], [-1, 2]]), (0,)
+    )
+    assert region.contains([(0.5, 0.5)]) == (0,)
+    assert region.contains([(10, 10)]).size == 0
+    assert region.contains([]).size == 0
+
+    other = Line2D(points=((1, 2), (0, 0)))
+    with pytest.raises(TypeError):
+        assert isinstance(region.intersection(other), Polygon)
+    with pytest.raises(TypeError):
+        assert isinstance(region.symmetric_difference(other), MultiPolygon)
+    with pytest.raises(TypeError):
+        assert isinstance(region.union(other), Polygon)
+
+    assert isinstance(region.as_artist(), mPatches.PathPatch)
+    assert isinstance(region.shapely_object, shLine)
+    assert region.region_measure == region.shapely_object.area
+    assert isinstance(region.buffer(1), Polygon)
+    assert np.array_equal(region.bounding_box.corner, (0.0, 0.0))
+    assert region.bounding_box.width == pytest.approx(1)
+    assert region.bounding_box.height == pytest.approx(1)
+
+    region = Line2D.from_intervals(((0, 2), (1, 1)))
+    assert repr(region) == "Line2D([[0, 1], [2, 1]], None)"
+
+
+def test_Line2D_visual():
+    region = Line2D([(0, 2), (3, -1)])
+    _fig, ax = plt.subplots(nrows=1, ncols=1)
+    ax.plot(*region.vertices.T, marker="o", color="Blue")
+    ax.add_patch(region.as_artist(origin=(0, 0), alpha=0.2))
+    ax.plot(*region.centroid, "*", color="Green")
+    region.plot(color="Green", alpha=0.2)
+    # plt.show()
+    plt.close("all")
 
 
 def test_AxisOrientedRectangle():

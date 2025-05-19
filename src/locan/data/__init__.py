@@ -41,6 +41,7 @@ from locan.data.regions import (
     Ellipse as Ellipse,
     EmptyRegion as EmptyRegion,
     Interval as Interval,
+    Line2D as Line2D,
     MultiPolygon as MultiPolygon,
     Polygon as Polygon,
     Rectangle as Rectangle,

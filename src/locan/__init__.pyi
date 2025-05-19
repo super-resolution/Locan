@@ -82,6 +82,7 @@ from .data import (
     Ellipse as Ellipse,
     EmptyRegion as EmptyRegion,
     Interval as Interval,
+    Line2D as Line2D,
     LocData as LocData,
     MultiPolygon as MultiPolygon,
     OrientedBoundingBox as OrientedBoundingBox,

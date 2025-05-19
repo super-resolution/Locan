@@ -322,6 +322,19 @@ class Region(ABC):
 
     @property
     @abstractmethod
+    def vertices(self) -> npt.NDArray[np.float64] | list[npt.NDArray[np.float64]]:
+        """
+        0 - dimensional elements that define the region; also called points.
+
+        Returns
+        -------
+        npt.NDArray[np.float64] | list[npt.NDArray[np.float64]]
+            of shape (n_vertices, dimension)
+        """
+        pass
+
+    @property
+    @abstractmethod
     def points(self) -> npt.NDArray[np.float64] | list[npt.NDArray[np.float64]]:
         """
         Point coordinates.
@@ -828,6 +841,15 @@ class EmptyRegion(Region):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return np.array([], dtype=np.float64)
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array([], dtype=np.float64)
 
     @property
@@ -990,6 +1012,15 @@ class Interval(Region1D):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return np.array([self.lower_bound, self.upper_bound])
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array([self.lower_bound, self.upper_bound])
 
     @property
@@ -1150,6 +1181,25 @@ class AxisOrientedRectangle(Region2D):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        rectangle = mpl_patches.Rectangle(
+            self.corner,  # type: ignore[arg-type]
+            self.width,
+            self.height,
+            angle=0,
+            fill=False,
+            edgecolor="b",
+            linewidth=1,
+        )
+        points: npt.NDArray[np.float64] = rectangle.get_verts()  # type: ignore
+        return np.array(points[::-1])
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
         rectangle = mpl_patches.Rectangle(
             self.corner,  # type: ignore[arg-type]
             self.width,
@@ -1165,7 +1215,7 @@ class AxisOrientedRectangle(Region2D):
     @property
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
-            self._shapely_object = shPolygon(self.points[:-1])
+            self._shapely_object = shPolygon(self.vertices[:-1])
         assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
@@ -1190,7 +1240,7 @@ class AxisOrientedRectangle(Region2D):
         points = np.asarray(points)
         if points.size == 0:
             return np.array([], dtype=np.int64)
-        polygon_path = mpl_path.Path(self.points, closed=True)
+        polygon_path = mpl_path.Path(self.vertices, closed=True)
         mask = polygon_path.contains_points(points)
         inside_indices = np.nonzero(mask)[0]
         return inside_indices  # type: ignore
@@ -1349,6 +1399,25 @@ class Rectangle(Region2D):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        rectangle = mpl_patches.Rectangle(
+            self.corner,  # type: ignore[arg-type]
+            self.width,
+            self.height,
+            angle=self.angle,
+            fill=False,
+            edgecolor="b",
+            linewidth=1,
+        )
+        points: npt.NDArray[np.float64] = rectangle.get_verts()  # type: ignore
+        return np.array(points[::-1])
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
         rectangle = mpl_patches.Rectangle(
             self.corner,  # type: ignore[arg-type]
             self.width,
@@ -1379,7 +1448,7 @@ class Rectangle(Region2D):
     @property
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
-            self._shapely_object = shPolygon(self.points[:-1])
+            self._shapely_object = shPolygon(self.vertices[:-1])
         assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
@@ -1404,7 +1473,7 @@ class Rectangle(Region2D):
         points = np.asarray(points)
         if points.size == 0:
             return np.array([], dtype=np.int64)
-        polygon_path = mpl_path.Path(self.points, closed=True)
+        polygon_path = mpl_path.Path(self.vertices, closed=True)
         mask = polygon_path.contains_points(points)
         inside_indices = np.nonzero(mask)[0]
         return inside_indices  # type: ignore
@@ -1513,6 +1582,15 @@ class Ellipse(Region2D):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return np.array(self.shapely_object.exterior.coords)[::-1]
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array(self.shapely_object.exterior.coords)[::-1]
 
     @property
@@ -1617,9 +1695,9 @@ class Polygon(Region2D):
     ) -> None:
         points = np.asarray(points)
         if np.all(points[0] == points[-1]):
-            self._points = np.array(points)
+            self._vertices = np.array(points)
         else:
-            self._points = np.append(np.array(points), [points[0]], axis=0)
+            self._vertices = np.append(np.array(points), [points[0]], axis=0)
         if holes is None:
             self._holes = None
         else:
@@ -1629,12 +1707,12 @@ class Polygon(Region2D):
 
     def __repr__(self) -> str:
         if self.holes is None:
-            return f"{self.__class__.__name__}({self.points.tolist()})"
+            return f"{self.__class__.__name__}({self.vertices.tolist()})"
         else:
-            return f"{self.__class__.__name__}({self.points.tolist()}, {[hole.tolist() for hole in self.holes]})"
+            return f"{self.__class__.__name__}({self.vertices.tolist()}, {[hole.tolist() for hole in self.holes]})"
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}(<self.points>, <self.holes>)"
+        return f"{self.__class__.__name__}(<self.vertices>, <self.holes>)"
 
     def __getattr__(self, attr: str) -> Any:
         """All non-adapted calls are passed to shapely object"""
@@ -1665,7 +1743,24 @@ class Polygon(Region2D):
         npt.NDArray[np.float64]
             of shape(n_points, dimension)
         """
-        return self._points
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._vertices
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        """
+        Exterior polygon points.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            of shape(n_vertices, dimension)
+        """
+        return self._vertices
 
     @property
     def holes(self) -> list[npt.NDArray[np.float64]] | None:
@@ -1675,7 +1770,7 @@ class Polygon(Region2D):
         Returns
         -------
         list[npt.NDArray[np.float64]] | None
-            n_holes of shape(n_points, dimension)
+            n holes of shape(n_points, dimension)
         """
         return self._holes
 
@@ -1697,7 +1792,7 @@ class Polygon(Region2D):
     @property
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
-            self._shapely_object = shPolygon(self.points, self.holes)
+            self._shapely_object = shPolygon(self.vertices, self.holes)
         assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
@@ -1707,7 +1802,7 @@ class Polygon(Region2D):
 
     @property
     def max_distance(self) -> float:
-        distances = pdist(self.points[:-1])
+        distances = pdist(self.vertices[:-1])
         return_value: float = np.nanmax(distances)
         return return_value
 
@@ -1787,7 +1882,24 @@ class MultiPolygon(Region2D):
         list[npt.NDArray[np.float64]]
             n_polygons of shape(n_points, dimension)
         """
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return [pol.points for pol in self.polygons]
+
+    @property
+    def vertices(self) -> list[npt.NDArray[np.float64]]:
+        """
+        Exterior polygon points.
+
+        Returns
+        -------
+        list[npt.NDArray[np.float64]]
+            n polygons of shape(n_points, dimension)
+        """
+        return [pol.vertices for pol in self.polygons]
 
     @property
     def holes(self) -> list[list[npt.NDArray[np.float64]] | None]:
@@ -1842,7 +1954,7 @@ class MultiPolygon(Region2D):
 
     @property
     def max_distance(self) -> float:
-        distances = pdist(np.array([point for pts in self.points for point in pts]))
+        distances = pdist(np.array([point for pts in self.vertices for point in pts]))
         return_value: float = np.nanmax(distances)
         return return_value
 
@@ -2036,6 +2148,15 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return np.array(list(it.product(*self.intervals)))
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array(list(it.product(*self.intervals)))
 
     @property
@@ -2150,6 +2271,8 @@ class Cuboid(Region3D):
         The length of a vector describing the edge in x-direction.
     width : float
         The length of a vector describing the edge in y-direction.
+    height : float
+        The length of a vector describing the edge in z-direction.
     alpha : float
         The first Euler angle (in degrees) by which the cuboid is rotated.
     beta : float
@@ -2176,7 +2299,7 @@ class Cuboid(Region3D):
         self._beta = beta
         self._gamma = gamma
 
-        self._points: npt.NDArray[np.float64] | None = None
+        self._vertices: npt.NDArray[np.float64] | None = None
         self._centroid: npt.NDArray[np.float64] | None = None
         self._bounds: npt.NDArray[np.float64] | None = None
         self._extent: npt.NDArray[np.float64] | None = None
@@ -2356,16 +2479,34 @@ class Cuboid(Region3D):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
-        if self._points is None:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if self._vertices is None:
             axis_oriented_cuboid = AxisOrientedCuboid(
                 corner=self.corner,
                 length=self.length,
                 width=self.width,
                 height=self.height,
             )
-            axis_oriented_points = axis_oriented_cuboid.points
-            self._points = self.rotation.apply(axis_oriented_points)
-        return self._points
+            axis_oriented_points = axis_oriented_cuboid.vertices
+            self._vertices = self.rotation.apply(axis_oriented_points)
+        return self._vertices
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        if self._vertices is None:
+            axis_oriented_cuboid = AxisOrientedCuboid(
+                corner=self.corner,
+                length=self.length,
+                width=self.width,
+                height=self.height,
+            )
+            axis_oriented_points = axis_oriented_cuboid.vertices
+            self._vertices = self.rotation.apply(axis_oriented_points)
+        return self._vertices
 
     @property
     def bounds(self) -> npt.NDArray[np.float64]:
@@ -2374,8 +2515,8 @@ class Cuboid(Region3D):
                 min_bounds = self._open3d_object.get_min_bound().numpy()
                 max_bounds = self._open3d_object.get_max_bound().numpy()
             else:
-                min_bounds = np.min(self.points, axis=0)
-                max_bounds = np.max(self.points, axis=0)
+                min_bounds = np.min(self.vertices, axis=0)
+                max_bounds = np.max(self.vertices, axis=0)
             self._bounds = np.concatenate([min_bounds, max_bounds])
         assert self._bounds is not None  # type narrowing # noqa: S101
         return self._bounds
@@ -2397,7 +2538,7 @@ class Cuboid(Region3D):
     @property
     def centroid(self) -> npt.NDArray[np.float64]:
         if self._centroid is None:
-            self._centroid = np.mean(self.points, axis=0)
+            self._centroid = np.mean(self.vertices, axis=0)
         assert self._centroid is not None  # type narrowing # noqa: S101
         return self._centroid
 
@@ -2548,6 +2689,15 @@ class AxisOrientedHypercuboid(RegionND):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return np.array(list(it.product(*self.intervals)))
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array(list(it.product(*self.intervals)))
 
     @property

@@ -10,6 +10,7 @@ All region classes inherit from the abstract base class `Region`.
 from __future__ import annotations
 
 import itertools as it
+import logging
 import sys
 import warnings
 from abc import ABC, abstractmethod
@@ -40,6 +41,8 @@ from shapely.prepared import prep
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
+
+logger = logging.getLogger(__name__)
 
 __all__: list[str] = [
     "AxisOrientedCuboid",
@@ -396,6 +399,17 @@ class Region(ABC):
         Region
         """
         pass
+
+    @property
+    def radial_distance(self) -> float:
+        """
+        Average of all absolute distances between vertices and centroid.
+
+        Returns
+        -------
+        float
+        """
+        return np.mean(np.linalg.norm(self.centroid - self.vertices, axis=-1))
 
     @abstractmethod
     def intersection(self, other: Region) -> Region:
@@ -861,8 +875,8 @@ class EmptyRegion(Region):
         return None
 
     @property
-    def max_distance(self) -> int:
-        return 0
+    def max_distance(self) -> float:
+        return np.nan
 
     @property
     def region_measure(self) -> int:
@@ -871,6 +885,10 @@ class EmptyRegion(Region):
     @property
     def subregion_measure(self) -> int:
         return 0
+
+    @property
+    def radial_distance(self) -> float:
+        return np.nan
 
     @property
     def bounds(self) -> None:
@@ -897,10 +915,12 @@ class EmptyRegion(Region):
         return np.array([], dtype=np.int64)
 
     def as_artist(self, **kwargs: Any) -> None:
-        raise NotImplementedError("EmptyRegion cannot return an artist.")
+        logger.warning("EmptyRegion cannot return an artist.")
+        return None
 
     def buffer(self, distance: float, **kwargs: Any) -> Region:
-        raise NotImplementedError("EmptyRegion cannot be extended.")
+        logger.warning("EmptyRegion cannot be extended.")
+        return self
 
     @classmethod
     def from_shapely(cls, shapely_object: shPolygon | shMultiPolygon) -> EmptyRegion:
@@ -1042,6 +1062,10 @@ class Interval(Region1D):
     @property
     def subregion_measure(self) -> int:
         return 0
+
+    @property
+    def radial_distance(self) -> float:
+        return (self.upper_bound - self.lower_bound) / 2
 
     @property
     def bounding_box(self) -> Self:

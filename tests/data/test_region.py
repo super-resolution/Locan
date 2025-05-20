@@ -102,7 +102,7 @@ def test_EmptyRegion():
     assert len(region.points) == 0
     assert len(region.vertices) == 0
     assert region.centroid is None
-    assert region.max_distance == 0
+    assert np.isnan(region.max_distance)
     assert region.region_measure == 0
     assert region.subregion_measure == 0
     assert region.bounds is None
@@ -116,11 +116,10 @@ def test_EmptyRegion():
     assert region.contains([(10.5, 10)]).size == 0
     assert region.contains([(100, 100)]).size == 0
     assert region.contains([]).size == 0
-    with pytest.raises(NotImplementedError):
-        region.as_artist()
+    region.as_artist()
     assert isinstance(region.shapely_object, shPolygon)
-    with pytest.raises(NotImplementedError):
-        region.buffer(1)
+    assert isinstance(region.buffer(1), EmptyRegion)
+    assert np.isnan(region.radial_distance)
 
 
 def test_Interval():
@@ -145,6 +144,7 @@ def test_Interval():
     assert region.max_distance == 1
     assert region.region_measure == 1
     assert region.subregion_measure == 0
+    assert region.radial_distance == 0.5
     assert np.array_equal(region.contains((0, 0.5, 1, 2)), (0, 1))
     with pytest.raises(NotImplementedError):
         other = Interval()
@@ -197,6 +197,7 @@ def test_Line2D():
     assert region.max_distance == pytest.approx(np.sqrt(2))
     assert region.subregion_measure == region.max_distance
     assert region.region_measure == 0
+    assert region.radial_distance == pytest.approx(0.7071067811865476)
 
     assert (0.1, 0.1) in region
     assert (0, 1) not in region
@@ -268,6 +269,7 @@ def test_AxisOrientedRectangle():
     assert region.max_distance == np.sqrt(5)
     assert region.region_measure == 2
     assert region.subregion_measure == 6
+    assert region.radial_distance == pytest.approx(1.118033988749895)
     assert np.array_equal(
         region.contains([[0, 0], [0.5, 0.5], [100, 100], [-1, 2]]), (1,)
     )
@@ -327,6 +329,7 @@ def test_Rectangle():
     assert region.max_distance == np.sqrt(5)
     assert region.region_measure == 2
     assert region.subregion_measure == 6
+    assert region.radial_distance == pytest.approx(1.118033988749895)
     assert np.array_equal(
         region.contains([[0, 0], [-0.5, 0.5], [100, 100], [-1, 2]]), (1,)
     )
@@ -391,6 +394,7 @@ def test_Ellipse():
     assert region.max_distance == 4
     assert region.region_measure == pytest.approx(6.283185307179586)
     assert region.subregion_measure == pytest.approx(9.688448216130086)
+    assert region.radial_distance == pytest.approx(1.5490111263409625)
     assert np.array_equal(
         region.contains([[9, 8], [10.5, 10.5], [100, 100], [11, 12]]), (1,)
     )
@@ -455,6 +459,7 @@ def test_Polygon():
     assert region.max_distance == np.sqrt(2)
     assert region.region_measure == pytest.approx(0.75)
     assert region.subregion_measure == pytest.approx(3.618033988749895)
+    assert region.radial_distance == pytest.approx(0.669307571923609)
 
     assert np.array_equal(
         region.contains([[0, 0], [0.2, 0.8], [100, 100], [1, 0.5]]), (1,)
@@ -535,6 +540,7 @@ def test_Polygon_with_holes():
     assert region.max_distance == np.sqrt(2)
     assert region.region_measure == pytest.approx(0.735)
     assert region.subregion_measure == pytest.approx(4.341640786499874)
+    assert region.radial_distance == pytest.approx(0.6699653096842809)
 
     assert np.array_equal(
         region.contains([[0, 0], [0.2, 0.8], [100, 100], [1, 0.5]]), (1,)
@@ -677,6 +683,7 @@ def test_MultiPolygon():
     assert region.max_distance == pytest.approx(4.242640687119285)
     assert region.region_measure == pytest.approx(1.485)
     assert region.subregion_measure == pytest.approx(7.959674775249769)
+    assert region.radial_distance == pytest.approx(1.4577832377135331)
     assert np.array_equal(
         region.contains([[0, 0], [0.2, 0.8], [100, 100], [1, 0.5]]), (1,)
     )
@@ -969,6 +976,7 @@ class TestAxisOrientedCuboid:
         assert region.max_distance == np.sqrt(9**2 + 19**2 + 29**2)
         assert region.region_measure == (9 * 19 * 29)
         assert region.subregion_measure == 2 * (9 * 19 + 19 * 29 + 29 * 9)
+        assert region.radial_distance == pytest.approx(17.909494688572316)
 
         assert np.array_equal(region.bounding_box.corner, (1, 1, 1))
         assert region.bounding_box.length == pytest.approx(9)
@@ -1066,6 +1074,7 @@ class TestCuboid:
         assert region.max_distance == np.sqrt(9**2 + 19**2 + 29**2)
         assert region.region_measure == (9 * 19 * 29)
         assert region.subregion_measure == 2 * (9 * 19 + 19 * 29 + 29 * 9)
+        assert region.radial_distance == pytest.approx(17.909494688572316)
 
         assert isinstance(region.bounding_box, AxisOrientedCuboid)
         assert region.bounding_box.corner == pytest.approx(
@@ -1171,6 +1180,7 @@ def test_AxisOrientedHypercuboid():
     assert region.region_measure == (9 * 19 * 29)
     with pytest.raises(NotImplementedError):
         region.subregion_measure  # noqa B018
+    assert region.radial_distance == pytest.approx(17.909494688572316)
     assert np.array_equal(
         region.contains(
             [[0, 0, 0], [1, 10, 10], [10, 10, 10], [5, 100, 10], [5, 10, 100]]

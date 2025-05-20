@@ -604,6 +604,25 @@ class Region2D(Region):
         return AxisOrientedRectangle((min_x, min_y), max_x - min_x, max_y - min_y)
 
     @property
+    def isoperimetric_quotient(self) -> float:
+        """
+        Ratio of the area of a region to the area of a circle with the same
+        perimeter:
+
+        isoperimetric_quotient = 4 * pi * area / perimeter^2.
+
+        Sometimes called circularity in 2d and sphericity in 3d.
+
+        Returns
+        -------
+        float
+        """
+        area = self.region_measure
+        perimeter = self.subregion_measure
+        quotient = 4 * np.pi * area / perimeter**2
+        return quotient
+
+    @property
     @abstractmethod
     def shapely_object(self) -> Any:
         """
@@ -738,6 +757,25 @@ class Region3D(Region):
     @property
     def dimension(self) -> int:
         return 3
+
+    @property
+    def isoperimetric_quotient(self) -> float:
+        """
+        Ratio of the volume of a region to the volume of a ball with the same
+        surface:
+
+        isoperimetric_quotient = 36 * pi * volume^2 / surface^3.
+
+        Sometimes called circularity in 2d and sphericity in 3d.
+
+        Returns
+        -------
+        float
+        """
+        volume = self.region_measure
+        surface = self.subregion_measure
+        quotient = 36 * np.pi * volume**2 / surface**3
+        return quotient
 
     @staticmethod
     def from_open3d(
@@ -888,6 +926,20 @@ class EmptyRegion(Region):
 
     @property
     def radial_distance(self) -> float:
+        return np.nan
+
+    @property
+    def isoperimetric_quotient(self) -> float:
+        """
+        Ratio of the area of a region to the area of a circle with the same
+        perimeter; i.e. ratio of 4 * pi * area to the squared perimeter.
+
+        Sometimes called circularity in 2d and sphericity in 3d.
+
+        Returns
+        -------
+        float
+        """
         return np.nan
 
     @property

@@ -157,6 +157,7 @@ from .process import (
     cluster_by_bin as cluster_by_bin,
     cluster_dbscan as cluster_dbscan,
     cluster_hdbscan as cluster_hdbscan,
+    distance_to_point as distance_to_point,
     distance_to_region as distance_to_region,
     distance_to_region_boundary as distance_to_region_boundary,
     exclude_sparse_points as exclude_sparse_points,

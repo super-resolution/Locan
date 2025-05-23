@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from locan.data.regions.region import Region
 
 __all__: list[str] = [
+    "distance_to_point",
     "distance_to_region",
     "distance_to_region_boundary",
     "max_distance",
@@ -34,6 +35,35 @@ class InertiaMoments(NamedTuple):
     variance_explained: list[float]
     orientation: float
     eccentricity: float
+
+
+def distance_to_point(
+    locdata: LocData | npt.ArrayLike, point: npt.ArrayLike
+) -> npt.NDArray[np.float64]:
+    """
+    Determine the distance to the given point for all
+    localizations.
+
+    Parameters
+    ----------
+    locdata
+        Localizations for which distances are determined.
+
+    point
+        Single point.
+
+    Returns
+    --------
+    npt.NDArray[np.float64]
+        Distance for each localization.
+    """
+    if hasattr(locdata, "coordinates"):
+        points = locdata.coordinates
+    else:
+        points = np.asarray(locdata)
+    point = np.asarray(point)
+    distances = np.linalg.norm(points - point, axis=-1)
+    return distances
 
 
 def distance_to_region(locdata: LocData, region: Region) -> npt.NDArray[np.float64]:

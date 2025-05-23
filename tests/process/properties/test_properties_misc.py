@@ -11,6 +11,7 @@ from locan import (
     Ellipse,
     Rectangle,
     RoiRegion,
+    distance_to_point,
     distance_to_region,
     distance_to_region_boundary,
     inertia_moments,
@@ -174,3 +175,16 @@ def test_compute_inertia_moments_3d(caplog):
             "Orientation and eccentricity have not yet been implemented for 3D.",
         )
     ]
+
+
+def test_distance_to_point(locdata_2d, locdata_3d):
+    distances = distance_to_point(locdata=locdata_2d, point=locdata_2d.centroid)
+    assert distances.shape == (len(locdata_2d),)
+    distances = distance_to_point(
+        locdata=locdata_2d.coordinates[:2], point=locdata_2d.centroid
+    )
+    assert distances.shape == (2,)
+    distances = distance_to_point(locdata=locdata_3d, point=locdata_3d.centroid)
+    assert distances.shape == (len(locdata_3d),)
+    with pytest.raises(ValueError):
+        distance_to_point(locdata=locdata_3d, point=locdata_2d.centroid)

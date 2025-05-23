@@ -229,6 +229,7 @@ def test_Line2D():
     assert repr(region) == "Line2D([[0, 1], [2, 1]], None)"
 
 
+@pytest.mark.visual
 def test_Line2D_visual():
     region = Line2D([(0, 2), (3, -1)])
     _fig, ax = plt.subplots(nrows=1, ncols=1)
@@ -236,7 +237,17 @@ def test_Line2D_visual():
     ax.add_patch(region.as_artist(origin=(0, 0), alpha=0.2))
     ax.plot(*region.centroid, "*", color="Green")
     region.plot(color="Green", alpha=0.2)
-    # plt.show()
+
+    from locan.process.transform import Rotation2D
+
+    for angle in [30, 60, 90, 120, 150, 180, 275, 350, -10, -20, -30]:
+        region_rotated = Rotation2D.from_angle(angle=angle, degrees=True).apply(
+            region.vertices
+        )
+        region_rotated = Line2D.from_intervals(region_rotated.T)
+        ax.add_patch(region_rotated.as_artist(origin=(0, 0), alpha=0.2))
+        ax.plot(*region_rotated.centroid, "*", color="Green")
+    plt.show()
     plt.close("all")
 
 

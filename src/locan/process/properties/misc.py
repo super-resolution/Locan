@@ -62,7 +62,7 @@ def distance_to_point(
     else:
         points = np.asarray(locdata)
     point = np.asarray(point)
-    distances = np.linalg.norm(points - point, axis=-1)
+    distances: npt.NDArray[np.float64] = np.linalg.norm(points - point, axis=-1)
     return distances
 
 

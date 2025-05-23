@@ -152,6 +152,8 @@ from .locan_io import (
 )
 from .process import (
     Bins as Bins,
+    Rotation2D as Rotation2D,
+    Rotation3D as Rotation3D,
     Selector as Selector,
     bunwarp as bunwarp,
     cluster_by_bin as cluster_by_bin,

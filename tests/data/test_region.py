@@ -31,6 +31,7 @@ from locan import (
 )
 from locan.data.regions.region import _polygon_path
 from locan.dependencies import HAS_DEPENDENCY, needs_package
+from locan.process.transform.spatial.rotation import Rotation2D
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
@@ -237,8 +238,6 @@ def test_Line2D_visual():
     ax.add_patch(region.as_artist(origin=(0, 0), alpha=0.2))
     ax.plot(*region.centroid, "*", color="Green")
     region.plot(color="Green", alpha=0.2)
-
-    from locan.process.transform import Rotation2D
 
     for angle in [30, 60, 90, 120, 150, 180, 275, 350, -10, -20, -30]:
         region_rotated = Rotation2D.from_angle(angle=angle, degrees=True).apply(

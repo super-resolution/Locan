@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 from scipy.spatial.distance import pdist
-from scipy.spatial.transform import Rotation as spRotation
+from scipy.spatial.transform import Rotation as Rotation3D
 from shapely.affinity import rotate, scale, translate
 from shapely.geometry import LineString as shLine
 from shapely.geometry import MultiPoint as shMultiPoint
@@ -1795,6 +1795,42 @@ class Ellipse(Region2D):
         return self._angle
 
     @property
+    def major_axis(self) -> npt.NDArray[np.float64] | None:
+        """
+        The major axis of the region.
+
+        Returns
+        -------
+        npt.NDArray[np.float64] | None
+            of shape (dimension,)
+        """
+        raise NotImplementedError
+
+    @property
+    def minor_axis(self) -> npt.NDArray[np.float64] | None:
+        """
+        The minor axis of the region.
+
+        Returns
+        -------
+        npt.NDArray[np.float64] | None
+            of shape (dimension,)
+        """
+        raise NotImplementedError
+
+    @property
+    def eccentricity(self) -> npt.NDArray[np.float64]:
+        """
+        Shape factor related to the ratio of the length of minor to major axis:
+        eccentricity = sqrt(1 - M_min / M_max).
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+        """
+        raise NotImplementedError
+
+    @property
     def points(self) -> npt.NDArray[np.float64]:
         warnings.warn(
             "This attribute is deprecated. Use vertices instead.",
@@ -2519,7 +2555,7 @@ class Cuboid(Region3D):
         self._extent: npt.NDArray[np.float64] | None = None
         self._bounding_box: AxisOrientedCuboid | None = None
         self._open3d_object: o3d.t.geometry.OrientedBoundingBox | None = None
-        self._rotation: spRotation | None = spRotation.from_euler(
+        self._rotation: Rotation3D | None = Rotation3D.from_euler(
             seq="zyx", angles=[self.gamma, self.beta, self.alpha], degrees=True
         )
         self._region_specs = (corner, length, width, height, alpha, beta, gamma)
@@ -2554,7 +2590,7 @@ class Cuboid(Region3D):
         length, width, height = open3d_object.extent.numpy()
         rotation_matrix = open3d_object.rotation.numpy()
         center = open3d_object.center.numpy()
-        rotation = spRotation.from_matrix(matrix=rotation_matrix)
+        rotation = Rotation3D.from_matrix(matrix=rotation_matrix)
         gamma, beta, alpha = rotation.as_euler("zyx", degrees=True)
         corner_ = -open3d_object.extent.numpy() / 2
         corner_ = rotation.apply(corner_)
@@ -2599,7 +2635,7 @@ class Cuboid(Region3D):
         return self._open3d_object
 
     @property
-    def rotation(self) -> spRotation:
+    def rotation(self) -> Rotation3D:
         """
         An instance of scipy.stats.transform.Rotation.
 
@@ -2608,7 +2644,7 @@ class Cuboid(Region3D):
         scipy.stats.transform.Rotation
         """
         if self._rotation is None:
-            self._rotation = spRotation.from_euler(
+            self._rotation = Rotation3D.from_euler(
                 seq="xyz", angles=[self.alpha, self.beta, self.gamma], degrees=True
             )
         return self._rotation

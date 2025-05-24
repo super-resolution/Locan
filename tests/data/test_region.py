@@ -28,10 +28,10 @@ from locan import (
     Region2D,
     Region3D,
     RegionND,
+    Rotation2D,
 )
 from locan.data.regions.region import _polygon_path
 from locan.dependencies import HAS_DEPENDENCY, needs_package
-from locan.process.transform.spatial.rotation import Rotation2D
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d

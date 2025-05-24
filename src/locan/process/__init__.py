@@ -47,8 +47,6 @@ from locan.process.properties import (
 )
 from locan.process.tracking import *
 from locan.process.transform import (
-    Rotation2D as Rotation2D,
-    Rotation3D as Rotation3D,
     bunwarp as bunwarp,
     overlay as overlay,
     standardize as standardize,

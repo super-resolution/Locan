@@ -17,6 +17,7 @@ from abc import ABC, abstractmethod
 from typing import Any, TypeVar
 
 from locan.dependencies import HAS_DEPENDENCY, needs_package
+from locan.utils.rotation import Rotation3D
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -30,7 +31,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 from scipy.spatial.distance import pdist
-from scipy.spatial.transform import Rotation as Rotation3D
 from shapely.affinity import rotate, scale, translate
 from shapely.geometry import LineString as shLine
 from shapely.geometry import MultiPoint as shMultiPoint

@@ -152,8 +152,6 @@ from .locan_io import (
 )
 from .process import (
     Bins as Bins,
-    Rotation2D as Rotation2D,
-    Rotation3D as Rotation3D,
     Selector as Selector,
     bunwarp as bunwarp,
     cluster_by_bin as cluster_by_bin,
@@ -213,6 +211,8 @@ from .simulation import (
 )
 from .tests import test as test
 from .utils import (
+    Rotation2D as Rotation2D,
+    Rotation3D as Rotation3D,
     biased_variance as biased_variance,
     dependency_info as dependency_info,
     iterate_2d_array as iterate_2d_array,

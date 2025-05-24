@@ -23,8 +23,6 @@ from locan.process.transform.intensity_transformation import (
     transform_counts_to_photons as transform_counts_to_photons,
 )
 from locan.process.transform.spatial import (
-    Rotation2D as Rotation2D,
-    Rotation3D as Rotation3D,
     bunwarp as bunwarp,
     overlay as overlay,
     standardize as standardize,

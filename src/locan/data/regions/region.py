@@ -364,6 +364,20 @@ class Region(ABC):
 
     @property
     @abstractmethod
+    def elongation(self) -> float:
+        """
+        A measure between 0 and 1 for how elongated the object is.
+        It is computed as:
+        1 - the ratio of length of minor axis to length of major axis.
+
+        Returns
+        -------
+        float
+        """
+        pass
+
+    @property
+    @abstractmethod
     def region_measure(self) -> float:
         """
         Region measure, i.e. area (for 2d) or volume (for 3d).
@@ -917,6 +931,10 @@ class EmptyRegion(Region):
         return np.nan
 
     @property
+    def elongation(self) -> float:
+        return np.nan
+
+    @property
     def region_measure(self) -> int:
         return 0
 
@@ -1108,6 +1126,10 @@ class Interval(Region1D):
         return self.upper_bound - self.lower_bound
 
     @property
+    def elongation(self) -> float:
+        return np.nan
+
+    @property
     def region_measure(self) -> float:
         return self.upper_bound - self.lower_bound
 
@@ -1251,6 +1273,10 @@ class Line2D(Region2D):
     def max_distance(self) -> float:
         distance: float = np.linalg.norm(self.vertices)
         return distance
+
+    @property
+    def elongation(self) -> float:
+        return 1
 
     @property
     def region_measure(self) -> float:
@@ -1457,6 +1483,15 @@ class AxisOrientedRectangle(Region2D):
     def max_distance(self) -> float:
         return_value: float = np.sqrt(self.width**2 + self.height**2)
         return return_value
+
+    @property
+    def elongation(self) -> float:
+        min, max = (
+            (self.width, self.height)
+            if self.width < self.height
+            else (self.height, self.width)
+        )
+        return 1 - min / max
 
     @property
     def region_measure(self) -> float:
@@ -1676,6 +1711,15 @@ class Rectangle(Region2D):
         return return_value
 
     @property
+    def elongation(self) -> float:
+        min, max = (
+            (self.width, self.height)
+            if self.width < self.height
+            else (self.height, self.width)
+        )
+        return 1 - min / max
+
+    @property
     def region_measure(self) -> float:
         return self.width * self.height
 
@@ -1878,6 +1922,15 @@ class Ellipse(Region2D):
         return return_value
 
     @property
+    def elongation(self) -> float:
+        min, max = (
+            (self.width, self.height)
+            if self.width < self.height
+            else (self.height, self.width)
+        )
+        return 1 - min / max
+
+    @property
     def region_measure(self) -> float:
         return np.pi * self.width / 2 * self.height / 2
 
@@ -2057,6 +2110,10 @@ class Polygon(Region2D):
         return return_value
 
     @property
+    def elongation(self) -> float:
+        raise NotImplementedError
+
+    @property
     def region_measure(self) -> float:
         return_value: float = self.shapely_object.area
         return return_value
@@ -2207,6 +2264,10 @@ class MultiPolygon(Region2D):
         distances = pdist(np.array([point for pts in self.vertices for point in pts]))
         return_value: float = np.nanmax(distances)
         return return_value
+
+    @property
+    def elongation(self) -> float:
+        raise NotImplementedError
 
     @property
     def region_measure(self) -> float:
@@ -2454,6 +2515,12 @@ class AxisOrientedCuboid(Region3D):
     def max_distance(self) -> float:
         return_value: float = np.sqrt(self.length**2 + self.width**2 + self.height**2)
         return return_value
+
+    @property
+    def elongation(self) -> float:
+        min = np.min(np.abs([self.length, self.width, self.height]))
+        max = np.max(np.abs([self.length, self.width, self.height]))
+        return 1 - min / max
 
     @property
     def region_measure(self) -> float:
@@ -2798,6 +2865,12 @@ class Cuboid(Region3D):
         return return_value
 
     @property
+    def elongation(self) -> float:
+        min = np.min(np.abs(self.length, self.width, self.height))
+        max = np.max(np.abs(self.length, self.width, self.height))
+        return 1 - min / max
+
+    @property
     def region_measure(self) -> float:
         return_value: float = self.length * self.width * self.height
         return return_value
@@ -2966,6 +3039,12 @@ class AxisOrientedHypercuboid(RegionND):
     def max_distance(self) -> float:
         return_value: float = np.sqrt(np.sum(self.lengths**2))
         return return_value
+
+    @property
+    def elongation(self) -> float:
+        min = np.min(np.abs(self.lengths))
+        max = np.max(np.abs(self.lengths))
+        return 1 - min / max
 
     @property
     def region_measure(self) -> float:

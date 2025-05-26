@@ -17,7 +17,7 @@ from abc import ABC, abstractmethod
 from typing import Any, TypeVar
 
 from locan.dependencies import HAS_DEPENDENCY, needs_package
-from locan.utils.rotation import Rotation3D
+from locan.utils.rotation import Rotation2D, Rotation3D
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -1776,6 +1776,7 @@ class Ellipse(Region2D):
         self._width = width
         self._height = height
         self._angle = angle
+        self._rotation = Rotation2D.from_angle(angle=angle, degrees=True)
         self._region_specs = (center, width, height, angle)
         self._shapely_object: shPolygon | None = None
 
@@ -1839,40 +1840,76 @@ class Ellipse(Region2D):
         return self._angle
 
     @property
-    def major_axis(self) -> npt.NDArray[np.float64] | None:
+    def rotation(self) -> Rotation2D:
+        """
+        A Rotation2D instance corresponding to angle.
+
+        Returns
+        -------
+        Rotation2D
+        """
+        return self._rotation
+
+    @property
+    def major_axis(self) -> Line2D:
         """
         The major axis of the region.
 
         Returns
         -------
-        npt.NDArray[np.float64] | None
-            of shape (dimension,)
+        Line2D
         """
-        raise NotImplementedError
+        if np.abs(self.width) < np.abs(self.height):
+            point_0 = (self.center[0], self.center[1] - self.height / 2)
+            point_1 = (self.center[0], self.center[1] + self.height / 2)
+        else:
+            point_0 = (self.center[0] - self.width / 2, self.center[1])
+            point_1 = (self.center[0] + self.width / 2, self.center[1])
+        points_rotated = [
+            self.rotation.apply(point_ - self.center) + self.center
+            for point_ in [point_0, point_1]
+        ]
+        line = Line2D(points=points_rotated, origin=0)
+        return line
 
     @property
-    def minor_axis(self) -> npt.NDArray[np.float64] | None:
+    def minor_axis(self) -> Line2D:
         """
         The minor axis of the region.
 
         Returns
         -------
-        npt.NDArray[np.float64] | None
-            of shape (dimension,)
+        Line2D
         """
-        raise NotImplementedError
+        if np.abs(self.width) > np.abs(self.height):
+            point_0 = (self.center[0], self.center[1] - self.height / 2)
+            point_1 = (self.center[0], self.center[1] + self.height / 2)
+        else:
+            point_0 = (self.center[0] - self.width / 2, self.center[1])
+            point_1 = (self.center[0] + self.width / 2, self.center[1])
+        points_rotated = [
+            self.rotation.apply(point_ - self.center) + self.center
+            for point_ in [point_0, point_1]
+        ]
+        line = Line2D(points=points_rotated, origin=0)
+        return line
 
     @property
     def eccentricity(self) -> npt.NDArray[np.float64]:
         """
         Shape factor related to the ratio of the length of minor to major axis:
-        eccentricity = sqrt(1 - M_min / M_max).
+        eccentricity = sqrt(1 - (b / a)^2).
 
         Returns
         -------
         npt.NDArray[np.float64]
         """
-        raise NotImplementedError
+        min, max = (
+            (self.width, self.height)
+            if self.width < self.height
+            else (self.height, self.width)
+        )
+        return np.sqrt(1 - (min / max) ** 2)
 
     @property
     def points(self) -> npt.NDArray[np.float64]:

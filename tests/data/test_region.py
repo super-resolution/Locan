@@ -389,63 +389,83 @@ def test_Rectangle_visual():
     plt.close("all")
 
 
-def test_Ellipse():
-    region = Ellipse((10, 10), 4, 2, 90)
-    assert (1, 1) not in region
-    assert (10, 10) in region
-    assert isinstance(region, Region)
-    assert repr(region) == "Ellipse((10, 10), 4, 2, 90)"
-    assert str(region) == "Ellipse((10, 10), 4, 2, 90)"
-    new_reg = eval(repr(region))
-    assert isinstance(new_reg, Ellipse)
-    with pytest.raises(AttributeError):
-        region.center = None
-        region.width = None
-        region.height = None
-        region.angle = None
-    assert region.dimension == 2
-    assert region.bounds == pytest.approx((9, 8, 11, 12))
-    assert region.extent == pytest.approx((2, 4))
-    assert len(region.points) == 65 or len(region.points) == 66
-    assert len(region.vertices) == 65 or len(region.vertices) == 66
-    assert np.array_equal(region.centroid, (10, 10))
-    assert region.max_distance == 4
-    assert region.elongation == pytest.approx(0.5)
-    assert region.region_measure == pytest.approx(6.283185307179586)
-    assert region.subregion_measure == pytest.approx(9.688448216130086)
-    assert region.radial_distance == pytest.approx(1.5490111263409625)
-    assert region.isoperimetric_quotient == pytest.approx(0.8411651817734023)
-    assert np.array_equal(
-        region.contains([[9, 8], [10.5, 10.5], [100, 100], [11, 12]]), (1,)
-    )
-    other = Rectangle((10, 10), 10, 10, 0)
-    assert isinstance(region.intersection(other), Polygon)
-    assert isinstance(region.symmetric_difference(other), MultiPolygon)
-    assert isinstance(region.union(other), Polygon)
-    assert region.contains([(10.5, 10)]) == (0,)
-    assert region.contains([(100, 100)]).size == 0
-    assert region.contains([]).size == 0
-    assert isinstance(region.as_artist(), mPatches.Ellipse)
-    assert isinstance(region.shapely_object, shPolygon)
-    assert region.region_measure == pytest.approx(region.shapely_object.area, rel=10e-3)
-    assert isinstance(region.buffer(1), Polygon)
-    assert np.array_equal(region.bounding_box.corner, (9, 8))
-    assert region.bounding_box.width == pytest.approx(2)
-    assert region.bounding_box.height == pytest.approx(4)
+class TestEllipse:
 
+    def test_init(self):
+        region = Ellipse((10, 10), 4, 2, 90)
+        assert isinstance(region, Region)
+        assert repr(region) == "Ellipse((10, 10), 4, 2, 90)"
+        assert str(region) == "Ellipse((10, 10), 4, 2, 90)"
+        new_reg = eval(repr(region))
+        assert isinstance(new_reg, Ellipse)
+        with pytest.raises(AttributeError):
+            region.center = None
+            region.width = None
+            region.height = None
+            region.angle = None
 
-def test_Ellipse_visual():
-    region = Ellipse((10, 10), 4, 2, 90)
-    _fig, ax = plt.subplots(nrows=1, ncols=1)
-    ax.plot(*region.points.T, marker="o", color="Blue")
-    ax.plot(*region.vertices.T, marker="o", color="Blue")
-    ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker=".", color="Red")
-    ax.add_patch(region.as_artist(origin=(0, 0), fill=True, alpha=0.2))
-    ax.plot(*np.array(region.buffer(1).exterior.coords).T, marker=".", color="Yellow")
-    ax.plot(*region.centroid, "*", color="Green")
-    region.plot(color="Green", alpha=0.2)
-    # plt.show()
-    plt.close("all")
+    def test_attributes(self):
+        region = Ellipse((10, 10), 4, 2, 90)
+        assert region.dimension == 2
+        assert isinstance(region.rotation, Rotation2D)
+        assert region.rotation.as_angle(degrees=True) == pytest.approx(90)
+        assert region.bounds == pytest.approx((9, 8, 11, 12))
+        assert region.extent == pytest.approx((2, 4))
+        assert len(region.points) == 65 or len(region.points) == 66
+        assert len(region.vertices) == 65 or len(region.vertices) == 66
+        assert np.array_equal(region.centroid, (10, 10))
+        assert region.max_distance == 4
+        assert region.elongation == pytest.approx(0.5)
+        assert region.region_measure == pytest.approx(6.283185307179586)
+        assert region.subregion_measure == pytest.approx(9.688448216130086)
+        assert region.radial_distance == pytest.approx(1.5490111263409625)
+        assert region.isoperimetric_quotient == pytest.approx(0.8411651817734023)
+        assert isinstance(region.major_axis, Line2D)
+        assert np.array_equal(region.major_axis.vertices, ((10, 8), (10, 12)))
+        assert isinstance(region.minor_axis, Line2D)
+        assert np.array_equal(region.minor_axis.vertices, ((11, 10), (9, 10)))
+        assert region.eccentricity == pytest.approx(0.8660254037844386)
+
+    def test_methods(self):
+        region = Ellipse((10, 10), 4, 2, 90)
+        assert np.array_equal(
+            region.contains([[9, 8], [10.5, 10.5], [100, 100], [11, 12]]), (1,)
+        )
+        other = Rectangle((10, 10), 10, 10, 0)
+        assert isinstance(region.intersection(other), Polygon)
+        assert isinstance(region.symmetric_difference(other), MultiPolygon)
+        assert isinstance(region.union(other), Polygon)
+        assert (1, 1) not in region
+        assert (10, 10) in region
+        assert region.contains([(10.5, 10)]) == (0,)
+        assert region.contains([(100, 100)]).size == 0
+        assert region.contains([]).size == 0
+        assert isinstance(region.as_artist(), mPatches.Ellipse)
+        assert isinstance(region.shapely_object, shPolygon)
+        assert region.region_measure == pytest.approx(
+            region.shapely_object.area, rel=10e-3
+        )
+        assert isinstance(region.buffer(1), Polygon)
+        assert np.array_equal(region.bounding_box.corner, (9, 8))
+        assert region.bounding_box.width == pytest.approx(2)
+        assert region.bounding_box.height == pytest.approx(4)
+
+    def test_Ellipse_visual(self):
+        region = Ellipse((10, 10), 4, 2, 90)
+        _fig, ax = plt.subplots(nrows=1, ncols=1)
+        ax.plot(*region.points.T, marker="o", color="Blue")
+        ax.plot(*region.vertices.T, marker="o", color="Blue")
+        ax.plot(
+            *np.array(region.shapely_object.exterior.coords).T, marker=".", color="Red"
+        )
+        ax.add_patch(region.as_artist(origin=(0, 0), fill=True, alpha=0.2))
+        ax.plot(
+            *np.array(region.buffer(1).exterior.coords).T, marker=".", color="Yellow"
+        )
+        ax.plot(*region.centroid, "*", color="Green")
+        region.plot(color="Green", alpha=0.2)
+        # plt.show()
+        plt.close("all")
 
 
 def test_Polygon():

@@ -171,222 +171,247 @@ def test_Interval():
     assert repr(region) == "Interval(0, 2)"
 
 
-def test_Line2D():
-    region = Line2D(points=((0, 0), (1, 1)))
-    assert np.array_equal(region.vertices, ((0, 0), (1, 1)))
-    assert region.origin is None
-    assert region.is_directed is False
-    region = Line2D(points=((0, 0), (1, 1)), origin=0)
-    assert region.origin == 0
-    assert region.is_directed is True
-    assert isinstance(region, Region)
-    assert isinstance(region, Region2D)
-    assert repr(region) == "Line2D([[0, 0], [1, 1]], 0)"
-    assert str(region) == "Line2D([[0, 0], [1, 1]], 0)"
-    new_reg = eval(repr(region))
-    assert isinstance(new_reg, Line2D)
-    with pytest.raises(AttributeError):
-        region.vertices = None
-        region.origin = None
-    assert region.dimension == 2
-    assert region.bounds == pytest.approx((0, 0, 1, 1))
-    assert np.array_equal(region.intervals, [(0, 1), (0, 1)])
-    assert region.extent == pytest.approx((1, 1))
-    assert len(region.vertices) == 2
-    assert np.allclose(
-        region.vertices.astype(float),
-        [[0.0, 0.0], [1.0, 1.0]],
-    )
-    assert np.array_equal(region.centroid, (0.5, 0.5))
-    assert region.max_distance == pytest.approx(np.sqrt(2))
-    assert region.elongation == pytest.approx(1)
-    assert region.subregion_measure == region.max_distance
-    assert region.region_measure == 0
-    assert region.radial_distance == pytest.approx(0.7071067811865476)
+class TestLine2D:
 
-    assert (0.1, 0.1) in region
-    assert (0, 1) not in region
-    assert np.array_equal(
-        region.contains([[0.5, 0.5], [-0.5, 0.5], [100, 100], [-1, 2]]), (0,)
-    )
-    assert region.contains([(0.5, 0.5)]) == (0,)
-    assert region.contains([(10, 10)]).size == 0
-    assert region.contains([]).size == 0
+    def test_init(self):
+        region = Line2D(points=((0, 0), (1, 1)))
+        assert np.array_equal(region.vertices, ((0, 0), (1, 1)))
+        assert region.origin is None
+        assert region.is_directed is False
+        region = Line2D(points=((0, 0), (1, 1)), origin=0)
+        assert region.origin == 0
+        assert region.is_directed is True
+        assert isinstance(region, Region)
+        assert isinstance(region, Region2D)
+        assert repr(region) == "Line2D([[0, 0], [1, 1]], 0)"
+        assert str(region) == "Line2D([[0, 0], [1, 1]], 0)"
+        new_reg = eval(repr(region))
+        assert isinstance(new_reg, Line2D)
+        with pytest.raises(AttributeError):
+            region.vertices = None
+            region.origin = None
 
-    other = Line2D(points=((1, 2), (0, 0)))
-    with pytest.raises(TypeError):
-        assert isinstance(region.intersection(other), Polygon)
-    with pytest.raises(TypeError):
-        assert isinstance(region.symmetric_difference(other), MultiPolygon)
-    with pytest.raises(TypeError):
-        assert isinstance(region.union(other), Polygon)
+        region = Line2D.from_intervals(((0, 2), (1, 1)))
+        assert repr(region) == "Line2D([[0, 1], [2, 1]], None)"
 
-    assert isinstance(region.as_artist(), mPatches.PathPatch)
-    assert isinstance(region.shapely_object, shLine)
-    assert region.region_measure == region.shapely_object.area
-    assert isinstance(region.buffer(1), Polygon)
-    assert np.array_equal(region.bounding_box.corner, (0.0, 0.0))
-    assert region.bounding_box.width == pytest.approx(1)
-    assert region.bounding_box.height == pytest.approx(1)
-
-    region = Line2D.from_intervals(((0, 2), (1, 1)))
-    assert repr(region) == "Line2D([[0, 1], [2, 1]], None)"
-
-
-@pytest.mark.visual
-def test_Line2D_visual():
-    region = Line2D([(0, 2), (3, -1)])
-    _fig, ax = plt.subplots(nrows=1, ncols=1)
-    ax.plot(*region.vertices.T, marker="o", color="Blue")
-    ax.add_patch(region.as_artist(origin=(0, 0), alpha=0.2))
-    ax.plot(*region.centroid, "*", color="Green")
-    region.plot(color="Green", alpha=0.2)
-
-    for angle in [30, 60, 90, 120, 150, 180, 275, 350, -10, -20, -30]:
-        region_rotated = Rotation2D.from_angle(angle=angle, degrees=True).apply(
-            region.vertices
+    def test_attributes(self):
+        region = Line2D(points=((0, 0), (1, 1)))
+        assert region.dimension == 2
+        assert region.bounds == pytest.approx((0, 0, 1, 1))
+        assert np.array_equal(region.intervals, [(0, 1), (0, 1)])
+        assert region.extent == pytest.approx((1, 1))
+        assert len(region.vertices) == 2
+        assert np.allclose(
+            region.vertices.astype(float),
+            [[0.0, 0.0], [1.0, 1.0]],
         )
-        region_rotated = Line2D.from_intervals(region_rotated.T)
-        ax.add_patch(region_rotated.as_artist(origin=(0, 0), alpha=0.2))
-        ax.plot(*region_rotated.centroid, "*", color="Green")
-    plt.show()
-    plt.close("all")
+        assert np.array_equal(region.centroid, (0.5, 0.5))
+        assert region.max_distance == pytest.approx(np.sqrt(2))
+        assert region.elongation == pytest.approx(1)
+        assert region.subregion_measure == region.max_distance
+        assert region.region_measure == 0
+        assert region.radial_distance == pytest.approx(0.7071067811865476)
+
+    def test_methods(self):
+        region = Line2D(points=((0, 0), (1, 1)))
+        assert (0.1, 0.1) in region
+        assert (0, 1) not in region
+        assert np.array_equal(
+            region.contains([[0.5, 0.5], [-0.5, 0.5], [100, 100], [-1, 2]]), (0,)
+        )
+        assert region.contains([(0.5, 0.5)]) == (0,)
+        assert region.contains([(10, 10)]).size == 0
+        assert region.contains([]).size == 0
+
+        other = Line2D(points=((1, 2), (0, 0)))
+        with pytest.raises(TypeError):
+            assert isinstance(region.intersection(other), Polygon)
+        with pytest.raises(TypeError):
+            assert isinstance(region.symmetric_difference(other), MultiPolygon)
+        with pytest.raises(TypeError):
+            assert isinstance(region.union(other), Polygon)
+
+        assert isinstance(region.as_artist(), mPatches.PathPatch)
+        assert isinstance(region.shapely_object, shLine)
+        assert region.region_measure == region.shapely_object.area
+        assert isinstance(region.buffer(1), Polygon)
+        assert np.array_equal(region.bounding_box.corner, (0.0, 0.0))
+        assert region.bounding_box.width == pytest.approx(1)
+        assert region.bounding_box.height == pytest.approx(1)
+
+    @pytest.mark.visual
+    def test_Line2D_visual(self):
+        region = Line2D([(0, 2), (3, -1)])
+        _fig, ax = plt.subplots(nrows=1, ncols=1)
+        ax.plot(*region.vertices.T, marker="o", color="Blue")
+        ax.add_patch(region.as_artist(origin=(0, 0), alpha=0.2))
+        ax.plot(*region.centroid, "*", color="Green")
+        region.plot(color="Green", alpha=0.2)
+
+        for angle in [30, 60, 90, 120, 150, 180, 275, 350, -10, -20, -30]:
+            region_rotated = Rotation2D.from_angle(angle=angle, degrees=True).apply(
+                region.vertices
+            )
+            region_rotated = Line2D.from_intervals(region_rotated.T)
+            ax.add_patch(region_rotated.as_artist(origin=(0, 0), alpha=0.2))
+            ax.plot(*region_rotated.centroid, "*", color="Green")
+        plt.show()
+        plt.close("all")
 
 
-def test_AxisOrientedRectangle():
-    region = AxisOrientedRectangle((0, 0), 2, 1)
-    assert (10, 1) not in region
-    assert (0.5, 0.5) in region
-    assert isinstance(region, Region)
-    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
-    assert str(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
-    new_reg = eval(repr(region))
-    assert isinstance(new_reg, AxisOrientedRectangle)
-    with pytest.raises(AttributeError):
-        region.corner = None
-        region.width = None
-        region.height = None
-    assert region.dimension == 2
-    assert region.bounds == pytest.approx((0, 0, 2, 1))
-    assert np.array_equal(region.intervals, [(0, pytest.approx(2)), (0, 1)])
-    assert region.extent == pytest.approx((2, 1))
-    assert len(region.points) == 5
-    assert np.allclose(
-        region.points.astype(float),
-        [[0.0, 0.0], [0.0, 1.0], [2.0, 1.0], [2.0, 0.0], [0.0, 0.0]],
-    )
-    assert np.allclose(
-        region.vertices.astype(float),
-        [[0.0, 0.0], [0.0, 1.0], [2.0, 1.0], [2.0, 0.0], [0.0, 0.0]],
-    )
-    assert np.array_equal(region.centroid, (1, 0.5))
-    assert region.max_distance == np.sqrt(5)
-    assert region.elongation == pytest.approx(0.5)
-    assert region.region_measure == 2
-    assert region.subregion_measure == 6
-    assert region.radial_distance == pytest.approx(1.118033988749895)
-    assert region.isoperimetric_quotient == pytest.approx(0.6981317007977318)
-    assert np.array_equal(
-        region.contains([[0, 0], [0.5, 0.5], [100, 100], [-1, 2]]), (1,)
-    )
-    other = AxisOrientedRectangle((0, 0), 2, 1)
-    assert isinstance(region.intersection(other), Polygon)
-    assert isinstance(region.symmetric_difference(other), EmptyRegion)
-    assert isinstance(region.union(other), Polygon)
+class TestAxisOrientedRectangle:
 
-    assert region.contains([(0.5, 1)]) == (0,)
-    assert region.contains([(10, 10)]).size == 0
-    assert region.contains([]).size == 0
-    assert isinstance(region.as_artist(), mPatches.Rectangle)
-    assert isinstance(region.shapely_object, shPolygon)
-    assert region.region_measure == region.shapely_object.area
-    assert isinstance(region.buffer(1), Polygon)
-    assert np.array_equal(region.bounding_box.corner, (0.0, 0.0))
-    assert region.bounding_box.width == pytest.approx(2)
-    assert region.bounding_box.height == pytest.approx(1)
+    def test_init(self):
+        region = AxisOrientedRectangle((0, 0), 2, 1)
+        assert (10, 1) not in region
+        assert (0.5, 0.5) in region
+        assert isinstance(region, Region)
+        assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+        assert str(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+        new_reg = eval(repr(region))
+        assert isinstance(new_reg, AxisOrientedRectangle)
+        with pytest.raises(AttributeError):
+            region.corner = None
+            region.width = None
+            region.height = None
 
-    region = AxisOrientedRectangle.from_intervals(((0, 2), (0, 1)))
-    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
-    region = AxisOrientedRectangle.from_intervals([(0, 2), (0, 1)])
-    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
-    region = AxisOrientedRectangle.from_intervals(np.array([(0, 2), (0, 1)]))
-    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+        region = AxisOrientedRectangle.from_intervals(((0, 2), (0, 1)))
+        assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+        region = AxisOrientedRectangle.from_intervals([(0, 2), (0, 1)])
+        assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+        region = AxisOrientedRectangle.from_intervals(np.array([(0, 2), (0, 1)]))
+        assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
 
+    def test_attributes(self):
+        region = AxisOrientedRectangle((0, 0), 2, 1)
+        assert region.dimension == 2
+        assert region.bounds == pytest.approx((0, 0, 2, 1))
+        assert np.array_equal(region.intervals, [(0, pytest.approx(2)), (0, 1)])
+        assert region.extent == pytest.approx((2, 1))
+        assert len(region.points) == 5
+        assert np.allclose(
+            region.points.astype(float),
+            [[0.0, 0.0], [0.0, 1.0], [2.0, 1.0], [2.0, 0.0], [0.0, 0.0]],
+        )
+        assert np.allclose(
+            region.vertices.astype(float),
+            [[0.0, 0.0], [0.0, 1.0], [2.0, 1.0], [2.0, 0.0], [0.0, 0.0]],
+        )
+        assert np.array_equal(region.centroid, (1, 0.5))
+        assert region.max_distance == np.sqrt(5)
+        assert region.elongation == pytest.approx(0.5)
+        assert region.region_measure == 2
+        assert region.subregion_measure == 6
+        assert region.radial_distance == pytest.approx(1.118033988749895)
+        assert region.isoperimetric_quotient == pytest.approx(0.6981317007977318)
 
-def test_Rectangle():
-    region = Rectangle((0, 0), 2, 1, 90)
-    assert (10, 1) not in region
-    assert (-0.5, 0.5) in region
-    assert isinstance(region, Region)
-    assert repr(region) == "Rectangle((0, 0), 2, 1, 90)"
-    assert str(region) == "Rectangle((0, 0), 2, 1, 90)"
-    new_reg = eval(repr(region))
-    assert isinstance(new_reg, Rectangle)
-    with pytest.raises(AttributeError):
-        region.corner = None
-        region.width = None
-        region.height = None
-        region.angle = None
-    assert region.dimension == 2
-    assert region.bounds == pytest.approx((-1, 0, 0, 2))
-    assert np.array_equal(region.intervals, [(-1, pytest.approx(0)), (0, 2)])
-    assert region.extent == pytest.approx((1, 2))
-    assert len(region.points) == 5
-    assert len(region.vertices) == 5
-    assert np.allclose(
-        region.points.astype(float),
-        [[0.0, 0.0], [-1.0, 0.0], [-1.0, 2.0], [0.0, 2.0], [0.0, 0.0]],
-    )
-    assert np.allclose(
-        region.vertices.astype(float),
-        [[0.0, 0.0], [-1.0, 0.0], [-1.0, 2.0], [0.0, 2.0], [0.0, 0.0]],
-    )
-    assert np.array_equal(region.centroid, (-0.5, 1))
-    assert region.max_distance == np.sqrt(5)
-    assert region.elongation == pytest.approx(0.5)
-    assert region.region_measure == 2
-    assert region.subregion_measure == 6
-    assert region.radial_distance == pytest.approx(1.118033988749895)
-    assert region.isoperimetric_quotient == pytest.approx(0.6981317007977318)
-    assert np.array_equal(
-        region.contains([[0, 0], [-0.5, 0.5], [100, 100], [-1, 2]]), (1,)
-    )
-    other = Rectangle((0, 0), 2, 1, 0)
-    assert isinstance(region.intersection(other), Polygon)
-    assert isinstance(region.symmetric_difference(other), MultiPolygon)
-    assert isinstance(region.union(other), Polygon)
-
-    assert region.contains([(-0.5, 1)]) == (0,)
-    assert region.contains([(10, 10)]).size == 0
-    assert region.contains([]).size == 0
-    assert isinstance(region.as_artist(), mPatches.Rectangle)
-    assert isinstance(region.shapely_object, shPolygon)
-    assert region.region_measure == region.shapely_object.area
-    assert isinstance(region.buffer(1), Polygon)
-    assert np.array_equal(region.bounding_box.corner, (-1.0, 0.0))
-    assert region.bounding_box.width == pytest.approx(1)
-    assert region.bounding_box.height == pytest.approx(2)
-
-    region = Rectangle.from_intervals(((0, 2), (0, 1)))
-    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
-    region = Rectangle.from_intervals([(0, 2), (0, 1)])
-    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
-    region = Rectangle.from_intervals(np.array([(0, 2), (0, 1)]))
-    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+    def test_methods(self):
+        region = AxisOrientedRectangle((0, 0), 2, 1)
+        assert np.array_equal(
+            region.contains([[0, 0], [0.5, 0.5], [100, 100], [-1, 2]]), (1,)
+        )
+        other = AxisOrientedRectangle((0, 0), 2, 1)
+        assert isinstance(region.intersection(other), Polygon)
+        assert isinstance(region.symmetric_difference(other), EmptyRegion)
+        assert isinstance(region.union(other), Polygon)
+        assert region.contains([(0.5, 1)]) == (0,)
+        assert region.contains([(10, 10)]).size == 0
+        assert region.contains([]).size == 0
+        assert isinstance(region.as_artist(), mPatches.Rectangle)
+        assert isinstance(region.shapely_object, shPolygon)
+        assert region.region_measure == region.shapely_object.area
+        assert isinstance(region.buffer(1), Polygon)
+        assert np.array_equal(region.bounding_box.corner, (0.0, 0.0))
+        assert region.bounding_box.width == pytest.approx(2)
+        assert region.bounding_box.height == pytest.approx(1)
 
 
-def test_Rectangle_visual():
-    region = Rectangle((0, 0), 2, 1, 90)
-    _fig, ax = plt.subplots(nrows=1, ncols=1)
-    ax.plot(*region.points.T, marker="o", color="Blue")
-    ax.plot(*region.vertices.T, marker="o", color="Blue")
-    ax.add_patch(region.as_artist(origin=(0, 0), fill=True, alpha=0.2))
-    ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker=".", color="Red")
-    ax.plot(*region.centroid, "*", color="Green")
-    ax.plot(*np.array(region.buffer(1).exterior.coords).T, marker=".", color="Yellow")
-    region.plot(color="Green", alpha=0.2)
-    # plt.show()
-    plt.close("all")
+class TestRectangle:
+
+    def test_init(self):
+        region = Rectangle((0, 0), 2, 1, 90)
+        assert isinstance(region, Region)
+        assert repr(region) == "Rectangle((0, 0), 2, 1, 90)"
+        assert str(region) == "Rectangle((0, 0), 2, 1, 90)"
+        new_reg = eval(repr(region))
+        assert isinstance(new_reg, Rectangle)
+        with pytest.raises(AttributeError):
+            region.corner = None
+            region.width = None
+            region.height = None
+            region.angle = None
+
+    def test_attributes(self):
+        region = Rectangle((0, 0), 2, 1, 90)
+        assert region.dimension == 2
+        assert isinstance(region.rotation, Rotation2D)
+        assert region.rotation.as_angle(degrees=True) == pytest.approx(90)
+        assert region.bounds == pytest.approx((-1, 0, 0, 2))
+        assert np.array_equal(region.intervals, [(-1, pytest.approx(0)), (0, 2)])
+        assert region.extent == pytest.approx((1, 2))
+        assert len(region.points) == 5
+        assert len(region.vertices) == 5
+        assert np.allclose(
+            region.points.astype(float),
+            [[0.0, 0.0], [-1.0, 0.0], [-1.0, 2.0], [0.0, 2.0], [0.0, 0.0]],
+        )
+        assert np.allclose(
+            region.vertices.astype(float),
+            [[0.0, 0.0], [-1.0, 0.0], [-1.0, 2.0], [0.0, 2.0], [0.0, 0.0]],
+        )
+        assert np.array_equal(region.centroid, (-0.5, 1))
+        assert region.max_distance == np.sqrt(5)
+        assert region.elongation == pytest.approx(0.5)
+        assert region.region_measure == 2
+        assert region.subregion_measure == 6
+        assert region.radial_distance == pytest.approx(1.118033988749895)
+        assert region.isoperimetric_quotient == pytest.approx(0.6981317007977318)
+
+    def test_methods(self):
+        region = Rectangle((0, 0), 2, 1, 90)
+        assert np.array_equal(
+            region.contains([[0, 0], [-0.5, 0.5], [100, 100], [-1, 2]]), (1,)
+        )
+        other = Rectangle((0, 0), 2, 1, 0)
+        assert isinstance(region.intersection(other), Polygon)
+        assert isinstance(region.symmetric_difference(other), MultiPolygon)
+        assert isinstance(region.union(other), Polygon)
+        assert (10, 1) not in region
+        assert (-0.5, 0.5) in region
+        assert region.contains([(-0.5, 1)]) == (0,)
+        assert region.contains([(10, 10)]).size == 0
+        assert region.contains([]).size == 0
+        assert isinstance(region.as_artist(), mPatches.Rectangle)
+        assert isinstance(region.shapely_object, shPolygon)
+        assert region.region_measure == region.shapely_object.area
+        assert isinstance(region.buffer(1), Polygon)
+        assert np.array_equal(region.bounding_box.corner, (-1.0, 0.0))
+        assert region.bounding_box.width == pytest.approx(1)
+        assert region.bounding_box.height == pytest.approx(2)
+
+        region = Rectangle.from_intervals(((0, 2), (0, 1)))
+        assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+        region = Rectangle.from_intervals([(0, 2), (0, 1)])
+        assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+        region = Rectangle.from_intervals(np.array([(0, 2), (0, 1)]))
+        assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+
+    def test_Rectangle_visual(self):
+        region = Rectangle((0, 0), 2, 1, 90)
+        _fig, ax = plt.subplots(nrows=1, ncols=1)
+        ax.plot(*region.points.T, marker="o", color="Blue")
+        ax.plot(*region.vertices.T, marker="o", color="Blue")
+        ax.add_patch(region.as_artist(origin=(0, 0), fill=True, alpha=0.2))
+        ax.plot(
+            *np.array(region.shapely_object.exterior.coords).T, marker=".", color="Red"
+        )
+        ax.plot(*region.centroid, "*", color="Green")
+        ax.plot(
+            *np.array(region.buffer(1).exterior.coords).T, marker=".", color="Yellow"
+        )
+        region.plot(color="Green", alpha=0.2)
+        # plt.show()
+        plt.close("all")
 
 
 class TestEllipse:

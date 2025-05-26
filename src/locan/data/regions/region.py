@@ -1551,6 +1551,7 @@ class Rectangle(Region2D):
         self._width = width
         self._height = height
         self._angle = angle
+        self._rotation = Rotation2D.from_angle(angle=angle, degrees=True)
         self._region_specs = (corner, width, height, angle)
         self._shapely_object: shPolygon | None = None
 
@@ -1645,6 +1646,17 @@ class Rectangle(Region2D):
         float
         """
         return self._angle
+
+    @property
+    def rotation(self) -> Rotation2D:
+        """
+        A Rotation2D instance corresponding to angle.
+
+        Returns
+        -------
+        Rotation2D
+        """
+        return self._rotation
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
@@ -2903,8 +2915,8 @@ class Cuboid(Region3D):
 
     @property
     def elongation(self) -> float:
-        min = np.min(np.abs(self.length, self.width, self.height))
-        max = np.max(np.abs(self.length, self.width, self.height))
+        min = np.min(np.abs([self.length, self.width, self.height]))
+        max = np.max(np.abs([self.length, self.width, self.height]))
         return 1 - min / max
 
     @property

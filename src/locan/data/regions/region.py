@@ -1204,31 +1204,23 @@ class LineSegment2D(Region2D):
     Region class to define a line.
 
     The line is constructed from a list of two points.
-    A direction can be given by providing a starting point as origin.
+    A direction is given by the order of points with the first point as origin.
 
     Parameters
     ----------
     points  : npt.ArrayLike
         Points with shape (2, dimension)
-    origin : int | None
-        index to points identifying the starting point of a directed line.
     """
 
-    def __init__(
-        self,
-        points: npt.ArrayLike,
-        origin: int | None = None,
-    ) -> None:
+    def __init__(self, points: npt.ArrayLike, is_directed: bool = True) -> None:
         self._vertices = np.asarray(points)
-        self._origin = origin
-        if origin is None:
-            self.is_directed = False
-        else:
-            self.is_directed = True
+        self.is_directed = is_directed
         self._shapely_object: shLine | None = None
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.vertices.tolist()}, {self.origin})"
+        return (
+            f"{self.__class__.__name__}({self.vertices.tolist()}, {self.is_directed})"
+        )
 
     def __getattr__(self, attr: str) -> Any:
         """All non-adapted calls are passed to shapely object"""
@@ -1292,7 +1284,7 @@ class LineSegment2D(Region2D):
         npt.NDArray[np.float64] | None
             of shape(dimension)
         """
-        return self._origin
+        return self.vertices[0] if self.is_directed else None
 
     @property
     def shapely_object(self) -> shLine:
@@ -1917,7 +1909,7 @@ class Ellipse(Region2D):
             self.rotation.apply(point_ - self.center) + self.center
             for point_ in [point_0, point_1]
         ]
-        line = LineSegment2D(points=points_rotated, origin=0)
+        line = LineSegment2D(points=points_rotated, is_directed=False)
         return line
 
     @property
@@ -1939,7 +1931,7 @@ class Ellipse(Region2D):
             self.rotation.apply(point_ - self.center) + self.center
             for point_ in [point_0, point_1]
         ]
-        line = LineSegment2D(points=points_rotated, origin=0)
+        line = LineSegment2D(points=points_rotated, is_directed=False)
         return line
 
     @property

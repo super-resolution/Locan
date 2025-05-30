@@ -175,17 +175,17 @@ class TestInterval:
 class TestLineSegment2D:
 
     def test_init(self):
-        region = LineSegment2D(points=((0, 0), (1, 1)))
+        region = LineSegment2D(points=((0, 0), (1, 1)), is_directed=False)
         assert np.array_equal(region.vertices, ((0, 0), (1, 1)))
         assert region.origin is None
         assert region.is_directed is False
-        region = LineSegment2D(points=((0, 0), (1, 1)), origin=0)
-        assert region.origin == 0
+        region = LineSegment2D(points=((0, 0), (1, 1)))
         assert region.is_directed is True
+        assert np.array_equal(region.origin, [0, 0])
         assert isinstance(region, Region)
         assert isinstance(region, Region2D)
-        assert repr(region) == "LineSegment2D([[0, 0], [1, 1]], 0)"
-        assert str(region) == "LineSegment2D([[0, 0], [1, 1]], 0)"
+        assert repr(region) == "LineSegment2D([[0, 0], [1, 1]], True)"
+        assert str(region) == "LineSegment2D([[0, 0], [1, 1]], True)"
         new_reg = eval(repr(region))
         assert isinstance(new_reg, LineSegment2D)
         with pytest.raises(AttributeError):
@@ -193,7 +193,7 @@ class TestLineSegment2D:
             region.origin = None
 
         region = LineSegment2D.from_intervals(((0, 2), (1, 1)))
-        assert repr(region) == "LineSegment2D([[0, 1], [2, 1]], None)"
+        assert repr(region) == "LineSegment2D([[0, 1], [2, 1]], True)"
 
     def test_from_shapely(self):
         points = ((2, 2), (2, 3))

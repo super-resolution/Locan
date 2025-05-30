@@ -51,6 +51,8 @@ from locan.data.regions import (
     Region3D as Region3D,
     RegionND as RegionND,
     RoiRegion as RoiRegion,
+    get_region_from_intervals as get_region_from_intervals,
+    get_region_from_shapely as get_region_from_shapely,
     expand_region as expand_region,
     regions_union as regions_union,
     surrounding_region as surrounding_region,

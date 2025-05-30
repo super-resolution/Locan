@@ -1,20 +1,58 @@
 import matplotlib.pyplot as plt  # needed for visual inspection
 import numpy as np
 import pytest
+from shapely.geometry import LineString as shLine
+from shapely.geometry import MultiPolygon as shMultiPolygon
+from shapely.geometry import Polygon as shPolygon
 
 from locan import (  # needed for visual inspection  # noqa: F401
     Interval,
+    Line2D,
     MultiPolygon,
     Polygon,
     Rectangle,
     Region,
     RoiRegion,
     expand_region,
+    get_region_from_intervals,
+    get_region_from_shapely,
     regions_union,
     render_2d_mpl,
     scatter_2d_mpl,
     surrounding_region,
 )
+
+
+def test_get_region_from_intervals():
+    region = get_region_from_intervals((0, 2))
+    assert repr(region) == "Interval(0, 2)"
+    region = get_region_from_intervals(((0, 2), (0, 1)))
+    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+    region = get_region_from_intervals(((0, 1), (0, 2), (0, 3)))
+    assert repr(region) == "AxisOrientedCuboid((0, 0, 0), 1, 2, 3)"
+    region = get_region_from_intervals(((0, 1), (0, 2), (0, 3), (0, 4)))
+    assert repr(region) == "AxisOrientedHypercuboid((0, 0, 0, 0), (1, 2, 3, 4))"
+
+
+def test_get_region_from_shapely():
+    points = ((2, 2), (2, 3))
+    shapely_object = shLine(points)
+    region = get_region_from_shapely(shapely_object)
+    assert isinstance(region, Line2D)
+
+    points = ((2, 2), (2, 3), (3, 3), (3, 2.5), (2, 2))
+    shapely_object = shPolygon(points)
+    region = get_region_from_shapely(shapely_object)
+    assert isinstance(region, Polygon)
+
+    points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    holes = [
+        ((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)),
+        ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45)),
+    ]
+    shapely_object = shMultiPolygon([shapely_object, shPolygon(points, holes)])
+    region = get_region_from_shapely(shapely_object)
+    assert isinstance(region, MultiPolygon)
 
 
 def test_regions_union_Rectangles():

@@ -95,6 +95,8 @@ from .data import (
     RegionND as RegionND,
     RoiRegion as RoiRegion,
     expand_region as expand_region,
+    get_region_from_intervals as get_region_from_intervals,
+    get_region_from_shapely as get_region_from_shapely,
     load_metadata_from_toml as load_metadata_from_toml,
     merge_metadata as merge_metadata,
     message_scheme as message_scheme,

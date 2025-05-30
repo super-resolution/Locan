@@ -56,7 +56,7 @@ from locan.data.regions.region import (
     Rectangle,
     Region,
 )
-from locan.data.regions.region_utils import expand_region
+from locan.data.regions.region_utils import expand_region, get_region_from_intervals
 from locan.locan_types import RandomGeneratorSeed
 
 __all__: list[str] = [
@@ -111,7 +111,7 @@ def make_uniform(
     rng = np.random.default_rng(seed)
 
     if not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     if isinstance(region, EmptyRegion):
         samples = np.array([])
@@ -193,7 +193,9 @@ def simulate_uniform(
     """
     parameter = locals()
     samples = make_uniform(n_samples=n_samples, region=region, seed=seed)
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)
+    region_ = (
+        region if isinstance(region, Region) else get_region_from_intervals(region)
+    )
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -234,7 +236,7 @@ def make_Poisson(
     rng = np.random.default_rng(seed)
 
     if not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     n_samples = rng.poisson(lam=intensity * region.region_measure)
 
@@ -308,7 +310,9 @@ def simulate_Poisson(
     """
     parameter = locals()
     samples = make_Poisson(intensity=intensity, region=region, seed=seed)
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)
+    region_ = (
+        region if isinstance(region, Region) else get_region_from_intervals(region)
+    )
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -382,7 +386,7 @@ def make_cluster(
         )
         return samples, labels, parent_samples, region
     elif not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     expanded_region = expand_region(region, expansion_distance)
 
@@ -514,7 +518,7 @@ def simulate_cluster(
     samples, labels, _, region = make_cluster(
         centers, region, expansion_distance, offspring, clip, shuffle, seed
     )
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)  # type: ignore
+    region_ = region if isinstance(region, Region) else get_region_from_intervals(region)  # type: ignore
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -591,7 +595,7 @@ def make_NeymanScott(
         )
         return samples, labels, parent_samples, region
     elif not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     expanded_region = expand_region(region, expansion_distance)
 
@@ -723,7 +727,7 @@ def simulate_NeymanScott(
     samples, labels, _, region = make_NeymanScott(
         parent_intensity, region, expansion_distance, offspring, clip, shuffle, seed
     )
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)  # type: ignore
+    region_ = region if isinstance(region, Region) else get_region_from_intervals(region)  # type: ignore
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -799,7 +803,7 @@ def make_Matern(
         )
         return samples, labels, parent_samples, region
     elif not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     expansion_distance = np.max(radius)
     expanded_region = expand_region(region, expansion_distance)
@@ -922,7 +926,7 @@ def simulate_Matern(
     samples, labels, _, region = make_Matern(
         parent_intensity, region, cluster_mu, radius, clip, shuffle, seed
     )
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)  # type: ignore
+    region_ = region if isinstance(region, Region) else get_region_from_intervals(region)  # type: ignore
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -995,7 +999,7 @@ def make_Thomas(
     rng = np.random.default_rng(seed)
 
     if not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     if (
         parent_intensity == 0
@@ -1157,7 +1161,7 @@ def simulate_Thomas(
         shuffle,
         seed,
     )
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)  # type: ignore
+    region_ = region if isinstance(region, Region) else get_region_from_intervals(region)  # type: ignore
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -1233,7 +1237,7 @@ def make_dstorm(
     rng = np.random.default_rng(seed)
 
     if not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     if (
         parent_intensity == 0
@@ -1407,7 +1411,7 @@ def simulate_dstorm(
         shuffle,
         seed,
     )
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)  # type: ignore
+    region_ = region if isinstance(region, Region) else get_region_from_intervals(region)  # type: ignore
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension

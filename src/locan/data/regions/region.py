@@ -258,11 +258,15 @@ class Region(ABC):
     def from_intervals(
         intervals: npt.ArrayLike,
     ) -> (
-        Interval | AxisOrientedRectangle | AxisOrientedCuboid | AxisOrientedHypercuboid
+        Interval
+        | Line2D
+        | AxisOrientedRectangle
+        | AxisOrientedCuboid
+        | AxisOrientedHypercuboid
     ):
         """
-        Constructor for instantiating axis-oriented, box-like Region from list of
-        (min, max) bounds.
+        Constructor for instantiating a line or axis-oriented, box-like Region
+        from list of (min, max) bounds.
         Takes array-like intervals instead of interval to be consistent with
         `Rectangle.from_intervals`.
 
@@ -275,6 +279,12 @@ class Region(ABC):
         -------
         Interval | AxisOrientedRectangle | AxisOrientedCuboid | AxisOrientedHypercuboid
         """
+        warnings.warn(
+            "This function is deprecated. "
+            "Use locan.data.region.region_utils.get_region_from_intervals instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if np.shape(intervals) == (2,):
             return Interval.from_intervals(intervals)
         elif np.shape(intervals) == (2, 2):
@@ -423,7 +433,7 @@ class Region(ABC):
         -------
         float
         """
-        return np.mean(np.linalg.norm(self.centroid - self.vertices, axis=-1))
+        return np.mean(np.linalg.norm(self.centroid - self.vertices, axis=-1))  # type: ignore
 
     @abstractmethod
     def intersection(self, other: Region) -> Region:
@@ -650,8 +660,8 @@ class Region2D(Region):
 
     @staticmethod
     def from_shapely(
-        shapely_object: shPolygon | shMultiPolygon,
-    ) -> Polygon | MultiPolygon | EmptyRegion:
+        shapely_object: shLine | shPolygon | shMultiPolygon,
+    ) -> Line2D | Polygon | MultiPolygon | EmptyRegion:
         """
         Constructor for instantiating Region from `shapely` object.
 
@@ -662,9 +672,19 @@ class Region2D(Region):
 
         Returns
         -------
-        Polygon | MultiPolygon | EmptyRegion
+        Line2D | Polygon | MultiPolygon | EmptyRegion
         """
+        warnings.warn(
+            "This function is deprecated. "
+            "Use specific Region2D objects or "
+            "locan.data.region.region_utils.get_region_from_shapely() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         ptype = shapely_object.geom_type
+        if ptype == "LineString":
+            return Line2D.from_shapely(shapely_object)  # type: ignore
         if ptype == "Polygon":
             return Polygon.from_shapely(shapely_object)  # type: ignore
         elif ptype == "MultiPolygon":
@@ -722,7 +742,9 @@ class Region2D(Region):
 
         return ax
 
-    def intersection(self, other: Region) -> Polygon | MultiPolygon | EmptyRegion:
+    def intersection(
+        self, other: Region
+    ) -> Line2D | Polygon | MultiPolygon | EmptyRegion:
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.intersection(other.shapely_object)
@@ -730,13 +752,13 @@ class Region2D(Region):
 
     def symmetric_difference(
         self, other: Region
-    ) -> Polygon | MultiPolygon | EmptyRegion:
+    ) -> Line2D | Polygon | MultiPolygon | EmptyRegion:
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.symmetric_difference(other.shapely_object)
         return Region2D.from_shapely(shapely_obj)
 
-    def union(self, other: Region) -> Polygon | MultiPolygon | EmptyRegion:
+    def union(self, other: Region) -> Line2D | Polygon | MultiPolygon | EmptyRegion:
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.union(other.shapely_object)
@@ -744,7 +766,7 @@ class Region2D(Region):
 
     def buffer(
         self, distance: float, **kwargs: Any
-    ) -> Polygon | MultiPolygon | EmptyRegion:
+    ) -> Line2D | Polygon | MultiPolygon | EmptyRegion:
         """
         Extend the region perpendicular by a `distance`.
 
@@ -757,7 +779,7 @@ class Region2D(Region):
 
         Returns
         -------
-        Polygon | MultiPolygon | EmptyRegion
+        Line2D | Polygon | MultiPolygon | EmptyRegion
             The extended region.
         """
         return Region2D.from_shapely(self.shapely_object.buffer(distance, **kwargs))
@@ -993,7 +1015,9 @@ class EmptyRegion(Region):
         return self
 
     @classmethod
-    def from_shapely(cls, shapely_object: shPolygon | shMultiPolygon) -> EmptyRegion:
+    def from_shapely(
+        cls, shapely_object: shLine | shPolygon | shMultiPolygon
+    ) -> EmptyRegion:
         if shapely_object.is_empty:
             return cls()
         else:
@@ -1227,7 +1251,7 @@ class Line2D(Region2D):
         return cls(points=points)
 
     @classmethod
-    def from_shapely(cls: type[T_Line2D], line: shLine) -> T_Line2D | EmptyRegion:
+    def from_shapely(cls: type[T_Line2D], line: shLine) -> T_Line2D | EmptyRegion:  # type: ignore[override]
         if line.is_empty:
             return EmptyRegion()
         else:

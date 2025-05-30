@@ -24,7 +24,7 @@ from locan.data.regions.region import (
     Cuboid,
     EmptyRegion,
     Interval,
-    Line2D,
+    LineSegment2D,
     MultiPolygon,
     Polygon,
     Region,
@@ -56,7 +56,7 @@ def get_region_from_intervals(
     intervals: npt.ArrayLike,
 ) -> (
     Interval
-    | Line2D
+    | LineSegment2D
     | AxisOrientedRectangle
     | AxisOrientedCuboid
     | AxisOrientedHypercuboid
@@ -88,7 +88,7 @@ def get_region_from_intervals(
 
 def get_region_from_shapely(
     shapely_object: shLine | shPolygon | shMultiPolygon,
-) -> Line2D | Polygon | MultiPolygon | EmptyRegion:
+) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
     """
     Constructor for instantiating Region from `shapely` object.
 
@@ -99,11 +99,11 @@ def get_region_from_shapely(
 
     Returns
     -------
-    Line2D | Polygon | MultiPolygon | EmptyRegion
+    LineSegment2D | Polygon | MultiPolygon | EmptyRegion
     """
     ptype = shapely_object.geom_type
     if ptype == "LineString":
-        return Line2D.from_shapely(shapely_object)  # type: ignore
+        return LineSegment2D.from_shapely(shapely_object)  # type: ignore
     if ptype == "Polygon":
         return Polygon.from_shapely(shapely_object)  # type: ignore
     elif ptype == "MultiPolygon":

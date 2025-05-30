@@ -7,7 +7,7 @@ from shapely.geometry import Polygon as shPolygon
 
 from locan import (  # needed for visual inspection  # noqa: F401
     Interval,
-    Line2D,
+    LineSegment2D,
     MultiPolygon,
     Polygon,
     Rectangle,
@@ -43,7 +43,7 @@ def test_get_region_from_shapely():
     points = ((2, 2), (2, 3))
     shapely_object = shLine(points)
     region = get_region_from_shapely(shapely_object)
-    assert isinstance(region, Line2D)
+    assert isinstance(region, LineSegment2D)
 
     points = ((2, 2), (2, 3), (3, 3), (3, 2.5), (2, 2))
     shapely_object = shPolygon(points)

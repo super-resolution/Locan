@@ -19,7 +19,7 @@ from locan import (
     Ellipse,
     EmptyRegion,
     Interval,
-    Line2D,
+    LineSegment2D,
     MultiPolygon,
     Polygon,
     Rectangle,
@@ -172,37 +172,37 @@ class TestInterval:
         assert repr(region) == "Interval(0, 2)"
 
 
-class TestLine2D:
+class TestLineSegment2D:
 
     def test_init(self):
-        region = Line2D(points=((0, 0), (1, 1)))
+        region = LineSegment2D(points=((0, 0), (1, 1)))
         assert np.array_equal(region.vertices, ((0, 0), (1, 1)))
         assert region.origin is None
         assert region.is_directed is False
-        region = Line2D(points=((0, 0), (1, 1)), origin=0)
+        region = LineSegment2D(points=((0, 0), (1, 1)), origin=0)
         assert region.origin == 0
         assert region.is_directed is True
         assert isinstance(region, Region)
         assert isinstance(region, Region2D)
-        assert repr(region) == "Line2D([[0, 0], [1, 1]], 0)"
-        assert str(region) == "Line2D([[0, 0], [1, 1]], 0)"
+        assert repr(region) == "LineSegment2D([[0, 0], [1, 1]], 0)"
+        assert str(region) == "LineSegment2D([[0, 0], [1, 1]], 0)"
         new_reg = eval(repr(region))
-        assert isinstance(new_reg, Line2D)
+        assert isinstance(new_reg, LineSegment2D)
         with pytest.raises(AttributeError):
             region.vertices = None
             region.origin = None
 
-        region = Line2D.from_intervals(((0, 2), (1, 1)))
-        assert repr(region) == "Line2D([[0, 1], [2, 1]], None)"
+        region = LineSegment2D.from_intervals(((0, 2), (1, 1)))
+        assert repr(region) == "LineSegment2D([[0, 1], [2, 1]], None)"
 
     def test_from_shapely(self):
         points = ((2, 2), (2, 3))
         shapely_object = shLine(points)
-        region = Line2D.from_shapely(shapely_object)
-        assert isinstance(region, Line2D)
+        region = LineSegment2D.from_shapely(shapely_object)
+        assert isinstance(region, LineSegment2D)
 
     def test_attributes(self):
-        region = Line2D(points=((0, 0), (1, 1)))
+        region = LineSegment2D(points=((0, 0), (1, 1)))
         assert region.dimension == 2
         assert region.bounds == pytest.approx((0, 0, 1, 1))
         assert np.array_equal(region.intervals, [(0, 1), (0, 1)])
@@ -220,7 +220,7 @@ class TestLine2D:
         assert region.radial_distance == pytest.approx(0.7071067811865476)
 
     def test_methods(self):
-        region = Line2D(points=((0, 0), (1, 1)))
+        region = LineSegment2D(points=((0, 0), (1, 1)))
         assert (0.1, 0.1) in region
         assert (0, 1) not in region
         assert np.array_equal(
@@ -230,7 +230,7 @@ class TestLine2D:
         assert region.contains([(10, 10)]).size == 0
         assert region.contains([]).size == 0
 
-        other = Line2D(points=((1, 2), (0, 0)))
+        other = LineSegment2D(points=((1, 2), (0, 0)))
         with pytest.raises(TypeError):
             assert isinstance(region.intersection(other), Polygon)
         with pytest.raises(TypeError):
@@ -247,8 +247,8 @@ class TestLine2D:
         assert region.bounding_box.height == pytest.approx(1)
 
     @pytest.mark.visual
-    def test_Line2D_visual(self):
-        region = Line2D([(0, 2), (3, -1)])
+    def test_LineSegment2D_visual(self):
+        region = LineSegment2D([(0, 2), (3, -1)])
         _fig, ax = plt.subplots(nrows=1, ncols=1)
         ax.plot(*region.vertices.T, marker="o", color="Blue")
         ax.add_patch(region.as_artist(origin=(0, 0), alpha=0.2))
@@ -259,7 +259,7 @@ class TestLine2D:
             region_rotated = Rotation2D.from_angle(angle=angle, degrees=True).apply(
                 region.vertices
             )
-            region_rotated = Line2D.from_intervals(region_rotated.T)
+            region_rotated = LineSegment2D.from_intervals(region_rotated.T)
             ax.add_patch(region_rotated.as_artist(origin=(0, 0), alpha=0.2))
             ax.plot(*region_rotated.centroid, "*", color="Green")
         plt.show()
@@ -453,9 +453,9 @@ class TestEllipse:
         assert region.subregion_measure == pytest.approx(9.688448216130086)
         assert region.radial_distance == pytest.approx(1.5490111263409625)
         assert region.isoperimetric_quotient == pytest.approx(0.8411651817734023)
-        assert isinstance(region.major_axis, Line2D)
+        assert isinstance(region.major_axis, LineSegment2D)
         assert np.array_equal(region.major_axis.vertices, ((10, 8), (10, 12)))
-        assert isinstance(region.minor_axis, Line2D)
+        assert isinstance(region.minor_axis, LineSegment2D)
         assert np.array_equal(region.minor_axis.vertices, ((11, 10), (9, 10)))
         assert region.eccentricity == pytest.approx(0.8660254037844386)
 

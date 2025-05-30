@@ -52,7 +52,7 @@ __all__: list[str] = [
     "Ellipse",
     "EmptyRegion",
     "Interval",
-    "Line2D",
+    "LineSegment2D",
     "MultiPolygon",
     "Rectangle",
     "Region",
@@ -259,7 +259,7 @@ class Region(ABC):
         intervals: npt.ArrayLike,
     ) -> (
         Interval
-        | Line2D
+        | LineSegment2D
         | AxisOrientedRectangle
         | AxisOrientedCuboid
         | AxisOrientedHypercuboid
@@ -661,7 +661,7 @@ class Region2D(Region):
     @staticmethod
     def from_shapely(
         shapely_object: shLine | shPolygon | shMultiPolygon,
-    ) -> Line2D | Polygon | MultiPolygon | EmptyRegion:
+    ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
         """
         Constructor for instantiating Region from `shapely` object.
 
@@ -672,7 +672,7 @@ class Region2D(Region):
 
         Returns
         -------
-        Line2D | Polygon | MultiPolygon | EmptyRegion
+        LineSegment2D | Polygon | MultiPolygon | EmptyRegion
         """
         warnings.warn(
             "This function is deprecated. "
@@ -684,7 +684,7 @@ class Region2D(Region):
 
         ptype = shapely_object.geom_type
         if ptype == "LineString":
-            return Line2D.from_shapely(shapely_object)  # type: ignore
+            return LineSegment2D.from_shapely(shapely_object)  # type: ignore
         if ptype == "Polygon":
             return Polygon.from_shapely(shapely_object)  # type: ignore
         elif ptype == "MultiPolygon":
@@ -744,7 +744,7 @@ class Region2D(Region):
 
     def intersection(
         self, other: Region
-    ) -> Line2D | Polygon | MultiPolygon | EmptyRegion:
+    ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.intersection(other.shapely_object)
@@ -752,13 +752,15 @@ class Region2D(Region):
 
     def symmetric_difference(
         self, other: Region
-    ) -> Line2D | Polygon | MultiPolygon | EmptyRegion:
+    ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.symmetric_difference(other.shapely_object)
         return Region2D.from_shapely(shapely_obj)
 
-    def union(self, other: Region) -> Line2D | Polygon | MultiPolygon | EmptyRegion:
+    def union(
+        self, other: Region
+    ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.union(other.shapely_object)
@@ -766,7 +768,7 @@ class Region2D(Region):
 
     def buffer(
         self, distance: float, **kwargs: Any
-    ) -> Line2D | Polygon | MultiPolygon | EmptyRegion:
+    ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
         """
         Extend the region perpendicular by a `distance`.
 
@@ -779,7 +781,7 @@ class Region2D(Region):
 
         Returns
         -------
-        Line2D | Polygon | MultiPolygon | EmptyRegion
+        LineSegment2D | Polygon | MultiPolygon | EmptyRegion
             The extended region.
         """
         return Region2D.from_shapely(self.shapely_object.buffer(distance, **kwargs))
@@ -1194,10 +1196,10 @@ class Interval(Region1D):
         return Interval(lower_bound=l_bound, upper_bound=u_bound)
 
 
-T_Line2D = TypeVar("T_Line2D", bound="Line2D")
+T_LineSegment2D = TypeVar("T_LineSegment2D", bound="LineSegment2D")
 
 
-class Line2D(Region2D):
+class LineSegment2D(Region2D):
     """
     Region class to define a line.
 
@@ -1237,7 +1239,9 @@ class Line2D(Region2D):
         return getattr(self.shapely_object, attr)
 
     @classmethod
-    def from_intervals(cls: type[T_Line2D], intervals: npt.ArrayLike) -> T_Line2D:
+    def from_intervals(
+        cls: type[T_LineSegment2D], intervals: npt.ArrayLike
+    ) -> T_LineSegment2D:
         """
         Constructor for instantiating Line from list of (min, max) bounds.
 
@@ -1248,7 +1252,7 @@ class Line2D(Region2D):
 
         Returns
         -------
-        Line2D
+        LineSegment2D
         """
         intervals = np.asarray(intervals)
         if np.shape(intervals)[-1] != 2:
@@ -1259,7 +1263,7 @@ class Line2D(Region2D):
         return cls(points=points)
 
     @classmethod
-    def from_shapely(cls: type[T_Line2D], line: shLine) -> T_Line2D | EmptyRegion:  # type: ignore[override]
+    def from_shapely(cls: type[T_LineSegment2D], line: shLine) -> T_LineSegment2D | EmptyRegion:  # type: ignore[override]
         if line.is_empty:
             return EmptyRegion()
         else:
@@ -1895,13 +1899,13 @@ class Ellipse(Region2D):
         return self._rotation
 
     @property
-    def major_axis(self) -> Line2D:
+    def major_axis(self) -> LineSegment2D:
         """
         The major axis of the region.
 
         Returns
         -------
-        Line2D
+        LineSegment2D
         """
         if np.abs(self.width) < np.abs(self.height):
             point_0 = (self.center[0], self.center[1] - self.height / 2)
@@ -1913,17 +1917,17 @@ class Ellipse(Region2D):
             self.rotation.apply(point_ - self.center) + self.center
             for point_ in [point_0, point_1]
         ]
-        line = Line2D(points=points_rotated, origin=0)
+        line = LineSegment2D(points=points_rotated, origin=0)
         return line
 
     @property
-    def minor_axis(self) -> Line2D:
+    def minor_axis(self) -> LineSegment2D:
         """
         The minor axis of the region.
 
         Returns
         -------
-        Line2D
+        LineSegment2D
         """
         if np.abs(self.width) > np.abs(self.height):
             point_0 = (self.center[0], self.center[1] - self.height / 2)
@@ -1935,7 +1939,7 @@ class Ellipse(Region2D):
             self.rotation.apply(point_ - self.center) + self.center
             for point_ in [point_0, point_1]
         ]
-        line = Line2D(points=points_rotated, origin=0)
+        line = LineSegment2D(points=points_rotated, origin=0)
         return line
 
     @property

@@ -64,14 +64,6 @@ class TestRegion3D:
         with pytest.raises(TypeError):
             Region3D()
 
-    @needs_package("open3d")
-    def test_from_open3d(self):
-        open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
-            min_bound=[1.0, 1.0, 1.0], max_bound=[9.0, 19.0, 29.0]
-        )
-        region = Region3D.from_open3d(open3d_object=open3d_object)
-        assert repr(region) == "AxisOrientedCuboid((1.0, 1.0, 1.0), 8.0, 18.0, 28.0)"
-
 
 class TestRegionND:
 

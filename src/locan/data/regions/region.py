@@ -831,6 +831,14 @@ class Region3D(Region):
         -------
         AxisOrientedCuboid | Cuboid | EmptyRegion
         """
+        warnings.warn(
+            "This function is deprecated. "
+            "Use specific Region3D objects or "
+            "locan.data.region.region_utils.get_region_from_open3d() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         if isinstance(open3d_object, o3d.t.geometry.AxisAlignedBoundingBox):
             return AxisOrientedCuboid.from_open3d(open3d_object)  # type: ignore
         elif isinstance(open3d_object, o3d.t.geometry.OrientedBoundingBox):

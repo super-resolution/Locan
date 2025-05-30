@@ -15,12 +15,17 @@ from locan import (  # needed for visual inspection  # noqa: F401
     RoiRegion,
     expand_region,
     get_region_from_intervals,
+    get_region_from_open3d,
     get_region_from_shapely,
     regions_union,
     render_2d_mpl,
     scatter_2d_mpl,
     surrounding_region,
 )
+from locan.dependencies import HAS_DEPENDENCY, needs_package
+
+if HAS_DEPENDENCY["open3d"]:
+    import open3d as o3d
 
 
 def test_get_region_from_intervals():
@@ -53,6 +58,15 @@ def test_get_region_from_shapely():
     shapely_object = shMultiPolygon([shapely_object, shPolygon(points, holes)])
     region = get_region_from_shapely(shapely_object)
     assert isinstance(region, MultiPolygon)
+
+
+@needs_package("open3d")
+def test_from_open3d():
+    open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
+        min_bound=[1.0, 1.0, 1.0], max_bound=[9.0, 19.0, 29.0]
+    )
+    region = get_region_from_open3d(open3d_object=open3d_object)
+    assert repr(region) == "AxisOrientedCuboid((1.0, 1.0, 1.0), 8.0, 18.0, 28.0)"
 
 
 def test_regions_union_Rectangles():

@@ -21,6 +21,7 @@ from locan.data.regions.region import (
     AxisOrientedCuboid,
     AxisOrientedHypercuboid,
     AxisOrientedRectangle,
+    Cuboid,
     EmptyRegion,
     Interval,
     Line2D,
@@ -30,6 +31,10 @@ from locan.data.regions.region import (
     Region2D,
     RoiRegion,
 )
+from locan.dependencies import HAS_DEPENDENCY, needs_package
+
+if HAS_DEPENDENCY["open3d"]:
+    import open3d as o3d
 
 if TYPE_CHECKING:
     from shapely.geometry import LineString as shLine
@@ -39,6 +44,7 @@ if TYPE_CHECKING:
 
 __all__: list[str] = [
     "get_region_from_intervals",
+    "get_region_from_open3d",
     "get_region_from_shapely",
     "regions_union",
     "expand_region",
@@ -104,6 +110,32 @@ def get_region_from_shapely(
         return MultiPolygon.from_shapely(shapely_object)  # type: ignore
     else:
         raise TypeError(f"shapely_object cannot be of type {ptype}")
+
+
+@needs_package("open3d")
+def get_region_from_open3d(
+    open3d_object: (
+        o3d.t.geometry.AxisAlignedBoundingBox | o3d.t.geometry.OrientedBoundingBox
+    ),
+) -> AxisOrientedCuboid | Cuboid | EmptyRegion:
+    """
+    Constructor for instantiating Region from `open3d` object.
+
+    Parameters
+    ----------
+    open3d_object
+        Geometric object to be converted into Region
+
+    Returns
+    -------
+    AxisOrientedCuboid | Cuboid | EmptyRegion
+    """
+    if isinstance(open3d_object, o3d.t.geometry.AxisAlignedBoundingBox):
+        return AxisOrientedCuboid.from_open3d(open3d_object)  # type: ignore
+    elif isinstance(open3d_object, o3d.t.geometry.OrientedBoundingBox):
+        return Cuboid.from_open3d(open3d_object)  # type: ignore
+    else:
+        raise TypeError(f"open3d_object cannot be of type {type(open3d_object)}")
 
 
 def regions_union(regions: list[Region]) -> EmptyRegion | Region2D:

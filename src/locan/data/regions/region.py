@@ -433,7 +433,8 @@ class Region(ABC):
         -------
         float
         """
-        return np.mean(np.linalg.norm(self.centroid - self.vertices, axis=-1))  # type: ignore
+        assert self.centroid is not None  # type narrowing # noqa: S101
+        return np.mean(np.linalg.norm(self.centroid - self.vertices, axis=-1))  # type: ignore[no-any-return]
 
     @abstractmethod
     def intersection(self, other: Region) -> Region:
@@ -1295,12 +1296,11 @@ class LineSegment2D(Region2D):
 
     @property
     def centroid(self) -> npt.NDArray[np.float64]:
-        return np.mean(self.intervals, axis=-1)
+        return np.mean(self.intervals, axis=-1)  # type: ignore[no-any-return]
 
     @property
     def max_distance(self) -> float:
-        distance: float = np.linalg.norm(self.vertices)
-        return distance
+        return np.linalg.norm(self.vertices)  # type: ignore[no-any-return, return-value]
 
     @property
     def elongation(self) -> float:
@@ -1312,8 +1312,7 @@ class LineSegment2D(Region2D):
 
     @property
     def subregion_measure(self) -> float:
-        return_value: float = np.linalg.norm(self.vertices)
-        return return_value
+        return np.linalg.norm(self.vertices)  # type: ignore[no-any-return, return-value]
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         _points = np.asarray(points)
@@ -1949,7 +1948,7 @@ class Ellipse(Region2D):
             if self.width < self.height
             else (self.height, self.width)
         )
-        return np.sqrt(1 - (min / max) ** 2)
+        return np.sqrt(1 - (min / max) ** 2)  # type: ignore[no-any-return]
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
@@ -2597,7 +2596,7 @@ class AxisOrientedCuboid(Region3D):
     def elongation(self) -> float:
         min = np.min(np.abs([self.length, self.width, self.height]))
         max = np.max(np.abs([self.length, self.width, self.height]))
-        return 1 - min / max
+        return 1 - min / max  # type: ignore[no-any-return]
 
     @property
     def region_measure(self) -> float:
@@ -2945,7 +2944,7 @@ class Cuboid(Region3D):
     def elongation(self) -> float:
         min = np.min(np.abs([self.length, self.width, self.height]))
         max = np.max(np.abs([self.length, self.width, self.height]))
-        return 1 - min / max
+        return 1 - min / max  # type: ignore[no-any-return]
 
     @property
     def region_measure(self) -> float:
@@ -3121,7 +3120,7 @@ class AxisOrientedHypercuboid(RegionND):
     def elongation(self) -> float:
         min = np.min(np.abs(self.lengths))
         max = np.max(np.abs(self.lengths))
-        return 1 - min / max
+        return 1 - min / max  # type: ignore[no-any-return]
 
     @property
     def region_measure(self) -> float:

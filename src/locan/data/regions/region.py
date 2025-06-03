@@ -53,6 +53,7 @@ __all__: list[str] = [
     "EmptyRegion",
     "Interval",
     "LineSegment2D",
+    "LineSegment3D",
     "MultiPolygon",
     "Rectangle",
     "Region",
@@ -61,6 +62,8 @@ __all__: list[str] = [
     "Region3D",
     "RegionND",
     "Polygon",
+    "get_region_from_shapely",
+    "get_region_from_open3d",
 ]
 
 # __all__ += ['Ellipsoid' 'Polyhedron']
@@ -678,7 +681,7 @@ class Region2D(Region):
         warnings.warn(
             "This function is deprecated. "
             "Use specific Region2D objects or "
-            "locan.data.region.region_utils.get_region_from_shapely() instead.",
+            "locan.data.regions.region.get_region_from_shapely() instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -749,7 +752,7 @@ class Region2D(Region):
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.intersection(other.shapely_object)
-        return Region2D.from_shapely(shapely_obj)
+        return get_region_from_shapely(shapely_obj)
 
     def symmetric_difference(
         self, other: Region
@@ -757,7 +760,7 @@ class Region2D(Region):
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.symmetric_difference(other.shapely_object)
-        return Region2D.from_shapely(shapely_obj)
+        return get_region_from_shapely(shapely_obj)
 
     def union(
         self, other: Region
@@ -765,7 +768,7 @@ class Region2D(Region):
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.union(other.shapely_object)
-        return Region2D.from_shapely(shapely_obj)
+        return get_region_from_shapely(shapely_obj)
 
     def buffer(
         self, distance: float, **kwargs: Any
@@ -785,7 +788,7 @@ class Region2D(Region):
         LineSegment2D | Polygon | MultiPolygon | EmptyRegion
             The extended region.
         """
-        return Region2D.from_shapely(self.shapely_object.buffer(distance, **kwargs))
+        return get_region_from_shapely(self.shapely_object.buffer(distance, **kwargs))
 
 
 class Region3D(Region):
@@ -837,7 +840,7 @@ class Region3D(Region):
         warnings.warn(
             "This function is deprecated. "
             "Use specific Region3D objects or "
-            "locan.data.region.region_utils.get_region_from_open3d() instead.",
+            "locan.data.regions.region.get_region_from_open3d() instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -2378,6 +2381,194 @@ class MultiPolygon(Region2D):
         return cls(polygons__)
 
 
+T_LineSegment3D = TypeVar("T_LineSegment3D", bound="LineSegment3D")
+
+
+class LineSegment3D(Region3D):
+    """
+    Region class to define a line.
+
+    The line is constructed from a list of two points.
+    A direction is given by the order of points with the first point as origin.
+
+    Parameters
+    ----------
+    points  : npt.ArrayLike
+        Points with shape (2, dimension)
+    """
+
+    def __init__(self, points: npt.ArrayLike, is_directed: bool = True) -> None:
+        self._vertices = np.asarray(points)
+        self.is_directed = is_directed
+
+        self._centroid: npt.NDArray[np.float64] | None = None
+        self._bounds: npt.NDArray[np.float64] | None = None
+        self._extent: npt.NDArray[np.float64] | None = None
+        self._bounding_box: AxisOrientedCuboid | None = None
+        self._open3d_object: o3d.t.geometry.LineSet | None = None
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}({self.vertices.tolist()}, {self.is_directed})"
+        )
+
+    def __getattr__(self, attr: str) -> Any:
+        """All non-adapted calls are passed to shapely object"""
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
+            raise AttributeError
+        return getattr(self.open3d_object, attr)
+
+    @classmethod
+    def from_intervals(  # type: ignore[override]
+        cls: type[T_LineSegment3D], intervals: npt.ArrayLike
+    ) -> T_LineSegment3D:
+        """
+        Constructor for instantiating Line from list of (min, max) bounds.
+
+        Parameters
+        ----------
+        intervals
+            The region bounds for each dimension of shape (dimension, 2)
+
+        Returns
+        -------
+        LineSegment2D
+        """
+        intervals = np.asarray(intervals)
+        if np.shape(intervals)[-1] != 2:
+            raise TypeError(
+                f"Intervals must be of shape (dimension, 2) and not {np.shape(intervals)}."
+            )
+        points = intervals.T
+        return cls(points=points)
+
+    @classmethod
+    @needs_package("open3d")  # type: ignore[arg-type]
+    def from_open3d(cls: type[T_LineSegment3D], open3d_object: o3d.t.geometry.LineSet) -> T_LineSegment3D | EmptyRegion:  # type: ignore[override]
+        if open3d_object.is_empty():
+            return EmptyRegion()
+        else:
+            points = open3d_object.point.positions.numpy()
+            return cls(points)
+
+    @property
+    @needs_package("open3d")
+    def open3d_object(self) -> o3d.t.geometry.LineSet:
+        if self._open3d_object is None:
+            open3d_object = o3d.t.geometry.LineSet()
+            open3d_object.point.positions = o3d.core.Tensor(
+                self.vertices, dtype=o3d.core.Dtype.Float64
+            )
+            open3d_object.line.indices = o3d.core.Tensor(
+                [[0, 1]], dtype=o3d.core.Dtype.Int64
+            )
+            self._open3d_object = open3d_object
+        assert self._open3d_object is not None  # type narrowing # noqa: S101
+        return self._open3d_object
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        """
+        Terminal points of line.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            of shape(2, dimension)
+        """
+        return self._vertices
+
+    @property
+    def origin(self) -> npt.NDArray[np.float64] | None:
+        """
+        The starting point of a directed line.
+
+        Returns
+        -------
+        npt.NDArray[np.float64] | None
+            of shape(dimension)
+        """
+        return self.vertices[0] if self.is_directed else None
+
+    @property
+    def centroid(self) -> npt.NDArray[np.float64]:
+        return np.mean(self.intervals, axis=-1)  # type: ignore[no-any-return]
+
+    @property
+    def bounds(self) -> npt.NDArray[np.float64]:
+        if self._bounds is None:
+            min_bounds = np.min(self.vertices, axis=0)
+            max_bounds = np.max(self.vertices, axis=0)
+            self._bounds = np.concatenate([min_bounds, max_bounds])
+        assert self._bounds is not None  # type narrowing # noqa: S101
+        return self._bounds
+
+    @property
+    def intervals(self) -> npt.NDArray[np.float64]:
+        """
+        Provide bounds in a tuple (min, max) arrangement.
+
+        Returns
+        -------
+        tuple[tuple[float, float], ...]
+            ((min_x, max_x), ...) of shape(dimension, 2)
+        """
+        min_x, min_y, min_z, max_x, max_y, max_z = self.bounds
+        return np.array([(min_x, max_x), (min_y, max_y), (min_z, max_z)])
+
+    @property
+    def extent(self) -> npt.NDArray[np.float64]:
+        if self._extent is None:
+            self._extent = np.abs(np.diff(self.bounds.reshape(2, 3), axis=0))[0]
+        assert self._extent is not None  # type narrowing # noqa: S101
+        return self._extent
+
+    @property
+    def bounding_box(self) -> AxisOrientedCuboid:
+        if self._bounding_box is None:
+            self._bounding_box = AxisOrientedCuboid(self.bounds[:3], *self.extent)
+        assert self._bounding_box is not None  # type narrowing # noqa: S101
+        return self._bounding_box
+
+    @property
+    def max_distance(self) -> float:
+        return np.linalg.norm(self.vertices)  # type: ignore[no-any-return, return-value]
+
+    @property
+    def elongation(self) -> float:
+        return 1
+
+    @property
+    def region_measure(self) -> float:
+        return 0
+
+    @property
+    def subregion_measure(self) -> float:
+        return np.linalg.norm(self.vertices)  # type: ignore[no-any-return, return-value]
+
+    def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
+        points = np.asarray(points)
+        if points.size == 0:
+            return np.array([])
+        else:
+            distances_0 = np.linalg.norm(self.vertices[0] - points, axis=-1)
+            distances_1 = np.linalg.norm(self.vertices[1] - points, axis=-1)
+            distances = distances_0 + distances_1
+            mask = np.isclose(distances, self.max_distance)
+            inside_indices = np.nonzero(mask)[0]
+            return inside_indices  # type: ignore
+
+    def buffer(self, distance: float, **kwargs: Any) -> Cuboid:
+        raise NotImplementedError
+
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
+        raise NotImplementedError
+
+
 T_AxisOrientedCuboid = TypeVar("T_AxisOrientedCuboid", bound="AxisOrientedCuboid")
 
 
@@ -3201,3 +3392,57 @@ def _polygon_path(
     )
 
     return mpl_path.Path(vertices, codes)
+
+
+def get_region_from_shapely(
+    shapely_object: shLine | shPolygon | shMultiPolygon,
+) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
+    """
+    Constructor for instantiating Region from `shapely` object.
+
+    Parameters
+    ----------
+    shapely_object
+        Geometric object to be converted into Region
+
+    Returns
+    -------
+    LineSegment2D | Polygon | MultiPolygon | EmptyRegion
+    """
+    ptype = shapely_object.geom_type
+    if ptype == "LineString":
+        return LineSegment2D.from_shapely(shapely_object)  # type: ignore
+    if ptype == "Polygon":
+        return Polygon.from_shapely(shapely_object)  # type: ignore
+    elif ptype == "MultiPolygon":
+        return MultiPolygon.from_shapely(shapely_object)  # type: ignore
+    else:
+        raise TypeError(f"shapely_object cannot be of type {ptype}")
+
+
+@needs_package("open3d")
+def get_region_from_open3d(
+    open3d_object: (
+        o3d.t.geometry.AxisAlignedBoundingBox | o3d.t.geometry.OrientedBoundingBox
+    ),
+) -> AxisOrientedCuboid | Cuboid | EmptyRegion:
+    """
+    Constructor for instantiating Region from `open3d` object.
+
+    Parameters
+    ----------
+    open3d_object
+        Geometric object to be converted into Region
+
+    Returns
+    -------
+    AxisOrientedCuboid | Cuboid | EmptyRegion
+    """
+    if isinstance(open3d_object, o3d.t.geometry.LineSet):
+        return LineSegment3D.from_open3d(open3d_object)  # type: ignore
+    elif isinstance(open3d_object, o3d.t.geometry.AxisAlignedBoundingBox):
+        return AxisOrientedCuboid.from_open3d(open3d_object)  # type: ignore
+    elif isinstance(open3d_object, o3d.t.geometry.OrientedBoundingBox):
+        return Cuboid.from_open3d(open3d_object)  # type: ignore
+    else:
+        raise TypeError(f"open3d_object cannot be of type {type(open3d_object)}")

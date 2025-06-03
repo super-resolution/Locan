@@ -83,6 +83,7 @@ from .data import (
     EmptyRegion as EmptyRegion,
     Interval as Interval,
     LineSegment2D as LineSegment2D,
+    LineSegment3D as LineSegment3D,
     LocData as LocData,
     MultiPolygon as MultiPolygon,
     OrientedBoundingBox as OrientedBoundingBox,

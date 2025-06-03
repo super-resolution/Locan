@@ -20,6 +20,7 @@ from locan import (
     EmptyRegion,
     Interval,
     LineSegment2D,
+    LineSegment3D,
     MultiPolygon,
     Polygon,
     Rectangle,
@@ -29,6 +30,8 @@ from locan import (
     Region3D,
     RegionND,
     Rotation2D,
+    get_region_from_open3d,
+    get_region_from_shapely,
 )
 from locan.data.regions.region import _polygon_path
 from locan.dependencies import HAS_DEPENDENCY, needs_package
@@ -1074,6 +1077,94 @@ class TestPolygonOperations:
         plt.close("all")
 
 
+class TestLineSegment3D:
+
+    def test_init(self):
+        region = LineSegment3D(points=((0, 0, 0), (1, 1, 1)), is_directed=False)
+        assert np.array_equal(region.vertices, ((0, 0, 0), (1, 1, 1)))
+        assert region.origin is None
+        assert region.is_directed is False
+        region = LineSegment3D(points=((0, 0, 0), (1, 1, 1)))
+        assert region.is_directed is True
+        assert np.array_equal(region.origin, [0, 0, 0])
+        assert isinstance(region, Region)
+        assert isinstance(region, Region3D)
+        assert repr(region) == "LineSegment3D([[0, 0, 0], [1, 1, 1]], True)"
+        assert str(region) == "LineSegment3D([[0, 0, 0], [1, 1, 1]], True)"
+        new_reg = eval(repr(region))
+        assert isinstance(new_reg, LineSegment3D)
+        with pytest.raises(AttributeError):
+            region.vertices = None
+            region.origin = None
+
+        region = LineSegment3D.from_intervals(((0, 2), (1, 1), (3, 1)))
+        assert repr(region) == "LineSegment3D([[0, 1, 3], [2, 1, 1]], True)"
+
+    def test_attributes(self):
+        region = LineSegment3D(points=((0, 0, 0), (1, 1, 1)))
+        assert region.dimension == 3
+        assert region.bounds == pytest.approx((0, 0, 0, 1, 1, 1))
+        assert np.array_equal(region.intervals, [(0, 1), (0, 1), (0, 1)])
+        assert region.extent == pytest.approx((1, 1, 1))
+        assert len(region.vertices) == 2
+        assert np.allclose(
+            region.vertices.astype(float),
+            [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]],
+        )
+        assert np.array_equal(region.centroid, (0.5, 0.5, 0.5))
+        assert region.max_distance == pytest.approx(np.sqrt(3))
+        assert region.elongation == pytest.approx(1)
+        assert region.subregion_measure == region.max_distance
+        assert region.region_measure == 0
+        assert region.radial_distance == pytest.approx(0.8660254037844386)
+
+    def test_methods(self):
+        region = LineSegment3D(points=((0, 0, 0), (1, 1, 1)))
+        assert (0.1, 0.1, 0.1) in region
+        assert (0, 1, 1) not in region
+        assert np.array_equal(
+            region.contains(
+                [[0.5, 0.5, 0.5], [-0.5, 0.5, 0.5], [100, 100, 100], [-1, 2, 2]]
+            ),
+            (0,),
+        )
+        assert region.contains([(0.5, 0.5, 0.5)]) == (0,)
+        assert region.contains([(10, 10, 10)]).size == 0
+        assert region.contains([]).size == 0
+
+        other = LineSegment3D(points=((1, 1, 1), (0, 0, 0)))
+        with pytest.raises(NotImplementedError):
+            assert isinstance(region.intersection(other), Polygon)
+        with pytest.raises(NotImplementedError):
+            assert isinstance(region.symmetric_difference(other), MultiPolygon)
+        with pytest.raises(NotImplementedError):
+            assert isinstance(region.union(other), Polygon)
+
+        # assert isinstance(region.as_artist(), mPatches.PathPatch)
+        # assert isinstance(region.buffer(1), Polygon)
+        assert np.array_equal(region.bounding_box.corner, (0.0, 0.0, 0.0))
+        assert region.bounding_box.width == pytest.approx(1)
+        assert region.bounding_box.height == pytest.approx(1)
+        assert region.bounding_box.length == pytest.approx(1)
+
+    @needs_package("open3d")
+    def test_attributes_open3d(self):
+        region = LineSegment3D(points=((0, 0, 0), (1, 1, 1)))
+        assert isinstance(region.open3d_object, o3d.t.geometry.LineSet)
+        assert np.array_equal(region.open3d_object.point.positions, region.vertices)
+
+    @needs_package("open3d")
+    def test_from_open3d(self):
+        lineset = o3d.t.geometry.LineSet()
+        region = LineSegment3D.from_open3d(open3d_object=lineset)
+        assert isinstance(region, EmptyRegion)
+
+        lineset.point.positions = o3d.core.Tensor([[0, 0, 0], [1, 1, 1]])
+        region = LineSegment3D.from_open3d(open3d_object=lineset)
+        assert isinstance(region, LineSegment3D)
+        assert np.array_equal(region.vertices, ((0, 0, 0), (1, 1, 1)))
+
+
 class TestAxisOrientedCuboid:
 
     def test_init(self):
@@ -1355,16 +1446,54 @@ class TestAxisOrientedHypercuboid:
         assert repr(region) == "AxisOrientedHypercuboid((1, 1, 1), (9, 19, 29))"
 
 
+def test_get_region_from_shapely():
+    points = ((2, 2), (2, 3))
+    shapely_object = shLine(points)
+    region = get_region_from_shapely(shapely_object)
+    assert isinstance(region, LineSegment2D)
+
+    points = ((2, 2), (2, 3), (3, 3), (3, 2.5), (2, 2))
+    shapely_object = shPolygon(points)
+    region = get_region_from_shapely(shapely_object)
+    assert isinstance(region, Polygon)
+
+    points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
+    holes = [
+        ((0.2, 0.2), (0.2, 0.3), (0.3, 0.3), (0.3, 0.25)),
+        ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45)),
+    ]
+    shapely_object = shMultiPolygon([shapely_object, shPolygon(points, holes)])
+    region = get_region_from_shapely(shapely_object)
+    assert isinstance(region, MultiPolygon)
+
+
+@needs_package("open3d")
+def test_get_region_from_open3d():
+    open3d_object = o3d.t.geometry.LineSet()
+    open3d_object.point.positions = o3d.core.Tensor([[0, 0, 0], [1, 1, 1]])
+    open3d_object.line.indices = o3d.core.Tensor([[0, 1]])
+
+    region = get_region_from_open3d(open3d_object)
+    assert isinstance(region, LineSegment3D)
+    assert repr(region) == "LineSegment3D([[0, 0, 0], [1, 1, 1]], True)"
+
+
 def test_pickling_Region():
     regions = [
+        AxisOrientedCuboid(),
+        AxisOrientedHypercuboid(),
+        AxisOrientedRectangle(),
+        Cuboid(),
+        Ellipse(),
         EmptyRegion(),
         Interval(),
-        Rectangle(),
-        Ellipse(),
-        Polygon(((0, 0), (0, 1), (2, 2))),
+        LineSegment2D(points=((0, 0), (1, 1))),
+        LineSegment3D(points=((0, 0, 0), (1, 1, 1))),
         MultiPolygon(
             [Polygon(((10, 10), (10, 11), (12, 12))), Polygon(((0, 0), (0, 1), (2, 2)))]
         ),
+        Rectangle(),
+        Polygon(((0, 0), (0, 1), (2, 2))),
     ]
     with tempfile.TemporaryDirectory() as tmp_directory:
         file_path = Path(tmp_directory) / "pickled_region.pickle"

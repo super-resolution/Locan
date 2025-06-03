@@ -42,6 +42,7 @@ from locan.data.regions import (
     EmptyRegion as EmptyRegion,
     Interval as Interval,
     LineSegment2D as LineSegment2D,
+    LineSegment3D as LineSegment3D,
     MultiPolygon as MultiPolygon,
     Polygon as Polygon,
     Rectangle as Rectangle,
@@ -58,6 +59,7 @@ from locan.data.regions import (
     regions_union as regions_union,
     surrounding_region as surrounding_region,
 )
+
 from locan.data.validation import *
 
 submodules: list[str] = [

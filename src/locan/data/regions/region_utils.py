@@ -66,7 +66,7 @@ def get_region_from_intervals(
     -------
     Interval | AxisOrientedRectangle | AxisOrientedCuboid | AxisOrientedHypercuboid
     """
-    if np.shape(intervals) == (2,):
+    if np.shape(intervals) == (2,) or np.shape(intervals) == (1, 2):
         return Interval.from_intervals(intervals)
     elif np.shape(intervals) == (2, 2):
         return AxisOrientedRectangle.from_intervals(intervals)

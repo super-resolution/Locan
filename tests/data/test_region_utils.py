@@ -22,6 +22,10 @@ from locan import (  # needed for visual inspection  # noqa: F401
 def test_get_region_from_intervals():
     region = get_region_from_intervals((0, 2))
     assert repr(region) == "Interval(0, 2)"
+    region = get_region_from_intervals([(0, 2)])
+    assert repr(region) == "Interval(0, 2)"
+    with pytest.raises(TypeError):
+        get_region_from_intervals([[0], [2]])
     region = get_region_from_intervals(((0, 2), (0, 1)))
     assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
     region = get_region_from_intervals(((0, 1), (0, 2), (0, 3)))

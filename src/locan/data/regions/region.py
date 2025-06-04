@@ -1078,11 +1078,14 @@ class Interval(Region1D):
         Interval
         """
         intervals = np.asarray(intervals)
-        if np.shape(intervals) != (2,):
+        if np.shape(intervals) == (1, 2):
+            lower_bound, upper_bound = intervals[0]
+        elif np.shape(intervals) == (2,):
+            lower_bound, upper_bound = intervals
+        else:
             raise TypeError(
                 f"Intervals must be of shape (2,) and not {np.shape(intervals)}."
             )
-        lower_bound, upper_bound = intervals
         return cls(lower_bound, upper_bound)
 
     @property

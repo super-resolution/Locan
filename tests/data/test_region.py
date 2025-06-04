@@ -136,6 +136,18 @@ class TestInterval:
             region.lower_bound = None
             region.upper_bound = None
 
+        region = Interval(1, 2)
+        assert repr(region) == "Interval(1, 2)"
+
+        region = Interval.from_intervals((0, 2))
+        assert repr(region) == "Interval(0, 2)"
+        region = Interval.from_intervals([0, 2])
+        assert repr(region) == "Interval(0, 2)"
+        region = Interval.from_intervals(np.array([0, 2]))
+        assert repr(region) == "Interval(0, 2)"
+        region = Interval.from_intervals([(0, 2)])
+        assert repr(region) == "Interval(0, 2)"
+
     def test_attributes(self):
         region = Interval()
         assert region.dimension == 1
@@ -166,13 +178,6 @@ class TestInterval:
         assert np.array_equal(region.buffer(1).points, [-1, 2])
         assert np.array_equal(region.buffer(1).vertices, [-1, 2])
         assert repr(region.buffer(1)) == "Interval(-1, 2)"
-
-        region = Interval.from_intervals((0, 2))
-        assert repr(region) == "Interval(0, 2)"
-        region = Interval.from_intervals([0, 2])
-        assert repr(region) == "Interval(0, 2)"
-        region = Interval.from_intervals(np.array([0, 2]))
-        assert repr(region) == "Interval(0, 2)"
 
 
 class TestLineSegment2D:

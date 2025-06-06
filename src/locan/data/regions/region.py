@@ -6,7 +6,6 @@ This module provides classes to define geometric regions for localization data.
 All region classes inherit from the abstract base class `Region`.
 """
 
-# todo: fix docstrings
 from __future__ import annotations
 
 import itertools as it
@@ -351,6 +350,19 @@ class Region(ABC):
 
     @property
     @abstractmethod
+    def intervals(self) -> npt.NDArray[np.float64] | None:
+        """
+        Provide bounds in a tuple (min, max) arrangement.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            ((min_x, max_x), ...) of shape(dimension, 2)
+        """
+        pass
+
+    @property
+    @abstractmethod
     def extent(self) -> npt.NDArray[np.float64] | None:
         """
         The extent (max_x - min_x), (max_y - min_y), ... for each dimension.
@@ -632,14 +644,6 @@ class Region2D(Region):
 
     @property
     def intervals(self) -> npt.NDArray[np.float64]:
-        """
-        Provide bounds in a tuple (min, max) arrangement.
-
-        Returns
-        -------
-        npt.NDArray[np.float64]
-            ((min_x, max_x), ...) of shape(dimension, 2)
-        """
         lower_bounds = self.bounds[: self.dimension]
         upper_bounds = self.bounds[self.dimension :]
         return np.array(
@@ -693,6 +697,10 @@ class Region2D(Region):
     ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
         """
         Constructor for instantiating Region from `shapely` object.
+
+        Note
+        ----
+        This function is deprecated.
 
         Parameters
         ----------
@@ -798,21 +806,6 @@ class Region2D(Region):
     def buffer(
         self, distance: float, **kwargs: Any
     ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
-        """
-        Extend the region perpendicular by a `distance`.
-
-        Parameters
-        ----------
-        distance
-            Distance by which the region is extended.
-        kwargs
-            Other parameters passed to :func:`shapely.geometry.buffer`.
-
-        Returns
-        -------
-        LineSegment2D | Polygon | MultiPolygon | EmptyRegion
-            The extended region.
-        """
         return get_region_from_shapely(self.shapely_object.buffer(distance, **kwargs))
 
 
@@ -852,6 +845,10 @@ class Region3D(Region):
     ) -> AxisOrientedCuboid | Cuboid | EmptyRegion:
         """
         Constructor for instantiating Region from `open3d` object.
+
+        Note
+        ----
+        This function is deprecated.
 
         Parameters
         ----------
@@ -1030,6 +1027,10 @@ class EmptyRegion(Region):
         return None
 
     @property
+    def intervals(self) -> None:
+        return None
+
+    @property
     def bounding_box(self) -> EmptyRegion:
         return EmptyRegion()
 
@@ -1090,8 +1091,6 @@ class Interval(Region1D):
     def from_intervals(cls: type[T_Interval], intervals: npt.ArrayLike) -> T_Interval:
         """
         Constructor for instantiating Region from list of (min, max) bounds.
-        Takes array-like intervals instead of interval to be consistent with
-        `Rectangle.from_intervals`.
 
         Parameters
         ----------
@@ -1148,14 +1147,6 @@ class Interval(Region1D):
 
     @property
     def intervals(self) -> npt.NDArray[np.float64]:
-        """
-        Provide bounds in a tuple (min, max) arrangement.
-
-        Returns
-        -------
-        tuple[tuple[float, float], ...]
-            ((min_x, max_x), ...) of shape(dimension, 2).
-        """
         return self.bounds
 
     @property
@@ -1487,14 +1478,6 @@ class AxisOrientedRectangle(Region2D):
 
     @property
     def intervals(self) -> npt.NDArray[np.float64]:
-        """
-        Provide bounds in a tuple (min, max) arrangement.
-
-        Returns
-        -------
-        npt.NDArray[np.float64]
-            ((min_x, max_x), ...) of shape(dimension, 2)
-        """
         lower_bounds = self.bounds[: self.dimension]
         upper_bounds = self.bounds[self.dimension :]
         return np.array(
@@ -1637,6 +1620,10 @@ class Rectangle(Region2D):
     ) -> AxisOrientedRectangle:
         """
         Constructor for instantiating Region from list of (min, max) bounds.
+
+        Note
+        ----
+        This function is deprecated.
 
         Parameters
         ----------
@@ -2803,14 +2790,6 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def intervals(self) -> npt.NDArray[np.float64]:
-        """
-        Provide bounds in a tuple (min, max) arrangement.
-
-        Returns
-        -------
-        tuple[tuple[float, float], ...]
-            ((min_x, max_x), ...) of shape(dimension, 2)
-        """
         min_x, min_y, min_z, max_x, max_y, max_z = self.bounds
         return np.array([(min_x, max_x), (min_y, max_y), (min_z, max_z)])
 
@@ -3013,7 +2992,8 @@ class Cuboid(Region3D):
     @property
     def rotation(self) -> Rotation3D:
         """
-        An instance of scipy.stats.transform.Rotation.
+        An instance of Rotation3D, an adapter class for
+        scipy.stats.transform.Rotation.
 
         Returns
         -------
@@ -3033,7 +3013,7 @@ class Cuboid(Region3D):
         Returns
         -------
         npt.NDArray[np.float64]
-            with shape (2,)
+            Coordinates with shape (3,)
         """
         return self._corner
 
@@ -3146,6 +3126,11 @@ class Cuboid(Region3D):
             self._bounds = np.concatenate([min_bounds, max_bounds])
         assert self._bounds is not None  # type narrowing # noqa: S101
         return self._bounds
+
+    @property
+    def intervals(self) -> npt.NDArray[np.float64]:
+        min_x, min_y, min_z, max_x, max_y, max_z = self.bounds
+        return np.array([(min_x, max_x), (min_y, max_y), (min_z, max_z)])
 
     @property
     def extent(self) -> npt.NDArray[np.float64]:
@@ -3327,14 +3312,6 @@ class AxisOrientedHypercuboid(RegionND):
 
     @property
     def intervals(self) -> npt.NDArray[np.float64]:
-        """
-        Provide bounds in a tuple (min, max) arrangement.
-
-        Returns
-        -------
-        npt.NDArray[np.float64]
-            ((min_x, max_x), ...) of shape(dimension, 2)
-        """
         lower_bounds = self.bounds[: self.dimension]
         upper_bounds = self.bounds[self.dimension :]
         return np.array(

@@ -1332,6 +1332,17 @@ class TestCuboid:
     def test_attributes(self):
         region = Cuboid((1, 1, 1), 9, 19, 29, 10.0, 20.0, 30.0)
         assert region.dimension == 3
+        assert region.bounds == pytest.approx(
+            (
+                -8.24110838,
+                -3.52826625,
+                -0.80452893,
+                17.9287348,
+                21.73866441,
+                33.93353878,
+            )
+        )
+        assert region.intervals.shape == (3, 2)
         g, b, a = region.rotation.as_euler("zyx", degrees=True)
         assert region.alpha == pytest.approx(a)
         assert region.beta == pytest.approx(b)

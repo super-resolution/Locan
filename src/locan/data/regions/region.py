@@ -31,13 +31,34 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 from scipy.spatial.distance import pdist
-from shapely.affinity import rotate, scale, translate
-from shapely.geometry import LineString as shLine
-from shapely.geometry import MultiPoint as shMultiPoint
-from shapely.geometry import MultiPolygon as shMultiPolygon
-from shapely.geometry import Point as shPoint
-from shapely.geometry import Polygon as shPolygon
-from shapely.prepared import prep
+from shapely.affinity import (
+    rotate as sh_rotate,
+)
+from shapely.affinity import (
+    scale as sh_scale,
+)
+from shapely.affinity import (
+    translate as sh_translate,
+)
+from shapely.geometry import (
+    LinearRing as shLinearRing,
+)
+from shapely.geometry import (
+    LineString as shLineString,
+)
+from shapely.geometry import (
+    MultiPoint as shMultiPoint,
+)
+from shapely.geometry import (
+    MultiPolygon as shMultiPolygon,
+)
+from shapely.geometry import (
+    Point as shPoint,
+)
+from shapely.geometry import (
+    Polygon as shPolygon,
+)
+from shapely.prepared import prep as sh_prep
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
@@ -273,6 +294,10 @@ class Region(ABC):
         Takes array-like intervals instead of interval to be consistent with
         `Rectangle.from_intervals`.
 
+        Note
+        ----
+        This function is deprecated.
+
         Parameters
         ----------
         intervals
@@ -405,8 +430,8 @@ class Region(ABC):
     @abstractmethod
     def subregion_measure(self) -> float:
         """
-        Measure of the sub-dimensional region, i.e. circumference (for 2d)
-        or surface (for 3d).
+        Measure of the sub-dimensional region, i.e. perimeter length (for 2d)
+        or surface area (for 3d).
 
         Returns
         -------
@@ -664,7 +689,7 @@ class Region2D(Region):
 
     @staticmethod
     def from_shapely(
-        shapely_object: shLine | shPolygon | shMultiPolygon,
+        shapely_object: shLineString | shPolygon | shMultiPolygon,
     ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
         """
         Constructor for instantiating Region from `shapely` object.
@@ -1030,7 +1055,7 @@ class EmptyRegion(Region):
 
     @classmethod
     def from_shapely(
-        cls, shapely_object: shLine | shPolygon | shMultiPolygon
+        cls, shapely_object: shLineString | shPolygon | shMultiPolygon
     ) -> EmptyRegion:
         if shapely_object.is_empty:
             return cls()
@@ -1112,7 +1137,10 @@ class Interval(Region1D):
 
     @property
     def bounds(self) -> npt.NDArray[np.float64]:
-        return np.array([self.lower_bound, self.upper_bound])
+        min_, max_ = self.lower_bound, self.upper_bound
+        if min_ > max_:
+            min_, max_ = max_, min_
+        return np.array([min_, max_])
 
     @property
     def extent(self) -> npt.NDArray[np.float64]:
@@ -1164,7 +1192,7 @@ class Interval(Region1D):
 
     @property
     def max_distance(self) -> float:
-        return self.upper_bound - self.lower_bound
+        return abs(self.upper_bound - self.lower_bound)
 
     @property
     def elongation(self) -> float:
@@ -1172,7 +1200,7 @@ class Interval(Region1D):
 
     @property
     def region_measure(self) -> float:
-        return self.upper_bound - self.lower_bound
+        return abs(self.upper_bound - self.lower_bound)
 
     @property
     def subregion_measure(self) -> int:
@@ -1180,7 +1208,7 @@ class Interval(Region1D):
 
     @property
     def radial_distance(self) -> float:
-        return (self.upper_bound - self.lower_bound) / 2
+        return abs(self.upper_bound - self.lower_bound) / 2
 
     @property
     def bounding_box(self) -> Self:
@@ -1222,7 +1250,7 @@ class LineSegment2D(Region2D):
     def __init__(self, points: npt.ArrayLike, is_directed: bool = True) -> None:
         self._vertices = np.asarray(points)
         self.is_directed = is_directed
-        self._shapely_object: shLine | None = None
+        self._shapely_object: shLineString | None = None
 
     def __repr__(self) -> str:
         return (
@@ -1262,7 +1290,7 @@ class LineSegment2D(Region2D):
         return cls(points=points)
 
     @classmethod
-    def from_shapely(cls: type[T_LineSegment2D], line: shLine) -> T_LineSegment2D | EmptyRegion:  # type: ignore[override]
+    def from_shapely(cls: type[T_LineSegment2D], line: shLineString) -> T_LineSegment2D | EmptyRegion:  # type: ignore[override]
         if line.is_empty:
             return EmptyRegion()
         else:
@@ -1294,9 +1322,9 @@ class LineSegment2D(Region2D):
         return self.vertices[0] if self.is_directed else None
 
     @property
-    def shapely_object(self) -> shLine:
+    def shapely_object(self) -> shLineString:
         if self._shapely_object is None:
-            self._shapely_object = shLine(coordinates=self.vertices)
+            self._shapely_object = shLineString(coordinates=self.vertices)
         assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
@@ -1321,23 +1349,16 @@ class LineSegment2D(Region2D):
         return np.linalg.norm(self.vertices)  # type: ignore[no-any-return, return-value]
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
-        _points = np.asarray(points)
-        if _points.size == 0:
-            return np.array([], dtype=bool)
-
-        # preselect points inside the polygons bounding box to increase performance.
-        preselected_points_indices = self.bounding_box.contains(_points)
-        if len(preselected_points_indices) == 0:
-            return np.array([], dtype=bool)
-
-        points_ = shMultiPoint(_points[preselected_points_indices])
-        prepared_polygon = prep(self.shapely_object)
-        mask = list(map(prepared_polygon.contains, points_.geoms))
-        inside_indices = np.nonzero(mask)[0]  # type: ignore[arg-type]
-        if len(inside_indices) == 0:
-            return np.array([], dtype=bool)
+        points = np.asarray(points)
+        if points.size == 0:
+            return np.array([])
         else:
-            return preselected_points_indices[inside_indices]
+            distances_0 = np.linalg.norm(self.vertices[0] - points, axis=-1)
+            distances_1 = np.linalg.norm(self.vertices[1] - points, axis=-1)
+            distances = distances_0 + distances_1
+            mask = np.isclose(distances, self.max_distance)
+            inside_indices = np.nonzero(mask)[0]
+            return inside_indices  # type: ignore
 
     def as_artist(
         self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
@@ -1453,6 +1474,18 @@ class AxisOrientedRectangle(Region2D):
         return self._height
 
     @property
+    def bounds(self) -> npt.NDArray[np.float64]:
+        min_x, max_x = self.corner[0], self.corner[0] + self.width
+        if max_x < min_x:
+            min_x, max_x = max_x, min_x
+
+        min_y, max_y = self.corner[1], self.corner[1] + self.height
+        if max_y < min_y:
+            min_y, max_y = max_y, min_y
+
+        return np.array([min_x, min_y, max_x, max_y])
+
+    @property
     def intervals(self) -> npt.NDArray[np.float64]:
         """
         Provide bounds in a tuple (min, max) arrangement.
@@ -1499,12 +1532,12 @@ class AxisOrientedRectangle(Region2D):
             linewidth=1,
         )
         points: npt.NDArray[np.float64] = rectangle.get_verts()  # type: ignore
-        return np.array(points[::-1])
+        return np.flip(points, axis=0)[:-1]
 
     @property
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
-            self._shapely_object = shPolygon(self.vertices[:-1])
+            self._shapely_object = shPolygon(self.vertices)
         assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
@@ -1519,26 +1552,25 @@ class AxisOrientedRectangle(Region2D):
 
     @property
     def elongation(self) -> float:
-        min, max = (
-            (self.width, self.height)
-            if self.width < self.height
-            else (self.height, self.width)
-        )
-        return 1 - min / max
+        min_, max_ = abs(self.width), abs(self.height)
+        if min_ > max_:
+            min_, max_ = max_, min_
+        return 1 - min_ / max_
 
     @property
     def region_measure(self) -> float:
-        return self.width * self.height
+        return abs(self.width * self.height)
 
     @property
     def subregion_measure(self) -> float:
-        return 2 * self.width + 2 * self.height
+        return 2 * abs(self.width) + 2 * abs(self.height)
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         points = np.asarray(points)
         if points.size == 0:
             return np.array([], dtype=np.int64)
-        polygon_path = mpl_path.Path(self.vertices, closed=True)
+        vertices_closed = np.append(self.vertices, [self.vertices[0]], axis=0)
+        polygon_path = mpl_path.Path(vertices_closed, closed=True)
         mask = polygon_path.contains_points(points)
         inside_indices = np.nonzero(mask)[0]
         return inside_indices  # type: ignore
@@ -1722,7 +1754,7 @@ class Rectangle(Region2D):
             linewidth=1,
         )
         points: npt.NDArray[np.float64] = rectangle.get_verts()  # type: ignore
-        return np.array(points[::-1])
+        return np.flip(points, axis=0)[:-1]
 
     @property
     def region_specs(self):  # type: ignore
@@ -1742,7 +1774,7 @@ class Rectangle(Region2D):
     @property
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
-            self._shapely_object = shPolygon(self.vertices[:-1])
+            self._shapely_object = shPolygon(self.vertices)
         assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
@@ -1757,26 +1789,25 @@ class Rectangle(Region2D):
 
     @property
     def elongation(self) -> float:
-        min, max = (
-            (self.width, self.height)
-            if self.width < self.height
-            else (self.height, self.width)
-        )
-        return 1 - min / max
+        min_, max_ = abs(self.width), abs(self.height)
+        if min_ > max_:
+            min_, max_ = max_, min_
+        return 1 - min_ / max_
 
     @property
     def region_measure(self) -> float:
-        return self.width * self.height
+        return abs(self.width * self.height)
 
     @property
     def subregion_measure(self) -> float:
-        return 2 * self.width + 2 * self.height
+        return 2 * abs(self.width) + 2 * abs(self.height)
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         points = np.asarray(points)
         if points.size == 0:
             return np.array([], dtype=np.int64)
-        polygon_path = mpl_path.Path(self.vertices, closed=True)
+        vertices_closed = np.append(self.vertices, [self.vertices[0]], axis=0)
+        polygon_path = mpl_path.Path(vertices_closed, closed=True)
         mask = polygon_path.contains_points(points)
         inside_indices = np.nonzero(mask)[0]
         return inside_indices  # type: ignore
@@ -1818,8 +1849,8 @@ class Ellipse(Region2D):
         angle: float = 0,
     ) -> None:
         self._center = np.asarray(center)
-        self._width = width
-        self._height = height
+        self._width = abs(width)
+        self._height = abs(height)
         self._angle = angle
         self._rotation = Rotation2D.from_angle(angle=angle, degrees=True)
         self._region_specs = (center, width, height, angle)
@@ -1904,7 +1935,7 @@ class Ellipse(Region2D):
         -------
         LineSegment2D
         """
-        if np.abs(self.width) < np.abs(self.height):
+        if self.width < self.height:
             point_0 = (self.center[0], self.center[1] - self.height / 2)
             point_1 = (self.center[0], self.center[1] + self.height / 2)
         else:
@@ -1926,7 +1957,7 @@ class Ellipse(Region2D):
         -------
         LineSegment2D
         """
-        if np.abs(self.width) > np.abs(self.height):
+        if self.width > self.height:
             point_0 = (self.center[0], self.center[1] - self.height / 2)
             point_1 = (self.center[0], self.center[1] + self.height / 2)
         else:
@@ -1949,12 +1980,10 @@ class Ellipse(Region2D):
         -------
         npt.NDArray[np.float64]
         """
-        min, max = (
-            (self.width, self.height)
-            if self.width < self.height
-            else (self.height, self.width)
-        )
-        return np.sqrt(1 - (min / max) ** 2)  # type: ignore[no-any-return]
+        min_, max_ = self.width, self.height
+        if min_ > max_:
+            min_, max_ = max_, min_
+        return np.sqrt(1 - (min_ / max_) ** 2)  # type: ignore[no-any-return]
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
@@ -1988,9 +2017,9 @@ class Ellipse(Region2D):
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
             circle = shPoint((0, 0)).buffer(1)
-            ellipse = scale(circle, self.width / 2, self.height / 2)
-            rotated_ellipse = rotate(ellipse, self.angle)
-            self._shapely_object = translate(rotated_ellipse, *self.center)
+            ellipse = sh_scale(circle, self.width / 2, self.height / 2)
+            rotated_ellipse = sh_rotate(ellipse, self.angle)
+            self._shapely_object = sh_translate(rotated_ellipse, *self.center)
         assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
@@ -2005,12 +2034,10 @@ class Ellipse(Region2D):
 
     @property
     def elongation(self) -> float:
-        min, max = (
-            (self.width, self.height)
-            if self.width < self.height
-            else (self.height, self.width)
-        )
-        return 1 - min / max
+        min_, max_ = self.width, self.height
+        if min_ > max_:
+            min_, max_ = max_, min_
+        return 1 - min_ / max_
 
     @property
     def region_measure(self) -> float:
@@ -2080,9 +2107,11 @@ class Polygon(Region2D):
     ) -> None:
         points = np.asarray(points)
         if np.all(points[0] == points[-1]):
-            self._vertices = np.array(points)
+            self._points = np.array(points)
+            self._vertices = np.array(points[:-1])
         else:
-            self._vertices = np.append(np.array(points), [points[0]], axis=0)
+            self._points = np.append(np.array(points), [points[0]], axis=0)
+            self._vertices = np.array(points)
         if holes is None:
             self._holes = None
         else:
@@ -2133,7 +2162,7 @@ class Polygon(Region2D):
             DeprecationWarning,
             stacklevel=2,
         )
-        return self._vertices
+        return self._points
 
     @property
     def vertices(self) -> npt.NDArray[np.float64]:
@@ -2177,7 +2206,8 @@ class Polygon(Region2D):
     @property
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
-            self._shapely_object = shPolygon(self.vertices, self.holes)
+            linear_ring = shLinearRing(self.vertices)
+            self._shapely_object = shPolygon(linear_ring.coords, self.holes)
         assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
@@ -2187,7 +2217,7 @@ class Polygon(Region2D):
 
     @property
     def max_distance(self) -> float:
-        distances = pdist(self.vertices[:-1])
+        distances = pdist(self.vertices)
         return_value: float = np.nanmax(distances)
         return return_value
 
@@ -2216,7 +2246,7 @@ class Polygon(Region2D):
             return np.array([], dtype=bool)
 
         points_ = shMultiPoint(_points[preselected_points_indices])
-        prepared_polygon = prep(self.shapely_object)
+        prepared_polygon = sh_prep(self.shapely_object)
         mask = list(map(prepared_polygon.contains, points_.geoms))
         inside_indices = np.nonzero(mask)[0]  # type: ignore[arg-type]
         if len(inside_indices) == 0:
@@ -2365,7 +2395,7 @@ class MultiPolygon(Region2D):
         if np.asarray(points).size == 0:
             return np.array([], dtype=np.int64)
         points_ = shMultiPoint(points)  # type: ignore
-        prepared_polygon = prep(self.shapely_object)
+        prepared_polygon = sh_prep(self.shapely_object)
         mask = list(map(prepared_polygon.contains, points_.geoms))
         inside_indices = np.nonzero(mask)[0]  # type: ignore[arg-type]
         return inside_indices
@@ -2597,10 +2627,10 @@ class AxisOrientedCuboid(Region3D):
 
     def __init__(
         self,
-        corner: npt.ArrayLike = (0, 0, 0),
-        length: float = 1,
-        width: float = 1,
-        height: float = 1,
+        corner: npt.ArrayLike = (0.0, 0.0, 0.0),
+        length: float = 1.0,
+        width: float = 1.0,
+        height: float = 1.0,
     ) -> None:
         self._corner = np.asarray(corner)
         self._length = length
@@ -2676,8 +2706,12 @@ class AxisOrientedCuboid(Region3D):
     def open3d_object(self) -> o3d.t.geometry.AxisAlignedBoundingBox:
         if self._open3d_object is None:
             self._open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
-                min_bound=o3d.core.Tensor(self.bounds[:3]),
-                max_bound=o3d.core.Tensor(self.bounds[3:]),
+                min_bound=o3d.core.Tensor(
+                    self.bounds[:3], dtype=o3d.core.Dtype.Float64
+                ),
+                max_bound=o3d.core.Tensor(
+                    self.bounds[3:], dtype=o3d.core.Dtype.Float64
+                ),
             )
         assert self._open3d_object is not None  # type narrowing # noqa: S101
         return self._open3d_object
@@ -2753,12 +2787,19 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def bounds(self) -> npt.NDArray[np.float64]:
-        min_x, min_y, min_z = self.corner
-        max_x, max_y, max_z = [  # noqa: UP027
-            cor + dist
-            for cor, dist in zip(self.corner, (self.length, self.width, self.height))
-        ]
-        return np.array([min_x, min_y, min_z, max_x, max_y, max_z], dtype="float64")
+        min_x, max_x = self.corner[0], self.corner[0] + self.length
+        if max_x < min_x:
+            min_x, max_x = max_x, min_x
+
+        min_y, max_y = self.corner[1], self.corner[1] + self.width
+        if max_y < min_y:
+            min_y, max_y = max_y, min_y
+
+        min_z, max_z = self.corner[2], self.corner[2] + self.height
+        if max_z < min_z:
+            min_z, max_z = max_z, min_z
+
+        return np.array([min_x, min_y, min_z, max_x, max_y, max_z])
 
     @property
     def intervals(self) -> npt.NDArray[np.float64]:
@@ -2788,9 +2829,9 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def elongation(self) -> float:
-        min = np.min(np.abs([self.length, self.width, self.height]))
-        max = np.max(np.abs([self.length, self.width, self.height]))
-        return 1 - min / max  # type: ignore[no-any-return]
+        min_ = np.min(np.abs([self.length, self.width, self.height]))
+        max_ = np.max(np.abs([self.length, self.width, self.height]))
+        return 1 - min_ / max_  # type: ignore[no-any-return]
 
     @property
     def region_measure(self) -> float:
@@ -2799,11 +2840,8 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def subregion_measure(self) -> float:
-        return_value: float = 2 * (
-            self.length * self.width
-            + self.height * self.width
-            + self.height * self.length
-        )
+        x_, y_, z_ = abs(self.length), abs(self.width), abs(self.height)
+        return_value: float = 2 * (x_ * y_ + z_ * y_ + z_ * x_)
         return return_value
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
@@ -2870,13 +2908,13 @@ class Cuboid(Region3D):
 
     def __init__(
         self,
-        corner: npt.ArrayLike = (0, 0, 0),
-        length: float = 1,
-        width: float = 1,
-        height: float = 1,
-        alpha: float = 0,
-        beta: float = 0,
-        gamma: float = 0,
+        corner: npt.ArrayLike = (0.0, 0.0, 0.0),
+        length: float = 1.0,
+        width: float = 1.0,
+        height: float = 1.0,
+        alpha: float = 0.0,
+        beta: float = 0.0,
+        gamma: float = 0.0,
     ) -> None:
         self._corner = np.asarray(corner)
         self._length = length
@@ -2964,7 +3002,8 @@ class Cuboid(Region3D):
             )
             open3d_object = open3d_object.get_oriented_bounding_box()
             open3d_object = open3d_object.rotate(
-                rotation=o3d_rotation_matrix, center=o3d.core.Tensor([0.0, 0.0, 0.0])
+                rotation=o3d_rotation_matrix,
+                center=o3d.core.Tensor([0.0, 0.0, 0.0], dtype=o3d.core.Dtype.Float64),
             )
             open3d_object = open3d_object.translate(o3d_corner)
             self._open3d_object = open3d_object
@@ -3136,13 +3175,13 @@ class Cuboid(Region3D):
 
     @property
     def elongation(self) -> float:
-        min = np.min(np.abs([self.length, self.width, self.height]))
-        max = np.max(np.abs([self.length, self.width, self.height]))
-        return 1 - min / max  # type: ignore[no-any-return]
+        min_ = np.min(np.abs([self.length, self.width, self.height]))
+        max_ = np.max(np.abs([self.length, self.width, self.height]))
+        return 1 - min_ / max_  # type: ignore[no-any-return]
 
     @property
     def region_measure(self) -> float:
-        return_value: float = self.length * self.width * self.height
+        return_value: float = abs(self.length) * abs(self.width) * abs(self.height)
         return return_value
 
     @property
@@ -3262,25 +3301,6 @@ class AxisOrientedHypercuboid(RegionND):
         return len(self.lengths)
 
     @property
-    def intervals(self) -> npt.NDArray[np.float64]:
-        """
-        Provide bounds in a tuple (min, max) arrangement.
-
-        Returns
-        -------
-        tuple[tuple[float, float], ...]
-            ((min_x, max_x), ...) of shape(dimension, 2).
-        """
-        return np.array(
-            [
-                (lower, upper)
-                for lower, upper in zip(
-                    self.bounds[: self.dimension], self.bounds[self.dimension :]
-                )
-            ]
-        )
-
-    @property
     def points(self) -> npt.NDArray[np.float64]:
         warnings.warn(
             "This attribute is deprecated. Use vertices instead.",
@@ -3295,7 +3315,31 @@ class AxisOrientedHypercuboid(RegionND):
 
     @property
     def bounds(self) -> npt.NDArray[np.float64]:
-        return np.concatenate([self.corner, self.corner + self.lengths], axis=0)
+        intervals_min = []
+        intervals_max = []
+        for i in range(self.dimension):
+            min_, max_ = self.corner[i], self.corner[i] + self.lengths[i]
+            if max_ < min_:
+                min_, max_ = max_, min_
+            intervals_min.append(min_)
+            intervals_max.append(max_)
+        return np.array(intervals_min + intervals_max)
+
+    @property
+    def intervals(self) -> npt.NDArray[np.float64]:
+        """
+        Provide bounds in a tuple (min, max) arrangement.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            ((min_x, max_x), ...) of shape(dimension, 2)
+        """
+        lower_bounds = self.bounds[: self.dimension]
+        upper_bounds = self.bounds[self.dimension :]
+        return np.array(
+            [(lower, upper) for lower, upper in zip(lower_bounds, upper_bounds)]
+        )
 
     @property
     def extent(self) -> npt.NDArray[np.float64]:
@@ -3398,7 +3442,7 @@ def _polygon_path(
 
 
 def get_region_from_shapely(
-    shapely_object: shLine | shPolygon | shMultiPolygon,
+    shapely_object: shLineString | shPolygon | shMultiPolygon,
 ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
     """
     Constructor for instantiating Region from `shapely` object.

@@ -36,10 +36,7 @@ def test__shape_to_region():
     # polygon
     vertices = np.array([[0, 0], [0, 2.5], [3.1, 2.5], [3.1, 0]])
     region = _shape_to_region(vertices, "polygon")
-    assert (
-        repr(region)
-        == "Polygon([[0.0, 0.0], [0.0, 2.5], [3.1, 2.5], [3.1, 0.0], [0.0, 0.0]])"
-    )
+    assert repr(region) == "Polygon([[0.0, 0.0], [0.0, 2.5], [3.1, 2.5], [3.1, 0.0]])"
 
 
 @pytest.mark.skipif(
@@ -62,7 +59,7 @@ def test__shapes_to_regions(make_napari_viewer, locdata_blobs_2d):
     expected_regions = [
         "Rectangle((0.0, 0.0), 3.1, 2.5, 0)",
         "Ellipse((1.55, 1.25), 3.1, 2.5, 0)",
-        "Polygon([[0.0, 0.0], [0.0, 2.5], [3.1, 2.5], [3.1, 0.0], [0.0, 0.0]])",
+        "Polygon([[0.0, 0.0], [0.0, 2.5], [3.1, 2.5], [3.1, 0.0]])",
     ]
 
     for region, expected in zip(regions, expected_regions):

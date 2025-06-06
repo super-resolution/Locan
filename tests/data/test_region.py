@@ -163,6 +163,19 @@ class TestInterval:
         assert region.subregion_measure == 0
         assert region.radial_distance == 0.5
 
+        region = Interval(0, -1)
+        assert region.dimension == 1
+        assert np.array_equal(region.bounds, (-1, 0))
+        assert np.array_equal(region.intervals, (-1, 0))
+        assert region.extent == 1
+        assert np.allclose(region.vertices.astype(float), (0, -1))
+        assert region.centroid == -0.5
+        assert region.max_distance == 1
+        assert np.isnan(region.elongation)
+        assert region.region_measure == 1
+        assert region.subregion_measure == 0
+        assert region.radial_distance == 0.5
+
     def test_methods(self):
         region = Interval()
         assert np.array_equal(region.contains((0, 0.5, 1, 2)), (0, 1))
@@ -210,17 +223,17 @@ class TestLineSegment2D:
         assert isinstance(region, LineSegment2D)
 
     def test_attributes(self):
-        region = LineSegment2D(points=((0, 0), (1, 1)))
+        region = LineSegment2D(points=((0, 0), (1, -1)))
         assert region.dimension == 2
-        assert region.bounds == pytest.approx((0, 0, 1, 1))
-        assert np.array_equal(region.intervals, [(0, 1), (0, 1)])
+        assert region.bounds == pytest.approx((0, -1, 1, 0))
+        assert np.array_equal(region.intervals, [(0, 1), (-1, 0)])
         assert region.extent == pytest.approx((1, 1))
         assert len(region.vertices) == 2
         assert np.allclose(
             region.vertices.astype(float),
-            [[0.0, 0.0], [1.0, 1.0]],
+            [[0.0, 0.0], [1.0, -1.0]],
         )
-        assert np.array_equal(region.centroid, (0.5, 0.5))
+        assert np.array_equal(region.centroid, (0.5, -0.5))
         assert region.max_distance == pytest.approx(np.sqrt(2))
         assert region.elongation == pytest.approx(1)
         assert region.subregion_measure == region.max_distance
@@ -279,6 +292,7 @@ class TestAxisOrientedRectangle:
     def test_init(self):
         region = AxisOrientedRectangle((0, 0), 2, 1)
         assert (10, 1) not in region
+        assert (0.1, 0.1) in region
         assert (0.5, 0.5) in region
         assert isinstance(region, Region)
         assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
@@ -310,9 +324,26 @@ class TestAxisOrientedRectangle:
         )
         assert np.allclose(
             region.vertices.astype(float),
-            [[0.0, 0.0], [0.0, 1.0], [2.0, 1.0], [2.0, 0.0], [0.0, 0.0]],
+            [[0.0, 0.0], [0.0, 1.0], [2.0, 1.0], [2.0, 0.0]],
         )
         assert np.array_equal(region.centroid, (1, 0.5))
+        assert region.max_distance == np.sqrt(5)
+        assert region.elongation == pytest.approx(0.5)
+        assert region.region_measure == 2
+        assert region.subregion_measure == 6
+        assert region.radial_distance == pytest.approx(1.118033988749895)
+        assert region.isoperimetric_quotient == pytest.approx(0.6981317007977318)
+
+        region = AxisOrientedRectangle((0, 0), 2, -1)
+        assert region.dimension == 2
+        assert region.bounds == pytest.approx((0, -1, 2, 0))
+        assert np.array_equal(region.intervals, [(0, pytest.approx(2)), (-1, 0)])
+        assert region.extent == pytest.approx((2, 1))
+        assert np.allclose(
+            region.vertices.astype(float),
+            [[0.0, 0.0], [0.0, -1.0], [2.0, -1.0], [2.0, 0.0]],
+        )
+        assert np.array_equal(region.centroid, (1, -0.5))
         assert region.max_distance == np.sqrt(5)
         assert region.elongation == pytest.approx(0.5)
         assert region.region_measure == 2
@@ -323,7 +354,10 @@ class TestAxisOrientedRectangle:
     def test_methods(self):
         region = AxisOrientedRectangle((0, 0), 2, 1)
         assert np.array_equal(
-            region.contains([[0, 0], [0.5, 0.5], [100, 100], [-1, 2]]), (1,)
+            region.contains(
+                [[0, 0], [0.5, 0.5], [1, 0.8], [1, 0.2], [100, 100], [-1, 2]]
+            ),
+            (1, 2, 3),
         )
         other = AxisOrientedRectangle((0, 0), 2, 1)
         assert isinstance(region.intersection(other), Polygon)
@@ -365,16 +399,41 @@ class TestRectangle:
         assert np.array_equal(region.intervals, [(-1, pytest.approx(0)), (0, 2)])
         assert region.extent == pytest.approx((1, 2))
         assert len(region.points) == 5
-        assert len(region.vertices) == 5
+        assert len(region.vertices) == 4
         assert np.allclose(
             region.points.astype(float),
             [[0.0, 0.0], [-1.0, 0.0], [-1.0, 2.0], [0.0, 2.0], [0.0, 0.0]],
         )
         assert np.allclose(
             region.vertices.astype(float),
-            [[0.0, 0.0], [-1.0, 0.0], [-1.0, 2.0], [0.0, 2.0], [0.0, 0.0]],
+            [[0.0, 0.0], [-1.0, 0.0], [-1.0, 2.0], [0.0, 2.0]],
         )
         assert np.array_equal(region.centroid, (-0.5, 1))
+        assert region.max_distance == np.sqrt(5)
+        assert region.elongation == pytest.approx(0.5)
+        assert region.region_measure == 2
+        assert region.subregion_measure == 6
+        assert region.radial_distance == pytest.approx(1.118033988749895)
+        assert region.isoperimetric_quotient == pytest.approx(0.6981317007977318)
+
+        region = Rectangle((0, 0), 2, -1, 0)
+        assert region.dimension == 2
+        assert isinstance(region.rotation, Rotation2D)
+        assert region.rotation.as_angle(degrees=True) == pytest.approx(0)
+        assert region.bounds == pytest.approx((0, -1, 2, 0))
+        assert np.allclose(region.intervals.ravel(), [0, 2, -1, 0])
+        assert region.extent == pytest.approx((2, 1))
+        assert len(region.points) == 5
+        assert len(region.vertices) == 4
+        assert np.allclose(
+            region.points.astype(float),
+            [[0.0, 0.0], [0.0, -1.0], [2.0, -1.0], [2.0, 0.0], [0.0, 0.0]],
+        )
+        assert np.allclose(
+            region.vertices.astype(float),
+            [[0.0, 0.0], [0.0, -1.0], [2.0, -1.0], [2.0, 0.0]],
+        )
+        assert np.array_equal(region.centroid, (1, -0.5))
         assert region.max_distance == np.sqrt(5)
         assert region.elongation == pytest.approx(0.5)
         assert region.region_measure == 2
@@ -515,28 +574,28 @@ class TestPolygon:
     def test_init(self):
         points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
         region = Polygon(points)
-        assert (10, 1) not in region
-        assert (0.5, 0.5) in region
-        assert np.array_equal(region.vertices, points)
-        assert (
-            repr(region)
-            == "Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5], [0.0, 0.0]])"
-        )
-        region = Polygon(points[:-1])
         assert isinstance(region, Region)
+        assert np.array_equal(region.vertices, points[:-1])
         assert (
-            repr(region)
-            == "Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5], [0.0, 0.0]])"
+            repr(region) == "Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5]])"
+        )
+        assert str(region) == "Polygon(<self.vertices>, <self.holes>)"
+
+        region = Polygon(points[:-1])
+        assert np.array_equal(region.vertices, points[:-1])
+        assert (
+            repr(region) == "Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5]])"
         )
         assert str(region) == "Polygon(<self.vertices>, <self.holes>)"
         new_reg = eval(repr(region))
         assert isinstance(new_reg, Polygon)
+        assert np.array_equal(region.vertices, points[:-1])
 
     def test_attributes(self):
         points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
         region = Polygon(points)
         assert region.dimension == 2
-        assert np.array_equal(region.vertices, points)
+        assert np.array_equal(region.vertices, points[:-1])
         assert np.array_equal(
             region.centroid,
             (
@@ -545,11 +604,9 @@ class TestPolygon:
             ),
         )
         assert region.max_distance == np.sqrt(2)
-        with pytest.raises(NotImplementedError):
-            region.elongation  # noqa: B018
         assert region.region_measure == pytest.approx(0.75)
         assert region.subregion_measure == pytest.approx(3.618033988749895)
-        assert region.radial_distance == pytest.approx(0.669307571923609)
+        assert region.radial_distance == pytest.approx(0.6477251522831856)
         assert region.isoperimetric_quotient == pytest.approx(0.719988968918596)
 
     def test_methods(self):
@@ -561,6 +618,8 @@ class TestPolygon:
         assert region.contains([(0.2, 0.8)]) == (0,)
         assert region.contains([(100, 100)]).size == 0
         assert region.contains([]).size == 0
+        assert (10, 1) not in region
+        assert (0.5, 0.5) in region
         assert isinstance(region.as_artist(), mPatches.PathPatch)
         assert isinstance(region.shapely_object, shPolygon)
         assert region.region_measure == pytest.approx(
@@ -575,8 +634,8 @@ class TestPolygon:
     def test_Polygon_visual(self):
         points = ((0, 0), (0, 1), (1, 1), (1, 0.5), (0, 0))
         region = Polygon(points)
+
         _fig, ax = plt.subplots(nrows=1, ncols=1)
-        ax.plot(*region.points.T, marker=".", color="Blue")
         ax.plot(*region.vertices.T, marker=".", color="Blue")
         ax.plot(
             *np.array(region.shapely_object.exterior.coords).T, marker=".", color="Red"
@@ -590,13 +649,16 @@ class TestPolygon:
         plt.show()
 
         # visualize points inside
-        # points = np.random.default_rng().random(size=(10, 2))
-        # points_inside = points[region.contains(points)]
-        # fig, ax = plt.subplots(nrows=1, ncols=1)
-        # ax.scatter(*points_inside.T, marker='.', color='Blue')
-        # ax.plot(*np.array(region.shapely_object.exterior.coords).T, marker='.', color='Red')
-        # ax.add_patch(region.as_artist(fill=True, alpha=0.2))
-        # plt.show()
+        points = np.random.default_rng().random(size=(1000, 2))
+        points_inside = points[region.contains(points)]
+        fig, ax = plt.subplots(nrows=1, ncols=1)
+        ax.scatter(*points.T, marker=".", color="Gray")
+        ax.scatter(*points_inside.T, marker=".", color="Blue")
+        ax.plot(
+            *np.array(region.shapely_object.exterior.coords).T, marker=".", color="Red"
+        )
+        ax.add_patch(region.as_artist(fill=True, alpha=0.2))
+        plt.show()
 
         plt.close("all")
 
@@ -607,18 +669,16 @@ class TestPolygon:
             ((0.4, 0.4), (0.4, 0.5), (0.5, 0.5), (0.5, 0.45)),
         ]
         region = Polygon(points, holes)
-        assert np.array_equal(region.vertices, points)
+        assert np.array_equal(region.vertices, points[:-1])
         assert (
-            repr(region)
-            == "Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5], [0.0, 0.0]], "
+            repr(region) == "Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5]], "
             "[[[0.2, 0.2], [0.2, 0.3], [0.3, 0.3], [0.3, 0.25]], "
             "[[0.4, 0.4], [0.4, 0.5], [0.5, 0.5], [0.5, 0.45]]])"
         )
         region = Polygon(points[:-1], holes)
         assert isinstance(region, Region)
         assert (
-            repr(region)
-            == "Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5], [0.0, 0.0]], "
+            repr(region) == "Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5]], "
             "[[[0.2, 0.2], [0.2, 0.3], [0.3, 0.3], [0.3, 0.25]], "
             "[[0.4, 0.4], [0.4, 0.5], [0.5, 0.5], [0.5, 0.45]]])"
         )
@@ -627,8 +687,7 @@ class TestPolygon:
         assert isinstance(new_reg, Polygon)
         assert region.dimension == 2
         assert np.array_equal(region.points, points)
-        assert np.array_equal(region.vertices, points)
-        assert np.array_equal(region.vertices, points)
+        assert np.array_equal(region.vertices, points[:-1])
         assert np.array_equal(
             region.centroid,
             (
@@ -639,8 +698,7 @@ class TestPolygon:
         assert region.max_distance == np.sqrt(2)
         assert region.region_measure == pytest.approx(0.735)
         assert region.subregion_measure == pytest.approx(4.341640786499874)
-        assert region.radial_distance == pytest.approx(0.6699653096842809)
-        assert region.radial_distance == pytest.approx(0.6699653096842809)
+        assert region.radial_distance == pytest.approx(0.6472153862069733)
         assert np.array_equal(
             region.contains([[0, 0], [0.2, 0.8], [100, 100], [1, 0.5]]), (1,)
         )
@@ -690,18 +748,17 @@ class TestPolygon:
         shapely_polygon = shPolygon(points, holes)
         region = Polygon.from_shapely(shapely_polygon)
         assert np.array_equal(region.points, points)
-        assert np.array_equal(region.vertices, points)
+        assert np.array_equal(region.vertices, points[:-1])
         assert isinstance(region, Region)
         assert (
-            repr(region)
-            == "Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5], [0.0, 0.0]], "
+            repr(region) == "Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5]], "
             "[[[0.2, 0.2], [0.2, 0.3], [0.3, 0.3], [0.3, 0.25], [0.2, 0.2]], "
             "[[0.4, 0.4], [0.4, 0.5], [0.5, 0.5], [0.5, 0.45], [0.4, 0.4]]])"
         )
         assert str(region) == "Polygon(<self.vertices>, <self.holes>)"
         assert region.dimension == 2
         assert np.array_equal(region.points, points)
-        assert np.array_equal(region.vertices, points)
+        assert np.array_equal(region.vertices, points[:-1])
         assert np.array_equal(
             region.centroid,
             (
@@ -771,7 +828,7 @@ class TestMultiPolygon:
         assert isinstance(region, Region)
         assert (
             repr(region)
-            == "MultiPolygon([Polygon([[2.0, 2.0], [2.0, 3.0], [3.0, 3.0], [3.0, 2.5], [2.0, 2.0]]), Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5], [0.0, 0.0]], [[[0.2, 0.2], [0.2, 0.3], [0.3, 0.3], [0.3, 0.25]], [[0.4, 0.4], [0.4, 0.5], [0.5, 0.5], [0.5, 0.45]]])])"
+            == "MultiPolygon([Polygon([[2.0, 2.0], [2.0, 3.0], [3.0, 3.0], [3.0, 2.5]]), Polygon([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.5]], [[[0.2, 0.2], [0.2, 0.3], [0.3, 0.3], [0.3, 0.25]], [[0.4, 0.4], [0.4, 0.5], [0.5, 0.5], [0.5, 0.45]]])])"
         )
         assert str(region) == "MultiPolygon(<self.polygons>)"
         new_reg = eval(repr(region))
@@ -805,8 +862,7 @@ class TestMultiPolygon:
             region.elongation  # noqa: B018
         assert region.region_measure == pytest.approx(1.485)
         assert region.subregion_measure == pytest.approx(7.959674775249769)
-        assert region.radial_distance == pytest.approx(1.4577832377135331)
-        assert region.radial_distance == pytest.approx(1.4577832377135331)
+        assert region.radial_distance == pytest.approx(1.4669234564865672)
 
     def test_methods(self):
         points = ((2, 2), (2, 3), (3, 3), (3, 2.5), (2, 2))
@@ -994,7 +1050,7 @@ class TestPolygonOperations:
         assert isinstance(region, Polygon)
         assert region.dimension == 2
         assert len(region.points) == 5
-        assert len(region.vertices) == 5
+        assert len(region.vertices) == 4
         assert len(region.holes) == 2
 
     @pytest.mark.visual
@@ -1237,10 +1293,7 @@ class TestAxisOrientedCuboid:
         # assert isinstance(region.as_artist(), mPatches.Rectangle)
 
         assert isinstance(region.buffer(1), AxisOrientedCuboid)
-        assert (
-            repr(region.buffer(1))
-            == "AxisOrientedCuboid((0.0, 0.0, 0.0), 11.0, 21.0, 31.0)"
-        )
+        assert repr(region.buffer(1)) == "AxisOrientedCuboid((0, 0, 0), 11, 21, 31)"
 
     def test_from_intervals(self):
         region = AxisOrientedCuboid.from_intervals(((1, 10), (1, 20), (1, 30)))

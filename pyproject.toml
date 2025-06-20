@@ -109,7 +109,7 @@ all = [
     "trackpy",
 ]
 gpu = [
-    "cupy",
+    "cupy-cuda12x",
     "open3d!=0.12.0; python_version<'3.13'"
 ]
 # todo: with pip>25.1.0

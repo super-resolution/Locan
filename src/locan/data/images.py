@@ -5,6 +5,8 @@ This module provides an adapter class for Image objects of third-party
 image processing libraries.
 """
 
+# todo: add docstrings
+
 from __future__ import annotations
 
 import logging
@@ -32,24 +34,19 @@ __all__: list[str] = ["Image"]
 logger = logging.getLogger()
 
 
+class ArrayApiObject(Protocol):
+    __array_namespace__: str
+
+
 class ImageProtocol(Protocol):
-    data: npt.NDArray[Any]
+    data: ArrayApiObject | npt.NDArray[Any]
     is_rgb: bool
     bins: Bins | None
     meta: metadata_pb2.Metadata
 
 
-class ArrayApiObject(Protocol):
-    __array_namespace__: str
-
-
-# def is_array_api_obj(x: Any) -> bool:
-#     """Check if input is complient with array API standard."""
-#     return hasattr(x, "__array_namespace__")
-
-
 def is_array_api_obj(x: Any) -> bool:
-    """Check if input is complient with array API standard."""
+    """Check if input is compliant with array API standard."""
     flag = hasattr(x, "__array_namespace__")
     if flag is False:
         try:
@@ -57,6 +54,10 @@ def is_array_api_obj(x: Any) -> bool:
 
             flag = array_api_compat.is_array_api_obj(x)
         except ImportError:
+            logger.warning(
+                "ImportError: Install array_api_compat "
+                "to check if is_array_api_obj(x)"
+            )
             pass
     return flag
 
@@ -125,23 +126,26 @@ class Image(ImageBase):
 
     def __init__(
         self,
-        image: Any | None,
+        image: Any | None = None,
+        data: ArrayApiObject | npt.NDArray[Any] | None = None,
         is_rgb: bool = False,
         meta: metadata_pb2.Metadata | None = None,
     ) -> None:
         self._image: Any | None = image
-        self._is_rgb: bool = is_rgb
-
         self._data: ArrayApiObject | npt.NDArray[Any] | None = None
+        self._is_rgb: bool = is_rgb
         self._bins: Bins | None = None
-        self.meta: metadata_pb2.Metadata = metadata_pb2.Metadata()
 
+        if data is not None:
+            self.data = data
+
+        self.meta: metadata_pb2.Metadata = metadata_pb2.Metadata()
         # meta
         self.meta.identifier = str(uuid.uuid4())
         self.meta.creation_time.GetCurrentTime()
         self.meta = merge_metadata(metadata=self.meta, other_metadata=meta)
 
-    def __getattr__(self, attr):  # type: ignore
+    def __getattr__(self, attr: str) -> Any:
         """All non-adapted calls are passed to the self._data and self._image object"""
         if attr.startswith("__") and attr.endswith(
             "__"
@@ -158,7 +162,7 @@ class Image(ImageBase):
         state = self.__dict__.copy()
         # Serialize the unpicklable protobuf entries.
         json_string = json_format.MessageToJson(
-            self.meta, including_default_value_fields=False
+            self.meta, always_print_fields_with_no_presence=False
         )
         state["meta"] = json_string
         return state
@@ -172,7 +176,7 @@ class Image(ImageBase):
         self.meta = json_format.Parse(state["meta"], self.meta)
 
     @property
-    def data(self) -> Any:
+    def data(self) -> ArrayApiObject | npt.NDArray[Any] | None:
         return self._data
 
     @data.setter
@@ -207,8 +211,7 @@ class Image(ImageBase):
         is_rgb: bool = False,
         meta: metadata_pb2.Metadata | None = None,
     ) -> T_Image:
-        new_image = cls(image=array, is_rgb=is_rgb, meta=meta)
-        new_image.data = new_image._image
+        new_image = cls(image=None, data=array, is_rgb=is_rgb, meta=meta)
         return new_image
 
     @classmethod
@@ -218,8 +221,7 @@ class Image(ImageBase):
         is_rgb: bool = False,
         meta: metadata_pb2.Metadata | None = None,
     ) -> T_Image:
-        new_image = cls(image=np.asarray(array), is_rgb=is_rgb, meta=meta)
-        new_image.data = new_image._image
+        new_image = cls(image=None, data=np.asarray(array), is_rgb=is_rgb, meta=meta)
         return new_image
 
     @classmethod
@@ -231,8 +233,7 @@ class Image(ImageBase):
         meta: metadata_pb2.Metadata | None = None,
     ) -> T_Image:
         data = np.full(fill_value=value, shape=bins.n_bins)
-        new_image = cls(image=data, is_rgb=is_rgb, meta=meta)
-        new_image.data = new_image._image
+        new_image = cls(image=None, data=data, is_rgb=is_rgb, meta=meta)
         new_image._bins = bins
         return new_image
 
@@ -250,8 +251,7 @@ class Image(ImageBase):
         if not isinstance(image, napari.layers.Image):
             raise TypeError("Layer data must be of type Image.")
 
-        new_image = cls(image=image, is_rgb=image.rgb, meta=meta)
-        new_image.data = image.data
+        new_image = cls(image=image, data=image.data, is_rgb=image.rgb, meta=meta)
         return new_image
 
     @classmethod
@@ -261,6 +261,5 @@ class Image(ImageBase):
         meta: metadata_pb2.Metadata | None = None,
     ) -> T_Image:
         is_rgb = True if image.mode == "RGB" or image.mode == "RGBA" else False
-        new_image = cls(image=image, is_rgb=is_rgb, meta=meta)
-        new_image.data = new_image.image
+        new_image = cls(image=None, data=image, is_rgb=is_rgb, meta=meta)
         return new_image

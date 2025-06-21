@@ -16,14 +16,23 @@ from locan.dependencies import HAS_DEPENDENCY
 class TestImage:
 
     def test_image_init(self):
-        image = Image(image=np.zeros(shape=(2, 3)))
-        assert image._image.shape == (2, 3)
+        image = Image()
+        assert image._image is None
         assert image.data is None
-        assert image.shape == (2, 3)
-        assert image.ndim == 2
         assert image.is_rgb is False
         assert image.bins is None
         assert isinstance(image.meta, metadata_pb2.Metadata)
+        with pytest.raises(AttributeError):
+            assert image.shape
+
+        image = Image(image=np.zeros(shape=(2, 3)))
+        assert image._image.shape == (2, 3)
+        assert image.data is None
+        assert image.is_rgb is False
+        assert image.bins is None
+        assert isinstance(image.meta, metadata_pb2.Metadata)
+        assert image.shape == (2, 3)
+        assert image.ndim == 2
 
         image.meta.file.path = "some/path"
         assert image.meta.file.path == "some/path"
@@ -42,42 +51,42 @@ class TestImage:
         )
         assert image._image.shape == (2, 3)
         assert image.data is None
-        assert image.shape == (2, 3)
-        assert image.ndim == 2
         assert image.is_rgb is True
         assert image.bins is None
         assert isinstance(image.meta, metadata_pb2.Metadata)
+        assert image.shape == (2, 3)
+        assert image.ndim == 2
         assert image.meta.identifier == "1"
 
         image = Image.from_array(array=np.zeros(shape=(2, 3)), meta={"identifier": "1"})
-        assert image._image.shape == (2, 3)
+        assert image._image is None
         assert image.data.shape == (2, 3)
-        assert image.shape == (2, 3)
         assert image.is_rgb is False
         assert image.bins is None
-        assert isinstance(image.meta, metadata_pb2.Metadata)
+        assert image.shape == (2, 3)
+        assert image.meta.identifier == "1"
 
         image = Image.from_numpy(array=np.zeros(shape=(2, 3)), meta={"identifier": "1"})
-        assert image._image.shape == (2, 3)
+        assert image._image is None
         assert image.data.shape == (2, 3)
-        assert image.shape == (2, 3)
         assert image.is_rgb is False
         assert image.bins is None
-        assert isinstance(image.meta, metadata_pb2.Metadata)
+        assert image.shape == (2, 3)
+        assert image.meta.identifier == "1"
 
         bins = Bins(n_bins=(2, 3), bin_range=(10, 100))
         image = Image.from_bins(bins=bins, meta={"identifier": "1"})
-        assert image._image.shape == (2, 3)
+        assert image._image is None
         assert image.data.shape == (2, 3)
-        assert image.shape == (2, 3)
-        assert image.data[0, 0] == 1
         assert image.is_rgb is False
         assert image.bins == bins
-        assert isinstance(image.meta, metadata_pb2.Metadata)
+        assert image.shape == (2, 3)
+        assert image.data[0, 0] == 1
+        assert image.meta.identifier == "1"
 
         bins = Bins(n_bins=(2, 3), bin_range=(10, 100))
         image = Image.from_bins(bins=bins, value=2)
-        assert image._image.shape == (2, 3)
+        assert image._image is None
         assert image.data.shape == (2, 3)
         assert image.shape == (2, 3)
         assert image.data[0, 0] == 2
@@ -87,31 +96,31 @@ class TestImage:
     @pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
     def test_image_with_napari(self):
         image_in = napari.Viewer().add_image(data=np.zeros(shape=(2, 3)))
-        image = Image.from_napari(image=image_in, meta={"identifier": "1"})
-        assert image._image.dtype == float
-        assert image.data.shape == (2, 3)
-        assert image.shape == (2, 3)
-        assert image.is_rgb is False
-        assert image.bins is None
-        assert isinstance(image.meta, metadata_pb2.Metadata)
-
-        image_in = napari.Viewer().add_image(data=np.zeros(shape=(2, 3, 3)))
         image = Image.from_napari(image=image_in)
         assert image._image.dtype == float
-        assert image.data.shape == (2, 3, 3)
-        assert image.shape == (2, 3, 3)
+        assert image.data.shape == (2, 3)
+        assert image.is_rgb is False
+        assert image.bins is None
+        assert image.shape == (2, 3)
+        assert isinstance(image.meta, metadata_pb2.Metadata)
+
+        image_in = napari.Viewer().add_image(data=np.zeros(shape=(2, 3, 4)), rgb=True)
+        image = Image.from_napari(image=image_in, meta={"identifier": "1"})
+        assert image._image.dtype == float
+        assert image.data.shape == (2, 3, 4)
         assert image.is_rgb is True
         assert image.bins is None
-        assert isinstance(image.meta, metadata_pb2.Metadata)
+        assert image.shape == (2, 3, 4)
+        assert image.meta.identifier == "1"
 
         image_in = napari.Viewer().add_image(data=np.zeros(shape=(2, 3)))
         image_in = image_in.as_layer_data_tuple()
         image = Image.from_napari(image=image_in)
         assert image._image.dtype == float
         assert image.data.shape == (2, 3)
-        assert image.shape == (2, 3)
         assert image.is_rgb is False
         assert image.bins is None
+        assert image.shape == (2, 3)
         assert isinstance(image.meta, metadata_pb2.Metadata)
 
     def test_plugin(self):

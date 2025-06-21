@@ -206,8 +206,7 @@ testpaths = [
 ]
 filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
-    "ignore::DeprecationWarning:hdbscan",
-]
+    ]
 addopts = "--import-mode=importlib --strict-markers -m 'not gui and not visual'"
 markers = [
     "gui: marks tests that require user interaction (skipped by default)",

@@ -95,6 +95,7 @@ __all__: list[str] = [
     "RadialDistribution",
     "RadialDistributionBatch",
     "RadialDistributionResults",
+    "RadialDistributionBatchResults",
 ]
 
 logger = logging.getLogger(__name__)
@@ -154,16 +155,6 @@ def _radial_distribution_function(
         )
     else:
         raise NotImplementedError(f"Not implemented for dimension {dimension}")
-
-    # differential_region_measure approximation
-    # if dimension == 1:
-    #     differential_region_measure = delta_radii
-    # elif dimension == 2:
-    #     differential_region_measure = 2 * np.pi * radii * delta_radii
-    # elif dimension == 3:
-    #     differential_region_measure = 4 * np.pi * radii**2 * delta_radii
-    # else:
-    #     raise NotImplementedError(f"Not implemented for dimension {dimension}")
 
     # normalize
     factor = 2 / (n_points * other_points_density * differential_region_measure)
@@ -367,6 +358,12 @@ T_RadialDistributionBatch = TypeVar(
 )
 
 
+@dataclass(repr=False)
+class RadialDistributionBatchResults:
+    radii: pd.DataFrame = field(default_factory=pd.DataFrame)
+    data: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+
 class RadialDistributionBatch(_Analysis):
     """
     Generate RadialDistribution results from a batch of data.
@@ -467,7 +464,7 @@ class RadialDistributionBatch(_Analysis):
         else:
             raise ValueError("The dimensions of all locdata must be the same.")
 
-        results = RadialDistributionResults()
+        results = RadialDistributionBatchResults()
         assert batch[0].results is not None  # type narrowing # noqa: S101
         radii_ = batch[0].results.radii.index
         if all(np.array_equal(radii_, item_.results.radii.index) for item_ in batch):  # type: ignore[union-attr]
@@ -540,6 +537,22 @@ class RadialDistributionBatch(_Analysis):
                     color="black",
                     alpha=1,
                     label="mean",
+                ),
+                **kwargs,
+            ),
+        )
+
+        ax.step(
+            self.results.data.index,
+            self.results.data.quantile(0.05, axis=1),
+            self.results.data.index,
+            self.results.data.quantile(0.95, axis=1),
+            **dict(
+                dict(
+                    color="gray",
+                    alpha=1,
+                    label="CI",
+                    linestyle="dashed",
                 ),
                 **kwargs,
             ),

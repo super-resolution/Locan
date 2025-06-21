@@ -40,6 +40,7 @@ from .analysis import (
     RadialDistribution as RadialDistribution,
     RadialDistributionBatch as RadialDistributionBatch,
     RadialDistributionResults as RadialDistributionResults,
+    RadialDistributionBatchResults as RadialDistributionBatchResults,
     RipleysHFunction as RipleysHFunction,
     RipleysKFunction as RipleysKFunction,
     RipleysLFunction as RipleysLFunction,

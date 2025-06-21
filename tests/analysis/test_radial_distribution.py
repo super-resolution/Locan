@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt  # this import is needed for visual inspection
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -7,6 +8,7 @@ from locan import (
     PairDistances,
     RadialDistribution,
     RadialDistributionBatch,
+    RadialDistributionBatchResults,
     RadialDistributionResults,
     simulate_uniform,
 )
@@ -38,6 +40,13 @@ def test__radial_distribution_function():
         _radial_distribution_function(range(5), 4, 1, 1, 10)
 
 
+class TestRadialDistributionResults:
+
+    def test_init_empty(self):
+        results = RadialDistributionResults()
+        assert results
+
+
 class TestRadialDistribution:
 
     def test_init_empty(self, caplog):
@@ -51,11 +60,12 @@ class TestRadialDistribution:
             ("locan.analysis.radial_distribution", 30, "Locdata is empty.")
         ]
 
-    def test_RadialDistribution(self, locdata_simple):
+    def test_init(self, locdata_simple):
         rdf = RadialDistribution(bins=10)
         assert repr(rdf) == "RadialDistribution(bins=10, pair_distances=None)"
         rdf.compute(locdata_simple)
         assert rdf.dimension == 2
+        assert isinstance(rdf.results, RadialDistributionResults)
         assert len(rdf.results.radii) == 10
         assert len(rdf.results.data) == 10
         assert all(rdf.results.data.columns == ["rdf"])
@@ -96,7 +106,7 @@ class TestRadialDistribution:
 
 
 @pytest.mark.visual
-def test_PairDistances_2d_random():
+def test_RadialDistribution_2d_random():
     locdata = simulate_uniform(n_samples=1_000, region=((0, 100), (0, 100)))
     rdf = RadialDistribution(bins=10).compute(locdata)
     rdf.hist()
@@ -104,11 +114,18 @@ def test_PairDistances_2d_random():
 
 
 @pytest.mark.visual
-def test_PairDistances_3d_random():
+def test_RadialDistribution_3d_random():
     locdata = simulate_uniform(n_samples=1_000, region=((0, 1), (0, 1), (0, 1)))
     rdf = RadialDistribution(bins=10).compute(locdata)
     rdf.hist()
     plt.show()
+
+
+class TestRadialDistributionBatchResults:
+
+    def test_init_empty(self):
+        results = RadialDistributionBatchResults()
+        assert results
 
 
 class TestRadialDistributionBatch:
@@ -146,7 +163,7 @@ class TestRadialDistributionBatch:
         rdb = RadialDistributionBatch(bins=10).compute(
             locdatas=[locdata_simple, locdata_simple]
         )
-        assert isinstance(rdb.results, RadialDistributionResults)
+        assert isinstance(rdb.results, RadialDistributionBatchResults)
         assert isinstance(rdb.results.radii, pd.DataFrame)
         assert isinstance(rdb.results.data, pd.DataFrame)
         assert len(rdb.results.data.index) == 10
@@ -162,11 +179,24 @@ class TestRadialDistributionBatch:
         rdf_1 = RadialDistribution(bins=10).compute(locdata_simple)
 
         rdb = RadialDistributionBatch().from_batch(batch=[rdf_0, rdf_1])
-        assert isinstance(rdb.results, RadialDistributionResults)
+        assert isinstance(rdb.results, RadialDistributionBatchResults)
         assert len(rdb.results.data.index) == 10
         assert len(rdb.results.data.columns) == 2
 
+    @pytest.mark.visual
+    def test_from_batch_visual(self, locdata_simple):
+        rng = np.random.default_rng(seed=1)
+        locdatas = [
+            simulate_uniform(n_samples=100, region=((0, 1), (0, 1), (0, 1)), seed=rng)
+            for _ in range(5)
+        ]
+        bins = np.linspace(0, 2, 10)
+        rdfs = [
+            RadialDistribution(bins=bins).compute(locdata_) for locdata_ in locdatas
+        ]
+        rdb = RadialDistributionBatch().from_batch(batch=rdfs)
+
         rdb.hist()
-        # plt.show()
+        plt.show()
 
         plt.close("all")

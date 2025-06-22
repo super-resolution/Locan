@@ -4,7 +4,6 @@ from pathlib import Path
 
 import napari
 import numpy as np
-import numpy.typing as npt
 import pytest
 from numpy import array_equal
 
@@ -66,6 +65,7 @@ class TestImage:
         assert image.shape == (2, 3)
         assert image.meta.identifier == "1"
 
+    def test_constructor_methods(self):
         image = Image.from_numpy(array=np.zeros(shape=(2, 3)), meta={"identifier": "1"})
         assert image._image is None
         assert image.data.shape == (2, 3)
@@ -93,8 +93,42 @@ class TestImage:
         image.data = np.array([[1, 2, 3], [4, 5, 6]])
         assert image.data[0, 0] == 1
 
+    def test_image_from_pillow(self):
+        class PillowMock:
+            def __init__(self, mode, data):
+                self.mode = mode
+                self._data = data
+
+            @property
+            def __array_interface__(self):
+                array_interface = {
+                    "shape": self._data.shape,
+                    "typestr": "i",
+                    "data": self._data,
+                    "version": 3,
+                }
+                return array_interface
+
+        pillow_image = PillowMock(mode="RGBA", data=np.zeros(shape=(2, 3, 4)))
+        image = Image.from_pillow(image=pillow_image, meta={"identifier": "1"})
+        assert image._image is pillow_image
+        assert image.data.shape == (2, 3, 4)
+        assert image.is_rgb is True
+        assert image.bins is None
+        assert image.shape == (2, 3, 4)
+        assert image.meta.identifier == "1"
+
+        pillow_image = PillowMock(mode="L", data=np.zeros(shape=(2, 3)))
+        image = Image.from_pillow(image=pillow_image, meta={"identifier": "1"})
+        assert image._image is pillow_image
+        assert image.data.shape == (2, 3)
+        assert image.is_rgb is False
+        assert image.bins is None
+        assert image.shape == (2, 3)
+        assert image.meta.identifier == "1"
+
     @pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
-    def test_image_with_napari(self):
+    def test_image_from_napari(self):
         image_in = napari.Viewer().add_image(data=np.zeros(shape=(2, 3)))
         image = Image.from_napari(image=image_in)
         assert image._image.dtype == float
@@ -129,18 +163,22 @@ class TestImage:
         modify the initialization of self.data and other attributes accordingly.
         """
 
-        class MyImage(Image):
-            def __init__(self, image: npt.NDArray):
-                super().__init__(image=image)
-                self.data = self._image
+        class ImageMock:
+            def __init__(self, data):
+                self._data = data
 
-        image = MyImage(image=np.zeros(shape=(2, 3)))
-        assert image._image.shape == (2, 3)
+        class MyImage(Image):
+            def __init__(self, image: ImageMock, meta=None):
+                super().__init__(image=image, meta=meta)
+                self.data = self._image._data
+
+        third_party_image = ImageMock(np.zeros(shape=(2, 3)))
+        image = MyImage(image=third_party_image, meta={"identifier": "1"})
         assert image.data.shape == (2, 3)
         assert image.shape == (2, 3)
         assert image.is_rgb is False
         assert image.bins is None
-        assert isinstance(image.meta, metadata_pb2.Metadata)
+        assert image.meta.identifier == "1"
 
         bins = Bins(n_bins=(2, 3), bin_range=(10, 100))
         image.bins = bins

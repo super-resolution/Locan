@@ -3,9 +3,28 @@ Image class
 
 This module provides an adapter class for Image objects of third-party
 image processing libraries.
-"""
 
-# todo: add docstrings
+The Image class is the locan way to keep an image, the pixel coordinates
+and metadata in sync.
+
+Image data is kept as an array compliant with the Python array API
+standard [1]_.
+
+Pixel coordinates are kept as a :class:`Bins` instance.
+
+To create an Image object from any other image library
+modify the initialization of self.data and other attributes accordingly:
+
+    class MyImage(Image):
+        def __init__(self, image: Any):
+            super().__init__(image=image)
+            self.data = some_function_or_attribute(self._image)
+
+References
+----------
+.. [1] https://data-apis.org/array-api/latest
+
+"""
 
 from __future__ import annotations
 
@@ -39,14 +58,29 @@ class ArrayApiObject(Protocol):
 
 
 class ImageProtocol(Protocol):
+    """
+    Interface specification for an adapter class for Image objects.
+    """
+
     data: ArrayApiObject | npt.NDArray[Any]
     is_rgb: bool
     bins: Bins | None
     meta: metadata_pb2.Metadata
 
 
+class PillowImage(Protocol):
+    """
+    Interface specification for a pillow image.
+    """
+
+    mode: str
+    __array_interface__: dict[str, Any]
+
+
 def is_array_api_obj(x: Any) -> bool:
-    """Check if input is compliant with array API standard."""
+    """
+    Check if input is compliant with array API standard.
+    """
     flag = hasattr(x, "__array_namespace__")
     if flag is False:
         try:
@@ -93,10 +127,11 @@ class Image(ImageBase):
     The original image object is referenced via self._image.
     An array object that complies with the array API standard
     is referenced in self.data
-    https://data-apis.org/array-api/latest/index.html
 
     All attribute requests are looked up in the following order:
     self, self.data, self._image
+
+    For initiation use the appropriate constructor method.
 
     Parameters
     ----------
@@ -211,6 +246,23 @@ class Image(ImageBase):
         is_rgb: bool = False,
         meta: metadata_pb2.Metadata | None = None,
     ) -> T_Image:
+        """
+        Constructor method for any image given as array.
+
+        Parameters
+        ----------
+        array
+            The image data
+        is_rgb:
+            Whether the image is RGB or RGBA.
+            If `False` the image is interpreted as a luminance image.
+        meta:
+            Metadata about the current dataset.
+
+        Returns
+        -------
+        Image
+        """
         new_image = cls(image=None, data=array, is_rgb=is_rgb, meta=meta)
         return new_image
 
@@ -221,6 +273,23 @@ class Image(ImageBase):
         is_rgb: bool = False,
         meta: metadata_pb2.Metadata | None = None,
     ) -> T_Image:
+        """
+        Constructor method for any image given as numpy array.
+
+        Parameters
+        ----------
+        array
+            The image data
+        is_rgb:
+            Whether the image is RGB or RGBA.
+            If `False` the image is interpreted as a luminance image.
+        meta:
+            Metadata about the current dataset.
+
+        Returns
+        -------
+        Image
+        """
         new_image = cls(image=None, data=np.asarray(array), is_rgb=is_rgb, meta=meta)
         return new_image
 
@@ -232,6 +301,26 @@ class Image(ImageBase):
         is_rgb: bool = False,
         meta: metadata_pb2.Metadata | None = None,
     ) -> T_Image:
+        """
+        Constructor method for an image with constant values
+        and a size that corresponds to the given bin specifications.
+
+        Parameters
+        ----------
+        bins
+            Bin specifications
+        value
+            A single value as default for the new image.
+        is_rgb:
+            Whether the image is RGB or RGBA.
+            If `False` the image is interpreted as a luminance image.
+        meta:
+            Metadata about the current dataset.
+
+        Returns
+        -------
+        Image
+        """
         data = np.full(fill_value=value, shape=bins.n_bins)
         new_image = cls(image=None, data=data, is_rgb=is_rgb, meta=meta)
         new_image._bins = bins
@@ -244,7 +333,22 @@ class Image(ImageBase):
         image: napari.layers.Image | napari.types.ImageData,
         meta: metadata_pb2.Metadata | None = None,
     ) -> T_Image:
-        # LayerData = Union[Tuple[DataType], Tuple[DataType, LayerProps], FullLayerData]
+        """
+        Constructor method for an image derived from a napari.Image instance.
+
+        Parameters
+        ----------
+        image
+            The napari image or image data.
+            Image can be of type LayerData for Image, i.e.,
+            Union[Tuple[DataType], Tuple[DataType, LayerProps], FullLayerData]
+        meta:
+            Metadata about the current dataset.
+
+        Returns
+        -------
+        Image
+        """
         if isinstance(image, tuple):
             image = napari.layers.Layer.create(*image)
 
@@ -257,9 +361,23 @@ class Image(ImageBase):
     @classmethod
     def from_pillow(
         cls: type[T_Image],  # noqa: UP006
-        image: Any,
+        image: PillowImage,
         meta: metadata_pb2.Metadata | None = None,
     ) -> T_Image:
+        """
+        Constructor method for an image derived from a pillow.Image instance.
+
+        Parameters
+        ----------
+        image
+            The pillow image.
+        meta:
+            Metadata about the current dataset.
+
+        Returns
+        -------
+        Image
+        """
         is_rgb = True if image.mode == "RGB" or image.mode == "RGBA" else False
-        new_image = cls(image=None, data=image, is_rgb=is_rgb, meta=meta)
+        new_image = cls(image=image, data=np.array(image), is_rgb=is_rgb, meta=meta)
         return new_image

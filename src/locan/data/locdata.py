@@ -847,7 +847,7 @@ class LocData:
 
     @classmethod
     def from_collection(
-        cls: type[T_LocData],  # noqa: UP006v
+        cls: type[T_LocData],  # noqa: UP006
         locdatas: Iterable[LocData],
         meta: (
             metadata_pb2.Metadata

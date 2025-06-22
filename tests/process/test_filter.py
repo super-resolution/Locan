@@ -1,8 +1,9 @@
-import locan.data.metadata_pb2
 import matplotlib.pyplot as plt  # needed for visual inspection  # noqa: F401
 import numpy as np
 import pandas as pd
 import pytest
+
+import locan.data.metadata_pb2
 from locan import (
     Bins,
     HullType,

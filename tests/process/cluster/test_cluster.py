@@ -2,6 +2,7 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
+
 from locan import (
     Bins,
     cluster_by_bin,

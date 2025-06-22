@@ -2,9 +2,10 @@
 Benchmark functions for :mod:`locan.process.filter`
 """
 
-import locan as lc
 import matplotlib.pyplot as plt
 import numpy as np
+
+import locan as lc
 from locan.data import Image
 from locan.process.filter import (
     select_by_image_mask,

@@ -315,7 +315,6 @@ boost_histogram = "bh"
 convention = "numpy"
 
 [tool.mypy]
-plugins = ['numpy.typing.mypy_plugin']
 files = [
     "$MYPY_CONFIG_FILE_DIR/src",
     "$MYPY_CONFIG_FILE_DIR/tests/"

@@ -94,7 +94,7 @@ def _accumulation_cluster_check_for_single_dataset(
         # compute hulls
         Hs = [ConvexHull(ref.coordinates) for ref in clust.references]  # type: ignore[union-attr]
         clust.dataframe = clust.dataframe.assign(
-            region_measure_ch=[H.region_measure for H in Hs]
+            region_measure_ch=[H.region_measure for H in Hs]  # type: ignore[arg-type]
         )
 
         localization_density_ch = (

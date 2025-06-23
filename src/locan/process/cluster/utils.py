@@ -60,10 +60,10 @@ def serial_clustering(
 
     noise_locdata = [result[0] for result in results]
     noise_collection = LocData.from_collection(noise_locdata)
-    noise_collection.dataframe = noise_collection.dataframe.assign(**dictionary)
+    noise_collection.dataframe = noise_collection.dataframe.assign(**dictionary)  # type: ignore[arg-type]
     collection_locdata = [result[1] for result in results]
     collection = LocData.from_collection(collection_locdata)
-    collection.dataframe = collection.dataframe.assign(**dictionary)
+    collection.dataframe = collection.dataframe.assign(**dictionary)  # type: ignore[arg-type]
 
     # metadata for noise_collection
     del noise_collection.meta.history[:]

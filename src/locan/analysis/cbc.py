@@ -119,7 +119,7 @@ def _coordinate_based_colocalization(
     norm_spearmanr = np.exp(-1 * max_distances / radius)
     correlation = correlation * norm_spearmanr
 
-    return correlation
+    return correlation  # type: ignore[no-any-return]
 
 
 # The specific analysis classes

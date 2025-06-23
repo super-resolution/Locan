@@ -494,7 +494,7 @@ def overlay(
 
         transformed_locdatas.append(transformed_locdata)
 
-    new_locdata = LocData.from_collection(transformed_locdatas)
+    new_locdata = LocData.from_collection(transformed_locdatas)  # type: ignore
 
     # update metadata
     del new_locdata.meta.history[:]

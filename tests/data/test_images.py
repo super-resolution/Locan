@@ -1,6 +1,7 @@
 import pickle
 import tempfile
 from pathlib import Path
+from typing import cast
 
 import napari
 import numpy as np
@@ -170,6 +171,7 @@ class TestImage:
         class MyImage(Image):
             def __init__(self, image: ImageMock, meta=None):
                 super().__init__(image=image, meta=meta)
+                self._image = cast(ImageMock, self._image)
                 self.data = self._image._data
 
         third_party_image = ImageMock(np.zeros(shape=(2, 3)))

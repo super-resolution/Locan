@@ -283,11 +283,11 @@ def select_by_image_mask(
     bins, bin_indices, collection, counts = cluster_by_bin(
         locdata=locdata, loc_properties=loc_properties, bins=image.bins
     )
-    mask = [tuple(item) for item in np.transpose(np.nonzero(image.data)).tolist()]
+    mask = [tuple(item) for item in np.transpose(np.nonzero(image.data)).tolist()]  # type: ignore
     items = [
-        collection.references[i]
+        collection.references[i]  # type: ignore
         for i, indices in enumerate(bin_indices)
-        if tuple(indices - 1) in mask
+        if tuple(indices - 1) in mask  # type: ignore
     ]
     if items:
         new_index = np.concatenate([item.data.index for item in items])

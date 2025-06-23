@@ -139,7 +139,7 @@ class AlphaComplex:
         3-simplices (tetrahedrons) that represent a simplicial subcomplex of
         the Delaunay triangulation with intervals.
         Array with shape (n_tetrahedrons, 4).
-    dimension : int
+    dimension : int | None
         Spatial dimension of the hull.
     delaunay_triangulation : scipy.spatial.Delaunay
         Object with attribute `simplices` specifying a list of indices in the
@@ -493,7 +493,7 @@ class AlphaShape:
     connected_components : list[Region]
         Connected components, i.e. a list of the individual unconnected
         polygons that together make up the alpha shape.
-    dimension : int
+    dimension : int | None
         Spatial dimension of the hull as determined from the dimension of
         `points`
     vertices : npt.NDArray
@@ -544,9 +544,9 @@ class AlphaShape:
             self.alpha_complex = alpha_complex
 
         self.points = self.alpha_complex.points
-        self.dimension = self.alpha_complex.dimension
+        self.dimension: int | None = self.alpha_complex.dimension
         self._alpha: float = np.nan
-        self._region = None
+        self._region: Region | None = None
         self._connected_components: list[Region] | None = None
         self._vertices_connected_components_indices: list[list[int]] | None = None
 

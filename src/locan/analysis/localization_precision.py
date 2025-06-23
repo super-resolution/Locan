@@ -729,11 +729,11 @@ class _DistributionFits:
 
         # MLE fit of distribution on data
         if "position_delta_" in loc_property:
-            fit_results = self.distribution.fit(
+            fit_results = self.distribution.fit(  # type: ignore[union-attr]
                 self.analysis_class.results[loc_property].values, **kwargs
             )
         elif loc_property == "position_distance":
-            fit_results = self.distribution.fit(
+            fit_results = self.distribution.fit(  # type: ignore[union-attr]
                 self.analysis_class.results[loc_property].values,
                 **dict(dict(floc=0, fscale=1), **kwargs),
             )

@@ -117,7 +117,7 @@ def _drift(
     else:  # no drift
         position_deltas = None
 
-    return position_deltas
+    return position_deltas  # type: ignore
 
 
 def add_drift(

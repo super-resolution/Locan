@@ -27,6 +27,8 @@ if TYPE_CHECKING:
 
 __all__: list[str] = ["cluster_hdbscan", "cluster_dbscan", "cluster_by_bin"]
 
+logger = logging.getLogger(__name__)
+
 
 def cluster_hdbscan(
     locdata: LocData,
@@ -293,7 +295,7 @@ def cluster_by_bin(
     if bins is not None:
         bins = Bins(bins=bins)
         if any([item is not None for item in [n_bins, bin_size, bin_edges, bin_range]]):
-            logging.warning("bins are used - all other bin specifications are ignored.")
+            logger.warning("bins are used - all other bin specifications are ignored.")
     else:
         if (bin_range is None or isinstance(bin_range, str)) and bin_edges is None:
             bin_range_ = ranges(locdata, loc_properties=loc_properties, special=bin_range)  # type: ignore

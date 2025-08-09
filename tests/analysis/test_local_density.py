@@ -163,7 +163,6 @@ def test_LocalDensity_normalization(locdata_simple):
     assert all(ld.results.columns == [10, 20])
 
     normalization = np.ones((2, len(locdata_simple))) * [[2], [3]]
-    print(normalization)
     ld = LocalDensity(radii=[10, 20], density=False, normalization=normalization)
     ld.compute(locdata_simple)
     assert len(ld.results) == 5

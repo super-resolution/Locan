@@ -905,7 +905,7 @@ def test__accumulate_1d():
     bin_indices, data_indices, collection, counts = _accumulate_1d(
         data, bin_edges=bins.bin_edges[0]
     )
-    print(data_indices)
+    # print(data_indices)
     assert np.array_equal(bin_indices, [0, 1, 2, 4, 6])
     assert np.all(
         [

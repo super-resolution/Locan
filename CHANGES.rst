@@ -16,6 +16,17 @@ New Features
 - Add analysis routine for `PairDistances`
 - Add analysis routine for `RadialDistribution`
 - Add adapter functions for open3d
+- Add original_index to LocalizationPrecision results
+- Add isomerimetric_quotient as attribute for Regions
+- Add distance_to_point function
+- Add Region2D and Region3D class
+- Add elongation as attribute to regions
+- Add rotation and major/minor axis and eccentricity as attribute to Ellipse
+- Add rotation as attribute to Rectangle
+- Add LineSegment2D to Regions
+- Add LineSegment3D to Regions
+- Add adaptor class for image data
+- Implement select_by_image_mask for 2d
 
 API Changes
 -----------
@@ -23,12 +34,18 @@ API Changes
 - introduce from_open3d and open3d_object.
 - add attribute for rotation and bounding_box
 - add original_index to LocalizationPrecision results
+- refactor: add vertices attr to Regions
+- refactor: add functions to replace Region.from_intervals and Region2D.from_shapely
+- refactor: add functions to replace Region3D.from_open3d
+- refactor: add CI to radial distribution batch hist
 
 Bug Fixes
 ---------
 - locan.simulation: move simulated data in circle according to region center.
 - correct region for _OrientedBoundingBoxShapely
 - dealing with oriented bounding box and locdata.oriented_bounding_box for empty locdata.
+- fix: use of logger in clustering module
+- fix: correct passing of bins to cluster_by_bin
 
 Other Changes and Additions
 ---------------------------
@@ -37,6 +54,9 @@ Other Changes and Additions
 - refactor: update to python 3.13
 - add adapter functions for open3d
 - add tutorials for local density, pair distances and radial distribution analysis
+- fix: remove freeze-requirements section from GitHub actions
+- refactor: update protobuf definitions with protoc-31.1
+- fix: update cupy dependency with cupy-cuda12x
 
 0.20 - 2025-02-26
 =================

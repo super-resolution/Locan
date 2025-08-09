@@ -11,8 +11,9 @@ from locan import Bins, Image
 from locan.data import metadata_pb2
 from locan.dependencies import HAS_DEPENDENCY
 
-if HAS_DEPENDENCY["napari"]:
-    import napari
+napari = pytest.importorskip("napari")
+
+pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="requires napari")
 
 
 class TestImage:

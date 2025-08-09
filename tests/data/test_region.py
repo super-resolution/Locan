@@ -34,7 +34,7 @@ from locan import (
     get_region_from_shapely,
 )
 from locan.data.regions.region import _polygon_path
-from locan.dependencies import HAS_DEPENDENCY, needs_package
+from locan.dependencies import HAS_DEPENDENCY
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
@@ -1208,13 +1208,13 @@ class TestLineSegment3D:
         assert region.bounding_box.height == pytest.approx(1)
         assert region.bounding_box.length == pytest.approx(1)
 
-    @needs_package("open3d")
+    @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
     def test_attributes_open3d(self):
         region = LineSegment3D(points=((0, 0, 0), (1, 1, 1)))
         assert isinstance(region.open3d_object, o3d.t.geometry.LineSet)
         assert np.array_equal(region.open3d_object.point.positions, region.vertices)
 
-    @needs_package("open3d")
+    @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
     def test_from_open3d(self):
         lineset = o3d.t.geometry.LineSet()
         region = LineSegment3D.from_open3d(open3d_object=lineset)
@@ -1265,7 +1265,7 @@ class TestAxisOrientedCuboid:
         assert region.bounding_box.width == pytest.approx(19)
         assert region.bounding_box.height == pytest.approx(29)
 
-    @needs_package("open3d")
+    @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
     def test_attributes_open3d(self):
         region = AxisOrientedCuboid((1, 1, 1), 9, 19, 29)
         assert isinstance(region.open3d_object, o3d.t.geometry.AxisAlignedBoundingBox)
@@ -1305,7 +1305,7 @@ class TestAxisOrientedCuboid:
         )
         assert repr(region) == "AxisOrientedCuboid((1, 1, 1), 9, 19, 29)"
 
-    @needs_package("open3d")
+    @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
     def test_from_open3d(self):
         open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
             min_bound=o3d.core.Tensor([1.0, 1.0, 1.0]),
@@ -1405,7 +1405,7 @@ class TestCuboid:
         # assert isinstance(region.buffer(1), Cuboid)
         # assert repr(region.buffer(1)) == "Cuboid((0, 0, 0), 11, 21, 31, 45, 45, 45))"
 
-    @needs_package("open3d")
+    @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
     def test_attributes_open3d(self):
         region = Cuboid((1, 1, 1), 9, 19, 29, 45, 45, 45)
         assert isinstance(region.open3d_object, o3d.t.geometry.OrientedBoundingBox)
@@ -1418,7 +1418,7 @@ class TestCuboid:
         )
         assert region.region_measure == pytest.approx(region.open3d_object.volume())
 
-    @needs_package("open3d")
+    @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
     def test_from_open3d(self):
         # preparation
         corner = o3d.core.Tensor([1.0, 1.0, 1.0])
@@ -1536,7 +1536,7 @@ def test_get_region_from_shapely():
     assert isinstance(region, MultiPolygon)
 
 
-@needs_package("open3d")
+@pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
 def test_get_region_from_open3d():
     open3d_object = o3d.t.geometry.LineSet()
     open3d_object.point.positions = o3d.core.Tensor([[0, 0, 0], [1, 1, 1]])

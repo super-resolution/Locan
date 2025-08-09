@@ -1376,6 +1376,7 @@ class TestCuboid:
         assert region.bounding_box.width == pytest.approx(25.26693065443495)
         assert region.bounding_box.height == pytest.approx(34.738067706223326)
 
+    @pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
     def test_methods(self):
         region = Cuboid((1, 1, 1), 9, 19, 29, 45, 45, 45)
         indices_in = region.contains(

@@ -20,6 +20,7 @@ from locan import (
     simulate_frame_numbers,
     simulate_tracks,
 )
+from locan.dependencies import HAS_DEPENDENCY
 from locan.simulation import (
     make_cluster,
     make_dstorm,
@@ -38,6 +39,9 @@ from locan.simulation import (
     simulate_uniform,
 )
 from locan.simulation.simulate_drift import _drift, _random_walk_drift
+
+if HAS_DEPENDENCY["open3d"]:
+    pass
 
 
 def test_make_uniform():
@@ -1956,6 +1960,7 @@ def test_randomize_2d(locdata_2d):
     assert len(locdata_randomized) == 6
 
 
+@pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
 def test_randomize_3d(locdata_3d):
     locdata_randomized = randomize(locdata_3d, hull_region="bb")
     assert len(locdata_randomized) == 6

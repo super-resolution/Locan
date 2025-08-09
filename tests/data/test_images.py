@@ -13,7 +13,11 @@ from locan.dependencies import HAS_DEPENDENCY
 
 napari = pytest.importorskip("napari")
 
-pytestmark = pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="requires napari")
+HAS_NAPARI_AND_PYTESTQT = HAS_DEPENDENCY["napari"] and HAS_DEPENDENCY["pytestqt"]
+# pytestqt is not a requested or extra dependency.
+# If napari and pytest-qt is installed, all tests run.
+# Tests in docker or GitHub actions on linux require xvfb
+# for tests with pytest-qt to run.
 
 
 class TestImage:
@@ -131,7 +135,9 @@ class TestImage:
         assert image.shape == (2, 3)
         assert image.meta.identifier == "1"
 
-    @pytest.mark.skipif(not HAS_DEPENDENCY["napari"], reason="Test requires napari.")
+    @pytest.mark.skipif(
+        not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
+    )
     def test_image_from_napari(self):
         image_in = napari.Viewer().add_image(data=np.zeros(shape=(2, 3)))
         image = Image.from_napari(image=image_in)

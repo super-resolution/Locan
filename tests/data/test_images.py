@@ -3,7 +3,6 @@ import tempfile
 from pathlib import Path
 from typing import cast
 
-import napari
 import numpy as np
 import pytest
 from numpy import array_equal
@@ -11,6 +10,9 @@ from numpy import array_equal
 from locan import Bins, Image
 from locan.data import metadata_pb2
 from locan.dependencies import HAS_DEPENDENCY
+
+if HAS_DEPENDENCY["napari"]:
+    import napari
 
 
 class TestImage:

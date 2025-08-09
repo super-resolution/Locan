@@ -14,7 +14,7 @@ locan = ["py.typed", "*.pyi"]
 [tool.setuptools_scm]
 version_file = "src/locan/_version.py"
 version_scheme = "release-branch-semver"
-fallback_version = "0.21-fallback"
+fallback_version = "0.22-fallback"
 
 [project]
 name = "locan"

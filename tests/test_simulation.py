@@ -1,4 +1,3 @@
-import warnings
 from copy import deepcopy
 
 import matplotlib.pyplot as plt  # needed for visual inspection
@@ -7,6 +6,9 @@ import pandas as pd
 import pytest
 
 from locan import (
+    AxisOrientedCuboid,
+    AxisOrientedRectangle,
+    Cuboid,
     Ellipse,
     EmptyRegion,
     Interval,
@@ -18,6 +20,7 @@ from locan import (
     simulate_frame_numbers,
     simulate_tracks,
 )
+from locan.dependencies import HAS_DEPENDENCY
 from locan.simulation import (
     make_cluster,
     make_dstorm,
@@ -36,6 +39,9 @@ from locan.simulation import (
     simulate_uniform,
 )
 from locan.simulation.simulate_drift import _drift, _random_walk_drift
+
+if HAS_DEPENDENCY["open3d"]:
+    pass
 
 
 def test_make_uniform():
@@ -74,7 +80,9 @@ def test_make_uniform():
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
 
-    samples = make_uniform(n_samples=10, region=Rectangle((0, 10), 1, 1, 0), seed=rng)
+    samples = make_uniform(
+        n_samples=10, region=AxisOrientedRectangle((0, 10), 1, 1), seed=rng
+    )
     assert len(samples) == 10
     assert samples.shape[1] == 2
     assert np.all(0 <= samples[:, 0])
@@ -115,6 +123,27 @@ def test_make_uniform():
     assert np.all(samples[:, 0] < 1)
     assert np.all(10 <= samples[:, 1])
     assert np.all(samples[:, 1] < 11)
+
+
+def test_make_uniform_3D():
+    rng = np.random.default_rng(seed=1)
+    samples = make_uniform(
+        n_samples=10, region=AxisOrientedCuboid((0, 10, 10), 1, 2, 3), seed=rng
+    )
+    assert len(samples) == 10
+    assert samples.shape[1] == 3
+
+    samples = make_uniform(
+        n_samples=10, region=Cuboid((0, 10, 10), 1, 2, 3, 0, 0, 0), seed=rng
+    )
+    assert len(samples) == 10
+    assert samples.shape[1] == 3
+
+    samples = make_uniform(
+        n_samples=10, region=Cuboid((0, 10, 10), 1, 2, 3, 45, 45, 45), seed=rng
+    )
+    assert len(samples) == 10
+    assert samples.shape[1] == 3
 
 
 def test_simulate_uniform():
@@ -169,12 +198,20 @@ def test_make_Poisson():
     assert samples.shape[1] == 1
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
+
     samples = make_Poisson(intensity=10, region=Rectangle((0, 10), 1, 1, 0), seed=rng)
     assert samples.shape[1] == 2
     assert np.all(0 <= samples[:, 0])
     assert np.all(samples[:, 0] < 1)
     assert np.all(10 <= samples[:, 1])
     assert np.all(samples[:, 1] < 11)
+
+    samples = make_Poisson(intensity=10, region=Rectangle((0, 10), 1, 1, 45), seed=rng)
+    assert samples.shape[1] == 2
+    assert np.all(-0.71 <= samples[:, 0])  # 0.71 ~ (np.sqrt(2) / 2)
+    assert np.all(samples[:, 0] < 0.71)
+    assert np.all(10 <= samples[:, 1])
+    assert np.all(samples[:, 1] < (10 + 1.42))
 
     samples = make_Poisson(intensity=10, region=Ellipse((0, 0), 1, 1, 0), seed=rng)
     assert samples.shape[1] == 2
@@ -1888,16 +1925,14 @@ def test_simulate_frame_numbers(locdata_2d):
 
 def test_randomize_2d(locdata_2d):
     locdata = LocData()
-    with pytest.raises(AttributeError):
-        randomize(locdata, hull_region="bb")
-    with pytest.raises(AttributeError):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            randomize(locdata, hull_region="ch")
-    with pytest.raises(AttributeError):
-        randomize(locdata, hull_region="as")
-    with pytest.raises(AttributeError):
-        randomize(locdata, hull_region="something")
+    locdata_randomized = randomize(locdata, hull_region="bb")
+    assert len(locdata_randomized) == 0
+    locdata_randomized = randomize(locdata, hull_region="ch")
+    assert len(locdata_randomized) == 0
+    locdata_randomized = randomize(locdata, hull_region="obb")
+    assert len(locdata_randomized) == 0
+    locdata_randomized = randomize(locdata, hull_region="something")
+    assert len(locdata_randomized) == 0
 
     locdata_2d = deepcopy(locdata_2d)
 
@@ -1917,11 +1952,15 @@ def test_randomize_2d(locdata_2d):
     locdata_randomized = randomize(locdata_2d, hull_region="as")
     assert len(locdata_randomized) == 6
 
+    with pytest.raises(AttributeError):
+        randomize(locdata_2d, hull_region="something")
+
     region = Polygon(((0, 0), (0, 5), (4, 3), (2, 0.5), (0, 0)))
     locdata_randomized = randomize(locdata_2d, hull_region=region)
     assert len(locdata_randomized) == 6
 
 
+@pytest.mark.skipif(not HAS_DEPENDENCY["open3d"], reason="Test requires open3d.")
 def test_randomize_3d(locdata_3d):
     locdata_randomized = randomize(locdata_3d, hull_region="bb")
     assert len(locdata_randomized) == 6
@@ -1931,6 +1970,10 @@ def test_randomize_3d(locdata_3d):
     with pytest.raises(NotImplementedError):
         locdata_randomized = randomize(locdata_3d, hull_region="ch")
         assert len(locdata_randomized) == 6
+
+    locdata_randomized = randomize(locdata_3d, hull_region="obb")
+    assert len(locdata_randomized) == 6
+    assert locdata_randomized.meta.history[-1].name == "randomize"
 
     # region_dict = dict(region='polygon', region_specs=((0, 0, 0), (0, 5, 0), (4, 3, 2), (2, 0.5, 2), (0, 0, 0)))
     # locdata_randomized = randomize(locdata_3d, hull_region=region_dict)

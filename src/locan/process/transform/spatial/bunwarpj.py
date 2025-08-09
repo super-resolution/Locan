@@ -42,7 +42,7 @@ from scipy import interpolate
 
 from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
-from locan.process.transform.spatial_transformation import transform_affine
+from locan.process.transform.spatial.spatial_transformation import transform_affine
 
 __all__: list[str] = ["bunwarp"]
 

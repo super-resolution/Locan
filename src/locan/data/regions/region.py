@@ -4,16 +4,19 @@ Regions as support for localization data.
 
 This module provides classes to define geometric regions for localization data.
 All region classes inherit from the abstract base class `Region`.
-
 """
 
-# todo: fix docstrings
 from __future__ import annotations
 
 import itertools as it
+import logging
 import sys
+import warnings
 from abc import ABC, abstractmethod
 from typing import Any, TypeVar
+
+from locan.dependencies import HAS_DEPENDENCY, needs_package
+from locan.utils.rotation import Rotation2D, Rotation3D
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -27,28 +30,60 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 from scipy.spatial.distance import pdist
-from shapely.affinity import rotate, scale, translate
-from shapely.geometry import MultiPoint as shMultiPoint
-from shapely.geometry import MultiPolygon as shMultiPolygon
-from shapely.geometry import Point as shPoint
-from shapely.geometry import Polygon as shPolygon
-from shapely.prepared import prep
+from shapely.affinity import (
+    rotate as sh_rotate,
+)
+from shapely.affinity import (
+    scale as sh_scale,
+)
+from shapely.affinity import (
+    translate as sh_translate,
+)
+from shapely.geometry import (
+    LinearRing as shLinearRing,
+)
+from shapely.geometry import (
+    LineString as shLineString,
+)
+from shapely.geometry import (
+    MultiPoint as shMultiPoint,
+)
+from shapely.geometry import (
+    MultiPolygon as shMultiPolygon,
+)
+from shapely.geometry import (
+    Point as shPoint,
+)
+from shapely.geometry import (
+    Polygon as shPolygon,
+)
+from shapely.prepared import prep as sh_prep
+
+if HAS_DEPENDENCY["open3d"]:
+    import open3d as o3d
+
+logger = logging.getLogger(__name__)
 
 __all__: list[str] = [
-    "Region",
-    "EmptyRegion",
-    "Region1D",
-    "Interval",
-    "Region2D",
-    "Rectangle",
-    "Ellipse",
-    "Polygon",
-    "MultiPolygon",
-    "Region3D",
     "AxisOrientedCuboid",
-    "Cuboid",
-    "RegionND",
     "AxisOrientedHypercuboid",
+    "AxisOrientedRectangle",
+    "Cuboid",
+    "Ellipse",
+    "EmptyRegion",
+    "Interval",
+    "LineSegment2D",
+    "LineSegment3D",
+    "MultiPolygon",
+    "Rectangle",
+    "Region",
+    "Region1D",
+    "Region2D",
+    "Region3D",
+    "RegionND",
+    "Polygon",
+    "get_region_from_shapely",
+    "get_region_from_open3d",
 ]
 
 # __all__ += ['Ellipsoid' 'Polyhedron']
@@ -245,12 +280,22 @@ class Region(ABC):
     @staticmethod
     def from_intervals(
         intervals: npt.ArrayLike,
-    ) -> Interval | Rectangle | AxisOrientedCuboid | AxisOrientedHypercuboid:
+    ) -> (
+        Interval
+        | LineSegment2D
+        | AxisOrientedRectangle
+        | AxisOrientedCuboid
+        | AxisOrientedHypercuboid
+    ):
         """
-        Constructor for instantiating axis-oriented, box-like Region from list of
-        (min, max) bounds.
+        Constructor for instantiating a line or axis-oriented, box-like Region
+        from list of (min, max) bounds.
         Takes array-like intervals instead of interval to be consistent with
         `Rectangle.from_intervals`.
+
+        Note
+        ----
+        This function is deprecated.
 
         Parameters
         ----------
@@ -259,12 +304,18 @@ class Region(ABC):
 
         Returns
         -------
-        Interval | Rectangle | AxisOrientedCuboid | AxisOrientedHypercuboid
+        Interval | AxisOrientedRectangle | AxisOrientedCuboid | AxisOrientedHypercuboid
         """
+        warnings.warn(
+            "This function is deprecated. "
+            "Use locan.data.region.region_utils.get_region_from_intervals instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         if np.shape(intervals) == (2,):
             return Interval.from_intervals(intervals)
         elif np.shape(intervals) == (2, 2):
-            return Rectangle.from_intervals(intervals)
+            return AxisOrientedRectangle.from_intervals(intervals)
         elif np.shape(intervals) == (3, 2):
             return AxisOrientedCuboid.from_intervals(intervals)
         elif np.shape(intervals)[0] > 3 and np.shape(intervals)[1] == 2:
@@ -299,6 +350,19 @@ class Region(ABC):
 
     @property
     @abstractmethod
+    def intervals(self) -> npt.NDArray[np.float64] | None:
+        """
+        Provide bounds in a tuple (min, max) arrangement.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            ((min_x, max_x), ...) of shape(dimension, 2)
+        """
+        pass
+
+    @property
+    @abstractmethod
     def extent(self) -> npt.NDArray[np.float64] | None:
         """
         The extent (max_x - min_x), (max_y - min_y), ... for each dimension.
@@ -312,14 +376,14 @@ class Region(ABC):
 
     @property
     @abstractmethod
-    def points(self) -> npt.NDArray[np.float64] | list[npt.NDArray[np.float64]]:
+    def vertices(self) -> npt.NDArray[np.float64] | list[npt.NDArray[np.float64]]:
         """
-        Point coordinates.
+        0 - dimensional elements that define the region; also called points.
 
         Returns
         -------
         npt.NDArray[np.float64] | list[npt.NDArray[np.float64]]
-            of shape (n_points, dimension)
+            of shape (n_vertices, dimension)
         """
         pass
 
@@ -350,6 +414,20 @@ class Region(ABC):
 
     @property
     @abstractmethod
+    def elongation(self) -> float:
+        """
+        A measure between 0 and 1 for how elongated the object is.
+        It is computed as:
+        1 - the ratio of length of minor axis to length of major axis.
+
+        Returns
+        -------
+        float
+        """
+        pass
+
+    @property
+    @abstractmethod
     def region_measure(self) -> float:
         """
         Region measure, i.e. area (for 2d) or volume (for 3d).
@@ -364,8 +442,8 @@ class Region(ABC):
     @abstractmethod
     def subregion_measure(self) -> float:
         """
-        Measure of the sub-dimensional region, i.e. circumference (for 2d)
-        or surface (for 3d).
+        Measure of the sub-dimensional region, i.e. perimeter length (for 2d)
+        or surface area (for 3d).
 
         Returns
         -------
@@ -385,6 +463,18 @@ class Region(ABC):
         Region
         """
         pass
+
+    @property
+    def radial_distance(self) -> float:
+        """
+        Average of all absolute distances between vertices and centroid.
+
+        Returns
+        -------
+        float
+        """
+        assert self.centroid is not None  # type narrowing # noqa: S101
+        return np.mean(np.linalg.norm(self.centroid - self.vertices, axis=-1))  # type: ignore[no-any-return]
 
     @abstractmethod
     def intersection(self, other: Region) -> Region:
@@ -553,14 +643,41 @@ class Region2D(Region):
         return np.array([min_x, min_y, max_x, max_y])
 
     @property
+    def intervals(self) -> npt.NDArray[np.float64]:
+        lower_bounds = self.bounds[: self.dimension]
+        upper_bounds = self.bounds[self.dimension :]
+        return np.array(
+            [(lower, upper) for lower, upper in zip(lower_bounds, upper_bounds)]
+        )
+
+    @property
     def extent(self) -> npt.NDArray[np.float64]:
         min_x, min_y, max_x, max_y = self.bounds
         return np.array([abs(max_x - min_x), abs(max_y - min_y)])
 
     @property
-    def bounding_box(self) -> Rectangle:
+    def bounding_box(self) -> AxisOrientedRectangle:
         min_x, min_y, max_x, max_y = self.bounds
-        return Rectangle((min_x, min_y), max_x - min_x, max_y - min_y, 0)
+        return AxisOrientedRectangle((min_x, min_y), max_x - min_x, max_y - min_y)
+
+    @property
+    def isoperimetric_quotient(self) -> float:
+        """
+        Ratio of the area of a region to the area of a circle with the same
+        perimeter:
+
+        isoperimetric_quotient = 4 * pi * area / perimeter^2.
+
+        Sometimes called circularity in 2d and sphericity in 3d.
+
+        Returns
+        -------
+        float
+        """
+        area = self.region_measure
+        perimeter = self.subregion_measure
+        quotient = 4 * np.pi * area / perimeter**2
+        return quotient
 
     @property
     @abstractmethod
@@ -576,10 +693,14 @@ class Region2D(Region):
 
     @staticmethod
     def from_shapely(
-        shapely_object: shPolygon | shMultiPolygon,
-    ) -> Polygon | MultiPolygon | EmptyRegion:
+        shapely_object: shLineString | shPolygon | shMultiPolygon,
+    ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
         """
         Constructor for instantiating Region from `shapely` object.
+
+        Note
+        ----
+        This function is deprecated.
 
         Parameters
         ----------
@@ -588,9 +709,19 @@ class Region2D(Region):
 
         Returns
         -------
-        Polygon | MultiPolygon | EmptyRegion
+        LineSegment2D | Polygon | MultiPolygon | EmptyRegion
         """
+        warnings.warn(
+            "This function is deprecated. "
+            "Use specific Region2D objects or "
+            "locan.data.regions.region.get_region_from_shapely() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         ptype = shapely_object.geom_type
+        if ptype == "LineString":
+            return LineSegment2D.from_shapely(shapely_object)  # type: ignore
         if ptype == "Polygon":
             return Polygon.from_shapely(shapely_object)  # type: ignore
         elif ptype == "MultiPolygon":
@@ -648,45 +779,34 @@ class Region2D(Region):
 
         return ax
 
-    def intersection(self, other: Region) -> Polygon | MultiPolygon | EmptyRegion:
+    def intersection(
+        self, other: Region
+    ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.intersection(other.shapely_object)
-        return Region2D.from_shapely(shapely_obj)
+        return get_region_from_shapely(shapely_obj)
 
     def symmetric_difference(
         self, other: Region
-    ) -> Polygon | MultiPolygon | EmptyRegion:
+    ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.symmetric_difference(other.shapely_object)
-        return Region2D.from_shapely(shapely_obj)
+        return get_region_from_shapely(shapely_obj)
 
-    def union(self, other: Region) -> Polygon | MultiPolygon | EmptyRegion:
+    def union(
+        self, other: Region
+    ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
         if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.union(other.shapely_object)
-        return Region2D.from_shapely(shapely_obj)
+        return get_region_from_shapely(shapely_obj)
 
     def buffer(
         self, distance: float, **kwargs: Any
-    ) -> Polygon | MultiPolygon | EmptyRegion:
-        """
-        Extend the region perpendicular by a `distance`.
-
-        Parameters
-        ----------
-        distance
-            Distance by which the region is extended.
-        kwargs
-            Other parameters passed to :func:`shapely.geometry.buffer`.
-
-        Returns
-        -------
-        Polygon | MultiPolygon | EmptyRegion
-            The extended region.
-        """
-        return Region2D.from_shapely(self.shapely_object.buffer(distance, **kwargs))
+    ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
+        return get_region_from_shapely(self.shapely_object.buffer(distance, **kwargs))
 
 
 class Region3D(Region):
@@ -697,6 +817,62 @@ class Region3D(Region):
     @property
     def dimension(self) -> int:
         return 3
+
+    @property
+    def isoperimetric_quotient(self) -> float:
+        """
+        Ratio of the volume of a region to the volume of a ball with the same
+        surface:
+
+        isoperimetric_quotient = 36 * pi * volume^2 / surface^3.
+
+        Sometimes called circularity in 2d and sphericity in 3d.
+
+        Returns
+        -------
+        float
+        """
+        volume = self.region_measure
+        surface = self.subregion_measure
+        quotient = 36 * np.pi * volume**2 / surface**3
+        return quotient
+
+    @staticmethod
+    def from_open3d(
+        open3d_object: (
+            o3d.t.geometry.AxisAlignedBoundingBox | o3d.t.geometry.OrientedBoundingBox
+        ),
+    ) -> AxisOrientedCuboid | Cuboid | EmptyRegion:
+        """
+        Constructor for instantiating Region from `open3d` object.
+
+        Note
+        ----
+        This function is deprecated.
+
+        Parameters
+        ----------
+        open3d_object
+            Geometric object to be converted into Region
+
+        Returns
+        -------
+        AxisOrientedCuboid | Cuboid | EmptyRegion
+        """
+        warnings.warn(
+            "This function is deprecated. "
+            "Use specific Region3D objects or "
+            "locan.data.regions.region.get_region_from_open3d() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+        if isinstance(open3d_object, o3d.t.geometry.AxisAlignedBoundingBox):
+            return AxisOrientedCuboid.from_open3d(open3d_object)  # type: ignore
+        elif isinstance(open3d_object, o3d.t.geometry.OrientedBoundingBox):
+            return Cuboid.from_open3d(open3d_object)  # type: ignore
+        else:
+            raise TypeError(f"open3d_object cannot be of type {type(open3d_object)}")
 
     @abstractmethod
     def as_artist(
@@ -793,6 +969,15 @@ class EmptyRegion(Region):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return np.array([], dtype=np.float64)
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array([], dtype=np.float64)
 
     @property
@@ -800,8 +985,12 @@ class EmptyRegion(Region):
         return None
 
     @property
-    def max_distance(self) -> int:
-        return 0
+    def max_distance(self) -> float:
+        return np.nan
+
+    @property
+    def elongation(self) -> float:
+        return np.nan
 
     @property
     def region_measure(self) -> int:
@@ -812,11 +1001,33 @@ class EmptyRegion(Region):
         return 0
 
     @property
+    def radial_distance(self) -> float:
+        return np.nan
+
+    @property
+    def isoperimetric_quotient(self) -> float:
+        """
+        Ratio of the area of a region to the area of a circle with the same
+        perimeter; i.e. ratio of 4 * pi * area to the squared perimeter.
+
+        Sometimes called circularity in 2d and sphericity in 3d.
+
+        Returns
+        -------
+        float
+        """
+        return np.nan
+
+    @property
     def bounds(self) -> None:
         return None
 
     @property
     def extent(self) -> None:
+        return None
+
+    @property
+    def intervals(self) -> None:
         return None
 
     @property
@@ -836,13 +1047,17 @@ class EmptyRegion(Region):
         return np.array([], dtype=np.int64)
 
     def as_artist(self, **kwargs: Any) -> None:
-        raise NotImplementedError("EmptyRegion cannot return an artist.")
+        logger.warning("EmptyRegion cannot return an artist.")
+        return None
 
     def buffer(self, distance: float, **kwargs: Any) -> Region:
-        raise NotImplementedError("EmptyRegion cannot be extended.")
+        logger.warning("EmptyRegion cannot be extended.")
+        return self
 
     @classmethod
-    def from_shapely(cls, shapely_object: shPolygon | shMultiPolygon) -> EmptyRegion:
+    def from_shapely(
+        cls, shapely_object: shLineString | shPolygon | shMultiPolygon
+    ) -> EmptyRegion:
         if shapely_object.is_empty:
             return cls()
         else:
@@ -876,8 +1091,6 @@ class Interval(Region1D):
     def from_intervals(cls: type[T_Interval], intervals: npt.ArrayLike) -> T_Interval:
         """
         Constructor for instantiating Region from list of (min, max) bounds.
-        Takes array-like intervals instead of interval to be consistent with
-        `Rectangle.from_intervals`.
 
         Parameters
         ----------
@@ -889,11 +1102,14 @@ class Interval(Region1D):
         Interval
         """
         intervals = np.asarray(intervals)
-        if np.shape(intervals) != (2,):
+        if np.shape(intervals) == (1, 2):
+            lower_bound, upper_bound = intervals[0]
+        elif np.shape(intervals) == (2,):
+            lower_bound, upper_bound = intervals
+        else:
             raise TypeError(
                 f"Intervals must be of shape (2,) and not {np.shape(intervals)}."
             )
-        lower_bound, upper_bound = intervals
         return cls(lower_bound, upper_bound)
 
     @property
@@ -920,7 +1136,10 @@ class Interval(Region1D):
 
     @property
     def bounds(self) -> npt.NDArray[np.float64]:
-        return np.array([self.lower_bound, self.upper_bound])
+        min_, max_ = self.lower_bound, self.upper_bound
+        if min_ > max_:
+            min_, max_ = max_, min_
+        return np.array([min_, max_])
 
     @property
     def extent(self) -> npt.NDArray[np.float64]:
@@ -928,14 +1147,6 @@ class Interval(Region1D):
 
     @property
     def intervals(self) -> npt.NDArray[np.float64]:
-        """
-        Provide bounds in a tuple (min, max) arrangement.
-
-        Returns
-        -------
-        tuple[tuple[float, float], ...]
-            ((min_x, max_x), ...) of shape(dimension, 2).
-        """
         return self.bounds
 
     @property
@@ -955,6 +1166,15 @@ class Interval(Region1D):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return np.array([self.lower_bound, self.upper_bound])
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array([self.lower_bound, self.upper_bound])
 
     @property
@@ -963,15 +1183,23 @@ class Interval(Region1D):
 
     @property
     def max_distance(self) -> float:
-        return self.upper_bound - self.lower_bound
+        return abs(self.upper_bound - self.lower_bound)
+
+    @property
+    def elongation(self) -> float:
+        return np.nan
 
     @property
     def region_measure(self) -> float:
-        return self.upper_bound - self.lower_bound
+        return abs(self.upper_bound - self.lower_bound)
 
     @property
     def subregion_measure(self) -> int:
         return 0
+
+    @property
+    def radial_distance(self) -> float:
+        return abs(self.upper_bound - self.lower_bound) / 2
 
     @property
     def bounding_box(self) -> Self:
@@ -992,6 +1220,352 @@ class Interval(Region1D):
         l_bound = self.lower_bound - distance
         u_bound = self.upper_bound + distance
         return Interval(lower_bound=l_bound, upper_bound=u_bound)
+
+
+T_LineSegment2D = TypeVar("T_LineSegment2D", bound="LineSegment2D")
+
+
+class LineSegment2D(Region2D):
+    """
+    Region class to define a line.
+
+    The line is constructed from a list of two points.
+    A direction is given by the order of points with the first point as origin.
+
+    Parameters
+    ----------
+    points  : npt.ArrayLike
+        Points with shape (2, dimension)
+    """
+
+    def __init__(self, points: npt.ArrayLike, is_directed: bool = True) -> None:
+        self._vertices = np.asarray(points)
+        self.is_directed = is_directed
+        self._shapely_object: shLineString | None = None
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}({self.vertices.tolist()}, {self.is_directed})"
+        )
+
+    def __getattr__(self, attr: str) -> Any:
+        """All non-adapted calls are passed to shapely object"""
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
+            raise AttributeError
+        return getattr(self.shapely_object, attr)
+
+    @classmethod
+    def from_intervals(
+        cls: type[T_LineSegment2D], intervals: npt.ArrayLike
+    ) -> T_LineSegment2D:
+        """
+        Constructor for instantiating Line from list of (min, max) bounds.
+
+        Parameters
+        ----------
+        intervals
+            The region bounds for each dimension of shape (dimension, 2)
+
+        Returns
+        -------
+        LineSegment2D
+        """
+        intervals = np.asarray(intervals)
+        if np.shape(intervals)[-1] != 2:
+            raise TypeError(
+                f"Intervals must be of shape (dimension, 2) and not {np.shape(intervals)}."
+            )
+        points = intervals.T
+        return cls(points=points)
+
+    @classmethod
+    def from_shapely(cls: type[T_LineSegment2D], line: shLineString) -> T_LineSegment2D | EmptyRegion:  # type: ignore[override]
+        if line.is_empty:
+            return EmptyRegion()
+        else:
+            points = np.array(line.xy)
+            return cls(points)
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        """
+        Terminal points of line.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            of shape(2, dimension)
+        """
+        return self._vertices
+
+    @property
+    def origin(self) -> npt.NDArray[np.float64] | None:
+        """
+        The starting point of a directed line.
+
+        Returns
+        -------
+        npt.NDArray[np.float64] | None
+            of shape(dimension)
+        """
+        return self.vertices[0] if self.is_directed else None
+
+    @property
+    def shapely_object(self) -> shLineString:
+        if self._shapely_object is None:
+            self._shapely_object = shLineString(coordinates=self.vertices)
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
+        return self._shapely_object
+
+    @property
+    def centroid(self) -> npt.NDArray[np.float64]:
+        return np.mean(self.intervals, axis=-1)  # type: ignore[no-any-return]
+
+    @property
+    def max_distance(self) -> float:
+        return np.linalg.norm(self.vertices)  # type: ignore[no-any-return, return-value]
+
+    @property
+    def elongation(self) -> float:
+        return 1
+
+    @property
+    def region_measure(self) -> float:
+        return 0
+
+    @property
+    def subregion_measure(self) -> float:
+        return np.linalg.norm(self.vertices)  # type: ignore[no-any-return, return-value]
+
+    def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
+        points = np.asarray(points)
+        if points.size == 0:
+            return np.array([])
+        else:
+            distances_0 = np.linalg.norm(self.vertices[0] - points, axis=-1)
+            distances_1 = np.linalg.norm(self.vertices[1] - points, axis=-1)
+            distances = distances_0 + distances_1
+            mask = np.isclose(distances, self.max_distance)
+            inside_indices = np.nonzero(mask)[0]
+            return inside_indices  # type: ignore
+
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
+        # todo implement origin
+        codes = [mpl_path.Path.MOVETO] + [mpl_path.Path.LINETO]
+        vertices = self.vertices
+        path = mpl_path.Path(vertices, codes)
+        return mpl_patches.PathPatch(path, **kwargs)
+
+
+T_AxisOrientedRectangle = TypeVar(
+    "T_AxisOrientedRectangle", bound="AxisOrientedRectangle"
+)
+
+
+class AxisOrientedRectangle(Region2D):
+    """
+    Region class to define an axis-aligned rectangle.
+
+    Parameters
+    ----------
+    corner : npt.ArrayLike
+        A point that defines the lower left corner with shape (2,).
+    width : float
+        The length of a vector describing the edge in x-direction.
+    height : float
+        The length of a vector describing the edge in y-direction.
+    """
+
+    def __init__(
+        self,
+        corner: npt.ArrayLike = (0, 0),
+        width: float = 1,
+        height: float = 1,
+    ) -> None:
+        self._corner = np.asarray(corner)
+        self._width = width
+        self._height = height
+        self._shapely_object: shPolygon | None = None
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({tuple(self.corner.tolist())}, {self.width}, {self.height})"  # type: ignore[arg-type]
+
+    def __getattr__(self, attr: str) -> Any:
+        """All non-adapted calls are passed to shapely object"""
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
+            raise AttributeError
+        return getattr(self.shapely_object, attr)
+
+    @classmethod
+    def from_intervals(
+        cls: type[T_AxisOrientedRectangle], intervals: npt.ArrayLike  # noqa: UP006
+    ) -> T_AxisOrientedRectangle:
+        """
+        Constructor for instantiating Region from list of (min, max) bounds.
+
+        Parameters
+        ----------
+        intervals
+            The region bounds for each dimension of shape (2, 2)
+
+        Returns
+        -------
+        cls
+        """
+        intervals = np.asarray(intervals)
+        if np.shape(intervals) != (2, 2):
+            raise TypeError(
+                f"Intervals must be of shape (2, 2) and not {np.shape(intervals)}."
+            )
+        min_x, max_x = intervals[0]
+        min_y, max_y = intervals[1]
+        corner = (min_x, min_y)
+        width = max_x - min_x
+        height = max_y - min_y
+        return cls(corner, width, height)
+
+    @property
+    def corner(self) -> npt.NDArray[np.float64]:
+        """
+        A point that defines the lower left corner.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            with shape (2,)
+        """
+        return self._corner
+
+    @property
+    def width(self) -> float:
+        """
+        The length of a vector describing the edge in x-direction.
+
+        Returns
+        -------
+        float
+        """
+        return self._width
+
+    @property
+    def height(self) -> float:
+        """
+        The length of a vector describing the edge in y-direction.
+
+        Returns
+        -------
+        float
+        """
+        return self._height
+
+    @property
+    def bounds(self) -> npt.NDArray[np.float64]:
+        min_x, max_x = self.corner[0], self.corner[0] + self.width
+        if max_x < min_x:
+            min_x, max_x = max_x, min_x
+
+        min_y, max_y = self.corner[1], self.corner[1] + self.height
+        if max_y < min_y:
+            min_y, max_y = max_y, min_y
+
+        return np.array([min_x, min_y, max_x, max_y])
+
+    @property
+    def intervals(self) -> npt.NDArray[np.float64]:
+        lower_bounds = self.bounds[: self.dimension]
+        upper_bounds = self.bounds[self.dimension :]
+        return np.array(
+            [(lower, upper) for lower, upper in zip(lower_bounds, upper_bounds)]
+        )
+
+    @property
+    def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        rectangle = mpl_patches.Rectangle(
+            self.corner,  # type: ignore[arg-type]
+            self.width,
+            self.height,
+            angle=0,
+            fill=False,
+            edgecolor="b",
+            linewidth=1,
+        )
+        points: npt.NDArray[np.float64] = rectangle.get_verts()  # type: ignore
+        return np.array(points[::-1])
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        rectangle = mpl_patches.Rectangle(
+            self.corner,  # type: ignore[arg-type]
+            self.width,
+            self.height,
+            angle=0,
+            fill=False,
+            edgecolor="b",
+            linewidth=1,
+        )
+        points: npt.NDArray[np.float64] = rectangle.get_verts()  # type: ignore
+        return np.flip(points, axis=0)[:-1]
+
+    @property
+    def shapely_object(self) -> shPolygon:
+        if self._shapely_object is None:
+            self._shapely_object = shPolygon(self.vertices)
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
+        return self._shapely_object
+
+    @property
+    def centroid(self) -> npt.NDArray[np.float64]:
+        return np.array(list(self.shapely_object.centroid.coords)[0])
+
+    @property
+    def max_distance(self) -> float:
+        return_value: float = np.sqrt(self.width**2 + self.height**2)
+        return return_value
+
+    @property
+    def elongation(self) -> float:
+        min_, max_ = abs(self.width), abs(self.height)
+        if min_ > max_:
+            min_, max_ = max_, min_
+        return 1 - min_ / max_
+
+    @property
+    def region_measure(self) -> float:
+        return abs(self.width * self.height)
+
+    @property
+    def subregion_measure(self) -> float:
+        return 2 * abs(self.width) + 2 * abs(self.height)
+
+    def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
+        points = np.asarray(points)
+        if points.size == 0:
+            return np.array([], dtype=np.int64)
+        vertices_closed = np.append(self.vertices, [self.vertices[0]], axis=0)
+        polygon_path = mpl_path.Path(vertices_closed, closed=True)
+        mask = polygon_path.contains_points(points)
+        inside_indices = np.nonzero(mask)[0]
+        return inside_indices  # type: ignore
+
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
+        origin = np.asarray(origin)
+        xy = self.corner[0] - origin[0], self.corner[1] - origin[1]
+        return mpl_patches.Rectangle(
+            xy=xy, width=self.width, height=self.height, angle=0, **kwargs
+        )
 
 
 T_Rectangle = TypeVar("T_Rectangle", bound="Rectangle")
@@ -1025,6 +1599,7 @@ class Rectangle(Region2D):
         self._width = width
         self._height = height
         self._angle = angle
+        self._rotation = Rotation2D.from_angle(angle=angle, degrees=True)
         self._region_specs = (corner, width, height, angle)
         self._shapely_object: shPolygon | None = None
 
@@ -1042,9 +1617,13 @@ class Rectangle(Region2D):
     @classmethod
     def from_intervals(
         cls: type[T_Rectangle], intervals: npt.ArrayLike  # noqa: UP006
-    ) -> T_Rectangle:
+    ) -> AxisOrientedRectangle:
         """
         Constructor for instantiating Region from list of (min, max) bounds.
+
+        Note
+        ----
+        This function is deprecated.
 
         Parameters
         ----------
@@ -1055,6 +1634,13 @@ class Rectangle(Region2D):
         -------
         cls
         """
+        warnings.warn(
+            "This function is deprecated. "
+            "Use AxisOrientedRectangle.from_intervals() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         intervals = np.asarray(intervals)
         if np.shape(intervals) != (2, 2):
             raise TypeError(
@@ -1065,8 +1651,7 @@ class Rectangle(Region2D):
         corner = (min_x, min_y)
         width = max_x - min_x
         height = max_y - min_y
-        angle = 0
-        return cls(corner, width, height, angle)
+        return AxisOrientedRectangle(corner, width, height)
 
     @property
     def corner(self) -> npt.NDArray[np.float64]:
@@ -1115,23 +1700,23 @@ class Rectangle(Region2D):
         return self._angle
 
     @property
-    def intervals(self) -> npt.NDArray[np.float64]:
+    def rotation(self) -> Rotation2D:
         """
-        Provide bounds in a tuple (min, max) arrangement.
+        A Rotation2D instance corresponding to angle.
 
         Returns
         -------
-        npt.NDArray[np.float64]
-            ((min_x, max_x), ...) of shape(dimension, 2)
+        Rotation2D
         """
-        lower_bounds = self.bounds[: self.dimension]
-        upper_bounds = self.bounds[self.dimension :]
-        return np.array(
-            [(lower, upper) for lower, upper in zip(lower_bounds, upper_bounds)]
-        )
+        return self._rotation
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         rectangle = mpl_patches.Rectangle(
             self.corner,  # type: ignore[arg-type]
             self.width,
@@ -1143,6 +1728,20 @@ class Rectangle(Region2D):
         )
         points: npt.NDArray[np.float64] = rectangle.get_verts()  # type: ignore
         return np.array(points[::-1])
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        rectangle = mpl_patches.Rectangle(
+            self.corner,  # type: ignore[arg-type]
+            self.width,
+            self.height,
+            angle=self.angle,
+            fill=False,
+            edgecolor="b",
+            linewidth=1,
+        )
+        points: npt.NDArray[np.float64] = rectangle.get_verts()  # type: ignore
+        return np.flip(points, axis=0)[:-1]
 
     @property
     def region_specs(self):  # type: ignore
@@ -1162,7 +1761,8 @@ class Rectangle(Region2D):
     @property
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
-            self._shapely_object = shPolygon(self.points[:-1])
+            self._shapely_object = shPolygon(self.vertices)
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
     @property
@@ -1175,18 +1775,26 @@ class Rectangle(Region2D):
         return return_value
 
     @property
+    def elongation(self) -> float:
+        min_, max_ = abs(self.width), abs(self.height)
+        if min_ > max_:
+            min_, max_ = max_, min_
+        return 1 - min_ / max_
+
+    @property
     def region_measure(self) -> float:
-        return self.width * self.height
+        return abs(self.width * self.height)
 
     @property
     def subregion_measure(self) -> float:
-        return 2 * self.width + 2 * self.height
+        return 2 * abs(self.width) + 2 * abs(self.height)
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         points = np.asarray(points)
         if points.size == 0:
             return np.array([], dtype=np.int64)
-        polygon_path = mpl_path.Path(self.points, closed=True)
+        vertices_closed = np.append(self.vertices, [self.vertices[0]], axis=0)
+        polygon_path = mpl_path.Path(vertices_closed, closed=True)
         mask = polygon_path.contains_points(points)
         inside_indices = np.nonzero(mask)[0]
         return inside_indices  # type: ignore
@@ -1228,9 +1836,10 @@ class Ellipse(Region2D):
         angle: float = 0,
     ) -> None:
         self._center = np.asarray(center)
-        self._width = width
-        self._height = height
+        self._width = abs(width)
+        self._height = abs(height)
         self._angle = angle
+        self._rotation = Rotation2D.from_angle(angle=angle, degrees=True)
         self._region_specs = (center, width, height, angle)
         self._shapely_object: shPolygon | None = None
 
@@ -1294,7 +1903,86 @@ class Ellipse(Region2D):
         return self._angle
 
     @property
+    def rotation(self) -> Rotation2D:
+        """
+        A Rotation2D instance corresponding to angle.
+
+        Returns
+        -------
+        Rotation2D
+        """
+        return self._rotation
+
+    @property
+    def major_axis(self) -> LineSegment2D:
+        """
+        The major axis of the region.
+
+        Returns
+        -------
+        LineSegment2D
+        """
+        if self.width < self.height:
+            point_0 = (self.center[0], self.center[1] - self.height / 2)
+            point_1 = (self.center[0], self.center[1] + self.height / 2)
+        else:
+            point_0 = (self.center[0] - self.width / 2, self.center[1])
+            point_1 = (self.center[0] + self.width / 2, self.center[1])
+        points_rotated = [
+            self.rotation.apply(point_ - self.center) + self.center
+            for point_ in [point_0, point_1]
+        ]
+        line = LineSegment2D(points=points_rotated, is_directed=False)
+        return line
+
+    @property
+    def minor_axis(self) -> LineSegment2D:
+        """
+        The minor axis of the region.
+
+        Returns
+        -------
+        LineSegment2D
+        """
+        if self.width > self.height:
+            point_0 = (self.center[0], self.center[1] - self.height / 2)
+            point_1 = (self.center[0], self.center[1] + self.height / 2)
+        else:
+            point_0 = (self.center[0] - self.width / 2, self.center[1])
+            point_1 = (self.center[0] + self.width / 2, self.center[1])
+        points_rotated = [
+            self.rotation.apply(point_ - self.center) + self.center
+            for point_ in [point_0, point_1]
+        ]
+        line = LineSegment2D(points=points_rotated, is_directed=False)
+        return line
+
+    @property
+    def eccentricity(self) -> npt.NDArray[np.float64]:
+        """
+        Shape factor related to the ratio of the length of minor to major axis:
+        eccentricity = sqrt(1 - (b / a)^2).
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+        """
+        min_, max_ = self.width, self.height
+        if min_ > max_:
+            min_, max_ = max_, min_
+        return np.sqrt(1 - (min_ / max_) ** 2)  # type: ignore[no-any-return]
+
+    @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return np.array(self.shapely_object.exterior.coords)[::-1]
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array(self.shapely_object.exterior.coords)[::-1]
 
     @property
@@ -1316,9 +2004,10 @@ class Ellipse(Region2D):
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
             circle = shPoint((0, 0)).buffer(1)
-            ellipse = scale(circle, self.width / 2, self.height / 2)
-            rotated_ellipse = rotate(ellipse, self.angle)
-            self._shapely_object = translate(rotated_ellipse, *self.center)
+            ellipse = sh_scale(circle, self.width / 2, self.height / 2)
+            rotated_ellipse = sh_rotate(ellipse, self.angle)
+            self._shapely_object = sh_translate(rotated_ellipse, *self.center)
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
     @property
@@ -1329,6 +2018,13 @@ class Ellipse(Region2D):
     def max_distance(self) -> float:
         return_value: float = np.max([self.width, self.height])
         return return_value
+
+    @property
+    def elongation(self) -> float:
+        min_, max_ = self.width, self.height
+        if min_ > max_:
+            min_, max_ = max_, min_
+        return 1 - min_ / max_
 
     @property
     def region_measure(self) -> float:
@@ -1399,8 +2095,10 @@ class Polygon(Region2D):
         points = np.asarray(points)
         if np.all(points[0] == points[-1]):
             self._points = np.array(points)
+            self._vertices = np.array(points[:-1])
         else:
             self._points = np.append(np.array(points), [points[0]], axis=0)
+            self._vertices = np.array(points)
         if holes is None:
             self._holes = None
         else:
@@ -1410,12 +2108,12 @@ class Polygon(Region2D):
 
     def __repr__(self) -> str:
         if self.holes is None:
-            return f"{self.__class__.__name__}({self.points.tolist()})"
+            return f"{self.__class__.__name__}({self.vertices.tolist()})"
         else:
-            return f"{self.__class__.__name__}({self.points.tolist()}, {[hole.tolist() for hole in self.holes]})"
+            return f"{self.__class__.__name__}({self.vertices.tolist()}, {[hole.tolist() for hole in self.holes]})"
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}(<self.points>, <self.holes>)"
+        return f"{self.__class__.__name__}(<self.vertices>, <self.holes>)"
 
     def __getattr__(self, attr: str) -> Any:
         """All non-adapted calls are passed to shapely object"""
@@ -1446,7 +2144,24 @@ class Polygon(Region2D):
         npt.NDArray[np.float64]
             of shape(n_points, dimension)
         """
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self._points
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        """
+        Exterior polygon points.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            of shape(n_vertices, dimension)
+        """
+        return self._vertices
 
     @property
     def holes(self) -> list[npt.NDArray[np.float64]] | None:
@@ -1456,7 +2171,7 @@ class Polygon(Region2D):
         Returns
         -------
         list[npt.NDArray[np.float64]] | None
-            n_holes of shape(n_points, dimension)
+            n holes of shape(n_points, dimension)
         """
         return self._holes
 
@@ -1478,7 +2193,9 @@ class Polygon(Region2D):
     @property
     def shapely_object(self) -> shPolygon:
         if self._shapely_object is None:
-            self._shapely_object = shPolygon(self.points, self.holes)
+            linear_ring = shLinearRing(self.vertices)
+            self._shapely_object = shPolygon(linear_ring.coords, self.holes)
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
     @property
@@ -1487,9 +2204,13 @@ class Polygon(Region2D):
 
     @property
     def max_distance(self) -> float:
-        distances = pdist(self.points[:-1])
+        distances = pdist(self.vertices)
         return_value: float = np.nanmax(distances)
         return return_value
+
+    @property
+    def elongation(self) -> float:
+        raise NotImplementedError
 
     @property
     def region_measure(self) -> float:
@@ -1512,7 +2233,7 @@ class Polygon(Region2D):
             return np.array([], dtype=bool)
 
         points_ = shMultiPoint(_points[preselected_points_indices])
-        prepared_polygon = prep(self.shapely_object)
+        prepared_polygon = sh_prep(self.shapely_object)
         mask = list(map(prepared_polygon.contains, points_.geoms))
         inside_indices = np.nonzero(mask)[0]  # type: ignore[arg-type]
         if len(inside_indices) == 0:
@@ -1567,7 +2288,24 @@ class MultiPolygon(Region2D):
         list[npt.NDArray[np.float64]]
             n_polygons of shape(n_points, dimension)
         """
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return [pol.points for pol in self.polygons]
+
+    @property
+    def vertices(self) -> list[npt.NDArray[np.float64]]:
+        """
+        Exterior polygon points.
+
+        Returns
+        -------
+        list[npt.NDArray[np.float64]]
+            n polygons of shape(n_points, dimension)
+        """
+        return [pol.vertices for pol in self.polygons]
 
     @property
     def holes(self) -> list[list[npt.NDArray[np.float64]] | None]:
@@ -1613,6 +2351,7 @@ class MultiPolygon(Region2D):
             self._shapely_object = shMultiPolygon(
                 [pol.shapely_object for pol in self._polygons]
             )
+        assert self._shapely_object is not None  # type narrowing # noqa: S101
         return self._shapely_object
 
     @property
@@ -1621,9 +2360,13 @@ class MultiPolygon(Region2D):
 
     @property
     def max_distance(self) -> float:
-        distances = pdist(np.array([point for pts in self.points for point in pts]))
+        distances = pdist(np.array([point for pts in self.vertices for point in pts]))
         return_value: float = np.nanmax(distances)
         return return_value
+
+    @property
+    def elongation(self) -> float:
+        raise NotImplementedError
 
     @property
     def region_measure(self) -> float:
@@ -1639,7 +2382,7 @@ class MultiPolygon(Region2D):
         if np.asarray(points).size == 0:
             return np.array([], dtype=np.int64)
         points_ = shMultiPoint(points)  # type: ignore
-        prepared_polygon = prep(self.shapely_object)
+        prepared_polygon = sh_prep(self.shapely_object)
         mask = list(map(prepared_polygon.contains, points_.geoms))
         inside_indices = np.nonzero(mask)[0]  # type: ignore[arg-type]
         return inside_indices
@@ -1656,6 +2399,194 @@ class MultiPolygon(Region2D):
         polygons_ = [Polygon.from_shapely(pol) for pol in multipolygon.geoms]
         polygons__ = [pol for pol in polygons_ if not isinstance(pol, EmptyRegion)]
         return cls(polygons__)
+
+
+T_LineSegment3D = TypeVar("T_LineSegment3D", bound="LineSegment3D")
+
+
+class LineSegment3D(Region3D):
+    """
+    Region class to define a line.
+
+    The line is constructed from a list of two points.
+    A direction is given by the order of points with the first point as origin.
+
+    Parameters
+    ----------
+    points  : npt.ArrayLike
+        Points with shape (2, dimension)
+    """
+
+    def __init__(self, points: npt.ArrayLike, is_directed: bool = True) -> None:
+        self._vertices = np.asarray(points)
+        self.is_directed = is_directed
+
+        self._centroid: npt.NDArray[np.float64] | None = None
+        self._bounds: npt.NDArray[np.float64] | None = None
+        self._extent: npt.NDArray[np.float64] | None = None
+        self._bounding_box: AxisOrientedCuboid | None = None
+        self._open3d_object: o3d.t.geometry.LineSet | None = None
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}({self.vertices.tolist()}, {self.is_directed})"
+        )
+
+    def __getattr__(self, attr: str) -> Any:
+        """All non-adapted calls are passed to shapely object"""
+        if attr.startswith("__") and attr.endswith(
+            "__"
+        ):  # this is needed to enable pickling
+            raise AttributeError
+        return getattr(self.open3d_object, attr)
+
+    @classmethod
+    def from_intervals(  # type: ignore[override]
+        cls: type[T_LineSegment3D], intervals: npt.ArrayLike
+    ) -> T_LineSegment3D:
+        """
+        Constructor for instantiating Line from list of (min, max) bounds.
+
+        Parameters
+        ----------
+        intervals
+            The region bounds for each dimension of shape (dimension, 2)
+
+        Returns
+        -------
+        LineSegment2D
+        """
+        intervals = np.asarray(intervals)
+        if np.shape(intervals)[-1] != 2:
+            raise TypeError(
+                f"Intervals must be of shape (dimension, 2) and not {np.shape(intervals)}."
+            )
+        points = intervals.T
+        return cls(points=points)
+
+    @classmethod
+    @needs_package("open3d")  # type: ignore[arg-type]
+    def from_open3d(cls: type[T_LineSegment3D], open3d_object: o3d.t.geometry.LineSet) -> T_LineSegment3D | EmptyRegion:  # type: ignore[override]
+        if open3d_object.is_empty():
+            return EmptyRegion()
+        else:
+            points = open3d_object.point.positions.numpy()
+            return cls(points)
+
+    @property
+    @needs_package("open3d")
+    def open3d_object(self) -> o3d.t.geometry.LineSet:
+        if self._open3d_object is None:
+            open3d_object = o3d.t.geometry.LineSet()
+            open3d_object.point.positions = o3d.core.Tensor(
+                self.vertices, dtype=o3d.core.Dtype.Float64
+            )
+            open3d_object.line.indices = o3d.core.Tensor(
+                [[0, 1]], dtype=o3d.core.Dtype.Int64
+            )
+            self._open3d_object = open3d_object
+        assert self._open3d_object is not None  # type narrowing # noqa: S101
+        return self._open3d_object
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        """
+        Terminal points of line.
+
+        Returns
+        -------
+        npt.NDArray[np.float64]
+            of shape(2, dimension)
+        """
+        return self._vertices
+
+    @property
+    def origin(self) -> npt.NDArray[np.float64] | None:
+        """
+        The starting point of a directed line.
+
+        Returns
+        -------
+        npt.NDArray[np.float64] | None
+            of shape(dimension)
+        """
+        return self.vertices[0] if self.is_directed else None
+
+    @property
+    def centroid(self) -> npt.NDArray[np.float64]:
+        return np.mean(self.intervals, axis=-1)  # type: ignore[no-any-return]
+
+    @property
+    def bounds(self) -> npt.NDArray[np.float64]:
+        if self._bounds is None:
+            min_bounds = np.min(self.vertices, axis=0)
+            max_bounds = np.max(self.vertices, axis=0)
+            self._bounds = np.concatenate([min_bounds, max_bounds])
+        assert self._bounds is not None  # type narrowing # noqa: S101
+        return self._bounds
+
+    @property
+    def intervals(self) -> npt.NDArray[np.float64]:
+        """
+        Provide bounds in a tuple (min, max) arrangement.
+
+        Returns
+        -------
+        tuple[tuple[float, float], ...]
+            ((min_x, max_x), ...) of shape(dimension, 2)
+        """
+        min_x, min_y, min_z, max_x, max_y, max_z = self.bounds
+        return np.array([(min_x, max_x), (min_y, max_y), (min_z, max_z)])
+
+    @property
+    def extent(self) -> npt.NDArray[np.float64]:
+        if self._extent is None:
+            self._extent = np.abs(np.diff(self.bounds.reshape(2, 3), axis=0))[0]
+        assert self._extent is not None  # type narrowing # noqa: S101
+        return self._extent
+
+    @property
+    def bounding_box(self) -> AxisOrientedCuboid:
+        if self._bounding_box is None:
+            self._bounding_box = AxisOrientedCuboid(self.bounds[:3], *self.extent)
+        assert self._bounding_box is not None  # type narrowing # noqa: S101
+        return self._bounding_box
+
+    @property
+    def max_distance(self) -> float:
+        return np.linalg.norm(self.vertices)  # type: ignore[no-any-return, return-value]
+
+    @property
+    def elongation(self) -> float:
+        return 1
+
+    @property
+    def region_measure(self) -> float:
+        return 0
+
+    @property
+    def subregion_measure(self) -> float:
+        return np.linalg.norm(self.vertices)  # type: ignore[no-any-return, return-value]
+
+    def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
+        points = np.asarray(points)
+        if points.size == 0:
+            return np.array([])
+        else:
+            distances_0 = np.linalg.norm(self.vertices[0] - points, axis=-1)
+            distances_1 = np.linalg.norm(self.vertices[1] - points, axis=-1)
+            distances = distances_0 + distances_1
+            mask = np.isclose(distances, self.max_distance)
+            inside_indices = np.nonzero(mask)[0]
+            return inside_indices  # type: ignore
+
+    def buffer(self, distance: float, **kwargs: Any) -> Cuboid:
+        raise NotImplementedError
+
+    def as_artist(
+        self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
+    ) -> mpl_patches.Patch:
+        raise NotImplementedError
 
 
 T_AxisOrientedCuboid = TypeVar("T_AxisOrientedCuboid", bound="AxisOrientedCuboid")
@@ -1683,15 +2614,16 @@ class AxisOrientedCuboid(Region3D):
 
     def __init__(
         self,
-        corner: npt.ArrayLike = (0, 0, 0),
-        length: float = 1,
-        width: float = 1,
-        height: float = 1,
+        corner: npt.ArrayLike = (0.0, 0.0, 0.0),
+        length: float = 1.0,
+        width: float = 1.0,
+        height: float = 1.0,
     ) -> None:
         self._corner = np.asarray(corner)
         self._length = length
         self._width = width
         self._height = height
+        self._open3d_object: o3d.t.geometry.AxisAlignedBoundingBox | None = None
 
     def __repr__(self) -> str:
         return (
@@ -1729,6 +2661,47 @@ class AxisOrientedCuboid(Region3D):
         width = max_y - min_y
         height = max_z - min_z
         return cls(corner, length, width, height)
+
+    @staticmethod
+    @needs_package("open3d")  # type: ignore[arg-type]
+    def from_open3d(
+        open3d_object: o3d.t.geometry.AxisAlignedBoundingBox,
+    ) -> AxisOrientedCuboid | EmptyRegion:
+        """
+        Constructor for instantiating Region from `open3d` object.
+
+        Parameters
+        ----------
+        open3d_object
+            Geometric object to be converted into Region
+
+        Returns
+        -------
+        AxisOrientedCuboid | EmptyRegion
+        """
+        if open3d_object.is_empty():
+            return EmptyRegion()
+        min_bounds = open3d_object.min_bound.numpy()
+        max_bounds = open3d_object.max_bound.numpy()
+        intervals = np.array([min_bounds, max_bounds]).T
+        instance = AxisOrientedCuboid.from_intervals(intervals=intervals)
+        instance._open3d_object = open3d_object
+        return instance
+
+    @property
+    @needs_package("open3d")
+    def open3d_object(self) -> o3d.t.geometry.AxisAlignedBoundingBox:
+        if self._open3d_object is None:
+            self._open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
+                min_bound=o3d.core.Tensor(
+                    self.bounds[:3], dtype=o3d.core.Dtype.Float64
+                ),
+                max_bound=o3d.core.Tensor(
+                    self.bounds[3:], dtype=o3d.core.Dtype.Float64
+                ),
+            )
+        assert self._open3d_object is not None  # type narrowing # noqa: S101
+        return self._open3d_object
 
     @property
     def corner(self) -> npt.NDArray[np.float64]:
@@ -1777,6 +2750,15 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return np.array(list(it.product(*self.intervals)))
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array(list(it.product(*self.intervals)))
 
     @property
@@ -1792,23 +2774,22 @@ class AxisOrientedCuboid(Region3D):
 
     @property
     def bounds(self) -> npt.NDArray[np.float64]:
-        min_x, min_y, min_z = self.corner
-        max_x, max_y, max_z = [  # noqa: UP027
-            cor + dist
-            for cor, dist in zip(self.corner, (self.length, self.width, self.height))
-        ]
+        min_x, max_x = self.corner[0], self.corner[0] + self.length
+        if max_x < min_x:
+            min_x, max_x = max_x, min_x
+
+        min_y, max_y = self.corner[1], self.corner[1] + self.width
+        if max_y < min_y:
+            min_y, max_y = max_y, min_y
+
+        min_z, max_z = self.corner[2], self.corner[2] + self.height
+        if max_z < min_z:
+            min_z, max_z = max_z, min_z
+
         return np.array([min_x, min_y, min_z, max_x, max_y, max_z])
 
     @property
     def intervals(self) -> npt.NDArray[np.float64]:
-        """
-        Provide bounds in a tuple (min, max) arrangement.
-
-        Returns
-        -------
-        tuple[tuple[float, float], ...]
-            ((min_x, max_x), ...) of shape(dimension, 2)
-        """
         min_x, min_y, min_z, max_x, max_y, max_z = self.bounds
         return np.array([(min_x, max_x), (min_y, max_y), (min_z, max_z)])
 
@@ -1826,17 +2807,20 @@ class AxisOrientedCuboid(Region3D):
         return return_value
 
     @property
+    def elongation(self) -> float:
+        min_ = np.min(np.abs([self.length, self.width, self.height]))
+        max_ = np.max(np.abs([self.length, self.width, self.height]))
+        return 1 - min_ / max_  # type: ignore[no-any-return]
+
+    @property
     def region_measure(self) -> float:
         return_value: float = self.length * self.width * self.height
         return return_value
 
     @property
     def subregion_measure(self) -> float:
-        return_value: float = 2 * (
-            self.length * self.width
-            + self.height * self.width
-            + self.height * self.length
-        )
+        x_, y_, z_ = abs(self.length), abs(self.width), abs(self.height)
+        return_value: float = 2 * (x_ * y_ + z_ * y_ + z_ * x_)
         return return_value
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
@@ -1868,14 +2852,20 @@ class AxisOrientedCuboid(Region3D):
         )
 
 
-# todo: complete implementation
+T_Cuboid = TypeVar("T_Cuboid", bound="Cuboid")
+
+
 class Cuboid(Region3D):
     """
     Region class to define a cuboid.
 
     This is a 3-dimensional convex region with rectangular faces.
     Extension in x-, y-, z-coordinates correspond to length, width, height.
+
     Corresponding Euler angles are defined by alpha, beta, gamma.
+    Rotation has to be carried to in "zyx"-order.
+    The corresponding rotation matrix can be generated from
+    `Cuboid.rotation.from_euler("zyx", [gamma, beta, alpha]).as_matrix()`.
 
     Parameters
     ----------
@@ -1885,6 +2875,8 @@ class Cuboid(Region3D):
         The length of a vector describing the edge in x-direction.
     width : float
         The length of a vector describing the edge in y-direction.
+    height : float
+        The length of a vector describing the edge in z-direction.
     alpha : float
         The first Euler angle (in degrees) by which the cuboid is rotated.
     beta : float
@@ -1895,13 +2887,13 @@ class Cuboid(Region3D):
 
     def __init__(
         self,
-        corner: npt.ArrayLike = (0, 0, 0),
-        length: float = 1,
-        width: float = 1,
-        height: float = 1,
-        alpha: float = 0,
-        beta: float = 0,
-        gamma: float = 0,
+        corner: npt.ArrayLike = (0.0, 0.0, 0.0),
+        length: float = 1.0,
+        width: float = 1.0,
+        height: float = 1.0,
+        alpha: float = 0.0,
+        beta: float = 0.0,
+        gamma: float = 0.0,
     ) -> None:
         self._corner = np.asarray(corner)
         self._length = length
@@ -1910,6 +2902,16 @@ class Cuboid(Region3D):
         self._alpha = alpha
         self._beta = beta
         self._gamma = gamma
+
+        self._vertices: npt.NDArray[np.float64] | None = None
+        self._centroid: npt.NDArray[np.float64] | None = None
+        self._bounds: npt.NDArray[np.float64] | None = None
+        self._extent: npt.NDArray[np.float64] | None = None
+        self._bounding_box: AxisOrientedCuboid | None = None
+        self._open3d_object: o3d.t.geometry.OrientedBoundingBox | None = None
+        self._rotation: Rotation3D | None = Rotation3D.from_euler(
+            seq="zyx", angles=[self.gamma, self.beta, self.alpha], degrees=True
+        )
         self._region_specs = (corner, length, width, height, alpha, beta, gamma)
 
     def __repr__(self) -> str:
@@ -1919,6 +2921,90 @@ class Cuboid(Region3D):
             f"{self.alpha}, {self.beta}, {self.gamma})"
         )
 
+    @staticmethod
+    @needs_package("open3d")  # type: ignore[arg-type]
+    def from_open3d(
+        open3d_object: o3d.t.geometry.OrientedBoundingBox,
+    ) -> Cuboid | EmptyRegion:
+        """
+        Constructor for instantiating Region from `open3d` object.
+
+        Parameters
+        ----------
+        open3d_object
+            Geometric object to be converted into Region
+
+        Returns
+        -------
+        Cuboid | EmptyRegion
+        """
+        if open3d_object.is_empty():
+            return EmptyRegion()
+
+        length, width, height = open3d_object.extent.numpy()
+        rotation_matrix = open3d_object.rotation.numpy()
+        center = open3d_object.center.numpy()
+        rotation = Rotation3D.from_matrix(matrix=rotation_matrix)
+        gamma, beta, alpha = rotation.as_euler("zyx", degrees=True)
+        corner_ = -open3d_object.extent.numpy() / 2
+        corner_ = rotation.apply(corner_)
+        corner = corner_ + center
+
+        instance = Cuboid(
+            corner=corner,
+            length=length,
+            width=width,
+            height=height,
+            alpha=alpha,
+            beta=beta,
+            gamma=gamma,
+        )
+        # instance._open3d_object = open3d_object
+        return instance
+
+    @property
+    @needs_package("open3d")
+    def open3d_object(self) -> o3d.t.geometry.OrientedBoundingBox:
+        if self._open3d_object is None:
+            o3d_corner = o3d.core.Tensor(self.corner, dtype=o3d.core.Dtype.Float64)
+            o3d_rotation_matrix = o3d.core.Tensor(
+                self.rotation.as_matrix(), dtype=o3d.core.Dtype.Float64
+            )
+            o3d_extent = o3d.core.Tensor(
+                [self.length, self.width, self.height], dtype=o3d.core.Dtype.Float64
+            )
+            open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
+                min_bound=o3d.core.Tensor(
+                    [0.0, 0.0, 0.0], dtype=o3d.core.Dtype.Float64
+                ),
+                max_bound=o3d_extent,
+            )
+            open3d_object = open3d_object.get_oriented_bounding_box()
+            open3d_object = open3d_object.rotate(
+                rotation=o3d_rotation_matrix,
+                center=o3d.core.Tensor([0.0, 0.0, 0.0], dtype=o3d.core.Dtype.Float64),
+            )
+            open3d_object = open3d_object.translate(o3d_corner)
+            self._open3d_object = open3d_object
+        assert self._open3d_object is not None  # type narrowing # noqa: S101
+        return self._open3d_object
+
+    @property
+    def rotation(self) -> Rotation3D:
+        """
+        An instance of Rotation3D, an adapter class for
+        scipy.stats.transform.Rotation.
+
+        Returns
+        -------
+        scipy.stats.transform.Rotation
+        """
+        if self._rotation is None:
+            self._rotation = Rotation3D.from_euler(
+                seq="xyz", angles=[self.alpha, self.beta, self.gamma], degrees=True
+            )
+        return self._rotation
+
     @property
     def corner(self) -> npt.NDArray[np.float64]:
         """
@@ -1927,7 +3013,7 @@ class Cuboid(Region3D):
         Returns
         -------
         npt.NDArray[np.float64]
-            with shape (2,)
+            Coordinates with shape (3,)
         """
         return self._corner
 
@@ -1999,19 +3085,73 @@ class Cuboid(Region3D):
 
     @property
     def points(self) -> npt.NDArray[np.float64]:
-        raise NotImplementedError
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if self._vertices is None:
+            axis_oriented_cuboid = AxisOrientedCuboid(
+                corner=self.corner,
+                length=self.length,
+                width=self.width,
+                height=self.height,
+            )
+            axis_oriented_points = axis_oriented_cuboid.vertices
+            self._vertices = self.rotation.apply(axis_oriented_points)
+        return self._vertices
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        if self._vertices is None:
+            axis_oriented_cuboid = AxisOrientedCuboid(
+                corner=self.corner,
+                length=self.length,
+                width=self.width,
+                height=self.height,
+            )
+            axis_oriented_points = axis_oriented_cuboid.vertices
+            self._vertices = self.rotation.apply(axis_oriented_points)
+        return self._vertices
 
     @property
     def bounds(self) -> npt.NDArray[np.float64]:
-        raise NotImplementedError
+        if self._bounds is None:
+            if self._open3d_object is not None:
+                min_bounds = self._open3d_object.get_min_bound().numpy()
+                max_bounds = self._open3d_object.get_max_bound().numpy()
+            else:
+                min_bounds = np.min(self.vertices, axis=0)
+                max_bounds = np.max(self.vertices, axis=0)
+            self._bounds = np.concatenate([min_bounds, max_bounds])
+        assert self._bounds is not None  # type narrowing # noqa: S101
+        return self._bounds
+
+    @property
+    def intervals(self) -> npt.NDArray[np.float64]:
+        min_x, min_y, min_z, max_x, max_y, max_z = self.bounds
+        return np.array([(min_x, max_x), (min_y, max_y), (min_z, max_z)])
 
     @property
     def extent(self) -> npt.NDArray[np.float64]:
-        raise NotImplementedError
+        if self._extent is None:
+            self._extent = np.abs(np.diff(self.bounds.reshape(2, 3), axis=0))[0]
+        assert self._extent is not None  # type narrowing # noqa: S101
+        return self._extent
+
+    @property
+    def bounding_box(self) -> AxisOrientedCuboid:
+        if self._bounding_box is None:
+            self._bounding_box = AxisOrientedCuboid(self.bounds[:3], *self.extent)
+        assert self._bounding_box is not None  # type narrowing # noqa: S101
+        return self._bounding_box
 
     @property
     def centroid(self) -> npt.NDArray[np.float64]:
-        raise NotImplementedError
+        if self._centroid is None:
+            self._centroid = np.mean(self.vertices, axis=0)
+        assert self._centroid is not None  # type narrowing # noqa: S101
+        return self._centroid
 
     @property
     def max_distance(self) -> float:
@@ -2019,8 +3159,14 @@ class Cuboid(Region3D):
         return return_value
 
     @property
+    def elongation(self) -> float:
+        min_ = np.min(np.abs([self.length, self.width, self.height]))
+        max_ = np.max(np.abs([self.length, self.width, self.height]))
+        return 1 - min_ / max_  # type: ignore[no-any-return]
+
+    @property
     def region_measure(self) -> float:
-        return_value: float = self.length * self.width * self.height
+        return_value: float = abs(self.length) * abs(self.width) * abs(self.height)
         return return_value
 
     @property
@@ -2033,7 +3179,14 @@ class Cuboid(Region3D):
         return return_value
 
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
-        raise NotImplementedError
+        points = np.asarray(points, dtype="float64")
+        if points.size == 0:
+            indices = np.array([])
+        else:
+            indices = self.open3d_object.get_point_indices_within_bounding_box(
+                points=o3d.core.Tensor(points, dtype=o3d.core.Dtype.Float64)
+            ).numpy()
+        return indices
 
     def as_artist(
         self, origin: npt.ArrayLike = (0, 0), **kwargs: Any
@@ -2042,10 +3195,6 @@ class Cuboid(Region3D):
 
     def buffer(self, distance: float, **kwargs: Any) -> Region:
         raise NotImplementedError
-
-    @property
-    def bounding_box(self) -> Self:
-        return self
 
 
 T_AxisOrientedHypercuboid = TypeVar(
@@ -2137,31 +3286,37 @@ class AxisOrientedHypercuboid(RegionND):
         return len(self.lengths)
 
     @property
-    def intervals(self) -> npt.NDArray[np.float64]:
-        """
-        Provide bounds in a tuple (min, max) arrangement.
-
-        Returns
-        -------
-        tuple[tuple[float, float], ...]
-            ((min_x, max_x), ...) of shape(dimension, 2).
-        """
-        return np.array(
-            [
-                (lower, upper)
-                for lower, upper in zip(
-                    self.bounds[: self.dimension], self.bounds[self.dimension :]
-                )
-            ]
+    def points(self) -> npt.NDArray[np.float64]:
+        warnings.warn(
+            "This attribute is deprecated. Use vertices instead.",
+            DeprecationWarning,
+            stacklevel=2,
         )
+        return np.array(list(it.product(*self.intervals)))
 
     @property
-    def points(self) -> npt.NDArray[np.float64]:
+    def vertices(self) -> npt.NDArray[np.float64]:
         return np.array(list(it.product(*self.intervals)))
 
     @property
     def bounds(self) -> npt.NDArray[np.float64]:
-        return np.concatenate([self.corner, self.corner + self.lengths], axis=0)
+        intervals_min = []
+        intervals_max = []
+        for i in range(self.dimension):
+            min_, max_ = self.corner[i], self.corner[i] + self.lengths[i]
+            if max_ < min_:
+                min_, max_ = max_, min_
+            intervals_min.append(min_)
+            intervals_max.append(max_)
+        return np.array(intervals_min + intervals_max)
+
+    @property
+    def intervals(self) -> npt.NDArray[np.float64]:
+        lower_bounds = self.bounds[: self.dimension]
+        upper_bounds = self.bounds[self.dimension :]
+        return np.array(
+            [(lower, upper) for lower, upper in zip(lower_bounds, upper_bounds)]
+        )
 
     @property
     def extent(self) -> npt.NDArray[np.float64]:
@@ -2175,6 +3330,12 @@ class AxisOrientedHypercuboid(RegionND):
     def max_distance(self) -> float:
         return_value: float = np.sqrt(np.sum(self.lengths**2))
         return return_value
+
+    @property
+    def elongation(self) -> float:
+        min = np.min(np.abs(self.lengths))
+        max = np.max(np.abs(self.lengths))
+        return 1 - min / max  # type: ignore[no-any-return]
 
     @property
     def region_measure(self) -> float:
@@ -2255,3 +3416,57 @@ def _polygon_path(
     )
 
     return mpl_path.Path(vertices, codes)
+
+
+def get_region_from_shapely(
+    shapely_object: shLineString | shPolygon | shMultiPolygon,
+) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
+    """
+    Constructor for instantiating Region from `shapely` object.
+
+    Parameters
+    ----------
+    shapely_object
+        Geometric object to be converted into Region
+
+    Returns
+    -------
+    LineSegment2D | Polygon | MultiPolygon | EmptyRegion
+    """
+    ptype = shapely_object.geom_type
+    if ptype == "LineString":
+        return LineSegment2D.from_shapely(shapely_object)  # type: ignore
+    if ptype == "Polygon":
+        return Polygon.from_shapely(shapely_object)  # type: ignore
+    elif ptype == "MultiPolygon":
+        return MultiPolygon.from_shapely(shapely_object)  # type: ignore
+    else:
+        raise TypeError(f"shapely_object cannot be of type {ptype}")
+
+
+@needs_package("open3d")
+def get_region_from_open3d(
+    open3d_object: (
+        o3d.t.geometry.AxisAlignedBoundingBox | o3d.t.geometry.OrientedBoundingBox
+    ),
+) -> AxisOrientedCuboid | Cuboid | EmptyRegion:
+    """
+    Constructor for instantiating Region from `open3d` object.
+
+    Parameters
+    ----------
+    open3d_object
+        Geometric object to be converted into Region
+
+    Returns
+    -------
+    AxisOrientedCuboid | Cuboid | EmptyRegion
+    """
+    if isinstance(open3d_object, o3d.t.geometry.LineSet):
+        return LineSegment3D.from_open3d(open3d_object)  # type: ignore
+    elif isinstance(open3d_object, o3d.t.geometry.AxisAlignedBoundingBox):
+        return AxisOrientedCuboid.from_open3d(open3d_object)  # type: ignore
+    elif isinstance(open3d_object, o3d.t.geometry.OrientedBoundingBox):
+        return Cuboid.from_open3d(open3d_object)  # type: ignore
+    else:
+        raise TypeError(f"open3d_object cannot be of type {type(open3d_object)}")

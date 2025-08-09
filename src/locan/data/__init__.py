@@ -10,9 +10,11 @@ Submodules:
    :toctree: ./
 
    hulls
+   images
    locdata
    metadata_utils
    regions
+   region_utils
    validation
 
 """
@@ -32,14 +34,18 @@ from locan.data.hulls import (
     OrientedBoundingBox as OrientedBoundingBox,
 )
 from locan.data.locdata import *
+from locan.data.images import *
 from locan.data.metadata_utils import *
 from locan.data.regions import (
     AxisOrientedCuboid as AxisOrientedCuboid,
     AxisOrientedHypercuboid as AxisOrientedHypercuboid,
+    AxisOrientedRectangle as AxisOrientedRectangle,
     Cuboid as Cuboid,
     Ellipse as Ellipse,
     EmptyRegion as EmptyRegion,
     Interval as Interval,
+    LineSegment2D as LineSegment2D,
+    LineSegment3D as LineSegment3D,
     MultiPolygon as MultiPolygon,
     Polygon as Polygon,
     Rectangle as Rectangle,
@@ -49,15 +55,20 @@ from locan.data.regions import (
     Region3D as Region3D,
     RegionND as RegionND,
     RoiRegion as RoiRegion,
+    get_region_from_intervals as get_region_from_intervals,
+    get_region_from_open3d as get_region_from_open3d,
+    get_region_from_shapely as get_region_from_shapely,
     expand_region as expand_region,
     regions_union as regions_union,
     surrounding_region as surrounding_region,
 )
+
 from locan.data.validation import *
 
 submodules: list[str] = [
     "hulls",
     "locdata",
+    "images",
     "metadata_utils",
     "regions",
     "validation",

@@ -67,11 +67,3 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: "CodeCov report"
           verbose: true
-
-      - name: "Freeze requirements"
-        run: pip-compile pyproject.toml --extra all --output-file ${{ env.REQUIREMENTS_FILE }}
-      - name: "Upload requirements file"
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.REQUIREMENTS_FILE }}
-          path: ${{ env.REQUIREMENTS_FILE }}

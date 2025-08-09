@@ -27,7 +27,11 @@ if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d
 
 
-__all__: list[str] = ["transform_affine", "standardize", "overlay"]
+__all__: list[str] = [
+    "transform_affine",
+    "standardize",
+    "overlay",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +152,7 @@ def _transform_affine_open3d(
     points
         Points on which to perform the manipulation.
     matrix
-        Transformation matrix. If None the unit matrix is used.
+        Transformation matrix.
         Array with shape (ndim, ndim).
         If None the unit matrix is used.
     offset
@@ -249,7 +253,7 @@ def transform_affine(
         return locdata  # type: ignore
 
     # adjust input
-    if isinstance(locdata, LocData):
+    if hasattr(locdata, "coordinates"):
         points = locdata.coordinates
     else:
         points = np.asarray(locdata)
@@ -490,7 +494,7 @@ def overlay(
 
         transformed_locdatas.append(transformed_locdata)
 
-    new_locdata = LocData.from_collection(transformed_locdatas)
+    new_locdata = LocData.from_collection(transformed_locdatas)  # type: ignore
 
     # update metadata
     del new_locdata.meta.history[:]

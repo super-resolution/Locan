@@ -4,17 +4,34 @@ import pytest
 
 from locan import (  # needed for visual inspection  # noqa: F401
     Interval,
+    LineSegment2D,
     MultiPolygon,
     Polygon,
     Rectangle,
     Region,
     RoiRegion,
     expand_region,
+    get_region_from_intervals,
     regions_union,
     render_2d_mpl,
     scatter_2d_mpl,
     surrounding_region,
 )
+
+
+def test_get_region_from_intervals():
+    region = get_region_from_intervals((0, 2))
+    assert repr(region) == "Interval(0, 2)"
+    region = get_region_from_intervals([(0, 2)])
+    assert repr(region) == "Interval(0, 2)"
+    with pytest.raises(TypeError):
+        get_region_from_intervals([[0], [2]])
+    region = get_region_from_intervals(((0, 2), (0, 1)))
+    assert repr(region) == "AxisOrientedRectangle((0, 0), 2, 1)"
+    region = get_region_from_intervals(((0, 1), (0, 2), (0, 3)))
+    assert repr(region) == "AxisOrientedCuboid((0, 0, 0), 1, 2, 3)"
+    region = get_region_from_intervals(((0, 1), (0, 2), (0, 3), (0, 4)))
+    assert repr(region) == "AxisOrientedHypercuboid((0, 0, 0, 0), (1, 2, 3, 4))"
 
 
 def test_regions_union_Rectangles():

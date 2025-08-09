@@ -12,7 +12,6 @@ def test_Trafo():
 def test_HistogramEqualization():
     img = np.array((1, 2, 3, 9), dtype=np.float64)
     norm = HistogramEqualization(power=1, n_bins=4)
-    print(norm)
     assert isinstance(norm, Transform)
     new_img = norm(img)
     assert np.allclose(new_img, [0.5, 0.5, 0.625, 1.0])

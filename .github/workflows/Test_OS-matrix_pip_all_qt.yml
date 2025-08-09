@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["macos", "windows"]
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     env:
       REQUIREMENTS_FILE: "requirements-all-${{ matrix.os }}-py${{ matrix.python-version }}.yml"
     steps:
@@ -37,10 +37,3 @@ jobs:
         uses: coactions/setup-xvfb@v1
         with:
           run: pytest
-      - name: "Freeze requirements"
-        run: pip-compile pyproject.toml --extra all --output-file ${{ env.REQUIREMENTS_FILE }}
-      - name: "Upload requirements file"
-        uses: actions/upload-artifact@v4
-        with:
-          name: "${{ env.REQUIREMENTS_FILE }}"
-          path: ${{ env.REQUIREMENTS_FILE }}

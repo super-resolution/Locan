@@ -41,7 +41,6 @@ classifiers = [
     "Programming Language :: C",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -65,7 +64,7 @@ dependencies = [
     "networkx",
     "numpy>1.20.0",
     "pandas",
-    "protobuf>=5.26.0",
+    "protobuf>=6.31.1",
     "qtpy!=2.3.0",
     "ruamel.yaml",
     "scikit-image",
@@ -109,7 +108,7 @@ all = [
     "trackpy",
 ]
 gpu = [
-    "cupy",
+    "cupy-cuda12x",
     "open3d!=0.12.0; python_version<'3.13'"
 ]
 # todo: with pip>25.1.0
@@ -206,8 +205,7 @@ testpaths = [
 ]
 filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
-    "ignore::DeprecationWarning:hdbscan",
-]
+    ]
 addopts = "--import-mode=importlib --strict-markers -m 'not gui and not visual'"
 markers = [
     "gui: marks tests that require user interaction (skipped by default)",
@@ -295,6 +293,7 @@ preview = true
 "__init__.pyi" = ["E401", "F401", "I001"]
 "test_*.py" = ["S101", "S307", "S403", "S404", "S605", "S607"]
 "test_simulation.py" = ["F841"]
+"tests/data/adapter/test_adapter_open3d.py" = ["E402"]
 "benchmarks/benchmarks/*.py" = ["S101"]
 
 [tool.ruff.lint.flake8-quotes]
@@ -315,7 +314,6 @@ boost_histogram = "bh"
 convention = "numpy"
 
 [tool.mypy]
-plugins = ['numpy.typing.mypy_plugin']
 files = [
     "$MYPY_CONFIG_FILE_DIR/src",
     "$MYPY_CONFIG_FILE_DIR/tests/"

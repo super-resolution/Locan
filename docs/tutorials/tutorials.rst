@@ -40,7 +40,10 @@ Tutorials are provided as Jupyter notebooks.
    Blinking <./notebooks/Analysis_Blinking>
    Coordinate based colocalization <./notebooks/Analysis_coordinate_based_colocalization>
    Drift <./notebooks/Analysis_Drift>
+   Local density <./notebooks/Analysis_local_density>
    Nearest neighbor distances <./notebooks/Analysis_nearest_neighbor_distances>
+   Pair distances <./notebooks/Analysis_pair_distances>
+   Radial distance distribution <./notebooks/Analysis_radial_distribution>
    Ripley <./notebooks/Analysis_Ripley>
    Grouped cluster properties <./notebooks/Analysis_grouped_cluster_properties>
 

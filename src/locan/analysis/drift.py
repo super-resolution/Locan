@@ -78,7 +78,7 @@ from locan.data.locdata import LocData
 from locan.data.metadata_utils import _modify_meta
 from locan.dependencies import needs_package
 from locan.process.register import Transformation, _register_icp_open3d, register_cc
-from locan.process.transform.spatial_transformation import transform_affine
+from locan.process.transform.spatial.spatial_transformation import transform_affine
 
 __all__: list[str] = ["Drift", "DriftComponent"]
 

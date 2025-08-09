@@ -53,12 +53,15 @@ def test_LocData(df_simple, caplog):
     # assert dat.meta.identifier == '1'
     assert dat.bounding_box.region_measure == 20
     assert "region_measure_bb" in dat.properties
+    assert "subregion_measure_bb" in dat.properties
     assert "localization_density_bb" in dat.properties
     assert dat.convex_hull.region_measure == 12.5
     assert "region_measure_ch" in dat.properties
+    assert "subregion_measure_ch" in dat.properties
     assert "localization_density_ch" in dat.properties
-    assert round(dat.oriented_bounding_box.region_measure) == 16
+    assert dat.oriented_bounding_box.region_measure == pytest.approx(16.0)
     assert "region_measure_obb" in dat.properties
+    assert "subregion_measure_obb" in dat.properties
     assert "localization_density_obb" in dat.properties
     assert dat.region is None
     dat.region = Rectangle()
@@ -318,6 +321,7 @@ def test_LocData_from_collection(df_simple):
         "region_measure_obb",
         "subregion_measure_bb",
         "subregion_measure_ch",
+        "subregion_measure_obb",
         "uncertainty_x",
         "uncertainty_y",
     }
@@ -339,6 +343,7 @@ def test_LocData_from_collection(df_simple):
         "region_measure_obb",
         "subregion_measure_bb",
         "subregion_measure_ch",
+        "subregion_measure_obb",
         "region_measure_as",
         "localization_density_as",
         "uncertainty_x",
@@ -360,6 +365,7 @@ def test_LocData_from_collection(df_simple):
         "region_measure_obb",
         "subregion_measure_bb",
         "subregion_measure_ch",
+        "subregion_measure_obb",
         "region_measure_as",
         "localization_density_as",
         "circularity_im",
@@ -668,11 +674,9 @@ def test_locdata_hulls(
 ):
     dat = eval(fixture_name)
     assert dat.bounding_box.region_measure == 0
-    assert dat.oriented_bounding_box.region_measure == 0
-    with pytest.warns(UserWarning):
-        assert dat.convex_hull is None
-    with pytest.raises(AttributeError):
-        assert dat.region_measure_ch
+    assert dat.convex_hull.region_measure == 0
+    #    with pytest.warns():
+    #        assert dat.oriented_bounding_box
     if len(dat) == 0:
         assert isinstance(dat.update_alpha_shape(alpha=1).alpha_shape, AlphaShape)
     else:

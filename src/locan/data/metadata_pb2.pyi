@@ -1,16 +1,13 @@
+import datetime
+
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf import duration_pb2 as _duration_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import (
-    ClassVar as _ClassVar,
-    Iterable as _Iterable,
-    Mapping as _Mapping,
-    Optional as _Optional,
-    Union as _Union,
-)
+from collections.abc import Iterable as _Iterable, Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -410,7 +407,9 @@ class Camera(_message.Message):
         model: _Optional[str] = ...,
         gain: _Optional[float] = ...,
         electrons_per_count: _Optional[float] = ...,
-        integration_time: _Optional[_Union[_duration_pb2.Duration, _Mapping]] = ...,
+        integration_time: _Optional[
+            _Union[datetime.timedelta, _duration_pb2.Duration, _Mapping]
+        ] = ...,
         pixel_count_x: _Optional[int] = ...,
         pixel_count_y: _Optional[int] = ...,
         pixel_size_x: _Optional[float] = ...,
@@ -475,8 +474,12 @@ class Acquisition(_message.Message):
         frame_count: _Optional[int] = ...,
         frame_of_interest_first: _Optional[int] = ...,
         frame_of_interest_last: _Optional[int] = ...,
-        time_start: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
-        time_end: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
+        time_start: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
+        time_end: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
         stack_count: _Optional[int] = ...,
         stack_step_count: _Optional[int] = ...,
         stack_step_size: _Optional[float] = ...,
@@ -748,7 +751,13 @@ class Metadata(_message.Message):
         experiment: _Optional[_Union[Experiment, _Mapping]] = ...,
         localizer: _Optional[_Union[Localizer, _Mapping]] = ...,
         map: _Optional[_Mapping[str, str]] = ...,
-        creation_time: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
-        modification_time: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
-        production_time: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
+        creation_time: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
+        modification_time: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
+        production_time: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
     ) -> None: ...

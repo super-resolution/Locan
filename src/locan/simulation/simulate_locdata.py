@@ -15,7 +15,7 @@ Functions that are named as make_* provide point data arrays.
 Functions that are named as simulate_* provide locdata.
 
 
-Parts of this code is adapted from
+Part of this code is adapted from
 scikit-learn/sklearn/datasets/_samples_generator.py .
 (BSD 3-Clause License, Copyright (c) 2007-2020 The scikit-learn developers.)
 
@@ -49,13 +49,14 @@ from locan.data.metadata_utils import _modify_meta
 from locan.data.regions.region import (
     AxisOrientedCuboid,
     AxisOrientedHypercuboid,
+    Cuboid,
     Ellipse,
     EmptyRegion,
     Interval,
     Rectangle,
     Region,
 )
-from locan.data.regions.region_utils import expand_region
+from locan.data.regions.region_utils import expand_region, get_region_from_intervals
 from locan.locan_types import RandomGeneratorSeed
 
 __all__: list[str] = [
@@ -110,7 +111,7 @@ def make_uniform(
     rng = np.random.default_rng(seed)
 
     if not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     if isinstance(region, EmptyRegion):
         samples = np.array([])
@@ -128,9 +129,25 @@ def make_uniform(
         theta = rng.random(n_samples) * 2 * np.pi
         rho = radius * np.sqrt(rng.random(n_samples))
         # Convert from polar to Cartesian coordinates
-        xx = rho * np.cos(theta)
-        yy = rho * np.sin(theta)
+        xx = rho * np.cos(theta) + region.center[0]
+        yy = rho * np.sin(theta) + region.center[1]
         samples = np.array((xx, yy)).T
+    elif isinstance(region, Cuboid):
+        axis_aligned_corner = region.rotation.apply(region.corner, inverse=True)
+        intervals = np.stack(
+            [
+                axis_aligned_corner,
+                axis_aligned_corner + [region.length, region.width, region.height],
+            ],
+            axis=-1,
+        )
+        axis_aligned_cuboid = AxisOrientedCuboid.from_intervals(intervals=intervals)
+        samples = rng.uniform(
+            axis_aligned_cuboid.bounds[: axis_aligned_cuboid.dimension],
+            axis_aligned_cuboid.bounds[axis_aligned_cuboid.dimension :],
+            size=(n_samples, region.dimension),
+        )
+        samples = region.rotation.apply(samples)
     else:
         sampling_ratio = region.region_measure / region.bounding_box.region_measure
         n_samples_updated = int(n_samples / sampling_ratio * 2)
@@ -139,7 +156,7 @@ def make_uniform(
         n_remaining = n_samples
         while n_remaining > 0:
             new_samples = rng.random(size=(n_samples_updated, region.dimension))  # type: ignore
-            new_samples = region.extent * new_samples + region.bounding_box.corner  # type: ignore
+            new_samples = region.bounding_box.extent * new_samples + region.bounding_box.corner  # type: ignore
             new_samples = new_samples[region.contains(new_samples)]
             samples_.append(new_samples)
             n_remaining = n_remaining - len(new_samples)
@@ -176,7 +193,9 @@ def simulate_uniform(
     """
     parameter = locals()
     samples = make_uniform(n_samples=n_samples, region=region, seed=seed)
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)
+    region_ = (
+        region if isinstance(region, Region) else get_region_from_intervals(region)
+    )
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -217,7 +236,7 @@ def make_Poisson(
     rng = np.random.default_rng(seed)
 
     if not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     n_samples = rng.poisson(lam=intensity * region.region_measure)
 
@@ -229,8 +248,8 @@ def make_Poisson(
         for _i in range(region.dimension):
             samples = samples[..., np.newaxis]
     elif isinstance(
-        region, (Interval, Rectangle, AxisOrientedCuboid, AxisOrientedHypercuboid)
-    ):
+        region, (Interval, AxisOrientedCuboid, AxisOrientedHypercuboid)
+    ) or (isinstance(region, Rectangle) and region.angle == 0):
         samples = rng.uniform(
             region.bounds[: region.dimension],
             region.bounds[region.dimension :],
@@ -242,8 +261,8 @@ def make_Poisson(
         theta = rng.random(n_samples) * 2 * np.pi
         rho = radius * np.sqrt(rng.random(n_samples))
         # Convert from polar to Cartesian coordinates
-        xx = rho * np.cos(theta)
-        yy = rho * np.sin(theta)
+        xx = rho * np.cos(theta) + region.center[0]
+        yy = rho * np.sin(theta) + region.center[0]
         samples = np.array((xx, yy)).T
     else:
         sampling_ratio = region.region_measure / region.bounding_box.region_measure
@@ -254,7 +273,7 @@ def make_Poisson(
         while n_remaining > 0:
             assert region.dimension is not None  # type narrowing # noqa: S101
             new_samples = rng.random(size=(n_samples_updated, region.dimension))
-            new_samples = region.extent * new_samples + region.bounding_box.corner  # type: ignore
+            new_samples = region.bounding_box.extent * new_samples + region.bounding_box.corner  # type: ignore
             new_samples = new_samples[region.contains(new_samples)]
             samples_.append(new_samples)
             n_remaining = n_remaining - len(new_samples)
@@ -291,7 +310,9 @@ def simulate_Poisson(
     """
     parameter = locals()
     samples = make_Poisson(intensity=intensity, region=region, seed=seed)
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)
+    region_ = (
+        region if isinstance(region, Region) else get_region_from_intervals(region)
+    )
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -365,7 +386,7 @@ def make_cluster(
         )
         return samples, labels, parent_samples, region
     elif not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     expanded_region = expand_region(region, expansion_distance)
 
@@ -497,7 +518,7 @@ def simulate_cluster(
     samples, labels, _, region = make_cluster(
         centers, region, expansion_distance, offspring, clip, shuffle, seed
     )
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)  # type: ignore
+    region_ = region if isinstance(region, Region) else get_region_from_intervals(region)  # type: ignore
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -574,7 +595,7 @@ def make_NeymanScott(
         )
         return samples, labels, parent_samples, region
     elif not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     expanded_region = expand_region(region, expansion_distance)
 
@@ -706,7 +727,7 @@ def simulate_NeymanScott(
     samples, labels, _, region = make_NeymanScott(
         parent_intensity, region, expansion_distance, offspring, clip, shuffle, seed
     )
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)  # type: ignore
+    region_ = region if isinstance(region, Region) else get_region_from_intervals(region)  # type: ignore
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -782,7 +803,7 @@ def make_Matern(
         )
         return samples, labels, parent_samples, region
     elif not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     expansion_distance = np.max(radius)
     expanded_region = expand_region(region, expansion_distance)
@@ -905,7 +926,7 @@ def simulate_Matern(
     samples, labels, _, region = make_Matern(
         parent_intensity, region, cluster_mu, radius, clip, shuffle, seed
     )
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)  # type: ignore
+    region_ = region if isinstance(region, Region) else get_region_from_intervals(region)  # type: ignore
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -978,7 +999,7 @@ def make_Thomas(
     rng = np.random.default_rng(seed)
 
     if not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     if (
         parent_intensity == 0
@@ -1140,7 +1161,7 @@ def simulate_Thomas(
         shuffle,
         seed,
     )
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)  # type: ignore
+    region_ = region if isinstance(region, Region) else get_region_from_intervals(region)  # type: ignore
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -1216,7 +1237,7 @@ def make_dstorm(
     rng = np.random.default_rng(seed)
 
     if not isinstance(region, Region):
-        region = Region.from_intervals(region)
+        region = get_region_from_intervals(region)
 
     if (
         parent_intensity == 0
@@ -1390,7 +1411,7 @@ def simulate_dstorm(
         shuffle,
         seed,
     )
-    region_ = region if isinstance(region, Region) else Region.from_intervals(region)  # type: ignore
+    region_ = region if isinstance(region, Region) else get_region_from_intervals(region)  # type: ignore
     assert region_.dimension is not None  # type narrowing # noqa: S101
     locdata = LocData.from_coordinates(coordinates=samples)
     locdata.dimension = region_.dimension
@@ -1707,29 +1728,36 @@ def randomize(
     LocData
         New localization data with randomized coordinates.
     """
-    # todo: fix treatment of empty locdata
     local_parameter = locals()
 
-    rng = np.random.default_rng(seed)
+    if len(locdata) == 0:
+        new_locdata = LocData()
 
-    try:
-        if hull_region == "bb":
-            region_ = locdata.bounding_box.hull.T  # type: ignore[union-attr]
-        elif hull_region == "ch":
-            region_ = locdata.convex_hull.region  # type: ignore[union-attr]
-        elif hull_region == "as":
-            region_ = locdata.alpha_shape.region  # type: ignore[union-attr]
-        elif hull_region == "obb":
-            region_ = locdata.oriented_bounding_box.region  # type: ignore[union-attr]
-        elif isinstance(hull_region, Region):
-            region_ = hull_region
-        else:
-            raise ValueError
+    else:
+        rng = np.random.default_rng(seed)
 
-        new_locdata = simulate_uniform(n_samples=len(locdata), region=region_, seed=rng)
+        try:
+            if hull_region == "bb":
+                region_ = locdata.bounding_box.hull.T  # type: ignore[union-attr]
+            elif hull_region == "ch":
+                region_ = locdata.convex_hull.region  # type: ignore[union-attr]
+            elif hull_region == "as":
+                region_ = locdata.alpha_shape.region  # type: ignore[union-attr]
+            elif hull_region == "obb":
+                region_ = locdata.oriented_bounding_box.region  # type: ignore[union-attr]
+            elif isinstance(hull_region, Region):
+                region_ = hull_region
+            else:
+                raise ValueError
 
-    except (AttributeError, ValueError, TypeError) as exception:
-        raise AttributeError(f"Region {hull_region} is not available.") from exception
+            new_locdata = simulate_uniform(
+                n_samples=len(locdata), region=region_, seed=rng
+            )
+
+        except (AttributeError, ValueError, TypeError) as exception:
+            raise AttributeError(
+                f"Region {hull_region} is not available."
+            ) from exception
 
     # update metadata
     meta_ = _modify_meta(

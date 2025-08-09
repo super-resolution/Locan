@@ -12,21 +12,25 @@ Submodules:
 .. autosummary::
    :toctree: ./
 
-   bunwarpj
-   spatial_transformation
+   spatial
    intensity_transformation
 
 """
 
 from __future__ import annotations
 
-from locan.process.transform.bunwarpj import *
-from locan.process.transform.intensity_transformation import *
-from locan.process.transform.spatial_transformation import *
+from locan.process.transform.intensity_transformation import (
+    transform_counts_to_photons as transform_counts_to_photons,
+)
+from locan.process.transform.spatial import (
+    bunwarp as bunwarp,
+    overlay as overlay,
+    standardize as standardize,
+    transform_affine as transform_affine,
+)
 
-from . import bunwarpj, intensity_transformation, spatial_transformation
+from . import intensity_transformation, spatial
 
 __all__: list[str] = []
-__all__.extend(bunwarpj.__all__)
 __all__.extend(intensity_transformation.__all__)
-__all__.extend(spatial_transformation.__all__)
+__all__.extend(spatial.__all__)

@@ -419,8 +419,16 @@ class LocData:
                     self.properties["localization_count"]
                     / self._oriented_bounding_box.region_measure
                 )
-            self.properties["orientation_obb"] = self._oriented_bounding_box.angle
-            self.properties["circularity_obb"] = self._oriented_bounding_box.elongation
+            if self._oriented_bounding_box.subregion_measure:
+                self.properties["subregion_measure_obb"] = (
+                    self._oriented_bounding_box.subregion_measure
+                )
+            # todo: add 3D properties
+            if self.dimension == 2:
+                self.properties["orientation_obb"] = self._oriented_bounding_box.angle
+                self.properties["circularity_obb"] = (
+                    self._oriented_bounding_box.elongation
+                )
 
     @property
     def alpha_shape(self) -> locan.data.hulls.AlphaShape | None:
@@ -839,7 +847,7 @@ class LocData:
 
     @classmethod
     def from_collection(
-        cls: type[T_LocData],  # noqa: UP006v
+        cls: type[T_LocData],  # noqa: UP006
         locdatas: Iterable[LocData],
         meta: (
             metadata_pb2.Metadata

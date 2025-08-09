@@ -26,7 +26,7 @@ from locan.data.locdata import LocData
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.process.aggregate import Bins, histogram
 from locan.process.properties.locdata_statistics import range_from_collection
-from locan.process.transform.spatial_transformation import _homogeneous_matrix
+from locan.process.transform.spatial.spatial_transformation import _homogeneous_matrix
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d

@@ -11,13 +11,71 @@ See Also
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+import numpy as np
+import numpy.typing as npt
 from shapely.ops import unary_union
 
-from locan.data.regions.region import EmptyRegion, Region, Region2D, RoiRegion
+from locan.data.regions.region import (
+    AxisOrientedCuboid,
+    AxisOrientedHypercuboid,
+    AxisOrientedRectangle,
+    EmptyRegion,
+    Interval,
+    LineSegment2D,
+    Region,
+    Region2D,
+    RoiRegion,
+)
+from locan.dependencies import HAS_DEPENDENCY
 
-__all__: list[str] = ["regions_union", "expand_region", "surrounding_region"]
+if HAS_DEPENDENCY["open3d"]:
+    pass
+
+if TYPE_CHECKING:
+    pass
+
+__all__: list[str] = [
+    "get_region_from_intervals",
+    "regions_union",
+    "expand_region",
+    "surrounding_region",
+]
+
+
+def get_region_from_intervals(
+    intervals: npt.ArrayLike,
+) -> (
+    Interval
+    | LineSegment2D
+    | AxisOrientedRectangle
+    | AxisOrientedCuboid
+    | AxisOrientedHypercuboid
+):
+    """
+    Constructor for instantiating an axis-oriented region
+    from list of (min, max) bounds.
+
+    Parameters
+    ----------
+    intervals
+        The region bounds for each dimension of shape (dimension, 2).
+
+    Returns
+    -------
+    Interval | AxisOrientedRectangle | AxisOrientedCuboid | AxisOrientedHypercuboid
+    """
+    if np.shape(intervals) == (2,) or np.shape(intervals) == (1, 2):
+        return Interval.from_intervals(intervals)
+    elif np.shape(intervals) == (2, 2):
+        return AxisOrientedRectangle.from_intervals(intervals)
+    elif np.shape(intervals) == (3, 2):
+        return AxisOrientedCuboid.from_intervals(intervals)
+    elif np.shape(intervals)[0] > 3 and np.shape(intervals)[1] == 2:
+        return AxisOrientedHypercuboid.from_intervals(intervals)
+    else:
+        raise TypeError("intervals must be of shape (dimension, 2).")
 
 
 def regions_union(regions: list[Region]) -> EmptyRegion | Region2D:
@@ -71,7 +129,10 @@ def expand_region(
     --------
     Region
     """
-    expanded_region = region.buffer(distance, **kwargs)
+    if distance == 0:
+        expanded_region = region
+    else:
+        expanded_region = region.buffer(distance, **kwargs)
 
     if support is not None:
         expanded_region = support.intersection(expanded_region)

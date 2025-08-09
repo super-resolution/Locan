@@ -118,10 +118,15 @@ def test_LocalizationPrecision_empty(caplog):
 
 
 def test_Localization_precision(locdata_simple_2d):
-    # print(locdata_simple.data)
+    # print(locdata_simple_2d.data)
     lp = LocalizationPrecision().compute(locdata=locdata_simple_2d)
     # print(lp.results)
-    for prop in ["position_delta_x", "position_delta_y", "position_distance"]:
+    for prop in [
+        "position_delta_x",
+        "position_delta_y",
+        "position_distance",
+        "original_index",
+    ]:
         assert prop in lp.results.columns
 
 

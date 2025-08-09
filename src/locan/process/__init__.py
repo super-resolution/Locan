@@ -36,6 +36,7 @@ from locan.process.cluster import (
 from locan.process.filter import *
 from locan.process.register import *
 from locan.process.properties import (
+    distance_to_point as distance_to_point,
     distance_to_region as distance_to_region,
     distance_to_region_boundary as distance_to_region_boundary,
     inertia_moments as inertia_moments,

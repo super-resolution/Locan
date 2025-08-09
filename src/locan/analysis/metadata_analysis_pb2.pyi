@@ -1,13 +1,11 @@
+import datetime
+
 from google.protobuf import timestamp_pb2 as _timestamp_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import (
-    ClassVar as _ClassVar,
-    Mapping as _Mapping,
-    Optional as _Optional,
-    Union as _Union,
-)
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -59,6 +57,10 @@ class AMetadata(_message.Message):
         comment: _Optional[str] = ...,
         method: _Optional[_Union[Analysis_routine, _Mapping]] = ...,
         map: _Optional[_Mapping[str, str]] = ...,
-        creation_time: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
-        modification_time: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
+        creation_time: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
+        modification_time: _Optional[
+            _Union[datetime.datetime, _timestamp_pb2.Timestamp, _Mapping]
+        ] = ...,
     ) -> None: ...

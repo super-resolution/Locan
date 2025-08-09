@@ -106,6 +106,7 @@ def _localization_precision(locdata: LocData, radius: int | float = 50) -> pd.Da
                             }
                         )
                         df = df.assign(position_distance=min_distance)
+                        df = df.assign(original_index=points.index[n])
                         df = df.assign(frame=i)
                         results = pd.concat([results, df])
         except KeyError:
@@ -728,11 +729,11 @@ class _DistributionFits:
 
         # MLE fit of distribution on data
         if "position_delta_" in loc_property:
-            fit_results = self.distribution.fit(
+            fit_results = self.distribution.fit(  # type: ignore[union-attr]
                 self.analysis_class.results[loc_property].values, **kwargs
             )
         elif loc_property == "position_distance":
-            fit_results = self.distribution.fit(
+            fit_results = self.distribution.fit(  # type: ignore[union-attr]
                 self.analysis_class.results[loc_property].values,
                 **dict(dict(floc=0, fscale=1), **kwargs),
             )

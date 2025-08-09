@@ -15,8 +15,8 @@ from locan import (
 from locan.dependencies import HAS_DEPENDENCY
 from locan.locan_io.locdata.io_locdata import load_asdf_file
 from locan.process.cluster import cluster_dbscan
-from locan.process.transform.bunwarpj import _read_matrix, _unwarp
-from locan.process.transform.spatial_transformation import _homogeneous_matrix
+from locan.process.transform.spatial.bunwarpj import _read_matrix, _unwarp
+from locan.process.transform.spatial.spatial_transformation import _homogeneous_matrix
 from tests import TEST_DIR
 from tests.conftest import get_open3d_version
 

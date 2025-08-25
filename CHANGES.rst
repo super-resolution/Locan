@@ -19,7 +19,7 @@ Bug Fixes
 
 Other Changes and Additions
 ---------------------------
-- ...
+- update version requirements for setuptools and setuptools-scm
 
 
 0.21 - dev

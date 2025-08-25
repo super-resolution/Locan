@@ -21,7 +21,8 @@ name = "locan"
 description = "Analysis software for single-molecule localization microscopy"
 readme = "README.md"
 requires-python = ">=3.9"
-license = {file = "LICENSE.md"}
+license = "BSD-3-Clause"
+license-files = ["LICENSE.md"]
 authors = [
   {name = "Locan Developers"},
 ]

@@ -20,6 +20,7 @@ Bug Fixes
 Other Changes and Additions
 ---------------------------
 - update version requirements for setuptools and setuptools-scm
+- refactor licence specification in pyproject.toml according to PEP 639
 
 
 0.21 - dev

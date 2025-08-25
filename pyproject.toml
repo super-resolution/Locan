@@ -38,7 +38,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
     "Programming Language :: C",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",

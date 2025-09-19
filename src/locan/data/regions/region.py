@@ -3402,7 +3402,7 @@ def _polygon_path(
     vertices = np.concatenate(
         [
             np.concatenate(
-                [np.asarray(t.exterior.coords)[:, :2]]
+                [np.asarray(t.exterior.coords)[:, :2]]  # type: ignore [union-attr]
                 + [np.asarray(r.coords)[:, :2] for r in t.interiors]  # type: ignore
             )
             for t in polygons

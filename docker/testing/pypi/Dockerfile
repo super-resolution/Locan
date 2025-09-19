@@ -1,6 +1,6 @@
 # Use an official image for a Python runtime that is based on debian
 ARG PYTHON_VERSION=3.12
-FROM python:${PYTHON_VERSION}-slim-bookworm
+FROM python:${PYTHON_VERSION}-slim-trixie
 
 ARG PYTHON_VERSION
 # one of pyside2, pyqt5, pyside6, pyqt6
@@ -33,14 +33,13 @@ COPY . /locan
 WORKDIR /locan
 
 # Set up and activate virtual environment
-ENV VIRTUAL_ENV "/opt/venv"
+ENV VIRTUAL_ENV="/opt/venv"
 RUN python -m venv $VIRTUAL_ENV --upgrade-deps
-ENV PATH "$VIRTUAL_ENV/bin:$PATH"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Update and install any needed packages and the project
 RUN pip install --no-cache-dir \
-        setuptools \
-        pip-tools && \
+        setuptools && \
     pip install $QT_BINDING .[test]
 
 # Volume for data
@@ -50,9 +49,7 @@ VOLUME ["/shared"]
 CMD today=$(date +"%Y-%m-%d") && \
     base="-linux-py"${PYTHON_VERSION}_$today && \
     requirements_file_name="/shared/requirements$base" && \
-    pip-compile --extra test --output-file "$requirements_file_name.txt" pyproject.toml && \
-    lock_file="$requirements_file-frozen.txt" && \
-    pip freeze --requirement "$requirements_file_name.txt" > $lock_file && \
+    pip freeze > "/shared/pip-freeze$base.txt" && \
     date > "/shared/versions$base.txt" && \
     locan show_versions -e -v >> "/shared/versions$base.txt" && \
     date > "/shared/test_results$base.txt" && \

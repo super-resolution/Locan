@@ -383,6 +383,16 @@ class Files:
         self.df[other_column] = matched_file
         return self
 
+    def _summary(self) -> dict[str, Any]:
+        """Assemble a summary of files contents."""
+        summary_dict = {
+            "Number of files": len(self.df),
+            "Base directory": self.directory,
+            "Columns": self.df.columns.to_list(),
+            "Describe": self.df.describe().loc[["count", "unique"]],  # type: ignore[index]
+        }
+        return summary_dict
+
     def print_summary(self) -> None:
         """
         Print summary of Files.
@@ -391,10 +401,8 @@ class Files:
         -------
         None
         """
-        print(f"Number of files: {len(self.df)}")
-        print(f"Base directory: {self.directory}")
-        print(f"Columns: {self.df.columns}")
-        print(self.df.describe().loc[["count", "unique"]])  # type: ignore[index]
+        for key, value in self._summary().items():
+            print(f"{key}: {value}")
 
     def group_identifiers(self) -> Any:  # todo: fix type
         """

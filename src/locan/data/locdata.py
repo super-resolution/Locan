@@ -751,7 +751,7 @@ class LocData:
                     )
 
             dataframe = pd.DataFrame.from_records(
-                data=coordinates, columns=coordinate_labels
+                data=coordinates, columns=coordinate_labels  # type: ignore [arg-type]
             )
 
         else:

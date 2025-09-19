@@ -264,6 +264,22 @@ def test_Files_concatenate(test_files, capfd):
     assert "one" in files.df.columns
 
 
+def test_Files_print_summary(test_files, capfd):
+    files = Files()
+    assert len(files.df) == 0
+    assert files.print_summary() is None
+    assert "file_path" in capfd.readouterr().out
+
+    files = Files(
+        directory=test_files,
+        df={"my_file": [test_files / "sub_directory" / "file_group_a_0.data"]},
+        column="my_file",
+    )
+    assert len(files.df) == 1
+    assert files.print_summary() is None
+    assert "my_file" in capfd.readouterr().out
+
+
 def test_Files_match_file_upstream(test_files, capfd):
     files = Files().from_glob(directory=test_files, pattern="**/*.data")
     files_new = files.match_file_upstream(

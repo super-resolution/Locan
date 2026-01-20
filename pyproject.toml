@@ -176,7 +176,7 @@ typing = [
     "types-tqdm",
 ]
 benchmark = [
-    "asv;python_version<'3.13'",
+    "asv",
 ]
 dev = [
     "pre-commit",

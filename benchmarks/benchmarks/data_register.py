@@ -2,6 +2,8 @@
 Benchmark functions for :mod:`locan.process.register`
 """
 
+from pathlib import Path
+
 import numpy as np
 
 import locan as lc
@@ -19,7 +21,7 @@ class BenchmarkRegister:
     """
 
     def setup(self):
-        path = lc.ROOT_DIR / "tests/test_data/five_blobs.txt"
+        path = Path(__file__).parents[2] / "tests/test_data/five_blobs.txt"
         self.locdata = lc.load_txt_file(path)
 
         self.offset_true = np.array([100.0, 50.0])

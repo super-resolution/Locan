@@ -2,6 +2,8 @@
 Benchmark functions for :mod:`locan.process.filter`
 """
 
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -18,7 +20,7 @@ class BenchmarkFilter:
     """
 
     def setup(self):
-        path = lc.ROOT_DIR / "tests/test_data/five_blobs.txt"
+        path = Path(__file__).parents[2] / "tests/test_data/five_blobs.txt"
         self.locdata = lc.load_txt_file(path)
 
         array = np.zeros(shape=(100, 100))

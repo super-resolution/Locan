@@ -1342,7 +1342,7 @@ class LineSegment2D(Region2D):
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         points = np.asarray(points)
         if points.size == 0:
-            return np.array([])
+            return np.array([], dtype=np.int64)
         else:
             distances_0 = np.linalg.norm(self.vertices[0] - points, axis=-1)
             distances_1 = np.linalg.norm(self.vertices[1] - points, axis=-1)
@@ -2041,7 +2041,7 @@ class Ellipse(Region2D):
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         points_ = np.asarray(points)
         if points_.size == 0:
-            return np.array([])
+            return np.array([], dtype=np.int64)
 
         cos_angle = np.cos(np.radians(-self.angle))
         sin_angle = np.sin(np.radians(-self.angle))
@@ -2225,19 +2225,19 @@ class Polygon(Region2D):
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         _points = np.asarray(points)
         if _points.size == 0:
-            return np.array([], dtype=bool)
+            return np.array([], dtype=np.int64)
 
         # preselect points inside the polygons bounding box to increase performance.
         preselected_points_indices = self.bounding_box.contains(_points)
         if len(preselected_points_indices) == 0:
-            return np.array([], dtype=bool)
+            return np.array([], dtype=np.int64)
 
         points_ = shMultiPoint(_points[preselected_points_indices])
         prepared_polygon = sh_prep(self.shapely_object)
         mask = list(map(prepared_polygon.contains, points_.geoms))
         inside_indices = np.nonzero(mask)[0]  # type: ignore[arg-type]
         if len(inside_indices) == 0:
-            return np.array([], dtype=bool)
+            return np.array([], dtype=np.int64)
         else:
             return preselected_points_indices[inside_indices]
 
@@ -2571,7 +2571,7 @@ class LineSegment3D(Region3D):
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         points = np.asarray(points)
         if points.size == 0:
-            return np.array([])
+            return np.array([], dtype=np.int64)
         else:
             distances_0 = np.linalg.norm(self.vertices[0] - points, axis=-1)
             distances_1 = np.linalg.norm(self.vertices[1] - points, axis=-1)
@@ -2826,7 +2826,7 @@ class AxisOrientedCuboid(Region3D):
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         points = np.asarray(points)
         if points.size == 0:
-            return np.array([])
+            return np.array([], dtype=np.int64)
         condition_0 = [
             (points[:, i] >= bound) for i, bound in enumerate(self.bounds[:3])
         ]
@@ -3181,7 +3181,7 @@ class Cuboid(Region3D):
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         points = np.asarray(points, dtype="float64")
         if points.size == 0:
-            indices = np.array([])
+            indices = np.array([], dtype=np.int64)
         else:
             indices = self.open3d_object.get_point_indices_within_bounding_box(
                 points=o3d.core.Tensor(points, dtype=o3d.core.Dtype.Float64)
@@ -3353,7 +3353,7 @@ class AxisOrientedHypercuboid(RegionND):
     def contains(self, points: npt.ArrayLike) -> npt.NDArray[np.int64]:
         points = np.asarray(points)
         if points.size == 0:
-            return np.array([])
+            return np.array([], dtype=np.int64)
         condition_0 = [
             (points[:, i] >= bound)
             for i, bound in enumerate(self.bounds[: self.dimension])

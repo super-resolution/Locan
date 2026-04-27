@@ -1,4 +1,4 @@
-name: Tests with ubuntu, Miniforge, py3.12
+name: Tests with ubuntu, Miniforge, py3.13
 # skips qt-related tests
 
 on:
@@ -12,12 +12,12 @@ defaults:
 
 env:
   OS: "linux"
-  PYTHON_VERSION: "3.12"
-  REQUIREMENTS_FILE: "environment-linux-py3.12.yml"
+  PYTHON_VERSION: "3.13"
+  REQUIREMENTS_FILE: "environment-linux-py3.13.yml"
 
 jobs:
   test-on-miniforge:
-    name: "Tests with linux, py3.12, Miniforge"
+    name: "Tests with linux, py3.13, Miniforge"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

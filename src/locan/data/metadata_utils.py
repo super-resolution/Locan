@@ -134,11 +134,13 @@ def _dict_to_protobuf(
         else:
             try:
                 setattr(message, key, value)
-            except AttributeError:
+            except (AttributeError, TypeError) as exception:
                 if attr_.DESCRIPTOR.name == "Timestamp":
                     attr_.FromJsonString(value)
                 elif attr_.DESCRIPTOR.name == "Duration":
                     attr_.FromNanoseconds(value)
+                else:
+                    raise exception
 
     if inplace:
         return None

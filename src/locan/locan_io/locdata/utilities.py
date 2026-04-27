@@ -11,7 +11,7 @@ import logging
 import os
 from collections.abc import Iterable, Mapping
 from contextlib import closing
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -102,7 +102,7 @@ def open_path_or_file_like(
             # if hasattr(path_or_file_like, "__fspath__")
             # or isinstance(path_or_file_like, (str, bytes)):
             path_or_file_like = cast(
-                Union[str, bytes, os.PathLike[str], os.PathLike[bytes], int],
+                str | bytes | os.PathLike[str] | os.PathLike[bytes] | int,
                 path_or_file_like,
             )
 

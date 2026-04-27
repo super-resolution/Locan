@@ -42,15 +42,9 @@ Variables
 from __future__ import annotations
 
 import logging
-import sys
 from collections.abc import Mapping
 from enum import Enum
-from typing import TYPE_CHECKING, Any, TypeVar, Union
-
-if sys.version_info >= (3, 10):
-    from typing import TypeAlias
-else:
-    from typing_extensions import TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias, TypeVar, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -118,7 +112,7 @@ class Colormap:
 
         if isinstance(colormap, mcolors.Colormap):
             self._matplotlib = colormap
-        elif isinstance(colormap, (napari.utils.Colormap, vispy.color.Colormap)):
+        elif isinstance(colormap, napari.utils.Colormap | vispy.color.Colormap):
             self._napari = colormap
         else:
             raise TypeError(

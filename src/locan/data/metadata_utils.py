@@ -294,11 +294,11 @@ def message_scheme(message: Message) -> dict[str, Any]:
         if descriptor.type == descriptor.TYPE_MESSAGE:
             attr_ = getattr(message, descriptor.name)
 
-            if descriptor.label != descriptor.LABEL_REPEATED:
+            if not descriptor.is_repeated:
                 message_dict[descriptor.name] = message_scheme(attr_)
 
             elif (
-                descriptor.label == descriptor.LABEL_REPEATED
+                descriptor.is_repeated
                 and "ScalarMap" not in type(attr_).__name__
                 and "MessageMapContainer" not in type(attr_).__name__
             ):

@@ -332,9 +332,9 @@ def render_2d_scatter_density(
 
     if cbar:
         if colorbar_kws is None:
-            plt.colorbar(mappable, ax=ax, label=labels[-1])  # type:ignore[arg-type]
+            plt.colorbar(mappable, ax=ax, label=labels[-1])  # type: ignore[arg-type]
         else:
-            plt.colorbar(mappable, **colorbar_kws)  # type:ignore[arg-type]
+            plt.colorbar(mappable, **colorbar_kws)  # type: ignore[arg-type]
 
     return ax
 

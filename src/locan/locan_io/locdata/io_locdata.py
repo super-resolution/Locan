@@ -82,8 +82,8 @@ def load_txt_file(
     """
     # define columns
     if columns is None:
-        dataframe: pd.DataFrame = pd.read_csv(  # type:ignore[assignment]
-            path,  # type:ignore[arg-type]
+        dataframe: pd.DataFrame = pd.read_csv(  # type: ignore[assignment]
+            path,  # type: ignore[arg-type]
             sep=sep,
             nrows=nrows,
             **dict(dict(skiprows=0), **kwargs),
@@ -95,8 +95,8 @@ def load_txt_file(
         dataframe.columns = column_keys  # type: ignore[assignment]
     else:
         column_keys = convert_property_names(columns, property_mapping=property_mapping)
-        dataframe = pd.read_csv(  # type:ignore[assignment]
-            path,  # type:ignore[arg-type]
+        dataframe = pd.read_csv(  # type: ignore[assignment]
+            path,  # type: ignore[arg-type]
             sep=sep,
             nrows=nrows,
             **dict(dict(skiprows=1, names=column_keys), **kwargs),

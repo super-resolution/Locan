@@ -16,6 +16,7 @@ See Also
 --------
 locan.utils.system_information.show_versions
 """
+
 from __future__ import annotations
 
 import argparse

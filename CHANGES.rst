@@ -15,12 +15,20 @@ API Changes
 
 Bug Fixes
 ---------
-- ...
+- fix: use make_napari_viewer fixture in napari tests
+- fix: refactor protobuf_message.descriptor.label
+- fix: from pandas 3, str data is not of type object but of type "str".
+- fix: add exception for TypeError when setting metadata datetime values. Previously this action threw AttributeErrors.
 
 Other Changes and Additions
 ---------------------------
 - update version requirements for setuptools and setuptools-scm
 - refactor licence specification in pyproject.toml according to PEP 639
+- refactor: dependency version specifiers and python versions
+- refactor: update to python 3.14 and deprecate python 3.9
+- refactor: bump protoc version to 34.1 and update protobuf messages
+- refactor: fix benchmarks test_data path
+- refactor: change python marker for asv dependency
 
 
 0.21 - dev

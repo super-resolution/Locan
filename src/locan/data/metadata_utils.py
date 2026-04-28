@@ -342,7 +342,7 @@ def merge_metadata(
 
     if other_metadata is None:
         pass
-    elif isinstance(other_metadata, (str, bytes, os.PathLike, BinaryIO)):
+    elif isinstance(other_metadata, str | bytes | os.PathLike | BinaryIO):
         meta_ = load_metadata_from_toml(other_metadata)
         if meta_ is not None:
             new_metadata.MergeFrom(meta_["metadata"])  # type: ignore[arg-type]

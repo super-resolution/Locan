@@ -782,7 +782,7 @@ class Region2D(Region):
     def intersection(
         self, other: Region
     ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
-        if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
+        if not isinstance(other, Region2D | EmptyRegion | RoiRegion):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.intersection(other.shapely_object)
         return get_region_from_shapely(shapely_obj)
@@ -790,7 +790,7 @@ class Region2D(Region):
     def symmetric_difference(
         self, other: Region
     ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
-        if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
+        if not isinstance(other, Region2D | EmptyRegion | RoiRegion):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.symmetric_difference(other.shapely_object)
         return get_region_from_shapely(shapely_obj)
@@ -798,7 +798,7 @@ class Region2D(Region):
     def union(
         self, other: Region
     ) -> LineSegment2D | Polygon | MultiPolygon | EmptyRegion:
-        if not isinstance(other, (Region2D, EmptyRegion, RoiRegion)):
+        if not isinstance(other, Region2D | EmptyRegion | RoiRegion):
             raise TypeError("other must be of type Region2D")
         shapely_obj = self.shapely_object.union(other.shapely_object)
         return get_region_from_shapely(shapely_obj)

@@ -69,13 +69,13 @@ def is_array_like(anything: Any) -> bool:
 
 
 def _is_scalar(element: Any) -> bool:
-    return isinstance(element, (int, float)) or (
+    return isinstance(element, int | float) or (
         is_array_like(element) and np.size(element) == 1 and np.ndim(element) == 0
     )
 
 
 def _is_single_element(element: Any) -> bool:
-    return isinstance(element, (int, float)) or (
+    return isinstance(element, int | float) or (
         is_array_like(element) and np.size(element) == 1 and np.ndim(element) in (0, 1)
     )
 
@@ -895,7 +895,7 @@ class Bins:
                 )
             if isinstance(bins, Bins):
                 self._bins = bins
-            if isinstance(bins, (bh.axis.Axis, bh.axis.AxesTuple)):
+            if isinstance(bins, bh.axis.Axis | bh.axis.AxesTuple):
                 self._bins = _BinsFromBoostHistogramAxis(bins)
         elif n_bins is not None:
             self._bins = _BinsFromNumber(n_bins, bin_range)  # type: ignore
@@ -955,7 +955,7 @@ class Bins:
             self._labels = None
         elif isinstance(value, str):
             self._labels = [value]
-        elif isinstance(value, (tuple, list)):
+        elif isinstance(value, tuple | list):
             self._labels = list(value)
         else:
             raise TypeError("`labels` must be str or list of str or None.")
@@ -1048,7 +1048,7 @@ def _histogram_fast_histogram(data: npt.ArrayLike, bins: Bins) -> npt.NDArray[np
 
 def _histogram_boost_histogram(
     data: npt.ArrayLike, bins: Bins
-) -> npt.NDArray[np.int64]:
+) -> npt.NDArray[np.int64] | npt.NDArray[np.float64]:
     """
     Provide histogram with counts in each bin.
 
@@ -1064,7 +1064,7 @@ def _histogram_boost_histogram(
     npt.NDArray[np.int64]
     """
     hist = bh.Histogram(*bins.boost_histogram_axes).fill(*data)  # type: ignore
-    img: npt.NDArray[np.int64] = hist.view()
+    img: npt.NDArray[np.int64] | npt.NDArray[np.float64] = hist.view()
     return img
 
 

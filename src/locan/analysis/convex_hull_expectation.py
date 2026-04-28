@@ -103,15 +103,8 @@ def _get_resource(
     ConvexHullExpectationValues
     """
 
-    try:
-        resource_ = importlib_resources.files(resource_directory).joinpath(resource)
-        resource_values = np.load(str(resource_))
-
-    except (AttributeError, TypeError):  # required for python < 3.9
-        with importlib_resources.path(
-            package=resource_directory, resource=resource
-        ) as resource_:
-            resource_values = np.load(str(resource_))
+    resource_ = importlib_resources.files(resource_directory).joinpath(resource)
+    resource_values = np.load(str(resource_))
 
     if "2d" in resource:  # hard coded corresponding to n_points in resources
         n_points = list(range(3, 201))

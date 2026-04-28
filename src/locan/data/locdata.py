@@ -581,7 +581,7 @@ class LocData:
             elif len(self) != len(region.contains(self.coordinates)):
                 logger.warning("Not all coordinates are within region.")
 
-        if isinstance(region, (Region, RoiRegion)) or region is None:
+        if isinstance(region, Region | RoiRegion) or region is None:
             self._region = region
 
         elif isinstance(
@@ -623,10 +623,10 @@ class LocData:
             # also see:
             # https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#deprecate-loc-reindex-listlike
             try:
-                df = self.references.data.loc[self.indices]  # type: ignore
+                df: pd.DataFrame = self.references.data.loc[self.indices]  # type: ignore [index, assignment]
             except KeyError:
                 df = self.references.data.loc[
-                    self.references.data.index.intersection(self.indices)  # type: ignore
+                    self.references.data.index.intersection(self.indices)  # type: ignore [index, arg-type]
                 ]
             df = pd.merge(
                 df, self.dataframe, left_index=True, right_index=True, how="outer"
@@ -657,7 +657,7 @@ class LocData:
     @classmethod
     def from_dataframe(
         cls: type[T_LocData],  # noqa: UP006
-        dataframe: DataFrame | None = None,
+        dataframe: pd.DataFrame | DataFrame | None = None,
         meta: (
             metadata_pb2.Metadata
             | dict[str, Any]
@@ -1186,7 +1186,7 @@ class LocData:
         """
         if self.references is None:
             pass
-        elif isinstance(self.references, (LocData, list)):
+        elif isinstance(self.references, LocData | list):
             self.dataframe = self.data
             self.indices = None
             self.references = None

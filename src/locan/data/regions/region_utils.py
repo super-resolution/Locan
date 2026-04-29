@@ -91,7 +91,7 @@ def regions_union(regions: list[Region]) -> EmptyRegion | Region2D:
     --------
     Region
     """
-    if all([isinstance(region, (Region2D, RoiRegion)) for region in regions]):
+    if all([isinstance(region, Region2D | RoiRegion) for region in regions]):
         shapely_objects = [reg.shapely_object for reg in regions]  # type: ignore[attr-defined]
         unified_regions = unary_union(shapely_objects)
         if unified_regions.is_empty:
@@ -174,7 +174,7 @@ def surrounding_region(
     extended_region = expand_region(
         region, distance=distance, support=support, **kwargs
     )
-    if isinstance(extended_region, (Region2D, RoiRegion)):
+    if isinstance(extended_region, Region2D | RoiRegion):
         surrounding_region_ = extended_region.symmetric_difference(region)
         return Region2D.from_shapely(surrounding_region_)  # type: ignore
     else:

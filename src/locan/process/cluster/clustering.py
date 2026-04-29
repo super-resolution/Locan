@@ -199,8 +199,15 @@ def cluster_dbscan(
             locdata_noise = selections[0]
             collection = LocData.from_collection(selections[1:])
         except KeyError:
-            locdata_noise = LocData()
-            collection = LocData.from_collection(selections)
+            try:
+                # if there is just one localization declared as noise, then the
+                # previous lookup throws a Key Error.
+                grouped.get_group((-1,))
+                locdata_noise = selections[0]
+                collection = LocData.from_collection(selections[1:])
+            except KeyError:
+                locdata_noise = LocData()
+                collection = LocData.from_collection(selections)
 
     # set regions
     if locdata_noise:

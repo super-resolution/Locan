@@ -1,7 +1,15 @@
 import numpy as np
 import pytest
 
-from locan import Roi, get_rois, save_rois, select_by_drawing_napari
+from locan import (
+    Ellipse,
+    Polygon,
+    Rectangle,
+    Roi,
+    get_rois,
+    save_rois,
+    select_by_drawing_napari,
+)
 from locan.dependencies import HAS_DEPENDENCY
 from locan.visualize.render_napari.utilities import _shape_to_region, _shapes_to_regions
 
@@ -57,13 +65,18 @@ def test__shapes_to_regions(make_napari_viewer, locdata_blobs_2d):
     regions = _shapes_to_regions(shapes_data)
 
     expected_regions = [
-        "Rectangle((0.0, 0.0), 3.1, 2.5, 0)",
-        "Ellipse((1.55, 1.25), 3.1, 2.5, 0)",
-        "Polygon([[0.0, 0.0], [0.0, 2.5], [3.1, 2.5], [3.1, 0.0]])",
+        Rectangle,
+        Ellipse,
+        Polygon,
     ]
 
-    for region, expected in zip(regions, expected_regions):
-        assert repr(region) == expected
+    expected_areas = [7.75, 6.086836, 7.75]
+
+    for region, expected_region, expected_area in zip(
+        regions, expected_regions, expected_areas
+    ):
+        assert isinstance(region, expected_region)
+        assert region.region_measure == pytest.approx(expected_area, rel=1e-3)
 
 
 @pytest.mark.skipif(

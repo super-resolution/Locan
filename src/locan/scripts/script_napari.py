@@ -18,6 +18,7 @@ See Also
 --------
 locan.render.render2d.render_2d_napari
 """
+
 from __future__ import annotations
 
 import argparse

@@ -9,5 +9,4 @@ The tests are organized following the subpackage structure of locan.
 
 from pathlib import Path
 
-
 TEST_DIR: Path = Path(__file__).parent

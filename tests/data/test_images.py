@@ -138,8 +138,9 @@ class TestImage:
     @pytest.mark.skipif(
         not HAS_NAPARI_AND_PYTESTQT, reason="Test requires napari and pytest-qt."
     )
-    def test_image_from_napari(self):
-        image_in = napari.Viewer().add_image(data=np.zeros(shape=(2, 3)))
+    def test_image_from_napari(self, make_napari_viewer):
+        viewer = make_napari_viewer()
+        image_in = viewer.add_image(data=np.zeros(shape=(2, 3)))
         image = Image.from_napari(image=image_in)
         assert image._image.dtype == float
         assert image.data.shape == (2, 3)
@@ -148,7 +149,8 @@ class TestImage:
         assert image.shape == (2, 3)
         assert isinstance(image.meta, metadata_pb2.Metadata)
 
-        image_in = napari.Viewer().add_image(data=np.zeros(shape=(2, 3, 4)), rgb=True)
+        viewer = make_napari_viewer()
+        image_in = viewer.add_image(data=np.zeros(shape=(2, 3, 4)), rgb=True)
         image = Image.from_napari(image=image_in, meta={"identifier": "1"})
         assert image._image.dtype == float
         assert image.data.shape == (2, 3, 4)
@@ -157,7 +159,8 @@ class TestImage:
         assert image.shape == (2, 3, 4)
         assert image.meta.identifier == "1"
 
-        image_in = napari.Viewer().add_image(data=np.zeros(shape=(2, 3)))
+        viewer = make_napari_viewer()
+        image_in = viewer.add_image(data=np.zeros(shape=(2, 3)))
         image_in = image_in.as_layer_data_tuple()
         image = Image.from_napari(image=image_in)
         assert image._image.dtype == float

@@ -134,11 +134,13 @@ def _dict_to_protobuf(
         else:
             try:
                 setattr(message, key, value)
-            except AttributeError:
+            except (AttributeError, TypeError) as exception:
                 if attr_.DESCRIPTOR.name == "Timestamp":
                     attr_.FromJsonString(value)
                 elif attr_.DESCRIPTOR.name == "Duration":
                     attr_.FromNanoseconds(value)
+                else:
+                    raise exception
 
     if inplace:
         return None
@@ -292,11 +294,11 @@ def message_scheme(message: Message) -> dict[str, Any]:
         if descriptor.type == descriptor.TYPE_MESSAGE:
             attr_ = getattr(message, descriptor.name)
 
-            if descriptor.label != descriptor.LABEL_REPEATED:
+            if not descriptor.is_repeated:
                 message_dict[descriptor.name] = message_scheme(attr_)
 
             elif (
-                descriptor.label == descriptor.LABEL_REPEATED
+                descriptor.is_repeated
                 and "ScalarMap" not in type(attr_).__name__
                 and "MessageMapContainer" not in type(attr_).__name__
             ):
@@ -340,7 +342,7 @@ def merge_metadata(
 
     if other_metadata is None:
         pass
-    elif isinstance(other_metadata, (str, bytes, os.PathLike, BinaryIO)):
+    elif isinstance(other_metadata, str | bytes | os.PathLike | BinaryIO):
         meta_ = load_metadata_from_toml(other_metadata)
         if meta_ is not None:
             new_metadata.MergeFrom(meta_["metadata"])  # type: ignore[arg-type]

@@ -22,6 +22,7 @@ See Also
 locan.rois.select_by_drawing_mpl
 
 """
+
 from __future__ import annotations
 
 import argparse

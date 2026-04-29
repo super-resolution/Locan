@@ -171,12 +171,12 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         mask: npt.ArrayLike | None = None,
     ) -> None:
         super().__init__(vmin=vmin, vmax=vmax)
-        self.reference = reference
+        self.reference = None if reference is None else np.asarray(reference)
         self.power = power
         self.n_bins = n_bins
-        self.mask = mask
+        self.mask = None if mask is None else np.asarray(mask)
 
-    def __call__(self, values: npt.ArrayLike) -> npt.NDArray:  # type: ignore
+    def __call__(self, values: npt.ArrayLike) -> npt.NDArray[np.float64]:  # type: ignore[override]
         """
         Histogram equalization with power intensification.
 
@@ -187,7 +187,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
 
         Returns
         -------
-        npt.NDArray
+        npt.NDArray[np.float64]
         """
         if np.any(np.isnan(values)):
             raise ValueError("HistogramEqualization does not work with nan values.")
@@ -205,7 +205,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         np.clip(_values, 0.0, 1.0, out=_values)
 
         if self.reference is None:
-            _reference = _values[self.mask]
+            _reference: npt.NDArray[Any] = _values[self.mask]
         else:
             _reference = self.reference
 
@@ -216,7 +216,7 @@ class HistogramEqualization(mcolors.Normalize, Transform):
         new_values = np.interp(_values, bin_centers, cdf)
         return new_values  # type: ignore[no-any-return]
 
-    def inverse(  # type:ignore[override]
+    def inverse(  # type: ignore[override]
         self, values: npt.ArrayLike
     ) -> npt.NDArray[Any]:
         """A Transformation object that performs the inverse operation."""

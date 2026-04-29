@@ -196,7 +196,7 @@ def _check_loc_properties(
 
 
 def _dataframe_to_pandas(
-    dataframe: DataFrame | None, allow_copy: bool = True
+    dataframe: pd.DataFrame | DataFrame | None, allow_copy: bool = True
 ) -> pd.DataFrame | None:
     """
     Convert dataframe that supports the dataframe interchange protocol to

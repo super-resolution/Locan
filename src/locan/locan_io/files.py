@@ -73,7 +73,7 @@ class Files:
     ) -> None:
         if directory is None:
             self.directory = None
-        elif isinstance(directory, (str, os.PathLike)):
+        elif isinstance(directory, str | os.PathLike):
             self.directory = Path(directory)
             if not self.directory.exists():
                 raise ValueError(f"The directory {directory} does not exist.")
@@ -82,7 +82,7 @@ class Files:
 
         if df is None:
             self.df = pd.DataFrame(columns=[column])
-        elif isinstance(df, (pd.DataFrame, pd.Series)):
+        elif isinstance(df, pd.DataFrame | pd.Series):
             if hasattr(df, column):
                 self.df = df
             else:
@@ -173,7 +173,7 @@ class Files:
         Files
         """
         df: pd.DataFrame | dict[str, str] | None
-        if isinstance(files, (str, os.PathLike)):
+        if isinstance(files, str | os.PathLike):
             df = pd.DataFrame(data=[files], columns=[column])
         elif isinstance(files, Iterable):
             df = pd.DataFrame(data=files, columns=[column])
@@ -380,7 +380,7 @@ class Files:
             )
             for file_ in self.df[column]
         ]
-        self.df[other_column] = matched_file
+        self.df[other_column] = matched_file  # type: ignore[assignment]
         return self
 
     def _summary(self) -> dict[str, Any]:
@@ -414,13 +414,13 @@ class Files:
         """
         return self.df.group.cat.categories
 
-    def grouped(self) -> pd.core.groupby.DataFrameGroupBy[Any]:  # type: ignore[type-arg]
+    def grouped(self) -> pd.api.typing.DataFrameGroupBy[Any, Any]:
         """
         Get groupby instance based on group_identifiers.
 
         Returns
         -------
-        pandas.core.groupby.DataFrameGroupBy
+        pandas.api.typing.DataFrameGroupBy
         """
         return self.df.groupby(by="group", observed=True)
 

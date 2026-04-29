@@ -222,7 +222,7 @@ def select_by_region(
 
     points = locdata.data[list(loc_properties_)].values
 
-    if isinstance(region, (Region2D, RoiRegion)):
+    if isinstance(region, Region2D | RoiRegion):
         indices_inside = region.contains(points)
         locdata_indices_to_keep = locdata.data.index[indices_inside]
         new_locdata = LocData.from_selection(

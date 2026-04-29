@@ -16,6 +16,7 @@ See Also
 --------
 locan.tests.test
 """
+
 from __future__ import annotations
 
 import argparse

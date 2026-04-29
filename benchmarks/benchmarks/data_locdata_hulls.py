@@ -2,6 +2,8 @@
 Benchmark functions for :func:`locan.data.hull`
 """
 
+from pathlib import Path
+
 import locan as lc
 from locan.data.hulls import AlphaShape, BoundingBox, ConvexHull, OrientedBoundingBox
 
@@ -12,7 +14,7 @@ class BenchmarkLocDataHulls:
     """
 
     def setup(self):
-        path = lc.ROOT_DIR / "tests/test_data/five_blobs.txt"
+        path = Path(__file__).parents[2] / "tests/test_data/five_blobs.txt"
         self.locdata = lc.load_txt_file(path)
         # print(self.locdata.data.info())
 

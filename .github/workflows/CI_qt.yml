@@ -1,4 +1,4 @@
-name:  CI with qt, py3.12
+name:  CI with qt, py3.13
 # includes qt-related tests
 
 on:
@@ -6,13 +6,13 @@ on:
 
 env:
   OS: "linux"
-  PYTHON_VERSION: "3.12"
+  PYTHON_VERSION: "3.13"
   QT_BINDING: "pyside6"
-  REQUIREMENTS_FILE: "requirements-all-linux-py3.12.txt"
+  REQUIREMENTS_FILE: "requirements-all-linux-py3.13.txt"
 
 jobs:
   check:
-    name: "CI with ubuntu, py3.12, pip"
+    name: "CI with ubuntu, py3.13, pip"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -12,6 +12,7 @@ Try for instance::
 
     locan check 133 -f "locan/tests/test_data/images.tif" -l "locan/tests/test_data/rapidStorm_from_images.txt" -t 2
 """
+
 from __future__ import annotations
 
 import argparse
@@ -75,7 +76,7 @@ def render_locs_per_frame_napari(
 
     if np.ndim(pixel_size) == 0:
         pixel_size_ = (pixel_size, pixel_size)
-    elif np.ndim(pixel_size) == 1 and len(pixel_size) == 2:  # type:  ignore[arg-type]
+    elif np.ndim(pixel_size) == 1 and len(pixel_size) == 2:  # type: ignore[arg-type]
         pixel_size_ = pixel_size  # type: ignore[assignment]
     else:
         raise TypeError("Dimension of `pixel_size` is incompatible with 2d image.")
@@ -87,7 +88,7 @@ def render_locs_per_frame_napari(
         images_ = images  # type: ignore[assignment]
 
     points = locdata.data[
-        locdata.data["frame"] < len(images)  # type:  ignore[arg-type]
+        locdata.data["frame"] < len(images)  # type: ignore[arg-type]
     ][["frame", "position_x", "position_y"]].values
 
     # Provide napari viewer if not provided
@@ -172,7 +173,7 @@ def sc_check(
         # due to changed napari behavior from v3.0 on the context manager is moved up.
         # with napari.gui_qt():
         render_locs_per_frame_napari(
-            image_stack,  # type:  ignore[arg-type]
+            image_stack,  # type: ignore[arg-type]
             pixel_size,
             locdata,
             viewer,

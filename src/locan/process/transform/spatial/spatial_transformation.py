@@ -402,7 +402,7 @@ def overlay(
     """
     local_parameter = locals()
 
-    if not locdatas or not isinstance(locdatas, (tuple, list)):
+    if not locdatas or not isinstance(locdatas, tuple | list):
         raise TypeError("locdatas must be a list of LocData objects.")
 
     dimensions = {locdata.dimension for locdata in locdatas}

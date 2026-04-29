@@ -86,7 +86,7 @@ def distance_to_region(locdata: LocData, region: Region) -> npt.NDArray[np.float
         Distance for each localization.
     """
     distances = np.full(len(locdata), 0.0)
-    if isinstance(region, (Region2D, RoiRegion)):
+    if isinstance(region, Region2D | RoiRegion):
         for i, point in enumerate(locdata.coordinates):
             distances[i] = Point(point).distance(region.shapely_object)
     else:
@@ -118,7 +118,7 @@ def distance_to_region_boundary(
         Distance for each localization.
     """
     distances = np.full(len(locdata), 0.0)
-    if isinstance(region, (Region2D, RoiRegion)):
+    if isinstance(region, Region2D | RoiRegion):
         for i, point in enumerate(locdata.coordinates):
             distances[i] = Point(point).distance(region.shapely_object.boundary)
     else:

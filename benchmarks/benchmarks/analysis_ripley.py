@@ -2,6 +2,8 @@
 Benchmark functions for :mod:`locan.analysis.ripley`
 """
 
+from pathlib import Path
+
 import numpy as np
 
 import locan as lc
@@ -16,7 +18,7 @@ class BenchmarkRipley:
     """
 
     def setup(self):
-        path = lc.ROOT_DIR / "tests/test_data/five_blobs.txt"
+        path = Path(__file__).parents[2] / "tests/test_data/five_blobs.txt"
         self.locdata = lc.load_txt_file(path)
         print(self.locdata.data.info())
         self.radii = np.arange(10, 110, 10)

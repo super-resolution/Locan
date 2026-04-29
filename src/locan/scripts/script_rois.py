@@ -20,6 +20,7 @@ See Also
 --------
 locan.visualize.render_napari.utilities.select_by_drawing_napari
 """
+
 from __future__ import annotations
 
 import argparse

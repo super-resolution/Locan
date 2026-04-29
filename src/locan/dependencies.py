@@ -35,12 +35,7 @@ import sys
 from collections.abc import Callable, Iterable
 from enum import Enum
 from functools import wraps
-from typing import Any, TypeVar
-
-if sys.version_info >= (3, 10):
-    from typing import ParamSpec
-else:
-    from typing_extensions import ParamSpec
+from typing import Any, ParamSpec, TypeVar
 
 logger = logging.getLogger(__name__)
 

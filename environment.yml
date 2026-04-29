@@ -41,7 +41,6 @@ dependencies:
 - fast-histogram
 
 # Extra requirements
-# - pyside2>=5.12.3
 - pyside6!=3.8.0
 - colorcet
 - trackpy

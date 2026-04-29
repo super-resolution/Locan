@@ -20,7 +20,7 @@ dependencies:
 - coverage
 
 # Development
-- black~=24.0
+- black~=26.0
 - build
 - mypy
 - numpy

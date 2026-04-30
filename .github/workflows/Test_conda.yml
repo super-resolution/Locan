@@ -20,8 +20,8 @@ jobs:
     name: "Tests with linux, py3.13, Miniforge"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: actions/checkout@v6
+      - uses: conda-incubator/setup-miniconda@v4
         with:
           auto-update-conda: true
           activate-environment: locan
@@ -36,7 +36,7 @@ jobs:
       - name: "Freeze environment"
         run: conda env export > ${{ env.REQUIREMENTS_FILE }}
       - name: "Upload requirements file"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.REQUIREMENTS_FILE }}
           path: ${{ env.REQUIREMENTS_FILE }}

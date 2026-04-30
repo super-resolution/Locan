@@ -18,8 +18,8 @@ jobs:
     env:
       REQUIREMENTS_FILE: "requirements-all-linux-py${{ matrix.python-version }}.yml"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 

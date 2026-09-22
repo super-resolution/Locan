@@ -216,6 +216,12 @@ class Image(ImageBase):
 
     @data.setter
     def data(self, value: Any) -> None:
+        if value is None:
+            self._data = None
+            return
+        if self.bins is not None:
+            if self.bins.n_bins != np.shape(value):
+                raise ValueError("bins and image must have the same shape.")
         if is_array_api_obj(value):
             self._data = value
         else:

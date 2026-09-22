@@ -87,8 +87,8 @@ pyqt5 = ["PyQt5"]
 pyside2 = ["PySide2"]
 pyside6 = ["pyside6!=6.8.0"]
 register = [
-    "open3d-cpu!=0.12.0; platform_system=='Linux' and python_version<'3.13'",
-    "open3d!=0.12.0; platform_system!='Linux' and python_version<'3.13'",
+    "open3d-cpu!=0.12.0,!=0.20.0; platform_system=='Linux' and python_version<'3.13'",
+    "open3d!=0.12.0,<0.20,!=0.20.0; platform_system!='Linux' and python_version<'3.13'",
 ]
 scatter_density = [
     "mpl_scatter_density",
@@ -134,14 +134,15 @@ dev = [
     "build",
     "coverage[toml]",
     "mypy",
-    "pandas-stubs",  # required by mypy
+    "pandas-stubs",
     "pre-commit",
     "ruff",
+    "scipy-stubs",
     "twine",
-    "types-networkx",  # required by mypy
-    "types-protobuf",  # required by mypy
-    "types-shapely",  # required by mypy
-    "types-tqdm",  # required by mypy
+    "types-networkx",
+    "types-protobuf",
+    "types-shapely",
+    "types-tqdm",
 ]
 
 [project.urls]
@@ -171,6 +172,7 @@ lint = [
 typing = [
     "mypy",
     "pandas-stubs",
+    "scipy-stubs",
     "types-networkx",
     "types-protobuf",
     "types-shapely",

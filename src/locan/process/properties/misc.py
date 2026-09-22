@@ -197,6 +197,8 @@ def inertia_moments(points: npt.ArrayLike) -> InertiaMoments:
             np.arctan2(
                 eigen_vectors[1][index_max_eigen_value],
                 eigen_vectors[0][index_max_eigen_value],
+                # the casting rule follows earlier numpy versions.
+                casting="unsafe",  # todo: check for different casting rules
             )
         )
         eccentricity = np.sqrt(1 - np.min(eigen_values) / np.max(eigen_values))

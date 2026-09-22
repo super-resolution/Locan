@@ -187,6 +187,7 @@ def inertia_moments(points: npt.ArrayLike) -> InertiaMoments:
     points = np.asarray(points)
     covariance_matrix = np.cov(points.T)
     eigen_values, eigen_vectors = np.linalg.eig(covariance_matrix)
+    print(np.real_if_close(eigen_vectors))
     variance_explained = [
         eigen_value / sum(eigen_values) for eigen_value in eigen_values
     ]
@@ -195,10 +196,8 @@ def inertia_moments(points: npt.ArrayLike) -> InertiaMoments:
     if np.shape(points)[1] == 2:
         orientation = np.degrees(
             np.arctan2(
-                eigen_vectors[1][index_max_eigen_value],
-                eigen_vectors[0][index_max_eigen_value],
-                # the casting rule follows earlier numpy versions.
-                casting="unsafe",  # todo: check for different casting rules
+                np.real_if_close(eigen_vectors[1][index_max_eigen_value]),
+                np.real_if_close(eigen_vectors[0][index_max_eigen_value]),
             )
         )
         eccentricity = np.sqrt(1 - np.min(eigen_values) / np.max(eigen_values))

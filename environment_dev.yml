@@ -27,6 +27,7 @@ dependencies:
 - pandas-stubs
 - pre-commit
 - ruff
+- scipy-stubs
 - twine
 - types-networkx
 - types-protobuf

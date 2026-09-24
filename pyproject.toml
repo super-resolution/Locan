@@ -171,6 +171,7 @@ lint = [
 ]
 typing = [
     "mypy",
+    "pyrefly",
     "pandas-stubs",
     "scipy-stubs",
     "types-networkx",
@@ -379,3 +380,24 @@ module = [
     'locan.analysis.localization_precision',
 ]
 disallow_subclassing_any = false
+
+
+[tool.pyrefly]
+project-includes = [
+    "src",
+    "tests",
+]
+project-excludes = [
+    "**/*_pb2.py*"  # protobuf-generated files
+]
+preset = "strict"
+infer-return-types = "never"
+ignore-missing-imports = []
+
+[tool.pyrefly.errors]
+implicit-any = "ignore"
+missing-override-decorator = "ignore"
+
+[[tool.pyrefly.sub-config]]
+matches = "tests/**/*"
+check-unannotated-defs = false

@@ -14,10 +14,9 @@ from __future__ import annotations
 
 import logging
 import warnings
-from collections import namedtuple
 from collections.abc import Iterable, Sequence
 from math import isclose
-from typing import Any, Literal, cast
+from typing import Any, Literal, NamedTuple, cast
 
 import boost_histogram as bh
 import fast_histogram
@@ -1140,6 +1139,12 @@ def _histogram_mean_boost_histogram(
     return mean_values
 
 
+class Histogram(NamedTuple):
+    data: npt.NDArray[np.int64 | np.float64]
+    bins: Bins
+    labels: list[str]
+
+
 def histogram(
     locdata: LocData,
     loc_properties: str | Iterable[str] | None = None,
@@ -1155,7 +1160,7 @@ def histogram(
         | Literal["zero", "link"]
         | None
     ) = None,
-) -> tuple[npt.NDArray[np.int64 | np.float64], Bins, list[str]]:
+) -> Histogram:
     """
     Make histogram of loc_properties (columns in `locdata.data`)
     by binning all localizations
@@ -1200,7 +1205,7 @@ def histogram(
 
     Returns
     -------
-    namedtuple('Histogram', "data bins labels"): (npt.NDArray[np.int64 | np.float64], Bins, list[str])
+    Histogram
     """
     labels_ = _check_loc_properties(locdata, loc_properties)
     data = locdata.data[labels_].values.T
@@ -1260,8 +1265,7 @@ def histogram(
             f"name."
         )
 
-    Histogram = namedtuple("Histogram", "data bins labels")
-    return Histogram(img, bins, labels_)
+    return Histogram(data=img, bins=bins, labels=labels_)
 
 
 def _accumulate_1d(

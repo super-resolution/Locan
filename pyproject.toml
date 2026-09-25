@@ -403,7 +403,6 @@ missing-override-decorator = "ignore"
 bad-argument-type = "ignore"
 bad-override = "ignore"
 bad-assignment = "ignore"
-missing-attribute = "ignore"
 
 [[tool.pyrefly.sub-config]]
 matches = "tests/**/*"

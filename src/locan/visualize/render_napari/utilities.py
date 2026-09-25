@@ -65,8 +65,9 @@ def select_by_drawing_napari(
     :func:`locan.scripts.rois` : script for drawing rois
     """
     # select roi
-    viewer = render_2d_napari(locdata, **kwargs)
+    viewer: napari.Viewer = render_2d_napari(locdata, **kwargs)
     if "Rois" not in viewer.layers:
+        # pyrefly: ignore [missing-attribute]
         viewer.add_shapes(name="Rois", edge_width=0.1)
     if napari_run:
         napari.run()

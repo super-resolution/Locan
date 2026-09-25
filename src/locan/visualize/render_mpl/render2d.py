@@ -324,6 +324,7 @@ def render_2d_scatter_density(
         cmap=get_colormap(colormap=cmap).matplotlib,
         **kwargs,
     )
+    assert ax is not None  # ruff: ignore[assert]
     mappable = ax.add_artist(a)
     ax.set_xlim(*bin_range_[0])
     ax.set_ylim(*bin_range_[1])
@@ -336,7 +337,6 @@ def render_2d_scatter_density(
         else:
             plt.colorbar(mappable, **colorbar_kws)  # type: ignore[arg-type]
 
-    # pyrefly: ignore [bad-return]
     return ax
 
 

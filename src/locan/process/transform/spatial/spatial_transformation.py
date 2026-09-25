@@ -444,23 +444,29 @@ def overlay(
             transformed_locdata = transform_affine(
                 locdata,
                 matrix=None,
+                # pyrefly: ignore [missing-attribute]
                 offset=np.multiply(locdata.bounding_box.region.centroid, -1),
             )
         elif centre == "obb":
             transformed_locdata = transform_affine(
                 locdata,
                 matrix=None,
+                # pyrefly: ignore [missing-attribute]
                 offset=np.multiply(locdata.oriented_bounding_box.region.centroid, -1),
             )
         elif centre == "ch":
             transformed_locdata = transform_affine(
                 locdata,
                 matrix=None,
+                # pyrefly: ignore [missing-attribute]
                 offset=np.multiply(locdata.convex_hull.region.centroid, -1),
             )
         elif centre == "region":
             transformed_locdata = transform_affine(
-                locdata, matrix=None, offset=np.multiply(locdata.region.centroid, -1)
+                # pyrefly: ignore [missing-attribute]
+                locdata,
+                matrix=None,
+                offset=np.multiply(locdata.region.centroid, -1),
             )
         else:
             raise ValueError(f"Value for centre={centre} is not defined.")

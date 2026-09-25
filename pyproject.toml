@@ -411,7 +411,6 @@ bad-return = "ignore"
 bad-index = "ignore"
 bad-unpacking = "ignore"
 not-iterable = "ignore"
-unbound-name = "ignore"
 
 unsupported-operation = "ignore"
 

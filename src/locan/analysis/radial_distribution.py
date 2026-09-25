@@ -282,6 +282,7 @@ class RadialDistribution(_Analysis):
                 )
 
         radii, delta_radii, values = _radial_distribution_function(
+            # pyrefly: ignore [unbound-name]
             pair_distances=pair_distances,
             dimension=self.dimension,
             n_points=localization_count,

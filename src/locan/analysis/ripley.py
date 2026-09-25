@@ -148,6 +148,10 @@ def _ripleys_l_function(
             / 4
             / np.pi
         )
+    else:
+        raise NotImplementedError(
+            "Not implemented for dimensions other than 2D and 3D."
+        )
     return return_value
 
 

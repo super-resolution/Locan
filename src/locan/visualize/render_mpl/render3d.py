@@ -69,9 +69,8 @@ def scatter_3d_mpl(
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
             ax.text(  # type: ignore
-                # pyrefly: ignore [bad-argument-count]
                 *centroid,
-                marker,
+                marker,  # pyrefly: ignore [bad-argument-count]
                 **dict({"color": "grey", "size": 20}, **text_kwargs),
             )
 

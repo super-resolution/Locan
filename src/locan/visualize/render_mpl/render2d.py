@@ -387,7 +387,10 @@ def scatter_2d_mpl(
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
             ax.text(  # type: ignore
-                *centroid, marker, **dict({"color": "grey", "size": 20}, **text_kwargs)
+                # pyrefly: ignore [bad-argument-count]
+                *centroid,
+                marker,
+                **dict({"color": "grey", "size": 20}, **text_kwargs),
             )
 
     ax.set(xlabel="position_x", ylabel="position_y")

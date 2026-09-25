@@ -283,10 +283,10 @@ class BlinkStatistics(_Analysis):
         if self.results is None:
             logger.warning("No results available to fit.")
         else:
-            if isinstance(data_identifier, (tuple, list)):
-                data_identifier_ = data_identifier
-            else:
+            if isinstance(data_identifier, str):
                 data_identifier_ = (data_identifier,)
+            else:
+                data_identifier_ = data_identifier
 
             for data_id in data_identifier_:
                 self.distribution_statistics[data_id] = _DistributionFits(

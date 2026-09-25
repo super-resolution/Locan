@@ -107,12 +107,12 @@ class Colormap:
         self, colormap: MatplotlibColormap | NapariColormap | VispyColormap
     ) -> None:
         self._name: str | None = None
-        self._matplotlib: mcolors.Colormap | None = None
-        self._napari: napari.utils.Colormap | None = None
+        self._matplotlib: MatplotlibColormap | None = None
+        self._napari: NapariColormap | VispyColormap | None = None
 
-        if isinstance(colormap, mcolors.Colormap):
+        if isinstance(colormap, MatplotlibColormap):
             self._matplotlib = colormap
-        elif isinstance(colormap, napari.utils.Colormap | vispy.color.Colormap):
+        elif isinstance(colormap, NapariColormap | VispyColormap):
             self._napari = colormap
         else:
             raise TypeError(
@@ -126,9 +126,11 @@ class Colormap:
             if self._matplotlib:
                 self._name = self._matplotlib.name
             elif self._napari:
+                # pyrefly: ignore [missing-attribute]
                 self._name = self._napari.name
             else:
                 raise ValueError("No colormap available")
+        assert self._name is not None  # ruff: ignore[assert]
         return self._name
 
     @property
@@ -166,6 +168,7 @@ class Colormap:
                     self._napari = napari.utils.colormaps.Colormap(**colormap_dict)
             else:
                 raise ValueError("No colormap available")
+        # pyrefly: ignore [bad-return]
         return self._napari
 
     @classmethod

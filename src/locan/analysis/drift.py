@@ -308,6 +308,7 @@ class _LmfitModelFacade:
     def plot(self, **kwargs: Any) -> mpl.axes.Axes:
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
+        # pyrefly: ignore [bad-assignment]
         return_value: mpl.axes.Axes = self.model_result.plot(**kwargs)
         return return_value
 
@@ -446,21 +447,28 @@ class DriftComponent:
             self.type = "none"
             self.model = None
         elif type == "zero":
+            # pyrefly: ignore [bad-assignment]
             self.model = _ConstantZeroModelFacade()
         elif type == "one":
+            # pyrefly: ignore [bad-assignment]
             self.model = _ConstantOneModelFacade()
         elif type == "constant":
+            # pyrefly: ignore [bad-assignment]
             self.model = _ConstantModelFacade(**kwargs)
         elif type == "linear":
+            # pyrefly: ignore [bad-assignment]
             self.model = _LmfitModelFacade(LinearModel(**kwargs))
         elif type == "polynomial":
+            # pyrefly: ignore [bad-assignment]
             self.model = _LmfitModelFacade(
                 PolynomialModel(**dict(dict(degree=3), **kwargs))
             )
         elif getattr(type, "__module__", None) == "lmfit.models":
             self.type = type.name  # type: ignore
+            # pyrefly: ignore [bad-assignment]
             self.model = _LmfitModelFacade(model=type)
         elif type == "spline":
+            # pyrefly: ignore [bad-assignment]
             self.model = _SplineModelFacade(**kwargs)
         else:
             raise TypeError(f"DriftComponent cannot handle type={type}.")
@@ -878,6 +886,7 @@ class Drift(_Analysis):
         )
 
         if self.parameter["target"] == "first":
+            # pyrefly: ignore [bad-assignment]
             transformed_locdatas = [
                 transform_affine(locdata, transformation.matrix, transformation.offset)  # type: ignore
                 for locdata, transformation in zip(

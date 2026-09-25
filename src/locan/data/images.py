@@ -356,6 +356,7 @@ class Image(ImageBase):
         Image
         """
         if isinstance(image, tuple):
+            # pyrefly: ignore [bad-assignment]
             image = napari.layers.Layer.create(*image)
 
         if not isinstance(image, napari.layers.Image):

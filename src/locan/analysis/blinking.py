@@ -396,7 +396,7 @@ class _DistributionFits:
     def __init__(
         self,
         analysis_class: _Analysis,
-        distribution: str | stats.rv_continuous,
+        distribution: stats.rv_continuous,
         data_identifier: str,
     ) -> None:
         self.analysis_class: _Analysis = analysis_class

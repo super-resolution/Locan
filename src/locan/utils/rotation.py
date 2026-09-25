@@ -185,9 +185,11 @@ class Rotation2D:
         return inverted_rotation
 
 
-class Rotation3D(spRotation):  # type: ignore[misc]
-    """
-    Rotation in 3 dimensions.
+# class Rotation3D(spRotation):  # type: ignore[misc]
+#    """
+#    Rotation in 3 dimensions.
+#
+#    Adapter class for class:`scipy.spatial.transform.Rotation`.
+#    """
 
-    Adapter class for class:`scipy.spatial.transform.Rotation`.
-    """
+Rotation3D = spRotation

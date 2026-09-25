@@ -463,10 +463,11 @@ def overlay(
             )
         elif centre == "region":
             transformed_locdata = transform_affine(
-                # pyrefly: ignore [missing-attribute]
                 locdata,
                 matrix=None,
-                offset=np.multiply(locdata.region.centroid, -1),
+                offset=np.multiply(
+                    locdata.region.centroid, -1
+                ),  # pyrefly: ignore [missing-attribute]
             )
         else:
             raise ValueError(f"Value for centre={centre} is not defined.")

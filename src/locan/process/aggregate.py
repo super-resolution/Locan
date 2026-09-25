@@ -939,6 +939,7 @@ class Bins:
             self._bin_centers = getattr(self._bins, "bin_centers", None)
             if self._bin_centers is None:
                 self._bin_centers = _bin_edges_to_bin_centers(self.bin_edges)  # type: ignore
+        # pyrefly: ignore [bad-assignment]
         return_value: tuple[npt.NDArray[np.float64], ...] = self._bin_centers
         return return_value
 

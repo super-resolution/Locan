@@ -144,6 +144,7 @@ def convert_property_names(
     if property_mapping is None:
         pass
     elif isinstance(property_mapping, dict):
+        # pyrefly: ignore [bad-assignment]
         property_mapping_ = property_mapping
     elif isinstance(property_mapping, Iterable):
         for mapping in property_mapping:

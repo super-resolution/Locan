@@ -400,9 +400,9 @@ ignore-missing-imports = [
 implicit-any = "ignore"
 missing-override-decorator = "ignore"
 
+# todo: remove the following:
 bad-argument-type = "ignore"
 bad-override = "ignore"
-bad-assignment = "ignore"
 
 [[tool.pyrefly.sub-config]]
 matches = "tests/**/*"

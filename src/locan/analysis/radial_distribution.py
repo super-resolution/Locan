@@ -136,6 +136,7 @@ def _radial_distribution_function(
     values: npt.NDArray[np.float64]
     bin_edges: npt.NDArray[np.float64]
 
+    # pyrefly: ignore [bad-assignment]
     values, bin_edges = np.histogram(
         pair_distances,
         bins=bins,

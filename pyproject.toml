@@ -391,6 +391,7 @@ project-excludes = [
     "**/*_pb2.py*"  # protobuf-generated files
 ]
 preset = "strict"
+#enabled-ignores = ["pyrefly"]
 infer-return-types = "never"
 ignore-missing-imports = [
 ]
@@ -408,7 +409,6 @@ missing-import = "ignore"
 bad-function-definition = "ignore"
 unknown-name = "ignore"
 bad-return = "ignore"
-bad-index = "ignore"
 
 unsupported-operation = "ignore"
 

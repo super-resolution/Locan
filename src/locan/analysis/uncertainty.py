@@ -216,7 +216,7 @@ def _localization_uncertainty(
             args = []
             # go through all args for model
             for key_, param_ in zip(available_keys, params):  # type: ignore
-                if key_ in kwargs.keys():
+                if key_ is not None and key_ in kwargs.keys():
                     args.append(kwargs[key_])
                 elif key_ is None and param_ in kwargs.keys():
                     args.append(kwargs[param_])

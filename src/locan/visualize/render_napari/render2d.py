@@ -12,6 +12,7 @@ from collections.abc import Callable, Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
+import numpy.typing as npt
 from matplotlib import colors as mcolors
 
 from locan import locdata_id
@@ -57,7 +58,7 @@ def render_2d_napari_image(
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
     **kwargs: Any,
-) -> napari.types.LayerData:
+) -> tuple[npt.NDArray[np.float64], dict[str, Any], str]:
     """
     Render localization data into a 2D image by binning x,y-coordinates into
     regular bins. Provide layer data for napari.
@@ -115,8 +116,8 @@ def render_2d_napari_image(
 
     Returns
     -------
-    napari.types.LayerData
-        Tuple with data, image_kwargs, layer_type="image"
+    tuple[npt.NDArray[np.float64], dict[str, Any], str]
+        napari.types.LayerData, a tuple with data, image_kwargs, layer_type="image"
     """
     # raise if no or single point in locdata
     if len(locdata) < 2:

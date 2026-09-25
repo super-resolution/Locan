@@ -110,7 +110,7 @@ def _local_density(
         densities_list.append(densities_)
     densities = np.asarray(densities_list)
 
-    overlap_factors = np.array()
+    overlap_factors = np.array([])
     if boundary_correction is not None:
         overlap_factors_list = []
         for radius_ in radii:

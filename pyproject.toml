@@ -409,7 +409,6 @@ bad-function-definition = "ignore"
 unknown-name = "ignore"
 bad-return = "ignore"
 bad-index = "ignore"
-bad-unpacking = "ignore"
 
 unsupported-operation = "ignore"
 

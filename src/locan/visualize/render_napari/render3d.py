@@ -171,7 +171,7 @@ def render_3d_napari(
         | None
     ) = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
-    viewer: napari.Viewer = None,
+    viewer: napari.Viewer | None = None,
     cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
     **kwargs: Any,
 ) -> napari.Viewer:
@@ -285,7 +285,7 @@ def render_3d_rgb_napari(
         | None
     ) = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
-    viewer: napari.Viewer = None,
+    viewer: napari.Viewer | None = None,
     **kwargs: Any,
 ) -> napari.Viewer:
     """

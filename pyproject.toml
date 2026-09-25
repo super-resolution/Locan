@@ -406,8 +406,7 @@ bad-assignment = "ignore"
 missing-attribute = "ignore"
 no-matching-overload = "ignore"
 missing-import = "ignore"
-bad-function-definition = "ignore"
-unknown-name = "ignore"
+#bad-function-definition = "ignore"
 
 unsupported-operation = "ignore"
 

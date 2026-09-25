@@ -60,11 +60,11 @@ from locan.visualize.colormap_definitions import (
 )
 
 if HAS_DEPENDENCY["colorcet"]:
-    import colorcet
+    import colorcet  # type: ignore [missing-import]
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
-    import vispy
+    import napari  # type: ignore [missing-import]
+    import vispy  # type: ignore [missing-import]
 
 if TYPE_CHECKING:
     import numpy.typing as npt
@@ -80,8 +80,8 @@ __all__: list[str] = [
 
 MatplotlibColormap: TypeAlias = mcolors.Colormap
 if HAS_DEPENDENCY["napari"]:
-    NapariColormap: TypeAlias = napari.utils.Colormap
-    VispyColormap: TypeAlias = vispy.color.Colormap
+    NapariColormap: TypeAlias = napari.utils.Colormap  # type: ignore [missing-import]
+    VispyColormap: TypeAlias = vispy.color.Colormap  # type: ignore [missing-import]
 T_Colormap = TypeVar("T_Colormap", bound="Colormap")
 
 Colormaps = Enum("Colormaps", COLORMAP_DEFAULTS, module=__name__)  # type: ignore[misc]

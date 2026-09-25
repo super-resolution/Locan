@@ -9,7 +9,7 @@ from locan.scripts.script_check import render_locs_per_frame_napari, sc_check
 from tests import TEST_DIR
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
+    import napari  # type: ignore [missing-import]
 
 
 @pytest.mark.gui

@@ -26,7 +26,7 @@ from locan.locan_io.locdata.utilities import (
 )
 
 if HAS_DEPENDENCY["h5py"]:
-    import h5py
+    import h5py  # type: ignore [missing-import]
 
 
 __all__: list[str] = ["load_decode_header", "load_decode_file"]

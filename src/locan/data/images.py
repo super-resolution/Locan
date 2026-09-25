@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     from locan.process.aggregate import Bins
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
+    import napari  # type: ignore [missing-import]
 
 
 __all__: list[str] = ["Image"]

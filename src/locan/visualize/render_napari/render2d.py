@@ -25,7 +25,7 @@ from locan.visualize.colormap import ColormapType, get_colormap
 from locan.visualize.transform import Trafo, adjust_contrast
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
+    import napari  # type: ignore [missing-import]
 
 if TYPE_CHECKING:
     import boost_histogram as bh

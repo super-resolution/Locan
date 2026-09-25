@@ -28,7 +28,7 @@ from locan.visualize.colormap import ColormapType, get_colormap
 from locan.visualize.transform import adjust_contrast
 
 if HAS_DEPENDENCY["mpl_scatter_density"]:
-    import mpl_scatter_density
+    import mpl_scatter_density  # type: ignore [missing-import]
 
 if TYPE_CHECKING:
     import boost_histogram as bh

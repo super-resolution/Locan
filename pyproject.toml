@@ -405,9 +405,6 @@ bad-override = "ignore"
 bad-assignment = "ignore"
 missing-attribute = "ignore"
 no-matching-overload = "ignore"
-missing-import = "ignore"
-#bad-function-definition = "ignore"
-
 unsupported-operation = "ignore"
 
 [[tool.pyrefly.sub-config]]

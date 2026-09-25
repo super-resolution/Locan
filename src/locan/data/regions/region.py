@@ -60,7 +60,7 @@ from shapely.geometry import (
 from shapely.prepared import prep as sh_prep
 
 if HAS_DEPENDENCY["open3d"]:
-    import open3d as o3d
+    import open3d as o3d  # type: ignore [missing-import]
 
 logger = logging.getLogger(__name__)
 

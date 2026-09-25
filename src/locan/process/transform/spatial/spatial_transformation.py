@@ -24,7 +24,7 @@ from locan.data.validation import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["open3d"]:
-    import open3d as o3d
+    import open3d as o3d  # type: ignore [missing-import]
 
 
 __all__: list[str] = [

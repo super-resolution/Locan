@@ -32,7 +32,7 @@ from locan.gui import file_dialog
 from locan.locan_io.locdata.io_locdata import load_locdata
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
+    import napari  # type: ignore [missing-import]
 
 
 def render_locs_per_frame_napari(

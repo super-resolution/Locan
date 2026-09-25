@@ -22,10 +22,10 @@ from locan.rois import Roi
 from locan.visualize.render_napari.render2d import render_2d_napari
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
+    import napari  # type: ignore [missing-import]
 
 if HAS_DEPENDENCY["qt"]:
-    from qtpy.QtWidgets import QFileDialog
+    from qtpy.QtWidgets import QFileDialog  # type: ignore [missing-import]
 
 if TYPE_CHECKING:
     from locan.data.locdata import LocData

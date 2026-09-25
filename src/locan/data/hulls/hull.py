@@ -29,7 +29,7 @@ from locan.data.regions.region import (
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["open3d"]:
-    import open3d as o3d
+    import open3d as o3d  # type: ignore [missing-import]
 
 if TYPE_CHECKING:
     from locan.data.regions.region import Region

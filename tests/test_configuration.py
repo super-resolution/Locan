@@ -28,7 +28,7 @@ def test_qt_bindings():
     assert isinstance(QT_BINDING, str)
 
     if HAS_DEPENDENCY["qt"]:
-        from qtpy import QT_VERSION
+        from qtpy import QT_VERSION  # type: ignore [missing-import]
 
         assert QT_VERSION is not None
 

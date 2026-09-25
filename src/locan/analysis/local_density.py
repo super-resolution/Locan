@@ -147,7 +147,7 @@ def _local_density(
     if normalization is not None:
         densities = np.divide(densities, normalization)
 
-    return densities
+    return densities.astype(np.float64)
 
 
 # The specific analysis classes

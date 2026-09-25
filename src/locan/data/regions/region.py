@@ -13,7 +13,7 @@ import logging
 import sys
 import warnings
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.utils.rotation import Rotation2D, Rotation3D
@@ -3003,7 +3003,7 @@ class Cuboid(Region3D):
             self._rotation = Rotation3D.from_euler(
                 seq="xyz", angles=[self.alpha, self.beta, self.gamma], degrees=True
             )
-        return self._rotation
+        return cast(Rotation3D, self._rotation)
 
     @property
     def corner(self) -> npt.NDArray[np.float64]:

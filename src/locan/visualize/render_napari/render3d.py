@@ -58,7 +58,7 @@ def render_3d_napari_image(
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
     **kwargs: Any,
-) -> tuple[npt.NDArray[np.float64], dict[str, Any], str]:
+) -> tuple[npt.NDArray[np.uint8 | np.float64], dict[str, Any], Literal["image"]]:
     """
     Render localization data into a 3D image by binning x,y,z-coordinates into
     regular bins.
@@ -117,7 +117,7 @@ def render_3d_napari_image(
 
     Returns
     -------
-    tuple[npt.NDArray[np.float64], dict[str, Any], str]
+    tuple[npt.NDArray[np.float64], dict[str, Any], Literal["image"]]
         napari.types.LayerData, a tuple with data, image_kwargs, layer_type="image"
     """
     # raise if no or single point in locdata

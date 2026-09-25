@@ -58,7 +58,7 @@ def render_2d_napari_image(
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
     **kwargs: Any,
-) -> tuple[npt.NDArray[np.float64], dict[str, Any], str]:
+) -> tuple[npt.NDArray[np.uint8 | np.float64], dict[str, Any], str]:
     """
     Render localization data into a 2D image by binning x,y-coordinates into
     regular bins. Provide layer data for napari.

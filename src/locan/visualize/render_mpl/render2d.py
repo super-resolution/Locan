@@ -336,6 +336,7 @@ def render_2d_scatter_density(
         else:
             plt.colorbar(mappable, **colorbar_kws)  # type: ignore[arg-type]
 
+    # pyrefly: ignore [bad-return]
     return ax
 
 

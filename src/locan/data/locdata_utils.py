@@ -11,6 +11,7 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
 from locan.utils.statistics import weighted_mean_variance
@@ -59,7 +60,7 @@ def _get_loc_property_key_per_dimension(
 
 def _get_linked_coordinates(
     locdata: pd.DataFrame | pd.Series[Any], coordinate_keys: Iterable[str] | None = None
-) -> dict[str, int | float]:
+) -> dict[str, int | float | npt.NDArray[np.float64]]:
     """
     Combine localization properties from locdata:
     (i) apply weighted averages for spatial coordinates if corresponding
@@ -87,7 +88,7 @@ def _get_linked_coordinates(
 
     Returns
     -------
-    dict[str, int | float]
+    dict[str, int | float | npt.NDArray[np.float64]]
         New position coordinates and related uncertainties as 'uncertainty_c'.
     """
     available_coordinate_keys = _get_loc_property_key_per_dimension(

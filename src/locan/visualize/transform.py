@@ -227,7 +227,7 @@ def adjust_contrast(
     image: npt.ArrayLike,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = True,
     **kwargs: Any,
-) -> npt.NDArray[np.float64]:
+) -> npt.NDArray[np.uint8 | np.float64]:
     """
     Adjust contrast of image by a predefined transformation:
 
@@ -249,7 +249,7 @@ def adjust_contrast(
 
     Returns
     -------
-    npt.NDArray[np.float64]
+    npt.NDArray[np.uint8 | np.float64]
     """
     image = np.asarray(image)
     if (

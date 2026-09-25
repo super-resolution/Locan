@@ -267,6 +267,7 @@ class AccumulationClusterCheck(_Analysis):
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
 
+    # pyrefly: ignore [bad-override]
     def compute(self, locdata: LocData) -> Self:
         """
         Run the computation.

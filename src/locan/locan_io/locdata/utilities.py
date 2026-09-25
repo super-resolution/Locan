@@ -11,7 +11,7 @@ import logging
 import os
 from collections.abc import Iterable, Mapping
 from contextlib import closing
-from typing import TYPE_CHECKING, Any, cast
+from typing import IO, TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -96,7 +96,8 @@ def open_path_or_file_like(
     """
     try:
         all(getattr(path_or_file_like, attr) for attr in ("seek", "read", "close"))
-        file = path_or_file_like
+        file = cast(IO[Any], path_or_file_like)
+
     except (AttributeError, io.UnsupportedOperation):
         try:
             # if hasattr(path_or_file_like, "__fspath__")

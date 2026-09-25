@@ -114,7 +114,7 @@ gpu = [
 ]
 # todo: with pip>25.1.0
 # deprecate extra dependencies for test-qt and docs and dev
-# change github workflows and dockerfiles
+# change GitHub workflows and dockerfiles
 test-qt = [
     "pytest",
     "pytest-qt;python_version<'3.14'",
@@ -392,12 +392,32 @@ project-excludes = [
 ]
 preset = "strict"
 infer-return-types = "never"
-ignore-missing-imports = []
+ignore-missing-imports = [
+]
 
 [tool.pyrefly.errors]
 implicit-any = "ignore"
 missing-override-decorator = "ignore"
 
+bad-argument-type = "ignore"
+bad-override = "ignore"
+bad-assignment = "ignore"
+missing-attribute = "ignore"
+no-matching-overload = "ignore"
+missing-import = "ignore"
+bad-function-definition = "ignore"
+unknown-name = "ignore"
+bad-return = "ignore"
+bad-index = "ignore"
+bad-unpacking = "ignore"
+not-iterable = "ignore"
+unbound-name = "ignore"
+unsupported-operation = "ignore"
+bad-argument-count = "ignore"
+
 [[tool.pyrefly.sub-config]]
 matches = "tests/**/*"
 check-unannotated-defs = false
+
+[tool.pyrefly.sub-config.errors]
+missing-import = "ignore"

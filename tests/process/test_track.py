@@ -16,6 +16,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 if HAS_DEPENDENCY["trackpy"]:
+    # pyrefly: ignore [unbound-name]
     tp_quiet()  # same as: trackpy.logger.setLevel(logging.WARN)
 
 

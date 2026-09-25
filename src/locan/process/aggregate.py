@@ -1129,6 +1129,7 @@ def _histogram_mean_boost_histogram(
     -------
     npt.NDArray[np.float64]
     """
+    data = np.asarray(data)
     hist = bh.Histogram(*bins.boost_histogram_axes, storage=bh.storage.Mean()).fill(  # type: ignore
         *data, sample=values
     )

@@ -374,6 +374,7 @@ class _SplineModelFacade:
     ) -> tuple[Any, Any, Any]:
         self.independent_variable = np.asarray(x)
         self.data = np.asarray(y)
+        # pyrefly: ignore [no-matching-overload]
         self.model_result = splrep(
             x, y, **dict(dict(k=3, s=100), **dict(**self.parameter, **kwargs))
         )

@@ -179,6 +179,7 @@ class LocalizationProperty(_Analysis):
         if self.results is None:
             return ax
 
+        # pyrefly: ignore [no-matching-overload]
         self.results.rolling(window=window, center=True).mean().plot(
             ax=ax, **dict(dict(legend=False), **kwargs)
         )

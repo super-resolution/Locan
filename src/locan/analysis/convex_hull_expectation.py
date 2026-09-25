@@ -392,6 +392,7 @@ class ConvexHullExpectation(_Analysis):
         if self.results is None:
             return ax
 
+        # pyrefly: ignore [no-matching-overload]
         self.results.values.plot(
             kind="scatter",
             alpha=0.2,

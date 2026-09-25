@@ -1027,6 +1027,7 @@ def make_Thomas(
 
     # check cluster_std consistent with n_centers or n_features
     if len(np.shape(cluster_std)) == 0:
+        # pyrefly: ignore [no-matching-overload]
         cluster_std_ = np.full(
             shape=(n_cluster, region.dimension), fill_value=cluster_std  # type: ignore
         )
@@ -1037,6 +1038,7 @@ def make_Thomas(
                 f"with n_features {region.dimension}."
             )
         else:
+            # pyrefly: ignore [no-matching-overload]
             cluster_std_ = np.empty(shape=(n_cluster, region.dimension))
             for i, element in enumerate(cluster_std):  # type: ignore
                 cluster_std_[:, i] = np.full((n_cluster,), element)
@@ -1066,6 +1068,7 @@ def make_Thomas(
     for i, (parent, std, n_offspring) in enumerate(
         zip(parent_samples, cluster_std_, n_offspring_list)
     ):
+        # pyrefly: ignore [no-matching-overload]
         offspring_samples = rng.normal(
             loc=parent, scale=std, size=(n_offspring, region.dimension)  # type: ignore
         )
@@ -1265,6 +1268,7 @@ def make_dstorm(
 
     # check cluster_std consistent with n_centers or n_features
     if len(np.shape(cluster_std)) == 0:
+        # pyrefly: ignore [no-matching-overload]
         cluster_std_ = np.full(
             shape=(n_cluster, region.dimension), fill_value=cluster_std  # type: ignore
         )
@@ -1275,6 +1279,7 @@ def make_dstorm(
                 f"with n_features {region.dimension}."
             )
         else:
+            # pyrefly: ignore [no-matching-overload]
             cluster_std_ = np.empty(shape=(n_cluster, region.dimension))
             for i, element in enumerate(cluster_std):  # type: ignore
                 cluster_std_[:, i] = np.full((n_cluster,), element)
@@ -1312,6 +1317,7 @@ def make_dstorm(
     for i, (parent, std, n_offspring) in enumerate(
         zip(parent_samples, cluster_std_, n_offspring_list)
     ):
+        # pyrefly: ignore [no-matching-overload]
         offspring_samples = rng.normal(
             loc=parent, scale=std, size=(n_offspring, region.dimension)  # type: ignore
         )

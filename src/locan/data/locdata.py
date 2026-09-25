@@ -1357,6 +1357,7 @@ class LocData:
                     f"properties must have a range index of length {len(self.references)}"
                 )
             for reference, value_ in zip(self.references, properties.to_numpy()):
+                # pyrefly: ignore [no-matching-overload]
                 reference.properties.update({properties.name: value_})
         elif isinstance(properties, pd.DataFrame):
             if any(properties.index != range(len(self.references))):

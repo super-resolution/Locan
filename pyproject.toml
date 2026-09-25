@@ -405,7 +405,6 @@ bad-override = "ignore"
 bad-assignment = "ignore"
 missing-attribute = "ignore"
 no-matching-overload = "ignore"
-unsupported-operation = "ignore"
 
 [[tool.pyrefly.sub-config]]
 matches = "tests/**/*"

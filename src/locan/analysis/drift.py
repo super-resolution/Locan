@@ -826,7 +826,10 @@ class Drift(_Analysis):
                 self._transformation_models_for_identity_matrix()
             )
             for n, matrix_model in enumerate(matrix_models):
-                if matrix_model is None:
+                if (
+                    matrix_model is None
+                    and self.transformation_models["matrix"] is not None
+                ):
                     matrix_model = self.transformation_models["matrix"][n]
                 self.fit_transformation(
                     slice_data=slice_data,
@@ -847,7 +850,10 @@ class Drift(_Analysis):
                 self._transformation_models_for_zero_offset()
             )
             for n, offset_model in enumerate(offset_models):
-                if offset_model is None:
+                if (
+                    offset_model is None
+                    and self.transformation_models["offset"] is not None
+                ):
                     offset_model = self.transformation_models["offset"][n]
                 self.fit_transformation(
                     slice_data=slice_data,

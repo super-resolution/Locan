@@ -162,17 +162,15 @@ def render_2d_mpl(
     )
     data = adjust_contrast(data, rescale)
 
+    imshow_kwargs: dict[str, Any] = {
+        "origin": "lower",
+        "extent": [*bins.bin_range[0], *bins.bin_range[1]],
+        "cmap": get_colormap(colormap=cmap).matplotlib,
+        "interpolation": interpolation,
+    }
     mappable = ax.imshow(
         data.T,
-        **dict(
-            {
-                "origin": "lower",
-                "extent": [*bins.bin_range[0], *bins.bin_range[1]],
-                "cmap": get_colormap(colormap=cmap).matplotlib,
-                "interpolation": interpolation,
-            },
-            **kwargs,
-        ),
+        **(imshow_kwargs | kwargs),
     )
 
     ax.set(title=labels[-1], xlabel=labels[0], ylabel=labels[1])
@@ -382,7 +380,8 @@ def scatter_2d_mpl(
         return ax
 
     coordinates = locdata.coordinates
-    ax.scatter(*coordinates.T, **dict({"marker": "+", "color": "grey"}, **kwargs))
+    scatter_kwargs: dict[str, Any] = {"marker": "+", "color": "grey"}
+    ax.scatter(*coordinates.T, **(scatter_kwargs | kwargs))
 
     # plot element number
     if index:
@@ -579,7 +578,7 @@ def render_2d_rgb_mpl(
 
     if rescale is None:
         norm: int | str | Trafo | Callable[..., Any] = mcolors.Normalize(
-            vmin=np.min(imgs), vmax=np.max(imgs)
+            vmin=np.min(imgs).astype(np.float64), vmax=np.max(imgs).astype(np.float64)
         )
     else:
         norm = rescale
@@ -592,16 +591,15 @@ def render_2d_rgb_mpl(
         rgb_stack[:, :, i] = img
 
     rgb_stack = np.transpose(rgb_stack, axes=(1, 0, 2))
+
+    imshow_kwargs: dict[str, Any] = {
+        "origin": "lower",
+        "extent": [*bins.bin_range[0], *bins.bin_range[1]],
+        "interpolation": interpolation,
+    }
     ax.imshow(
         rgb_stack,
-        **dict(
-            {
-                "origin": "lower",
-                "extent": [*bins.bin_range[0], *bins.bin_range[1]],
-                "interpolation": interpolation,
-            },
-            **kwargs,
-        ),
+        **(imshow_kwargs | kwargs),
     )
 
     ax.set(title=labels[-1], xlabel=labels[0], ylabel=labels[1])

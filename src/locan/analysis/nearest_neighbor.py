@@ -397,7 +397,7 @@ class _DistributionFits:
         The analysis class with result data to fit.
     loc_property : str
         The LocData property for which to fit an appropriate distribution
-    distribution : str | scipy.stats.rv_continuous
+    distribution : scipy.stats.rv_continuous
         Distribution model to fit.
     parameters : list[str]
         Free parameters in `distribution`.
@@ -446,7 +446,9 @@ class _DistributionFits:
             kwargs_ = kwargs
 
         fit_results = self.distribution.fit(  # type: ignore[attr-defined]
-            data=self.analysis_class.results[self.loc_property].values, **kwargs_
+            # pyrefly: ignore [bad-argument-type]
+            data=self.analysis_class.results[self.loc_property].values,
+            **kwargs_,  # pyrefly: ignore [bad-argument-type]
         )
         for parameter, result in zip(self.parameters, fit_results):
             setattr(self, parameter, result)
@@ -485,6 +487,7 @@ class _DistributionFits:
             x_values,
             self.distribution.pdf(x_values, **self.parameter_dict()),
             "r-",
+            # pyrefly: ignore [bad-argument-type]
             **dict(
                 dict(lw=3, alpha=0.6, label=str(self.distribution.name) + " pdf"),
                 **kwargs,

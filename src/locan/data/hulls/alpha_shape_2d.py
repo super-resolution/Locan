@@ -10,7 +10,9 @@ import numpy.typing as npt
 __all__: list[str] = []
 
 
-def _circumcircle(points: npt.ArrayLike, simplex: list[int]) -> tuple[float, float]:
+def _circumcircle(
+    points: npt.ArrayLike, simplex: list[int] | npt.NDArray[np.integer]
+) -> tuple[npt.NDArray[np.float64], float]:
     """
     Center and radius of circumcircle for one triangle.
 
@@ -23,7 +25,7 @@ def _circumcircle(points: npt.ArrayLike, simplex: list[int]) -> tuple[float, flo
 
     Returns
     -------
-    tuple[float, float]
+    tuple[npt.NDArray[np.float64], float]
         Center and radius of circumcircle
     """
     A = np.asarray(points)[simplex]

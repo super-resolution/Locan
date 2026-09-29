@@ -194,10 +194,12 @@ def inertia_moments(points: npt.ArrayLike) -> InertiaMoments:
     index_max_eigen_value = np.argmax(eigen_values)
 
     if np.shape(points)[1] == 2:
-        orientation = np.degrees(
-            np.arctan2(
-                np.real_if_close(eigen_vectors[1][index_max_eigen_value]),
-                np.real_if_close(eigen_vectors[0][index_max_eigen_value]),
+        orientation = float(
+            np.degrees(
+                np.arctan2(
+                    np.real_if_close(eigen_vectors[1][index_max_eigen_value]),
+                    np.real_if_close(eigen_vectors[0][index_max_eigen_value]),
+                )
             )
         )
         eccentricity = np.sqrt(1 - np.min(eigen_values) / np.max(eigen_values))

@@ -394,7 +394,9 @@ def render_3d_rgb_napari(
     ]
 
     if rescale is None:
-        norm = mcolors.Normalize(vmin=np.min(imgs), vmax=np.max(imgs))
+        norm = mcolors.Normalize(
+            vmin=np.min(imgs).astype(np.float64), vmax=np.max(imgs).astype(np.float64)
+        )
     else:
         norm = rescale  # type: ignore[assignment]
     imgs = [adjust_contrast(img, rescale=norm) for img in imgs]

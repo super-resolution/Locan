@@ -408,7 +408,7 @@ def render_2d_rgb_napari(
 
     if rescale is None:
         norm: int | str | Trafo | Callable[..., Any] = mcolors.Normalize(
-            vmin=np.min(imgs), vmax=np.max(imgs)
+            vmin=np.min(imgs).astype(np.float64), vmax=np.max(imgs).astype(np.float64)
         )
     else:
         norm = rescale

@@ -288,6 +288,7 @@ class LocalDensity(_Analysis):
             self.results,
             bins=bins,
             density=density,
+            # pyrefly: ignore [bad-argument-type]
             **dict(dict(label=self.results.columns, log=False), **kwargs),
         )
 

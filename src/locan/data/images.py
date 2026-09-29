@@ -47,7 +47,6 @@ if TYPE_CHECKING:
 if HAS_DEPENDENCY["napari"]:
     import napari  # type: ignore [missing-import]
 
-
 __all__: list[str] = ["Image"]
 
 logger = logging.getLogger()
@@ -362,6 +361,7 @@ class Image(ImageBase):
         if not isinstance(image, napari.layers.Image):
             raise TypeError("Layer data must be of type Image.")
 
+        # pyrefly: ignore [bad-argument-type]
         new_image = cls(image=image, data=image.data, is_rgb=image.rgb, meta=meta)
         return new_image
 

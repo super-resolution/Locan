@@ -63,7 +63,8 @@ def scatter_3d_mpl(
         return ax
 
     coordinates = locdata.coordinates
-    ax.scatter(*coordinates.T, **dict({"marker": "+", "color": "grey"}, **kwargs))
+    scatter_kwargs: dict[str, Any] = {"marker": "+", "color": "grey"}
+    ax.scatter(*coordinates.T, **(scatter_kwargs | kwargs))
 
     # plot element number
     if index:

@@ -466,8 +466,10 @@ def overlay(
                 locdata,
                 matrix=None,
                 offset=np.multiply(
-                    locdata.region.centroid, -1
-                ),  # pyrefly: ignore [missing-attribute]
+                    # pyrefly: ignore [missing-attribute]
+                    locdata.region.centroid,
+                    -1,
+                ),
             )
         else:
             raise ValueError(f"Value for centre={centre} is not defined.")

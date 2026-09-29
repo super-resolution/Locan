@@ -55,7 +55,7 @@ from __future__ import annotations
 import logging
 import sys
 from collections.abc import Sequence
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Protocol, cast
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -160,7 +160,8 @@ def _estimate_drift_icp(
             transformation = _register_icp_open3d(
                 locdata.coordinates,
                 collection.references[0].coordinates,
-                **dict(
+                # pyrefly: ignore [bad-argument-type]
+                **(
                     dict(
                         matrix=None,
                         offset=None,
@@ -168,8 +169,8 @@ def _estimate_drift_icp(
                         max_correspondence_distance=100,
                         max_iteration=10_000,
                         verbose=False,
-                    ),
-                    **kwargs_register,
+                    )
+                    | kwargs_register
                 ),
             )
             transformations.append(transformation)
@@ -179,7 +180,8 @@ def _estimate_drift_icp(
             transformation = _register_icp_open3d(
                 collection.references[n + 1].coordinates,
                 collection.references[n].coordinates,
-                **dict(
+                # pyrefly: ignore [bad-argument-type]
+                **(
                     dict(
                         matrix=None,
                         offset=None,
@@ -188,8 +190,8 @@ def _estimate_drift_icp(
                         max_iteration=10_000,
                         with_scaling=False,
                         verbose=False,
-                    ),
-                    **kwargs_register,
+                    )
+                    | kwargs_register
                 ),
             )
             transformations.append(transformation)
@@ -308,7 +310,6 @@ class _LmfitModelFacade:
     def plot(self, **kwargs: Any) -> mpl.axes.Axes:
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
-        # pyrefly: ignore [bad-assignment]
         return_value: mpl.axes.Axes = self.model_result.plot(**kwargs)
         return return_value
 
@@ -388,10 +389,13 @@ class _SplineModelFacade:
         x = np.asarray(x)
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
-        results: npt.NDArray[np.float64] | list[Any] = splev(x, self.model_result)
+        results: float | npt.NDArray[np.float64] | list[Any] = splev(
+            x, self.model_result
+        )
         if isinstance(x, (tuple, list, np.ndarray)):
             return results
         else:
+            # pyrefly: ignore [bad-argument-type]
             return float(results)
 
     def plot(self, **kwargs: Any) -> mpl.axes.Axes:
@@ -465,7 +469,7 @@ class DriftComponent:
             )
         elif getattr(type, "__module__", None) == "lmfit.models":
             self.type = type.name  # type: ignore
-            # pyrefly: ignore [bad-assignment]
+            # pyrefly: ignore [bad-argument-type, bad-assignment]
             self.model = _LmfitModelFacade(model=type)
         elif type == "spline":
             # pyrefly: ignore [bad-assignment]
@@ -738,6 +742,7 @@ class Drift(_Analysis):
             return self
 
         if not isinstance(drift_model, DriftComponent):
+            # pyrefly: ignore [bad-argument-type]
             drift_model = DriftComponent(type=drift_model)
 
         if self.parameter["target"] == "first":
@@ -844,6 +849,7 @@ class Drift(_Analysis):
                     slice_data=slice_data,
                     transformation_component="matrix",
                     element=n,
+                    # pyrefly: ignore [bad-argument-type]
                     drift_model=matrix_model,
                     verbose=verbose,
                 )
@@ -868,6 +874,7 @@ class Drift(_Analysis):
                     slice_data=slice_data,
                     transformation_component="offset",
                     element=n,
+                    # pyrefly: ignore [bad-argument-type]
                     drift_model=offset_model,
                     verbose=verbose,
                 )
@@ -903,6 +910,7 @@ class Drift(_Analysis):
                         transformation.matrix,
                         transformation.offset,
                     )
+                    transformed_locdata = cast(LocData, transformed_locdata)
                 transformed_locdatas.append(transformed_locdata)
 
         new_locdata = LocData.concat(
@@ -1085,6 +1093,7 @@ class Drift(_Analysis):
                 ax.plot(
                     x,
                     y,
+                    # pyrefly: ignore [bad-argument-type]
                     **dict(dict(label=f"{transformation_component}[{i}]"), **kwargs),
                 )
         else:
@@ -1092,6 +1101,7 @@ class Drift(_Analysis):
             ax.plot(
                 x,
                 y,
+                # pyrefly: ignore [bad-argument-type]
                 **dict(dict(label=f"{transformation_component}[{element}]"), **kwargs),
             )
 

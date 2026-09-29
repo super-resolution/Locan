@@ -72,6 +72,7 @@ def select_by_drawing_napari(
     if napari_run:
         napari.run()
 
+    # pyrefly: ignore [bad-argument-type]
     roi_list = get_rois(viewer.layers["Rois"], reference=locdata)
 
     return roi_list

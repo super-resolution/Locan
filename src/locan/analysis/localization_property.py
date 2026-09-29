@@ -121,7 +121,7 @@ class LocalizationProperty(_Analysis):
 
     def fit_distributions(
         self,
-        distribution: str | stats.rv_continuous = stats.expon,
+        distribution: stats.rv_continuous = stats.expon,
         with_constraints: bool = True,
         **kwargs: Any,
     ) -> None:
@@ -231,6 +231,7 @@ class LocalizationProperty(_Analysis):
         ax.hist(
             self.results.dropna(axis=0).values,
             bins=bins,
+            # pyrefly: ignore [bad-argument-type]
             **dict(dict(density=True, log=log), **kwargs),
         )
         ax.set(
@@ -374,6 +375,7 @@ class _DistributionFits:
             x_values,
             self.distribution.pdf(x_values, *parameter),
             "r-",
+            # pyrefly: ignore [bad-argument-type]
             **dict(
                 dict(lw=3, alpha=0.6, label=str(self.distribution.name) + " pdf"),
                 **kwargs,

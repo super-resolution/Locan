@@ -294,6 +294,7 @@ class LocalizationPrecision(_Analysis):
         ax.hist(
             self.results[loc_property].values,
             bins=bins,
+            # pyrefly: ignore [bad-argument-type]
             **dict(dict(density=True, log=False), **kwargs),
         )
         ax.set(title="Localization Precision", xlabel=loc_property, ylabel="PDF")

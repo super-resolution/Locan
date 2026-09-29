@@ -400,13 +400,15 @@ ignore-missing-imports = [
 implicit-any = "ignore"
 missing-override-decorator = "ignore"
 
-# todo: remove the following:
-bad-argument-type = "ignore"
-bad-override = "ignore"
-
 [[tool.pyrefly.sub-config]]
 matches = "tests/**/*"
 check-unannotated-defs = false
 
 [tool.pyrefly.sub-config.errors]
 missing-import = "ignore"
+
+[[tool.pyrefly.sub-config]]
+matches = "src/locan/analysis/**/*"
+
+[tool.pyrefly.sub-config.errors]
+bad-override = "ignore"

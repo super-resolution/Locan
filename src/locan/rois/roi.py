@@ -574,6 +574,7 @@ class RoiLegacy_0:
             _roi_file = _file_path.stem + "_roi.yaml"
             _path = _file_path.with_name(_roi_file)
         else:
+            assert path is not None  # type narrowing # noqa: S101
             _path = Path(path)
 
         # prepare reference for yaml representation - reference to LocData cannot be represented

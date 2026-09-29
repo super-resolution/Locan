@@ -149,18 +149,14 @@ class LocalizationPropertyCorrelations(_Analysis):
         if self.results is None:
             return ax
 
+        imshow_kwargs: dict[str, Any] = dict(
+            vmin=-1,
+            vmax=1,
+            cmap=get_colormap(colormap=COLORMAP_DEFAULTS["DIVERGING"]).matplotlib,
+        )
         im = ax.imshow(
             self.results,
-            **dict(
-                dict(
-                    vmin=-1,
-                    vmax=1,
-                    cmap=get_colormap(
-                        colormap=COLORMAP_DEFAULTS["DIVERGING"]
-                    ).matplotlib,
-                ),
-                **kwargs,
-            ),
+            **(imshow_kwargs | kwargs),
         )
         columns = self.results.columns
 

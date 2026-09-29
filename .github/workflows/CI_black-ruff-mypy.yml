@@ -18,11 +18,10 @@ jobs:
       - name: "Install and upgrade"
         run: |
           python -m pip install --upgrade pip
-          python -m pip install black~=26.0 ruff
-          python -m pip install mypy numpy types-requests types-protobuf pandas-stubs
+          python -m pip install --group lint --group typing
       - name: "Format with black"
         run: black --check --diff "."
       - name: "Lint with ruff"
         run: ruff check --output-format=github "."
-      - name: "Type check with mypy"
-        run: mypy
+      - name: "Type check with pyrefly"
+        run: pyrefly

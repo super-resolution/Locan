@@ -8,7 +8,6 @@ on:
 env:
   OS: "linux"
   PYTHON_VERSION: "3.13"
-  REQUIREMENTS_FILE: "requirements-all-linux-py3.13.txt"
 
 jobs:
   check:
@@ -23,33 +22,17 @@ jobs:
       - name: "Install and upgrade"
         run: |
           python -m pip install --upgrade pip
-      - name: "Install locan[test,dev]"
+      - name: "Install locan"
         run: |
-          python -m pip install pyside6 .[all,dev]
+          python -m pip install --group lint --group typing .[pyside6,all]
+
       - name: "Format with black"
         run: black --check --diff "."
       - name: "Lint with ruff"
         run: ruff check --output-format=github "."
-      - name: "Type check with mypy"
-        run: mypy
+      - name: "Type check with pyrefly"
+        run: pyrefly check --summarize-errors
 
-      - name: "Install locan[test]"
-        run: pip install .[test]
-      - name: "Run tests"
-        if: runner.os != 'Windows'
-        run: pytest
-      - name: "Run tests on Windows"
-        if: runner.os == 'Windows'
-        env:
-          MPLBACKEND: agg
-        run: pytest
-
-      - name: "Install and upgrade"
-        run: |
-          pip install pip-tools
-      - name: "Install locan with extra requirements"
-        run: |
-          pip install pyside6 .[all]
       - name: "Run tests"
         run: coverage run -m pytest --junitxml=./test-results-${{ env.PYTHON_VERSION }}.xml
       - name: "Prepare coverage reports"

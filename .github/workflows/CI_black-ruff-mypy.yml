@@ -1,4 +1,4 @@
-name:  CI checks with black, ruff, mypy, py3.13
+name:  CI checks with black, ruff, pyrefly, py3.13
 
 on:
   workflow_dispatch:

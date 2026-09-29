@@ -24,4 +24,4 @@ jobs:
       - name: "Lint with ruff"
         run: ruff check --output-format=github "."
       - name: "Type check with pyrefly"
-        run: pyrefly
+        run: pyrefly check --summarize-errors

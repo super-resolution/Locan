@@ -41,7 +41,7 @@ def _blink_statistics(
     locdata: LocData | npt.ArrayLike,
     memory: int = 0,
     remove_heading_off_periods: bool = True,
-) -> dict[str, npt.NDArray[np.int64 | np.float64] | list[int | float]]:
+) -> dict[str, npt.NDArray[np.int32 | np.int64 | np.float64] | list[int | float]]:
     """
     Estimate on and off times from the frame values provided.
 
@@ -157,6 +157,7 @@ def _blink_statistics(
         on_periods_frame=on_periods_frame,
         off_periods=off_periods,
         off_periods_frame=off_periods_frame,
+        # pyrefly: ignore [bad-assignment]
         on_periods_indices=on_periods_indices,
     )
 
@@ -243,12 +244,13 @@ class BlinkStatistics(_Analysis):
             logger.warning("Locdata is empty.")
             return self
 
+        # pyrefly: ignore [bad-assignment]
         self.results = _blink_statistics(locdata=locdata, **self.parameter)
         return self
 
     def fit_distributions(
         self,
-        distribution: str | stats.rv_continuous = stats.expon,
+        distribution: stats.rv_continuous = stats.expon,
         data_identifier: str | Iterable[str] = ("on_periods", "off_periods"),
         with_constraints: bool = True,
         **kwargs: Any,
@@ -283,10 +285,10 @@ class BlinkStatistics(_Analysis):
         if self.results is None:
             logger.warning("No results available to fit.")
         else:
-            if isinstance(data_identifier, (tuple, list)):
-                data_identifier_ = data_identifier
-            else:
+            if isinstance(data_identifier, str):
                 data_identifier_ = (data_identifier,)
+            else:
+                data_identifier_ = data_identifier
 
             for data_id in data_identifier_:
                 self.distribution_statistics[data_id] = _DistributionFits(
@@ -339,6 +341,7 @@ class BlinkStatistics(_Analysis):
         ax.hist(
             self.results[data_identifier],
             bins=bins,
+            # pyrefly: ignore [bad-argument-type]
             **dict(dict(density=True, log=log), **kwargs),
         )
         ax.set(
@@ -396,7 +399,7 @@ class _DistributionFits:
     def __init__(
         self,
         analysis_class: _Analysis,
-        distribution: str | stats.rv_continuous,
+        distribution: stats.rv_continuous,
         data_identifier: str,
     ) -> None:
         self.analysis_class: _Analysis = analysis_class
@@ -453,6 +456,7 @@ class _DistributionFits:
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
         else:
+            # pyrefly: ignore [bad-argument-type]
             fit_results = self.distribution.fit(data, **kwargs)
             for parameter, result in zip(self.parameters, fit_results):
                 setattr(self, parameter, result)
@@ -491,6 +495,7 @@ class _DistributionFits:
             x_values,
             self.distribution.pdf(x_values, *parameter),
             "r-",
+            # pyrefly: ignore [bad-argument-type]
             **dict(
                 dict(lw=3, alpha=0.6, label=str(self.distribution.name) + " pdf"),
                 **kwargs,

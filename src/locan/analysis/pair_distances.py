@@ -194,16 +194,14 @@ class PairDistances(_Analysis):
         if self.results is None:
             return ax
 
+        hist_kwargs: dict[str, Any] = dict(
+            label="pair_distance",
+        )
         ax.hist(
             self.results["pair_distance"],
             bins=bins,
             density=density,
-            **dict(
-                dict(
-                    label="pair_distance",
-                ),
-                **kwargs,
-            ),
+            **(hist_kwargs | kwargs),
         )
 
         ax.set(

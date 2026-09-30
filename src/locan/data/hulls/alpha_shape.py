@@ -36,7 +36,7 @@ from __future__ import annotations
 
 import warnings
 from collections.abc import Generator, Hashable, Sequence
-from typing import Any, Literal
+from typing import Literal
 
 import networkx as nx
 import numpy as np
@@ -93,7 +93,7 @@ def _k_simplex_neighbor_index_list(d: int, k: int) -> tuple[int, ...]:
 
 def _get_k_simplices(
     simplex: Sequence[int], k: int = 1
-) -> Generator[list[Any], Any, None]:
+) -> Generator[list[int], None, None]:
     """
     Function to extract k-simplices (e.g. edges) from a d-simplex
     (e.g. triangle; d>k).
@@ -219,7 +219,9 @@ class AlphaComplex:
             interval_b_list = []
             interval_c_list = []
             for k_simplex, neighbor_index in zip(
-                _get_k_simplices(simplex, k=1), _k_simplex_neighbor_index_list(d=2, k=1)
+                # pyrefly: ignore [bad-argument-type]
+                _get_k_simplices(simplex, k=1),
+                _k_simplex_neighbor_index_list(d=2, k=1),
             ):
                 neighbor = neighbors[neighbor_index]
                 circumcircle_radius_neigh = (

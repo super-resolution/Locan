@@ -10,9 +10,13 @@ from locan.data.hulls.hull import (
     _ConvexHullScipy,
     _ConvexHullShapely,
     _OrientedBoundingBoxOpen3D,
+    _OrientedBoundingBoxPcaOpen3D,
     _OrientedBoundingBoxShapely,
 )
 from locan.dependencies import HAS_DEPENDENCY
+
+if HAS_DEPENDENCY["open3d"]:
+    import open3d as o3d
 
 
 class TestBoundingBox:
@@ -217,6 +221,26 @@ class TestOrientedBoundingBoxOpen3d:
     )
     def test__OrientedBoundingBoxOpen3d_3d(self, locdata_3d):
         hull = _OrientedBoundingBoxOpen3D(locdata_3d.coordinates)
+        if int(o3d.__version__.split(".")[1]) >= 20:
+            assert hull.width.shape == (3,)
+            assert hull.region_measure == pytest.approx(47.727272033691406)
+            assert hull.subregion_measure == pytest.approx(80.09366607666016)
+            assert hull.elongation == pytest.approx(0.3412304)
+            assert hull.vertices.shape == (8, 3)
+            assert hull.region.region_measure == hull.region_measure
+        else:
+            assert hull.width.shape == (3,)
+            assert hull.region_measure == pytest.approx(82.66963195800781)
+            assert hull.subregion_measure == pytest.approx(116.78721)
+            assert hull.elongation == pytest.approx(0.40680307)
+            assert hull.vertices.shape == (8, 3)
+            assert hull.region.region_measure == hull.region_measure
+
+    @pytest.mark.skipif(
+        not HAS_DEPENDENCY["open3d"], reason="requires optional package"
+    )
+    def test__OrientedBoundingBoxPcaOpen3d_3d(self, locdata_3d):
+        hull = _OrientedBoundingBoxPcaOpen3D(locdata_3d.coordinates)
         assert hull.width.shape == (3,)
         assert hull.region_measure == pytest.approx(82.66963195800781)
         assert hull.subregion_measure == pytest.approx(116.78721)
@@ -250,7 +274,7 @@ class TestOrientedBoundingBox:
         not HAS_DEPENDENCY["open3d"], reason="requires optional package"
     )
     def test_OrientedBoundingBox_3d_open3d(self, locdata_3d):
-        hull = OrientedBoundingBox(locdata_3d.coordinates, method="open3d")
+        hull = OrientedBoundingBox(locdata_3d.coordinates, method="open3d-pca")
         assert hull.region_measure == pytest.approx(82.66963195800781)
         assert hull.hull.volume() == hull.region_measure
 
@@ -260,6 +284,13 @@ class TestOrientedBoundingBox:
         assert hull.elongation == pytest.approx(0.40680307)
         assert hull.vertices.shape == (8, 3)
         assert hull.region.region_measure == hull.region_measure
+
+        if int(o3d.__version__.split(".")[1]) >= 20:
+            hull = OrientedBoundingBox(locdata_3d.coordinates, method="open3d")
+            assert hull.region_measure == pytest.approx(47.727272033691406)
+        else:
+            hull = OrientedBoundingBox(locdata_3d.coordinates, method="open3d")
+            assert hull.region_measure == pytest.approx(82.66963195800781)
 
     @pytest.mark.parametrize(
         "fixture_name, expected",

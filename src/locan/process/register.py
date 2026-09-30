@@ -29,7 +29,7 @@ from locan.process.properties.locdata_statistics import range_from_collection
 from locan.process.transform.spatial.spatial_transformation import _homogeneous_matrix
 
 if HAS_DEPENDENCY["open3d"]:
-    import open3d as o3d
+    import open3d as o3d  # type: ignore [missing-import]
 
 if TYPE_CHECKING:
     import boost_histogram as bh

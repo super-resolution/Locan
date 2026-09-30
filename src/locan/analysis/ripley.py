@@ -53,7 +53,7 @@ from __future__ import annotations
 import logging
 import sys
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -147,6 +147,10 @@ def _ripleys_l_function(
             * 3
             / 4
             / np.pi
+        )
+    else:
+        raise NotImplementedError(
+            "Not implemented for dimensions other than 2D and 3D."
         )
     return return_value
 
@@ -452,6 +456,7 @@ class RipleysHFunction(_Analysis):
             self._Ripley_h_maximum = None
         elif self._Ripley_h_maximum is None:
             index = self.results["Ripley_h_data"].idxmax()
+            index = cast(int | float, index)
             self._Ripley_h_maximum = pd.DataFrame(
                 {"radius": index, "Ripley_h_maximum": self.results.loc[index]}
             )

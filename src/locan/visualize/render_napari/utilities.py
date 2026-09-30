@@ -22,10 +22,10 @@ from locan.rois import Roi
 from locan.visualize.render_napari.render2d import render_2d_napari
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
+    import napari  # type: ignore [missing-import]
 
 if HAS_DEPENDENCY["qt"]:
-    from qtpy.QtWidgets import QFileDialog
+    from qtpy.QtWidgets import QFileDialog  # type: ignore [missing-import]
 
 if TYPE_CHECKING:
     from locan.data.locdata import LocData
@@ -65,12 +65,14 @@ def select_by_drawing_napari(
     :func:`locan.scripts.rois` : script for drawing rois
     """
     # select roi
-    viewer = render_2d_napari(locdata, **kwargs)
+    viewer: napari.Viewer = render_2d_napari(locdata, **kwargs)
     if "Rois" not in viewer.layers:
+        # pyrefly: ignore [missing-attribute]
         viewer.add_shapes(name="Rois", edge_width=0.1)
     if napari_run:
         napari.run()
 
+    # pyrefly: ignore [bad-argument-type]
     roi_list = get_rois(viewer.layers["Rois"], reference=locdata)
 
     return roi_list

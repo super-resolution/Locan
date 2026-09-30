@@ -60,11 +60,11 @@ from locan.visualize.colormap_definitions import (
 )
 
 if HAS_DEPENDENCY["colorcet"]:
-    import colorcet
+    import colorcet  # type: ignore [missing-import]
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
-    import vispy
+    import napari  # type: ignore [missing-import]
+    import vispy  # type: ignore [missing-import]
 
 if TYPE_CHECKING:
     import numpy.typing as npt
@@ -80,8 +80,8 @@ __all__: list[str] = [
 
 MatplotlibColormap: TypeAlias = mcolors.Colormap
 if HAS_DEPENDENCY["napari"]:
-    NapariColormap: TypeAlias = napari.utils.Colormap
-    VispyColormap: TypeAlias = vispy.color.Colormap
+    NapariColormap: TypeAlias = napari.utils.Colormap  # type: ignore [missing-import]
+    VispyColormap: TypeAlias = vispy.color.Colormap  # type: ignore [missing-import]
 T_Colormap = TypeVar("T_Colormap", bound="Colormap")
 
 Colormaps = Enum("Colormaps", COLORMAP_DEFAULTS, module=__name__)  # type: ignore[misc]
@@ -107,12 +107,12 @@ class Colormap:
         self, colormap: MatplotlibColormap | NapariColormap | VispyColormap
     ) -> None:
         self._name: str | None = None
-        self._matplotlib: mcolors.Colormap | None = None
-        self._napari: napari.utils.Colormap | None = None
+        self._matplotlib: MatplotlibColormap | None = None
+        self._napari: NapariColormap | VispyColormap | None = None
 
-        if isinstance(colormap, mcolors.Colormap):
+        if isinstance(colormap, MatplotlibColormap):
             self._matplotlib = colormap
-        elif isinstance(colormap, napari.utils.Colormap | vispy.color.Colormap):
+        elif isinstance(colormap, NapariColormap | VispyColormap):
             self._napari = colormap
         else:
             raise TypeError(
@@ -126,9 +126,11 @@ class Colormap:
             if self._matplotlib:
                 self._name = self._matplotlib.name
             elif self._napari:
+                # pyrefly: ignore [missing-attribute]
                 self._name = self._napari.name
             else:
                 raise ValueError("No colormap available")
+        assert self._name is not None  # ruff: ignore[assert]
         return self._name
 
     @property
@@ -166,6 +168,7 @@ class Colormap:
                     self._napari = napari.utils.colormaps.Colormap(**colormap_dict)
             else:
                 raise ValueError("No colormap available")
+        # pyrefly: ignore [bad-return]
         return self._napari
 
     @classmethod

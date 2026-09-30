@@ -11,7 +11,7 @@ from locan.visualize import (
 )
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
+    import napari  # type: ignore [missing-import]
 
 
 def test_COLORMAP_DEFAULTS_and_Colormaps():

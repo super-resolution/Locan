@@ -18,7 +18,7 @@ from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.locan_io.locdata.asdf_io import load_asdf_file
 
 if HAS_DEPENDENCY["httpx"]:
-    import httpx
+    import httpx  # type: ignore [missing-import]
 
 if TYPE_CHECKING:
     from locan.data.locdata import LocData

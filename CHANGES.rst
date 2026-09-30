@@ -19,6 +19,7 @@ Bug Fixes
 - fix: refactor protobuf_message.descriptor.label
 - fix: from pandas 3, str data is not of type object but of type "str".
 - fix: add exception for TypeError when setting metadata datetime values. Previously this action threw AttributeErrors.
+- fix: add check on shape equivalence with bins in Image data setter.
 
 Other Changes and Additions
 ---------------------------
@@ -29,6 +30,7 @@ Other Changes and Additions
 - refactor: bump protoc version to 34.1 and update protobuf messages
 - refactor: fix benchmarks test_data path
 - refactor: change python marker for asv dependency
+- update versions in GitHub Actions
 
 
 0.21 - dev

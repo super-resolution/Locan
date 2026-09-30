@@ -193,25 +193,25 @@ def _get_convex_hull_property_expectation(
         Expectation values for convex hull property
     """
     try:
-        convex_hull_property = convex_hull_property.name.upper()  # type: ignore
+        convex_hull_property_ = convex_hull_property.name.upper()  # type: ignore
     except AttributeError:
-        convex_hull_property = convex_hull_property.upper()  # type: ignore
+        convex_hull_property_ = convex_hull_property.upper()  # type: ignore
     convex_hull_expectation_values = _get_resource(
         resource_directory="locan.analysis.resources.convex_hull_expectation",
-        resource=ConvexHullExpectationResource[convex_hull_property],
+        resource=ConvexHullExpectationResource[convex_hull_property_],
     )
     n_points, _, indices = np.intersect1d(
         n_points, convex_hull_expectation_values.n_points, return_indices=True
     )
 
-    if convex_hull_property == "REGION_MEASURE_2D":
+    if convex_hull_property_ == "REGION_MEASURE_2D":
         factor = sigma**2
-    elif convex_hull_property == "SUBREGION_MEASURE_2D":
+    elif convex_hull_property_ == "SUBREGION_MEASURE_2D":
         factor = sigma
-    elif convex_hull_property == "REGION_MEASURE_3D":
+    elif convex_hull_property_ == "REGION_MEASURE_3D":
         factor = sigma**3
         logger.warning("The expectation is scaled by sigma^2")
-    elif convex_hull_property == "SUBREGION_MEASURE_3D":
+    elif convex_hull_property_ == "SUBREGION_MEASURE_3D":
         factor = sigma**2
         logger.warning("The expectation is scaled by sigma^2")
     else:
@@ -392,6 +392,7 @@ class ConvexHullExpectation(_Analysis):
         if self.results is None:
             return ax
 
+        # pyrefly: ignore [no-matching-overload]
         self.results.values.plot(
             kind="scatter",
             alpha=0.2,

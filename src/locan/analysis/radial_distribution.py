@@ -136,6 +136,7 @@ def _radial_distribution_function(
     values: npt.NDArray[np.float64]
     bin_edges: npt.NDArray[np.float64]
 
+    # pyrefly: ignore [bad-assignment]
     values, bin_edges = np.histogram(
         pair_distances,
         bins=bins,
@@ -282,6 +283,7 @@ class RadialDistribution(_Analysis):
                 )
 
         radii, delta_radii, values = _radial_distribution_function(
+            # pyrefly: ignore [unbound-name]
             pair_distances=pair_distances,
             dimension=self.dimension,
             n_points=localization_count,
@@ -331,16 +333,14 @@ class RadialDistribution(_Analysis):
             + self.results.radii["delta_radii"].iloc[-1],
         )
 
+        hist_kwargs: dict[str, Any] = dict(
+            label="rdf",
+        )
         ax.hist(
             x=self.results.radii.index,
             bins=bin_edges,  # type: ignore[arg-type]
             weights=self.results.data["rdf"],
-            **dict(
-                dict(
-                    label="rdf",
-                ),
-                **kwargs,
-            ),
+            **(hist_kwargs | kwargs),
         )
 
         ax.set(
@@ -517,45 +517,39 @@ class RadialDistributionBatch(_Analysis):
         if self.results is None:
             return ax
 
+        step_kwargs: dict[str, Any] = dict(
+            color="lightgrey",
+            alpha=0.2,
+        )
         ax.step(
             x=self.results.data.index,
             y=self.results.data,
-            **dict(
-                dict(
-                    color="lightgrey",
-                    alpha=0.2,
-                ),
-                **kwargs,
-            ),
+            **(step_kwargs | kwargs),
         )
 
+        step_kwargs: dict[str, Any] = dict(
+            color="black",
+            alpha=1,
+            label="mean",
+        )
         ax.step(
             x=self.results.data.index,
             y=self.results.data.mean(axis=1),
-            **dict(
-                dict(
-                    color="black",
-                    alpha=1,
-                    label="mean",
-                ),
-                **kwargs,
-            ),
+            **(step_kwargs | kwargs),
         )
 
+        step_kwargs: dict[str, Any] = dict(
+            color="gray",
+            alpha=1,
+            label="CI",
+            linestyle="dashed",
+        )
         ax.step(
             self.results.data.index,
             self.results.data.quantile(0.05, axis=1),
             self.results.data.index,
             self.results.data.quantile(0.95, axis=1),
-            **dict(
-                dict(
-                    color="gray",
-                    alpha=1,
-                    label="CI",
-                    linestyle="dashed",
-                ),
-                **kwargs,
-            ),
+            **(step_kwargs | kwargs),
         )
 
         ax.set(

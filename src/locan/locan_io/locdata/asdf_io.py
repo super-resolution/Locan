@@ -68,6 +68,7 @@ def save_asdf(
     af = AsdfFile(tree)
 
     # Write the data to a new file
+    # pyrefly: ignore [no-matching-overload]
     af.write_to(path)
 
 
@@ -95,6 +96,7 @@ def load_asdf_file(
     LocData
         A new instance of LocData with all localizations.
     """
+    # pyrefly: ignore [no-matching-overload]
     with asdf_open(path) as af:
         new_df = pd.DataFrame(
             {

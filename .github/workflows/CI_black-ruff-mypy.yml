@@ -1,4 +1,4 @@
-name:  CI checks with black, ruff, mypy, py3.13
+name:  CI checks with black, ruff, pyrefly, py3.13
 
 on:
   workflow_dispatch:
@@ -15,14 +15,18 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+      - name: "Install ubuntu libraries"
+        run: |
+          sudo apt update 
+          sudo apt -y install libegl1
+
       - name: "Install and upgrade"
         run: |
           python -m pip install --upgrade pip
-          python -m pip install black~=26.0 ruff
-          python -m pip install mypy numpy types-requests types-protobuf pandas-stubs
+          python -m pip install --group lint --group typing .[pyside6,all]
       - name: "Format with black"
         run: black --check --diff "."
       - name: "Lint with ruff"
         run: ruff check --output-format=github "."
-      - name: "Type check with mypy"
-        run: mypy
+      - name: "Type check with pyrefly"
+        run: pyrefly check --summarize-errors

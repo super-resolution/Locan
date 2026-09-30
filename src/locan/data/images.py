@@ -45,8 +45,7 @@ if TYPE_CHECKING:
     from locan.process.aggregate import Bins
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
-
+    import napari  # type: ignore [missing-import]
 
 __all__: list[str] = ["Image"]
 
@@ -216,6 +215,12 @@ class Image(ImageBase):
 
     @data.setter
     def data(self, value: Any) -> None:
+        if value is None:
+            self._data = None
+            return
+        if self.bins is not None:
+            if self.bins.n_bins != np.shape(value):
+                raise ValueError("bins and image must have the same shape.")
         if is_array_api_obj(value):
             self._data = value
         else:
@@ -350,11 +355,13 @@ class Image(ImageBase):
         Image
         """
         if isinstance(image, tuple):
+            # pyrefly: ignore [bad-assignment]
             image = napari.layers.Layer.create(*image)
 
         if not isinstance(image, napari.layers.Image):
             raise TypeError("Layer data must be of type Image.")
 
+        # pyrefly: ignore [bad-argument-type]
         new_image = cls(image=image, data=image.data, is_rgb=image.rgb, meta=meta)
         return new_image
 

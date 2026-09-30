@@ -12,6 +12,7 @@ from collections.abc import Callable, Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
+import numpy.typing as npt
 from matplotlib import colors as mcolors
 
 from locan import locdata_id
@@ -24,7 +25,7 @@ from locan.visualize.colormap import ColormapType, get_colormap
 from locan.visualize.transform import Trafo, adjust_contrast
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
+    import napari  # type: ignore [missing-import]
 
 if TYPE_CHECKING:
     import boost_histogram as bh
@@ -57,7 +58,7 @@ def render_3d_napari_image(
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
     **kwargs: Any,
-) -> napari.types.LayerData:
+) -> tuple[npt.NDArray[np.uint8 | np.float64], dict[str, Any], Literal["image"]]:
     """
     Render localization data into a 3D image by binning x,y,z-coordinates into
     regular bins.
@@ -116,8 +117,8 @@ def render_3d_napari_image(
 
     Returns
     -------
-    napari.types.LayerData
-        Tuple with data, image_kwargs, "image"
+    tuple[npt.NDArray[np.float64], dict[str, Any], Literal["image"]]
+        napari.types.LayerData, a tuple with data, image_kwargs, layer_type="image"
     """
     # raise if no or single point in locdata
     if len(locdata) < 2:
@@ -170,7 +171,7 @@ def render_3d_napari(
         | None
     ) = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
-    viewer: napari.Viewer = None,
+    viewer: napari.Viewer | None = None,
     cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
     **kwargs: Any,
 ) -> napari.Viewer:
@@ -284,7 +285,7 @@ def render_3d_rgb_napari(
         | None
     ) = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
-    viewer: napari.Viewer = None,
+    viewer: napari.Viewer | None = None,
     **kwargs: Any,
 ) -> napari.Viewer:
     """
@@ -393,7 +394,9 @@ def render_3d_rgb_napari(
     ]
 
     if rescale is None:
-        norm = mcolors.Normalize(vmin=np.min(imgs), vmax=np.max(imgs))
+        norm = mcolors.Normalize(
+            vmin=np.min(imgs).astype(np.float64), vmax=np.max(imgs).astype(np.float64)
+        )
     else:
         norm = rescale  # type: ignore[assignment]
     imgs = [adjust_contrast(img, rescale=norm) for img in imgs]

@@ -24,11 +24,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from google.protobuf import json_format
-
-try:
-    from scipy.spatial import QhullError
-except ImportError:
-    from scipy.spatial.qhull import QhullError  # needed for Python 3.7
+from scipy.spatial import QhullError
 
 import locan.data.hulls
 from locan import (  # is required to use locdata_id as global variable  # noqa: F401
@@ -502,10 +498,7 @@ class LocData:
                 [reference.properties for reference in self.references]
             )
             new_df.index = self.data.index
-            if self.dataframe is None:
-                self.dataframe = new_df
-            else:
-                self.dataframe.update(new_df)
+            self.dataframe.update(new_df)
             new_columns = [
                 column for column in new_df.columns if column in self.dataframe.columns
             ]
@@ -555,10 +548,7 @@ class LocData:
                 [reference.properties for reference in self.references]
             )
             new_df.index = self.data.index
-            if self.dataframe is None:
-                self.dataframe = new_df
-            else:
-                self.dataframe.update(new_df)
+            self.dataframe.update(new_df)
             new_columns = [
                 column for column in new_df.columns if column in self.dataframe.columns
             ]
@@ -595,6 +585,7 @@ class LocData:
                     )
                 elif len(self) != len(region_.contains(self.coordinates)):
                     logger.warning("Not all coordinates are within region.")
+            # pyrefly: ignore [bad-assignment]
             self._region = region_
 
         else:
@@ -1357,6 +1348,7 @@ class LocData:
                     f"properties must have a range index of length {len(self.references)}"
                 )
             for reference, value_ in zip(self.references, properties.to_numpy()):
+                # pyrefly: ignore [no-matching-overload]
                 reference.properties.update({properties.name: value_})
         elif isinstance(properties, pd.DataFrame):
             if any(properties.index != range(len(self.references))):

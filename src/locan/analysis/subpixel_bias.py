@@ -163,12 +163,14 @@ class SubpixelBias(_Analysis):
         if self.results is None:
             return ax
 
+        hist_kwargs: dict[str, Any] = dict(density=True, log=log)
+        hist_kwargs_frozen: dict[str, Any] = dict(
+            histtype="step", label=self.results.columns
+        )
         ax.hist(
             self.results.dropna(axis=0).to_numpy(),
             bins=bins,
-            **dict(dict(density=True, log=log), **kwargs),
-            histtype="step",
-            label=self.results.columns,
+            **(hist_kwargs | kwargs | hist_kwargs_frozen),
         )
         ax.set(
             title="Subpixel Bias",

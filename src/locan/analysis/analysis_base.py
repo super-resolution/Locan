@@ -159,14 +159,20 @@ def _list_parameters(distribution: str | stats.rv_continuous) -> list[str]:
         A list of distribution parameter strings.
     """
     if isinstance(distribution, str):
-        distribution = getattr(stats, distribution)
-    if distribution.shapes:
-        parameters = [name.strip() for name in distribution.shapes.split(",")]
+        distribution_ = getattr(stats, distribution)
+    else:
+        distribution_ = distribution
+
+    if distribution_.shapes:
+        parameters: list[str] = [
+            name.strip() for name in distribution_.shapes.split(",")
+        ]
     else:
         parameters = []
-    if distribution.name in stats._discrete_distns._distn_names:
+    # pyrefly: ignore [missing-attribute]
+    if distribution_.name in stats._discrete_distns._distn_names:
         parameters += ["loc"]
-    elif distribution.name in stats._continuous_distns._distn_names:
+    elif distribution_.name in stats._continuous_distns._distn_names:
         parameters += ["loc", "scale"]
     else:
         raise TypeError("Distribution name not found in discrete or continuous lists.")

@@ -13,7 +13,7 @@ import logging
 import sys
 import warnings
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.utils.rotation import Rotation2D, Rotation3D
@@ -60,7 +60,7 @@ from shapely.geometry import (
 from shapely.prepared import prep as sh_prep
 
 if HAS_DEPENDENCY["open3d"]:
-    import open3d as o3d
+    import open3d as o3d  # type: ignore [missing-import]
 
 logger = logging.getLogger(__name__)
 
@@ -2478,9 +2478,11 @@ class LineSegment3D(Region3D):
     def open3d_object(self) -> o3d.t.geometry.LineSet:
         if self._open3d_object is None:
             open3d_object = o3d.t.geometry.LineSet()
+            # pyrefly: ignore [no-matching-overload]
             open3d_object.point.positions = o3d.core.Tensor(
                 self.vertices, dtype=o3d.core.Dtype.Float64
             )
+            # pyrefly: ignore [no-matching-overload]
             open3d_object.line.indices = o3d.core.Tensor(
                 [[0, 1]], dtype=o3d.core.Dtype.Int64
             )
@@ -2664,6 +2666,7 @@ class AxisOrientedCuboid(Region3D):
 
     @staticmethod
     @needs_package("open3d")  # type: ignore[arg-type]
+    # pyrefly: ignore [bad-override]
     def from_open3d(
         open3d_object: o3d.t.geometry.AxisAlignedBoundingBox,
     ) -> AxisOrientedCuboid | EmptyRegion:
@@ -2693,9 +2696,11 @@ class AxisOrientedCuboid(Region3D):
     def open3d_object(self) -> o3d.t.geometry.AxisAlignedBoundingBox:
         if self._open3d_object is None:
             self._open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
+                # pyrefly: ignore [no-matching-overload]
                 min_bound=o3d.core.Tensor(
                     self.bounds[:3], dtype=o3d.core.Dtype.Float64
                 ),
+                # pyrefly: ignore [no-matching-overload]
                 max_bound=o3d.core.Tensor(
                     self.bounds[3:], dtype=o3d.core.Dtype.Float64
                 ),
@@ -2923,6 +2928,7 @@ class Cuboid(Region3D):
 
     @staticmethod
     @needs_package("open3d")  # type: ignore[arg-type]
+    # pyrefly: ignore [bad-override]
     def from_open3d(
         open3d_object: o3d.t.geometry.OrientedBoundingBox,
     ) -> Cuboid | EmptyRegion:
@@ -2966,14 +2972,18 @@ class Cuboid(Region3D):
     @needs_package("open3d")
     def open3d_object(self) -> o3d.t.geometry.OrientedBoundingBox:
         if self._open3d_object is None:
+            # pyrefly: ignore [no-matching-overload]
             o3d_corner = o3d.core.Tensor(self.corner, dtype=o3d.core.Dtype.Float64)
+            # pyrefly: ignore [no-matching-overload]
             o3d_rotation_matrix = o3d.core.Tensor(
                 self.rotation.as_matrix(), dtype=o3d.core.Dtype.Float64
             )
+            # pyrefly: ignore [no-matching-overload]
             o3d_extent = o3d.core.Tensor(
                 [self.length, self.width, self.height], dtype=o3d.core.Dtype.Float64
             )
             open3d_object = o3d.t.geometry.AxisAlignedBoundingBox(
+                # pyrefly: ignore [no-matching-overload]
                 min_bound=o3d.core.Tensor(
                     [0.0, 0.0, 0.0], dtype=o3d.core.Dtype.Float64
                 ),
@@ -2982,6 +2992,7 @@ class Cuboid(Region3D):
             open3d_object = open3d_object.get_oriented_bounding_box()
             open3d_object = open3d_object.rotate(
                 rotation=o3d_rotation_matrix,
+                # pyrefly: ignore [no-matching-overload]
                 center=o3d.core.Tensor([0.0, 0.0, 0.0], dtype=o3d.core.Dtype.Float64),
             )
             open3d_object = open3d_object.translate(o3d_corner)
@@ -3003,7 +3014,7 @@ class Cuboid(Region3D):
             self._rotation = Rotation3D.from_euler(
                 seq="xyz", angles=[self.alpha, self.beta, self.gamma], degrees=True
             )
-        return self._rotation
+        return cast(Rotation3D, self._rotation)
 
     @property
     def corner(self) -> npt.NDArray[np.float64]:
@@ -3184,6 +3195,7 @@ class Cuboid(Region3D):
             indices = np.array([], dtype=np.int64)
         else:
             indices = self.open3d_object.get_point_indices_within_bounding_box(
+                # pyrefly: ignore [no-matching-overload]
                 points=o3d.core.Tensor(points, dtype=o3d.core.Dtype.Float64)
             ).numpy()
         return indices

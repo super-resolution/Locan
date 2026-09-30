@@ -87,8 +87,8 @@ pyqt5 = ["PyQt5"]
 pyside2 = ["PySide2"]
 pyside6 = ["pyside6!=6.8.0"]
 register = [
-    "open3d-cpu!=0.12.0; platform_system=='Linux' and python_version<'3.13'",
-    "open3d!=0.12.0; platform_system!='Linux' and python_version<'3.13'",
+    "open3d-cpu!=0.12.0; platform_system=='Linux' and python_version<'3.15'",
+    "open3d!=0.12.0; platform_system!='Linux' and python_version<'3.15'",
 ]
 scatter_density = [
     "mpl_scatter_density",
@@ -110,11 +110,11 @@ all = [
 ]
 gpu = [
     "cupy-cuda12x",
-    "open3d!=0.12.0; python_version<'3.13'"
+    "open3d!=0.12.0; python_version<'3.15'"
 ]
 # todo: with pip>25.1.0
 # deprecate extra dependencies for test-qt and docs and dev
-# change github workflows and dockerfiles
+# change  dockerfiles
 test-qt = [
     "pytest",
     "pytest-qt;python_version<'3.14'",
@@ -134,14 +134,15 @@ dev = [
     "build",
     "coverage[toml]",
     "mypy",
-    "pandas-stubs",  # required by mypy
+    "pandas-stubs",
     "pre-commit",
     "ruff",
+    "scipy-stubs",
     "twine",
-    "types-networkx",  # required by mypy
-    "types-protobuf",  # required by mypy
-    "types-shapely",  # required by mypy
-    "types-tqdm",  # required by mypy
+    "types-networkx",
+    "types-protobuf",
+    "types-shapely",
+    "types-tqdm",
 ]
 
 [project.urls]
@@ -170,7 +171,9 @@ lint = [
 ]
 typing = [
     "mypy",
+    "pyrefly",
     "pandas-stubs",
+    "scipy-stubs",
     "types-networkx",
     "types-protobuf",
     "types-shapely",
@@ -377,3 +380,35 @@ module = [
     'locan.analysis.localization_precision',
 ]
 disallow_subclassing_any = false
+
+
+[tool.pyrefly]
+project-includes = [
+    "src",
+    "tests",
+]
+project-excludes = [
+    "**/*_pb2.py*"  # protobuf-generated files
+]
+preset = "strict"
+#enabled-ignores = ["pyrefly"]
+infer-return-types = "never"
+ignore-missing-imports = [
+]
+
+[tool.pyrefly.errors]
+implicit-any = "ignore"
+missing-override-decorator = "ignore"
+
+[[tool.pyrefly.sub-config]]
+matches = "tests/**/*"
+check-unannotated-defs = false
+
+[tool.pyrefly.sub-config.errors]
+missing-import = "ignore"
+
+[[tool.pyrefly.sub-config]]
+matches = "src/locan/analysis/**/*"
+
+[tool.pyrefly.sub-config.errors]
+bad-override = "ignore"

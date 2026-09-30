@@ -10,7 +10,7 @@ import logging
 import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -148,7 +148,9 @@ class _Results:
         normalized_cumulative_time_trace = (
             self.time_series.cumsum() / self.time_series.sum()
         )
-        accumulation_time: int = normalized_cumulative_time_trace.gt(fraction).idxmax()
+        accumulation_time: int = cast(
+            int, normalized_cumulative_time_trace.gt(fraction).idxmax()
+        )
         return accumulation_time
 
 
@@ -340,9 +342,8 @@ class LocalizationsPerFrame(_Analysis):
 
         series = self.results.time_series
 
-        ax.hist(
-            series.values, bins=bins, **dict(dict(density=True, log=False), **kwargs)
-        )
+        hist_kwargs: dict[str, Any] = dict(density=True, log=False)
+        ax.hist(series.values, bins=bins, **(hist_kwargs | kwargs))
         ax.set(title="Localizations per Frame", xlabel=series.name, ylabel="PDF")
 
         if fit:
@@ -459,14 +460,14 @@ class _DistributionFits:
             self.distribution.ppf(0.999, loc=_center, scale=_sigma),
             100,
         )
+        plot_kwargs: dict[str, Any] = dict(
+            lw=3, alpha=0.6, label=str(self.distribution.name) + " pdf"
+        )
         ax.plot(
             x_values,
             self.distribution.pdf(x_values, loc=_center, scale=_sigma),
             "r-",
-            **dict(
-                dict(lw=3, alpha=0.6, label=str(self.distribution.name) + " pdf"),
-                **kwargs,
-            ),
+            **(plot_kwargs | kwargs),
         )
         return ax
 

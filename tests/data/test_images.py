@@ -31,6 +31,8 @@ class TestImage:
         assert isinstance(image.meta, metadata_pb2.Metadata)
         with pytest.raises(AttributeError):
             assert image.shape
+        image.data = None
+        assert image.data is None
 
         image = Image(image=np.zeros(shape=(2, 3)))
         assert image._image.shape == (2, 3)
@@ -65,6 +67,7 @@ class TestImage:
         assert image.ndim == 2
         assert image.meta.identifier == "1"
 
+    def test_image_from_array(self):
         image = Image.from_array(array=np.zeros(shape=(2, 3)), meta={"identifier": "1"})
         assert image._image is None
         assert image.data.shape == (2, 3)
@@ -73,7 +76,7 @@ class TestImage:
         assert image.shape == (2, 3)
         assert image.meta.identifier == "1"
 
-    def test_constructor_methods(self):
+    def test_image_from_numpy(self):
         image = Image.from_numpy(array=np.zeros(shape=(2, 3)), meta={"identifier": "1"})
         assert image._image is None
         assert image.data.shape == (2, 3)
@@ -81,7 +84,10 @@ class TestImage:
         assert image.bins is None
         assert image.shape == (2, 3)
         assert image.meta.identifier == "1"
+        with pytest.raises(ValueError):
+            image.bins = Bins(n_bins=(2, 4), bin_range=(10, 100))
 
+    def test_image_from_bins(self):
         bins = Bins(n_bins=(2, 3), bin_range=(10, 100))
         image = Image.from_bins(bins=bins, meta={"identifier": "1"})
         assert image._image is None
@@ -91,6 +97,10 @@ class TestImage:
         assert image.shape == (2, 3)
         assert image.data[0, 0] == 1
         assert image.meta.identifier == "1"
+        image.data = np.array([[1, 2, 3], [4, 5, 6]])
+        assert image.data.shape == (2, 3)
+        with pytest.raises(ValueError):
+            image.data = np.array([[1, 2], [4, 5]])
 
         bins = Bins(n_bins=(2, 3), bin_range=(10, 100))
         image = Image.from_bins(bins=bins, value=2)

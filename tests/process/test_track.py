@@ -6,9 +6,9 @@ from locan import LocData
 from locan.dependencies import HAS_DEPENDENCY
 
 if HAS_DEPENDENCY["trackpy"]:
-    from trackpy import quiet as tp_quiet
+    from trackpy import quiet as tp_quiet  # type: ignore [missing-import]
 
-    from locan.process.tracking import link_locdata, track
+    from locan.process.tracking import link_locdata, track  # type: ignore [missing-import]
 
 
 pytestmark = pytest.mark.skipif(
@@ -16,6 +16,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 if HAS_DEPENDENCY["trackpy"]:
+    # pyrefly: ignore [unbound-name]
     tp_quiet()  # same as: trackpy.logger.setLevel(logging.WARN)
 
 

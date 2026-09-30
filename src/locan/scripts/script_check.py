@@ -32,14 +32,14 @@ from locan.gui import file_dialog
 from locan.locan_io.locdata.io_locdata import load_locdata
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
+    import napari  # type: ignore [missing-import]
 
 
 def render_locs_per_frame_napari(
     images: npt.ArrayLike,
     pixel_size: float | tuple[float],
     locdata: LocData,
-    viewer: napari.Viewer = None,
+    viewer: napari.Viewer | None = None,
     transpose: bool = True,
     kwargs_image: dict[str, Any] | None = None,
     kwargs_points: dict[str, Any] | None = None,
@@ -96,6 +96,7 @@ def render_locs_per_frame_napari(
         viewer = napari.Viewer()
 
     viewer.add_image(images_, name="Raw data", **kwargs_image, scale=pixel_size_)
+    # pyrefly: ignore [missing-attribute]
     viewer.add_points(
         data=points,
         name=f"LocData {locdata_id}",
@@ -115,7 +116,7 @@ def sc_check(
     file_images: str | os.PathLike[Any] | None = None,
     file_locdata: str | os.PathLike[Any] | None = None,
     file_type: int | str | FileType | metadata_pb2.Metadata = FileType.RAPIDSTORM,
-    viewer: napari.Viewer = None,
+    viewer: napari.Viewer | None = None,
     transpose: bool = True,
     kwargs_image: dict[str, Any] | None = None,
     kwargs_points: dict[str, Any] | None = None,
@@ -148,6 +149,7 @@ def sc_check(
     if kwargs_points is None:
         kwargs_points = {}
 
+    # pyrefly: ignore [missing-attribute]
     with napari.gui_qt():
         # load images
         if file_images is None:

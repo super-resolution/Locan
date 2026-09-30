@@ -63,13 +63,16 @@ def scatter_3d_mpl(
         return ax
 
     coordinates = locdata.coordinates
-    ax.scatter(*coordinates.T, **dict({"marker": "+", "color": "grey"}, **kwargs))
+    scatter_kwargs: dict[str, Any] = {"marker": "+", "color": "grey"}
+    ax.scatter(*coordinates.T, **(scatter_kwargs | kwargs))
 
     # plot element number
     if index:
         for centroid, marker in zip(coordinates, locdata.data.index.values):
             ax.text(  # type: ignore
-                *centroid, marker, **dict({"color": "grey", "size": 20}, **text_kwargs)
+                *centroid,
+                marker,  # pyrefly: ignore [bad-argument-count]
+                **dict({"color": "grey", "size": 20}, **text_kwargs),
             )
 
     ax.set(xlabel="position_x", ylabel="position_y", zlabel="position_z")

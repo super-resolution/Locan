@@ -24,7 +24,7 @@ from locan.data.validation import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["open3d"]:
-    import open3d as o3d
+    import open3d as o3d  # type: ignore [missing-import]
 
 
 __all__: list[str] = [
@@ -346,6 +346,7 @@ def standardize(
     transformed_data = scale(data, with_mean=with_mean, with_std=with_std)
 
     new_dataframe = locdata.data.copy()
+    # pyrefly: ignore [no-matching-overload]
     df = pd.DataFrame(
         transformed_data,
         columns=labels_,
@@ -443,23 +444,32 @@ def overlay(
             transformed_locdata = transform_affine(
                 locdata,
                 matrix=None,
+                # pyrefly: ignore [missing-attribute]
                 offset=np.multiply(locdata.bounding_box.region.centroid, -1),
             )
         elif centre == "obb":
             transformed_locdata = transform_affine(
                 locdata,
                 matrix=None,
+                # pyrefly: ignore [missing-attribute]
                 offset=np.multiply(locdata.oriented_bounding_box.region.centroid, -1),
             )
         elif centre == "ch":
             transformed_locdata = transform_affine(
                 locdata,
                 matrix=None,
+                # pyrefly: ignore [missing-attribute]
                 offset=np.multiply(locdata.convex_hull.region.centroid, -1),
             )
         elif centre == "region":
             transformed_locdata = transform_affine(
-                locdata, matrix=None, offset=np.multiply(locdata.region.centroid, -1)
+                locdata,
+                matrix=None,
+                offset=np.multiply(
+                    # pyrefly: ignore [missing-attribute]
+                    locdata.region.centroid,
+                    -1,
+                ),
             )
         else:
             raise ValueError(f"Value for centre={centre} is not defined.")

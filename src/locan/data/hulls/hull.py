@@ -9,6 +9,7 @@ oriented bounding box and related properties for LocData objects.
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
@@ -17,6 +18,7 @@ import scipy.spatial as spat
 from shapely.geometry import MultiPoint as shMultiPoint
 from shapely.geometry import Polygon as shPolygon
 
+from locan._version import version_tuple
 from locan.data.adapter.adapter_open3d import points_to_open3d
 from locan.data.regions.region import (
     AxisOrientedCuboid,
@@ -29,12 +31,14 @@ from locan.data.regions.region import (
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["open3d"]:
-    import open3d as o3d
+    import open3d as o3d  # type: ignore [missing-import]
 
 if TYPE_CHECKING:
     from locan.data.regions.region import Region
 
 __all__: list[str] = ["BoundingBox", "ConvexHull", "OrientedBoundingBox"]
+
+logger = logging.getLogger(__name__)
 
 
 class BoundingBox:
@@ -431,7 +435,7 @@ class _OrientedBoundingBoxOpen3D:
     ----------
     hull : open3d.t.geometry.OrientedBoundingBox
         OrientedBoundingBox object from the
-        PointCloud.get_minimal_oriented_bounding_box() method
+        PointCloud.get_oriented_bounding_box() method
     dimension : int
         Spatial dimension of hull
     vertices : npt.NDArray[np.float64]
@@ -470,6 +474,105 @@ class _OrientedBoundingBoxOpen3D:
                 self.elongation = np.nan
             else:
                 self.hull = point_cloud_open3d.get_oriented_bounding_box()
+
+                self.width = self.hull.extent.numpy()
+                self.subregion_measure = 2 * (
+                    self.width[0] * self.width[1]
+                    + self.width[1] * self.width[2]
+                    + self.width[2] * self.width[0]
+                )
+                self.region_measure = self.hull.volume()
+                self.elongation = 1 - np.divide(  # type: ignore[call-overload]
+                    *[sorted(self.width)[i] for i in [0, 2]]  # type: ignore[type-var]
+                )
+        else:
+            raise TypeError(
+                "_OrientedBoundingBoxOpen3d only takes 3-dimensional points as input."
+            )
+
+        if int(version_tuple[1]) < 22 and int(o3d.__version__.split(".")[1]) >= 20:
+            logger.warning(
+                "With open3d 0.20.0 a more accurate minimal-volume OBB algorithm was implemented. Choose method='open3d-pca' to keep legacy computation."
+            )
+
+    @property
+    def vertices(self) -> npt.NDArray[np.float64]:
+        if not self.hull:
+            return np.array([])
+        else:
+            return np.array(self.hull.get_box_points())  # type: ignore[union-attr]
+
+    @property
+    def region(self) -> Cuboid | EmptyRegion:
+        if self.dimension == 3:
+            if isinstance(self.hull, o3d.t.geometry.OrientedBoundingBox):
+                return Cuboid.from_open3d(self.hull)
+            else:
+                return EmptyRegion()
+        else:
+            raise NotImplementedError
+
+
+@needs_package("open3d")
+class _OrientedBoundingBoxPcaOpen3D:
+    """
+    Class with oriented bounding box computed from PCA of the convex hull using open3D.
+    The bounding box is oriented such that its volume is approximately minimized.
+
+    Parameters
+    ----------
+    points : npt.ArrayLike
+        Coordinates of input points with shape (npoints, ndim).
+
+    Attributes
+    ----------
+    hull : open3d.t.geometry.OrientedBoundingBox
+        OrientedBoundingBox object from the
+        PointCloud.get_oriented_bounding_box() method
+    dimension : int
+        Spatial dimension of hull
+    vertices : npt.NDArray[np.float64]
+        Coordinates of points that make up the hull.
+        Array of shape (ndim, 2).
+    width : npt.NDArray[np.float64]
+        Array with lengths of box edges.
+    region_measure : float
+        hull measure, i.e. area or volume
+    subregion_measure : float
+        measure of the sub-dimensional region, i.e. circumference or surface
+    region : Region
+        Convert the hull to a Region object.
+    """
+
+    def __init__(self, points: npt.ArrayLike) -> None:
+        points = np.asarray(points)
+        self.dimension = np.shape(points)[1]
+        self.hull: npt.NDArray[np.float64] | o3d.t.geometry.OrientedBoundingBox
+
+        if len(points) < 6:
+            unique_points = np.array(list(set(tuple(point) for point in points)))
+            if len(unique_points) < 3:
+                raise TypeError(
+                    "OrientedBoundingBox needs at least 3 different points as input."
+                )
+
+        point_cloud_open3d = points_to_open3d(points=points)
+
+        if self.dimension == 3:
+            if len(points) < 3:
+                self.hull = np.array([])
+                self.width = np.zeros(self.dimension)  # type: ignore
+                self.region_measure = 0
+                self.subregion_measure = 0
+                self.elongation = np.nan
+            else:
+                if int(o3d.__version__.split(".")[1]) >= 20:
+                    self.hull = o3d.t.geometry.OrientedBoundingBox.create_from_points(
+                        point_cloud_open3d.point.positions, method=o3d.t.geometry.PCA
+                    )
+                else:
+                    self.hull = point_cloud_open3d.get_oriented_bounding_box()
+
                 self.width = self.hull.extent.numpy()
                 self.subregion_measure = 2 * (
                     self.width[0] * self.width[1]
@@ -495,7 +598,10 @@ class _OrientedBoundingBoxOpen3D:
     @property
     def region(self) -> Cuboid | EmptyRegion:
         if self.dimension == 3:
-            return Cuboid.from_open3d(self.hull)
+            if isinstance(self.hull, o3d.t.geometry.OrientedBoundingBox):
+                return Cuboid.from_open3d(self.hull)
+            else:
+                return EmptyRegion()
         else:
             raise NotImplementedError
 
@@ -513,7 +619,7 @@ class OrientedBoundingBox:
 
     Attributes
     ----------
-    method : Literal['shapely', 'open3d'] | None
+    method : Literal['shapely', 'open3d', 'open3d-pca'] | None
         Specific class to compute the convex hull and attributes.
     hull : Polygon
         Object from the minimum_rotated_rectangle method
@@ -533,12 +639,17 @@ class OrientedBoundingBox:
     """
 
     def __init__(
-        self, points: npt.ArrayLike, method: Literal["shapely", "open3d"] | None = None
+        self,
+        points: npt.ArrayLike,
+        method: Literal["shapely", "open3d", "open3d-pca"] | None = None,
     ) -> None:
         points = np.asarray(points)
         self.dimension = np.shape(points)[1]
         self._special_class: (
-            _OrientedBoundingBoxShapely | _OrientedBoundingBoxOpen3D | None
+            _OrientedBoundingBoxShapely
+            | _OrientedBoundingBoxOpen3D
+            | _OrientedBoundingBoxPcaOpen3D
+            | None
         ) = None
 
         if np.size(points) == 0 or len(points) < 3:
@@ -558,6 +669,8 @@ class OrientedBoundingBox:
             self._special_class = _OrientedBoundingBoxShapely(points)
         elif method == "open3d":
             self._special_class = _OrientedBoundingBoxOpen3D(points)
+        elif method == "open3d-pca":
+            self._special_class = _OrientedBoundingBoxPcaOpen3D(points)
         else:
             raise ValueError(f"The provided method {method} is not available.")
 

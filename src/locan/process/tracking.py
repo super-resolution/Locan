@@ -20,7 +20,7 @@ from locan.data.locdata import LocData
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if HAS_DEPENDENCY["trackpy"]:
-    from trackpy import link_df
+    from trackpy import link_df  # type: ignore [missing-import]
 
 
 __all__: list[str] = ["link_locdata", "track"]

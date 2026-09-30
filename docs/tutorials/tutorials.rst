@@ -26,6 +26,7 @@ Tutorials are provided as Jupyter notebooks.
    Simulate <./notebooks/Simulate_LocData>
    Track <./notebooks/Track_LocData>
    Transform <./notebooks/Transform_LocData>
+   Images <./notebooks/Images>
 
 
 .. toctree::

@@ -55,7 +55,7 @@ from __future__ import annotations
 import logging
 import sys
 from collections.abc import Sequence
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Protocol, cast
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -160,7 +160,8 @@ def _estimate_drift_icp(
             transformation = _register_icp_open3d(
                 locdata.coordinates,
                 collection.references[0].coordinates,
-                **dict(
+                # pyrefly: ignore [bad-argument-type]
+                **(
                     dict(
                         matrix=None,
                         offset=None,
@@ -168,8 +169,8 @@ def _estimate_drift_icp(
                         max_correspondence_distance=100,
                         max_iteration=10_000,
                         verbose=False,
-                    ),
-                    **kwargs_register,
+                    )
+                    | kwargs_register
                 ),
             )
             transformations.append(transformation)
@@ -179,7 +180,8 @@ def _estimate_drift_icp(
             transformation = _register_icp_open3d(
                 collection.references[n + 1].coordinates,
                 collection.references[n].coordinates,
-                **dict(
+                # pyrefly: ignore [bad-argument-type]
+                **(
                     dict(
                         matrix=None,
                         offset=None,
@@ -188,8 +190,8 @@ def _estimate_drift_icp(
                         max_iteration=10_000,
                         with_scaling=False,
                         verbose=False,
-                    ),
-                    **kwargs_register,
+                    )
+                    | kwargs_register
                 ),
             )
             transformations.append(transformation)
@@ -374,6 +376,7 @@ class _SplineModelFacade:
     ) -> tuple[Any, Any, Any]:
         self.independent_variable = np.asarray(x)
         self.data = np.asarray(y)
+        # pyrefly: ignore [no-matching-overload]
         self.model_result = splrep(
             x, y, **dict(dict(k=3, s=100), **dict(**self.parameter, **kwargs))
         )
@@ -386,10 +389,13 @@ class _SplineModelFacade:
         x = np.asarray(x)
         if self.model_result is None:
             raise AttributeError("No model_result available. Run fit method first.")
-        results: npt.NDArray[np.float64] | list[Any] = splev(x, self.model_result)
+        results: float | npt.NDArray[np.float64] | list[Any] = splev(
+            x, self.model_result
+        )
         if isinstance(x, (tuple, list, np.ndarray)):
             return results
         else:
+            # pyrefly: ignore [bad-argument-type]
             return float(results)
 
     def plot(self, **kwargs: Any) -> mpl.axes.Axes:
@@ -445,21 +451,28 @@ class DriftComponent:
             self.type = "none"
             self.model = None
         elif type == "zero":
+            # pyrefly: ignore [bad-assignment]
             self.model = _ConstantZeroModelFacade()
         elif type == "one":
+            # pyrefly: ignore [bad-assignment]
             self.model = _ConstantOneModelFacade()
         elif type == "constant":
+            # pyrefly: ignore [bad-assignment]
             self.model = _ConstantModelFacade(**kwargs)
         elif type == "linear":
+            # pyrefly: ignore [bad-assignment]
             self.model = _LmfitModelFacade(LinearModel(**kwargs))
         elif type == "polynomial":
+            # pyrefly: ignore [bad-assignment]
             self.model = _LmfitModelFacade(
                 PolynomialModel(**dict(dict(degree=3), **kwargs))
             )
         elif getattr(type, "__module__", None) == "lmfit.models":
             self.type = type.name  # type: ignore
+            # pyrefly: ignore [bad-argument-type, bad-assignment]
             self.model = _LmfitModelFacade(model=type)
         elif type == "spline":
+            # pyrefly: ignore [bad-assignment]
             self.model = _SplineModelFacade(**kwargs)
         else:
             raise TypeError(f"DriftComponent cannot handle type={type}.")
@@ -729,6 +742,7 @@ class Drift(_Analysis):
             return self
 
         if not isinstance(drift_model, DriftComponent):
+            # pyrefly: ignore [bad-argument-type]
             drift_model = DriftComponent(type=drift_model)
 
         if self.parameter["target"] == "first":
@@ -826,12 +840,16 @@ class Drift(_Analysis):
                 self._transformation_models_for_identity_matrix()
             )
             for n, matrix_model in enumerate(matrix_models):
-                if matrix_model is None:
+                if (
+                    matrix_model is None
+                    and self.transformation_models["matrix"] is not None
+                ):
                     matrix_model = self.transformation_models["matrix"][n]
                 self.fit_transformation(
                     slice_data=slice_data,
                     transformation_component="matrix",
                     element=n,
+                    # pyrefly: ignore [bad-argument-type]
                     drift_model=matrix_model,
                     verbose=verbose,
                 )
@@ -847,12 +865,16 @@ class Drift(_Analysis):
                 self._transformation_models_for_zero_offset()
             )
             for n, offset_model in enumerate(offset_models):
-                if offset_model is None:
+                if (
+                    offset_model is None
+                    and self.transformation_models["offset"] is not None
+                ):
                     offset_model = self.transformation_models["offset"][n]
                 self.fit_transformation(
                     slice_data=slice_data,
                     transformation_component="offset",
                     element=n,
+                    # pyrefly: ignore [bad-argument-type]
                     drift_model=offset_model,
                     verbose=verbose,
                 )
@@ -871,6 +893,7 @@ class Drift(_Analysis):
         )
 
         if self.parameter["target"] == "first":
+            # pyrefly: ignore [bad-assignment]
             transformed_locdatas = [
                 transform_affine(locdata, transformation.matrix, transformation.offset)  # type: ignore
                 for locdata, transformation in zip(
@@ -887,6 +910,7 @@ class Drift(_Analysis):
                         transformation.matrix,
                         transformation.offset,
                     )
+                    transformed_locdata = cast(LocData, transformed_locdata)
                 transformed_locdatas.append(transformed_locdata)
 
         new_locdata = LocData.concat(
@@ -1069,6 +1093,7 @@ class Drift(_Analysis):
                 ax.plot(
                     x,
                     y,
+                    # pyrefly: ignore [bad-argument-type]
                     **dict(dict(label=f"{transformation_component}[{i}]"), **kwargs),
                 )
         else:
@@ -1076,6 +1101,7 @@ class Drift(_Analysis):
             ax.plot(
                 x,
                 y,
+                # pyrefly: ignore [bad-argument-type]
                 **dict(dict(label=f"{transformation_component}[{element}]"), **kwargs),
             )
 

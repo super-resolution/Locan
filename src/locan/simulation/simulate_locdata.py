@@ -430,6 +430,7 @@ def make_cluster(
         offspring_samples = []
         labels_ = []
         for i, (os, parent) in enumerate(zip(offspring[:n_centers], parent_samples)):  # type: ignore
+            # pyrefly: ignore [bad-argument-type]
             if len(os) > 0:
                 offspring_samples_ = np.asarray(os) + parent
                 offspring_samples.append(offspring_samples_)
@@ -634,6 +635,7 @@ def make_NeymanScott(
             for i, (os, parent) in enumerate(
                 zip(offspring[: len(parent_samples)], parent_samples)  # type: ignore
             ):
+                # pyrefly: ignore [bad-argument-type]
                 if len(os) > 0:
                     offspring_samples_ = np.asarray(os) + parent
                     offspring_samples.append(offspring_samples_)
@@ -814,9 +816,9 @@ def make_Matern(
 
     # radius: if radius is given as list, it must be consistent with the n_parent_samples
     if hasattr(radius, "__len__"):
-        if len(radius) < len(parent_samples):
+        if len(radius) < len(parent_samples):  # pyrefly: ignore [bad-argument-type]
             raise ValueError(
-                f"Length of `radius` {len(radius)} is less than "
+                f"Length of `radius` {len(radius)} is less than "  # pyrefly: ignore [bad-argument-type]
                 f"the generated n_parent_samples {len(parent_samples)}."
             )
         else:
@@ -1027,7 +1029,8 @@ def make_Thomas(
 
     # check cluster_std consistent with n_centers or n_features
     if len(np.shape(cluster_std)) == 0:
-        cluster_std_ = np.full(
+        # pyrefly: ignore [no-matching-overload]
+        cluster_std_: npt.NDArray[np.float64] = np.full(
             shape=(n_cluster, region.dimension), fill_value=cluster_std  # type: ignore
         )
     elif len(np.shape(cluster_std)) == 1:  # iterate over cluster_std for each feature
@@ -1037,6 +1040,7 @@ def make_Thomas(
                 f"with n_features {region.dimension}."
             )
         else:
+            # pyrefly: ignore [no-matching-overload]
             cluster_std_ = np.empty(shape=(n_cluster, region.dimension))
             for i, element in enumerate(cluster_std):  # type: ignore
                 cluster_std_[:, i] = np.full((n_cluster,), element)
@@ -1066,6 +1070,7 @@ def make_Thomas(
     for i, (parent, std, n_offspring) in enumerate(
         zip(parent_samples, cluster_std_, n_offspring_list)
     ):
+        # pyrefly: ignore [no-matching-overload]
         offspring_samples = rng.normal(
             loc=parent, scale=std, size=(n_offspring, region.dimension)  # type: ignore
         )
@@ -1265,7 +1270,8 @@ def make_dstorm(
 
     # check cluster_std consistent with n_centers or n_features
     if len(np.shape(cluster_std)) == 0:
-        cluster_std_ = np.full(
+        # pyrefly: ignore [no-matching-overload]
+        cluster_std_: npt.NDArray[np.float64] = np.full(
             shape=(n_cluster, region.dimension), fill_value=cluster_std  # type: ignore
         )
     elif len(np.shape(cluster_std)) == 1:  # iterate over cluster_std for each feature
@@ -1275,6 +1281,7 @@ def make_dstorm(
                 f"with n_features {region.dimension}."
             )
         else:
+            # pyrefly: ignore [no-matching-overload]
             cluster_std_ = np.empty(shape=(n_cluster, region.dimension))
             for i, element in enumerate(cluster_std):  # type: ignore
                 cluster_std_[:, i] = np.full((n_cluster,), element)
@@ -1312,6 +1319,7 @@ def make_dstorm(
     for i, (parent, std, n_offspring) in enumerate(
         zip(parent_samples, cluster_std_, n_offspring_list)
     ):
+        # pyrefly: ignore [no-matching-overload]
         offspring_samples = rng.normal(
             loc=parent, scale=std, size=(n_offspring, region.dimension)  # type: ignore
         )

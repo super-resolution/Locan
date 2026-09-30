@@ -37,7 +37,7 @@ from locan.scripts.utilities import _type_converter_rescale
 from locan.visualize.render_napari.utilities import select_by_drawing_napari
 
 if HAS_DEPENDENCY["napari"]:
-    import napari
+    import napari  # type: ignore [missing-import]
 
 
 def sc_draw_roi_napari(

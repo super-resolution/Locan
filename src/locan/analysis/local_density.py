@@ -110,6 +110,7 @@ def _local_density(
         densities_list.append(densities_)
     densities = np.asarray(densities_list)
 
+    overlap_factors = np.array([])
     if boundary_correction is not None:
         overlap_factors_list = []
         for radius_ in radii:
@@ -146,7 +147,7 @@ def _local_density(
     if normalization is not None:
         densities = np.divide(densities, normalization)
 
-    return densities
+    return densities.astype(np.float64)
 
 
 # The specific analysis classes
@@ -287,6 +288,7 @@ class LocalDensity(_Analysis):
             self.results,
             bins=bins,
             density=density,
+            # pyrefly: ignore [bad-argument-type]
             **dict(dict(label=self.results.columns, log=False), **kwargs),
         )
 

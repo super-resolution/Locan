@@ -37,7 +37,7 @@ from locan.data.regions.region import _polygon_path
 from locan.dependencies import HAS_DEPENDENCY
 
 if HAS_DEPENDENCY["open3d"]:
-    import open3d as o3d
+    import open3d as o3d  # type: ignore [missing-import]
 
 
 class TestRegion:

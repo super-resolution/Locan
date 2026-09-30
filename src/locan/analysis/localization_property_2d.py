@@ -364,12 +364,13 @@ class LocalizationProperty2d(_Analysis):
         zz = np.stack((xx, yy), axis=-1).reshape((np.prod(xx.shape), 2))
         z = self.results.model_result.eval(points=zz)
 
+        contour_kwargs: dict[str, Any] = dict(colors="gray")
         contourset = ax.contour(
             x,
             y,
             z.reshape((len(x), len(y))).T,
             8,
-            **dict(dict(colors="gray"), **kwargs),
+            **(contour_kwargs | kwargs),
         )
         plt.clabel(contourset, fontsize=9, inline=1)
         ax.set(
@@ -424,12 +425,13 @@ class LocalizationProperty2d(_Analysis):
             vmax=max_absolute_value,
         )
 
+        contour_kwargs: dict[str, Any] = dict(colors="gray")
         contourset = ax.contour(
             x,
             y,
             z.reshape((len(x), len(y))).T,
             8,
-            **dict(dict(colors="gray"), **kwargs),
+            **(contour_kwargs | kwargs),
         )
         plt.clabel(contourset, fontsize=9, inline=1)
 

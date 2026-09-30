@@ -52,6 +52,7 @@ def points_to_open3d(points: npt.ArrayLike) -> o3d.t.geometry.PointCloud:
         raise TypeError("points must have a dimension <=3.")
     point_cloud_o3d = o3d.t.geometry.PointCloud()
     # legacy point_cloud_o3d.points = o3d.utility.Vector3dVector(points)
+    # pyrefly: ignore [no-matching-overload]
     point_cloud_o3d.point.positions = o3d.core.Tensor(points)
     return point_cloud_o3d
 

@@ -207,6 +207,7 @@ testpaths = [
     "src/locan/tests",
     "tests"
 ]
+norecursedirs = ["tests.test_data"]
 filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
     ]

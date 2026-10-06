@@ -25,6 +25,8 @@ from .analysis import (
     CoordinateBasedColocalization as CoordinateBasedColocalization,
     Drift as Drift,
     DriftComponent as DriftComponent,
+    FourierRingCorrelation as FourierRingCorrelation,
+    FourierRingCorrelationResults as FourierRingCorrelationResults,
     GroupedPropertyExpectation as GroupedPropertyExpectation,
     LocalDensity as LocalDensity,
     LocalizationPrecision as LocalizationPrecision,

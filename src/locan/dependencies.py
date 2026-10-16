@@ -163,7 +163,7 @@ IMPORT_NAMES["mpl-scatter-density"] = "mpl_scatter_density"
 
 #: A dictionary indicating if dependency is available.
 HAS_DEPENDENCY = _has_dependency_factory(
-    packages=INSTALL_REQUIRES.union(EXTRAS_REQUIRE)
+    packages=INSTALL_REQUIRES.union(EXTRAS_REQUIRE).union(set(["pytestqt"]))
 )
 
 

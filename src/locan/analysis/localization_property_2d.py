@@ -11,14 +11,8 @@ illumination profile in SMLM experiments.
 from __future__ import annotations
 
 import logging
-import sys
 from collections.abc import Callable, Sequence
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Self
 
 if TYPE_CHECKING:
     import boost_histogram as bh

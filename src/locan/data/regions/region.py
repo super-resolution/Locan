@@ -10,18 +10,9 @@ from __future__ import annotations
 
 import itertools as it
 import logging
-import sys
 import warnings
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar, cast
-
-from locan.dependencies import HAS_DEPENDENCY, needs_package
-from locan.utils.rotation import Rotation2D, Rotation3D
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Any, Self, TypeVar, cast
 
 import matplotlib as mpl
 import matplotlib.patches as mpl_patches
@@ -58,6 +49,9 @@ from shapely.geometry import (
     Polygon as shPolygon,
 )
 from shapely.prepared import prep as sh_prep
+
+from locan.dependencies import HAS_DEPENDENCY, needs_package
+from locan.utils.rotation import Rotation2D, Rotation3D
 
 if HAS_DEPENDENCY["open3d"]:
     import open3d as o3d  # type: ignore [missing-import]

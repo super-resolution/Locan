@@ -9,16 +9,10 @@ from __future__ import annotations
 import copy
 import logging
 import os
-import sys
 import warnings
 from collections.abc import Callable, Iterable, Sequence
 from itertools import accumulate
-from typing import TYPE_CHECKING, Any, BinaryIO, Literal, TypeVar
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import TYPE_CHECKING, Any, BinaryIO, Literal, Self, TypeVar
 
 import numpy as np
 import numpy.typing as npt

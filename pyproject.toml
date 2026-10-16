@@ -221,6 +221,8 @@ exclude = [
     "*/*_pb2.py",
     "*/*_pb2.pyi",
     "src/locan/_version.py",
+
+    "src/locan/analysis/local_density_batch_draft.py"
 ]
 
 [tool.ruff.lint]

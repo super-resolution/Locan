@@ -12,19 +12,12 @@ import functools
 import logging
 import os
 import re
-import sys
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any
-
-from pandas import DataFrame, Series
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Any, Self
 
 import pandas as pd
+from pandas import DataFrame, Series
 
 from locan.locan_io.utilities import find_file_upstream
 

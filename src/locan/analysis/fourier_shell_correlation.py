@@ -21,21 +21,15 @@ References
 from __future__ import annotations
 
 import logging
-import sys
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Self
 
 import scipy.signal.windows
 from scipy.ndimage import gaussian_filter1d
 
 from locan import Bins, LocData, histogram
 from locan.process.properties.locdata_statistics import range_from_collection, ranges
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
 
 if TYPE_CHECKING:
     import matplotlib as mpl
@@ -81,7 +75,7 @@ def preprocess_images(
         Second image representation.
     window:
         If not None, apply a window function to the generated images.
-        Typically, a Tukey filter is applied: window=("tukey", 0.75)
+        Typically, a Tukey filter is applied: window=("tukey", 0.25)
         The window is specified according to func:`scipy.signal.get_window`.
 
     Returns
@@ -262,7 +256,7 @@ class FourierShellCorrelation(_Analysis):
         If not False, apply a Gaussian filter on the correlation with sigma=smooth.
     window:
         If not None, apply a window function to the generated images.
-        Typically, a Tukey filter is applied: window=("tukey", 0.75)
+        Typically, a Tukey filter is applied: window=("tukey", 0.25)
         The window is specified according to func:`scipy.signal.get_window`.
     Attributes
     ----------

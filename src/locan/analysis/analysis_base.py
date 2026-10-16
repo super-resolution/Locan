@@ -6,14 +6,8 @@ It also provides helper functions to be used in specialized analysis classes.
 
 from __future__ import annotations
 
-import sys
 from copy import copy
-from typing import Any
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Any, Self
 
 from google.protobuf import json_format
 from scipy import stats

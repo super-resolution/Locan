@@ -14,14 +14,8 @@ selection and estimate the corresponding probability distribution.
 from __future__ import annotations
 
 import logging
-import sys
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import TYPE_CHECKING, Any, Self
 
 import matplotlib.pyplot as plt
 import numpy as np

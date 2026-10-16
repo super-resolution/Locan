@@ -245,7 +245,7 @@ def test_get_frequency_at_threshold(npc_gp210):
     correlation = np.arange(1, 0, -0.2, dtype=np.float64)
 
     freq_cross = get_frequency_at_threshold(
-        frequencies=frequencies, frc=correlation, threshold=0.52
+        frequencies=frequencies, correlation=correlation, threshold=0.52
     )
     assert freq_cross == pytest.approx(2.4, rel=0.1)
 

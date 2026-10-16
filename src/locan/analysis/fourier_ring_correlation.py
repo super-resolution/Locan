@@ -69,7 +69,7 @@ def preprocess_images(
     window: str | float | tuple | None = None,
 ) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
     """
-    Prepare image data for computing fourier ring correlation.
+    Prepare 2-dimensional image data for computing fourier ring correlation.
     Adjust shape of smaller image py padding and apply windowing.
 
     Parameters
@@ -82,7 +82,6 @@ def preprocess_images(
         If not None, apply a window function to the generated images.
         Typically, a Tukey filter is applied: window=("tukey", 0.75)
         The window is specified according to func:`scipy.signal.get_window`.
-
 
     Returns
     -------
@@ -130,7 +129,6 @@ def preprocess_images(
         image = image * window_
         other_image = other_image * window_
 
-    # pyrefly: ignore [bad-return]
     return image, other_image
 
 
@@ -198,7 +196,7 @@ def compute_fourier_ring_correlation(
 
 
 def get_frequency_at_threshold(
-    frequencies: npt.ArrayLike, frc: npt.ArrayLike, threshold: float = 1 / 7
+    frequencies: npt.ArrayLike, correlation: npt.ArrayLike, threshold: float = 1 / 7
 ) -> float:
     """
     Get the frequency at which the FRC correlation drops below the threshold value.
@@ -206,7 +204,7 @@ def get_frequency_at_threshold(
     Parameters
     ----------
     frequencies
-    frc
+    correlation
     threshold
 
     Returns
@@ -214,14 +212,14 @@ def get_frequency_at_threshold(
     float
     """
     frequencies = np.asarray(frequencies)
-    frc = np.asarray(frc)
-    cross = np.where(frc < threshold)[0]
+    correlation = np.asarray(correlation)
+    cross = np.where(correlation < threshold)[0]
 
     if len(cross):
         i = cross[0]
 
         x1, x2 = frequencies[i - 1], frequencies[i]
-        y1, y2 = frc[i - 1], frc[i]
+        y1, y2 = correlation[i - 1], correlation[i]
 
         freq_cross = x1 + (threshold - y1) * (x2 - x1) / (y2 - y1)
     else:
@@ -255,7 +253,9 @@ class FourierRingCorrelationResults:
         float
         """
         return get_frequency_at_threshold(
-            frequencies=self.frequency, frc=self.correlation, threshold=threshold
+            frequencies=self.frequency,
+            correlation=self.correlation,
+            threshold=threshold,
         )
 
     def resolution(self, threshold: float = 1 / 7) -> float:
@@ -411,7 +411,7 @@ class FourierRingCorrelation(_Analysis):
         **kwargs: Any,
     ) -> mpl.axes.Axes:
         """
-        Provide plot as :class:`matplotlib.axes.Axes` object showing the fourier ring correlation.
+        Provide plot showing the fourier ring correlation.
 
         Parameters
         ----------

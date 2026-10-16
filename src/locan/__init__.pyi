@@ -27,6 +27,8 @@ from .analysis import (
     DriftComponent as DriftComponent,
     FourierRingCorrelation as FourierRingCorrelation,
     FourierRingCorrelationResults as FourierRingCorrelationResults,
+    FourierShellCorrelation as FourierShellCorrelation,
+    FourierShellCorrelationResults as FourierShellCorrelationResults,
     GroupedPropertyExpectation as GroupedPropertyExpectation,
     LocalDensity as LocalDensity,
     LocalizationPrecision as LocalizationPrecision,

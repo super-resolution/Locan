@@ -322,9 +322,40 @@ def show_transform_rapidSTORM_beads_red() -> None:
     plt.show()
 
 
+def show_clathrin_3d() -> None:
+    file = "clathrin_3d.asdf"
+    file_path = PATH_TEST_DATA / file
+    locdata = lc.load_asdf_file(path=file_path)
+
+    print("\n" + file + "\n")
+    print(locdata.meta)
+    print(list(locdata.data.columns), "\n")
+    print(locdata.data.describe())
+    print(locdata.data.loc[:, ["position_x", "position_y"]].describe())
+
+    lc.render_2d_mpl(
+        locdata=locdata,
+        loc_properties=["position_x", "position_y"],
+        other_property="position_z",
+        bin_size=10,
+        rescale=lc.Trafo.NONE,
+    )
+    plt.show()
+
+    lc.render_2d_mpl(
+        locdata=locdata,
+        loc_properties=["position_x", "position_z"],
+        other_property="position_y",
+        bin_size=10,
+        rescale=lc.Trafo.NONE,
+    )
+    plt.show()
+
+
 if __name__ == "__main__":
     for f in get_files():
         print(f)
+
     # show_decode_dstorm_data()
     # show_decode_dstorm_data_empty()
     # show_Elyra_dstorm_data()
@@ -345,3 +376,4 @@ if __name__ == "__main__":
     # show_transform_BunwarpJ_transformation_raw_green()
     # show_transform_rapidSTORM_beads_green()
     # show_transform_rapidSTORM_beads_red()
+    # show_clathrin_3d()

@@ -30,14 +30,8 @@ References
 from __future__ import annotations
 
 import logging
-import sys
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import TYPE_CHECKING, Any, Self
 
 if TYPE_CHECKING:
     import matplotlib as mpl

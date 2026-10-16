@@ -7,17 +7,11 @@ Analyze cross dependencies as indicated by the correlation coefficients between 
 from __future__ import annotations
 
 import logging
-import sys
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self
 
 import pandas as pd
 
 from locan import get_colormap
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
 
 if TYPE_CHECKING:
     import matplotlib as mpl

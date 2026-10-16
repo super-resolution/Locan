@@ -7,7 +7,8 @@ Changelog
 
 New Features
 ------------
-- ...
+- Fourier Ring Correlation
+- Fourier Shell Correlation
 
 API Changes
 -----------
@@ -31,9 +32,11 @@ Other Changes and Additions
 - refactor: fix benchmarks test_data path
 - refactor: change python marker for asv dependency
 - update versions in GitHub Actions
+- refactor: update to python 3.15 and deprecate python 3.10
+- refactor: use pyrefly for type checking
 
 
-0.21 - dev
+0.21 - 2025-08-09
 =================
 
 New Features

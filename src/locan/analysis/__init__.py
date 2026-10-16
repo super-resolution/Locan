@@ -18,6 +18,8 @@ Submodules:
    cbc
    convex_hull_expectation
    drift
+   fourier_ring_correlation
+   fourier_shell_correlation
    grouped_property_expectation
    local_density
    localization_precision
@@ -44,6 +46,8 @@ from locan.analysis.blinking import *
 from locan.analysis.cbc import *
 from locan.analysis.convex_hull_expectation import *
 from locan.analysis.drift import *
+from locan.analysis.fourier_ring_correlation import *
+from locan.analysis.fourier_shell_correlation import *
 from locan.analysis.grouped_property_expectation import *
 from locan.analysis.local_density import *
 from locan.analysis.localization_precision import *
@@ -66,6 +70,8 @@ submodules: list[str] = [
     "cbc",
     "convex_hull_expectation",
     "drift",
+    "fourier_ring_correlation",
+    "fourier_shell_correlation",
     "grouped_property_expectation",
     "local_density",
     "localization_precision",

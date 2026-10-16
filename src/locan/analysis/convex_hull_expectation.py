@@ -21,16 +21,10 @@ from __future__ import annotations
 
 import importlib.resources as importlib_resources
 import logging
-import sys
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Any, Literal, NamedTuple
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Self
 
 if TYPE_CHECKING:
     from locan.data.locdata import LocData

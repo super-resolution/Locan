@@ -22,15 +22,9 @@ References
 from __future__ import annotations
 
 import logging
-import sys
 from collections.abc import Callable
 from inspect import signature
-from typing import TYPE_CHECKING, Any, cast
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import TYPE_CHECKING, Any, Self, cast
 
 if TYPE_CHECKING:
     from locan.data.locdata import LocData

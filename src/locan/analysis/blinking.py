@@ -9,14 +9,8 @@ provided by the `frame` property.
 from __future__ import annotations
 
 import logging
-import sys
 from collections.abc import Iterable, Sequence
-from typing import Any
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Any, Self
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt

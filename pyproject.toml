@@ -20,7 +20,7 @@ fallback_version = "0.22+fallback"
 name = "locan"
 description = "Analysis software for single-molecule localization microscopy"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "BSD-3-Clause"
 license-files = ["LICENSE.md"]
 authors = [
@@ -41,11 +41,11 @@ classifiers = [
     "Programming Language :: C",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
     "Operating System :: Unix",
@@ -73,7 +73,6 @@ dependencies = [
     "scipy",
     "shapely!=2.0.0,!=2.0.1",
     "tifffile",
-    "tomli>=1.1.0; python_version<'3.11'",
     "tqdm",
     "typing_extensions",
 ]
@@ -87,8 +86,8 @@ pyqt5 = ["PyQt5"]
 pyside2 = ["PySide2"]
 pyside6 = ["pyside6!=6.8.0"]
 register = [
-    "open3d-cpu!=0.12.0; platform_system=='Linux' and python_version<'3.15'",
-    "open3d!=0.12.0; platform_system!='Linux' and python_version<'3.15'",
+    "open3d-cpu!=0.12.0; sys_platform=='linux' and python_version<='3.14'",
+    "open3d!=0.12.0; sys_platform!='inux' and python_version<='3.14'",
 ]
 scatter_density = [
     "mpl_scatter_density",
@@ -107,42 +106,6 @@ all = [
     "locan[scatter_density]",
     "locan[test]",
     "trackpy",
-]
-gpu = [
-    "cupy-cuda12x",
-    "open3d!=0.12.0; python_version<'3.15'"
-]
-# todo: with pip>25.1.0
-# deprecate extra dependencies for test-qt and docs and dev
-# change  dockerfiles
-test-qt = [
-    "pytest",
-    "pytest-qt;python_version<'3.14'",
-]
-docs = [
-    "furo",
-    "ipython",
-    "myst-nb",
-    "ray[default];platform_system!='Windows' or (platform_system=='Windows' and python_version<'3.13')",
-    "sphinx",
-    "sphinx-autodoc-typehints",
-    "sphinx-copybutton",
-]
-dev = [
-    "asv",
-    "black~=26.0",
-    "build",
-    "coverage[toml]",
-    "mypy",
-    "pandas-stubs",
-    "pre-commit",
-    "ruff",
-    "scipy-stubs",
-    "twine",
-    "types-networkx",
-    "types-protobuf",
-    "types-shapely",
-    "types-tqdm",
 ]
 
 [project.urls]
@@ -163,7 +126,7 @@ test = [
 ]
 test-qt = [
     {include-group = "test"},
-    "pytest-qt;python_version<'3.14'",
+    "pytest-qt;python_version<='3.13'",
 ]
 lint = [
     "black~=26.0",
@@ -192,7 +155,8 @@ docs = [
     "furo",
     "ipython",
     "myst-nb",
-    "ray[default];platform_system!='Windows' or (platform_system=='Windows' and python_version<'3.13')",
+    "ray[default]; sys_platform!='win32' and python_version<='3.13'",
+    "ray[default]; sys_platform=='win32' and python_version<='3.12'",
     "sphinx",
     "sphinx-autodoc-typehints",
     "sphinx-copybutton",
@@ -207,6 +171,7 @@ testpaths = [
     "src/locan/tests",
     "tests"
 ]
+norecursedirs = ["tests.test_data"]
 filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
     ]
@@ -256,6 +221,8 @@ exclude = [
     "*/*_pb2.py",
     "*/*_pb2.pyi",
     "src/locan/_version.py",
+
+    "src/locan/analysis/local_density_batch_draft.py"
 ]
 
 [tool.ruff.lint]

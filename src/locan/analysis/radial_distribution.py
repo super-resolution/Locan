@@ -63,19 +63,13 @@ References
 from __future__ import annotations
 
 import logging
-import sys
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self
 
 from typing_extensions import TypeVar
 
 from locan import PairDistances
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
 
 if TYPE_CHECKING:
     import matplotlib as mpl

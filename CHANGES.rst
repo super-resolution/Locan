@@ -2,17 +2,13 @@
 Changelog
 =======================
 
-0.22 - dev
+0.22 - 2026-10-17
 =================
 
 New Features
 ------------
 - Fourier Ring Correlation
 - Fourier Shell Correlation
-
-API Changes
------------
-- ...
 
 Bug Fixes
 ---------

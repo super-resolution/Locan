@@ -22,7 +22,7 @@ dependencies:
 # Development
 - black~=26.0
 - build
-- mypy
+- pyrefly
 - numpy
 - pandas-stubs
 - pre-commit

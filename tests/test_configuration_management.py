@@ -89,6 +89,7 @@ class TestConfiguration:
         os.environ["locan_DATA_DIR"] = "/tmp/.data"
         os.environ["locan_LOG_DIR"] = "/tmp/.logs"
         os.environ["locan_TEST_DIR"] = "/tmp/tests"
+        os.environ["locan_COLORMAPS_CONTINUOUS"] = "viridis"
 
         config.__init__()
         # print(config.model_dump_json())
@@ -98,6 +99,7 @@ class TestConfiguration:
         assert config.data_directory == Path("/tmp/.data")
         assert config.log_directory == Path("/tmp/.logs")
         assert config.test_directory == Path("/tmp/tests")
+        assert config.colormaps.continuous == "viridis"
 
         config.__init__(
             name="yet_another_name",

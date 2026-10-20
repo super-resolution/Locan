@@ -14,8 +14,6 @@ A configuration is instantiated upon locan startup from either (in order of prec
 .. autosummary::
    :toctree: ./
 
-   TQDM_LEAVE
-   TQDM_DISABLE
 """
 
 from __future__ import annotations
@@ -47,8 +45,6 @@ logger = logging.getLogger(__name__)
 
 __all__: list[str] = [
     "Configuration",
-    "TQDM_LEAVE",
-    "TQDM_DISABLE",
     "QT_BINDING",
 ]
 
@@ -172,6 +168,22 @@ class Colormaps(BaseModel):
     turbo: str = "turbo"
 
 
+class TqdmConfiguration(BaseModel):
+    """
+    Parameters for tqdm to control progress bars.
+
+    Parameters
+    ----------
+    leave: bool | None
+        Leave tqdm progress bars after finishing the iteration.
+    disable: bool | None
+        Disable tqdm progress bars.
+    """
+
+    leave: bool | None = Field(default=True)
+    disable: bool | None = Field(default=False)
+
+
 class Configuration(BaseSettings, ConfigurationBase):
     """
     Locan configuration settings that are used throughout the project.
@@ -203,10 +215,13 @@ class Configuration(BaseSettings, ConfigurationBase):
     render_engine: RenderEngine
         Preferred engine to be used for rendering localization data as 2d or 3d images.
         Each engine represents a library to be used as backend for rendering and plotting.
+    tqdm: TqdmConfiguration
+        Parameters for tqdm to control progress bars.
     """
 
     model_config = SettingsConfigDict(
         env_prefix="locan_",
+        env_nested_delimiter="_",
         validate_by_alias=True,
         validate_by_name=True,
         toml_file=CONFIGURATION_FILE_HIERARCHY,
@@ -272,6 +287,7 @@ class Configuration(BaseSettings, ConfigurationBase):
     render_engine: RenderEngine = Field(
         default=RenderEngine.MPL, alias="locan_RENDER_ENGINE"
     )
+    tqdm: TqdmConfiguration = Field(default=TqdmConfiguration(), alias="locan_TQDM")
 
     @field_serializer(
         "cache_directory",
@@ -309,14 +325,6 @@ class Configuration(BaseSettings, ConfigurationBase):
             pyproject_settings,
         )
 
-
-#: Leave tqdm progress bars after finishing the iteration.
-#: Flag to leave tqdm progress bars.
-TQDM_LEAVE: bool = True
-
-#: Disable tqdm progress bars.
-#: Flag to disable all tqdm progress bars.
-TQDM_DISABLE: bool = False
 
 # Preferred QT binding. At this point this variable cannot be set at
 # runtime.

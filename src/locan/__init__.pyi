@@ -53,8 +53,6 @@ from .analysis import (
 from .configuration import (
     COLORMAP_DEFAULTS as COLORMAP_DEFAULTS,
     QT_BINDING as QT_BINDING,
-    TQDM_DISABLE as TQDM_DISABLE,
-    TQDM_LEAVE as TQDM_LEAVE,
     Configuration as Configuration,
 )
 from .constants import (

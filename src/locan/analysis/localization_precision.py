@@ -49,7 +49,6 @@ from tqdm import tqdm
 from locan import config
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
-from locan.configuration import TQDM_DISABLE, TQDM_LEAVE
 
 __all__: list[str] = ["LocalizationPrecision"]
 
@@ -72,8 +71,8 @@ def _localization_precision(locdata: LocData, radius: int | float = 50) -> pd.Da
     for i in tqdm(
         range(min, max - 1),
         desc="Processed frames:",
-        leave=TQDM_LEAVE,
-        disable=TQDM_DISABLE,
+        leave=config.tqdm.leave,
+        disable=config.tqdm.disable,
     ):
         try:
             points = grouped.get_group(i)[locdata.coordinate_keys]

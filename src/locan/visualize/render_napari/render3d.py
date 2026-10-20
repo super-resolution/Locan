@@ -15,8 +15,7 @@ import numpy as np
 import numpy.typing as npt
 from matplotlib import colors as mcolors
 
-from locan import locdata_id
-from locan.configuration import COLORMAP_DEFAULTS
+from locan import config, locdata_id
 from locan.data import LocData
 from locan.data.locdata_utils import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY, needs_package
@@ -56,7 +55,7 @@ def render_3d_napari_image(
         | None
     ) = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
-    cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
+    cmap: ColormapType = config.colormaps.continuous,
     **kwargs: Any,
 ) -> tuple[npt.NDArray[np.uint8 | np.float64], dict[str, Any], Literal["image"]]:
     """
@@ -172,7 +171,7 @@ def render_3d_napari(
     ) = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     viewer: napari.Viewer | None = None,
-    cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
+    cmap: ColormapType = config.colormaps.continuous,
     **kwargs: Any,
 ) -> napari.Viewer:
     """

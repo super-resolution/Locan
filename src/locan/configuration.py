@@ -15,7 +15,6 @@ A configuration is instantiated upon locan startup from either (in order of prec
    :toctree: ./
 
    RENDER_ENGINE
-   COLORMAP_DEFAULTS
    TQDM_LEAVE
    TQDM_DISABLE
 """
@@ -25,6 +24,7 @@ from __future__ import annotations
 import logging
 import platform
 import tomllib
+import warnings
 from abc import ABC
 from collections.abc import Mapping
 from os import PathLike
@@ -51,7 +51,6 @@ __all__: list[str] = [
     "RENDER_ENGINE",
     "TQDM_LEAVE",
     "TQDM_DISABLE",
-    "COLORMAP_DEFAULTS",
     "QT_BINDING",
 ]
 
@@ -161,6 +160,20 @@ class ConfigurationBase(BaseModel, ABC):
         return self.model_dump(**kwargs)
 
 
+class Colormaps(BaseModel):
+    """
+    Preferred colormap names to be used for visualization.
+    """
+
+    continuous: str = "cet_fire"
+    continuous_reverse: str = "cet_fire_r"
+    continuous_gray: str = "cet_gray"
+    continuous_gray_reverse: str = "cet_gray_r"
+    diverging: str = "cet_coolwarm"
+    categorical: str = "cet_glasbey_dark"
+    turbo: str = "turbo"
+
+
 class Configuration(BaseSettings, ConfigurationBase):
     """
     Locan configuration settings that are used throughout the project.
@@ -187,6 +200,8 @@ class Configuration(BaseSettings, ConfigurationBase):
         Maximum number of CPUs used in multiprocessing.
         If negative, then the number of jobs is set to the number of CPU cores.
         In scikit-learn methods, this setting is passed through to n_jobs.
+    colormaps: Colormaps
+        Preferred colormap names to be used for visualization.
     """
 
     model_config = SettingsConfigDict(
@@ -252,6 +267,7 @@ class Configuration(BaseSettings, ConfigurationBase):
         ),
     )
     n_cpus: int = Field(default=1, alias="locan_N_CPUS")
+    colormaps: Colormaps = Field(default=Colormaps(), alias="locan_COLORMAPS")
 
     @field_serializer(
         "cache_directory",
@@ -301,22 +317,6 @@ TQDM_LEAVE: bool = True
 #: Flag to disable all tqdm progress bars.
 TQDM_DISABLE: bool = False
 
-
-#: Mapping a type of colormap to its default colormap that is used throughout locan.
-#: See details in locan documentation on colormaps.
-COLORMAP_DEFAULTS: Mapping[str, str] = dict()
-
-COLORMAP_DEFAULTS = dict(
-    CONTINUOUS="cet_fire",
-    CONTINUOUS_REVERSE="cet_fire_r",
-    CONTINUOUS_GRAY="cet_gray",
-    CONTINUOUS_GRAY_REVERSE="cet_gray_r",
-    DIVERGING="cet_coolwarm",
-    CATEGORICAL="cet_glasbey_dark",
-    TURBO="turbo",
-)
-
-
 # Preferred QT binding. At this point this variable cannot be set at
 # runtime.
 QT_BINDING: QtBindings | str = ""
@@ -324,3 +324,28 @@ QT_BINDING: QtBindings | str = ""
 # Initialize pyqt
 QT_BINDING = _set_qt_binding(QT_BINDING)
 HAS_DEPENDENCY["qt"] = True if QT_BINDING else False
+
+
+def __getattr__(name):
+    if name == "COLORMAP_DEFAULTS":
+        warnings.warn(
+            "locan.configuration.COLORMAP_DEFAULTS is deprecated; Use locan.config.colormaps instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        #: Mapping a type of colormap to its default colormap that is used throughout locan.
+        #: See details in locan documentation on colormaps.
+        COLORMAP_DEFAULTS: Mapping[str, str] = dict()
+
+        COLORMAP_DEFAULTS = dict(
+            CONTINUOUS="cet_fire",
+            CONTINUOUS_REVERSE="cet_fire_r",
+            CONTINUOUS_GRAY="cet_gray",
+            CONTINUOUS_GRAY_REVERSE="cet_gray_r",
+            DIVERGING="cet_coolwarm",
+            CATEGORICAL="cet_glasbey_dark",
+            TURBO="turbo",
+        )
+
+        return COLORMAP_DEFAULTS
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

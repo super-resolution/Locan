@@ -2,13 +2,25 @@ from locan import config
 from locan.configuration import (
     QT_BINDING,
     RENDER_ENGINE,
+    Colormaps,
 )
 from locan.constants import RenderEngine
 from locan.dependencies import HAS_DEPENDENCY
 
 
+class TestColormaps:
+
+    def test_init(self):
+        setting = Colormaps()
+        assert setting.continuous == "cet_fire"
+
+        setting.continuous = "viridis"
+        assert setting.continuous == "viridis"
+
+
 def test_locan_config():
-    # print(lc.config.model_dump_json())
+    print(config)
+    print(config.model_dump_json())
     assert config.name == "locanConfiguration"
     assert config.cache_directory
     assert config.config_directory
@@ -17,6 +29,7 @@ def test_locan_config():
     assert config.log_directory
     assert config.test_directory
     assert config.n_cpus
+    assert config.colormaps
 
 
 def test_render_engine():
@@ -31,6 +44,3 @@ def test_qt_bindings():
         from qtpy import QT_VERSION  # type: ignore [missing-import]
 
         assert QT_VERSION is not None
-
-
-# tests for COLORMAP_DEFAULTS see test_colormap.py

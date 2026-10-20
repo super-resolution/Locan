@@ -23,6 +23,7 @@ from __future__ import annotations
 
 from locan.visualize import colormap, render, render_mpl, render_napari, transform
 
+# pyrefly: ignore [missing-module-attribute]
 from .colormap import *
 from .render import *
 from .render_mpl import (

@@ -1,2 +1,6 @@
 name = "MyLocanConfiguration"
 data_directory = "some/path/to/data"
+n_cpus = 2
+
+[colormaps]
+continuous = "viridis"

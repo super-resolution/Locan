@@ -17,7 +17,7 @@ import numpy.typing as npt
 import scipy.signal.windows
 from matplotlib import pyplot as plt
 
-from locan.configuration import COLORMAP_DEFAULTS
+from locan import config
 from locan.data import LocData
 from locan.data.locdata_utils import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY
@@ -65,7 +65,7 @@ def render_2d_mpl(
     ) = None,
     rescale: int | str | Trafo | Callable[..., Any] | bool | None = None,
     ax: mpl.axes.Axes | None = None,
-    cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
+    cmap: ColormapType = config.colormaps.continuous,
     cbar: bool = True,
     colorbar_kws: dict[str, Any] | None = None,
     interpolation: str = "nearest",
@@ -196,7 +196,7 @@ def render_2d_scatter_density(
         | None
     ) = None,
     ax: mpl.axes.Axes | None = None,
-    cmap: ColormapType = COLORMAP_DEFAULTS["CONTINUOUS"],
+    cmap: ColormapType = config.colormaps.continuous,
     cbar: bool = True,
     colorbar_kws: dict[str, Any] | None = None,
     **kwargs: Any,

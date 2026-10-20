@@ -35,6 +35,9 @@ try:
 except ImportError:
     __version__ = "not-installed"
 
+from locan.configuration import Configuration
+
+config = Configuration()
 
 __getattr__, __lazy_dir__, __lazy_all__ = lazy.attach_stub(
     package_name=__name__, filename=__file__

@@ -53,9 +53,9 @@ import pandas as pd
 from scipy import stats
 from sklearn.neighbors import NearestNeighbors
 
+from locan import config
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
-from locan.configuration import N_JOBS
 
 __all__: list[str] = ["NearestNeighborDistances"]
 
@@ -119,14 +119,14 @@ def _nearest_neighbor_distances(
     points: npt.ArrayLike, k: int = 1, other_points: npt.ArrayLike | None = None
 ) -> pd.DataFrame:
     if other_points is None:
-        nn = NearestNeighbors(n_neighbors=k, metric="euclidean", n_jobs=N_JOBS).fit(
-            points
-        )
+        nn = NearestNeighbors(
+            n_neighbors=k, metric="euclidean", n_jobs=config.n_cpus
+        ).fit(points)
         distances, indices = nn.kneighbors()
     else:
-        nn = NearestNeighbors(n_neighbors=k, metric="euclidean", n_jobs=N_JOBS).fit(
-            other_points
-        )
+        nn = NearestNeighbors(
+            n_neighbors=k, metric="euclidean", n_jobs=config.n_cpus
+        ).fit(other_points)
         distances, indices = nn.kneighbors(points)
 
     return pd.DataFrame(

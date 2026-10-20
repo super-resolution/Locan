@@ -52,12 +52,11 @@ from .analysis import (
 )
 from .configuration import (
     COLORMAP_DEFAULTS as COLORMAP_DEFAULTS,
-    DATASETS_DIR as DATASETS_DIR,
-    N_JOBS as N_JOBS,
     QT_BINDING as QT_BINDING,
     RENDER_ENGINE as RENDER_ENGINE,
     TQDM_DISABLE as TQDM_DISABLE,
     TQDM_LEAVE as TQDM_LEAVE,
+    Configuration as Configuration,
 )
 from .constants import (
     DECODE_KEYS as DECODE_KEYS,
@@ -261,3 +260,4 @@ from .visualize import (
 __all__: list[str]
 __version__: str
 locdata_id: int
+config: Configuration

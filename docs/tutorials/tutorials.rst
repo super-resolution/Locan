@@ -61,6 +61,7 @@ Tutorials are provided as Jupyter notebooks.
    :caption: Other tutorials
    :name: toc_tutorials_misc
 
+   Configuration <./notebooks/Configuration>
    Datasets <./notebooks/Example Datasets>
    Logging <./notebooks/Logging>
 

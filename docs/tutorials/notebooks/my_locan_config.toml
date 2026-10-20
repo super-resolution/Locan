@@ -1,0 +1,2 @@
+name = "MyLocanConfiguration"
+data_directory = "some/path/to/data"

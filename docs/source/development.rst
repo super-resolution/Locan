@@ -15,9 +15,9 @@ Install
 
 A few extra libraries are needed for development::
 
-        pip install .[dev]
+        pip install --group dev --group docs .
 
-Alternatively, you may use the requirement files `requirements_dev.txt` or `environment_dev.yml`.
+Alternatively, in a conda environment you may use the `environment_dev.yml`.
 
 
 Import Conventions
@@ -26,14 +26,14 @@ Import Conventions
 The following import conventions are used throughout Locan source code and
 documentation:
 
-* import numpy as np
-* import pandas as pd
+* import boost_histogram as bh
 * import matplotlib as mpl
 * import matplotlib.pyplot as plt
-* import scipy as sp
-* import open3d as o3d
 * import networkx as nx
-* import boost_histogram as bh
+* import numpy as np
+* import open3d as o3d
+* import pandas as pd
+* import scipy as sp
 
 This is enforced through ruff following specifications in pyproject.toml.
 
@@ -70,8 +70,9 @@ We use black_ for formating and ruff_ for code linting.
 
 Configurations are kept in pyproject.toml.
 
-We use mypy_ for type checking.
+We use pyrefly_ (not mypy_ anymore) for type checking.
 
+.. _pyrefly: https://pyrefly.org/
 .. _mypy: https://github.com/python/mypy
 
 Configurations are kept in pyproject.toml.

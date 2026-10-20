@@ -273,14 +273,14 @@ docstring-quotes = "double"
 
 [tool.ruff.lint.flake8-import-conventions]
 [tool.ruff.lint.flake8-import-conventions.aliases]
-numpy = "np"
-pandas = "pd"
+boost_histogram = "bh"
 matplotlib = "mpl"
 "matplotlib.pyplot" = "plt"
-open3d = "o3d"
-scipy = "sp"
 networkx = "nx"
-boost_histogram = "bh"
+numpy = "np"
+open3d = "o3d"
+pandas = "pd"
+scipy = "sp"
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"

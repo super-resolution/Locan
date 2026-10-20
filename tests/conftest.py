@@ -21,17 +21,6 @@ for key, value in HAS_DEPENDENCY.items():
         logger.info(f"Extra dependency {key} is not available.")
 
 
-# register pytest markers - should be in sync with pyproject.toml
-def pytest_configure(config):
-    config.addinivalue_line(
-        "markers", "gui: marks tests that require user interaction (skipped by default)"
-    )
-    config.addinivalue_line(
-        "markers",
-        "visual: marks tests that require visual inspection (skipped by default)",
-    )
-
-
 def get_open3d_version() -> str:
     try:
         return version("open3d")

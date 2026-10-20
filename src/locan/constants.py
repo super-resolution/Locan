@@ -19,7 +19,7 @@ Constants used throughout the project.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum, unique
+from enum import Enum, StrEnum, unique
 from pathlib import Path
 from typing import Final
 
@@ -353,7 +353,7 @@ class FileType(Enum):
     SMAP = 10
 
 
-class RenderEngine(Enum):
+class RenderEngine(StrEnum):
     """
     Engine to be used for rendering and displaying localization data as 2d or 3d images.
 
@@ -364,11 +364,11 @@ class RenderEngine(Enum):
         _ignore_ = "MPL_SCATTER_DENSITY"
     if not HAS_DEPENDENCY["napari"]:
         _ignore_ = "NAPARI"  # type: ignore
-    MPL = 0
+    MPL = "matplotlib"
     """matplotlib"""
-    MPL_SCATTER_DENSITY = 1
+    MPL_SCATTER_DENSITY = "mpl_scatter_density"
     """mpl-scatter-density"""
-    NAPARI = 2
+    NAPARI = "napari"
     """napari"""
 
 

@@ -14,7 +14,6 @@ A configuration is instantiated upon locan startup from either (in order of prec
 .. autosummary::
    :toctree: ./
 
-   RENDER_ENGINE
    TQDM_LEAVE
    TQDM_DISABLE
 """
@@ -48,7 +47,6 @@ logger = logging.getLogger(__name__)
 
 __all__: list[str] = [
     "Configuration",
-    "RENDER_ENGINE",
     "TQDM_LEAVE",
     "TQDM_DISABLE",
     "QT_BINDING",
@@ -202,6 +200,9 @@ class Configuration(BaseSettings, ConfigurationBase):
         In scikit-learn methods, this setting is passed through to n_jobs.
     colormaps: Colormaps
         Preferred colormap names to be used for visualization.
+    render_engine: RenderEngine
+        Preferred engine to be used for rendering localization data as 2d or 3d images.
+        Each engine represents a library to be used as backend for rendering and plotting.
     """
 
     model_config = SettingsConfigDict(
@@ -268,6 +269,9 @@ class Configuration(BaseSettings, ConfigurationBase):
     )
     n_cpus: int = Field(default=1, alias="locan_N_CPUS")
     colormaps: Colormaps = Field(default=Colormaps(), alias="locan_COLORMAPS")
+    render_engine: RenderEngine = Field(
+        default=RenderEngine.MPL, alias="locan_RENDER_ENGINE"
+    )
 
     @field_serializer(
         "cache_directory",
@@ -305,9 +309,6 @@ class Configuration(BaseSettings, ConfigurationBase):
             pyproject_settings,
         )
 
-
-#: Render engine.
-RENDER_ENGINE = RenderEngine.MPL
 
 #: Leave tqdm progress bars after finishing the iteration.
 #: Flag to leave tqdm progress bars.

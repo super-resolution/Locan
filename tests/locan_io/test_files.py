@@ -266,9 +266,10 @@ def test_Files_concatenate(test_files, capfd):
 
 def test_Files_print_summary(test_files, capfd):
     files = Files()
+    files.match_file_upstream(pattern="metadata.toml")
     assert len(files.df) == 0
     assert files.print_summary() is None
-    assert "file_path" in capfd.readouterr().out
+    assert "Number of files: 0" in capfd.readouterr().out
 
     files = Files(
         directory=test_files,

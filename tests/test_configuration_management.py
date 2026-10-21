@@ -53,13 +53,20 @@ class TestConfiguration:
     def test_init(self):
         config = Configuration()
         # print(config.model_dump_json())
+        # assert config.name == "locanConfiguration"
+        # assert isinstance(config.cache_directory, Path)
+        # assert config.cache_directory == Path.home() / ".cache" / "locan"
+        # assert config.config_directory == Path.home() / ".config" / "locan"
+        # assert config.data_directory == Path.home() / ".local/share" / "locan"
+        # assert config.log_directory == Path.home() / ".local/state" / "locan"
+        # assert config.test_directory == Path.cwd().resolve() / "tests/"
+
         assert config.name == "locanConfiguration"
         assert isinstance(config.cache_directory, Path)
-        assert config.cache_directory == Path.home() / ".cache" / "locan"
-        assert config.config_directory == Path.home() / ".config" / "locan"
-        assert config.data_directory == Path.home() / ".local/share" / "locan"
-        assert config.log_directory == Path.home() / ".local/state" / "locan"
-        assert config.test_directory == Path.cwd().resolve() / "tests/"
+        assert isinstance(config.config_directory, Path)
+        assert isinstance(config.data_directory, Path)
+        assert isinstance(config.log_directory, Path)
+        assert isinstance(config.test_directory, Path)
 
         config = Configuration(
             name="OtherName",

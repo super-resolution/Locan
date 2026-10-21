@@ -1,12 +1,10 @@
-from locan import config
+from locan import HAS_DEPENDENCY, QT_BINDING, QtBindings, config
 from locan.configuration import (
-    QT_BINDING,
     Colormaps,
     Configuration,
     TqdmConfiguration,
 )
 from locan.constants import RenderEngine
-from locan.dependencies import HAS_DEPENDENCY
 
 
 class TestColormaps:
@@ -51,6 +49,7 @@ class TestConfiguration:
         assert locan_config.colormaps
         assert locan_config.render_engine
         assert locan_config.tqdm
+        assert locan_config.qt_binding == ""
 
     def test_conversion(self):
         locan_config = Configuration(
@@ -58,6 +57,7 @@ class TestConfiguration:
             colormaps=dict(continuous="viridis"),
             render_engine="napari",
             tqdm=dict(leave=False),
+            qt_binding="pyside6",
         )
         # print(locan_config)
         assert locan_config.n_cpus == -1
@@ -67,10 +67,12 @@ class TestConfiguration:
         assert locan_config.render_engine == "napari"
         assert isinstance(locan_config.tqdm, TqdmConfiguration)
         assert locan_config.tqdm.leave is False
+        assert isinstance(locan_config.qt_binding, QtBindings)
+        assert locan_config.qt_binding == "pyside6"
 
 
 def test_locan_config():
-    print(config)
+    # print(config)
     print(config.model_dump_json())
     assert config.name == "locanConfiguration"
     assert config.cache_directory
@@ -82,6 +84,13 @@ def test_locan_config():
     assert config.n_cpus
     assert config.colormaps
     assert config.render_engine
+    assert config.tqdm
+    assert config.qt_binding
+
+    import os
+
+    print("\nQT_BINDING: ", config.qt_binding)
+    print("QT_API", os.environ.get("QT_API", ""))
 
 
 def test_qt_bindings():

@@ -33,7 +33,7 @@ import os
 import re
 import sys
 from collections.abc import Callable, Iterable
-from enum import Enum
+from enum import StrEnum
 from functools import wraps
 from typing import Any, ParamSpec, TypeVar
 
@@ -168,7 +168,7 @@ HAS_DEPENDENCY = _has_dependency_factory(
 
 
 # Possible python bindings to interact with QT
-class QtBindings(Enum):
+class QtBindings(StrEnum):
     """
     Python bindings to interact with Qt.
     """

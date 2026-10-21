@@ -30,14 +30,14 @@ import logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
+# The following imports are required for correct initialization of locan objects.
+import locan.dependencies
+from locan.configuration import config
+
 try:
     from locan._version import version as __version__
 except ImportError:
     __version__ = "not-installed"
-
-from locan.configuration import Configuration
-
-config = Configuration()
 
 __getattr__, __lazy_dir__, __lazy_all__ = lazy.attach_stub(
     package_name=__name__, filename=__file__
@@ -52,7 +52,3 @@ locdata_id: int = 0
 
 def __dir__():
     return __lazy_dir__() + ["__version__", "locdata_id"]
-
-
-# initialize configuration settings
-import locan.configuration

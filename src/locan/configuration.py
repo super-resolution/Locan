@@ -45,7 +45,6 @@ logger = logging.getLogger(__name__)
 
 __all__: list[str] = [
     "Configuration",
-    "QT_BINDING",
 ]
 
 
@@ -217,6 +216,8 @@ class Configuration(BaseSettings, ConfigurationBase):
         Each engine represents a library to be used as backend for rendering and plotting.
     tqdm: TqdmConfiguration
         Parameters for tqdm to control progress bars.
+    qt_binding: QtBindings
+        Preferred QT binding
     """
 
     model_config = SettingsConfigDict(
@@ -226,6 +227,7 @@ class Configuration(BaseSettings, ConfigurationBase):
         validate_by_name=True,
         toml_file=CONFIGURATION_FILE_HIERARCHY,
         pyproject_toml_table_header=("tool", "locan"),
+        pyproject_toml_depth=5,
     )
 
     version: str = "1"
@@ -288,6 +290,15 @@ class Configuration(BaseSettings, ConfigurationBase):
         default=RenderEngine.MPL, alias="locan_RENDER_ENGINE"
     )
     tqdm: TqdmConfiguration = Field(default=TqdmConfiguration(), alias="locan_TQDM")
+    # pyrefly: ignore [no-matching-overload]
+    qt_binding: QtBindings = Field(
+        default="",
+        alias=AliasChoices(
+            # "QT_API",
+            # QT_API is checked in locan.dependencies._set_qt_binding
+            "locan_QT_BINDING",
+        ),
+    )
 
     @field_serializer(
         "cache_directory",
@@ -326,12 +337,17 @@ class Configuration(BaseSettings, ConfigurationBase):
         )
 
 
+config: Configuration = Configuration()
+
+
 # Preferred QT binding. At this point this variable cannot be set at
 # runtime.
-QT_BINDING: QtBindings | str = ""
+QT_BINDING: QtBindings | str = config.qt_binding
 
 # Initialize pyqt
 QT_BINDING = _set_qt_binding(QT_BINDING)
+# pyrefly: ignore [bad-assignment]
+config.qt_binding = QT_BINDING
 HAS_DEPENDENCY["qt"] = True if QT_BINDING else False
 
 

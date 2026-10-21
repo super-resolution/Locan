@@ -172,7 +172,11 @@ class TestConfiguration:
 
     @pytest.mark.skip("Add table to pyproject.toml for testing.")
     def test_from_pyproject(self):
-        config = Configuration()
+        # remember: change pyproject.toml for application that imports this package
+        config = Configuration(n_cpus=4)
+        print(config)
+        print(get_configuration_file_path())
+        print("CWD: ", Path.cwd())
         assert config.name == "PyprojectConfiguration"
 
     def test_to_toml(self, tmp_path):

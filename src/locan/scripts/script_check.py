@@ -27,7 +27,7 @@ from locan import locdata_id
 from locan.constants import FileType
 from locan.data import metadata_pb2
 from locan.data.locdata import LocData
-from locan.dependencies import HAS_DEPENDENCY
+from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.gui import file_dialog
 from locan.locan_io.locdata.io_locdata import load_locdata
 
@@ -35,6 +35,7 @@ if HAS_DEPENDENCY["napari"]:
     import napari  # type: ignore [missing-import]
 
 
+@needs_package("napari")
 def render_locs_per_frame_napari(
     images: npt.ArrayLike,
     pixel_size: float | tuple[float],

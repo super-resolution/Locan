@@ -29,7 +29,7 @@ from typing import Any
 import locan.locan_io.locdata.io_locdata as io
 from locan.constants import FileType
 from locan.data import metadata_pb2
-from locan.dependencies import HAS_DEPENDENCY
+from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.gui.io import file_dialog
 from locan.scripts.utilities import _type_converter_rescale
 from locan.visualize.render_napari.render2d import render_2d_napari
@@ -38,6 +38,7 @@ if HAS_DEPENDENCY["napari"]:
     import napari  # type: ignore [missing-import]
 
 
+@needs_package("napari")
 def sc_napari(
     file_path: str | os.PathLike[Any] | None = None,
     file_type: int | str | FileType | metadata_pb2.Metadata = FileType.CUSTOM,

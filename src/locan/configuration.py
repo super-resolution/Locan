@@ -14,6 +14,8 @@ A configuration is instantiated upon locan startup from either (in order of prec
 .. autosummary::
    :toctree: ./
 
+    CONFIGURATION_FILE_HIERARCHY
+
 """
 
 from __future__ import annotations
@@ -43,12 +45,18 @@ from locan.dependencies import HAS_DEPENDENCY, QtBindings, _set_qt_binding
 
 logger = logging.getLogger(__name__)
 
-__all__: list[str] = [
-    "Configuration",
-]
+__all__: list[str] = ["Configuration", "get_configuration_file_path"]
 
 
 def get_configuration_file_hierarchy() -> list[Path]:
+    """
+    Set up a list of file path in order of precedence for configuration lookup.
+    The hierarchy slightly varies with computer platform.
+
+    Returns
+    -------
+    list[Path]
+    """
     if platform.system() == "Windows":
         return [
             # Windows - user specific
@@ -124,6 +132,10 @@ def get_configuration_file_path() -> Path | None:
 
 
 class ConfigurationBase(BaseModel, ABC):
+    """
+    Abstract base class for configuration management with pydantic.
+    """
+
     version: str
     name: str
 
@@ -156,6 +168,23 @@ class ConfigurationBase(BaseModel, ABC):
 class Colormaps(BaseModel):
     """
     Preferred colormap names to be used for visualization.
+
+    Attributes
+    ----------
+    continuous: str
+        colormap for gray-scale images.
+    continuous_reverse: str
+        colormap for gray-scale images inverted.
+    continuous_gray: str
+        colormap for gray-scale images.
+    continuous_gray_reverse: str
+        colormap for gray-scale images inverted.
+    diverging: str
+        colormap for signed gray-scale images.
+    categorical: str
+        colormap for images representing categories.
+    turbo: str
+        colormap for images representing rainbow-like colors.
     """
 
     continuous: str = "cet_fire"
@@ -171,7 +200,7 @@ class TqdmConfiguration(BaseModel):
     """
     Parameters for tqdm to control progress bars.
 
-    Parameters
+    Attributes
     ----------
     leave: bool | None
         Leave tqdm progress bars after finishing the iteration.

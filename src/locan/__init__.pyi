@@ -54,6 +54,7 @@ from .configuration import (
     COLORMAP_DEFAULTS as COLORMAP_DEFAULTS,
     QT_BINDING as QT_BINDING,
     Configuration as Configuration,
+    get_configuration_file_path as get_configuration_file_path,
 )
 from .constants import (
     DECODE_KEYS as DECODE_KEYS,

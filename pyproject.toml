@@ -360,7 +360,6 @@ project-excludes = [
     "**/*_pb2.py*"  # protobuf-generated files
 ]
 preset = "strict"
-#enabled-ignores = ["pyrefly"]
 infer-return-types = "never"
 ignore-missing-imports = [
 ]
@@ -368,6 +367,7 @@ ignore-missing-imports = [
 [tool.pyrefly.errors]
 implicit-any = "ignore"
 missing-override-decorator = "ignore"
+unused-ignore = "ignore"
 
 [[tool.pyrefly.sub-config]]
 matches = "tests/**/*"

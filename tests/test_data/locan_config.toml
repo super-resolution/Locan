@@ -1,0 +1,3 @@
+version = "1"
+name = "TestConfiguration"
+data_directory = "some/path/to/data"

@@ -14,19 +14,20 @@ if HAS_DEPENDENCY["napari"]:
     import napari  # type: ignore [missing-import]
 
 
-def test_COLORMAP_DEFAULTS_and_Colormaps():
-    assert "CONTINUOUS" in COLORMAP_DEFAULTS
-    assert all(hasattr(Colormaps, key) for key in COLORMAP_DEFAULTS.keys())
-    assert all(
-        name in COLORMAP_DEFAULTS for name, value in Colormaps.__members__.items()
+def test_Colormaps():
+    # todo: deprecate with locan.visualize.colormaps.Colormaps
+    assert Colormaps.continuous.value == "cet_fire"
+    assert Colormaps.CONTINUOUS.value == "cet_fire"
+
+    assert COLORMAP_DEFAULTS[Colormaps.CONTINUOUS_REVERSE.name.upper()] == "cet_fire_r"
+    assert COLORMAP_DEFAULTS[Colormaps.CONTINUOUS_GRAY.name.upper()] == "cet_gray"
+    assert (
+        COLORMAP_DEFAULTS[Colormaps.CONTINUOUS_GRAY_REVERSE.name.upper()]
+        == "cet_gray_r"
     )
-    assert COLORMAP_DEFAULTS[Colormaps.CONTINUOUS.name] == "cet_fire"
-    assert COLORMAP_DEFAULTS[Colormaps.CONTINUOUS_REVERSE.name] == "cet_fire_r"
-    assert COLORMAP_DEFAULTS[Colormaps.CONTINUOUS_GRAY.name] == "cet_gray"
-    assert COLORMAP_DEFAULTS[Colormaps.CONTINUOUS_GRAY_REVERSE.name] == "cet_gray_r"
-    assert COLORMAP_DEFAULTS[Colormaps.DIVERGING.name] == "cet_coolwarm"
-    assert COLORMAP_DEFAULTS[Colormaps.CATEGORICAL.name] == "cet_glasbey_dark"
-    assert COLORMAP_DEFAULTS[Colormaps.TURBO.name] == "turbo"
+    assert COLORMAP_DEFAULTS[Colormaps.DIVERGING.name.upper()] == "cet_coolwarm"
+    assert COLORMAP_DEFAULTS[Colormaps.CATEGORICAL.name.upper()] == "cet_glasbey_dark"
+    assert COLORMAP_DEFAULTS[Colormaps.TURBO.name.upper()] == "turbo"
 
 
 def test_colormap_registry():

@@ -378,12 +378,20 @@ class Files:
 
     def _summary(self) -> dict[str, Any]:
         """Assemble a summary of files contents."""
-        summary_dict = {
-            "Number of files": len(self.df),
-            "Base directory": self.directory,
-            "Columns": self.df.columns.to_list(),
-            "Describe": self.df.describe().loc[["count", "unique"]],  # type: ignore[index]
-        }
+        if len(self.df) == 0:
+            summary_dict = {
+                "Number of files": len(self.df),
+                "Base directory": self.directory,
+                "Columns": None,
+                "Describe": None,  # type: ignore[index]
+            }
+        else:
+            summary_dict = {
+                "Number of files": len(self.df),
+                "Base directory": self.directory,
+                "Columns": self.df.columns.to_list(),
+                "Describe": self.df.describe().loc[["count", "unique"]],  # type: ignore[index]
+            }
         return summary_dict
 
     def print_summary(self) -> None:

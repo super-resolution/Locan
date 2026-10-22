@@ -16,8 +16,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
-from locan import cluster_by_bin
-from locan.configuration import N_JOBS
+from locan import cluster_by_bin, config
 from locan.constants import HullType
 from locan.data.images import Image
 from locan.data.locdata import LocData
@@ -363,13 +362,13 @@ def exclude_sparse_points(
     local_parameter = locals()
 
     if other_locdata is None:
-        nn = NearestNeighbors(metric="euclidean", n_jobs=N_JOBS).fit(
+        nn = NearestNeighbors(metric="euclidean", n_jobs=config.n_cpus).fit(
             locdata.coordinates
         )
         neighbor_points_list = nn.radius_neighbors(radius=radius, return_distance=False)
         # if points is not provided the query point is not considered its own neighbor.
     else:
-        nn = NearestNeighbors(metric="euclidean", n_jobs=N_JOBS).fit(
+        nn = NearestNeighbors(metric="euclidean", n_jobs=config.n_cpus).fit(
             other_locdata.coordinates
         )
         neighbor_points_list = nn.radius_neighbors(

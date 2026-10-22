@@ -61,12 +61,12 @@ def test_function_to_be_decorated():
 
 
 def test_QtBindings():
-    assert QtBindings.NONE
+    assert QtBindings.NONE == ""
     for item in QtBindings:
         if item == QtBindings.NONE:
             assert not QtBindings.NONE.value
         else:
-            assert QtBindings.PYQT5.value
+            assert item.value
 
 
 def test_needs_package_version():

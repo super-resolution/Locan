@@ -18,7 +18,7 @@ import numpy.typing as npt
 # pyrefly: ignore [missing-module-attribute]
 from sklearn.cluster import DBSCAN, HDBSCAN
 
-from locan.configuration import N_JOBS
+from locan import config
 from locan.data.locdata import LocData
 from locan.data.locdata_utils import _check_loc_properties
 from locan.process.aggregate import Bins, _accumulate_2d
@@ -184,7 +184,7 @@ def cluster_dbscan(
             fit_data = locdata.data[loc_properties].to_numpy()
 
         labels = DBSCAN(
-            eps=eps, min_samples=min_samples, n_jobs=N_JOBS, **kwargs
+            eps=eps, min_samples=min_samples, n_jobs=config.n_cpus, **kwargs
         ).fit_predict(fit_data)
 
         grouped = locdata.data.groupby(labels)

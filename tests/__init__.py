@@ -9,4 +9,8 @@ The tests are organized following the subpackage structure of locan.
 
 from pathlib import Path
 
+from locan import config
+
 TEST_DIR: Path = Path(__file__).parent
+
+config.tqdm.disable = True

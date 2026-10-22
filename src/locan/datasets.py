@@ -4,16 +4,15 @@ Utility functions to deal with exemplary datasets.
 The data is located in a separate repository `https://github.com/super-resolution/LocanDatasets`.
 
 When calling a function the datasets are expected to reside in a directory specified by the
-`locan.constants.DATASETS_DIR` variable.
+`locan.config.datasets_directory` setting.
 If the directory does not exist the exemplary files are downloaded from GitHub.
 """
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from locan.configuration import DATASETS_DIR
+from locan import config
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.locan_io.locdata.asdf_io import load_asdf_file
 
@@ -54,9 +53,9 @@ def load_npc(**kwargs: Any) -> LocData:
     -------
     LocData
     """
-    path = Path(DATASETS_DIR) / "npc_gp210.asdf"
+    path = config.datasets_directory / "npc_gp210.asdf"
     if not path.exists():
-        DATASETS_DIR.mkdir(exist_ok=True)
+        config.datasets_directory.mkdir(exist_ok=True)
         url = "https://raw.githubusercontent.com/super-resolution/LocanDatasets/main/smlm_data/npc_gp210.asdf"
         response = httpx.get(url, timeout=10)
         if response.status_code != httpx.codes.ok:  # type: ignore
@@ -95,9 +94,9 @@ def load_tubulin(**kwargs: Any) -> LocData:
     -------
     LocData
     """
-    path = Path(DATASETS_DIR) / "tubulin_cos7.asdf"
+    path = config.datasets_directory / "tubulin_cos7.asdf"
     if not path.exists():
-        DATASETS_DIR.mkdir(exist_ok=True)
+        config.datasets_directory.mkdir(exist_ok=True)
         url = "https://raw.githubusercontent.com/super-resolution/LocanDatasets/main/smlm_data/tubulin_cos7.asdf"
         response = httpx.get(url, timeout=10)
         if response.status_code != httpx.codes.ok:  # type: ignore

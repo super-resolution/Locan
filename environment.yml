@@ -17,6 +17,8 @@ dependencies:
 - qtpy!=2.3.0
 - typing_extensions
 - lazy_loader>=0.3
+- tomli-w>=1.2.0
+- pydantic-settings>=2.5
 
 # Python tests
 - pytest
@@ -49,10 +51,7 @@ dependencies:
 - httpx
 - h5py
 
-# Various issues
-- pydantic!=1.8.0
-
 - pip:
   - protobuf>=5.26.0
   - ruamel.yaml
-  - open3d!=0.12.0,!=0.20.0; python_version<='3.14'
+  - open3d!=0.12.0; python_version<='3.14'

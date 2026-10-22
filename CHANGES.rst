@@ -7,7 +7,7 @@ Changelog
 
 New Features
 ------------
-- ...
+- configuration management
 
 API Changes
 -----------
@@ -15,7 +15,8 @@ API Changes
 
 Bug Fixes
 ---------
-- ...
+- fix: files.print_summary() for empty files
+- fix: add needs_package decorators for napari use in cli
 
 Other Changes and Additions
 ---------------------------

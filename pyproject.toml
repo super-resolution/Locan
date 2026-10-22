@@ -66,6 +66,7 @@ dependencies = [
     "numpy>1.20.0",
     "pandas",
     "protobuf>=6.31.1",
+    "pydantic-settings>=2.5",
     "qtpy!=2.3.0",
     "ruamel.yaml",
     "scikit-image",
@@ -73,6 +74,7 @@ dependencies = [
     "scipy",
     "shapely!=2.0.0,!=2.0.1",
     "tifffile",
+    "tomli-w>=1.2.0",
     "tqdm",
     "typing_extensions",
 ]
@@ -83,11 +85,12 @@ hdf5 = ["h5py"]
 http = ["httpx"]
 napari = ["napari>=0.5.3"]
 pyqt5 = ["PyQt5"]
+pyqt6 = ["PyQt6"]
 pyside2 = ["PySide2"]
 pyside6 = ["pyside6!=6.8.0"]
 register = [
     "open3d-cpu!=0.12.0; sys_platform=='linux' and python_version<='3.14'",
-    "open3d!=0.12.0; sys_platform!='inux' and python_version<='3.14'",
+    "open3d!=0.12.0; sys_platform!='linux' and python_version<='3.14'",
 ]
 scatter_density = [
     "mpl_scatter_density",
@@ -272,14 +275,14 @@ docstring-quotes = "double"
 
 [tool.ruff.lint.flake8-import-conventions]
 [tool.ruff.lint.flake8-import-conventions.aliases]
-numpy = "np"
-pandas = "pd"
+boost_histogram = "bh"
 matplotlib = "mpl"
 "matplotlib.pyplot" = "plt"
-open3d = "o3d"
-scipy = "sp"
 networkx = "nx"
-boost_histogram = "bh"
+numpy = "np"
+open3d = "o3d"
+pandas = "pd"
+scipy = "sp"
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
@@ -358,7 +361,6 @@ project-excludes = [
     "**/*_pb2.py*"  # protobuf-generated files
 ]
 preset = "strict"
-#enabled-ignores = ["pyrefly"]
 infer-return-types = "never"
 ignore-missing-imports = [
 ]
@@ -366,6 +368,7 @@ ignore-missing-imports = [
 [tool.pyrefly.errors]
 implicit-any = "ignore"
 missing-override-decorator = "ignore"
+unused-ignore = "ignore"
 
 [[tool.pyrefly.sub-config]]
 matches = "tests/**/*"

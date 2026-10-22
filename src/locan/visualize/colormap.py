@@ -6,7 +6,7 @@ This module provides convenience functions for using colormap definitions
 from various visualization packages.
 
 Default colormaps in locan are set through the
-:py:data:`locan.configuration.COLORMAP_DEFAULTS` mapping.
+:py:data:`locan.configuration.colormaps` setting.
 
 Named colormaps are registered through the
 :py:data:`locan.visualization.colormap.colormap_registry` mapping.
@@ -42,6 +42,7 @@ Variables
 from __future__ import annotations
 
 import logging
+import warnings
 from collections.abc import Mapping
 from enum import Enum
 from typing import TYPE_CHECKING, Any, TypeAlias, TypeVar, Union
@@ -50,6 +51,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import colors as mcolors
 
+from locan import config
 from locan.configuration import COLORMAP_DEFAULTS
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.visualize.colormap_definitions import (
@@ -72,7 +74,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 __all__: list[str] = [
-    "Colormaps",
+    "Colormaps",  # noqa: F822
     "Colormap",
     "colormap_registry",
     "get_colormap",
@@ -83,16 +85,6 @@ if HAS_DEPENDENCY["napari"]:
     NapariColormap: TypeAlias = napari.utils.Colormap  # type: ignore [missing-import]
     VispyColormap: TypeAlias = vispy.color.Colormap  # type: ignore [missing-import]
 T_Colormap = TypeVar("T_Colormap", bound="Colormap")
-
-Colormaps = Enum("Colormaps", COLORMAP_DEFAULTS, module=__name__)  # type: ignore[misc]
-Colormaps.__doc__ = """
-Preferred colormap types to be used for visualization.
-
-Note
-----
-This enum is automatically generated from COLORMAP_DEFAULTS and should
-not be modified.
-"""
 
 
 class Colormap:
@@ -269,7 +261,6 @@ colormap_registry: Mapping[str, Colormap] = (
 
 ColormapType = Union[
     str,
-    Colormaps,
     Colormap,
     mcolors.Colormap,
     "napari.utils.Colormap",
@@ -294,7 +285,7 @@ def get_colormap(colormap: ColormapType) -> Colormap:
         return colormap
     elif isinstance(colormap, mcolors.Colormap):
         return Colormap.from_matplotlib(colormap=colormap)
-    elif isinstance(colormap, Colormaps):
+    elif isinstance(colormap, Enum):
         return Colormap.from_registry(colormap.value)
     elif HAS_DEPENDENCY["napari"] and isinstance(colormap, napari.utils.Colormap):
         return Colormap.from_napari(colormap=colormap)
@@ -318,3 +309,32 @@ def get_colormap(colormap: ColormapType) -> Colormap:
         )
     else:
         raise TypeError("No such colormap available.")
+
+
+def __getattr__(name):
+    if name == "Colormaps":
+        warnings.warn(
+            "locan.visualize.colormap.Colormaps is deprecated; Use locan.config.colormaps instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        # pyrefly: ignore [invalid-argument]
+        Colormaps = Enum(
+            "Colormaps",
+            (config.colormaps.model_dump() | COLORMAP_DEFAULTS),
+            module=__name__,
+        )
+        Colormaps.__doc__ = """
+        Preferred colormap types to be used for visualization.
+
+        DeprecationWarning
+        -------------------
+        locan.visualize.colormap.Colormaps is deprecated; Use locan.config.colormaps instead.
+
+        Note
+        ----
+        This enum is automatically generated from COLORMAP_DEFAULTS and should
+        not be modified.
+        """
+        return Colormaps
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

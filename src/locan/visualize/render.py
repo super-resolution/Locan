@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
-from locan.configuration import RENDER_ENGINE
+from locan import config
 from locan.constants import RenderEngine
 from locan.dependencies import HAS_DEPENDENCY
 from locan.visualize.render_mpl.render2d import render_2d_mpl, render_2d_scatter_density
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def render_2d(
-    locdata: LocData, render_engine: RenderEngine = RENDER_ENGINE, **kwargs: Any
+    locdata: LocData, render_engine: RenderEngine = config.render_engine, **kwargs: Any
 ) -> Any:
     """
     Wrapper function to render localization data into a 2D image.
@@ -50,7 +50,7 @@ def render_2d(
 
 
 def render_3d(
-    locdata: LocData, render_engine: RenderEngine = RENDER_ENGINE, **kwargs: Any
+    locdata: LocData, render_engine: RenderEngine = config.render_engine, **kwargs: Any
 ) -> Any:
     """
     Wrapper function to render localization data into a 3D image.

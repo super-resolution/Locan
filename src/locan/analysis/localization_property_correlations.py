@@ -21,9 +21,9 @@ if TYPE_CHECKING:
 import matplotlib.pyplot as plt
 import numpy as np
 
+from locan import config
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
-from locan.configuration import COLORMAP_DEFAULTS
 
 __all__: list[str] = ["LocalizationPropertyCorrelations"]
 
@@ -146,7 +146,7 @@ class LocalizationPropertyCorrelations(_Analysis):
         imshow_kwargs: dict[str, Any] = dict(
             vmin=-1,
             vmax=1,
-            cmap=get_colormap(colormap=COLORMAP_DEFAULTS["DIVERGING"]).matplotlib,
+            cmap=get_colormap(colormap=config.colormaps.diverging).matplotlib,
         )
         im = ax.imshow(
             self.results,

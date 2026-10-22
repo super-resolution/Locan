@@ -55,7 +55,7 @@ class TestConfiguration:
         locan_config = Configuration(
             n_cpus=-1,
             colormaps=dict(continuous="viridis"),
-            render_engine="napari",
+            render_engine="matplotlib",
             tqdm=dict(leave=False),
             qt_binding="pyside6",
         )
@@ -64,7 +64,7 @@ class TestConfiguration:
         assert isinstance(locan_config.colormaps, Colormaps)
         assert locan_config.colormaps.continuous == "viridis"
         assert isinstance(locan_config.render_engine, RenderEngine)
-        assert locan_config.render_engine == "napari"
+        assert locan_config.render_engine == "matplotlib"
         assert isinstance(locan_config.tqdm, TqdmConfiguration)
         assert locan_config.tqdm.leave is False
         assert isinstance(locan_config.qt_binding, QtBindings)

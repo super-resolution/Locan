@@ -85,6 +85,7 @@ hdf5 = ["h5py"]
 http = ["httpx"]
 napari = ["napari>=0.5.3"]
 pyqt5 = ["PyQt5"]
+pyqt6 = ["PyQt6"]
 pyside2 = ["PySide2"]
 pyside6 = ["pyside6!=6.8.0"]
 register = [

@@ -33,6 +33,6 @@ jobs:
           python -m pip install --upgrade pip
       - name: "Run locan with extra requirements"
         run: |
-          pip install .[pyqt6,all]
+          pip install .[pyside6,all]
       - name: "Run tests"
         run: pytest

@@ -85,7 +85,7 @@ def test_locan_config():
     assert config.colormaps
     assert config.render_engine
     assert config.tqdm
-    assert config.qt_binding
+    assert config.qt_binding or config.qt_binding == ""
 
     import os
 

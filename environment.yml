@@ -17,6 +17,8 @@ dependencies:
 - qtpy!=2.3.0
 - typing_extensions
 - lazy_loader>=0.3
+- tomli-w>=1.2.0
+- pydantic-settings>=2.5
 
 # Python tests
 - pytest
@@ -48,9 +50,6 @@ dependencies:
 - mpl-scatter-density
 - httpx
 - h5py
-
-# Various issues
-- pydantic!=1.8.0
 
 - pip:
   - protobuf>=5.26.0

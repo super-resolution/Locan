@@ -89,7 +89,7 @@ pyside2 = ["PySide2"]
 pyside6 = ["pyside6!=6.8.0"]
 register = [
     "open3d-cpu!=0.12.0; sys_platform=='linux' and python_version<='3.14'",
-    "open3d!=0.12.0; sys_platform!='inux' and python_version<='3.14'",
+    "open3d!=0.12.0; sys_platform!='linux' and python_version<='3.14'",
 ]
 scatter_density = [
     "mpl_scatter_density",

@@ -1,4 +1,5 @@
 import subprocess
+import sys
 import warnings
 
 import matplotlib.pyplot as plt
@@ -6,6 +7,19 @@ import pytest
 
 import locan
 from locan.__main__ import main
+
+
+def test_import_emits_no_locan_deprecation_warnings():
+    # A fresh interpreter is needed: import-time warnings fire only once.
+    # Only warnings attributed to locan modules are turned into errors.
+    code = "import locan; import locan.visualize; locan.LocData"
+    exit_status = subprocess.run(  # noqa: S603
+        [sys.executable, "-W", "error::DeprecationWarning:locan", "-c", code],
+        capture_output=True,
+        encoding="utf-8",
+    )
+    assert exit_status.stderr
+    exit_status.check_returncode()
 
 
 def test_version():

@@ -21,10 +21,18 @@ Submodules:
 
 from __future__ import annotations
 
+import warnings
+from typing import Any
+
 from locan.visualize import colormap, render, render_mpl, render_napari, transform
 
-# pyrefly: ignore [missing-module-attribute]
-from .colormap import *
+# `Colormaps` is deprecated and provided lazily by `colormap.__getattr__`; a star
+# import would trigger its DeprecationWarning on every `import locan`.
+from .colormap import (
+    Colormap as Colormap,
+    colormap_registry as colormap_registry,
+    get_colormap as get_colormap,
+)
 from .render import *
 from .render_mpl import (
     apply_window as apply_window,
@@ -53,3 +61,16 @@ __all__.extend(render.__all__)
 __all__.extend(render_mpl.__all__)
 __all__.extend(render_napari.__all__)
 __all__.extend(transform.__all__)
+
+
+def __getattr__(name: str) -> Any:
+    # Forward deprecated names so the warning fires on use, not on import,
+    # and is attributed to the caller rather than to this forwarder.
+    if name == "Colormaps":
+        warnings.warn(
+            colormap.COLORMAPS_DEPRECATION_MESSAGE, DeprecationWarning, stacklevel=2
+        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            return colormap.Colormaps
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

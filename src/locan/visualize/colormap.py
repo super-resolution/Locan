@@ -52,7 +52,6 @@ import numpy as np
 from matplotlib import colors as mcolors
 
 from locan import config
-from locan.configuration import COLORMAP_DEFAULTS
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 from locan.visualize.colormap_definitions import (
     cet_coolwarm_colors,
@@ -311,19 +310,23 @@ def get_colormap(colormap: ColormapType) -> Colormap:
         raise TypeError("No such colormap available.")
 
 
+COLORMAPS_DEPRECATION_MESSAGE = (
+    "locan.visualize.colormap.Colormaps is deprecated; "
+    "Use locan.config.colormaps instead."
+)
+
+
 def __getattr__(name):
     if name == "Colormaps":
-        warnings.warn(
-            "locan.visualize.colormap.Colormaps is deprecated; Use locan.config.colormaps instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        warnings.warn(COLORMAPS_DEPRECATION_MESSAGE, DeprecationWarning, stacklevel=2)
+        # The legacy enum carried upper-case members (the old COLORMAP_DEFAULTS
+        # keys) next to the lower-case config field names.
+        # Import the deprecated COLORMAP_DEFAULTS at Colormaps use.
+        from locan.configuration import COLORMAP_DEFAULTS
+        colormap_defaults = config.colormaps.model_dump() | COLORMAP_DEFAULTS
+
         # pyrefly: ignore [invalid-argument]
-        Colormaps = Enum(
-            "Colormaps",
-            (config.colormaps.model_dump() | COLORMAP_DEFAULTS),
-            module=__name__,
-        )
+        Colormaps = Enum("Colormaps", colormap_defaults, module=__name__)
         Colormaps.__doc__ = """
         Preferred colormap types to be used for visualization.
 

@@ -14,6 +14,7 @@ Guidance for AI coding agents working in this repository.
   `.python-version`, matching CI. Do not use 3.14 locally: `pytest-qt` (group `test-qt`) is
   capped at 3.13 and `ray` (group `docs`) at 3.12 on Windows.
 - Public API follows semantic versioning (see "Public API" below).
+- A changelog is kept in CHANGES.rst.
 
 ## Tooling — always use these, never alternatives
 

@@ -15,10 +15,16 @@ Install
 
 A few extra libraries are needed for development::
 
-        pip install --group dev --group docs .
+        pip install --group dev --group docs .[all, pyside6]
 
 Alternatively, in a conda environment you may use the `environment_dev.yml`.
 
+With uv_ the complete development environment (pinned to the Python version in
+`.python-version`, with all optional dependencies and one Qt binding) is::
+
+        uv sync --extra all --extra pyside6
+
+.. _uv: https://docs.astral.sh/uv/
 
 Import Conventions
 ====================
@@ -70,10 +76,9 @@ We use black_ for formating and ruff_ for code linting.
 
 Configurations are kept in pyproject.toml.
 
-We use pyrefly_ (not mypy_ anymore) for type checking.
+We use pyrefly_ for type checking.
 
 .. _pyrefly: https://pyrefly.org/
-.. _mypy: https://github.com/python/mypy
 
 Configurations are kept in pyproject.toml.
 
@@ -86,29 +91,39 @@ We use `SemVer`_ for versioning. For all versions available, see the
 .. _SemVer: http://semver.org/
 .. _releases in this repository: https://github.com/super-resolution/Locan/releases
 
+Coding agents
+==============
+
+Repository-specific conventions for AI coding agents are summarized in
+`AGENTS.md` at the repository root; it is kept consistent with this page.
+
 To remember:
 ============
 
 * The package makes use of third party packages that are only used by a few routines.
 
-  These optional packages are treated as extra_dependencies.
-  Import of optional packages is tried in the *constants* module and a
-  `_has_package` variable is defined.
-  In each module that makes use of an optional import a conditional import is carried out
+  These optional packages are declared as extras in `pyproject.toml`.
+  Their availability is determined once in the :mod:`locan.dependencies`
+  module and recorded in the mapping ``HAS_DEPENDENCY``.
+  In each module that makes use of an optional import a conditional import is
+  carried out
 
   .. code:: python
 
-     if _has_package: import package
+     from locan.dependencies import HAS_DEPENDENCY, needs_package
+
+     if HAS_DEPENDENCY["package"]:
+         import package
 
   In addition any user-accessible function that makes use of the optional
-  package raises an import error
-  if the optional package is not available.
+  package is decorated with ``@needs_package("package")`` and thereby raises an
+  import error if the optional package is not available.
 
   Test functions that require optional dependencies should be marked with:
 
   .. code:: python
 
-   @pytest.mark.skipif(not _has_package,reason="requires optional package")
+   @pytest.mark.skipif(not HAS_DEPENDENCY["package"], reason="requires package")
 
 
 * The length of code and docstring lines should be kept to 88 and

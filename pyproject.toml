@@ -132,7 +132,7 @@ test-qt = [
     "pytest-qt;python_version<='3.13'",
 ]
 lint = [
-    "black~=26.0",
+    "black[jupyter]~=26.0",
     "ruff",
 ]
 typing = [

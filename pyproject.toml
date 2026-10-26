@@ -126,6 +126,7 @@ locan = "locan.__main__:main"
 test = [
     "pytest",
     "coverage",
+    "pytest-timeout>=2.4.0",
 ]
 test-qt = [
     {include-group = "test"},
@@ -177,12 +178,15 @@ norecursedirs = ["tests.test_data"]
 filterwarnings = [
     "ignore:RoiLegacy.to_yaml is deprecated*:DeprecationWarning",
     ]
-addopts = "--import-mode=importlib --strict-markers -m 'not gui and not visual'"
+addopts = "--import-mode=importlib --strict-markers -m 'not gui and not visual and not network'"
 markers = [
     "gui: marks tests that require user interaction (skipped by default)",
     "visual: marks tests that require visual inspection (skipped by default)",
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "network: marks tests that download data (skipped by default)",
+    "slow: marks tests as slow (deselect with '-m \"not slow and not gui and not visual and not network\"')",
 ]
+# pytest-timeout: a hanging test (GUI, download) must not stall an unattended run
+timeout = 600
 
 [tool.coverage.run]
 source = [
@@ -202,6 +206,7 @@ omit = [
 ]
 
 [tool.coverage.report]
+fail_under = 90
 exclude_lines = [
     "pragma: no cover",
     "raise NotImplementedError",
@@ -300,7 +305,7 @@ ignore-missing-imports = [
 [tool.pyrefly.errors]
 implicit-any = "ignore"
 missing-override-decorator = "ignore"
-unused-ignore = "ignore"
+unused-ignore = "warn"
 
 [[tool.pyrefly.sub-config]]
 matches = "tests/**/*"

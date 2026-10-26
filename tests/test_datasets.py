@@ -4,6 +4,8 @@ from locan.datasets import load_npc, load_tubulin
 
 httpx = pytest.importorskip("httpx", reason="requires httpx for html download")
 
+pytestmark = pytest.mark.network
+
 
 def test_load_npc():
     locdata = load_npc()

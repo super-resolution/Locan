@@ -31,5 +31,3 @@ python:
      - requirements: docs/requirements_rtd.txt
      - method: pip
        path: .
-       extra_requirements:
-         - docs

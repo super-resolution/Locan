@@ -8,7 +8,7 @@
     On linux with current python version
     Scheduled: on push, pull-request
 
-**1) CI checks with black, ruff, mypy**
+**1) CI checks with black, ruff, pyrefly**
 
     Continuous integration with formating, linting and type checking.
     On linux with current python version
@@ -24,19 +24,19 @@
 
 ### Tests with Conda:
 
-**1) Tests with ubuntu, Mambaforge**
+**1) Tests with ubuntu, Miniforge**
 
-    Create environment from environment.yml file with recommended python on ubuntu, 
+    Create environment from environment.yml file with recommended python on ubuntu,
     install locan from sources, and run tests.
     Scheduled: on push, pull-request
 
-**2) Tests with python matrix, Mambaforge**
+**2) Tests with python matrix, Miniforge**
 
     Create environment from environment.yml file on OS- and python-matrix,
     install locan from sources, and run tests.
     Scheduled: once a week
 
-**2) Tests with OS matrix, Mambaforge**
+**2) Tests with OS matrix, Miniforge**
 
     Create environment from environment.yml file on OS- and python-matrix,
     install locan from sources, and run tests.

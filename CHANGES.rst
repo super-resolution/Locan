@@ -17,10 +17,29 @@ Bug Fixes
 ---------
 - fix: files.print_summary() for empty files
 - fix: add needs_package decorators for napari use in cli
+- fix: importing locan no longer emits DeprecationWarnings for its own deprecated
+  names (``COLORMAP_DEFAULTS``, ``Colormaps``); they warn on use only
+- fix: ``HAS_DEPENDENCY`` normalizes distribution names (``PySide6``,
+  ``open3d-cpu``, ``mpl_scatter_density``), owns the ``qt`` key and reports
+  unknown names as not available instead of raising ``KeyError``
 
 Other Changes and Additions
 ---------------------------
-- ...
+- pin the development interpreter to Python 3.13 in ``.python-version``; ``uv`` is the
+  local development tool (``uv.lock`` stays local)
+- remove the obsolete mypy configuration and dependency (pyrefly is the type checker)
+- CI workflow runs on pull requests as well as pushes
+- pre-commit: add standard file hygiene hooks
+- format Jupyter notebooks in docs with black.
+- add ``AGENTS.md`` with repository guidance for AI coding agents
+- add pyrefly to pre-commit
+- tests: dataset downloads are marked ``network`` and deselected by default;
+  ``pytest-timeout`` guards against hanging tests; local ``coverage report`` fails
+  below 90 % like CI
+- agent setup: correct AGENTS.md, keep pre-commit in step with the dev tools
+- Read the Docs: install the ``docs`` dependency group and the ``all``/``pyside6``
+  extras straight from ``pyproject.toml`` (the stale ``docs/requirements_rtd.txt``
+  freeze is removed)
 
 0.22 - 2026-10-17
 =================

@@ -12,6 +12,12 @@ Any function that makes use of the optional dependency should be decorated with
 
     @needs_package("package")
 
+Keys of :data:`HAS_DEPENDENCY` are import names. Distribution names from
+pyproject.toml are normalized (PEP 503) and mapped through :data:`IMPORT_NAMES`;
+a distribution without an entry is looked up under its name with ``-``
+replaced by ``_``. Looking up a name that is not a dependency of locan yields
+``False`` (with a warning logged once) instead of raising ``KeyError``.
+
 
 CONSTANTS
 
@@ -32,7 +38,7 @@ import logging
 import os
 import re
 import sys
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from enum import StrEnum
 from functools import wraps
 from typing import Any, ParamSpec, TypeVar
@@ -54,16 +60,95 @@ P = ParamSpec("P")
 T = TypeVar("T")
 
 
-def _has_dependency_factory(
-    packages: Iterable[str], import_names: dict[str, str] | None = None
-) -> dict[str, bool]:
+def _normalize_name(name: str) -> str:
+    """
+    Normalize a distribution name as defined in PEP 503.
+
+    Parameters
+    ----------
+    name
+        Distribution (PyPI) name in any spelling.
+
+    Returns
+    -------
+    str
+        Lower-case name with runs of ``-``, ``_`` and ``.`` collapsed to ``-``.
+    """
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def _import_name(package: str, import_names: Mapping[str, str] | None = None) -> str:
+    """
+    Map a distribution name onto the name under which it is imported.
+
+    Parameters
+    ----------
+    package
+        Distribution (PyPI) name in any spelling.
+    import_names
+        Mapping of normalized distribution names onto import names.
+        Defaults to :data:`IMPORT_NAMES`.
+
+    Returns
+    -------
+    str
+        Import name: the mapped name if there is an entry, else the package
+        name with ``-`` replaced by ``_``.
+    """
     if import_names is None:
         import_names = IMPORT_NAMES
-    has_dependency = dict()
+    normalized = _normalize_name(package)
+    if normalized in import_names:
+        return import_names[normalized]
+    if package in import_names:
+        return import_names[package]
+    return package.replace("-", "_")
+
+
+def _is_importable(import_name: str) -> bool:
+    """
+    Check if a module can be found without importing it.
+
+    ``find_spec`` of a dotted name imports the parent package, which raises
+    if that parent is missing; this is reported as "not available".
+    """
+    try:
+        return importlib.util.find_spec(import_name) is not None
+    except (ImportError, ValueError):
+        return False
+
+
+class _HasDependency(dict[str, bool]):
+    """
+    Mapping of import names onto availability.
+
+    Names that are no dependency of locan (e.g. when locan is not installed as
+    a distribution and its metadata cannot be read) are reported as not
+    available instead of raising ``KeyError``; a warning is logged once per
+    name.
+    """
+
+    def __init__(self, mapping: Mapping[str, bool] | None = None) -> None:
+        super().__init__(mapping if mapping is not None else {})
+        self._warned: set[str] = set()
+
+    def __missing__(self, key: str) -> bool:
+        if key not in self._warned:
+            self._warned.add(key)
+            logger.warning(
+                f"{key} is not a known dependency of locan "
+                "and is treated as not available."
+            )
+        return False
+
+
+def _has_dependency_factory(
+    packages: Iterable[str], import_names: Mapping[str, str] | None = None
+) -> dict[str, bool]:
+    has_dependency = _HasDependency()
     for package in packages:
-        key = import_names.get(package, package)
-        value = importlib.util.find_spec(key) is not None
-        has_dependency[key] = value
+        key = _import_name(package, import_names=import_names)
+        has_dependency[key] = _is_importable(key)
     return has_dependency
 
 
@@ -89,11 +174,9 @@ def needs_package(
     callable
         A decorator that raises ImportError if package is not available.
     """
-    if import_names is None:
-        import_names = IMPORT_NAMES
     if has_dependency is None:
         has_dependency = HAS_DEPENDENCY
-    import_name = import_names.get(package, package)
+    import_name = _import_name(package, import_names=import_names)
 
     def decorator(func: Callable[P, T]) -> Callable[P, T]:
         @wraps(func)
@@ -150,19 +233,29 @@ INSTALL_REQUIRES: set[str] = set()
 EXTRAS_REQUIRE: set[str] = set()
 INSTALL_REQUIRES, EXTRAS_REQUIRE = _get_dependencies(package="locan")
 
-#: A dictionary mapping PyPi package names to import names if they are different
-IMPORT_NAMES = dict()
+#: A dictionary mapping normalized PyPi package names (PEP 503) to import names
+#: if they differ in more than ``-`` versus ``_``.
+IMPORT_NAMES: dict[str, str] = dict()
 IMPORT_NAMES["ruamel"] = "ruamel.yaml"
-IMPORT_NAMES["fast-histogram"] = "fast_histogram"
-IMPORT_NAMES["boost-histogram"] = "boost_histogram"
 IMPORT_NAMES["protobuf"] = "google.protobuf"
 IMPORT_NAMES["scikit-image"] = "skimage"
 IMPORT_NAMES["scikit-learn"] = "sklearn"
 IMPORT_NAMES["pytest-qt"] = "pytestqt"
+# the next three are implied by the "-" to "_" fallback; kept for compatibility
+IMPORT_NAMES["fast-histogram"] = "fast_histogram"
+IMPORT_NAMES["boost-histogram"] = "boost_histogram"
 IMPORT_NAMES["mpl-scatter-density"] = "mpl_scatter_density"
+IMPORT_NAMES["cython"] = "Cython"
+IMPORT_NAMES["open3d-cpu"] = "open3d"
+IMPORT_NAMES["pyside2"] = "PySide2"
+IMPORT_NAMES["pyside6"] = "PySide6"
+IMPORT_NAMES["pyqt5"] = "PyQt5"
+IMPORT_NAMES["pyqt6"] = "PyQt6"
 
-#: A dictionary indicating if dependency is available.
-HAS_DEPENDENCY = _has_dependency_factory(
+#: A dictionary indicating if dependency (import name) is available.
+#: ``HAS_DEPENDENCY["qt"]`` tells if qtpy can load a Qt binding; it is refined by
+#: :func:`_set_qt_binding` once the configured binding is known.
+HAS_DEPENDENCY: dict[str, bool] = _has_dependency_factory(
     packages=INSTALL_REQUIRES.union(EXTRAS_REQUIRE).union(set(["pytestqt"]))
 )
 
@@ -180,11 +273,19 @@ class QtBindings(StrEnum):
     PYQT6 = "pyqt6"
 
 
+HAS_DEPENDENCY["qt"] = _is_importable("qtpy") and any(
+    _is_importable(_import_name(binding.value))
+    for binding in QtBindings
+    if binding is not QtBindings.NONE
+)
+
+
 def _set_qt_binding(qt_binding: QtBindings | str) -> str:
     """
     Check if qtpy can import `qt_binding` and return the qt_binding that will be used.
     Checks os.environ["QT_API"] first.
     If os.environ["QT_API"] is set it will take precedence over `qt_bindings`.
+    Sets ``HAS_DEPENDENCY["qt"]`` to whether a binding could be loaded.
 
     Note
     -----
@@ -228,6 +329,7 @@ def _set_qt_binding(qt_binding: QtBindings | str) -> str:
             logger.warning("QT_BINDING is not available.")
         qt_api = ""
 
+    HAS_DEPENDENCY["qt"] = bool(qt_api)
     return qt_api
 
 

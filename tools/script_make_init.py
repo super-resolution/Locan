@@ -1,8 +1,8 @@
 """
 Utility script to print locan.__all__ elements.
 
-These items need to be explicitly re-exported in locan.__init__
-to satisfy mypy.
+These items need to be explicitly re-exported in locan/__init__.pyi
+(the lazy_loader stub) so that type checkers see the public API.
 """
 
 from importlib import import_module
@@ -18,7 +18,7 @@ submodules: list[str] = [
     "locan_io",
     "process",
     "rois",
-    "scripts",
+    # "scripts",
     "simulation",
     "tests",
     "utils",
@@ -117,7 +117,6 @@ if __name__ == "__main__":
     # import locan as lc
     # print(lc.EXTRAS_REQUIRE)
 
-    print(make_init(submodule="data.regions", package=package))
-
+    # print(make_init(submodule="data.regions", package=package))
     # print(make_explicit_all(submodules=submodules, package=package))
-    # print(make_explicit_import_command(submodules=submodules, package=package))
+    print(make_explicit_import_command(submodules=submodules, package=package))

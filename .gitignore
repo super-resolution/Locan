@@ -88,10 +88,9 @@ target/
 profile_default/
 ipython_config.py
 
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-.python-version
+# uv
+#   .python-version is committed (pins the development interpreter); the lock file is local.
+uv.lock
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
@@ -144,6 +143,11 @@ cython_debug/
 
 # VSCode
 .vscode/
+
+# AI coding agents:
+# AGENTS.md is the shared instruction file; personal overrides stay local
+.claude/settings.local.json
+CLAUDE.local.md
 
 # Project specific
 src/locan/_version.py

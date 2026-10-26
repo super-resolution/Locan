@@ -68,12 +68,12 @@ Using conda to set up a dedicated environment:
 
    or with specific python version::
 
-	conda create --name locan python=3.10
+	conda create --name locan python=3.11
 	conda env update --name locan --file "./environment.yml"
 
 3) Activate the environment and install locan.
 
-	conda create --name locan -c conda-forge python=3.10
+	conda create --name locan -c conda-forge python=3.11
 	conda env update --name locan --file "./environment.yml"
 	conda install --name locan -c conda-forge locan
 	conda activate locan
@@ -141,4 +141,3 @@ Various installation issues
 
         import os
         os.environ["QT_API"] = "pyqt5"
-

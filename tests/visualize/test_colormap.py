@@ -1,11 +1,10 @@
 import pytest
 from matplotlib import colors as mcolors
 
-from locan.configuration import COLORMAP_DEFAULTS
+from locan import config
 from locan.dependencies import HAS_DEPENDENCY
 from locan.visualize import (
     Colormap,
-    Colormaps,
     colormap_registry,
     get_colormap,
 )
@@ -16,6 +15,12 @@ if HAS_DEPENDENCY["napari"]:
 
 def test_Colormaps():
     # todo: deprecate with locan.visualize.colormaps.Colormaps
+    # Deprecated names are exercised on purpose; importing them must warn.
+    with pytest.warns(DeprecationWarning, match="COLORMAP_DEFAULTS is deprecated"):
+        from locan.configuration import COLORMAP_DEFAULTS
+    with pytest.warns(DeprecationWarning, match="Colormaps is deprecated"):
+        from locan.visualize import Colormaps
+
     assert Colormaps.continuous.value == "cet_fire"
     assert Colormaps.CONTINUOUS.value == "cet_fire"
 
@@ -31,7 +36,9 @@ def test_Colormaps():
 
 
 def test_colormap_registry():
-    assert all(value in colormap_registry for value in COLORMAP_DEFAULTS.values())
+    assert all(
+        value in colormap_registry for value in config.colormaps.model_dump().values()
+    )
 
 
 class TestColormap:
@@ -124,14 +131,6 @@ class TestColormap:
         assert isinstance(colormap.matplotlib, mcolors.Colormap)
         assert colormap.name == "viridis"
 
-        colormap = Colormap.from_registry(colormap=Colormaps.TURBO.value)
-        assert isinstance(colormap.matplotlib, mcolors.Colormap)
-        assert colormap.name == "turbo"
-
-        colormap = Colormap.from_registry(colormap=COLORMAP_DEFAULTS["TURBO"])
-        assert isinstance(colormap.matplotlib, mcolors.Colormap)
-        assert colormap.name == "turbo"
-
         with pytest.raises(LookupError):
             Colormap.from_registry(colormap="not in registry")
 
@@ -158,11 +157,7 @@ def test_get_colormap():
     assert isinstance(colormap.matplotlib, mcolors.Colormap)
     assert colormap.name == "viridis"
 
-    colormap = get_colormap(Colormaps.TURBO)
-    assert isinstance(colormap.matplotlib, mcolors.Colormap)
-    assert colormap.name == "turbo"
-
-    colormap = get_colormap(Colormaps.TURBO.value)
+    colormap = get_colormap(config.colormaps.turbo)
     assert isinstance(colormap.matplotlib, mcolors.Colormap)
     assert colormap.name == "turbo"
 

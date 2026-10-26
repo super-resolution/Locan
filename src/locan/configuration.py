@@ -41,7 +41,7 @@ from pydantic_settings import (
 )
 
 from locan.constants import RenderEngine
-from locan.dependencies import HAS_DEPENDENCY, QtBindings, _set_qt_binding
+from locan.dependencies import QtBindings, _set_qt_binding
 
 logger = logging.getLogger(__name__)
 
@@ -373,11 +373,10 @@ config: Configuration = Configuration()
 # runtime.
 QT_BINDING: QtBindings | str = config.qt_binding
 
-# Initialize pyqt
+# Initialize pyqt; this also sets HAS_DEPENDENCY["qt"]
 QT_BINDING = _set_qt_binding(QT_BINDING)
 # pyrefly: ignore [bad-assignment]
 config.qt_binding = QT_BINDING
-HAS_DEPENDENCY["qt"] = True if QT_BINDING else False
 
 
 def __getattr__(name):

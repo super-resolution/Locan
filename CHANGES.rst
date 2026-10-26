@@ -19,6 +19,9 @@ Bug Fixes
 - fix: add needs_package decorators for napari use in cli
 - fix: importing locan no longer emits DeprecationWarnings for its own deprecated
   names (``COLORMAP_DEFAULTS``, ``Colormaps``); they warn on use only
+- fix: ``HAS_DEPENDENCY`` normalizes distribution names (``PySide6``,
+  ``open3d-cpu``, ``mpl_scatter_density``), owns the ``qt`` key and reports
+  unknown names as not available instead of raising ``KeyError``
 
 Other Changes and Additions
 ---------------------------

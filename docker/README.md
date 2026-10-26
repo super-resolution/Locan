@@ -43,7 +43,7 @@ docker run --rm <ImageName>
 ```
 
 ### Run project in an interactive environment:
-	
+
 Open a bash shell for interactive work within a container:
 
 ```
@@ -56,7 +56,7 @@ Open the shell with a host directory mounted as volume:
 docker run -it -v <host directory>:/home/asterix/shared <ImageName> bash
 ```
 
-To make sure a gui output (e.g. from napari) is directed to an X server (that must be installed on your host) 
+To make sure a gui output (e.g. from napari) is directed to an X server (that must be installed on your host)
 add the DISPLAY environment variable:
 
 ```
@@ -64,10 +64,10 @@ docker run -it -v <host directory>:/home/asterix/shared -e DISPLAY=<IP-address>:
 ```
 
 ### Use Jupyter notebooks:
-	
+
 Start a container providing browser access to jupyter lab with a host directory mounted as volume:
 
-```	
+```
 docker run -p 8888:8888 -e JUPYTER_ENABLE_LAB=yes -v <host directory>:/home/asterix/shared <ImageName>
 ```
 
@@ -76,7 +76,7 @@ For gui (e.g. napari) interaction add the DISPLAY environment variable.
 
 ## Clean up
 
-After closing a jupyter lab you might have to delete the container before running the image again 
+After closing a jupyter lab you might have to delete the container before running the image again
 (e.g. if the option --rm was omitted):
 
 ```

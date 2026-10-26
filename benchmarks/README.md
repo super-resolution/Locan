@@ -7,7 +7,7 @@ In order to use *asv* look up the details in the [ASV documentation](https://asv
 ## Run benchmarks:
 
 To get benchmarks in an existing conda environment
-enter the locan/benchmarks directory with the appropriate configuration file 
+enter the locan/benchmarks directory with the appropriate configuration file
 and run:
 
 ```

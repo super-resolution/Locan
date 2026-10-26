@@ -24,7 +24,7 @@ jobs:
       - name: "Install ubuntu libraries"
         if: runner.os == 'Linux'
         run: |
-          sudo apt update 
+          sudo apt update
           sudo apt -y install libegl1
 
       - name: "Install and upgrade"

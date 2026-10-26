@@ -4,4 +4,3 @@ API Reference
 =============
 
 .. automodule:: locan
-

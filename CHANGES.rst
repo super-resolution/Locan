@@ -29,6 +29,11 @@ Other Changes and Additions
 - pre-commit: add standard file hygiene hooks
 - format Jupyter notebooks in docs with black.
 - add ``AGENTS.md`` with repository guidance for AI coding agents
+- add pyrefly to pre-commit
+- tests: dataset downloads are marked ``network`` and deselected by default;
+  ``pytest-timeout`` guards against hanging tests; local ``coverage report`` fails
+  below 90 % like CI
+- agent setup: correct AGENTS.md, keep pre-commit in step with the dev tools
 
 0.22 - 2026-10-17
 =================

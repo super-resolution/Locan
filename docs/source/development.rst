@@ -15,7 +15,7 @@ Install
 
 A few extra libraries are needed for development::
 
-        pip install --group dev --group docs .[all, pyside6]
+        pip install --group dev --group docs .[all,pyside6]
 
 Alternatively, in a conda environment you may use the `environment_dev.yml`.
 

@@ -36,7 +36,9 @@ def test_Colormaps():
 
 
 def test_colormap_registry():
-    assert all(value in colormap_registry for value in config.colormaps.model_dump().values())
+    assert all(
+        value in colormap_registry for value in config.colormaps.model_dump().values()
+    )
 
 
 class TestColormap:

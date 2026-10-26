@@ -323,6 +323,7 @@ def __getattr__(name):
         # keys) next to the lower-case config field names.
         # Import the deprecated COLORMAP_DEFAULTS at Colormaps use.
         from locan.configuration import COLORMAP_DEFAULTS
+
         colormap_defaults = config.colormaps.model_dump() | COLORMAP_DEFAULTS
 
         # pyrefly: ignore [invalid-argument]

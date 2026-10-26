@@ -18,7 +18,7 @@ def test_import_emits_no_locan_deprecation_warnings():
         capture_output=True,
         encoding="utf-8",
     )
-    assert exit_status.stderr
+    assert exit_status.stderr == ""
     exit_status.check_returncode()
 
 

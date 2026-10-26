@@ -36,12 +36,14 @@ You can use the package in a docker container as described in [docker/README.md]
 Contributing
 ------------
 
-Development takes place on the [Locan GitHub page](https://github.com/super-resolution/Locan).
+Development takes place in the [Locan GitHub repository](https://github.com/super-resolution/Locan).
 
-Please use [GitHub issues](https://github.com/super-resolution/Locan/issues) to report bugs and feature requests. 
+Please use [GitHub issues](https://github.com/super-resolution/Locan/issues) to report bugs and feature requests.
 Use [GitHub discussions](https://github.com/super-resolution/Locan/discussions) for Q&A.
 
-Please read [documentation on development](https://locan.readthedocs.io/en/latest/source/development.html) for details on how to help develop this project further.
+Please read [CONTIRBUTING.md](CONTRIBUTING.md) and the
+[documentation on development](https://locan.readthedocs.io/en/latest/source/development.html)
+for details on how to help develop this project further.
 
 Developers
 ----------
@@ -65,5 +67,5 @@ Or cite this repository using the DOI provided by zenodo:
 
 [doi.org/10.5281/zenodo.5722472](https://doi.org/10.5281/zenodo.5722472)
 
-Note this DOI will resolve to all versions of locan. 
-To cite a specific version please find the DOI of that version on the zenodo page. 
+Note this DOI will resolve to all versions of locan.
+To cite a specific version please find the DOI of that version on the zenodo page.

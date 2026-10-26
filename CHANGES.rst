@@ -34,6 +34,9 @@ Other Changes and Additions
   ``pytest-timeout`` guards against hanging tests; local ``coverage report`` fails
   below 90 % like CI
 - agent setup: correct AGENTS.md, keep pre-commit in step with the dev tools
+- Read the Docs: install the ``docs`` dependency group and the ``all``/``pyside6``
+  extras straight from ``pyproject.toml`` (the stale ``docs/requirements_rtd.txt``
+  freeze is removed)
 
 0.22 - 2026-10-17
 =================

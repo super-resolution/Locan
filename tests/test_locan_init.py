@@ -1,6 +1,7 @@
 import subprocess
 import warnings
 
+import matplotlib.pyplot as plt
 import pytest
 
 import locan
@@ -43,3 +44,11 @@ def test_entrypoint_from_sys():
     )
     assert exit_status.stdout[:47] == "This is the command line entry point for locan."
     exit_status.check_returncode()
+
+
+def test_matplotlib():
+    fig, ax = plt.subplots()
+    ax.plot()
+
+    plt.close("all")
+    assert plt.get_fignums() == []

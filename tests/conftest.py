@@ -1,6 +1,8 @@
 import logging
 from importlib.metadata import PackageNotFoundError, version
+from importlib.util import find_spec
 
+import matplotlib
 import numpy as np
 import pandas as pd
 import pytest
@@ -15,6 +17,14 @@ from locan.locan_io.locdata.utilities import convert_property_types
 from tests import TEST_DIR
 
 logger = logging.getLogger(__name__)
+
+
+# With some Python distributions on Windows (no Tcl/Tk) import tkinter will fail
+# unless a non-interactive backend is forced.
+if matplotlib.get_backend() == "TkAgg":
+    if find_spec("tkinter") is None:
+        matplotlib.use("Agg")
+
 
 for key, value in HAS_DEPENDENCY.items():
     if not value:

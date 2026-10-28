@@ -29,7 +29,8 @@ from lmfit.model import ModelResult
 from locan import config
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
-from locan.process.aggregate import Bins, histogram
+from locan.process.aggregate import histogram
+from locan.process.bins import Bins
 from locan.visualize import get_colormap
 from locan.visualize.transform import Trafo, adjust_contrast
 
@@ -350,7 +351,7 @@ class LocalizationProperty2d(_Analysis):
             self.results.image.T,
             cmap="viridis",
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
+            extent=self.results.bins.extent,
         )
 
         x, y = self.results.bins.bin_centers
@@ -414,7 +415,7 @@ class LocalizationProperty2d(_Analysis):
             residuals.T,
             cmap=get_colormap(colormap=config.colormaps.diverging).matplotlib,
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
+            extent=self.results.bins.extent,
             vmin=(-max_absolute_value),
             vmax=max_absolute_value,
         )
@@ -472,7 +473,7 @@ class LocalizationProperty2d(_Analysis):
             deviations.T,
             cmap=get_colormap(colormap=config.colormaps.diverging).matplotlib,
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
+            extent=self.results.bins.extent,
             vmin=(-max_absolute_value),
             vmax=max_absolute_value,
         )
@@ -520,7 +521,7 @@ class LocalizationProperty2d(_Analysis):
             deviations.T,
             cmap=get_colormap(colormap=config.colormaps.diverging).matplotlib,
             origin="lower",
-            extent=np.ravel(self.results.bins.bin_range),  # type: ignore
+            extent=self.results.bins.extent,
             vmin=(-max_absolute_value),
             vmax=max_absolute_value,
         )

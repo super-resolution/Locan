@@ -8,10 +8,34 @@ Changelog
 New Features
 ------------
 - configuration management
+- ``Bins`` constructor methods ``Bins.from_bin_edges``, ``Bins.from_n_bins``,
+  ``Bins.from_bin_size``, ``Bins.from_boost_histogram_axes`` and the convenience
+  resolver ``Bins.from_any`` mirroring the bin parameters of user-facing functions
+- ``Bins.from_bin_size`` takes ``remainder="drop" | "keep" | "extend"`` to control
+  how a range that is not divisible by ``bin_size`` is treated
+- new ``Bins`` members: ``to_boost_histogram_axes()``, ``digitize()``, ``extent``,
+  ``with_labels()``, ``isclose()``, ``__eq__`` and ``__repr__``
 
 API Changes
 -----------
-- ...
+- ``Bins`` moved to the new module ``locan.process.bins``; ``locan.process.aggregate``
+  keeps ``histogram``. The public name ``locan.Bins`` is unchanged.
+- ``Bins`` is immutable and stores only bin edges; ``n_bins``, ``bin_size``,
+  ``bin_range``, ``bin_centers`` and ``is_equally_sized`` are derived (and cached)
+  from the edges, so they are consistent for every construction path:
+  ``bin_size`` is a float per equally sized dimension and ``bin_range`` a tuple of
+  float pairs
+- ``Bins`` validates its input: edges must be strictly increasing, ``n_bins >= 1``,
+  ``bin_size > 0`` and ``bin_range`` must satisfy ``min < max``
+- deprecated: constructing ``Bins`` with the keyword specifications ``bins``,
+  ``n_bins``, ``bin_size``, ``bin_range`` or ``extend_range`` (use the ``from_*``
+  methods), and the ``Bins.boost_histogram_axes`` property (use
+  ``to_boost_histogram_axes()``)
+- ``histogram`` and ``cluster_by_bin`` widen a range derived from the data by a
+  negligible amount so that the localization with the maximum coordinate is
+  counted; bins are documented as half-open intervals
+- ``register_cc`` scales the offset with the bin size of the bins that were
+  actually used and requires equally sized bins
 
 Bug Fixes
 ---------
@@ -22,6 +46,17 @@ Bug Fixes
 - fix: ``HAS_DEPENDENCY`` normalizes distribution names (``PySide6``,
   ``open3d-cpu``, ``mpl_scatter_density``), owns the ``qt`` key and reports
   unknown names as not available instead of raising ``KeyError``
+- fix: ``histogram`` silently replaced variable-width ``bin_edges`` by equally
+  sized bins in two dimensions
+- fix: ``Bins`` reported a stale ``bin_range`` when ``bin_size`` did not divide the
+  range, so ``histogram`` and boost-histogram axes used the wrong bin width
+- fix: the localization with the maximum coordinate fell into the overflow bin
+  when the bin range was derived from the data
+- fix: ``Bins(bins=<unsupported>)`` ended in ``RecursionError``; malformed
+  ``bin_size``/``bin_range`` combinations in ``AttributeError``
+- fix: ``Bins.equalize_bin_size`` dropped ``labels``
+- fix: ``histogram`` replaced every ``ValueError`` from the bin specification by a
+  misleading dimension-mismatch message
 
 Other Changes and Additions
 ---------------------------

@@ -42,7 +42,7 @@ from locan.data.metadata_utils import merge_metadata
 from locan.dependencies import HAS_DEPENDENCY, needs_package
 
 if TYPE_CHECKING:
-    from locan.process.aggregate import Bins
+    from locan.process.bins import Bins
 
 if HAS_DEPENDENCY["napari"]:
     import napari  # type: ignore [missing-import]

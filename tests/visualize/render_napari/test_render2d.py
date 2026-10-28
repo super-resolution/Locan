@@ -69,13 +69,13 @@ def test_render_2d_napari_new_visual(locdata_blobs_2d):
 
     viewer = napari.Viewer()
 
-    bins = locan.Bins(
-        bin_size=(50, 100),
-        bin_range=(
+    bins = locan.Bins.from_bin_size(
+        (50, 100),
+        (
             (0, locdata_blobs_2d.coordinates.max(axis=0)[0]),
             (0, locdata_blobs_2d.coordinates.max(axis=0)[1]),
         ),
-        extend_range=True,
+        remainder="extend",
     )
 
     render_2d_napari(locdata_blobs_2d, bins=bins, cmap="viridis", viewer=viewer)

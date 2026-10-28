@@ -27,8 +27,8 @@ class BenchmarkFilter:
         array[:, 0:70] = 1
 
         self.image = Image.from_array(array=array, is_rgb=False)
-        self.image.bins = lc.Bins(
-            n_bins=self.image.data.shape, bin_range=((0, 1100), (0, 1100))
+        self.image.bins = lc.Bins.from_n_bins(
+            self.image.data.shape, ((0, 1100), (0, 1100))
         )
 
     def check_select_by_image_mask(self):

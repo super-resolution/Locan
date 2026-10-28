@@ -310,8 +310,7 @@ class FourierShellCorrelation(_Analysis):
 
             bin_range = ranges(locdata=locdata)
             assert bin_range is not None  # type narrowing # noqa: S101
-            # pyrefly: ignore [bad-argument-type]
-            bins = Bins(bin_range=bin_range, bin_size=self.parameter["bin_size"])
+            bins = Bins.from_bin_size(self.parameter["bin_size"], bin_range)
 
             assert isinstance(  # type narrowing # noqa: S101
                 locdata_chunks.references, Iterable
@@ -333,7 +332,7 @@ class FourierShellCorrelation(_Analysis):
                 )
 
             bin_range = range_from_collection(locdatas=[locdata, other_locdata])
-            bins = Bins(bin_range=bin_range, bin_size=self.parameter["bin_size"])
+            bins = Bins.from_bin_size(self.parameter["bin_size"], bin_range)
             image_data, other_image_data = tuple(
                 histogram(locdata=locdata_, bins=bins).data
                 for locdata_ in [locdata, other_locdata]

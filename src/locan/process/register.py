@@ -24,7 +24,8 @@ from skimage.registration import phase_cross_correlation
 
 from locan.data.locdata import LocData
 from locan.dependencies import HAS_DEPENDENCY, needs_package
-from locan.process.aggregate import Bins, histogram
+from locan.process.aggregate import histogram
+from locan.process.bins import Bins
 from locan.process.properties.locdata_statistics import range_from_collection
 from locan.process.transform.spatial.spatial_transformation import _homogeneous_matrix
 
@@ -420,7 +421,7 @@ def _register_cc_picasso(
         else:
             bin_range_ = bin_range
 
-        image, _, _ = histogram(
+        image, bins_, _ = histogram(
             locdata,
             bins=bins,
             n_bins=n_bins,
@@ -436,10 +437,16 @@ def _register_cc_picasso(
             bin_edges=bin_edges,
             bin_range=bin_range_,
         )
+        if not all(bins_.is_equally_sized):
+            raise ValueError(
+                "Registration by cross-correlation requires equally sized bins."
+            )
+        pixel_size = np.asarray(bins_.bin_size)
 
     else:
         image = np.asarray(locdata)
         other_image = np.asarray(other_locdata)
+        pixel_size = np.asarray(1.0 if bin_size is None else bin_size)
 
     dimension = image.ndim
     matrix = np.identity(dimension)
@@ -447,7 +454,7 @@ def _register_cc_picasso(
     offset = _get_image_shift(
         image, other_image, box=5, roi=max_offset, display=verbose
     )
-    offset_ = np.asarray(offset) * bin_size
+    offset_ = np.asarray(offset) * pixel_size
 
     return Transformation(matrix, offset_)
 
@@ -526,7 +533,7 @@ def _register_cc_skimage(
         else:
             bin_range_ = bin_range
 
-        image, _, _ = histogram(
+        image, bins_, _ = histogram(
             locdata,
             bins=bins,
             n_bins=n_bins,
@@ -542,10 +549,16 @@ def _register_cc_skimage(
             bin_edges=bin_edges,
             bin_range=bin_range_,
         )
+        if not all(bins_.is_equally_sized):
+            raise ValueError(
+                "Registration by cross-correlation requires equally sized bins."
+            )
+        pixel_size = np.asarray(bins_.bin_size)
 
     else:
         image = np.asarray(locdata)
         other_image = np.asarray(other_locdata)
+        pixel_size = np.asarray(1.0 if bin_size is None else bin_size)
 
     dimension = image.ndim
     matrix = np.identity(dimension)
@@ -562,7 +575,7 @@ def _register_cc_skimage(
             **kwargs,
         ),
     )
-    offset_ = np.asarray(shift) * bin_size
+    offset_ = np.asarray(shift) * pixel_size
 
     return Transformation(matrix, offset_)
 

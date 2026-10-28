@@ -19,11 +19,11 @@ class BenchmarkBins:
     """
 
     def setup(self):
-        self.bins = lc.Bins(n_bins=100, bin_range=(0, 1))
+        self.bins = lc.Bins.from_n_bins(100, (0, 1))
 
     def time_initialize_bins(self):
         """Time to initialize bins"""
-        lc.Bins(n_bins=100, bin_range=(0, 1))
+        lc.Bins.from_n_bins(100, (0, 1))
 
     def mem_bins(self):
         return self.bins
@@ -40,7 +40,7 @@ class BenchmarkHistogram:
             [np.linspace(0, 1, n_points), np.linspace(0, 1, n_points)]
         )
         self.values = np.linspace(0, 1, n_points)
-        self.bins = lc.Bins(n_bins=(100, 100), bin_range=(0, 1))
+        self.bins = lc.Bins.from_n_bins((100, 100), (0, 1))
 
     def time__histogram_fast_histogram(self):
         _histogram_fast_histogram(data=self.points, bins=self.bins)

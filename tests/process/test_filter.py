@@ -225,22 +225,22 @@ def test_exclude_sparse_points(locdata_simple):
 def test_select_by_image_mask(locdata_2d):
     # print(locdata_2d.coordinates)
     mask_image = Image.from_numpy(array=np.array([[0, 0], [0, 0]]))
-    mask_image.bins = Bins(n_bins=2, bin_range=[[0, 9], [0, 9]])
+    mask_image.bins = Bins.from_n_bins(2, [[0, 9], [0, 9]])
     new_locdata = select_by_image_mask(locdata=locdata_2d, image=mask_image)
     assert new_locdata.data.empty
 
     mask_image = Image.from_numpy(array=np.array([[1, 0], [0, 0]]))
-    mask_image.bins = Bins(n_bins=2, bin_range=[[0, 9], [0, 9]])
+    mask_image.bins = Bins.from_n_bins(2, [[0, 9], [0, 9]])
     new_locdata = select_by_image_mask(locdata=locdata_2d, image=mask_image)
     assert all(index in new_locdata.data.index for index in [0, 2, 4])
 
     mask_image = Image.from_numpy(array=np.array([[0, 5], [0, 0]]))
-    mask_image.bins = Bins(n_bins=2, bin_range=[[0, 9], [0, 9]])
+    mask_image.bins = Bins.from_n_bins(2, [[0, 9], [0, 9]])
     new_locdata = select_by_image_mask(locdata=locdata_2d, image=mask_image)
     assert all(index in new_locdata.data.index for index in [1, 3])
 
     mask_image = Image.from_numpy(array=np.array([[False, True], [False, False]]))
-    mask_image.bins = Bins(n_bins=2, bin_range=[[0, 9], [0, 9]])
+    mask_image.bins = Bins.from_n_bins(2, [[0, 9], [0, 9]])
     # print(mask_image.data)
     # print(mask_image.bins.bin_edges)
     new_locdata = select_by_image_mask(locdata=locdata_2d, image=mask_image)
@@ -251,7 +251,7 @@ def test_select_by_image_mask(locdata_2d):
 def test_select_by_image_mask_(locdata_3d):
     # print(locdata_3d.coordinates)
     mask_image = Image.from_numpy(array=np.array([[0, 0], [0, 0]]))
-    mask_image.bins = Bins(n_bins=2, bin_range=[[0, 9], [0, 9]])
+    mask_image.bins = Bins.from_n_bins(2, [[0, 9], [0, 9]])
     new_locdata = select_by_image_mask(
         locdata=locdata_3d,
         loc_properties=["position_x", "position_y"],
@@ -260,7 +260,7 @@ def test_select_by_image_mask_(locdata_3d):
     assert new_locdata.data.empty
 
     mask_image = Image.from_numpy(array=np.array([[1, 0], [0, 0]]))
-    mask_image.bins = Bins(n_bins=2, bin_range=[[0, 9], [0, 9]])
+    mask_image.bins = Bins.from_n_bins(2, [[0, 9], [0, 9]])
     new_locdata = select_by_image_mask(
         locdata=locdata_3d,
         loc_properties=["position_x", "position_y"],
@@ -269,7 +269,7 @@ def test_select_by_image_mask_(locdata_3d):
     assert all(index in new_locdata.data.index for index in [0, 2, 4])
 
     mask_image = Image.from_numpy(array=np.array([[[1, 0], [0, 0]], [[0, 0], [0, 0]]]))
-    mask_image.bins = Bins(n_bins=2, bin_range=[[0, 9], [0, 9], [0, 9]])
+    mask_image.bins = Bins.from_n_bins(2, [[0, 9], [0, 9], [0, 9]])
     with pytest.raises(NotImplementedError):
         new_locdata = select_by_image_mask(locdata=locdata_3d, image=mask_image)
         # print(new_locdata.data)

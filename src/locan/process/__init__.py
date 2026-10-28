@@ -13,6 +13,7 @@ Submodules:
    :toctree: ./
 
    aggregate
+   bins
    cluster
    filter
    register
@@ -27,6 +28,7 @@ from importlib import import_module
 
 # explicit re-exports for nested submodules are required by myp
 from locan.process.aggregate import *
+from locan.process.bins import *
 from locan.process.cluster import (
     cluster_by_bin as cluster_by_bin,
     cluster_dbscan as cluster_dbscan,
@@ -56,6 +58,7 @@ from locan.process.transform import (
 
 submodules: list[str] = [
     "aggregate",
+    "bins",
     "cluster",
     "filter",
     "register",

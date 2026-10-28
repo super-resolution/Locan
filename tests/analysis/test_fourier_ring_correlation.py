@@ -40,7 +40,7 @@ class Test_preprocess_images:
         )
 
         bin_range = ranges(locdata=locdata)
-        bins = lc.Bins(bin_range=bin_range, bin_size=10)
+        bins = lc.Bins.from_bin_size(10, bin_range)
         image_data, bins, labels = lc.histogram(
             locdata=locdata_chunks.references[0], bins=bins
         )
@@ -59,13 +59,13 @@ class Test_preprocess_images:
         )
 
         bin_range = ranges(locdata=locdata)
-        bins = lc.Bins(bin_range=bin_range, bin_size=10)
+        bins = lc.Bins.from_bin_size(10, bin_range)
         image_data, bins, labels = lc.histogram(
             locdata=locdata_chunks.references[0], bins=bins
         )
 
         bin_range = [(item[0], item[0] + (item[1] - item[0]) / 2) for item in bin_range]
-        bins = lc.Bins(bin_range=bin_range, bin_size=10)
+        bins = lc.Bins.from_bin_size(10, bin_range)
         other_image_data, other_bins, other_labels = lc.histogram(
             locdata=locdata_chunks.references[1], bins=bins
         )
@@ -86,13 +86,13 @@ class Test_preprocess_images:
         )
 
         bin_range = ranges(locdata=locdata)
-        bins = lc.Bins(bin_range=bin_range, bin_size=10)
+        bins = lc.Bins.from_bin_size(10, bin_range)
         image_data, bins, labels = lc.histogram(
             locdata=locdata_chunks.references[0], bins=bins
         )
 
         bin_range = [(item[0], item[0] + (item[1] - item[0]) / 2) for item in bin_range]
-        bins = lc.Bins(bin_range=bin_range, bin_size=10)
+        bins = lc.Bins.from_bin_size(10, bin_range)
         other_image_data, other_bins, other_labels = lc.histogram(
             locdata=locdata_chunks.references[1], bins=bins
         )
@@ -114,7 +114,7 @@ class Test_preprocess_images:
             )
 
             bin_range = ranges(locdata=locdata)
-            bins = lc.Bins(bin_range=bin_range, bin_size=10)
+            bins = lc.Bins.from_bin_size(10, bin_range)
             image_data, bins, labels = lc.histogram(
                 locdata=locdata_chunks.references[0], bins=bins
             )
@@ -122,7 +122,7 @@ class Test_preprocess_images:
             bin_range = [
                 (item[0], item[0] + (item[1] - item[0]) / 2) for item in bin_range
             ]
-            bins = lc.Bins(bin_range=bin_range, bin_size=10)
+            bins = lc.Bins.from_bin_size(10, bin_range)
             other_image_data, other_bins, other_labels = lc.histogram(
                 locdata=locdata_chunks.references[1], bins=bins
             )
@@ -173,7 +173,7 @@ class Test_compute_fourier_ring_correlation:
         locdata_chunks = LocData.from_chunks(
             locdata=locdata, chunk_size=len(locdata) // 2, order="alternating"
         )
-        bins = lc.Bins(
+        bins = lc.Bins.from_bin_size(
             bin_range=np.vstack(
                 (
                     locdata.coordinates.min(axis=0),
@@ -203,7 +203,7 @@ class Test_compute_fourier_ring_correlation:
         locdata_chunks = LocData.from_chunks(
             locdata=locdata, chunk_size=len(locdata) // 2, order="alternating"
         )
-        bins = lc.Bins(
+        bins = lc.Bins.from_bin_size(
             bin_range=np.vstack(
                 (
                     locdata.coordinates.min(axis=0),

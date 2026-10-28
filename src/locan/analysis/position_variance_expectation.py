@@ -32,7 +32,7 @@ import pandas as pd
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
 from locan.data.validation import _check_loc_properties
-from locan.process.aggregate import Bins
+from locan.process.bins import Bins
 from locan.utils.statistics import biased_variance
 
 if TYPE_CHECKING:
@@ -346,24 +346,17 @@ class PositionVarianceExpectation(_Analysis):
                         bh.axis.Regular(50, 1, max_loc_property_),
                     )
                 )
-            bins = Bins(bins=axes)
+            bins = Bins.from_boost_histogram_axes(axes)
         else:
-            try:
-                bins = Bins(
-                    bins,
-                    n_bins,
-                    bin_size,
-                    bin_edges,
-                    bin_range,
-                    labels=[loc_property, other_loc_property],
-                )
-            except ValueError as exc:
-                # todo: check if message is appropriate
-                # the error is raised again only to adapt the message.
-                raise ValueError(
-                    "Bin dimension and len of `loc_properties` is incompatible."
-                ) from exc
-        axes = bins.boost_histogram_axes
+            bins = Bins.from_any(
+                bins=bins,
+                n_bins=n_bins,
+                bin_size=bin_size,
+                bin_edges=bin_edges,
+                bin_range=bin_range,
+                labels=[loc_property, other_loc_property],
+            )
+        axes = bins.to_boost_histogram_axes()
         histogram = bh.Histogram(*axes)
         histogram.reset()
         histogram.fill(

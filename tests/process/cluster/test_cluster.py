@@ -230,12 +230,14 @@ def test_cluster_by_bin(locdata_2d):
     bins, bin_indices, collection, counts = cluster_by_bin(
         locdata_2d, loc_properties=["position_x", "position_y"], bin_size=5
     )
-    assert bins.bin_size == (4, 5)
-    assert np.array_equal(bin_indices, [[1, 1], [1, 2], [2, 1]])
+    # the data-derived range is widened so that the maximum localization is
+    # inside the last bin
+    assert bins.bin_size == pytest.approx((4, 5))
+    assert np.array_equal(bin_indices, [[1, 1]])
     assert len(bin_indices) == len(collection)
     assert counts is None
 
-    bins = Bins(n_bins=1, bin_range=((1, 5), (1, 6)))
+    bins = Bins.from_n_bins(1, ((1, 5), (1, 6)))
     bins, bin_indices, collection, counts = cluster_by_bin(
         locdata_2d, loc_properties=["position_x", "position_y"], bins=bins
     )
@@ -252,7 +254,7 @@ def test_cluster_by_bin(locdata_2d):
         min_samples=2,
         return_counts=True,
     )
-    assert bins.bin_size == (4, 5)
+    assert bins.bin_size == pytest.approx((4, 5))
     assert np.array_equal(bin_indices, [[1, 1]])
     assert len(bin_indices) == len(collection)
-    assert np.array_equal(counts, [4])
+    assert np.array_equal(counts, [6])

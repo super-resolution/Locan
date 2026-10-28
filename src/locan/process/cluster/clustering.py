@@ -10,7 +10,7 @@ import logging
 import sys
 from collections.abc import Sequence
 from copy import copy
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -21,8 +21,8 @@ from sklearn.cluster import DBSCAN, HDBSCAN
 from locan import config
 from locan.data.locdata import LocData
 from locan.data.locdata_utils import _check_loc_properties
-from locan.process.aggregate import Bins, _accumulate_2d
-from locan.process.properties.locdata_statistics import ranges
+from locan.process.aggregate import _accumulate_2d, _data_bin_range
+from locan.process.bins import Bins
 
 if TYPE_CHECKING:
     import boost_histogram as bh
@@ -302,32 +302,41 @@ def cluster_by_bin(
     data = locdata.data[loc_properties].values
 
     if bins is not None:
-        bins = Bins(bins=bins)
+        bins = Bins.from_any(bins=bins)
         if any([item is not None for item in [n_bins, bin_size, bin_edges, bin_range]]):
             logger.warning("bins are used - all other bin specifications are ignored.")
     else:
         if (bin_range is None or isinstance(bin_range, str)) and bin_edges is None:
-            bin_range_ = ranges(locdata, loc_properties=loc_properties, special=bin_range)  # type: ignore
-        else:
-            bin_range_ = bin_range  # type: ignore
-
-        try:
-            bins = Bins(
-                bins=bins,
-                n_bins=n_bins,
-                bin_size=bin_size,
-                bin_edges=bin_edges,
-                bin_range=bin_range_,  # type: ignore
-                labels=loc_properties,
-            )
-        except ValueError as exc:
+            if bin_range is not None and bin_range not in ("zero", "link"):
+                raise ValueError(
+                    "`bin_range` must be a range, 'zero', 'link' or None, "
+                    f"got {bin_range!r}."
+                )
+            special = cast(Literal["zero", "link"] | None, bin_range)
+            bin_range_ = _data_bin_range(locdata, loc_properties, special=special)
+        elif isinstance(bin_range, str):
             raise ValueError(
-                "Bin dimension and len of `loc_properties` is incompatible."
-            ) from exc
+                "`bin_range` must be None when `bin_edges` is given, "
+                f"got {bin_range!r}."
+            )
+        else:
+            bin_range_ = bin_range
+        bins = Bins.from_any(
+            n_bins=n_bins,
+            bin_size=bin_size,
+            bin_edges=bin_edges,
+            bin_range=bin_range_,
+        )
+    if bins.dimension != len(loc_properties):
+        raise ValueError(
+            f"The dimension of bins ({bins.dimension}) does not match the number "
+            f"of `loc_properties` ({len(loc_properties)})."
+        )
+    bins = bins.with_labels(loc_properties)
 
     if bins.dimension == 2:
         bin_indices, data_indices, _, counts = _accumulate_2d(
-            data, bin_edges=bins.bin_edges, return_counts=True
+            data, bins=bins, return_counts=True
         )
         assert counts is not None  # type narrowing # noqa: S101
     else:

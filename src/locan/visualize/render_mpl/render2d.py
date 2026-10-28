@@ -21,7 +21,8 @@ from locan import config
 from locan.data import LocData
 from locan.data.locdata_utils import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY
-from locan.process.aggregate import Bins, histogram
+from locan.process.aggregate import histogram
+from locan.process.bins import Bins
 from locan.process.properties import ranges
 from locan.rois.roi import Roi, _MplSelector
 from locan.visualize.colormap import ColormapType, get_colormap
@@ -164,7 +165,7 @@ def render_2d_mpl(
 
     imshow_kwargs: dict[str, Any] = {
         "origin": "lower",
-        "extent": [*bins.bin_range[0], *bins.bin_range[1]],
+        "extent": bins.extent,
         "cmap": get_colormap(colormap=cmap).matplotlib,
         "interpolation": interpolation,
     }
@@ -567,7 +568,7 @@ def render_2d_rgb_mpl(
         )
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
-        bins = Bins(bin_edges=bin_edges, labels=labels)
+        bins = Bins.from_bin_edges(bin_edges, labels=labels)
 
     imgs = [
         histogram(
@@ -594,7 +595,7 @@ def render_2d_rgb_mpl(
 
     imshow_kwargs: dict[str, Any] = {
         "origin": "lower",
-        "extent": [*bins.bin_range[0], *bins.bin_range[1]],
+        "extent": bins.extent,
         "interpolation": interpolation,
     }
     ax.imshow(

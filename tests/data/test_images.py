@@ -47,11 +47,11 @@ class TestImage:
         assert image.meta.file.path == "some/path"
         assert image.meta.creation_time != ""
 
-        bins = Bins(n_bins=(2, 3), bin_range=(10, 100))
+        bins = Bins.from_n_bins((2, 3), (10, 100))
         image.bins = bins
         assert image.bins.n_bins == image.shape
 
-        bins = Bins(n_bins=(2, 4), bin_range=(10, 100))
+        bins = Bins.from_n_bins((2, 4), (10, 100))
         with pytest.raises(ValueError):
             image.bins = bins
 
@@ -85,10 +85,10 @@ class TestImage:
         assert image.shape == (2, 3)
         assert image.meta.identifier == "1"
         with pytest.raises(ValueError):
-            image.bins = Bins(n_bins=(2, 4), bin_range=(10, 100))
+            image.bins = Bins.from_n_bins((2, 4), (10, 100))
 
     def test_image_from_bins(self):
-        bins = Bins(n_bins=(2, 3), bin_range=(10, 100))
+        bins = Bins.from_n_bins((2, 3), (10, 100))
         image = Image.from_bins(bins=bins, meta={"identifier": "1"})
         assert image._image is None
         assert image.data.shape == (2, 3)
@@ -102,7 +102,7 @@ class TestImage:
         with pytest.raises(ValueError):
             image.data = np.array([[1, 2], [4, 5]])
 
-        bins = Bins(n_bins=(2, 3), bin_range=(10, 100))
+        bins = Bins.from_n_bins((2, 3), (10, 100))
         image = Image.from_bins(bins=bins, value=2)
         assert image._image is None
         assert image.data.shape == (2, 3)
@@ -204,7 +204,7 @@ class TestImage:
         assert image.bins is None
         assert image.meta.identifier == "1"
 
-        bins = Bins(n_bins=(2, 3), bin_range=(10, 100))
+        bins = Bins.from_n_bins((2, 3), (10, 100))
         image.bins = bins
         assert image.bins.n_bins == image.shape
 

@@ -19,7 +19,8 @@ from locan import config, locdata_id
 from locan.data import LocData
 from locan.data.locdata_utils import _check_loc_properties
 from locan.dependencies import HAS_DEPENDENCY, needs_package
-from locan.process.aggregate import Bins, histogram
+from locan.process.aggregate import histogram
+from locan.process.bins import Bins
 from locan.visualize.colormap import ColormapType, get_colormap
 from locan.visualize.transform import Trafo, adjust_contrast
 
@@ -393,7 +394,7 @@ def render_2d_rgb_napari(
 
     else:
         labels = _check_loc_properties(locdata_temp, loc_properties)
-        bins = Bins(bin_edges=bin_edges, labels=labels)
+        bins = Bins.from_bin_edges(bin_edges, labels=labels)
 
     imgs = [
         histogram(

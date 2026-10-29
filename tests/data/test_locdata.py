@@ -1,4 +1,5 @@
 import copy
+import pickle
 
 import numpy as np
 import pandas as pd
@@ -258,7 +259,8 @@ def test_LocData_from_selection(df_simple):
     assert sel_empty.data.empty
     assert len(sel_empty) == 0
 
-    sel_empty = LocData.from_selection(locdata=dat, indices=[1, 3])
+    with pytest.warns(FutureWarning, match="not in the referenced LocData"):
+        sel_empty = LocData.from_selection(locdata=dat, indices=[1, 3])
     assert sel_empty.data.empty
     assert len(sel_empty) == 0
 
@@ -503,7 +505,10 @@ def test_LocData_update(df_simple, caplog):
     assert dat.meta.element_count == 4
     assert dat.meta.history[-1].name == "LocData.update"
 
-    sel = LocData.from_selection(locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA)
+    with pytest.warns(FutureWarning, match="not in the referenced LocData"):
+        sel = LocData.from_selection(
+            locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA
+        )
     sel.update(new_dataframe, reset_index=True)
     assert caplog.record_tuples.pop() == (
         "locan.data.locdata",
@@ -515,9 +520,10 @@ def test_LocData_update(df_simple, caplog):
     assert sel.meta.element_count == 4
     assert sel.meta.history[-1].name == "LocData.update"
 
-    sel = LocData.from_selection(
-        locdata=dat, indices=[1, 2, 3, 4], meta=COMMENT_METADATA
-    )
+    with pytest.warns(FutureWarning, match="not in the referenced LocData"):
+        sel = LocData.from_selection(
+            locdata=dat, indices=[1, 2, 3, 4], meta=COMMENT_METADATA
+        )
     sel.update(new_dataframe, reset_index=True)
     assert caplog.record_tuples.pop() == (
         "locan.data.locdata",
@@ -697,9 +703,10 @@ def test_locdata_from_selection_exceptions(
     expected,
 ):
     dat = eval(fixture_name)
-    new_dat = LocData.from_selection(
-        locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA
-    )
+    with pytest.warns(FutureWarning, match="not in the referenced LocData"):
+        new_dat = LocData.from_selection(
+            locdata=dat, indices=[1, 3, 4], meta=COMMENT_METADATA
+        )
     assert len(new_dat) == expected
 
 
@@ -717,19 +724,125 @@ def test_locdata_from_selection_(
     dat = eval(fixture_name)
     sel = LocData.from_selection(locdata=dat, indices=[1, 2, 5], meta=COMMENT_METADATA)
     assert len(sel) == expected
-    assert set(sel.data.index) == set([1, 2, 5])
-    # in coming versions: assert list(sel.data.index) == [2, 1, 5]
+    assert list(sel.data.index) == [1, 2, 5]
     assert sel.references is dat
     assert sel.meta.comment == COMMENT_METADATA.comment
+
+
+def test_locdata_from_selection_keeps_order_of_indices(locdata_non_standard_index):
+    sel = LocData.from_selection(locdata=locdata_non_standard_index, indices=[5, 1, 2])
+    assert list(sel.data.index) == [5, 1, 2]
+    assert np.array_equal(sel.coordinates, [[2, 3], [1, 5], [1, 1]])
+
+    sel = LocData.from_selection(locdata=locdata_non_standard_index, indices=[1, 1, 2])
+    assert list(sel.data.index) == [1, 1, 2]
+    assert len(sel) == sel.meta.element_count == 3
+
+
+def test_locdata_from_selection_with_missing_indices(locdata_non_standard_index):
+    with pytest.warns(FutureWarning, match="not in the referenced LocData"):
+        sel = LocData.from_selection(
+            locdata=locdata_non_standard_index, indices=[5, 99, 1, 1]
+        )
+    assert list(sel.data.index) == [5, 1, 1]
+    assert len(sel) == sel.meta.element_count == 3
+
+
+def test_locdata_from_selection_with_single_index(locdata_non_standard_index):
+    sel = LocData.from_selection(locdata=locdata_non_standard_index, indices=2)
+    assert list(sel.data.index) == [2]
+    assert sel.coordinate_keys == ["position_x", "position_y"]
+    assert np.array_equal(sel.centroid, [1, 1])
+
+
+def test_locdata_from_selection_selects_all_by_default(locdata_non_standard_index):
+    sel = LocData.from_selection(locdata=locdata_non_standard_index)
+    assert list(sel.data.index) == [2, 1, 5, 10, 100, 200]
+
+
+def test_locdata_selection_is_computed_once(locdata_2d, monkeypatch):
+    selected = []
+    select = LocData._select
+
+    def spy(self, reference):
+        selected.append(self)
+        return select(self, reference=reference)
+
+    monkeypatch.setattr(LocData, "_select", spy)
+
+    sel = LocData.from_selection(locdata=locdata_2d, indices=[4, 1, 3])
+    assert len(sel) == 3
+    sel.data  # noqa: B018
+    sel.coordinates  # noqa: B018
+    sel.centroid  # noqa: B018
+    sel.uncertainty_keys  # noqa: B018
+    sel.convex_hull  # noqa: B018
+    assert selected == [sel]
+
+    sel_sel = LocData.from_selection(locdata=sel, indices=[1, 3])
+    assert len(sel_sel) == 2
+    assert selected == [sel, sel_sel]
+
+    sel.reset()
+    assert len(selected) == 3
+
+    sel.indices = [1, 3]
+    assert len(sel) == 2
+    assert len(selected) == 4
+
+    sel.dataframe = pd.DataFrame({"new": [10, 30]}, index=[1, 3])
+    assert list(sel.data["new"]) == [10, 30]
+    assert len(selected) == 5
+
+    sel.dataframe["other"] = [0, 0]
+    assert "other" in sel.data.columns
+    assert len(selected) == 6
+
+
+def test_locdata_selection_is_snapshot_until_reset(df_simple):
+    dat = LocData.from_dataframe(dataframe=df_simple)
+    sel = LocData.from_selection(locdata=dat, indices=[3, 1])
+    dat.dataframe = dat.dataframe.assign(new=np.arange(5))
+    assert "new" not in sel.data.columns
+
+    sel.reset()
+    assert list(sel.data["new"]) == [3, 1]
+
+
+def test_locdata_selection_data_is_a_copy(df_simple):
+    dat = LocData.from_dataframe(dataframe=df_simple)
+    sel = LocData.from_selection(locdata=dat, indices=[3, 1])
+    data = sel.data
+    data.loc[3, "position_x"] = -1
+    assert sel.data.loc[3, "position_x"] == 4
+    assert dat.data.loc[3, "position_x"] == 4
+
+
+def test_locdata_selection_joins_own_dataframe(df_simple):
+    dat = LocData.from_dataframe(dataframe=df_simple)
+    sel = LocData.from_selection(locdata=dat, indices=[3, 1])
+    sel.dataframe = pd.DataFrame({"new": [10, 30, 40]}, index=[1, 3, 4])
+    assert list(sel.data.index) == [3, 1]
+    assert list(sel.data["new"]) == [30, 10]
+    assert sel.data["position_x"].dtype == df_simple["position_x"].dtype
+
+
+def test_locdata_selection_pickle(df_simple):
+    dat = LocData.from_dataframe(dataframe=df_simple)
+    sel = LocData.from_selection(locdata=dat, indices=[3, 1])
+    assert "_selection_cache" not in sel.__getstate__()
+    new_sel = pickle.loads(pickle.dumps(sel))  # noqa: S301
+    pd.testing.assert_frame_equal(new_sel.data, sel.data)
 
 
 def test_locdata_from_chunks_(locdata_non_standard_index):
     with pytest.raises(ValueError):
         chunk_collection = LocData.from_chunks(locdata=locdata_non_standard_index)
 
-    chunk_collection = LocData.from_chunks(
-        locdata=locdata_non_standard_index, chunks=((2, 1), (0, 3))
-    )
+    with pytest.warns(FutureWarning, match="not in the referenced LocData"):
+        chunk_collection = LocData.from_chunks(
+            locdata=locdata_non_standard_index, chunks=((2, 1), (0, 3))
+        )
     assert all(chunk_collection.references[0].data.sort_index().index == [1, 2])
 
     chunk_collection = LocData.from_chunks(

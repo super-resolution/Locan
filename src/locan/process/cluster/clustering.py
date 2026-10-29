@@ -352,8 +352,11 @@ def cluster_by_bin(
             if mask_e
         ]
 
+    # data_indices are positions, from_selection takes index labels
+    index = locdata.data.index
     selections = [
-        LocData.from_selection(locdata=locdata, indices=idxs) for idxs in data_indices
+        LocData.from_selection(locdata=locdata, indices=index[idxs])
+        for idxs in data_indices
     ]
     collection = LocData.from_collection(selections)
 

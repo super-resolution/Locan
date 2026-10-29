@@ -47,6 +47,11 @@ class BenchmarkLocDataFromSelection:
             locdata=self.locdata, indices=self.selection_indices[0].tolist()
         )
 
+    def time_locdata_selection_access(self):
+        len(self.selection)
+        self.selection.coordinates  # noqa: B018
+        self.selection.centroid  # noqa: B018
+
     def time_locdata_collection(self):
         lc.LocData.from_collection(locdatas=self.locdatas)
 

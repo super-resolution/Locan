@@ -80,7 +80,7 @@ def cluster_hdbscan(
         locdata_noise = LocData()
         collection = LocData()
 
-    if len(locdata) < min_cluster_size:
+    elif len(locdata) < min_cluster_size:
         locdata_noise = copy(locdata)
         collection = LocData()
 

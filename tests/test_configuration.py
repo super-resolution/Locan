@@ -1,3 +1,5 @@
+import os
+
 from locan import HAS_DEPENDENCY, QT_BINDING, QtBindings, config
 from locan.configuration import (
     Colormaps,
@@ -87,11 +89,6 @@ def test_locan_config():
     assert config.tqdm
     assert config.qt_binding or config.qt_binding == ""
 
-    import os
-
-    print("\nQT_BINDING: ", config.qt_binding)
-    print("QT_API", os.environ.get("QT_API", ""))
-
 
 def test_qt_bindings():
     assert "qt" in HAS_DEPENDENCY
@@ -101,3 +98,4 @@ def test_qt_bindings():
         from qtpy import QT_VERSION  # type: ignore [missing-import]
 
         assert QT_VERSION is not None
+        assert os.environ.get("QT_API", "") == config.qt_binding

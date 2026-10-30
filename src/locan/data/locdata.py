@@ -129,6 +129,8 @@ class LocData:
         ) = indices
         self.meta: metadata_pb2.Metadata = metadata_pb2.Metadata()
         self.properties: dict[str, Any] = {}
+        # selection data and the objects it was computed from, see `_data`
+        self._selection_cache: tuple[tuple[object, ...], pd.DataFrame] | None = None
 
         # regions and hulls
         self._region: Region | None = None
@@ -153,26 +155,23 @@ class LocData:
         self.meta.source = metadata_pb2.DESIGN
         self.meta.state = metadata_pb2.RAW
 
-        self.meta.element_count = len(self.data.index)
-        if "frame" in self.data.columns:
-            self.meta.frame_count = len(self.data["frame"].unique())
+        data = self._data
+        self.meta.element_count = len(data.index)
+        if "frame" in data.columns:
+            self.meta.frame_count = len(data["frame"].unique())
 
         self.meta = merge_metadata(metadata=self.meta, other_metadata=meta)
 
     @property
     def coordinate_keys(self) -> list[str]:
-        return [
-            label_
-            for label_ in PropertyKey.coordinate_keys()
-            if label_ in self.data.columns
-        ]
+        columns = self._data.columns
+        return [label_ for label_ in PropertyKey.coordinate_keys() if label_ in columns]
 
     @property
     def uncertainty_keys(self) -> list[str]:
+        columns = self._data.columns
         return [
-            label_
-            for label_ in PropertyKey.uncertainty_keys()
-            if label_ in self.data.columns
+            label_ for label_ in PropertyKey.uncertainty_keys() if label_ in columns
         ]
 
     def _update_properties(
@@ -200,7 +199,8 @@ class LocData:
         Self
         """
         self.properties = dict()
-        self.properties["localization_count"] = len(self.data.index)
+        data = self._data
+        self.properties["localization_count"] = len(data.index)
 
         properties_for_update = [
             loc_property_
@@ -210,7 +210,7 @@ class LocData:
                 "intensity",
                 "local_background",
             ]
-            if loc_property_ in self.data.columns
+            if loc_property_ in data.columns
         ]
 
         if update_function is not None:
@@ -222,20 +222,20 @@ class LocData:
 
         # localization coordinates
         if all(c_label_ in properties_for_update for c_label_ in self.coordinate_keys):
-            self.properties.update(_get_linked_coordinates(locdata=self.data))
+            self.properties.update(_get_linked_coordinates(locdata=data))
 
         if "intensity" in properties_for_update:
-            self.properties["intensity"] = np.sum(self.data["intensity"])
+            self.properties["intensity"] = np.sum(data["intensity"])
 
         if "local_background" in properties_for_update:
-            self.properties["local_background"] = np.mean(self.data["local_background"])
+            self.properties["local_background"] = np.mean(data["local_background"])
 
         if "frame" in properties_for_update:
-            self.properties["frame"] = np.min(self.data["frame"])
+            self.properties["frame"] = np.min(data["frame"])
 
         if update_function is not None:
             for loc_property_, function_ in update_function.items():
-                self.properties[loc_property_] = function_(self.data[loc_property_])
+                self.properties[loc_property_] = function_(data[loc_property_])
 
         self.bounding_box  # update self._bounding_box  # noqa B018
         return self
@@ -249,12 +249,14 @@ class LocData:
         Return the length of data, i.e. the number of elements
         (localizations or collection elements).
         """
-        return len(self.data.index)
+        return len(self._data.index)
 
     def __getstate__(self) -> dict[str, Any]:
         """Modify pickling behavior."""
         # Copy the object's state from self.__dict__ to avoid modifying the original state.
         state = self.__dict__.copy()
+        # A selection is computed again from references and indices.
+        state.pop("_selection_cache", None)
         # Serialize the unpicklable protobuf entries.
         json_string = json_format.MessageToJson(
             self.meta, always_print_fields_with_no_presence=False
@@ -266,6 +268,8 @@ class LocData:
         """Modify pickling behavior."""
         # Restore instance attributes.
         self.__dict__.update(state)
+        # pickles from earlier versions carry no cache attribute
+        self._selection_cache = None
         # Restore protobuf class for meta attribute
         self.meta = metadata_pb2.Metadata()
         self.meta = json_format.Parse(state["meta"], self.meta)
@@ -600,30 +604,94 @@ class LocData:
         """
         pandas.DataFrame: Return all elements either copied from the reference
         or referencing the current dataframe.
+
+        For a selection, the rows of `references` are taken in the order of
+        `indices` and joined with the columns of `dataframe`.
+        The selection is computed once and cached;
+        call :meth:`reset` after modifying the referenced data.
         """
         if isinstance(self.references, LocData):
-            # we refer to the localization data by its index label, not position
-            # in other words we decided not to use iloc but loc
-            # df = self.references.data.loc[self.indices]  ... but this does not work in pandas.
-            # also see:
-            # https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#deprecate-loc-reindex-listlike
-            try:
-                df: pd.DataFrame = self.references.data.loc[self.indices]  # type: ignore [index, assignment]
-            except KeyError:
-                df = self.references.data.loc[
-                    self.references.data.index.intersection(self.indices)  # type: ignore [index, arg-type]
-                ]
-            df = pd.merge(
-                df, self.dataframe, left_index=True, right_index=True, how="outer"
-            )
-            return df
+            # copy-on-write keeps the cached selection unchanged when the
+            # returned frame is modified
+            return self._data.copy(deep=False)
         else:
             return self.dataframe
 
     @property
+    def _data(self) -> pd.DataFrame:
+        """
+        pandas.DataFrame: Return `data` without copying a cached selection;
+        for read access within LocData.
+        """
+        if not isinstance(self.references, LocData):
+            return self.dataframe
+        # in-place changes of rows or columns replace the index objects
+        key = (
+            self.references,
+            self.indices,
+            self.dataframe,
+            self.dataframe.index,
+            self.dataframe.columns,
+        )
+        cache = self._selection_cache
+        if cache is None or any(
+            item is not cached_item for item, cached_item in zip(key, cache[0])
+        ):
+            cache = (key, self._select(reference=self.references))
+            self._selection_cache = cache
+        return cache[1]
+
+    def _select(self, reference: LocData) -> pd.DataFrame:
+        """
+        Compute the data of a selection.
+
+        Parameters
+        ----------
+        reference
+            The referenced LocData object.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Rows of `reference` selected by the index labels in `indices`,
+            in the order of `indices`, joined with the columns of
+            `dataframe`.
+        """
+        # we refer to the localization data by its index label, not position
+        reference_data = reference._data
+        indices: slice | npt.NDArray[Any]
+        if self.indices is None:
+            indices = slice(None)
+        elif isinstance(self.indices, slice):
+            indices = self.indices
+        else:
+            # a single label selects one row instead of returning a Series
+            indices = np.atleast_1d(self.indices)
+
+        try:
+            data = reference_data.loc[indices]
+        except KeyError:
+            if isinstance(indices, slice):
+                raise
+            warnings.warn(
+                "Indices that are not in the referenced LocData are ignored. "
+                "In a future version this will raise a KeyError.",
+                FutureWarning,
+                stacklevel=1,
+            )
+            labels = pd.Index(indices)
+            data = reference_data.loc[labels[labels.isin(reference_data.index)]]
+
+        if len(self.dataframe.columns):
+            data = pd.merge(
+                data, self.dataframe, left_index=True, right_index=True, how="left"
+            )
+        return data
+
+    @property
     def coordinates(self) -> npt.NDArray[np.float64]:
         """npt.NDArray[float]: Return all coordinate values."""
-        return_value: npt.NDArray[np.float64] = self.data[self.coordinate_keys].values
+        return_value: npt.NDArray[np.float64] = self._data[self.coordinate_keys].values
         return return_value
 
     @property
@@ -785,6 +853,7 @@ class LocData:
             Note that contrary to usual python slices, both the start and the
             stop are included (see pandas documentation).
             `Indices` refer to index value not position in list.
+            If None, all elements are selected.
         meta
             Metadata about the current dataset and its history.
 
@@ -796,11 +865,14 @@ class LocData:
 
         Note
         ----
-        No error is raised if indices do not exist in locdata.
+        The selected elements keep the order of `indices`; a repeated label
+        selects the element repeatedly.
+        Indices that do not exist in locdata are ignored. This is deprecated
+        and will raise a KeyError in a future version.
         """
         references = locdata
         if indices is None:
-            indices = slice(0, None)
+            indices = slice(None)
 
         meta_ = metadata_pb2.Metadata()
         meta_.CopyFrom(locdata.meta)
@@ -1051,6 +1123,8 @@ class LocData:
         """
         Reset hulls and properties. This is needed after the dataframe
         attribute has been modified in place.
+        A selection takes its data anew from `references`, which is needed
+        after the referenced data has been modified.
 
         Note
         ----
@@ -1074,6 +1148,7 @@ class LocData:
             self.dataframe.reset_index(drop=True, inplace=True)
 
         self.properties = {}
+        self._selection_cache = None
         self._bounding_box = None
         self._oriented_bounding_box = None
         self._convex_hull = None
@@ -1175,6 +1250,7 @@ class LocData:
             self.dataframe = self.data
             self.indices = None
             self.references = None
+            self._selection_cache = None
         else:
             raise ValueError("references has undefined value.")
 

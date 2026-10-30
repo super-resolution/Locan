@@ -258,3 +258,17 @@ def test_cluster_by_bin(locdata_2d):
     assert np.array_equal(bin_indices, [[1, 1]])
     assert len(bin_indices) == len(collection)
     assert np.array_equal(counts, [6])
+
+
+def test_cluster_by_bin_with_non_standard_index(locdata_2d, locdata_non_standard_index):
+    _, bin_indices, collection, _ = cluster_by_bin(
+        locdata_2d, loc_properties=["position_x", "position_y"], bin_size=5
+    )
+    _, bin_indices_, collection_, _ = cluster_by_bin(
+        locdata_non_standard_index,
+        loc_properties=["position_x", "position_y"],
+        bin_size=5,
+    )
+    assert np.array_equal(bin_indices_, bin_indices)
+    for reference, reference_ in zip(collection.references, collection_.references):
+        assert np.array_equal(reference_.coordinates, reference.coordinates)

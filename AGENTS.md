@@ -35,14 +35,14 @@ uv sync --extra all --extra pyside6       # full dev env: dev group + all option
 uv run pytest                             # extended suite (gui/visual tests deselected by default)
 uv run pytest tests/analysis/test_drift.py::test_drift   # single test — prefer while iterating
 uv run pytest -x --lf                     # stop on first failure, rerun last failures
-uv run pytest -m "not slow and not gui and not visual"   # skip slow tests (-m replaces the default selection)
+uv run pytest -m "not slow and not gui and not visual and not network"   # skip slow tests (-m replaces the default selection)
 uv run pytest -m network tests/test_datasets.py          # dataset downloads (deselected by default)
 uv run coverage run -m pytest && uv run coverage report   # local coverage (CI requires >= 90 %)
 uv run ruff check --fix .                 # lint + autofix (incl. import sorting)
 uv run black .                            # format (also code cells in notebooks: black[jupyter])
 uv run pyrefly check                      # type check
 uv run pre-commit run --all-files         # what the git hooks would run
-uv sync --group docs && uv run sphinx-build -b html docs docs/_build/html   # docs (slow: executes all notebooks)
+uv sync --group docs --extra all --extra pyside6 && uv run sphinx-build -b html docs docs/_build/html   # docs (slow: executes all notebooks)
 ```
 
 ## Definition of done

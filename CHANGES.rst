@@ -36,6 +36,12 @@ API Changes
   counted; bins are documented as half-open intervals
 - ``register_cc`` scales the offset with the bin size of the bins that were
   actually used and requires equally sized bins
+- ``LocData`` selections compute ``data`` once, with rows in the order of ``indices``,
+  and cache it; call ``reset()`` on a selection after modifying the referenced data
+- ``LocData.from_selection``: indices that are not in ``locdata`` are deprecated
+  (``FutureWarning``) and will raise a ``KeyError`` in a future version
+- columns in the ``dataframe`` of a selection are joined to the selected rows only;
+  rows for other index labels are no longer appended
 
 Bug Fixes
 ---------
@@ -57,6 +63,11 @@ Bug Fixes
 - fix: ``Bins.equalize_bin_size`` dropped ``labels``
 - fix: ``histogram`` replaced every ``ValueError`` from the bin specification by a
   misleading dimension-mismatch message
+- fix: ``LocData.from_selection`` keeps the order and duplicates of ``indices``
+  instead of sorting by index, selects a single row for a scalar index and selects
+  all rows by default also for a non-monotonic index
+- fix: ``cluster_by_bin`` and ``select_by_image_mask`` select localizations by index
+  label instead of row position
 
 Other Changes and Additions
 ---------------------------
@@ -75,6 +86,8 @@ Other Changes and Additions
 - Read the Docs: install the ``docs`` dependency group and the ``all``/``pyside6``
   extras straight from ``pyproject.toml`` (the stale ``docs/requirements_rtd.txt``
   freeze is removed)
+- building a ``LocData`` selection is about 10 times faster; ``len``,
+  ``coordinates``, ``coordinate_keys`` and ``centroid`` no longer recompute it
 
 0.22 - 2026-10-17
 =================

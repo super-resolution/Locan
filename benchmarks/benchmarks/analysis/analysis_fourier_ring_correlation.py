@@ -1,5 +1,8 @@
 """
 Benchmark functions for :mod:`locan.analysis.fourier_ring_correlation`
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      100    0.002    0.000    0.768    0.008
 """
 
 import locan as lc

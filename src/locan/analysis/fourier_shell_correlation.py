@@ -37,6 +37,7 @@ if TYPE_CHECKING:
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
+from scipy.fft import fftshift, next_fast_len, rfftn
 
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
@@ -158,14 +159,16 @@ def compute_fourier_shell_correlation(
     shape = image.shape
 
     # compute fourier transform:
-    F1 = np.fft.fftshift(np.fft.fftn(image))
-    F2 = np.fft.fftshift(np.fft.fftn(other_image))
+    n_optimal = [next_fast_len(n_pixel_, real=True) for n_pixel_ in shape]
+
+    F1 = fftshift(rfftn(image, s=n_optimal), axes=[0, 1])
+    F2 = fftshift(rfftn(other_image, s=n_optimal), axes=[0, 1])
 
     # create image with values reflecting the distance from pixel to image center (r) in units of pixel
-    nz, ny, nx = shape
+    nz, ny, nx = F1.shape
     z = np.arange(nz) - nz // 2
     y = np.arange(ny) - ny // 2
-    x = np.arange(nx) - nx // 2
+    x = np.arange(nx)
     Z, Y, X = np.meshgrid(z, y, x, indexing="ij")
     r = np.sqrt(X**2 + Y**2 + Z**2)
 

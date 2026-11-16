@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt  # this import is needed for visual inspection
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 
 import locan as lc
 from locan import (
@@ -194,6 +195,36 @@ class Test_compute_fourier_shell_correlation:
         )
         assert result.frequency.shape == (7,)
         assert result.correlation.shape == (7,)
+        assert_allclose(
+            result.frequency,
+            np.array(
+                [
+                    0.00025316,
+                    0.00050633,
+                    0.00075949,
+                    0.00101266,
+                    0.00126582,
+                    0.00151899,
+                    0.00177215,
+                ]
+            ),
+            rtol=1e-01,
+        )
+        assert_allclose(
+            result.correlation,
+            np.array(
+                [
+                    0.99776086,
+                    0.99016957,
+                    0.98659288,
+                    0.98252072,
+                    0.97354282,
+                    0.94400859,
+                    0.93540058,
+                ]
+            ),
+            rtol=1e-01,
+        )
 
     @pytest.mark.visual
     def test_compute_fourier_shell_correlation_visual_(self, clathrin_3d):

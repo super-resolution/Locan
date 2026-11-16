@@ -2,12 +2,11 @@
 Benchmark functions for :mod:`locan.analysis.localization_precision`
 """
 
-from pathlib import Path
-
 import locan as lc
 from locan.analysis.localization_precision import (
     _localization_precision,
 )
+from tests import TEST_DIR
 
 
 class BenchmarkLocalizationPrecision:
@@ -16,7 +15,7 @@ class BenchmarkLocalizationPrecision:
     """
 
     def setup(self):
-        path = Path(__file__).parents[2] / "tests/test_data/five_blobs.txt"
+        path = TEST_DIR / "test_data/five_blobs.txt"
         self.locdata = lc.load_txt_file(path)
         print(self.locdata.data.info())
 

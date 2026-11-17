@@ -1,15 +1,11 @@
 """
 Benchmark functions for :mod:`locan.analysis.fourier_ring_correlation`
-
-   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-      100    0.002    0.000    0.768    0.008
 """
 
 import locan as lc
 from locan.analysis.fourier_ring_correlation import (
     FourierRingCorrelation,
 )
-from tests import TEST_DIR
 
 
 class BenchmarkFourierRingCorrelation:
@@ -18,8 +14,11 @@ class BenchmarkFourierRingCorrelation:
     """
 
     def setup(self):
-        path = TEST_DIR / "test_data/five_blobs.txt"
-        self.locdata = lc.load_txt_file(path)
+        locdata = lc.load_npc()
+        self.locdata = lc.select_by_condition(
+            locdata,
+            condition="4_000 < position_x < 6_000 and 4_000 < position_y < 6_000",
+        )
 
     def check_FourierRingCorrelation(self):
         frc = FourierRingCorrelation().compute(locdata=self.locdata)
@@ -48,7 +47,7 @@ def main_profile():
     profiler = cProfile.Profile()
     profiler.enable()
 
-    for _ in range(100):
+    for _ in range(10):
         bm.time_FourierRingCorrelation()
 
     profiler.disable()

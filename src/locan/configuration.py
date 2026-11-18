@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Any, Self
 
 import tomli_w
-from pydantic import AliasChoices, BaseModel, Field, field_serializer
+from pydantic import AliasChoices, BaseModel, Field, field_serializer, field_validator
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
@@ -236,7 +236,7 @@ class Configuration(BaseSettings, ConfigurationBase):
         Directory where locan tests are stored.
     n_cpus: int
         Maximum number of CPUs used in multiprocessing.
-        If negative, then the number of jobs is set to the number of CPU cores.
+        Must be a positive integer, -1 to use all CPU cores, or -2 to use all CPU cores but one.
         In scikit-learn methods, this setting is passed through to n_jobs.
     colormaps: Colormaps
         Preferred colormap names to be used for visualization.
@@ -257,6 +257,7 @@ class Configuration(BaseSettings, ConfigurationBase):
         toml_file=CONFIGURATION_FILE_HIERARCHY,
         pyproject_toml_table_header=("tool", "locan"),
         pyproject_toml_depth=5,
+        validate_assignment=True,
     )
 
     version: str = "1"
@@ -340,6 +341,16 @@ class Configuration(BaseSettings, ConfigurationBase):
     )
     def serialize_paths(self, value: str) -> str:
         return str(value)
+
+    @field_validator("n_cpus")
+    @classmethod
+    def validate_n_cpus(cls, value: int) -> int:
+        if value == 0 or value < -2:
+            raise ValueError(
+                "n_cpus must be a positive integer, -1 (all CPU cores) or "
+                f"-2 (all CPU cores but one), got {value}."
+            )
+        return value
 
     @classmethod
     def settings_customise_sources(

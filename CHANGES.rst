@@ -91,6 +91,8 @@ Other Changes and Additions
   ``coordinates``, ``coordinate_keys`` and ``centroid`` no longer recompute it
 - refactor Fourier ring/shell correlation with performance gain
 - LocalizationPrecision.compute is vectorised (a single KD-tree query instead of a loop over frames and pairs).
+- locan.config.n_cpus must be a positive integer, -1 (all CPU cores) or -2 (all CPU cores but one); 0 and values below -2 raise a ValidationError
+- locan.config validates settings on assignment
 
 
 0.22 - 2026-10-17

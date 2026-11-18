@@ -14,6 +14,7 @@ from locan.analysis.localization_precision import (
     PairwiseDistance3d,
     PairwiseDistance3dIdenticalSigmaZeroMu,
     _DistributionFits,
+    _localization_precision,
 )
 
 pytestmark = pytest.mark.slow
@@ -102,6 +103,24 @@ def test_PairwiseDistance3dIdenticalSigmaZeroMu():
     assert pdf_values == pytest.approx([0.00000000e00, 1.53891973e-19, 4.41675869e-84])
 
 
+def test__localization_precision(locdata_simple_2d):
+    # print(locdata_simple_2d.data)
+    result = _localization_precision(locdata=locdata_simple_2d, radius=50)
+    for prop in [
+        "position_delta_x",
+        "position_delta_y",
+        "position_distance",
+        "original_index",
+    ]:
+        assert prop in result.columns
+    assert result["frame"].tolist() == [1, 1, 1, 2, 2, 8, 9]
+    assert result["original_index"].tolist() == [0, 1, 2, 3, 4, 7, 8]
+    assert result["position_delta_x"].tolist() == [-3, -2, -1, -2, -1, -1, -1]
+    assert result["position_distance"].tolist() == pytest.approx(
+        np.sqrt(2) * np.array([3, 2, 1, 2, 1, 1, 1])
+    )
+
+
 def test_LocalizationPrecision_empty(caplog):
     lp = LocalizationPrecision().compute(LocData())
     lp.fit_distributions()
@@ -118,9 +137,7 @@ def test_LocalizationPrecision_empty(caplog):
 
 
 def test_Localization_precision(locdata_simple_2d):
-    # print(locdata_simple_2d.data)
     lp = LocalizationPrecision().compute(locdata=locdata_simple_2d)
-    # print(lp.results)
     for prop in [
         "position_delta_x",
         "position_delta_y",

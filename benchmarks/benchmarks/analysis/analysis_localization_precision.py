@@ -6,25 +6,26 @@ import locan as lc
 from locan.analysis.localization_precision import (
     _localization_precision,
 )
-from tests import TEST_DIR
 
 
 class BenchmarkLocalizationPrecision:
     """
-    Benchmarks for Ripley's k function computations
+    Benchmarks for LocalizationPrecision computations
     """
 
     def setup(self):
-        path = TEST_DIR / "test_data/five_blobs.txt"
-        self.locdata = lc.load_txt_file(path)
-        print(self.locdata.data.info())
+        locdata = lc.load_npc()
+        self.locdata = lc.select_by_condition(
+            locdata,
+            condition="4_000 < position_x < 6_000 and 4_000 < position_y < 6_000",
+        )
 
     def check__localization_precision(self):
         results_df = _localization_precision(locdata=self.locdata)
         print(results_df)
 
     def time__localization_precision(self):
-        _localization_precision(locdata=self.locdata)
+        _localization_precision(locdata=self.locdata, n_cpus=1)
 
 
 def main():
@@ -46,7 +47,7 @@ def main_profile():
     profiler = cProfile.Profile()
     profiler.enable()
 
-    for _ in range(3):
+    for _ in range(10):
         bm.time__localization_precision()
 
     profiler.disable()

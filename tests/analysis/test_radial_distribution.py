@@ -14,8 +14,6 @@ from locan import (
 )
 from locan.analysis.radial_distribution import _radial_distribution_function
 
-pytestmark = pytest.mark.slow
-
 
 @pytest.fixture()
 def locdata_simple():
@@ -75,7 +73,8 @@ class TestRadialDistribution:
         pd = PairDistances().compute(locdata_simple)
         rdf = RadialDistribution(bins=10, pair_distances=pd)
         assert (
-            repr(rdf) == "RadialDistribution(bins=10, pair_distances=PairDistances())"
+            repr(rdf)
+            == "RadialDistribution(bins=10, pair_distances=PairDistances(radius=None))"
         )
         rdf.compute(locdata_simple)
         assert rdf.dimension == 2

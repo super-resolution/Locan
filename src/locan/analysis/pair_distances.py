@@ -51,7 +51,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
-from sklearn.metrics.pairwise import pairwise_distances
+from scipy.spatial import KDTree
+from scipy.spatial.distance import cdist, pdist
 
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
@@ -67,15 +68,30 @@ logger = logging.getLogger(__name__)
 def _pair_distances(
     points: npt.ArrayLike, other_points: npt.ArrayLike | None = None
 ) -> npt.NDArray[np.float64]:
-    # todo make use of pairwise_distances_chunked
+    points = np.asarray(points)
+
     if other_points is None:
-        distance_matrix = pairwise_distances(X=points, Y=points)
-        distances = np.concat(
-            [distance_matrix[i_, i_ + 1 :] for i_ in range(distance_matrix.shape[0])]
-        )
+        distances = pdist(points)
     else:
-        distance_matrix = pairwise_distances(X=points, Y=other_points)
-        distances = distance_matrix.reshape(-1)
+        other_points = np.asarray(other_points)
+        distances = cdist(points, other_points).reshape(-1)
+
+    return distances  # type: ignore[no-any-return]
+
+
+def _pair_distances_in_radius(
+    tree: KDTree, radius: float, other_tree: KDTree | None = None
+) -> npt.NDArray[np.float64]:
+    if other_tree is None:
+        distance_array = tree.sparse_distance_matrix(
+            tree, max_distance=radius, output_type="coo_array"
+        )
+        mask = distance_array.coords[0] < distance_array.coords[1]
+        distances = distance_array.data[mask]
+    else:
+        distances = tree.sparse_distance_matrix(
+            other_tree, max_distance=radius, output_type="coo_array"
+        ).data
 
     return distances  # type: ignore[no-any-return]
 
@@ -94,6 +110,8 @@ class PairDistances(_Analysis):
     ----------
     meta : locan.analysis.metadata_analysis_pb2.AMetadata
         Metadata about the current analysis routine.
+    radius : float | None
+        Upper limit for pairwise distance - applying a kdtree-search. If none, no upper limit is provided.
 
     Attributes
     ----------
@@ -109,7 +127,11 @@ class PairDistances(_Analysis):
 
     count = 0
 
-    def __init__(self, meta: metadata_analysis_pb2.AMetadata | None = None) -> None:
+    def __init__(
+        self,
+        meta: metadata_analysis_pb2.AMetadata | None = None,
+        radius: float | None = None,
+    ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)
         self.dimension: int | None = None
@@ -138,7 +160,13 @@ class PairDistances(_Analysis):
 
         if other_locdata is None:
             points = locdata.coordinates
-            distances = _pair_distances(points=points)
+            if self.parameter["radius"] is None:
+                distances = _pair_distances(points=points)
+            else:
+                tree = KDTree(points)
+                distances = _pair_distances_in_radius(
+                    tree=tree, radius=self.parameter["radius"]
+                )
 
         else:
             # check dimensions
@@ -150,6 +178,15 @@ class PairDistances(_Analysis):
             points = locdata.coordinates
             other_points = other_locdata.coordinates
             distances = _pair_distances(points=points, other_points=other_points)
+
+            if self.parameter["radius"] is None:
+                distances = _pair_distances(points=points, other_points=other_points)
+            else:
+                tree = KDTree(points)
+                other_tree = KDTree(other_points)
+                distances = _pair_distances_in_radius(
+                    tree=tree, other_tree=other_tree, radius=self.parameter["radius"]
+                )
 
         self.results = pd.DataFrame({"pair_distance": distances})
         return self

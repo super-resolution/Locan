@@ -40,7 +40,7 @@ class TestPairDistances:
 
     def test_PairDistances(self, locdata_simple):
         pd = PairDistances()
-        assert repr(pd) == "PairDistances()"
+        assert repr(pd) == "PairDistances(radius=None)"
         pd.compute(locdata_simple)
         assert pd.dimension == 2
         # print(pd.results)
@@ -52,13 +52,33 @@ class TestPairDistances:
 
         plt.close("all")
 
+    def test_PairDistances_in_radius(self, locdata_simple):
+        pd = PairDistances(radius=4)
+        assert repr(pd) == "PairDistances(radius=4)"
+        pd.compute(locdata_simple)
+        assert pd.dimension == 2
+        # print(pd.results)
+        assert len(pd.results) == 5
+        assert all(pd.results.columns == ["pair_distance"])
+        assert pd.results["pair_distance"].iloc[0] == 1
+        pd.hist(bins=10)
+        # plt.show()
+
+        plt.close("all")
+
     def test_PairDistances_other(self, locdata_simple, other_locdata_simple):
         pd = PairDistances().compute(locdata_simple, other_locdata=other_locdata_simple)
         assert len(pd.results) == 10
 
+    def test_PairDistances_other_in_radius(self, locdata_simple, other_locdata_simple):
+        pd = PairDistances(radius=11).compute(
+            locdata_simple, other_locdata=other_locdata_simple
+        )
+        assert len(pd.results) == 3
+
     def test_PairDistances_3D(self, locdata_3d):
         pd = PairDistances()
-        assert repr(pd) == "PairDistances()"
+        assert repr(pd) == "PairDistances(radius=None)"
         pd.compute(locdata_3d)
         assert pd.dimension == 3
         # print(pd.results)

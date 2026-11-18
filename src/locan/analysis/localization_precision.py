@@ -43,8 +43,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from scipy import stats
-from sklearn.neighbors import NearestNeighbors
-from tqdm import tqdm
+from scipy.spatial import KDTree
 
 from locan import config
 from locan.analysis import metadata_analysis_pb2
@@ -58,55 +57,43 @@ logger = logging.getLogger(__name__)
 # The algorithms
 
 
-def _localization_precision(locdata: LocData, radius: int | float = 50) -> pd.DataFrame:
-    # group localizations
-    grouped = locdata.data.groupby("frame")
+def _localization_precision(
+    locdata: LocData, radius: int | float = 50, n_cpus: int | None = None
+) -> pd.DataFrame:
+    n_cpus = n_cpus if n_cpus is not None else config.n_cpus
+    data = locdata.data
+    coordinate_keys = locdata.coordinate_keys
+    coordinates = data[coordinate_keys].to_numpy()
+    frames = data["frame"].to_numpy()
 
-    # find nearest neighbors
-    min = locdata.data["frame"].unique().min()
-    max = locdata.data["frame"].unique().max()
+    # The frame is an additional tree axis with a spacing larger than radius.
+    # A localization shifted by one frame along that axis lies in the plane of
+    # the successive frame, and all other frames are out of reach.
+    frame_positions = frames.astype(np.float64)
+    frame_spacing = 2 * radius + 1
+    tree = KDTree(np.column_stack([coordinates, frame_positions * frame_spacing]))
+    distances, indices = tree.query(
+        np.column_stack([coordinates, (frame_positions + 1) * frame_spacing]),
+        k=1,
+        # the bound of KDTree.query is exclusive, radius is inclusive
+        distance_upper_bound=np.nextafter(radius, np.inf),
+        workers=n_cpus,
+    )
 
-    results = pd.DataFrame()
+    points = np.flatnonzero(np.isfinite(distances))
+    if not len(points):
+        return pd.DataFrame()
+    points = points[np.argsort(frames[points], kind="stable")]
 
-    for i in tqdm(
-        range(min, max - 1),
-        desc="Processed frames:",
-        leave=config.tqdm.leave,
-        disable=config.tqdm.disable,
-    ):
-        try:
-            points = grouped.get_group(i)[locdata.coordinate_keys]
-            other_points = grouped.get_group(i + 1)[locdata.coordinate_keys]
-
-            nn = NearestNeighbors(
-                radius=radius, metric="euclidean", n_jobs=config.n_cpus
-            ).fit(other_points)
-            distances, indices = nn.radius_neighbors(points)
-
-            if len(distances):
-                for n, (dists, inds) in enumerate(zip(distances, indices)):
-                    if len(dists):
-                        min_distance = np.amin(dists)
-                        min_position = np.argmin(dists)
-                        min_index = inds[min_position]
-                        difference = points.iloc[n] - other_points.iloc[min_index]
-
-                        df = difference.to_frame().T
-                        df = df.rename(
-                            columns={
-                                "position_x": "position_delta_x",
-                                "position_y": "position_delta_y",
-                                "position_z": "position_delta_z",
-                            }
-                        )
-                        df = df.assign(position_distance=min_distance)
-                        df = df.assign(original_index=points.index[n])
-                        df = df.assign(frame=i)
-                        results = pd.concat([results, df])
-        except KeyError:
-            pass
-
-    results.reset_index(inplace=True, drop=True)
+    results = pd.DataFrame(
+        coordinates[points] - coordinates[indices[points]],
+        columns=[
+            key.replace("position_", "position_delta_") for key in coordinate_keys
+        ],
+    )
+    results["position_distance"] = distances[points]
+    results["original_index"] = data.index.to_numpy()[points]
+    results["frame"] = frames[points].astype(np.int64)
     return results
 
 
@@ -123,6 +110,8 @@ class LocalizationPrecision(_Analysis):
         Metadata about the current analysis routine.
     radius : int | float
         Search radius for nearest-neighbor searches.
+    n_cpus: int | None = None
+        Number of CPUs to use for parallelization. If None, locan.config.n_cpus is used.
 
     Attributes
     ----------
@@ -142,6 +131,7 @@ class LocalizationPrecision(_Analysis):
         self,
         meta: metadata_analysis_pb2.AMetadata | None = None,
         radius: int | float = 50,
+        n_cpus: int | None = None,
     ) -> None:
         parameters = self._get_parameters(locals())
         super().__init__(**parameters)

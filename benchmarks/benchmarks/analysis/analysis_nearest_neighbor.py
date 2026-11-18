@@ -2,12 +2,11 @@
 Benchmark functions for :mod:`locan.analysis.nearest_neighbor`
 """
 
-from pathlib import Path
-
 import locan as lc
 from locan.analysis.nearest_neighbor import (
     _nearest_neighbor_distances,
 )
+from tests import TEST_DIR
 
 
 class BenchmarkNearestNeighborDistances:
@@ -16,7 +15,7 @@ class BenchmarkNearestNeighborDistances:
     """
 
     def setup(self):
-        path = Path(__file__).parents[2] / "tests/test_data/five_blobs.txt"
+        path = TEST_DIR / "test_data/five_blobs.txt"
         self.locdata = lc.load_txt_file(path)
         print(self.locdata.data.info())
 

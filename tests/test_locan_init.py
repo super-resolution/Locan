@@ -9,6 +9,7 @@ import locan
 from locan.__main__ import main
 
 
+@pytest.mark.slow
 def test_import_emits_no_locan_deprecation_warnings():
     # A fresh interpreter is needed: import-time warnings fire only once.
     # Only warnings attributed to locan modules are turned into errors.

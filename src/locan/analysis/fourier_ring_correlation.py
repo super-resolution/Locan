@@ -37,6 +37,7 @@ if TYPE_CHECKING:
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
+from scipy.fft import fftshift, next_fast_len, rfft2
 
 from locan.analysis import metadata_analysis_pb2
 from locan.analysis.analysis_base import _Analysis
@@ -154,13 +155,15 @@ def compute_fourier_ring_correlation(
     shape = image.shape
 
     # compute fourier transform:
-    F1 = np.fft.fftshift(np.fft.fftn(image))
-    F2 = np.fft.fftshift(np.fft.fftn(other_image))
+    n_optimal = [next_fast_len(n_pixel_, real=True) for n_pixel_ in shape]
+
+    F1 = fftshift(rfft2(image, s=n_optimal), axes=0)
+    F2 = fftshift(rfft2(other_image, s=n_optimal), axes=0)
 
     # create image with values reflecting the distance from pixel to image center (r) in units of pixel
-    ny, nx = shape
+    ny, nx = F1.shape
     y = np.arange(ny) - ny // 2
-    x = np.arange(nx) - nx // 2
+    x = np.arange(nx)
     Y, X = np.meshgrid(y, x, indexing="ij")
     r = np.sqrt(X**2 + Y**2)
 

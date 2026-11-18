@@ -187,7 +187,6 @@ def inertia_moments(points: npt.ArrayLike) -> InertiaMoments:
     points = np.asarray(points)
     covariance_matrix = np.cov(points.T)
     eigen_values, eigen_vectors = np.linalg.eig(covariance_matrix)
-    print(np.real_if_close(eigen_vectors))
     variance_explained = [
         eigen_value / sum(eigen_values) for eigen_value in eigen_values
     ]

@@ -68,6 +68,7 @@ Bug Fixes
   all rows by default also for a non-monotonic index
 - fix: ``cluster_by_bin`` and ``select_by_image_mask`` select localizations by index
   label instead of row position
+- fix: LocalizationPrecision.compute includes the last pair of successive frames.
 
 Other Changes and Additions
 ---------------------------
@@ -88,6 +89,11 @@ Other Changes and Additions
   freeze is removed)
 - building a ``LocData`` selection is about 10 times faster; ``len``,
   ``coordinates``, ``coordinate_keys`` and ``centroid`` no longer recompute it
+- refactor Fourier ring/shell correlation with performance gain
+- LocalizationPrecision.compute is vectorised (a single KD-tree query instead of a loop over frames and pairs).
+- locan.config.n_cpus must be a positive integer, -1 (all CPU cores) or -2 (all CPU cores but one); 0 and values below -2 raise a ValidationError
+- locan.config validates settings on assignment
+
 
 0.22 - 2026-10-17
 =================

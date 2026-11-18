@@ -88,6 +88,7 @@ Other Changes and Additions
   freeze is removed)
 - building a ``LocData`` selection is about 10 times faster; ``len``,
   ``coordinates``, ``coordinate_keys`` and ``centroid`` no longer recompute it
+- refactor Fourier ring/shell correlation with performance gain
 
 0.22 - 2026-10-17
 =================
